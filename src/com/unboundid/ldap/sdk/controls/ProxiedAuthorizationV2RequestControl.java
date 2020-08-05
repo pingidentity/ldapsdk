@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -124,7 +125,7 @@ public final class ProxiedAuthorizationV2RequestControl
    * The OID (2.16.840.1.113730.3.4.18) for the proxied authorization v2 request
    * control.
    */
-  public static final String PROXIED_AUTHORIZATION_V2_REQUEST_OID =
+  @NotNull public static final String PROXIED_AUTHORIZATION_V2_REQUEST_OID =
        "2.16.840.1.113730.3.4.18";
 
 
@@ -138,7 +139,7 @@ public final class ProxiedAuthorizationV2RequestControl
 
   // The authorization ID string that may be used to identify the user under
   // whose authorization the associated operation should be performed.
-  private final String authorizationID;
+  @NotNull private final String authorizationID;
 
 
 
@@ -160,7 +161,8 @@ public final class ProxiedAuthorizationV2RequestControl
    *                          the server configuration).  It must not be
    *                          {@code null}.
    */
-  public ProxiedAuthorizationV2RequestControl(final String authorizationID)
+  public ProxiedAuthorizationV2RequestControl(
+              @NotNull final String authorizationID)
   {
     super(PROXIED_AUTHORIZATION_V2_REQUEST_OID, true,
           new ASN1OctetString(authorizationID));
@@ -182,7 +184,7 @@ public final class ProxiedAuthorizationV2RequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         proxied authorization v2 request control.
    */
-  public ProxiedAuthorizationV2RequestControl(final Control control)
+  public ProxiedAuthorizationV2RequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -208,6 +210,7 @@ public final class ProxiedAuthorizationV2RequestControl
    *          under whose authorization the associated operation should be
    *          performed.
    */
+  @NotNull()
   public String getAuthorizationID()
   {
     return authorizationID;
@@ -219,6 +222,7 @@ public final class ProxiedAuthorizationV2RequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PROXIED_AUTHZ_V2_REQUEST.get();
@@ -230,7 +234,7 @@ public final class ProxiedAuthorizationV2RequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ProxiedAuthorizationV2RequestControl(authorizationID='");
     buffer.append(authorizationID);

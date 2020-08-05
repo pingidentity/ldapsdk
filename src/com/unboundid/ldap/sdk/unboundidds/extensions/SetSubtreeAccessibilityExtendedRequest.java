@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -112,7 +114,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.19) for the set subtree accessibility
    * extended request.
    */
-  public static final String SET_SUBTREE_ACCESSIBILITY_REQUEST_OID =
+  @NotNull public static final String SET_SUBTREE_ACCESSIBILITY_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.19";
 
 
@@ -139,14 +141,14 @@ public final class SetSubtreeAccessibilityExtendedRequest
 
 
   // The set of subtree base DNs included in the request.
-  private final List<String> subtreeBaseDNs;
+  @NotNull private final List<String> subtreeBaseDNs;
 
   // The DN of a user who will be exempted from the restrictions.  This is not
   // applicable for a subtree accessibility of ACCESSIBLE.
-  private final String bypassUserDN;
+  @Nullable private final String bypassUserDN;
 
   // The accessibility state to use for the target subtrees.
-  private final SubtreeAccessibilityState accessibilityState;
+  @NotNull private final SubtreeAccessibilityState accessibilityState;
 
 
 
@@ -163,10 +165,10 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * @param  controls            The set of controls to include in the request.
    */
   private SetSubtreeAccessibilityExtendedRequest(
-               final Collection<String> subtreeBaseDNs,
-               final SubtreeAccessibilityState accessibilityState,
-               final String bypassUserDN,
-               final Control... controls)
+               @NotNull final Collection<String> subtreeBaseDNs,
+               @NotNull final SubtreeAccessibilityState accessibilityState,
+               @Nullable final String bypassUserDN,
+               @Nullable final Control... controls)
   {
     super(SET_SUBTREE_ACCESSIBILITY_REQUEST_OID,
          encodeValue(subtreeBaseDNs, accessibilityState, bypassUserDN),
@@ -192,10 +194,11 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  An ASN.1 octet string containing the encoded value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                      final Collection<String> subtreeBaseDNs,
-                      final SubtreeAccessibilityState accessibilityState,
-                      final String bypassUserDN)
+               @NotNull final Collection<String> subtreeBaseDNs,
+               @NotNull final SubtreeAccessibilityState accessibilityState,
+               @Nullable final String bypassUserDN)
   {
     final Iterator<String> dnIterator = subtreeBaseDNs.iterator();
     final String subtreeBaseDN = dnIterator.next();
@@ -239,7 +242,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public SetSubtreeAccessibilityExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -336,9 +339,10 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The set subtree accessibility extended request that was created.
    */
+  @NotNull()
   public static SetSubtreeAccessibilityExtendedRequest
-                     createSetAccessibleRequest(final String subtreeBaseDN,
-                                                final Control... controls)
+              createSetAccessibleRequest(@NotNull final String subtreeBaseDN,
+                                         @Nullable final Control... controls)
   {
     Validator.ensureNotNull(subtreeBaseDN);
 
@@ -363,10 +367,11 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The set subtree accessibility extended request that was created.
    */
+  @NotNull()
   public static SetSubtreeAccessibilityExtendedRequest
                      createSetAccessibleRequest(
-                          final Collection<String> subtreeBaseDNs,
-                          final Control... controls)
+                          @NotNull final Collection<String> subtreeBaseDNs,
+                          @Nullable final Control... controls)
   {
     Validator.ensureNotNull(subtreeBaseDNs);
     Validator.ensureFalse(subtreeBaseDNs.isEmpty());
@@ -395,11 +400,12 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The set subtree accessibility extended request that was created.
    */
+  @NotNull()
   public static SetSubtreeAccessibilityExtendedRequest
-              createSetReadOnlyRequest(final String subtreeBaseDN,
+              createSetReadOnlyRequest(@NotNull final String subtreeBaseDN,
                                        final boolean allowBind,
-                                       final String bypassUserDN,
-                                       final Control... controls)
+                                       @Nullable final String bypassUserDN,
+                                       @Nullable final Control... controls)
   {
     Validator.ensureNotNull(subtreeBaseDN);
 
@@ -441,11 +447,13 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The set subtree accessibility extended request that was created.
    */
+  @NotNull()
   public static SetSubtreeAccessibilityExtendedRequest
-              createSetReadOnlyRequest(final Collection<String> subtreeBaseDNs,
-                                       final boolean allowBind,
-                                       final String bypassUserDN,
-                                       final Control... controls)
+              createSetReadOnlyRequest(
+                   @NotNull final Collection<String> subtreeBaseDNs,
+                   final boolean allowBind,
+                   @Nullable final String bypassUserDN,
+                   @Nullable final Control... controls)
   {
     Validator.ensureNotNull(subtreeBaseDNs);
     Validator.ensureFalse(subtreeBaseDNs.isEmpty());
@@ -482,10 +490,11 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The set subtree accessibility extended request that was created.
    */
+  @NotNull()
   public static SetSubtreeAccessibilityExtendedRequest
-              createSetHiddenRequest(final String subtreeBaseDN,
-                                     final String bypassUserDN,
-                                     final Control... controls)
+              createSetHiddenRequest(@NotNull final String subtreeBaseDN,
+                                     @Nullable final String bypassUserDN,
+                                     @Nullable final Control... controls)
   {
     Validator.ensureNotNull(subtreeBaseDN);
 
@@ -514,10 +523,12 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The set subtree accessibility extended request that was created.
    */
+  @NotNull()
   public static SetSubtreeAccessibilityExtendedRequest
-              createSetHiddenRequest(final Collection<String> subtreeBaseDNs,
-                                     final String bypassUserDN,
-                                     final Control... controls)
+              createSetHiddenRequest(
+                   @NotNull final Collection<String> subtreeBaseDNs,
+                   @Nullable final String bypassUserDN,
+                   @Nullable final Control... controls)
   {
     Validator.ensureNotNull(subtreeBaseDNs);
     Validator.ensureFalse(subtreeBaseDNs.isEmpty());
@@ -536,6 +547,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The base DN for the target subtree.
    */
+  @NotNull()
   public String getSubtreeBaseDN()
   {
     return subtreeBaseDNs.get(0);
@@ -548,6 +560,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The base DNs for all target subtrees.
    */
+  @NotNull()
   public List<String> getSubtreeBaseDNs()
   {
     return subtreeBaseDNs;
@@ -560,6 +573,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *
    * @return  The accessibility state to apply to the target subtrees.
    */
+  @NotNull()
   public SubtreeAccessibilityState getAccessibilityState()
   {
     return accessibilityState;
@@ -577,6 +591,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    *          target subtrees or if no bypass user is defined for those
    *          subtrees.
    */
+  @Nullable()
   public String getBypassUserDN()
   {
     return bypassUserDN;
@@ -588,6 +603,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SetSubtreeAccessibilityExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -599,8 +615,9 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SetSubtreeAccessibilityExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     return new SetSubtreeAccessibilityExtendedRequest(subtreeBaseDNs,
          accessibilityState, bypassUserDN, controls);
@@ -612,6 +629,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_SET_SUBTREE_ACCESSIBILITY.get();
@@ -623,7 +641,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SetSubtreeAccessibilityExtendedRequest(baseDNs={");
 

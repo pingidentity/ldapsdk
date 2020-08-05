@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 
 
 
@@ -54,17 +56,17 @@ class LDAPConnectionPoolHealthCheckThread
 {
   // Indicates whether a request has been made to shut down this health check
   // thread.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The connection pool with which this thread is associated.
-  private final AbstractConnectionPool pool;
+  @NotNull private final AbstractConnectionPool pool;
 
   // A blocking queue used to control sleeping between checks and to wait for a
   // shutdown signal.
-  private final LinkedBlockingQueue<Object> queue;
+  @NotNull private final LinkedBlockingQueue<Object> queue;
 
   // A reference to the thread used to perform the periodic health checks.
-  private volatile Thread thread;
+  @Nullable private volatile Thread thread;
 
 
 
@@ -75,7 +77,8 @@ class LDAPConnectionPoolHealthCheckThread
    * @param  pool  The connection pool with which this thread will be
    *               associated.
    */
-  LDAPConnectionPoolHealthCheckThread(final AbstractConnectionPool pool)
+  LDAPConnectionPoolHealthCheckThread(
+       @NotNull final AbstractConnectionPool pool)
   {
     setName("Health Check Thread for " + pool.toString());
     setDaemon(true);

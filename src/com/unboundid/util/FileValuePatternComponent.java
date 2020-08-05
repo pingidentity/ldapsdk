@@ -65,20 +65,20 @@ final class FileValuePatternComponent
 
   // A counter used to determine the index for the next value to return if
   // accessing the file in sequential order.
-  private final AtomicLong sequentialCounter;
+  @NotNull private final AtomicLong sequentialCounter;
 
   // Indicates whether to iterate through the file in sequential order.
   private final boolean sequential;
 
   // The lines that make up the data file.
-  private final String[] lines;
+  @NotNull private final String[] lines;
 
   // The random number generator that will be used to seed the thread-local
   // generators.
-  private final Random seedRandom;
+  @NotNull private final Random seedRandom;
 
   // The random number generator that will be used by this component.
-  private final ThreadLocal<Random> random;
+  @NotNull private final ThreadLocal<Random> random;
 
 
 
@@ -94,7 +94,7 @@ final class FileValuePatternComponent
    * @throws  IOException  If a problem occurs while reading data from the
    *                       specified file.
    */
-  FileValuePatternComponent(final String path, final long seed,
+  FileValuePatternComponent(@NotNull final String path, final long seed,
                             final boolean sequential)
        throws IOException
   {
@@ -141,7 +141,7 @@ final class FileValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     final int index;
     if (sequential)

@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,16 +75,16 @@ public class ModifyDNRequestAccessLogMessage
 
 
   // Indicates whether to delete the old RDN value(s).
-  private final Boolean deleteOldRDN;
+  @Nullable private final Boolean deleteOldRDN;
 
   // The DN of the entry to rename.
-  private final String dn;
+  @Nullable private final String dn;
 
   // The new RDN to use for the entry.
-  private final String newRDN;
+  @Nullable private final String newRDN;
 
   // The new superior DN for the entry.
-  private final String newSuperiorDN;
+  @Nullable private final String newSuperiorDN;
 
 
 
@@ -96,7 +98,7 @@ public class ModifyDNRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ModifyDNRequestAccessLogMessage(final String s)
+  public ModifyDNRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -111,7 +113,7 @@ public class ModifyDNRequestAccessLogMessage
    * @param  m  The log message to be parsed as a modify DN request access log
    *            message.
    */
-  public ModifyDNRequestAccessLogMessage(final LogMessage m)
+  public ModifyDNRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -129,6 +131,7 @@ public class ModifyDNRequestAccessLogMessage
    * @return  The DN of the entry to rename, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getDN()
   {
     return dn;
@@ -142,6 +145,7 @@ public class ModifyDNRequestAccessLogMessage
    * @return  The new RDN to use for the entry, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getNewRDN()
   {
     return newRDN;
@@ -157,6 +161,7 @@ public class ModifyDNRequestAccessLogMessage
    *          should be kept in the entry, or {@code null} if it is not included
    *          in the log message.
    */
+  @Nullable()
   public final Boolean deleteOldRDN()
   {
     return deleteOldRDN;
@@ -170,6 +175,7 @@ public class ModifyDNRequestAccessLogMessage
    * @return  The new superior DN to use for the entry, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public final String getNewSuperiorDN()
   {
     return newSuperiorDN;
@@ -181,6 +187,7 @@ public class ModifyDNRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.MODDN;

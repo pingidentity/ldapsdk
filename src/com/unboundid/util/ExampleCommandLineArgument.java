@@ -88,16 +88,21 @@ import java.io.Serializable;
 @ThreadSafety(level = ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class ExampleCommandLineArgument implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
   private static final long serialVersionUID = 2468880329239320437L;
 
+
+
   // The argument that was passed in originally.
-  private final String rawForm;
+  @NotNull private final String rawForm;
 
   // The Unix form of the argument.
-  private final String unixForm;
+  @NotNull private final String unixForm;
 
   // The Windows form of the argument.
-  private final String windowsForm;
+  @NotNull private final String windowsForm;
 
 
 
@@ -108,9 +113,9 @@ public final class ExampleCommandLineArgument implements Serializable
    * @param  unixForm     The Unix form of the argument.
    * @param  windowsForm  The Windows form of the argument.
    */
-  private ExampleCommandLineArgument(final String rawForm,
-                                     final String unixForm,
-                                     final String windowsForm)
+  private ExampleCommandLineArgument(@NotNull final String rawForm,
+                                     @NotNull final String unixForm,
+                                     @NotNull final String windowsForm)
   {
     this.rawForm = rawForm;
     this.unixForm     = unixForm;
@@ -125,6 +130,7 @@ public final class ExampleCommandLineArgument implements Serializable
    *
    * @return  The original, unquoted form of the argument.
    */
+  @NotNull()
   public String getRawForm()
   {
     return rawForm;
@@ -139,6 +145,7 @@ public final class ExampleCommandLineArgument implements Serializable
    * @return  The form of the argument that is safe to use in a Unix command
    *          line shell.
    */
+  @NotNull()
   public String getUnixForm()
   {
     return unixForm;
@@ -153,6 +160,7 @@ public final class ExampleCommandLineArgument implements Serializable
    * @return  The form of the argument that is safe to use in a Windows command
    *          line shell.
    */
+  @NotNull()
   public String getWindowsForm()
   {
     return windowsForm;
@@ -167,6 +175,7 @@ public final class ExampleCommandLineArgument implements Serializable
    * @return  The form of the argument that is safe to use in a command line
    *          shell of the current operating system platform.
    */
+  @NotNull()
   public String getLocalForm()
   {
     if (StaticUtils.isWindows())
@@ -190,8 +199,9 @@ public final class ExampleCommandLineArgument implements Serializable
    *
    * @return  The ExampleCommandLineArgument for the specified argument.
    */
+  @NotNull()
   public static ExampleCommandLineArgument getCleanArgument(
-                                             final String argument)
+                                                @NotNull final String argument)
   {
     return new ExampleCommandLineArgument(argument,
                                           getUnixForm(argument),
@@ -210,7 +220,8 @@ public final class ExampleCommandLineArgument implements Serializable
    * @return  A form of the specified argument that is clean for us on a Unix
    *          command line.
    */
-  public static String getUnixForm(final String argument)
+  @NotNull()
+  public static String getUnixForm(@NotNull final String argument)
   {
     Validator.ensureNotNull(argument);
 
@@ -248,7 +259,8 @@ public final class ExampleCommandLineArgument implements Serializable
    * @return  A form of the specified argument that is clean for us on a Windows
    *          command line.
    */
-  public static String getWindowsForm(final String argument)
+  @NotNull()
+  public static String getWindowsForm(@NotNull final String argument)
   {
     Validator.ensureNotNull(argument);
 
@@ -287,8 +299,9 @@ public final class ExampleCommandLineArgument implements Serializable
    * @return  A list of raw arguments that were parsed from the specified
    *          example usage command line.
    */
+  @NotNull()
   public static List<String> parseExampleCommandLine(
-                                 final String exampleCommandLine)
+                                 @NotNull final String exampleCommandLine)
   {
     Validator.ensureNotNull(exampleCommandLine);
 
@@ -385,8 +398,9 @@ public final class ExampleCommandLineArgument implements Serializable
    *
    * @return  The QuotingRequirements for the specified argument.
    */
+  @NotNull()
   private static QuotingRequirements getRequiredUnixQuoting(
-                                         final String argument)
+                                         @NotNull final String argument)
   {
     boolean requiresDoubleQuotes = false;
     boolean requiresSingleQuotes = false;

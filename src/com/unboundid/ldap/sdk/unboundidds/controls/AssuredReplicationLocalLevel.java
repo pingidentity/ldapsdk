@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -128,6 +130,7 @@ public enum AssuredReplicationLocalLevel
    * @return  The requested local assurance level, or {@code null} if there is
    *          no local assurance level with the specified integer value.
    */
+  @Nullable()
   public static AssuredReplicationLocalLevel valueOf(final int intValue)
   {
     for (final AssuredReplicationLocalLevel l : values())
@@ -152,7 +155,8 @@ public enum AssuredReplicationLocalLevel
    * @return  The requested local assurance level, or {@code null} if no such
    *          level is defined.
    */
-  public static AssuredReplicationLocalLevel forName(final String name)
+  @Nullable()
+  public static AssuredReplicationLocalLevel forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -185,8 +189,8 @@ public enum AssuredReplicationLocalLevel
    *          level values.
    */
   public static AssuredReplicationLocalLevel getLessStrict(
-                     final AssuredReplicationLocalLevel l1,
-                     final AssuredReplicationLocalLevel l2)
+                     @NotNull final AssuredReplicationLocalLevel l1,
+                     @NotNull final AssuredReplicationLocalLevel l2)
   {
     // At present, the integer values can be used to make the comparison.  If
     // any more enum values are added, this may need to be changed.
@@ -214,8 +218,8 @@ public enum AssuredReplicationLocalLevel
    *          level values.
    */
   public static AssuredReplicationLocalLevel getMoreStrict(
-                     final AssuredReplicationLocalLevel l1,
-                     final AssuredReplicationLocalLevel l2)
+                     @NotNull final AssuredReplicationLocalLevel l1,
+                     @NotNull final AssuredReplicationLocalLevel l2)
   {
     // At present, the integer values can be used to make the comparison.  If
     // any more enum values are added, this may need to be changed.

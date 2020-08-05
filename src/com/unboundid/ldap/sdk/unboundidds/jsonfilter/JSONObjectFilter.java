@@ -48,6 +48,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -339,7 +341,7 @@ public abstract class JSONObjectFilter
    * The name of the matching rule that may be used to determine whether an
    * attribute value matches a JSON object filter.
    */
-  public static final String JSON_OBJECT_FILTER_MATCHING_RULE_NAME =
+  @NotNull public static final String JSON_OBJECT_FILTER_MATCHING_RULE_NAME =
        "jsonObjectFilterExtensibleMatch";
 
 
@@ -348,7 +350,7 @@ public abstract class JSONObjectFilter
    * The numeric OID of the matching rule that may be used to determine whether
    * an attribute value matches a JSON object filter.
    */
-  public static final String JSON_OBJECT_FILTER_MATCHING_RULE_OID =
+  @NotNull public static final String JSON_OBJECT_FILTER_MATCHING_RULE_OID =
        "1.3.6.1.4.1.30221.2.4.13";
 
 
@@ -357,7 +359,7 @@ public abstract class JSONObjectFilter
    * The name of the JSON field that is used to specify the filter type for
    * the JSON object filter.
    */
-  public static final String FIELD_FILTER_TYPE = "filterType";
+  @NotNull public static final String FIELD_FILTER_TYPE = "filterType";
 
 
 
@@ -365,8 +367,9 @@ public abstract class JSONObjectFilter
    * A map of filter type names to instances that can be used for decoding JSON
    * objects to filters of that type.
    */
-  private static final ConcurrentHashMap<String,JSONObjectFilter> FILTER_TYPES =
-       new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
+  @NotNull private static final ConcurrentHashMap<String,JSONObjectFilter>
+       FILTER_TYPES =
+            new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
   static
   {
     registerFilterType(
@@ -399,6 +402,7 @@ public abstract class JSONObjectFilter
    * @return  The value that must appear in the {@code filterType} field for
    *          this filter.
    */
+  @NotNull()
   public abstract String getFilterType();
 
 
@@ -411,6 +415,7 @@ public abstract class JSONObjectFilter
    *          that must be present in the JSON object representing a filter of
    *          this type.
    */
+  @NotNull()
   protected abstract Set<String> getRequiredFieldNames();
 
 
@@ -422,6 +427,7 @@ public abstract class JSONObjectFilter
    * @return  The names of all fields that may optionally be present but are not
    *          required in the JSON object representing a filter of this type.
    */
+  @NotNull()
   protected abstract Set<String> getOptionalFieldNames();
 
 
@@ -434,7 +440,8 @@ public abstract class JSONObjectFilter
    * @return  {@code true} if this JSON object filter matches the provided JSON
    *          object, or {@code false} if not.
    */
-  public abstract boolean matchesJSONObject(JSONObject o);
+  @NotNull()
+  public abstract boolean matchesJSONObject(@NotNull JSONObject o);
 
 
 
@@ -443,6 +450,7 @@ public abstract class JSONObjectFilter
    *
    * @return  A JSON object that represents this filter.
    */
+  @NotNull()
   public abstract JSONObject toJSONObject();
 
 
@@ -475,9 +483,11 @@ public abstract class JSONObjectFilter
    *                         value of the specified field was not a string or
    *                         an array of strings.
    */
-  protected List<String> getStrings(final JSONObject o, final String fieldName,
+  @NotNull()
+  protected List<String> getStrings(@NotNull final JSONObject o,
+                                    @NotNull final String fieldName,
                                     final boolean allowEmpty,
-                                    final List<String> defaultValues)
+                                    @Nullable final List<String> defaultValues)
             throws JSONException
   {
     final JSONValue v = o.getField(fieldName);
@@ -565,8 +575,11 @@ public abstract class JSONObjectFilter
    *                         provided, or if the value of the specified field
    *                         was not a string.
    */
-  protected String getString(final JSONObject o, final String fieldName,
-                             final String defaultValue, final boolean required)
+  @Nullable()
+  protected String getString(@NotNull final JSONObject o,
+                             @NotNull final String fieldName,
+                             @Nullable final String defaultValue,
+                             final boolean required)
             throws JSONException
   {
     final JSONValue v = o.getField(fieldName);
@@ -620,8 +633,10 @@ public abstract class JSONObjectFilter
    *                         the specified field was neither {@code true} nor
    *                         {@code false}.
    */
-  protected boolean getBoolean(final JSONObject o, final String fieldName,
-                               final Boolean defaultValue)
+  @Nullable()
+  protected boolean getBoolean(@NotNull final JSONObject o,
+                               @NotNull final String fieldName,
+                               @Nullable final Boolean defaultValue)
             throws JSONException
   {
     final JSONValue v = o.getField(fieldName);
@@ -671,8 +686,9 @@ public abstract class JSONObjectFilter
    *                         JSON objects that represent valid JSON object
    *                         filters.
    */
-  protected List<JSONObjectFilter> getFilters(final JSONObject o,
-                                              final String fieldName)
+  @NotNull()
+  protected List<JSONObjectFilter> getFilters(@NotNull final JSONObject o,
+                                              @NotNull final String fieldName)
             throws JSONException
   {
     final JSONValue value = o.getField(fieldName);
@@ -730,8 +746,9 @@ public abstract class JSONObjectFilter
    *          an empty list if the provided JSON object does not have any fields
    *          matching the provided specifier.
    */
-  protected static List<JSONValue> getValues(final JSONObject o,
-                                             final List<String> fieldName)
+  @NotNull()
+  protected static List<JSONValue> getValues(@NotNull final JSONObject o,
+                                        @NotNull final List<String> fieldName)
   {
     final ArrayList<JSONValue> values = new ArrayList<>(10);
     getValues(o, fieldName, 0, values);
@@ -750,10 +767,10 @@ public abstract class JSONObjectFilter
    * @param  values          The list into which matching values should be
    *                         added.
    */
-  private static void getValues(final JSONObject o,
-                                final List<String> fieldName,
+  private static void getValues(@NotNull final JSONObject o,
+                                @NotNull final List<String> fieldName,
                                 final int fieldNameIndex,
-                                final List<JSONValue> values)
+                                @NotNull final List<JSONValue> values)
   {
     final JSONValue v = o.getField(fieldName.get(fieldNameIndex));
     if (v == null)
@@ -799,10 +816,10 @@ public abstract class JSONObjectFilter
    * @param  values          The list into which matching values should be
    *                         added.
    */
-  private static void getValuesFromArray(final JSONArray a,
-                                         final List<String> fieldName,
+  private static void getValuesFromArray(@NotNull final JSONArray a,
+                                         @NotNull final List<String> fieldName,
                                          final int fieldNameIndex,
-                                         final List<JSONValue> values)
+                                         @NotNull final List<JSONValue> values)
   {
     for (final JSONValue v : a.getValues())
     {
@@ -829,7 +846,8 @@ public abstract class JSONObjectFilter
    * @throws  JSONException  If the provided JSON object cannot be decoded as a
    *                         JSON object filter.
    */
-  public static JSONObjectFilter decode(final JSONObject o)
+  @NotNull()
+  public static JSONObjectFilter decode(@NotNull final JSONObject o)
          throws JSONException
   {
     // Get the value of the filter type field for the object and use it to get
@@ -897,7 +915,8 @@ public abstract class JSONObjectFilter
    * @throws  JSONException  If the provided JSON object cannot be decoded as a
    *                         valid filter of this type.
    */
-  protected abstract JSONObjectFilter decodeFilter(JSONObject o)
+  @NotNull()
+  protected abstract JSONObjectFilter decodeFilter(@NotNull JSONObject o)
             throws JSONException;
 
 
@@ -908,7 +927,8 @@ public abstract class JSONObjectFilter
    *
    * @param  impl  The filter type implementation(s) to register.
    */
-  protected static void registerFilterType(final JSONObjectFilter... impl)
+  protected static void registerFilterType(
+                             @NotNull final JSONObjectFilter... impl)
   {
     for (final JSONObjectFilter f : impl)
     {
@@ -932,7 +952,8 @@ public abstract class JSONObjectFilter
    *
    * @return  The constructed LDAP extensible matching filter.
    */
-  public final Filter toLDAPFilter(final String attributeDescription)
+  @NotNull()
+  public final Filter toLDAPFilter(@NotNull final String attributeDescription)
   {
     return Filter.createExtensibleMatchFilter(attributeDescription,
          JSON_OBJECT_FILTER_MATCHING_RULE_NAME, false, toString());
@@ -951,7 +972,8 @@ public abstract class JSONObjectFilter
    *
    * @return  A string representation of the provided field path.
    */
-  static String fieldPathToName(final List<String> fieldPath)
+  @NotNull()
+  static String fieldPathToName(@NotNull final List<String> fieldPath)
   {
     if (fieldPath == null)
     {
@@ -1007,7 +1029,7 @@ public abstract class JSONObjectFilter
    *          JSON object filter, or {@code false} if not.
    */
   @Override()
-  public final boolean equals(final Object o)
+  public final boolean equals(@Nullable final Object o)
   {
     if (o == this)
     {
@@ -1033,6 +1055,7 @@ public abstract class JSONObjectFilter
    *          filter.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     return toJSONObject().toString();
@@ -1046,7 +1069,7 @@ public abstract class JSONObjectFilter
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public final void toString(final StringBuilder buffer)
+  public final void toString(@NotNull final StringBuilder buffer)
   {
     toJSONObject().toString(buffer);
   }

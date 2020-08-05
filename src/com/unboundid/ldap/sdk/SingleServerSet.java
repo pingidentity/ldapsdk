@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -58,23 +60,23 @@ public final class SingleServerSet
 {
   // The bind request to use to authenticate connections created by this
   // server set.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
   // The port number of the target server.
   private final int port;
 
   // The set of connection options to use.
-  private final LDAPConnectionOptions connectionOptions;
+  @NotNull private final LDAPConnectionOptions connectionOptions;
 
   // The post-connect processor to invoke against connections created by this
   // server set.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
   // The address of the target server.
-  private final String address;
+  @NotNull private final String address;
 
 
 
@@ -90,7 +92,7 @@ public final class SingleServerSet
    *                  should be established.  It must be between 1 and 65535,
    *                  inclusive.
    */
-  public SingleServerSet(final String address, final int port)
+  public SingleServerSet(@NotNull final String address, final int port)
   {
     this(address, port, null, null);
   }
@@ -111,8 +113,8 @@ public final class SingleServerSet
    * @param  connectionOptions  The set of connection options to use for the
    *                            underlying connections.
    */
-  public SingleServerSet(final String address, final int port,
-                         final LDAPConnectionOptions connectionOptions)
+  public SingleServerSet(@NotNull final String address, final int port,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(address, port, null, connectionOptions);
   }
@@ -132,8 +134,8 @@ public final class SingleServerSet
    * @param  socketFactory  The socket factory to use to create the underlying
    *                        connections.
    */
-  public SingleServerSet(final String address, final int port,
-                         final SocketFactory socketFactory)
+  public SingleServerSet(@NotNull final String address, final int port,
+                         @Nullable final SocketFactory socketFactory)
   {
     this(address, port, socketFactory, null);
   }
@@ -155,9 +157,9 @@ public final class SingleServerSet
    * @param  connectionOptions  The set of connection options to use for the
    *                            underlying connections.
    */
-  public SingleServerSet(final String address, final int port,
-                         final SocketFactory socketFactory,
-                         final LDAPConnectionOptions connectionOptions)
+  public SingleServerSet(@NotNull final String address, final int port,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(address, port, socketFactory, connectionOptions, null, null);
   }
@@ -187,11 +189,11 @@ public final class SingleServerSet
    *                               may be {@code null} if this server set should
    *                               not perform any post-connect processing.
    */
-  public SingleServerSet(final String address, final int port,
-                         final SocketFactory socketFactory,
-                         final LDAPConnectionOptions connectionOptions,
-                         final BindRequest bindRequest,
-                         final PostConnectProcessor postConnectProcessor)
+  public SingleServerSet(@NotNull final String address, final int port,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions,
+              @Nullable final BindRequest bindRequest,
+              @Nullable final PostConnectProcessor postConnectProcessor)
   {
     Validator.ensureNotNull(address);
     Validator.ensureTrue((port > 0) && (port < 65_536),
@@ -230,6 +232,7 @@ public final class SingleServerSet
    * @return  The address of the directory server to which the connections
    *          should be established.
    */
+  @NotNull()
   public String getAddress()
   {
     return address;
@@ -256,6 +259,7 @@ public final class SingleServerSet
    *
    * @return  The socket factory that will be used to establish connections.
    */
+  @NotNull()
   public SocketFactory getSocketFactory()
   {
     return socketFactory;
@@ -270,6 +274,7 @@ public final class SingleServerSet
    * @return  The set of connection options that will be used by the underlying
    *          connections.
    */
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     return connectionOptions;
@@ -303,6 +308,7 @@ public final class SingleServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -315,8 +321,9 @@ public final class SingleServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection(
-                             final LDAPConnectionPoolHealthCheck healthCheck)
+              @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     final LDAPConnection connection =
@@ -333,7 +340,7 @@ public final class SingleServerSet
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SingleServerSet(server=");
     buffer.append(address);

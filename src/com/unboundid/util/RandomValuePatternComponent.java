@@ -65,16 +65,16 @@ final class RandomValuePatternComponent
 
   // The random number generator that will be used to seed the thread-local
   // generators.
-  private final Random seedRandom;
+  @NotNull private final Random seedRandom;
 
   // The format string that will be used by the decimal formatter.
-  private final String formatString;
+  @Nullable private final String formatString;
 
   // The decimal format that will be used by this component, if applicable.
-  private final ThreadLocal<DecimalFormat> decimalFormat;
+  @NotNull private final ThreadLocal<DecimalFormat> decimalFormat;
 
   // The random number generator that will be used by this component.
-  private final ThreadLocal<Random> random;
+  @NotNull private final ThreadLocal<Random> random;
 
 
 
@@ -90,7 +90,8 @@ final class RandomValuePatternComponent
    *                       component, if any.
    */
   RandomValuePatternComponent(final long lowerBound, final long upperBound,
-                              final long seed, final String formatString)
+                              final long seed,
+                              @Nullable final String formatString)
   {
     if (lowerBound == upperBound)
     {
@@ -124,7 +125,7 @@ final class RandomValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     Random r = random.get();
     if (r == null)

@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyDeleteRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,6 +66,7 @@ public interface InMemoryInterceptedDeleteResult
    *
    * @return  The delete request that was processed.
    */
+  @NotNull()
   ReadOnlyDeleteRequest getRequest();
 
 
@@ -73,6 +76,7 @@ public interface InMemoryInterceptedDeleteResult
    *
    * @return  The delete result to be returned to the client.
    */
+  @Nullable()
   LDAPResult getResult();
 
 
@@ -85,7 +89,7 @@ public interface InMemoryInterceptedDeleteResult
    *                       the in-memory directory server.  It must not be
    *                       {@code null}.
    */
-  void setResult(LDAPResult deleteResult);
+  void setResult(@NotNull LDAPResult deleteResult);
 
 
 
@@ -101,6 +105,7 @@ public interface InMemoryInterceptedDeleteResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
-         throws LDAPException;
+  void sendIntermediateResponse(
+            @NotNull IntermediateResponse intermediateResponse)
+       throws LDAPException;
 }

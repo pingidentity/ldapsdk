@@ -58,6 +58,8 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -163,28 +165,28 @@ public final class JSONLDAPConnectionLogger
   private final boolean logSearchReferences;
 
   // The log handler that will be used to actually log the messages.
-  private final Handler logHandler;
+  @NotNull private final Handler logHandler;
 
   // The schema to use for identifying alternate attribute type names.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The types of operations for which requests should be logged.
-  private final Set<OperationType> operationTypes;
+  @NotNull private final Set<OperationType> operationTypes;
 
   // The names or OIDs of the attributes whose values should be redacted.
-  private final Set<String> attributesToRedact;
+  @NotNull private final Set<String> attributesToRedact;
 
   // The full set of the names and OIDs for attributes whose values should be
   // redacted.
-  private final Set<String> fullAttributesToRedact;
+  @NotNull private final Set<String> fullAttributesToRedact;
 
   // The set of thread-local JSON buffers that will be used for formatting log
   // messages.
-  private final ThreadLocal<JSONBuffer> jsonBuffers;
+  @NotNull private final ThreadLocal<JSONBuffer> jsonBuffers;
 
   // The set of thread-local date formatters that will be used for formatting
   // timestamps.
-  private final ThreadLocal<SimpleDateFormat> timestampFormatters;
+  @NotNull private final ThreadLocal<SimpleDateFormat> timestampFormatters;
 
 
 
@@ -197,8 +199,8 @@ public final class JSONLDAPConnectionLogger
    *                     {@code INFO}.
    * @param  properties  The properties to use for this logger.
    */
-  public JSONLDAPConnectionLogger(final Handler logHandler,
-              final JSONLDAPConnectionLoggerProperties properties)
+  public JSONLDAPConnectionLogger(@NotNull final Handler logHandler,
+              @NotNull final JSONLDAPConnectionLoggerProperties properties)
   {
     this.logHandler = logHandler;
 
@@ -375,6 +377,7 @@ public final class JSONLDAPConnectionLogger
    *
    * @return  The set of operation types for which to log requests and results.
    */
+  @NotNull()
   public Set<OperationType> getOperationTypes()
   {
     return operationTypes;
@@ -493,6 +496,7 @@ public final class JSONLDAPConnectionLogger
    *          should be redacted from log messages, or an empty set if no
    *          attribute values should be redacted.
    */
+  @NotNull()
   public Set<String> getAttributesToRedact()
   {
     return attributesToRedact;
@@ -602,6 +606,7 @@ public final class JSONLDAPConnectionLogger
    *          for attributes whose values should be redacted, or {@code null}
    *          if no schema should be used.
    */
+  @Nullable()
   public Schema getSchema()
   {
     return schema;
@@ -613,8 +618,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logConnect(final LDAPConnectionInfo connectionInfo,
-                         final String host, final InetAddress inetAddress,
+  public void logConnect(@NotNull final LDAPConnectionInfo connectionInfo,
+                         @NotNull final String host,
+                         @NotNull final InetAddress inetAddress,
                          final int port)
   {
     if (logConnects)
@@ -636,9 +642,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logConnectFailure(final LDAPConnectionInfo connectionInfo,
-                                final String host, final int port,
-                                final LDAPException connectException)
+  public void logConnectFailure(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   @NotNull final String host, final int port,
+                   @NotNull final LDAPException connectException)
   {
     if (logConnects)
     {
@@ -663,11 +670,12 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logDisconnect(final LDAPConnectionInfo connectionInfo,
-                            final String host, final int port,
-                            final DisconnectType disconnectType,
-                            final String disconnectMessage,
-                            final Throwable disconnectCause)
+  public void logDisconnect(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   @NotNull final String host, final int port,
+                   @NotNull final DisconnectType disconnectType,
+                   @Nullable final String disconnectMessage,
+                   @Nullable final Throwable disconnectCause)
   {
     if (logDisconnects)
     {
@@ -698,10 +706,11 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logAbandonRequest(final LDAPConnectionInfo connectionInfo,
-                                final int messageID,
-                                final int messageIDToAbandon,
-                                final List<Control> requestControls)
+  public void logAbandonRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   final int messageIDToAbandon,
+                   @NotNull final List<Control> requestControls)
   {
     if (logRequests && operationTypes.contains(OperationType.ABANDON))
     {
@@ -721,9 +730,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logAddRequest(final LDAPConnectionInfo connectionInfo,
+  public void logAddRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                             final int messageID,
-                            final ReadOnlyAddRequest addRequest)
+                            @NotNull final ReadOnlyAddRequest addRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.ADD))
     {
@@ -750,9 +759,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logAddResult(final LDAPConnectionInfo connectionInfo,
-                            final int requestMessageID,
-                            final LDAPResult addResult)
+  public void logAddResult(@NotNull final LDAPConnectionInfo connectionInfo,
+                           final int requestMessageID,
+                           @NotNull final LDAPResult addResult)
   {
     logLDAPResult(connectionInfo, OperationType.ADD, requestMessageID,
          addResult);
@@ -764,9 +773,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logBindRequest(final LDAPConnectionInfo connectionInfo,
+  public void logBindRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                              final int messageID,
-                             final SimpleBindRequest bindRequest)
+                             @NotNull final SimpleBindRequest bindRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.BIND))
     {
@@ -788,9 +797,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logBindRequest(final LDAPConnectionInfo connectionInfo,
+  public void logBindRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                              final int messageID,
-                             final SASLBindRequest bindRequest)
+                             @NotNull final SASLBindRequest bindRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.BIND))
     {
@@ -812,9 +821,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logBindResult(final LDAPConnectionInfo connectionInfo,
+  public void logBindResult(@NotNull final LDAPConnectionInfo connectionInfo,
                             final int requestMessageID,
-                            final BindResult bindResult)
+                            @NotNull final BindResult bindResult)
   {
     logLDAPResult(connectionInfo, OperationType.BIND, requestMessageID,
          bindResult);
@@ -826,9 +835,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logCompareRequest(final LDAPConnectionInfo connectionInfo,
-                                final int messageID,
-                                final ReadOnlyCompareRequest compareRequest)
+  public void logCompareRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyCompareRequest compareRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.COMPARE))
     {
@@ -862,9 +872,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logCompareResult(final LDAPConnectionInfo connectionInfo,
+  public void logCompareResult(@NotNull final LDAPConnectionInfo connectionInfo,
                                final int requestMessageID,
-                               final LDAPResult compareResult)
+                               @NotNull final LDAPResult compareResult)
   {
     logLDAPResult(connectionInfo, OperationType.COMPARE, requestMessageID,
          compareResult);
@@ -876,9 +886,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logDeleteRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final ReadOnlyDeleteRequest deleteRequest)
+  public void logDeleteRequest(@NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyDeleteRequest deleteRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.DELETE))
     {
@@ -898,9 +908,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logDeleteResult(final LDAPConnectionInfo connectionInfo,
+  public void logDeleteResult(@NotNull final LDAPConnectionInfo connectionInfo,
                               final int requestMessageID,
-                              final LDAPResult deleteResult)
+                              @NotNull final LDAPResult deleteResult)
   {
     logLDAPResult(connectionInfo, OperationType.DELETE, requestMessageID,
          deleteResult);
@@ -912,9 +922,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logExtendedRequest(final LDAPConnectionInfo connectionInfo,
-                                 final int messageID,
-                                 final ExtendedRequest extendedRequest)
+  public void logExtendedRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ExtendedRequest extendedRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.EXTENDED))
     {
@@ -936,9 +947,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logExtendedResult(final LDAPConnectionInfo connectionInfo,
-                                final int requestMessageID,
-                                final ExtendedResult extendedResult)
+  public void logExtendedResult(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final ExtendedResult extendedResult)
   {
     logLDAPResult(connectionInfo, OperationType.EXTENDED, requestMessageID,
          extendedResult);
@@ -950,9 +962,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logModifyRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final ReadOnlyModifyRequest modifyRequest)
+  public void logModifyRequest(@NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyModifyRequest modifyRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.MODIFY))
     {
@@ -1037,9 +1049,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logModifyResult(final LDAPConnectionInfo connectionInfo,
+  public void logModifyResult(@NotNull final LDAPConnectionInfo connectionInfo,
                               final int requestMessageID,
-                              final LDAPResult modifyResult)
+                              @NotNull final LDAPResult modifyResult)
   {
     logLDAPResult(connectionInfo, OperationType.MODIFY, requestMessageID,
          modifyResult);
@@ -1051,9 +1063,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logModifyDNRequest(final LDAPConnectionInfo connectionInfo,
-                                 final int messageID,
-                                 final ReadOnlyModifyDNRequest modifyDNRequest)
+  public void logModifyDNRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyModifyDNRequest modifyDNRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.MODIFY_DN))
     {
@@ -1082,9 +1095,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logModifyDNResult(final LDAPConnectionInfo connectionInfo,
-                                final int requestMessageID,
-                                final LDAPResult modifyDNResult)
+  public void logModifyDNResult(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final LDAPResult modifyDNResult)
   {
     logLDAPResult(connectionInfo, OperationType.MODIFY_DN, requestMessageID,
          modifyDNResult);
@@ -1096,9 +1110,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logSearchRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final ReadOnlySearchRequest searchRequest)
+  public void logSearchRequest(@NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlySearchRequest searchRequest)
   {
     if (logRequests && operationTypes.contains(OperationType.SEARCH))
     {
@@ -1136,9 +1150,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logSearchEntry(final LDAPConnectionInfo connectionInfo,
+  public void logSearchEntry(@NotNull final LDAPConnectionInfo connectionInfo,
                              final int requestMessageID,
-                             final SearchResultEntry searchEntry)
+                             @NotNull final SearchResultEntry searchEntry)
   {
     if (logSearchEntries && operationTypes.contains(OperationType.SEARCH))
     {
@@ -1166,9 +1180,10 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logSearchReference(final LDAPConnectionInfo connectionInfo,
-                                 final int requestMessageID,
-                                 final SearchResultReference searchReference)
+  public void logSearchReference(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final SearchResultReference searchReference)
   {
     if (logSearchReferences && operationTypes.contains(OperationType.SEARCH))
     {
@@ -1194,9 +1209,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logSearchResult(final LDAPConnectionInfo connectionInfo,
+  public void logSearchResult(@NotNull final LDAPConnectionInfo connectionInfo,
                                final int requestMessageID,
-                               final SearchResult searchResult)
+                               @NotNull final SearchResult searchResult)
   {
     logLDAPResult(connectionInfo, OperationType.SEARCH, requestMessageID,
          searchResult);
@@ -1208,9 +1223,9 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logUnbindRequest(final LDAPConnectionInfo connectionInfo,
+  public void logUnbindRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                                final int messageID,
-                               final List<Control> requestControls)
+                               @NotNull final List<Control> requestControls)
   {
     if (logRequests && operationTypes.contains(OperationType.UNBIND))
     {
@@ -1229,16 +1244,22 @@ public final class JSONLDAPConnectionLogger
    * {@inheritDoc}
    */
   @Override()
-  public void logIntermediateResponse(final LDAPConnectionInfo connectionInfo,
+  public void logIntermediateResponse(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
                    final int messageID,
-                   final IntermediateResponse intermediateResponse)
+                   @NotNull final IntermediateResponse intermediateResponse)
   {
     if (logIntermediateResponses)
     {
       final JSONBuffer buffer = startLogMessage("intermediate-response", null,
            connectionInfo, messageID);
 
-      buffer.appendString("oid", intermediateResponse.getOID());
+      final String oid = intermediateResponse.getOID();
+      if (oid != null)
+      {
+        buffer.appendString("oid", oid);
+      }
+
       buffer.appendBoolean("has-value",
            (intermediateResponse.getValue() != null));
 
@@ -1269,10 +1290,11 @@ public final class JSONLDAPConnectionLogger
    * @return  A JSON buffer that may be used to construct the remainder of the
    *          log message.
    */
-  private JSONBuffer startLogMessage(final String messageType,
-                                     final OperationType operationType,
-                                     final LDAPConnectionInfo connectionInfo,
-                                     final int messageID)
+  @NotNull()
+  private JSONBuffer startLogMessage(@NotNull final String messageType,
+                          @Nullable final OperationType operationType,
+                          @NotNull final LDAPConnectionInfo connectionInfo,
+                          final int messageID)
   {
     JSONBuffer buffer = jsonBuffers.get();
     if (buffer == null)
@@ -1371,9 +1393,9 @@ public final class JSONLDAPConnectionLogger
    * @param  exception  The exception to be appended.  It must not be
    *                    {@code null}.
    */
-  private void appendException(final JSONBuffer buffer,
-                               final String fieldName,
-                               final Throwable exception)
+  private void appendException(@NotNull final JSONBuffer buffer,
+                               @NotNull final String fieldName,
+                               @NotNull final Throwable exception)
   {
     buffer.beginObject(fieldName);
 
@@ -1438,8 +1460,9 @@ public final class JSONLDAPConnectionLogger
    * @param  controls   The controls to be appended.  It must not be
    *                    {@code null} but may be empty.
    */
-  private void appendControls(final JSONBuffer buffer, final String fieldName,
-                              final Control... controls)
+  private void appendControls(@NotNull final JSONBuffer buffer,
+                              @NotNull final String fieldName,
+                              @NotNull final Control... controls)
   {
     if (includeControlOIDs && (controls.length > 0))
     {
@@ -1465,8 +1488,9 @@ public final class JSONLDAPConnectionLogger
    * @param  controls   The controls to be appended.  It must not be
    *                    {@code null} but may be empty.
    */
-  private void appendControls(final JSONBuffer buffer, final String fieldName,
-                              final List<Control> controls)
+  private void appendControls(@NotNull final JSONBuffer buffer,
+                              @NotNull final String fieldName,
+                              @NotNull final List<Control> controls)
   {
     if (includeControlOIDs && (! controls.isEmpty()))
     {
@@ -1492,8 +1516,9 @@ public final class JSONLDAPConnectionLogger
    * @param  dn         The DN to be appended.  It must not be {@code null} but
    *                    may be empty.
    */
-  private void appendDN(final JSONBuffer buffer, final String fieldName,
-                        final String dn)
+  private void appendDN(@NotNull final JSONBuffer buffer,
+                        @NotNull final String fieldName,
+                        @NotNull final String dn)
   {
     if (fullAttributesToRedact.isEmpty())
     {
@@ -1575,8 +1600,9 @@ public final class JSONLDAPConnectionLogger
    * @param  includeValues  Indicates whether to include the values of the
    *                        attributes.
    */
-  private void appendAttributes(final JSONBuffer buffer, final String fieldName,
-                                final List<Attribute> attributes,
+  private void appendAttributes(@NotNull final JSONBuffer buffer,
+                                @NotNull final String fieldName,
+                                @NotNull final List<Attribute> attributes,
                                 final boolean includeValues)
   {
     buffer.beginArray(fieldName);
@@ -1627,7 +1653,8 @@ public final class JSONLDAPConnectionLogger
    *
    * @return  The redacted filter.
    */
-  private Filter redactFilter(final Filter filter)
+  @NotNull()
+  private Filter redactFilter(@NotNull final Filter filter)
   {
     switch (filter.getFilterType())
     {
@@ -1713,7 +1740,8 @@ public final class JSONLDAPConnectionLogger
    *
    * @return  The assertion value to use for a redacted filter.
    */
-  private String redactAssertionValue(final Filter filter)
+  @NotNull()
+  private String redactAssertionValue(@NotNull final Filter filter)
   {
     final String attributeName = filter.getAttributeName();
     if (attributeName == null)
@@ -1748,9 +1776,10 @@ public final class JSONLDAPConnectionLogger
    * @param  messageID       The LDAP message ID for the associated operation.
    * @param  result          The result to be logged.
    */
-  private void logLDAPResult(final LDAPConnectionInfo connectionInfo,
-                             final OperationType operationType,
-                             final int messageID, final LDAPResult result)
+  private void logLDAPResult(@NotNull final LDAPConnectionInfo connectionInfo,
+                             @NotNull final OperationType operationType,
+                             final int messageID,
+                             @NotNull final LDAPResult result)
   {
     if (logFinalResults && operationTypes.contains(operationType))
     {
@@ -1820,7 +1849,8 @@ public final class JSONLDAPConnectionLogger
    * @param  flushHandler  Indicates whether to flush the handler after the
    *                       message has been written.
    */
-  private void logMessage(final JSONBuffer buffer, final boolean flushHandler)
+  private void logMessage(@NotNull final JSONBuffer buffer,
+                          final boolean flushHandler)
   {
     buffer.endObject();
 

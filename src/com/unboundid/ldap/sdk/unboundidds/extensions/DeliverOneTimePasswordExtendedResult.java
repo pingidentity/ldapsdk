@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -98,7 +100,7 @@ public final class DeliverOneTimePasswordExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.25) for the deliver one-time password
    * extended result.
    */
-  public static final String DELIVER_OTP_RESULT_OID =
+  @NotNull public static final String DELIVER_OTP_RESULT_OID =
        "1.3.6.1.4.1.30221.2.6.25";
 
 
@@ -139,17 +141,17 @@ public final class DeliverOneTimePasswordExtendedResult
 
 
   // The name of the mechanism by which the one-time password was delivered.
-  private final String deliveryMechanism;
+  @Nullable private final String deliveryMechanism;
 
   // An message providing additional information about the delivery of the
   // one-time password.
-  private final String deliveryMessage;
+  @Nullable private final String deliveryMessage;
 
   // An the DN of the user to whom the one-time password was sent.
-  private final String recipientDN;
+  @Nullable private final String recipientDN;
 
   // An identifier for the recipient of the one-time password.
-  private final String recipientID;
+  @Nullable private final String recipientID;
 
 
 
@@ -164,7 +166,7 @@ public final class DeliverOneTimePasswordExtendedResult
    *                         a deliver one-time password result.
    */
   public DeliverOneTimePasswordExtendedResult(
-       final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
        throws LDAPException
   {
     super(extendedResult);
@@ -284,11 +286,15 @@ public final class DeliverOneTimePasswordExtendedResult
    *                            available.
    */
   public DeliverOneTimePasswordExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final String deliveryMechanism, final String recipientDN,
-              final String recipientID, final String deliveryMessage,
-              final Control... responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final String deliveryMechanism,
+              @Nullable final String recipientDN,
+              @Nullable final String recipientID,
+              @Nullable final String deliveryMessage,
+              @Nullable final Control... responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          ((deliveryMechanism == null) ? null : DELIVER_OTP_RESULT_OID),
@@ -330,10 +336,12 @@ public final class DeliverOneTimePasswordExtendedResult
    * @return  An ASN.1 octet string containing the encoded value, or
    *          {@code null} if the extended result should not have a value.
    */
-  private static ASN1OctetString encodeValue(final String deliveryMechanism,
-                                             final String recipientDN,
-                                             final String recipientID,
-                                             final String deliveryMessage)
+  @Nullable()
+  private static ASN1OctetString encodeValue(
+               @Nullable final String deliveryMechanism,
+               @Nullable final String recipientDN,
+               @Nullable final String recipientID,
+               @Nullable final String deliveryMessage)
   {
     if (deliveryMechanism == null)
     {
@@ -377,6 +385,7 @@ public final class DeliverOneTimePasswordExtendedResult
    *          delivered to the end user, or {@code null} if this is not
    *          available.
    */
+  @Nullable()
   public String getDeliveryMechanism()
   {
     return deliveryMechanism;
@@ -391,6 +400,7 @@ public final class DeliverOneTimePasswordExtendedResult
    * @return  The DN of the user to whom the one-time password was delivered, or
    *          {@code null} if this is not available.
    */
+  @Nullable()
   public String getRecipientDN()
   {
     return recipientDN;
@@ -408,6 +418,7 @@ public final class DeliverOneTimePasswordExtendedResult
    * @return  An identifier for the user to whom the one-time password was
    *          delivered, or {@code null} if this is not available.
    */
+  @Nullable()
   public String getRecipientID()
   {
     return recipientID;
@@ -422,6 +433,7 @@ public final class DeliverOneTimePasswordExtendedResult
    * @return  A message providing additional information about the one-time
    *          password delivery, or {@code null} if this is not available.
    */
+  @Nullable()
   public String getDeliveryMessage()
   {
     return deliveryMessage;
@@ -433,6 +445,7 @@ public final class DeliverOneTimePasswordExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_DELIVER_OTP_RES_NAME.get();
@@ -448,7 +461,7 @@ public final class DeliverOneTimePasswordExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeliverOneTimePasswordExtendedResult(resultCode=");
     buffer.append(getResultCode());

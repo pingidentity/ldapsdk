@@ -41,6 +41,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -68,10 +70,10 @@ public final class TimestampRangeArgumentValueValidator
 
 
   // The most recent timestamp value that will be accepted.
-  private final Date mostRecentAllowedDate;
+  @Nullable private final Date mostRecentAllowedDate;
 
   // The oldest timestamp value that will be accepted.
-  private final Date oldestAllowedDate;
+  @Nullable private final Date oldestAllowedDate;
 
 
 
@@ -90,26 +92,12 @@ public final class TimestampRangeArgumentValueValidator
    *                                than the provided {@code oldestAllowedDate}
    *                                will be permitted.
    */
-  public TimestampRangeArgumentValueValidator(final Date oldestAllowedDate,
-                                              final Date mostRecentAllowedDate)
+  public TimestampRangeArgumentValueValidator(
+              @Nullable final Date oldestAllowedDate,
+              @Nullable final Date mostRecentAllowedDate)
   {
-    if (oldestAllowedDate == null)
-    {
-      this.oldestAllowedDate = null;
-    }
-    else
-    {
-      this.oldestAllowedDate = oldestAllowedDate;
-    }
-
-    if (mostRecentAllowedDate == null)
-    {
-      this.mostRecentAllowedDate = null;
-    }
-    else
-    {
-      this.mostRecentAllowedDate = mostRecentAllowedDate;
-    }
+    this.oldestAllowedDate = oldestAllowedDate;
+    this.mostRecentAllowedDate = mostRecentAllowedDate;
   }
 
 
@@ -122,6 +110,7 @@ public final class TimestampRangeArgumentValueValidator
    *          validator, or {@code null} if any timestamp older than the
    *          most recent allowed date will be permitted.
    */
+  @Nullable()
   public Date getOldestAllowedDate()
   {
     return oldestAllowedDate;
@@ -137,6 +126,7 @@ public final class TimestampRangeArgumentValueValidator
    *          validator, or {@code null} if any timestamp newer than the oldest
    *          allowed date will be permitted.
    */
+  @Nullable()
   public Date getMostRecentAllowedDate()
   {
     return mostRecentAllowedDate;
@@ -148,8 +138,8 @@ public final class TimestampRangeArgumentValueValidator
    * {@inheritDoc}
    */
   @Override()
-  public void validateArgumentValue(final Argument argument,
-                                    final String valueString)
+  public void validateArgumentValue(@NotNull final Argument argument,
+                                    @NotNull final String valueString)
          throws ArgumentException
   {
     // Ensure that the value can be parsed as a valid timestamp.
@@ -192,6 +182,7 @@ public final class TimestampRangeArgumentValueValidator
    * @return  A string representation of this argument value validator.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -208,7 +199,7 @@ public final class TimestampRangeArgumentValueValidator
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("TimestampRangeArgumentValueValidator(");
 

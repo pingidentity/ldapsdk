@@ -39,6 +39,7 @@ package com.unboundid.ldap.listener;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -63,7 +64,8 @@ public abstract class PasswordEncoderOutputFormatter
    * @throws  LDAPException  If a problem is encountered while formatting the
    *                         provided data.
    */
-  public abstract byte[] format(byte[] unformattedData)
+  @NotNull()
+  public abstract byte[] format(@NotNull byte[] unformattedData)
          throws LDAPException;
 
 
@@ -80,7 +82,8 @@ public abstract class PasswordEncoderOutputFormatter
    *                         encoding, or if a problem is encountered while
    *                         un-formatting the provided data.
    */
-  public abstract byte[] unFormat(byte[] formattedData)
+  @NotNull()
+  public abstract byte[] unFormat(@NotNull byte[] formattedData)
          throws LDAPException;
 
 
@@ -92,6 +95,7 @@ public abstract class PasswordEncoderOutputFormatter
    * @return  A string representation of this password encoder output formatter.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -107,5 +111,5 @@ public abstract class PasswordEncoderOutputFormatter
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 }

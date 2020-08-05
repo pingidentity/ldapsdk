@@ -58,6 +58,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -91,19 +93,19 @@ public final class BindResponseProtocolOp
 
 
   // The server SASL credentials for this bind response.
-  private final ASN1OctetString serverSASLCredentials;
+  @Nullable private final ASN1OctetString serverSASLCredentials;
 
   // The result code for this bind response.
   private final int resultCode;
 
   // The referral URLs for this bind response.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The diagnostic message for this bind response.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The matched DN for this bind response.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
 
 
@@ -121,10 +123,11 @@ public final class BindResponseProtocolOp
    * @param  serverSASLCredentials  The server SASL credentials for this
    *                                response, if available.
    */
-  public BindResponseProtocolOp(final int resultCode, final String matchedDN,
-                                final String diagnosticMessage,
-                                final List<String> referralURLs,
-                                final ASN1OctetString serverSASLCredentials)
+  public BindResponseProtocolOp(final int resultCode,
+              @Nullable final String matchedDN,
+              @Nullable final String diagnosticMessage,
+              @Nullable final List<String> referralURLs,
+              @Nullable final ASN1OctetString serverSASLCredentials)
   {
     this.resultCode            = resultCode;
     this.matchedDN             = matchedDN;
@@ -158,7 +161,7 @@ public final class BindResponseProtocolOp
    *
    * @param  result  The LDAP result object to use to create this protocol op.
    */
-  public BindResponseProtocolOp(final LDAPResult result)
+  public BindResponseProtocolOp(@NotNull final LDAPResult result)
   {
     resultCode            = result.getResultCode().intValue();
     matchedDN             = result.getMatchedDN();
@@ -188,7 +191,7 @@ public final class BindResponseProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         bind response.
    */
-  BindResponseProtocolOp(final ASN1StreamReader reader)
+  BindResponseProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -280,6 +283,7 @@ public final class BindResponseProtocolOp
    * @return  The matched DN for this bind response, or {@code null} if there is
    *          no matched DN.
    */
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -293,6 +297,7 @@ public final class BindResponseProtocolOp
    * @return  The diagnostic message for this bind response, or {@code null} if
    *          there is no diagnostic message.
    */
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -306,6 +311,7 @@ public final class BindResponseProtocolOp
    * @return  The list of referral URLs for this bind response, or an empty list
    *          if there are no referral URLs.
    */
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -319,6 +325,7 @@ public final class BindResponseProtocolOp
    * @return  The server SASL credentials for this bind response, or
    *          {@code null} if there are no server SASL credentials.
    */
+  @Nullable()
   public ASN1OctetString getServerSASLCredentials()
   {
     return serverSASLCredentials;
@@ -341,6 +348,7 @@ public final class BindResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(5);
@@ -399,8 +407,9 @@ public final class BindResponseProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a bind response protocol op.
    */
+  @NotNull()
   public static BindResponseProtocolOp decodeProtocolOp(
-                                            final ASN1Element element)
+                                            @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -490,7 +499,7 @@ public final class BindResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_BIND_RESPONSE);
@@ -528,7 +537,8 @@ public final class BindResponseProtocolOp
    *
    * @return  The LDAP result that was created.
    */
-  public BindResult toBindResult(final Control... controls)
+  @NotNull()
+  public BindResult toBindResult(@Nullable final Control... controls)
   {
     final String[] refs;
     if (referralURLs.isEmpty())
@@ -553,6 +563,7 @@ public final class BindResponseProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -566,7 +577,7 @@ public final class BindResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("BindResponseProtocolOp(resultCode=");
     buffer.append(resultCode);

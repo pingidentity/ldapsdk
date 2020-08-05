@@ -64,6 +64,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -334,7 +336,7 @@ public final class Filter
   /**
    * The set of filters that will be used if there are no subordinate filters.
    */
-  private static final Filter[] NO_FILTERS = new Filter[0];
+  @NotNull private static final Filter[] NO_FILTERS = new Filter[0];
 
 
 
@@ -342,7 +344,8 @@ public final class Filter
    * The set of subAny components that will be used if there are no subAny
    * components.
    */
-  private static final ASN1OctetString[] NO_SUB_ANY = new ASN1OctetString[0];
+  @NotNull private static final ASN1OctetString[] NO_SUB_ANY =
+       new ASN1OctetString[0];
 
 
 
@@ -354,40 +357,40 @@ public final class Filter
 
 
   // The assertion value for this filter.
-  private final ASN1OctetString assertionValue;
+  @Nullable private final ASN1OctetString assertionValue;
 
   // The subFinal component for this filter.
-  private final ASN1OctetString subFinal;
+  @Nullable private final ASN1OctetString subFinal;
 
   // The subInitial component for this filter.
-  private final ASN1OctetString subInitial;
+  @Nullable private final ASN1OctetString subInitial;
 
   // The subAny components for this filter.
-  private final ASN1OctetString[] subAny;
+  @NotNull private final ASN1OctetString[] subAny;
 
   // The dnAttrs element for this filter.
   private final boolean dnAttributes;
 
   // The filter component to include in a NOT filter.
-  private final Filter notComp;
+  @Nullable private final Filter notComp;
 
   // The set of filter components to include in an AND or OR filter.
-  private final Filter[] filterComps;
+  @NotNull private final Filter[] filterComps;
 
   // The filter type for this search filter.
   private final byte filterType;
 
   // The attribute name for this filter.
-  private final String attrName;
+  @Nullable private final String attrName;
 
   // The string representation of this search filter.
-  private volatile String filterString;
+  @Nullable private volatile String filterString;
 
   // The matching rule ID for this filter.
-  private final String matchingRuleID;
+  @Nullable private final String matchingRuleID;
 
   // The normalized string representation of this search filter.
-  private volatile String normalizedString;
+  @Nullable private volatile String normalizedString;
 
 
 
@@ -408,12 +411,16 @@ public final class Filter
    * @param  matchingRuleID  The matching rule ID for this filter.
    * @param  dnAttributes    The dnAttributes flag.
    */
-  private Filter(final String filterString, final byte filterType,
-                 final Filter[] filterComps, final Filter notComp,
-                 final String attrName, final ASN1OctetString assertionValue,
-                 final ASN1OctetString subInitial,
-                 final ASN1OctetString[] subAny, final ASN1OctetString subFinal,
-                 final String matchingRuleID, final boolean dnAttributes)
+  private Filter(@Nullable final String filterString, final byte filterType,
+                 @NotNull final Filter[] filterComps,
+                 @Nullable final Filter notComp,
+                 @Nullable final String attrName,
+                 @Nullable final ASN1OctetString assertionValue,
+                 @Nullable final ASN1OctetString subInitial,
+                 @NotNull final ASN1OctetString[] subAny,
+                 @Nullable final ASN1OctetString subFinal,
+                 @Nullable final String matchingRuleID,
+                 final boolean dnAttributes)
   {
     this.filterString   = filterString;
     this.filterType     = filterType;
@@ -438,7 +445,8 @@ public final class Filter
    *
    * @return  The created AND search filter.
    */
-  public static Filter createANDFilter(final Filter... andComponents)
+  @NotNull()
+  public static Filter createANDFilter(@NotNull final Filter... andComponents)
   {
     Validator.ensureNotNull(andComponents);
 
@@ -456,7 +464,9 @@ public final class Filter
    *
    * @return  The created AND search filter.
    */
-  public static Filter createANDFilter(final List<Filter> andComponents)
+  @NotNull()
+  public static Filter createANDFilter(
+                            @NotNull final List<Filter> andComponents)
   {
     Validator.ensureNotNull(andComponents);
 
@@ -475,7 +485,9 @@ public final class Filter
    *
    * @return  The created AND search filter.
    */
-  public static Filter createANDFilter(final Collection<Filter> andComponents)
+  @NotNull()
+  public static Filter createANDFilter(
+                            @NotNull final Collection<Filter> andComponents)
   {
     Validator.ensureNotNull(andComponents);
 
@@ -494,7 +506,8 @@ public final class Filter
    *
    * @return  The created OR search filter.
    */
-  public static Filter createORFilter(final Filter... orComponents)
+  @NotNull()
+  public static Filter createORFilter(@NotNull final Filter... orComponents)
   {
     Validator.ensureNotNull(orComponents);
 
@@ -512,7 +525,8 @@ public final class Filter
    *
    * @return  The created OR search filter.
    */
-  public static Filter createORFilter(final List<Filter> orComponents)
+  @NotNull()
+  public static Filter createORFilter(@NotNull final List<Filter> orComponents)
   {
     Validator.ensureNotNull(orComponents);
 
@@ -531,7 +545,9 @@ public final class Filter
    *
    * @return  The created OR search filter.
    */
-  public static Filter createORFilter(final Collection<Filter> orComponents)
+  @NotNull()
+  public static Filter createORFilter(
+                            @NotNull final Collection<Filter> orComponents)
   {
     Validator.ensureNotNull(orComponents);
 
@@ -550,7 +566,8 @@ public final class Filter
    *
    * @return  The created NOT search filter.
    */
-  public static Filter createNOTFilter(final Filter notComponent)
+  @NotNull()
+  public static Filter createNOTFilter(@NotNull final Filter notComponent)
   {
     Validator.ensureNotNull(notComponent);
 
@@ -570,8 +587,9 @@ public final class Filter
    *
    * @return  The created equality search filter.
    */
-  public static Filter createEqualityFilter(final String attributeName,
-                                            final String assertionValue)
+  @NotNull()
+  public static Filter createEqualityFilter(@NotNull final String attributeName,
+                            @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -592,8 +610,9 @@ public final class Filter
    *
    * @return  The created equality search filter.
    */
-  public static Filter createEqualityFilter(final String attributeName,
-                                            final byte[] assertionValue)
+  @NotNull()
+  public static Filter createEqualityFilter(@NotNull final String attributeName,
+                            @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -614,8 +633,9 @@ public final class Filter
    *
    * @return  The created equality search filter.
    */
-  static Filter createEqualityFilter(final String attributeName,
-                                     final ASN1OctetString assertionValue)
+  @NotNull()
+  static Filter createEqualityFilter(@NotNull final String attributeName,
+                     @NotNull final ASN1OctetString assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -640,10 +660,12 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubstringFilter(final String attributeName,
-                                             final String subInitial,
-                                             final String[] subAny,
-                                             final String subFinal)
+  @NotNull()
+  public static Filter createSubstringFilter(
+                            @NotNull final String attributeName,
+                            @Nullable final String subInitial,
+                            @Nullable final String[] subAny,
+                            @Nullable final String subFinal)
   {
     Validator.ensureNotNull(attributeName);
     Validator.ensureTrue((subInitial != null) ||
@@ -705,10 +727,12 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubstringFilter(final String attributeName,
-                                             final byte[] subInitial,
-                                             final byte[][] subAny,
-                                             final byte[] subFinal)
+  @NotNull()
+  public static Filter createSubstringFilter(
+                            @NotNull final String attributeName,
+                            @Nullable final byte[] subInitial,
+                            @Nullable final byte[][] subAny,
+                            @Nullable final byte[] subFinal)
   {
     Validator.ensureNotNull(attributeName);
     Validator.ensureTrue((subInitial != null) ||
@@ -770,10 +794,11 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  static Filter createSubstringFilter(final String attributeName,
-                                      final ASN1OctetString subInitial,
-                                      final ASN1OctetString[] subAny,
-                                      final ASN1OctetString subFinal)
+  @NotNull()
+  static Filter createSubstringFilter(@NotNull final String attributeName,
+                     @Nullable final ASN1OctetString subInitial,
+                     @Nullable final ASN1OctetString[] subAny,
+                     @Nullable final ASN1OctetString subFinal)
   {
     Validator.ensureNotNull(attributeName);
     Validator.ensureTrue((subInitial != null) ||
@@ -807,8 +832,10 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubInitialFilter(final String attributeName,
-                                              final String subInitial)
+  @NotNull()
+  public static Filter createSubInitialFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final String subInitial)
   {
     return createSubstringFilter(attributeName, subInitial, null, null);
   }
@@ -826,8 +853,10 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubInitialFilter(final String attributeName,
-                                              final byte[] subInitial)
+  @NotNull()
+  public static Filter createSubInitialFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final byte[] subInitial)
   {
     return createSubstringFilter(attributeName, subInitial, null, null);
   }
@@ -845,8 +874,9 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubAnyFilter(final String attributeName,
-                                          final String... subAny)
+  @NotNull()
+  public static Filter createSubAnyFilter(@NotNull final String attributeName,
+                                          @NotNull final String... subAny)
   {
     return createSubstringFilter(attributeName, null, subAny, null);
   }
@@ -864,8 +894,9 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubAnyFilter(final String attributeName,
-                                          final byte[]... subAny)
+  @NotNull()
+  public static Filter createSubAnyFilter(@NotNull final String attributeName,
+                                          @NotNull final byte[]... subAny)
   {
     return createSubstringFilter(attributeName, null, subAny, null);
   }
@@ -883,8 +914,9 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubFinalFilter(final String attributeName,
-                                            final String subFinal)
+  @NotNull()
+  public static Filter createSubFinalFilter(@NotNull final String attributeName,
+                                            @NotNull final String subFinal)
   {
     return createSubstringFilter(attributeName, null, null, subFinal);
   }
@@ -902,8 +934,9 @@ public final class Filter
    *
    * @return  The created substring search filter.
    */
-  public static Filter createSubFinalFilter(final String attributeName,
-                                            final byte[] subFinal)
+  @NotNull()
+  public static Filter createSubFinalFilter(@NotNull final String attributeName,
+                                            @NotNull final byte[] subFinal)
   {
     return createSubstringFilter(attributeName, null, null, subFinal);
   }
@@ -920,8 +953,10 @@ public final class Filter
    *
    * @return  The created greater-or-equal search filter.
    */
-  public static Filter createGreaterOrEqualFilter(final String attributeName,
-                                                  final String assertionValue)
+  @NotNull()
+  public static Filter createGreaterOrEqualFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -942,8 +977,10 @@ public final class Filter
    *
    * @return  The created greater-or-equal search filter.
    */
-  public static Filter createGreaterOrEqualFilter(final String attributeName,
-                                                  final byte[] assertionValue)
+  @NotNull()
+  public static Filter createGreaterOrEqualFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -964,8 +1001,10 @@ public final class Filter
    *
    * @return  The created greater-or-equal search filter.
    */
-  static Filter createGreaterOrEqualFilter(final String attributeName,
-                                           final ASN1OctetString assertionValue)
+  @NotNull()
+  static Filter createGreaterOrEqualFilter(
+                     @NotNull final String attributeName,
+                     @NotNull final ASN1OctetString assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -986,8 +1025,10 @@ public final class Filter
    *
    * @return  The created less-or-equal search filter.
    */
-  public static Filter createLessOrEqualFilter(final String attributeName,
-                                               final String assertionValue)
+  @NotNull()
+  public static Filter createLessOrEqualFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -1008,8 +1049,10 @@ public final class Filter
    *
    * @return  The created less-or-equal search filter.
    */
-  public static Filter createLessOrEqualFilter(final String attributeName,
-                                               final byte[] assertionValue)
+  @NotNull()
+  public static Filter createLessOrEqualFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -1030,8 +1073,10 @@ public final class Filter
    *
    * @return  The created less-or-equal search filter.
    */
-  static Filter createLessOrEqualFilter(final String attributeName,
-                                        final ASN1OctetString assertionValue)
+  @NotNull()
+  static Filter createLessOrEqualFilter(
+                     @NotNull final String attributeName,
+                     @NotNull final ASN1OctetString assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -1050,7 +1095,8 @@ public final class Filter
    *
    * @return  The created presence search filter.
    */
-  public static Filter createPresenceFilter(final String attributeName)
+  @NotNull()
+  public static Filter createPresenceFilter(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1071,8 +1117,10 @@ public final class Filter
    *
    * @return  The created approximate match search filter.
    */
-  public static Filter createApproximateMatchFilter(final String attributeName,
-                                                    final String assertionValue)
+  @NotNull()
+  public static Filter createApproximateMatchFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -1094,8 +1142,10 @@ public final class Filter
    *
    * @return  The created approximate match search filter.
    */
-  public static Filter createApproximateMatchFilter(final String attributeName,
-                                                    final byte[] assertionValue)
+  @NotNull()
+  public static Filter createApproximateMatchFilter(
+                            @NotNull final String attributeName,
+                            @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -1117,8 +1167,10 @@ public final class Filter
    *
    * @return  The created approximate match search filter.
    */
-  static Filter createApproximateMatchFilter(final String attributeName,
-                     final ASN1OctetString assertionValue)
+  @NotNull()
+  static Filter createApproximateMatchFilter(
+                     @NotNull final String attributeName,
+                     @NotNull final ASN1OctetString assertionValue)
   {
     Validator.ensureNotNull(attributeName, assertionValue);
 
@@ -1145,10 +1197,12 @@ public final class Filter
    *
    * @return  The created extensible match search filter.
    */
-  public static Filter createExtensibleMatchFilter(final String attributeName,
-                                                   final String matchingRuleID,
-                                                   final boolean dnAttributes,
-                                                   final String assertionValue)
+  @NotNull()
+  public static Filter createExtensibleMatchFilter(
+                            @Nullable final String attributeName,
+                            @Nullable final String matchingRuleID,
+                            final boolean dnAttributes,
+                            @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
     Validator.ensureFalse((attributeName == null) && (matchingRuleID == null));
@@ -1176,10 +1230,12 @@ public final class Filter
    *
    * @return  The created extensible match search filter.
    */
-  public static Filter createExtensibleMatchFilter(final String attributeName,
-                                                   final String matchingRuleID,
-                                                   final boolean dnAttributes,
-                                                   final byte[] assertionValue)
+  @NotNull()
+  public static Filter createExtensibleMatchFilter(
+                            @Nullable final String attributeName,
+                            @Nullable final String matchingRuleID,
+                            final boolean dnAttributes,
+                            @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
     Validator.ensureFalse((attributeName == null) && (matchingRuleID == null));
@@ -1207,9 +1263,12 @@ public final class Filter
    *
    * @return  The created approximate match search filter.
    */
-  static Filter createExtensibleMatchFilter(final String attributeName,
-                     final String matchingRuleID, final boolean dnAttributes,
-                     final ASN1OctetString assertionValue)
+  @NotNull()
+  static Filter createExtensibleMatchFilter(
+                     @Nullable final String attributeName,
+                     @Nullable final String matchingRuleID,
+                     final boolean dnAttributes,
+                     @NotNull final ASN1OctetString assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
     Validator.ensureFalse((attributeName == null) && (matchingRuleID == null));
@@ -1232,7 +1291,8 @@ public final class Filter
    * @throws  LDAPException  If the provided string cannot be decoded as a valid
    *                         LDAP search filter.
    */
-  public static Filter create(final String filterString)
+  @NotNull()
+  public static Filter create(@NotNull final String filterString)
          throws LDAPException
   {
     Validator.ensureNotNull(filterString);
@@ -1261,8 +1321,10 @@ public final class Filter
    * @throws  LDAPException  If the provided string cannot be decoded as a valid
    *                         LDAP search filter.
    */
-  private static Filter create(final String filterString, final int startPos,
-                               final int endPos, final int depth)
+  @NotNull()
+  private static Filter create(@NotNull final String filterString,
+                               final int startPos, final int endPos,
+                               final int depth)
           throws LDAPException
   {
     if (depth > 100)
@@ -1895,7 +1957,8 @@ attrNameLoop:
    * @throws  LDAPException  If the provided string cannot be decoded as a set
    *                         of LDAP search filters.
    */
-  private static Filter[] parseFilterComps(final String filterString,
+  @NotNull()
+  private static Filter[] parseFilterComps(@NotNull final String filterString,
                                            final int startPos, final int endPos,
                                            final int depth)
           throws LDAPException
@@ -1974,9 +2037,9 @@ attrNameLoop:
    * @throws  LDAPException  If a problem occurs while reading hex-encoded
    *                         bytes.
    */
-  private static int readEscapedHexString(final String filterString,
-                                          final int startPos,
-                                          final ByteStringBuffer buffer)
+  private static int readEscapedHexString(@NotNull final String filterString,
+                          final int startPos,
+                          @NotNull final ByteStringBuffer buffer)
           throws LDAPException
   {
     final byte b;
@@ -2116,7 +2179,7 @@ attrNameLoop:
    * @param  buffer  The ASN.1 buffer to which the encoded representation should
    *                 be written.
    */
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     switch (filterType)
     {
@@ -2207,6 +2270,7 @@ attrNameLoop:
    *
    * @return  An ASN.1 element containing the encoded search filter.
    */
+  @NotNull()
   public ASN1Element encode()
   {
     switch (filterType)
@@ -2316,7 +2380,8 @@ attrNameLoop:
    * @throws  LDAPException  If an error occurs while reading or parsing the
    *                         search filter.
    */
-  public static Filter readFrom(final ASN1StreamReader reader)
+  @NotNull()
+  public static Filter readFrom(@NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     try
@@ -2556,7 +2621,8 @@ attrNameLoop:
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a search filter.
    */
-  public static Filter decode(final ASN1Element filterElement)
+  @NotNull()
+  public static Filter decode(@NotNull final ASN1Element filterElement)
          throws LDAPException
   {
     final byte              filterType = filterElement.getType();
@@ -2936,6 +3002,7 @@ attrNameLoop:
    *          empty array if this is some other type of filter or if there are
    *          no components (i.e., as in an LDAP TRUE or LDAP FALSE filter).
    */
+  @NotNull()
   public Filter[] getComponents()
   {
     return filterComps;
@@ -2950,6 +3017,7 @@ attrNameLoop:
    * @return  The filter component used in this NOT filter, or {@code null} if
    *          this is some other type of filter.
    */
+  @Nullable()
   public Filter getNOTComponent()
   {
     return notComp;
@@ -2973,6 +3041,7 @@ attrNameLoop:
    * @return  The name of the attribute type for this search filter, or
    *          {@code null} if it is not applicable for this type of filter.
    */
+  @Nullable()
   public String getAttributeName()
   {
     return attrName;
@@ -2995,6 +3064,7 @@ attrNameLoop:
    *          filter, or {@code null} if it is not applicable for this type of
    *          filter.
    */
+  @Nullable()
   public String getAssertionValue()
   {
     if (assertionValue == null)
@@ -3024,6 +3094,7 @@ attrNameLoop:
    *          filter, or {@code null} if it is not applicable for this type of
    *          filter.
    */
+  @Nullable()
   public byte[] getAssertionValueBytes()
   {
     if (assertionValue == null)
@@ -3053,6 +3124,7 @@ attrNameLoop:
    *          string, or {@code null} if it is not applicable for this type of
    *          filter.
    */
+  @Nullable()
   public ASN1OctetString getRawAssertionValue()
   {
     return assertionValue;
@@ -3068,6 +3140,7 @@ attrNameLoop:
    *          substring filter, or {@code null} if this is some other type of
    *          filter, or if it is a substring filter with no subInitial element.
    */
+  @Nullable()
   public String getSubInitialString()
   {
     if (subInitial == null)
@@ -3090,6 +3163,7 @@ attrNameLoop:
    *          substring filter, or {@code null} if this is some other type of
    *          filter, or if it is a substring filter with no subInitial element.
    */
+  @Nullable()
   public byte[] getSubInitialBytes()
   {
     if (subInitial == null)
@@ -3112,6 +3186,7 @@ attrNameLoop:
    *          string, or {@code null} if this is not a substring filter, or if
    *          it is a substring filter with no subInitial element.
    */
+  @Nullable()
   public ASN1OctetString getRawSubInitialValue()
   {
     return subInitial;
@@ -3127,6 +3202,7 @@ attrNameLoop:
    *          substring filter, or an empty array if this is some other type of
    *          filter, or if it is a substring filter with no subFinal element.
    */
+  @NotNull()
   public String[] getSubAnyStrings()
   {
     final String[] subAnyStrings = new String[subAny.length];
@@ -3148,6 +3224,7 @@ attrNameLoop:
    *          substring filter, or an empty array if this is some other type of
    *          filter, or if it is a substring filter with no subFinal element.
    */
+  @NotNull()
   public byte[][] getSubAnyBytes()
   {
     final byte[][] subAnyBytes = new byte[subAny.length][];
@@ -3169,6 +3246,7 @@ attrNameLoop:
    *          if this is some other type of filter, or if it is a substring
    *          filter with no subFinal element.
    */
+  @NotNull()
   public ASN1OctetString[] getRawSubAnyValues()
   {
     return subAny;
@@ -3184,6 +3262,7 @@ attrNameLoop:
    *          substring filter, or {@code null} if this is some other type of
    *          filter, or if it is a substring filter with no subFinal element.
    */
+  @Nullable()
   public String getSubFinalString()
   {
     if (subFinal == null)
@@ -3206,6 +3285,7 @@ attrNameLoop:
    *          substring filter, or {@code null} if this is some other type of
    *          filter, or if it is a substring filter with no subFinal element.
    */
+  @Nullable()
   public byte[] getSubFinalBytes()
   {
     if (subFinal == null)
@@ -3228,6 +3308,7 @@ attrNameLoop:
    *          string, or {@code null} if this is not a substring filter, or if
    *          it is a substring filter with no subFinal element.
    */
+  @Nullable()
   public ASN1OctetString getRawSubFinalValue()
   {
     return subFinal;
@@ -3243,6 +3324,7 @@ attrNameLoop:
    *          {@code null} if this is some other type of filter, or if this
    *          extensible match filter does not have a matching rule ID.
    */
+  @Nullable()
   public String getMatchingRuleID()
   {
     return matchingRuleID;
@@ -3289,7 +3371,7 @@ attrNameLoop:
    * @throws  LDAPException  If a problem occurs while trying to make the
    *                         determination.
    */
-  public boolean matchesEntry(final Entry entry)
+  public boolean matchesEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     return matchesEntry(entry, entry.getSchema());
@@ -3317,7 +3399,8 @@ attrNameLoop:
    * @throws  LDAPException  If a problem occurs while trying to make the
    *                         determination.
    */
-  public boolean matchesEntry(final Entry entry, final Schema schema)
+  public boolean matchesEntry(@NotNull final Entry entry,
+                              @Nullable final Schema schema)
          throws LDAPException
   {
     Validator.ensureNotNull(entry);
@@ -3472,7 +3555,8 @@ attrNameLoop:
    * @return  The simplified filter, or the original filter if the provided
    *          filter is not one that can be simplified any further.
    */
-  public static Filter simplifyFilter(final Filter filter,
+  @NotNull()
+  public static Filter simplifyFilter(@NotNull final Filter filter,
                                       final boolean reOrderElements)
   {
     final byte filterType = filter.filterType;
@@ -3831,7 +3915,7 @@ attrNameLoop:
    *          this search filter, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -4037,6 +4121,7 @@ attrNameLoop:
    * @return  A string representation of this search filter.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     if (filterString == null)
@@ -4058,7 +4143,7 @@ attrNameLoop:
    * @param  buffer  The buffer to which to append a string representation of
    *                 this search filter.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     switch (filterType)
     {
@@ -4177,6 +4262,7 @@ attrNameLoop:
    *
    * @return  A normalized string representation of this search filter.
    */
+  @NotNull()
   public String toNormalizedString()
   {
     if (normalizedString == null)
@@ -4198,7 +4284,7 @@ attrNameLoop:
    * @param  buffer  The buffer to which to append a normalized string
    *                 representation of this search filter.
    */
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     final CaseIgnoreStringMatchingRule mr =
          CaseIgnoreStringMatchingRule.getInstance();
@@ -4329,7 +4415,8 @@ attrNameLoop:
    *
    * @return  The encoded representation of the provided string.
    */
-  public static String encodeValue(final String value)
+  @NotNull()
+  public static String encodeValue(@NotNull final String value)
   {
     Validator.ensureNotNull(value);
 
@@ -4351,7 +4438,8 @@ attrNameLoop:
    *
    * @return  The encoded representation of the provided string.
    */
-  public static String encodeValue(final byte[]value)
+  @NotNull()
+  public static String encodeValue(@NotNull final byte[]value)
   {
     Validator.ensureNotNull(value);
 
@@ -4369,8 +4457,8 @@ attrNameLoop:
    * @param  value   The value to be encoded.
    * @param  buffer  The buffer to which the assertion value should be appended.
    */
-  public static void encodeValue(final ASN1OctetString value,
-                                 final StringBuilder buffer)
+  public static void encodeValue(@NotNull final ASN1OctetString value,
+                                 @NotNull final StringBuilder buffer)
   {
     final byte[] valueBytes = value.getValue();
     for (int i=0; i < valueBytes.length; i++)
@@ -4483,8 +4571,10 @@ attrNameLoop:
    *                          Java statement).  It may be {@code null} or empty
    *                          if there should be no last line suffix.
    */
-  public void toCode(final List<String> lineList, final int indentSpaces,
-                     final String firstLinePrefix, final String lastLineSuffix)
+  public void toCode(@NotNull final List<String> lineList,
+                     final int indentSpaces,
+                     @Nullable final String firstLinePrefix,
+                     @Nullable final String lastLineSuffix)
   {
     // Generate a string with the appropriate indent.
     final StringBuilder buffer = new StringBuilder();

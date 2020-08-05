@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -91,8 +93,9 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.47) for the get supported one-time password
    * delivery mechanisms extended request.
    */
-  public static final String GET_SUPPORTED_OTP_DELIVERY_MECHANISMS_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.6.47";
+  @NotNull public static final String
+       GET_SUPPORTED_OTP_DELIVERY_MECHANISMS_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.6.47";
 
 
 
@@ -111,7 +114,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
 
 
   // THe DN of the user for whom to retrieve the supported delivery mechanisms.
-  private final String userDN;
+  @NotNull private final String userDN;
 
 
 
@@ -125,8 +128,9 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * @param  controls  The set of controls to include in the request.  It may be
    *                   {@code null} or empty if no controls should be included.
    */
-  public GetSupportedOTPDeliveryMechanismsExtendedRequest(final String userDN,
-              final Control... controls)
+  public GetSupportedOTPDeliveryMechanismsExtendedRequest(
+              @NotNull final String userDN,
+              @Nullable final Control... controls)
   {
     super(GET_SUPPORTED_OTP_DELIVERY_MECHANISMS_REQUEST_OID,
          encodeValue(userDN), controls);
@@ -147,7 +151,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    *                         supported OTP delivery mechanisms request.
    */
   public GetSupportedOTPDeliveryMechanismsExtendedRequest(
-              final ExtendedRequest request)
+              @NotNull final ExtendedRequest request)
          throws LDAPException
   {
     super(request);
@@ -187,7 +191,8 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
-  private static ASN1OctetString encodeValue(final String userDN)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String userDN)
   {
     return new ASN1OctetString(new ASN1Sequence(
          new ASN1OctetString(TYPE_USER_DN, userDN)).encode());
@@ -202,6 +207,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * @return  The DN of the user for whom to retrieve the list of supported OTP
    *          delivery mechanisms.
    */
+  @NotNull()
   public String getUserDN()
   {
     return userDN;
@@ -213,8 +219,9 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetSupportedOTPDeliveryMechanismsExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -228,6 +235,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public GetSupportedOTPDeliveryMechanismsExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -239,8 +247,9 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public GetSupportedOTPDeliveryMechanismsExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final GetSupportedOTPDeliveryMechanismsExtendedRequest r =
          new GetSupportedOTPDeliveryMechanismsExtendedRequest(userDN,
@@ -255,6 +264,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_GET_SUPPORTED_OTP_MECH_REQ_NAME.get();
@@ -266,7 +276,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetSupportedOTPDeliveryMechanismsExtendedRequest(userDN='");
     buffer.append(userDN);

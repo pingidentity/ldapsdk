@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -135,7 +136,7 @@ public final class RegularExpressionJSONObjectFilter
    * The value that should be used for the filterType element of the JSON object
    * that represents a "regular expression" filter.
    */
-  public static final String FILTER_TYPE = "regularExpression";
+  @NotNull public static final String FILTER_TYPE = "regularExpression";
 
 
 
@@ -143,7 +144,7 @@ public final class RegularExpressionJSONObjectFilter
    * The name of the JSON field that is used to specify the field in the target
    * JSON object for which to make the determination.
    */
-  public static final String FIELD_FIELD_PATH = "field";
+  @NotNull public static final String FIELD_FIELD_PATH = "field";
 
 
 
@@ -151,7 +152,8 @@ public final class RegularExpressionJSONObjectFilter
    * The name of the JSON field that is used to specify the regular expression
    * that values should match.
    */
-  public static final String FIELD_REGULAR_EXPRESSION = "regularExpression";
+  @NotNull public static final String FIELD_REGULAR_EXPRESSION =
+       "regularExpression";
 
 
 
@@ -159,14 +161,15 @@ public final class RegularExpressionJSONObjectFilter
    * The name of the JSON field that is used to indicate whether all values of
    * an array should be required to match the provided regular expression.
    */
-  public static final String FIELD_MATCH_ALL_ELEMENTS = "matchAllElements";
+  @NotNull public static final String FIELD_MATCH_ALL_ELEMENTS =
+       "matchAllElements";
 
 
 
   /**
    * The pre-allocated set of required field names.
    */
-  private static final Set<String> REQUIRED_FIELD_NAMES =
+  @NotNull private static final Set<String> REQUIRED_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_FIELD_PATH, FIELD_REGULAR_EXPRESSION)));
 
@@ -175,7 +178,7 @@ public final class RegularExpressionJSONObjectFilter
   /**
    * The pre-allocated set of optional field names.
    */
-  private static final Set<String> OPTIONAL_FIELD_NAMES =
+  @NotNull private static final Set<String> OPTIONAL_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_MATCH_ALL_ELEMENTS)));
 
@@ -193,10 +196,10 @@ public final class RegularExpressionJSONObjectFilter
   private volatile boolean matchAllElements;
 
   // The field path specifier for the target field.
-  private volatile List<String> field;
+  @NotNull private volatile List<String> field;
 
   // The regular expression to match.
-  private volatile Pattern regularExpression;
+  @NotNull private volatile Pattern regularExpression;
 
 
 
@@ -223,9 +226,10 @@ public final class RegularExpressionJSONObjectFilter
    *                            required to match the regular expression rather
    *                            than merely at least one element.
    */
-  private RegularExpressionJSONObjectFilter(final List<String> field,
-                                            final Pattern regularExpression,
-                                            final boolean matchAllElements)
+  private RegularExpressionJSONObjectFilter(
+               @NotNull final List<String> field,
+               @NotNull final Pattern regularExpression,
+               final boolean matchAllElements)
   {
     this.field = field;
     this.regularExpression = regularExpression;
@@ -250,8 +254,8 @@ public final class RegularExpressionJSONObjectFilter
    * @throws  JSONException  If the provided string cannot be parsed as a valid
    *                         regular expression.
    */
-  public RegularExpressionJSONObjectFilter(final String field,
-                                           final String regularExpression)
+  public RegularExpressionJSONObjectFilter(@NotNull final String field,
+              @NotNull final String regularExpression)
          throws JSONException
   {
     this(Collections.singletonList(field), regularExpression);
@@ -270,8 +274,8 @@ public final class RegularExpressionJSONObjectFilter
    * @param  regularExpression  The regular expression pattern to match.  It
    *                            must not be {@code null}.
    */
-  public RegularExpressionJSONObjectFilter(final String field,
-                                           final Pattern regularExpression)
+  public RegularExpressionJSONObjectFilter(@NotNull final String field,
+              @NotNull final Pattern regularExpression)
   {
     this(Collections.singletonList(field), regularExpression);
   }
@@ -294,8 +298,8 @@ public final class RegularExpressionJSONObjectFilter
    * @throws  JSONException  If the provided string cannot be parsed as a valid
    *                         regular expression.
    */
-  public RegularExpressionJSONObjectFilter(final List<String> field,
-                                           final String regularExpression)
+  public RegularExpressionJSONObjectFilter(@NotNull final List<String> field,
+              @NotNull final String regularExpression)
          throws JSONException
   {
     Validator.ensureNotNull(field);
@@ -335,7 +339,7 @@ public final class RegularExpressionJSONObjectFilter
    *                            must not be {@code null}.
    */
   public RegularExpressionJSONObjectFilter(final List<String> field,
-                                           final Pattern regularExpression)
+              @NotNull final Pattern regularExpression)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -355,6 +359,7 @@ public final class RegularExpressionJSONObjectFilter
    *
    * @return The field path specifier for this filter.
    */
+  @NotNull()
   public List<String> getField()
   {
     return field;
@@ -370,7 +375,7 @@ public final class RegularExpressionJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final String... field)
+  public void setField(@NotNull final String... field)
   {
     setField(StaticUtils.toList(field));
   }
@@ -385,7 +390,7 @@ public final class RegularExpressionJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final List<String> field)
+  public void setField(@NotNull final List<String> field)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -400,6 +405,7 @@ public final class RegularExpressionJSONObjectFilter
    *
    * @return  The regular expression pattern for this filter.
    */
+  @NotNull()
   public Pattern getRegularExpression()
   {
     return regularExpression;
@@ -418,7 +424,7 @@ public final class RegularExpressionJSONObjectFilter
    * @throws  JSONException  If the provided string cannot be parsed as a valid
    *                         regular expression.
    */
-  public void setRegularExpression(final String regularExpression)
+  public void setRegularExpression(@NotNull final String regularExpression)
          throws JSONException
   {
     Validator.ensureNotNull(regularExpression);
@@ -445,7 +451,7 @@ public final class RegularExpressionJSONObjectFilter
    * @param  regularExpression  The regular expression pattern to match.  It
    *                            must not be {@code null}.
    */
-  public void setRegularExpression(final Pattern regularExpression)
+  public void setRegularExpression(@NotNull final Pattern regularExpression)
   {
     Validator.ensureNotNull(regularExpression);
 
@@ -489,6 +495,7 @@ public final class RegularExpressionJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getFilterType()
   {
     return FILTER_TYPE;
@@ -500,6 +507,7 @@ public final class RegularExpressionJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getRequiredFieldNames()
   {
     return REQUIRED_FIELD_NAMES;
@@ -511,6 +519,7 @@ public final class RegularExpressionJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getOptionalFieldNames()
   {
     return OPTIONAL_FIELD_NAMES;
@@ -522,7 +531,7 @@ public final class RegularExpressionJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesJSONObject(final JSONObject o)
+  public boolean matchesJSONObject(@NotNull final JSONObject o)
   {
     final List<JSONValue> candidates = getValues(o, field);
     if (candidates.isEmpty())
@@ -592,6 +601,7 @@ public final class RegularExpressionJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public JSONObject toJSONObject()
   {
     final LinkedHashMap<String,JSONValue> fields =
@@ -631,8 +641,9 @@ public final class RegularExpressionJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected RegularExpressionJSONObjectFilter decodeFilter(
-                 final JSONObject filterObject)
+                 @NotNull final JSONObject filterObject)
             throws JSONException
   {
     final List<String> fieldPath =

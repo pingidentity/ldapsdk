@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -74,7 +76,7 @@ public final class DeleteRequestProtocolOp
 
 
   // The entry DN for this delete request.
-  private final String dn;
+  @NotNull private final String dn;
 
 
 
@@ -83,7 +85,7 @@ public final class DeleteRequestProtocolOp
    *
    * @param  dn  The entry DN for this delete request.
    */
-  public DeleteRequestProtocolOp(final String dn)
+  public DeleteRequestProtocolOp(@NotNull final String dn)
   {
     this.dn = dn;
   }
@@ -97,7 +99,7 @@ public final class DeleteRequestProtocolOp
    * @param  request  The delete request object to use to create this protocol
    *                  op.
    */
-  public DeleteRequestProtocolOp(final DeleteRequest request)
+  public DeleteRequestProtocolOp(@NotNull final DeleteRequest request)
   {
     dn = request.getDN();
   }
@@ -114,7 +116,7 @@ public final class DeleteRequestProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         delete request.
    */
-  DeleteRequestProtocolOp(final ASN1StreamReader reader)
+  DeleteRequestProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -140,6 +142,7 @@ public final class DeleteRequestProtocolOp
    *
    * @return  The target entry DN for this delete request.
    */
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -162,6 +165,7 @@ public final class DeleteRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
@@ -179,8 +183,9 @@ public final class DeleteRequestProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a delete request protocol op.
    */
+  @NotNull()
   public static DeleteRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
+                                             @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -204,7 +209,7 @@ public final class DeleteRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     buffer.addOctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
   }
@@ -220,7 +225,8 @@ public final class DeleteRequestProtocolOp
    *
    * @return  The delete request that was created.
    */
-  public DeleteRequest toDeleteRequest(final Control... controls)
+  @NotNull()
+  public DeleteRequest toDeleteRequest(@Nullable final Control... controls)
   {
     return new DeleteRequest(dn, controls);
   }
@@ -233,6 +239,7 @@ public final class DeleteRequestProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -246,7 +253,7 @@ public final class DeleteRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeleteRequestProtocolOp(dn='");
     buffer.append(dn);

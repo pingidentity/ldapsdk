@@ -47,6 +47,7 @@ import java.util.List;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -76,7 +77,7 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
 
 
   // The set of prohibited base DNs for values of the associated argument.
-  private final List<DN> baseDNs;
+  @NotNull private final List<DN> baseDNs;
 
 
 
@@ -88,7 +89,8 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
    *                  associated argument.  It must not be {@code null} or
    *                  empty.
    */
-  public ProhibitDNInSubtreeArgumentValueValidator(final DN... baseDNs)
+  public ProhibitDNInSubtreeArgumentValueValidator(
+              @NotNull final DN... baseDNs)
   {
     this(StaticUtils.toList(baseDNs));
   }
@@ -103,7 +105,8 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
    *                  associated argument.  It must not be {@code null} or
    *                  empty.
    */
-  public ProhibitDNInSubtreeArgumentValueValidator(final Collection<DN> baseDNs)
+  public ProhibitDNInSubtreeArgumentValueValidator(
+              @NotNull final Collection<DN> baseDNs)
   {
     Validator.ensureNotNull(baseDNs);
     Validator.ensureFalse(baseDNs.isEmpty());
@@ -120,6 +123,7 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
    * @return  A list of the prohibited base DNs for this argument value
    *          validator.
    */
+  @NotNull()
   public List<DN> getBaseDNs()
   {
     return baseDNs;
@@ -131,8 +135,8 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
    * {@inheritDoc}
    */
   @Override()
-  public void validateArgumentValue(final Argument argument,
-                                    final String valueString)
+  public void validateArgumentValue(@NotNull final Argument argument,
+                                    @NotNull final String valueString)
          throws ArgumentException
   {
     final DN dn;
@@ -169,6 +173,7 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
    * @return  A string representation of this argument value validator.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -185,7 +190,7 @@ public final class ProhibitDNInSubtreeArgumentValueValidator
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ProhibitDNInSubtreeArgumentValueValidator(baseDNs={");
 

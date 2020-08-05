@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,7 +80,7 @@ public final class LDAPDN
    *
    * @return  A normalized representation of the provided DN.
    */
-  public static String normalize(final String dn)
+  public static String normalize(@NotNull final String dn)
   {
     try
     {
@@ -106,7 +107,9 @@ public final class LDAPDN
    *
    * @return  An exploded representation of the provided DN.
    */
-  public static String[] explodeDN(final String dn, final boolean noTypes)
+  @NotNull()
+  public static String[] explodeDN(@NotNull final String dn,
+                                   final boolean noTypes)
   {
     try
     {
@@ -154,7 +157,9 @@ public final class LDAPDN
    *
    * @return  An exploded representation of the provided DN.
    */
-  public static String[] explodeRDN(final String rdn, final boolean noTypes)
+  @NotNull()
+  public static String[] explodeRDN(@NotNull final String rdn,
+                                    final boolean noTypes)
   {
     try
     {
@@ -196,7 +201,8 @@ public final class LDAPDN
    *          distinguished name, or {@code false} if not or if either of the
    *          values cannot be parsed as a valid DN.
    */
-  public static boolean equals(final String dn1, final String dn2)
+  public static boolean equals(@NotNull final String dn1,
+                               @NotNull final String dn2)
   {
     try
     {

@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,6 +76,7 @@ public interface DecodeableControl
    * @throws  LDAPException  If the provided information cannot be decoded as a
    *                         valid instance of this decodeable control.
    */
-  Control decodeControl(String oid, boolean isCritical, ASN1OctetString value)
+  Control decodeControl(@NotNull String oid, boolean isCritical,
+                        @Nullable ASN1OctetString value)
           throws LDAPException;
 }

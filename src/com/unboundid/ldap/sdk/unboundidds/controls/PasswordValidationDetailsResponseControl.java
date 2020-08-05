@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -109,7 +111,7 @@ public final class PasswordValidationDetailsResponseControl
   * The OID (1.3.6.1.4.1.30221.2.5.41) for the password validation details
   * response control.
   */
- public static final String PASSWORD_VALIDATION_DETAILS_RESPONSE_OID =
+ @NotNull public static final String PASSWORD_VALIDATION_DETAILS_RESPONSE_OID =
       "1.3.6.1.4.1.30221.2.5.41";
 
 
@@ -155,14 +157,14 @@ public final class PasswordValidationDetailsResponseControl
 
   // The length of time in seconds that the new password will be considered
   // valid.
-  private final Integer secondsUntilExpiration;
+  @Nullable private final Integer secondsUntilExpiration;
 
   // The list of the validation results for the associated operation.
-  private final List<PasswordQualityRequirementValidationResult>
+  @NotNull private final List<PasswordQualityRequirementValidationResult>
       validationResults;
 
   // The response type for this password validation details response control.
-  private final PasswordValidationDetailsResponseType responseType;
+  @NotNull private final PasswordValidationDetailsResponseType responseType;
 
 
 
@@ -212,12 +214,12 @@ public final class PasswordValidationDetailsResponseControl
    *                                 valid indefinitely.
    */
   public PasswordValidationDetailsResponseControl(
-              final PasswordValidationDetailsResponseType responseType,
-              final Collection<PasswordQualityRequirementValidationResult>
-                   validationResults,
-              final boolean missingCurrentPassword,
-              final boolean mustChangePassword,
-              final Integer secondsUntilExpiration)
+       @NotNull final PasswordValidationDetailsResponseType responseType,
+       @Nullable final Collection<PasswordQualityRequirementValidationResult>
+            validationResults,
+       final boolean missingCurrentPassword,
+       final boolean mustChangePassword,
+       @Nullable final Integer secondsUntilExpiration)
   {
     super(PASSWORD_VALIDATION_DETAILS_RESPONSE_OID, false,
          encodeValue(responseType, validationResults, missingCurrentPassword,
@@ -254,9 +256,9 @@ public final class PasswordValidationDetailsResponseControl
    *                         create a password validation details response
    *                         control.
    */
-  public PasswordValidationDetailsResponseControl(final String oid,
-                                                  final boolean isCritical,
-                                                  final ASN1OctetString value)
+  public PasswordValidationDetailsResponseControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -384,13 +386,14 @@ public final class PasswordValidationDetailsResponseControl
    *
    * @return  The encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-               final PasswordValidationDetailsResponseType responseType,
-               final Collection<PasswordQualityRequirementValidationResult>
-                    validationResults,
-               final boolean missingCurrentPassword,
-               final boolean mustChangePassword,
-               final Integer secondsUntilExpiration)
+       @NotNull final PasswordValidationDetailsResponseType responseType,
+       @Nullable final Collection<PasswordQualityRequirementValidationResult>
+            validationResults,
+       final boolean missingCurrentPassword,
+       final boolean mustChangePassword,
+       @Nullable final Integer secondsUntilExpiration)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
 
@@ -451,6 +454,7 @@ public final class PasswordValidationDetailsResponseControl
    * @return  The response type for this password validation details response
    *          control.
    */
+  @NotNull()
   public PasswordValidationDetailsResponseType getResponseType()
   {
     return responseType;
@@ -468,6 +472,7 @@ public final class PasswordValidationDetailsResponseControl
    *          effect for the operation, or an empty list if no validation
    *          results are available.
    */
+  @NotNull()
   public List<PasswordQualityRequirementValidationResult> getValidationResults()
   {
     return validationResults;
@@ -523,6 +528,7 @@ public final class PasswordValidationDetailsResponseControl
    *          password will be considered valid, or {@code null} if the new
    *          password will be valid indefinitely.
    */
+  @Nullable()
   public Integer getSecondsUntilExpiration()
   {
     return secondsUntilExpiration;
@@ -534,9 +540,10 @@ public final class PasswordValidationDetailsResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public PasswordValidationDetailsResponseControl decodeControl(
-              final String oid, final boolean isCritical,
-              final ASN1OctetString value)
+              @NotNull final String oid, final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new PasswordValidationDetailsResponseControl(oid, isCritical, value);
@@ -559,8 +566,9 @@ public final class PasswordValidationDetailsResponseControl
    *                         decode the password validation details response
    *                         control contained in the provided result.
    */
-  public static PasswordValidationDetailsResponseControl
-                     get(final LDAPResult result)
+  @Nullable()
+  public static PasswordValidationDetailsResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c =
@@ -598,8 +606,9 @@ public final class PasswordValidationDetailsResponseControl
    *                         decode the password validation details response
    *                         control contained in the provided result.
    */
-  public static PasswordValidationDetailsResponseControl
-                     get(final LDAPException exception)
+  @NotNull()
+  public static PasswordValidationDetailsResponseControl get(
+                     @NotNull final LDAPException exception)
          throws LDAPException
   {
     return get(exception.toLDAPResult());
@@ -611,6 +620,7 @@ public final class PasswordValidationDetailsResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_VALIDATION_RESPONSE.get();
@@ -622,7 +632,7 @@ public final class PasswordValidationDetailsResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PasswordValidationDetailsResponseControl(responseType='");
     buffer.append(responseType.name());

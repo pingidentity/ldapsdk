@@ -127,6 +127,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
 import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -177,7 +178,8 @@ public final class ResultUtils
    * @return  A list of strings that comprise a formatted representation of the
    *          provided result.
    */
-  public static List<String> formatResult(final LDAPResult result,
+  @NotNull()
+  public static List<String> formatResult(@NotNull final LDAPResult result,
                                           final boolean comment,
                                           final int indent, final int maxWidth)
   {
@@ -202,9 +204,11 @@ public final class ResultUtils
    * @return  A list of strings that comprise a formatted representation of the
    *          result encapsulated by the provided exception.
    */
-  public static List<String> formatResult(final LDAPException ldapException,
-                                          final boolean comment,
-                                          final int indent, final int maxWidth)
+  @NotNull()
+  public static List<String> formatResult(
+              @NotNull final LDAPException ldapException,
+              final boolean comment,
+              final int indent, final int maxWidth)
   {
     return formatResult(ldapException.toLDAPResult(), comment, indent,
          maxWidth);
@@ -226,8 +230,8 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  public static void formatResult(final List<String> lines,
-                                  final LDAPResult result,
+  public static void formatResult(@NotNull final List<String> lines,
+                                  @NotNull final LDAPResult result,
                                   final boolean comment, final boolean inTxn,
                                   final int indent, final int maxWidth)
   {
@@ -248,9 +252,11 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  private static void formatResult(final List<String> lines,
-                                   final LDAPResult result, final boolean inTxn,
-                                   final String prefix, final int maxWidth)
+  private static void formatResult(@NotNull final List<String> lines,
+                                   @NotNull final LDAPResult result,
+                                   final boolean inTxn,
+                                   final String prefix,
+                                   final int maxWidth)
   {
     // Format the result code.  If it's a success result but the operation was
     // part of a transaction, then indicate that no change has actually been
@@ -464,9 +470,9 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   any comment prefix and indent.
    */
-  public static void formatSearchResultEntry(final List<String> lines,
-                                             final SearchResultEntry entry,
-                                             final int maxWidth)
+  public static void formatSearchResultEntry(@NotNull final List<String> lines,
+                          @NotNull final SearchResultEntry entry,
+                          final int maxWidth)
   {
     for (final Control c : entry.getControls())
     {
@@ -490,8 +496,9 @@ public final class ResultUtils
    * @param  maxWidth   The maximum length of each line in characters, including
    *                    any comment prefix and indent.
    */
-  public static void formatSearchResultReference(final List<String> lines,
-                          final SearchResultReference reference,
+  public static void formatSearchResultReference(
+                          @NotNull final List<String> lines,
+                          @NotNull final SearchResultReference reference,
                           final int maxWidth)
   {
     wrap(lines, INFO_RESULT_UTILS_SEARCH_REFERENCE_HEADER.get(), "# ",
@@ -521,8 +528,9 @@ public final class ResultUtils
    * @param  maxWidth      The maximum length of each line in characters,
    *                       including the comment prefix and indent.
    */
-  public static void formatUnsolicitedNotification(final List<String> lines,
-                          final ExtendedResult notification,
+  public static void formatUnsolicitedNotification(
+                          @NotNull final List<String> lines,
+                          @NotNull final ExtendedResult notification,
                           final boolean comment, final int indent,
                           final int maxWidth)
   {
@@ -663,8 +671,8 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  public static void formatResponseControl(final List<String> lines,
-                                           final Control c,
+  public static void formatResponseControl(@NotNull final List<String> lines,
+                                           @NotNull final Control c,
                                            final boolean comment,
                                            final int indent, final int maxWidth)
   {
@@ -696,9 +704,9 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  private static void formatResponseControl(final List<String> lines,
-                                            final Control c,
-                                            final String prefix,
+  private static void formatResponseControl(@NotNull final List<String> lines,
+                                            @NotNull final Control c,
+                                            @NotNull final String prefix,
                                             final int maxWidth)
   {
     final String oid = c.getOID();
@@ -850,10 +858,11 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  private static void addGenericResponseControl(final List<String> lines,
-                                                final Control c,
-                                                final String prefix,
-                                                final int maxWidth)
+  private static void addGenericResponseControl(
+               @NotNull final List<String> lines,
+               @NotNull final Control c,
+               @NotNull final String prefix,
+               final int maxWidth)
   {
     wrap(lines, INFO_RESULT_UTILS_GENERIC_RESPONSE_CONTROL_HEADER.get(),
          prefix, maxWidth);
@@ -893,8 +902,9 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addAuthorizationIdentityResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix, final int maxWidth)
   {
     final AuthorizationIdentityResponseControl decoded;
     try
@@ -934,8 +944,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addContentSyncDoneControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final ContentSyncDoneControl decoded;
     try
@@ -989,8 +1001,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addContentSyncStateControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final ContentSyncStateControl decoded;
     try
@@ -1048,8 +1062,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addEntryChangeNotificationControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final EntryChangeNotificationControl decoded;
     try
@@ -1104,10 +1120,11 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  private static void addPasswordExpiredControl(final List<String> lines,
-                                                final Control c,
-                                                final String prefix,
-                                                final int maxWidth)
+  private static void addPasswordExpiredControl(
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final PasswordExpiredControl decoded;
     try
@@ -1142,10 +1159,11 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  private static void addPasswordExpiringControl(final List<String> lines,
-                                                 final Control c,
-                                                 final String prefix,
-                                                 final int maxWidth)
+  private static void addPasswordExpiringControl(
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final PasswordExpiringControl decoded;
     try
@@ -1190,8 +1208,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addPostReadResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final PostReadResponseControl decoded;
     try
@@ -1229,8 +1249,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addPreReadResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final PreReadResponseControl decoded;
     try
@@ -1268,8 +1290,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addServerSideSortResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final ServerSideSortResponseControl decoded;
     try
@@ -1319,8 +1343,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addSimplePagedResultsControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final SimplePagedResultsControl decoded;
     try
@@ -1377,8 +1403,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addVirtualListViewResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final VirtualListViewResponseControl decoded;
     try
@@ -1450,8 +1478,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addAccountUsableResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final AccountUsableResponseControl decoded;
     try
@@ -1541,8 +1571,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addAssuredReplicationResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final AssuredReplicationResponseControl decoded;
     try
@@ -1664,8 +1696,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGeneratePasswordResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GeneratePasswordResponseControl decoded;
     try
@@ -1718,8 +1752,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGetAuthorizationEntryResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GetAuthorizationEntryResponseControl decoded;
     try
@@ -1804,8 +1840,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGetBackendSetIDResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GetBackendSetIDResponseControl decoded;
     try
@@ -1852,8 +1890,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGetPasswordPolicyStateIssuesResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GetPasswordPolicyStateIssuesResponseControl decoded;
     try
@@ -1981,8 +2021,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGetRecentLoginHistoryResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GetRecentLoginHistoryResponseControl decoded;
     try
@@ -2149,8 +2191,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGetUserResourceLimitsResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GetUserResourceLimitsResponseControl decoded;
     try
@@ -2304,8 +2348,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addIntermediateClientResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final IntermediateClientResponseControl decoded;
     try
@@ -2342,9 +2388,11 @@ public final class ResultUtils
    * @param  maxWidth  The maximum length of each line in characters, including
    *                   the comment prefix and indent.
    */
-  private static void addIntermediateResponseValue(final List<String> lines,
-                           final IntermediateClientResponseValue v,
-                           final String prefix, final int maxWidth)
+  private static void addIntermediateResponseValue(
+                           @NotNull final List<String> lines,
+                           @NotNull final IntermediateClientResponseValue v,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final String address = v.getUpstreamServerAddress();
     if (address != null)
@@ -2412,8 +2460,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addJoinResultControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final JoinResultControl decoded;
     try
@@ -2490,9 +2540,11 @@ public final class ResultUtils
    * @param  maxWidth     The maximum length of each line in characters,
    *                      including the comment prefix and indent.
    */
-  private static void addJoinedEntry(final List<String> lines,
-                                     final JoinedEntry joinedEntry,
-                                     final String prefix, final int maxWidth)
+  private static void addJoinedEntry(
+                           @NotNull final List<String> lines,
+                           @NotNull final JoinedEntry joinedEntry,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     wrap(lines, INFO_RESULT_UTILS_JOINED_WITH_ENTRY_HEADER.get(), prefix,
          maxWidth);
@@ -2522,8 +2574,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addMatchingEntryCountResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final MatchingEntryCountResponseControl decoded;
     try
@@ -2613,8 +2667,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addPasswordPolicyResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final PasswordPolicyResponseControl decoded;
     try
@@ -2680,8 +2736,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addPasswordValidationDetailsResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final PasswordValidationDetailsResponseControl decoded;
     try
@@ -2827,8 +2885,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addSoftDeleteResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final SoftDeleteResponseControl decoded;
     try
@@ -2870,8 +2930,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addTransactionSettingsResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final TransactionSettingsResponseControl decoded;
     try
@@ -2915,8 +2977,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addUniquenessResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final UniquenessResponseControl decoded;
     try
@@ -2996,6 +3060,7 @@ public final class ResultUtils
    * @return  A string that may be used as a prefix for all lines with the given
    *          settings.
    */
+  @NotNull()
   private static String createPrefix(final boolean comment, final int indent)
   {
     // Generate a prefix that will be used for every line.
@@ -3021,8 +3086,10 @@ public final class ResultUtils
    * @param  prefix    The prefix to use at the beginning of each line.
    * @param  maxWidth  The maximum length of each line in characters.
    */
-  private static void wrap(final List<String> lines, final String s,
-                           final String prefix, final int maxWidth)
+  private static void wrap(@NotNull final List<String> lines,
+                           @NotNull final String s,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     // If the maximum width is less than the prefix length + 20 characters, then
     // make it make that the new effective maximum width.
@@ -3074,8 +3141,10 @@ public final class ResultUtils
    * @param  prefix     The prefix to use at the beginning of each line.
    * @param  maxWidth   The maximum length of each line in characters.
    */
-  private static void addLDIF(final List<String> lines, final Entry entry,
-                              final boolean includeDN, final String prefix,
+  private static void addLDIF(@NotNull final List<String> lines,
+                              @NotNull final Entry entry,
+                              final boolean includeDN,
+                              @NotNull final String prefix,
                               final int maxWidth)
   {
     // Never use a wrap column that is less than 20 characters.

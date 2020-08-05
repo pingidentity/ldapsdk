@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,24 +80,24 @@ public final class AsynchronousParallelProcessor<I,O>
 {
 
   // Queue of input items.
-  private final BlockingQueue<I> pendingQueue;
+  @NotNull private final BlockingQueue<I> pendingQueue;
 
   // The ParallelProcessor that is used to process the input items.
-  private final ParallelProcessor<I,O> parallelProcessor;
+  @NotNull private final ParallelProcessor<I,O> parallelProcessor;
 
   // Processor for the results.
-  private final ResultProcessor<I,O> resultProcessor;
+  @NotNull private final ResultProcessor<I,O> resultProcessor;
 
   // Thread that pulls items from pendingQueue, passes them to
   // parallelProcessor, and processes the results.
-  private final InvokerThread invokerThread;
+  @NotNull private final InvokerThread invokerThread;
 
   // Set to true when this is shutdown.
-  private final AtomicBoolean shutdown = new AtomicBoolean(false);
+  @NotNull private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
   // Set by worker threads to signal that there was a problem during processing.
   // Once this is set, all calls to submit() will fail with this exception.
-  private final AtomicReference<Throwable> invocationException =
+  @NotNull private final AtomicReference<Throwable> invocationException =
        new AtomicReference<>();
 
 
@@ -120,9 +121,9 @@ public final class AsynchronousParallelProcessor<I,O>
    *                         for each result.
    */
   public AsynchronousParallelProcessor(
-       final BlockingQueue<I> pendingQueue,
-       final ParallelProcessor<I,O> parallelProcessor,
-       final ResultProcessor<I,O> resultProcessor)
+              @NotNull final BlockingQueue<I> pendingQueue,
+              @NotNull final ParallelProcessor<I,O> parallelProcessor,
+              @NotNull final ResultProcessor<I,O> resultProcessor)
   {
     this.pendingQueue = pendingQueue;
     this.parallelProcessor = parallelProcessor;
@@ -155,9 +156,9 @@ public final class AsynchronousParallelProcessor<I,O>
    *                     will cease while waiting for capacity in the queue.
    */
   public AsynchronousParallelProcessor(
-       final BlockingQueue<I> pendingQueue,
-       final ParallelProcessor<I,O> parallelProcessor,
-       final BlockingQueue<Result<I,O>> outputQueue)
+              @NotNull final BlockingQueue<I> pendingQueue,
+              @NotNull final ParallelProcessor<I,O> parallelProcessor,
+              @NotNull final BlockingQueue<Result<I,O>> outputQueue)
   {
     this(pendingQueue, parallelProcessor, new OutputEnqueuer<>(outputQueue));
   }
@@ -173,7 +174,7 @@ public final class AsynchronousParallelProcessor<I,O>
    * @throws InterruptedException  If this thread is interrupted during
    *                               processing.
    */
-  public synchronized void submit(final I input)
+  public synchronized void submit(@NotNull final I input)
        throws InterruptedException
   {
     if (shutdown.get())
@@ -230,7 +231,7 @@ public final class AsynchronousParallelProcessor<I,O>
   private static final class OutputEnqueuer<I,O>
        implements ResultProcessor<I,O>
   {
-    private final BlockingQueue<Result<I,O>> outputQueue;
+    @NotNull private final BlockingQueue<Result<I,O>> outputQueue;
 
 
 
@@ -239,7 +240,8 @@ public final class AsynchronousParallelProcessor<I,O>
      *
      * @param outputQueue  The queue where results will be enqueued.
      */
-    private OutputEnqueuer(final BlockingQueue<Result<I,O>> outputQueue)
+    private OutputEnqueuer(
+                 @NotNull final BlockingQueue<Result<I,O>> outputQueue)
     {
       this.outputQueue = outputQueue;
     }
@@ -249,7 +251,7 @@ public final class AsynchronousParallelProcessor<I,O>
      * {@inheritDoc}
      */
     @Override()
-    public void processResult(final Result<I,O> ioResult)
+    public void processResult(@NotNull final Result<I,O> ioResult)
          throws Exception
     {
       outputQueue.put(ioResult);

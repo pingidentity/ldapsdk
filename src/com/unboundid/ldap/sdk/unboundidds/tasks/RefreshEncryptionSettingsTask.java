@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,7 +77,7 @@ public final class RefreshEncryptionSettingsTask
    * The fully-qualified name of the Java class that is used for the refresh
    * encryption settings task in the Directory Server.
    */
-  static final String REFRESH_ENCRYPTION_SETTINGS_TASK_CLASS =
+  @NotNull static final String REFRESH_ENCRYPTION_SETTINGS_TASK_CLASS =
        "com.unboundid.directory.server.tasks.RefreshEncryptionSettingsTask";
 
 
@@ -84,7 +86,7 @@ public final class RefreshEncryptionSettingsTask
    * The name of the object class used in refresh encryption settings task
    * entries.
    */
-  private static final String OC_REFRESH_ENCRYPTION_SETTINGS_TASK =
+  @NotNull private static final String OC_REFRESH_ENCRYPTION_SETTINGS_TASK =
        "ds-task-refresh-encryption-settings";
 
 
@@ -115,7 +117,7 @@ public final class RefreshEncryptionSettingsTask
    *                        {@code null} then a UUID will be generated for use
    *                        as the task ID.
    */
-  public RefreshEncryptionSettingsTask(final String taskID)
+  public RefreshEncryptionSettingsTask(@Nullable final String taskID)
   {
     this(taskID, null, null, null, null, null);
   }
@@ -144,11 +146,12 @@ public final class RefreshEncryptionSettingsTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public RefreshEncryptionSettingsTask(final String taskID,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnError)
+  public RefreshEncryptionSettingsTask(@Nullable final String taskID,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, scheduledStartTime, dependencyIDs, failedDependencyAction,
          null, notifyOnCompletion, null, notifyOnError, null, null, null);
@@ -192,14 +195,17 @@ public final class RefreshEncryptionSettingsTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public RefreshEncryptionSettingsTask(final String taskID,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnStart,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnSuccess,
-              final List<String> notifyOnError, final Boolean alertOnStart,
-              final Boolean alertOnSuccess, final Boolean alertOnError)
+  public RefreshEncryptionSettingsTask(@Nullable final String taskID,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, REFRESH_ENCRYPTION_SETTINGS_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -218,7 +224,7 @@ public final class RefreshEncryptionSettingsTask
    * @throws  TaskException  If the provided entry cannot be parsed as a refresh
    *                         encryption settings task entry.
    */
-  public RefreshEncryptionSettingsTask(final Entry entry)
+  public RefreshEncryptionSettingsTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -238,7 +244,7 @@ public final class RefreshEncryptionSettingsTask
    *                         create a valid refresh encryption settings task.
    */
   public RefreshEncryptionSettingsTask(
-              final Map<TaskProperty,List<Object>> properties)
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(REFRESH_ENCRYPTION_SETTINGS_TASK_CLASS, properties);
@@ -250,6 +256,7 @@ public final class RefreshEncryptionSettingsTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_REFRESH_ENCRYPTION_SETTINGS.get();
@@ -261,6 +268,7 @@ public final class RefreshEncryptionSettingsTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_REFRESH_ENCRYPTION_SETTINGS.get();
@@ -272,6 +280,7 @@ public final class RefreshEncryptionSettingsTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_REFRESH_ENCRYPTION_SETTINGS_TASK);

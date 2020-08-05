@@ -44,6 +44,8 @@ import java.util.List;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,14 +77,14 @@ public final class ArgumentListArgument
 
   // The argument parser that will be used to validate values given for this
   // argument.
-  private final ArgumentParser parser;
+  @NotNull private final ArgumentParser parser;
 
   // The list of argument parsers that correspond to values actually provided
   // to this argument.
-  private final List<ArgumentParser> values;
+  @NotNull private final List<ArgumentParser> values;
 
   // The string representations of the values provided for this argument.
-  private final List<String> valueStrings;
+  @NotNull private final List<String> valueStrings;
 
 
 
@@ -105,10 +107,10 @@ public final class ArgumentListArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public ArgumentListArgument(final Character shortIdentifier,
-                              final String longIdentifier,
-                              final String description,
-                              final ArgumentParser parser)
+  public ArgumentListArgument(@Nullable final Character shortIdentifier,
+                              @Nullable final String longIdentifier,
+                              @NotNull final String description,
+                              @NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 1, null, description, parser);
@@ -143,13 +145,13 @@ public final class ArgumentListArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public ArgumentListArgument(final Character shortIdentifier,
-                              final String longIdentifier,
+  public ArgumentListArgument(@Nullable final Character shortIdentifier,
+                              @Nullable final String longIdentifier,
                               final boolean isRequired,
                               final int maxOccurrences,
-                              final String valuePlaceholder,
-                              final String description,
-                              final ArgumentParser parser)
+                              @Nullable final String valuePlaceholder,
+                              @NotNull final String description,
+                              @NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
@@ -172,7 +174,7 @@ public final class ArgumentListArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private ArgumentListArgument(final ArgumentListArgument source)
+  private ArgumentListArgument(@NotNull final ArgumentListArgument source)
   {
     super(source);
 
@@ -190,6 +192,7 @@ public final class ArgumentListArgument
    * @return  A "clean" copy of the argument parser that will be used to process
    *          values provided for this argument.
    */
+  @NotNull()
   public ArgumentParser getCleanParser()
   {
     return parser.getCleanCopy();
@@ -201,7 +204,7 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     final List<String> argList;
@@ -244,6 +247,7 @@ public final class ArgumentListArgument
    * @return  The list of argument parsers that have been used to process values
    *          provided to this argument.
    */
+  @NotNull()
   public List<ArgumentParser> getValueParsers()
   {
     return Collections.unmodifiableList(values);
@@ -258,6 +262,7 @@ public final class ArgumentListArgument
    * @return  The list of the string representations of the values provided to
    *          this argument.
    */
+  @NotNull()
   public List<String> getValueStrings()
   {
     return Collections.unmodifiableList(valueStrings);
@@ -269,6 +274,7 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     return Collections.unmodifiableList(valueStrings);
@@ -291,6 +297,7 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_ARG_LIST_TYPE_NAME.get();
@@ -302,6 +309,7 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     return INFO_ARG_LIST_CONSTRAINTS.get();
@@ -325,6 +333,7 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ArgumentListArgument getCleanCopy()
   {
     return new ArgumentListArgument(this);
@@ -336,21 +345,18 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (valueStrings != null)
+    for (final String s : valueStrings)
     {
-      for (final String s : valueStrings)
+      argStrings.add(getIdentifierString());
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED***");
-        }
-        else
-        {
-          argStrings.add(s);
-        }
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(s);
       }
     }
   }
@@ -361,7 +367,7 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ArgumentListArgument(");
     appendBasicToStringInfo(buffer);

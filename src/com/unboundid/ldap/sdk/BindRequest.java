@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,7 +74,8 @@ public abstract class BindRequest
   /**
    * The pre-encoded ASN.1 element used to represent the protocol version.
    */
-  protected static final ASN1Integer VERSION_ELEMENT = new ASN1Integer(3);
+  @NotNull protected static final ASN1Integer VERSION_ELEMENT =
+       new ASN1Integer(3);
 
 
 
@@ -88,7 +91,7 @@ public abstract class BindRequest
    *
    * @param  controls  The set of controls to include in this bind request.
    */
-  protected BindRequest(final Control[] controls)
+  protected BindRequest(@Nullable final Control[] controls)
   {
     super(controls);
   }
@@ -111,7 +114,9 @@ public abstract class BindRequest
    *                         reading the response.
    */
   @Override()
-  protected abstract BindResult process(LDAPConnection connection, int depth)
+  @NotNull()
+  protected abstract BindResult process(@NotNull LDAPConnection connection,
+                                        int depth)
             throws LDAPException;
 
 
@@ -120,6 +125,7 @@ public abstract class BindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final OperationType getOperationType()
   {
     return OperationType.BIND;
@@ -132,6 +138,7 @@ public abstract class BindRequest
    *
    * @return  A human-readable string that describes the type of bind request.
    */
+  @NotNull()
   public abstract String getBindType();
 
 
@@ -140,6 +147,7 @@ public abstract class BindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public abstract BindRequest duplicate();
 
 
@@ -148,7 +156,8 @@ public abstract class BindRequest
    * {@inheritDoc}
    */
   @Override()
-  public abstract BindRequest duplicate(Control[] controls);
+  @NotNull()
+  public abstract BindRequest duplicate(@Nullable Control[] controls);
 
 
 
@@ -177,7 +186,9 @@ public abstract class BindRequest
    *          the initial bind, or {@code null} to indicate that automatic
    *          re-binding is not supported for this type of bind request.
    */
-  public BindRequest getRebindRequest(final String host, final int port)
+  @Nullable()
+  public BindRequest getRebindRequest(@NotNull final String host,
+                                      final int port)
   {
     return null;
   }

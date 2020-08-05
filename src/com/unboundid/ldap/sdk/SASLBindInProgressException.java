@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,7 +73,7 @@ public final class SASLBindInProgressException
    *
    * @param  bindResult  The bind result to use to create this exception.
    */
-  SASLBindInProgressException(final BindResult bindResult)
+  SASLBindInProgressException(@NotNull final BindResult bindResult)
   {
     super(bindResult);
   }
@@ -82,6 +84,7 @@ public final class SASLBindInProgressException
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public BindResult getBindResult()
   {
     return super.getBindResult();
@@ -93,6 +96,7 @@ public final class SASLBindInProgressException
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public ASN1OctetString getServerSASLCredentials()
   {
     return super.getServerSASLCredentials();

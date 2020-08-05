@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -88,10 +89,10 @@ public final class ThreadStackTrace
   private final int threadID;
 
   // The list of stack trace elements for the thread.
-  private final List<StackTraceElement> stackTraceElements;
+  @NotNull private final List<StackTraceElement> stackTraceElements;
 
   // The name for this thread.
-  private final String threadName;
+  @NotNull private final String threadName;
 
 
 
@@ -104,8 +105,8 @@ public final class ThreadStackTrace
    *                             associated thread.  It may be empty if no stack
    *                             trace was available.
    */
-  public ThreadStackTrace(final int threadID, final String threadName,
-                          final List<StackTraceElement> stackTraceElements)
+  public ThreadStackTrace(final int threadID, @NotNull final String threadName,
+              @NotNull final List<StackTraceElement> stackTraceElements)
   {
     this.threadID           = threadID;
     this.threadName         = threadName;
@@ -131,6 +132,7 @@ public final class ThreadStackTrace
    *
    * @return  The name of the associated thread.
    */
+  @NotNull()
   public String getThreadName()
   {
     return threadName;
@@ -144,6 +146,7 @@ public final class ThreadStackTrace
    * @return  The list of stack trace elements for the associated thread, or an
    *          empty list if no stack trace was available.
    */
+  @NotNull()
   public List<StackTraceElement> getStackTraceElements()
   {
     return stackTraceElements;

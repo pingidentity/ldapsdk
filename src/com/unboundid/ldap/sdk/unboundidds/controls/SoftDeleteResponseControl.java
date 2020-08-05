@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -87,7 +89,7 @@ public final class SoftDeleteResponseControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.21) for the soft delete response control.
    */
-  public static final String SOFT_DELETE_RESPONSE_OID =
+  @NotNull public static final String SOFT_DELETE_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.21";
 
 
@@ -100,7 +102,7 @@ public final class SoftDeleteResponseControl
 
 
   // The DN of the soft-deleted representation of the target entry.
-  private final String softDeletedEntryDN;
+  @NotNull private final String softDeletedEntryDN;
 
 
 
@@ -121,7 +123,7 @@ public final class SoftDeleteResponseControl
    * @param  softDeletedEntryDN  The DN of the soft-deleted representation of
    *                             the target entry.
    */
-  public SoftDeleteResponseControl(final String softDeletedEntryDN)
+  public SoftDeleteResponseControl(@NotNull final String softDeletedEntryDN)
   {
     super(SOFT_DELETE_RESPONSE_OID, false,
          new ASN1OctetString(softDeletedEntryDN));
@@ -144,8 +146,9 @@ public final class SoftDeleteResponseControl
    * @throws  LDAPException  If the provided information cannot be used to
    *                         create a valid soft delete response control.
    */
-  public SoftDeleteResponseControl(final String oid, final boolean isCritical,
-                                   final ASN1OctetString value)
+  public SoftDeleteResponseControl(@NotNull final String oid,
+                                   final boolean isCritical,
+                                   @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -170,9 +173,10 @@ public final class SoftDeleteResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public SoftDeleteResponseControl decodeControl(final String oid,
-                                                 final boolean isCritical,
-                                                 final ASN1OctetString value)
+  @NotNull()
+  public SoftDeleteResponseControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new SoftDeleteResponseControl(oid, isCritical, value);
@@ -187,6 +191,7 @@ public final class SoftDeleteResponseControl
    * @return  The DN of the entry containing the soft-deleted representation of
    *          the target entry.
    */
+  @NotNull()
   public String getSoftDeletedEntryDN()
   {
     return softDeletedEntryDN;
@@ -208,7 +213,9 @@ public final class SoftDeleteResponseControl
    *                         decode the soft delete response control contained
    *                         in the provided result.
    */
-  public static SoftDeleteResponseControl get(final LDAPResult deleteResult)
+  @Nullable()
+  public static SoftDeleteResponseControl get(
+                     @NotNull final LDAPResult deleteResult)
          throws LDAPException
   {
     final Control c = deleteResult.getResponseControl(SOFT_DELETE_RESPONSE_OID);
@@ -234,6 +241,7 @@ public final class SoftDeleteResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SOFT_DELETE_RESPONSE.get();
@@ -245,7 +253,7 @@ public final class SoftDeleteResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SoftDeleteResponseControl(softDeletedEntryDN='");
     buffer.append(softDeletedEntryDN);

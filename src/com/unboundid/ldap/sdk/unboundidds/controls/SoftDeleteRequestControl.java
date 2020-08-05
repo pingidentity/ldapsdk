@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -161,7 +163,7 @@ public final class SoftDeleteRequestControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.20) for the soft delete request control.
    */
-  public static final String SOFT_DELETE_REQUEST_OID =
+  @NotNull public static final String SOFT_DELETE_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.20";
 
 
@@ -237,7 +239,7 @@ public final class SoftDeleteRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a soft
    *                         delete request control.
    */
-  public SoftDeleteRequestControl(final Control control)
+  public SoftDeleteRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -295,6 +297,7 @@ public final class SoftDeleteRequestControl
    *          value of a soft delete request control, or {@code null} if no
    *          value is needed for the control.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(
                                       final boolean returnSoftDeleteResponse)
   {
@@ -348,9 +351,11 @@ public final class SoftDeleteRequestControl
    * @return  A delete request with the specified target DN and an appropriate
    *          soft delete request control.
    */
-  public static DeleteRequest createSoftDeleteRequest(final String targetDN,
-                                   final boolean isCritical,
-                                   final boolean returnSoftDeleteResponse)
+  @NotNull()
+  public static DeleteRequest createSoftDeleteRequest(
+              @NotNull final String targetDN,
+              final boolean isCritical,
+              final boolean returnSoftDeleteResponse)
   {
     final Control[] controls =
     {
@@ -366,6 +371,7 @@ public final class SoftDeleteRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SOFT_DELETE_REQUEST.get();
@@ -377,7 +383,7 @@ public final class SoftDeleteRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SoftDeleteRequestControl(isCritical=");
     buffer.append(isCritical());

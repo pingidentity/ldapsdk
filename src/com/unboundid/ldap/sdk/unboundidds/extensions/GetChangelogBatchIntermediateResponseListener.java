@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.IntermediateResponseListener;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,10 +75,10 @@ final class GetChangelogBatchIntermediateResponseListener
 
 
   // The counter that will be incremented with the number of entries returned.
-  private final AtomicInteger entryCounter;
+  @NotNull private final AtomicInteger entryCounter;
 
   // The entry listener for the associated extended request.
-  private final ChangelogEntryListener entryListener;
+  @NotNull private final ChangelogEntryListener entryListener;
 
 
 
@@ -88,7 +89,7 @@ final class GetChangelogBatchIntermediateResponseListener
    * @param  entryListener  The changelog batch entry listener to be notified.
    */
   GetChangelogBatchIntermediateResponseListener(
-       final ChangelogEntryListener entryListener)
+       @NotNull final ChangelogEntryListener entryListener)
   {
     this.entryListener = entryListener;
 
@@ -102,7 +103,7 @@ final class GetChangelogBatchIntermediateResponseListener
    */
   @Override()
   public void intermediateResponseReturned(
-                   final IntermediateResponse intermediateResponse)
+                   @NotNull final IntermediateResponse intermediateResponse)
   {
     final String oid = intermediateResponse.getOID();
     if (oid == null)
@@ -168,6 +169,7 @@ final class GetChangelogBatchIntermediateResponseListener
    * @return  The entry listener that will be used to process intermediate
    *          responses returned during the course of the extended operation.
    */
+  @NotNull()
   ChangelogEntryListener getEntryListener()
   {
     return entryListener;

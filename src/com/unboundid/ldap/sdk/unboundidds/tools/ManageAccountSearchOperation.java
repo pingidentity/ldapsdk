@@ -57,6 +57,8 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
@@ -88,33 +90,33 @@ final class ManageAccountSearchOperation
 
 
   // The async request ID for the search that is currently in progress.
-  private volatile AsyncRequestID asyncRequestID;
+  @Nullable private volatile AsyncRequestID asyncRequestID;
 
   // A counter used to keep track of the number of entries returned.
-  private final AtomicInteger entryCounter;
+  @NotNull private final AtomicInteger entryCounter;
 
   // A counter used to keep track of the number of references returned.
-  private final AtomicInteger referenceCounter;
+  @NotNull private final AtomicInteger referenceCounter;
 
   // A map of the DNs that have already been processed.  This is used to ensure
   // that we don't attempt to perform duplicate processing for any entries in
   // the event that a problem is encountered while processing a search.
-  private final ConcurrentHashMap<DN,DN> dnsProcessed;
+  @NotNull private final ConcurrentHashMap<DN,DN> dnsProcessed;
 
   // The page size to use for the simple paged results control, if appropriate.
   private final int simplePageSize;
 
   // The connection pool to use to communicate with the server.
-  private final LDAPConnectionPool pool;
+  @NotNull private final LDAPConnectionPool pool;
 
   // A handle to the manage-account tool instance.
-  private final ManageAccount manageAccount;
+  @NotNull private final ManageAccount manageAccount;
 
   // A handle to the manage-account processor instance.
-  private final ManageAccountProcessor manageAccountProcessor;
+  @NotNull private final ManageAccountProcessor manageAccountProcessor;
 
   // The search request to process.
-  private final SearchRequest searchRequest;
+  @NotNull private final SearchRequest searchRequest;
 
 
 
@@ -133,9 +135,11 @@ final class ManageAccountSearchOperation
    * @param  filter                  The filter to use for the search.
    * @param  simplePageSize          The simple page size to use for the search.
    */
-  ManageAccountSearchOperation(final ManageAccount manageAccount,
-       final ManageAccountProcessor manageAccountProcessor,
-       final LDAPConnectionPool pool, final String baseDN, final Filter filter,
+  ManageAccountSearchOperation(@NotNull final ManageAccount manageAccount,
+       @NotNull final ManageAccountProcessor manageAccountProcessor,
+       @NotNull final LDAPConnectionPool pool,
+       @NotNull final String baseDN,
+       @NotNull final Filter filter,
        final int simplePageSize)
   {
     this.manageAccount = manageAccount;
@@ -215,6 +219,7 @@ final class ManageAccountSearchOperation
    *
    * @return  The result obtained from processing the search.
    */
+  @NotNull()
   private SearchResult doSearchWithRetry()
   {
     // Even if the search is being processed in multiple pages, there shouldn't
@@ -448,7 +453,7 @@ final class ManageAccountSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     entryCounter.incrementAndGet();
 
@@ -485,7 +490,7 @@ final class ManageAccountSearchOperation
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     referenceCounter.incrementAndGet();
 
@@ -502,8 +507,8 @@ final class ManageAccountSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void searchResultReceived(final AsyncRequestID requestID,
-                                   final SearchResult searchResult)
+  public void searchResultReceived(@NotNull final AsyncRequestID requestID,
+                                   @NotNull final SearchResult searchResult)
   {
     // No processing is required.  We'll get the result via AsyncRequestID.get.
   }

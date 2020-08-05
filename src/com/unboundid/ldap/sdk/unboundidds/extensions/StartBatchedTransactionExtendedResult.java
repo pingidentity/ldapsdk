@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -81,7 +83,7 @@ public final class StartBatchedTransactionExtendedResult
 
 
   // The transaction ID returned by the server.
-  private final ASN1OctetString transactionID;
+  @Nullable private final ASN1OctetString transactionID;
 
 
 
@@ -94,7 +96,7 @@ public final class StartBatchedTransactionExtendedResult
    *                         be {@code null}.
    */
   public StartBatchedTransactionExtendedResult(
-              final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
   {
     super(extendedResult);
 
@@ -121,10 +123,12 @@ public final class StartBatchedTransactionExtendedResult
    *                            available.
    */
   public StartBatchedTransactionExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final ASN1OctetString transactionID,
-              final Control[] responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final ASN1OctetString transactionID,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, transactionID, responseControls);
@@ -141,6 +145,7 @@ public final class StartBatchedTransactionExtendedResult
    * @return  The transaction ID for this start batched transaction extended
    *          result, or {@code null} if none was provided.
    */
+  @Nullable()
   public ASN1OctetString getTransactionID()
   {
     return transactionID;
@@ -152,6 +157,7 @@ public final class StartBatchedTransactionExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_START_BATCHED_TXN.get();
@@ -167,7 +173,7 @@ public final class StartBatchedTransactionExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StartBatchedTransactionExtendedResult(resultCode=");
     buffer.append(getResultCode());

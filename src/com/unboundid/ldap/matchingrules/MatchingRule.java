@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.unboundidds.jsonfilter.
             JSONObjectExactMatchingRule;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -111,6 +113,7 @@ public abstract class MatchingRule
    *          matching, or {@code null} if this matching rule is not intended
    *          to be used for equality matching.
    */
+  @Nullable()
   public abstract String getEqualityMatchingRuleName();
 
 
@@ -123,6 +126,7 @@ public abstract class MatchingRule
    *          matching, or {@code null} if this matching rule is not intended
    *          to be used for equality matching.
    */
+  @Nullable()
   public abstract String getEqualityMatchingRuleOID();
 
 
@@ -135,6 +139,7 @@ public abstract class MatchingRule
    *          equality matching, or {@code null} if this matching rule cannot
    *          be used to perform equality matching.
    */
+  @Nullable()
   public String getEqualityMatchingRuleNameOrOID()
   {
     final String name = getEqualityMatchingRuleName();
@@ -158,6 +163,7 @@ public abstract class MatchingRule
    *          matching, or {@code null} if this matching rule is not intended
    *          to be used for ordering matching.
    */
+  @Nullable()
   public abstract String getOrderingMatchingRuleName();
 
 
@@ -170,6 +176,7 @@ public abstract class MatchingRule
    *          matching, or {@code null} if this matching rule is not intended
    *          to be used for ordering matching.
    */
+  @Nullable()
   public abstract String getOrderingMatchingRuleOID();
 
 
@@ -182,6 +189,7 @@ public abstract class MatchingRule
    *          ordering matching, or {@code null} if this matching rule cannot
    *          be used to perform equality matching.
    */
+  @Nullable()
   public String getOrderingMatchingRuleNameOrOID()
   {
     final String name = getOrderingMatchingRuleName();
@@ -205,6 +213,7 @@ public abstract class MatchingRule
    *          matching, or {@code null} if this matching rule is not intended
    *          to be used for substring matching.
    */
+  @Nullable()
   public abstract String getSubstringMatchingRuleName();
 
 
@@ -217,6 +226,7 @@ public abstract class MatchingRule
    *          matching, or {@code null} if this matching rule is not intended
    *          to be used for substring matching.
    */
+  @Nullable()
   public abstract String getSubstringMatchingRuleOID();
 
 
@@ -229,6 +239,7 @@ public abstract class MatchingRule
    *          substring matching, or {@code null} if this matching rule cannot
    *          be used to perform equality matching.
    */
+  @Nullable()
   public String getSubstringMatchingRuleNameOrOID()
   {
     final String name = getSubstringMatchingRuleName();
@@ -258,8 +269,8 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support equality
    *                         matching.
    */
-  public abstract boolean valuesMatch(ASN1OctetString value1,
-                                      ASN1OctetString value2)
+  public abstract boolean valuesMatch(@NotNull ASN1OctetString value1,
+                                      @NotNull ASN1OctetString value2)
          throws LDAPException;
 
 
@@ -280,8 +291,8 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support equality
    *                         matching.
    */
-  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
-                                 final ASN1OctetString[] attributeValues)
+  public boolean matchesAnyValue(@NotNull final ASN1OctetString assertionValue,
+                      @NotNull final ASN1OctetString[] attributeValues)
          throws LDAPException
   {
     if ((assertionValue == null) || (attributeValues == null) ||
@@ -342,10 +353,10 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support substring
    *                         matching.
    */
-  public abstract boolean matchesSubstring(ASN1OctetString value,
-                                           ASN1OctetString subInitial,
-                                           ASN1OctetString[] subAny,
-                                           ASN1OctetString subFinal)
+  public abstract boolean matchesSubstring(@NotNull ASN1OctetString value,
+                                           @Nullable ASN1OctetString subInitial,
+                                           @Nullable ASN1OctetString[] subAny,
+                                           @Nullable ASN1OctetString subFinal)
          throws LDAPException;
 
 
@@ -367,8 +378,8 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support ordering
    *                         matching.
    */
-  public abstract int compareValues(ASN1OctetString value1,
-                                    ASN1OctetString value2)
+  public abstract int compareValues(@NotNull ASN1OctetString value1,
+                                    @NotNull ASN1OctetString value2)
          throws LDAPException;
 
 
@@ -383,7 +394,7 @@ public abstract class MatchingRule
    * @throws  LDAPException  If a problem occurs while normalizing the provided
    *                         value.
    */
-  public abstract ASN1OctetString normalize(ASN1OctetString value)
+  public abstract ASN1OctetString normalize(@NotNull ASN1OctetString value)
          throws LDAPException;
 
 
@@ -404,8 +415,9 @@ public abstract class MatchingRule
    * @throws  LDAPException  If a problem occurs while normalizing the provided
    *                         value.
    */
-  public abstract ASN1OctetString normalizeSubstring(ASN1OctetString value,
-                                                     byte substringType)
+  public abstract ASN1OctetString normalizeSubstring(
+                                       @NotNull ASN1OctetString value,
+                                       byte substringType)
          throws LDAPException;
 
 
@@ -424,8 +436,10 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectEqualityMatchingRule(final String attrName,
-                                                        final Schema schema)
+  @NotNull()
+  public static MatchingRule selectEqualityMatchingRule(
+                                  @NotNull final String attrName,
+                                  @Nullable final Schema schema)
   {
     return selectEqualityMatchingRule(attrName, null, schema);
   }
@@ -453,8 +467,11 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectEqualityMatchingRule(final String attrName,
-                                  final String ruleID, final Schema schema)
+  @NotNull()
+  public static MatchingRule selectEqualityMatchingRule(
+                                  @Nullable final String attrName,
+                                  @Nullable final String ruleID,
+                                  @Nullable final Schema schema)
   {
     if (ruleID != null)
     {
@@ -499,7 +516,9 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectEqualityMatchingRule(final String ruleID)
+  @NotNull()
+  public static MatchingRule selectEqualityMatchingRule(
+                                  @NotNull final String ruleID)
   {
     if ((ruleID == null) || ruleID.isEmpty())
     {
@@ -597,6 +616,7 @@ public abstract class MatchingRule
    * @return  The default matching rule that will be used for equality matching
    *          if no other matching rule is specified or available.
    */
+  @NotNull()
   public static MatchingRule getDefaultEqualityMatchingRule()
   {
     return CaseIgnoreStringMatchingRule.getInstance();
@@ -618,8 +638,10 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectOrderingMatchingRule(final String attrName,
-                                                        final Schema schema)
+  @NotNull()
+  public static MatchingRule selectOrderingMatchingRule(
+                                  @NotNull final String attrName,
+                                  @Nullable final Schema schema)
   {
     return selectOrderingMatchingRule(attrName, null, schema);
   }
@@ -647,9 +669,11 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectOrderingMatchingRule(final String attrName,
-                                                        final String ruleID,
-                                                        final Schema schema)
+  @NotNull()
+  public static MatchingRule selectOrderingMatchingRule(
+                                  @Nullable final String attrName,
+                                  @Nullable final String ruleID,
+                                  @Nullable final Schema schema)
   {
     if (ruleID != null)
     {
@@ -704,7 +728,9 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectOrderingMatchingRule(final String ruleID)
+  @NotNull()
+  public static MatchingRule selectOrderingMatchingRule(
+                                  @NotNull final String ruleID)
   {
     if ((ruleID == null) || ruleID.isEmpty())
     {
@@ -763,6 +789,7 @@ public abstract class MatchingRule
    * @return  The default matching rule that will be used for ordering matching
    *          if no other matching rule is specified or available.
    */
+  @NotNull()
   public static MatchingRule getDefaultOrderingMatchingRule()
   {
     return CaseIgnoreStringMatchingRule.getInstance();
@@ -784,8 +811,10 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectSubstringMatchingRule(final String attrName,
-                                                         final Schema schema)
+  @NotNull()
+  public static MatchingRule selectSubstringMatchingRule(
+                                  @NotNull final String attrName,
+                                  @Nullable final Schema schema)
   {
     return selectSubstringMatchingRule(attrName, null, schema);
   }
@@ -813,9 +842,11 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectSubstringMatchingRule(final String attrName,
-                                                         final String ruleID,
-                                                         final Schema schema)
+  @NotNull()
+  public static MatchingRule selectSubstringMatchingRule(
+                                  @Nullable final String attrName,
+                                  @Nullable final String ruleID,
+                                  @Nullable final Schema schema)
   {
     if (ruleID != null)
     {
@@ -870,7 +901,9 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectSubstringMatchingRule(final String ruleID)
+  @NotNull()
+  public static MatchingRule selectSubstringMatchingRule(
+                                  @NotNull final String ruleID)
   {
     if ((ruleID == null) || ruleID.isEmpty())
     {
@@ -934,6 +967,7 @@ public abstract class MatchingRule
    * @return  The default matching rule that will be used for substring matching
    *          if no other matching rule is specified or available.
    */
+  @NotNull()
   public static MatchingRule getDefaultSubstringMatchingRule()
   {
     return CaseIgnoreStringMatchingRule.getInstance();
@@ -951,7 +985,9 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectMatchingRuleForSyntax(final String syntaxOID)
+  @NotNull()
+  public static MatchingRule selectMatchingRuleForSyntax(
+                                  @NotNull final String syntaxOID)
   {
     if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.7"))
     {

@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -147,6 +149,7 @@ public enum UniquenessMultipleAttributeBehavior
    *          integer value, or {@code null} if there is no multiple attribute
    *          behavior with the given integer value.
    */
+  @Nullable()
   public static UniquenessMultipleAttributeBehavior valueOf(final int intValue)
   {
     switch (intValue)
@@ -176,7 +179,9 @@ public enum UniquenessMultipleAttributeBehavior
    * @return  The requested uniqueness multiple attribute behavior, or
    *          {@code null} if no such behavior is defined.
    */
-  public static UniquenessMultipleAttributeBehavior forName(final String name)
+  @Nullable()
+  public static UniquenessMultipleAttributeBehavior forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

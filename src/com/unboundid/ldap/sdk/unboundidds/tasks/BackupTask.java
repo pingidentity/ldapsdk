@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -116,7 +118,7 @@ public final class BackupTask
    * The fully-qualified name of the Java class that is used for the backup
    * task.
    */
-  static final String BACKUP_TASK_CLASS =
+  @NotNull static final String BACKUP_TASK_CLASS =
        "com.unboundid.directory.server.tasks.BackupTask";
 
 
@@ -125,7 +127,8 @@ public final class BackupTask
    * The name of the attribute used to specify backend IDs of the backends to
    * archive.
    */
-  private static final String ATTR_BACKEND_ID = "ds-task-backup-backend-id";
+  @NotNull private static final String ATTR_BACKEND_ID =
+       "ds-task-backup-backend-id";
 
 
 
@@ -133,7 +136,7 @@ public final class BackupTask
    * The name of the attribute used to indicate whether to back up the contents
    * of all supported backends.
    */
-  private static final String ATTR_BACKUP_ALL = "ds-task-backup-all";
+  @NotNull private static final String ATTR_BACKUP_ALL = "ds-task-backup-all";
 
 
 
@@ -141,7 +144,7 @@ public final class BackupTask
    * The name of the attribute used to specify the path to the directory in
    * which the backup is to be written.
    */
-  private static final String ATTR_BACKUP_DIRECTORY =
+  @NotNull private static final String ATTR_BACKUP_DIRECTORY =
        "ds-backup-directory-path";
 
 
@@ -149,21 +152,22 @@ public final class BackupTask
   /**
    * The name of the attribute used to specify the backup ID for the backup.
    */
-  private static final String ATTR_BACKUP_ID = "ds-backup-id";
+  @NotNull private static final String ATTR_BACKUP_ID = "ds-backup-id";
 
 
 
   /**
    * The name of the attribute used to indicate whether to compress the backup.
    */
-  private static final String ATTR_COMPRESS = "ds-task-backup-compress";
+  @NotNull private static final String ATTR_COMPRESS =
+       "ds-task-backup-compress";
 
 
 
   /**
    * The name of the attribute used to indicate whether to encrypt the backup.
    */
-  private static final String ATTR_ENCRYPT = "ds-task-backup-encrypt";
+  @NotNull private static final String ATTR_ENCRYPT = "ds-task-backup-encrypt";
 
 
 
@@ -171,7 +175,7 @@ public final class BackupTask
    * The name of the attribute used to specify the path to a file that contains
    * the passphrase to use to generate the encryption key.
    */
-  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+  @NotNull private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
        "ds-task-backup-encryption-passphrase-file";
 
 
@@ -181,7 +185,7 @@ public final class BackupTask
    * the ID of the encryption settings definition to use to generate the
    * encryption key.
    */
-  private static final String ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID =
+  @NotNull private static final String ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID =
        "ds-task-backup-encryption-settings-definition-id";
 
 
@@ -190,7 +194,7 @@ public final class BackupTask
    * The name of the attribute used to indicate whether to create a hash of the
    * backup.
    */
-  private static final String ATTR_HASH = "ds-task-backup-hash";
+  @NotNull private static final String ATTR_HASH = "ds-task-backup-hash";
 
 
 
@@ -198,7 +202,8 @@ public final class BackupTask
    * The name of the attribute used to indicate whether to perform an
    * incremental backup rather than a full backup.
    */
-  private static final String ATTR_INCREMENTAL = "ds-task-backup-incremental";
+  @NotNull private static final String ATTR_INCREMENTAL =
+       "ds-task-backup-incremental";
 
 
 
@@ -206,7 +211,7 @@ public final class BackupTask
    * The name of the attribute used to specify the backup ID of the backup
    * on which to base the incremental backup.
    */
-  private static final String ATTR_INCREMENTAL_BASE_ID =
+  @NotNull private static final String ATTR_INCREMENTAL_BASE_ID =
        "ds-task-backup-incremental-base-id";
 
 
@@ -215,7 +220,7 @@ public final class BackupTask
    * The name of the attribute used to specify the maximum backup write rate in
    * megabytes per second.
    */
-  private static final String ATTR_MAX_MEGABYTES_PER_SECOND =
+  @NotNull private static final String ATTR_MAX_MEGABYTES_PER_SECOND =
        "ds-task-backup-max-megabytes-per-second";
 
 
@@ -224,7 +229,7 @@ public final class BackupTask
    * The name of the attribute used to specify the minimum age of previous full
    * backups to retain.
    */
-  private static final String ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE =
+  @NotNull private static final String ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE =
        "ds-task-backup-retain-previous-full-backup-age";
 
 
@@ -233,7 +238,7 @@ public final class BackupTask
    * The name of the attribute used to specify the number of previous full
    * backups to retain.
    */
-  private static final String ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT =
+  @NotNull private static final String ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT =
        "ds-task-backup-retain-previous-full-backup-count";
 
 
@@ -242,21 +247,22 @@ public final class BackupTask
    * The name of the attribute used to indicate whether to sign the hash of the
    * backup.
    */
-  private static final String ATTR_SIGN_HASH = "ds-task-backup-sign-hash";
+  @NotNull private static final String ATTR_SIGN_HASH =
+       "ds-task-backup-sign-hash";
 
 
 
   /**
    * The name of the object class used in backup task entries.
    */
-  private static final String OC_BACKUP_TASK = "ds-task-backup";
+  @NotNull private static final String OC_BACKUP_TASK = "ds-task-backup";
 
 
 
   /**
    * The task property that will be used for the backup directory.
    */
-  private static final TaskProperty PROPERTY_BACKUP_DIRECTORY =
+  @NotNull private static final TaskProperty PROPERTY_BACKUP_DIRECTORY =
        new TaskProperty(ATTR_BACKUP_DIRECTORY,
             INFO_DISPLAY_NAME_BACKUP_DIRECTORY.get(),
             INFO_DESCRIPTION_BACKUP_DIRECTORY_BACKUP.get(),
@@ -267,7 +273,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the backend ID.
    */
-  private static final TaskProperty PROPERTY_BACKEND_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
        new TaskProperty(ATTR_BACKEND_ID, INFO_DISPLAY_NAME_BACKEND_ID.get(),
             INFO_DESCRIPTION_BACKEND_ID_BACKUP.get(), String.class, false, true,
             false);
@@ -277,7 +283,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the backup ID.
    */
-  private static final TaskProperty PROPERTY_BACKUP_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKUP_ID =
        new TaskProperty(ATTR_BACKUP_ID, INFO_DISPLAY_NAME_BACKUP_ID.get(),
             INFO_DESCRIPTION_BACKUP_ID_BACKUP.get(), String.class, false, false,
             true);
@@ -287,7 +293,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the incremental flag.
    */
-  private static final TaskProperty PROPERTY_INCREMENTAL =
+  @NotNull private static final TaskProperty PROPERTY_INCREMENTAL =
        new TaskProperty(ATTR_INCREMENTAL, INFO_DISPLAY_NAME_INCREMENTAL.get(),
             INFO_DESCRIPTION_INCREMENTAL.get(), Boolean.class, false, false,
             false);
@@ -297,7 +303,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the incremental base ID.
    */
-  private static final TaskProperty PROPERTY_INCREMENTAL_BASE_ID =
+  @NotNull private static final TaskProperty PROPERTY_INCREMENTAL_BASE_ID =
        new TaskProperty(ATTR_INCREMENTAL_BASE_ID,
             INFO_DISPLAY_NAME_INCREMENTAL_BASE_ID.get(),
             INFO_DESCRIPTION_INCREMENTAL_BASE_ID.get(), String.class, false,
@@ -308,7 +314,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the compress flag.
    */
-  private static final TaskProperty PROPERTY_COMPRESS =
+  @NotNull private static final TaskProperty PROPERTY_COMPRESS =
        new TaskProperty(ATTR_COMPRESS, INFO_DISPLAY_NAME_COMPRESS.get(),
             INFO_DESCRIPTION_COMPRESS_BACKUP.get(), Boolean.class, false, false,
             false);
@@ -318,7 +324,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the encrypt flag.
    */
-  private static final TaskProperty PROPERTY_ENCRYPT =
+  @NotNull private static final TaskProperty PROPERTY_ENCRYPT =
        new TaskProperty(ATTR_ENCRYPT, INFO_DISPLAY_NAME_ENCRYPT.get(),
             INFO_DESCRIPTION_ENCRYPT_BACKUP.get(), Boolean.class, false, false,
             false);
@@ -328,8 +334,9 @@ public final class BackupTask
   /**
    * The task property that will be used for the encryption passphrase file.
    */
-  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
-       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+  @NotNull private static final TaskProperty
+       PROPERTY_ENCRYPTION_PASSPHRASE_FILE = new TaskProperty(
+            ATTR_ENCRYPTION_PASSPHRASE_FILE,
             INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
             INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
             String.class, false, false, true);
@@ -340,8 +347,9 @@ public final class BackupTask
    * The task property that will be used for the encryption settings definition
    * ID.
    */
-  private static final TaskProperty PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID =
-       new TaskProperty(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
+  @NotNull private static final TaskProperty
+       PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID = new TaskProperty(
+            ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
             INFO_DISPLAY_NAME_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
             INFO_DESCRIPTION_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
             String.class, false, false, true);
@@ -351,7 +359,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the hash flag.
    */
-  private static final TaskProperty PROPERTY_HASH =
+  @NotNull private static final TaskProperty PROPERTY_HASH =
        new TaskProperty(ATTR_HASH, INFO_DISPLAY_NAME_HASH.get(),
             INFO_DESCRIPTION_HASH_BACKUP.get(), Boolean.class, false, false,
             false);
@@ -361,7 +369,7 @@ public final class BackupTask
   /**
    * The task property that will be used for the sign hash flag.
    */
-  private static final TaskProperty PROPERTY_SIGN_HASH =
+  @NotNull private static final TaskProperty PROPERTY_SIGN_HASH =
        new TaskProperty(ATTR_SIGN_HASH, INFO_DISPLAY_NAME_SIGN_HASH.get(),
             INFO_DESCRIPTION_SIGN_HASH_BACKUP.get(), Boolean.class, false,
             false, false);
@@ -372,7 +380,7 @@ public final class BackupTask
    * The task property that will be used for the maximum write rate in megabytes
    * per second.
    */
-  private static final TaskProperty PROPERTY_MAX_MEGABYTES_PER_SECOND =
+  @NotNull private static final TaskProperty PROPERTY_MAX_MEGABYTES_PER_SECOND =
        new TaskProperty(ATTR_MAX_MEGABYTES_PER_SECOND,
             INFO_DISPLAY_NAME_BACKUP_MAX_MEGABYTES_PER_SECOND.get(),
             INFO_DESCRIPTION_BACKUP_MAX_MEGABYTES_PER_SECOND.get(),
@@ -384,8 +392,9 @@ public final class BackupTask
    * The task property that will be used for the retain previous full backup
    * age.
    */
-  private static final TaskProperty PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_AGE =
-       new TaskProperty(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE,
+  @NotNull private static final TaskProperty
+       PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_AGE = new TaskProperty(
+            ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE,
             INFO_DISPLAY_NAME_BACKUP_RETAIN_AGE.get(),
             INFO_DESCRIPTION_BACKUP_RETAIN_AGE.get(),
             String.class, false, false, true);
@@ -396,8 +405,9 @@ public final class BackupTask
    * The task property that will be used for the retain previous full backup
    * count.
    */
-  private static final TaskProperty PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_COUNT =
-       new TaskProperty(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
+  @NotNull private static final TaskProperty
+       PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_COUNT = new TaskProperty(
+            ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
             INFO_DISPLAY_NAME_BACKUP_RETAIN_COUNT.get(),
             INFO_DESCRIPTION_BACKUP_RETAIN_COUNT.get(),
             Long.class, false, false, true);
@@ -427,33 +437,33 @@ public final class BackupTask
   private final boolean incremental;
 
   // The maximum backup write rate in megabytes per second.
-  private final Integer maxMegabytesPerSecond;
+  @Nullable private final Integer maxMegabytesPerSecond;
 
   // The retain previous full backup count.
-  private final Integer retainPreviousFullBackupCount;
+  @Nullable private final Integer retainPreviousFullBackupCount;
 
   // The backend IDs of the backends to back up.
-  private final List<String> backendIDs;
+  @NotNull private final List<String> backendIDs;
 
   // The path to the directory in which to write the backup.
-  private final String backupDirectory;
+  @NotNull private final String backupDirectory;
 
   // The backup ID to use for the backup.
-  private final String backupID;
+  @Nullable private final String backupID;
 
   // The path to a file containing the passphrase to use to generate the
   // encryption key.
-  private final String encryptionPassphraseFile;
+  @Nullable private final String encryptionPassphraseFile;
 
   // The identifier for the encryption settings definition to use to generate
   // the encryption key.
-  private final String encryptionSettingsDefinitionID;
+  @Nullable private final String encryptionSettingsDefinitionID;
 
   // The backup ID of the backup to use as the base for the incremental backup.
-  private final String incrementalBaseID;
+  @Nullable private final String incrementalBaseID;
 
   // The retain previous full backup age.
-  private final String retainPreviousFullBackupAge;
+  @Nullable private final String retainPreviousFullBackupAge;
 
 
 
@@ -500,8 +510,9 @@ public final class BackupTask
    *                          be {@code null} if all supported backends should
    *                          be backed up.
    */
-  public BackupTask(final String taskID, final String backupDirectory,
-                    final String backendID)
+  public BackupTask(@Nullable final String taskID,
+                    @NotNull final String backupDirectory,
+                    @Nullable final String backendID)
   {
     this(taskID, backupDirectory,
          ((backendID == null) ? null : Collections.singletonList(backendID)),
@@ -563,16 +574,19 @@ public final class BackupTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public BackupTask(final String taskID, final String backupDirectory,
-                    final List<String> backendIDs, final String backupID,
-                    final boolean incremental, final String incrementalBaseID,
-                    final boolean compress, final boolean encrypt,
-                    final boolean hash, final boolean signHash,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public BackupTask(@Nullable final String taskID,
+              @NotNull final String backupDirectory,
+              @Nullable final List<String> backendIDs,
+              @Nullable final String backupID,
+              final boolean incremental,
+              @Nullable final String incrementalBaseID,
+              final boolean compress, final boolean encrypt,
+              final boolean hash, final boolean signHash,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backupDirectory, backendIDs, backupID, incremental,
          incrementalBaseID, compress, encrypt, null, null, hash, signHash,
@@ -668,21 +682,24 @@ public final class BackupTask
    *                                         if this task does not complete
    *                                         successfully.
    */
-  public BackupTask(final String taskID, final String backupDirectory,
-                    final List<String> backendIDs, final String backupID,
-                    final boolean incremental, final String incrementalBaseID,
-                    final boolean compress, final boolean encrypt,
-                    final String encryptionPassphraseFile,
-                    final String encryptionSettingsDefinitionID,
-                    final boolean hash, final boolean signHash,
-                    final Integer maxMegabytesPerSecond,
-                    final Integer retainPreviousFullBackupCount,
-                    final String retainPreviousFullBackupAge,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public BackupTask(@Nullable final String taskID,
+              @NotNull final String backupDirectory,
+              @Nullable final List<String> backendIDs,
+              @Nullable final String backupID,
+              final boolean incremental,
+              @Nullable final String incrementalBaseID,
+              final boolean compress, final boolean encrypt,
+              @Nullable final String encryptionPassphraseFile,
+              @Nullable final String encryptionSettingsDefinitionID,
+              final boolean hash, final boolean signHash,
+              @Nullable final Integer maxMegabytesPerSecond,
+              @Nullable final Integer retainPreviousFullBackupCount,
+              @Nullable final String retainPreviousFullBackupAge,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backupDirectory, backendIDs, backupID, incremental,
          incrementalBaseID, compress, encrypt, encryptionPassphraseFile,
@@ -797,25 +814,29 @@ public final class BackupTask
    *                                         task fails to complete
    *                                         successfully.
    */
-  public BackupTask(final String taskID, final String backupDirectory,
-                    final List<String> backendIDs, final String backupID,
-                    final boolean incremental, final String incrementalBaseID,
-                    final boolean compress, final boolean encrypt,
-                    final String encryptionPassphraseFile,
-                    final String encryptionSettingsDefinitionID,
-                    final boolean hash, final boolean signHash,
-                    final Integer maxMegabytesPerSecond,
-                    final Integer retainPreviousFullBackupCount,
-                    final String retainPreviousFullBackupAge,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnStart,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnSuccess,
-                    final List<String> notifyOnError,
-                    final Boolean alertOnStart, final Boolean alertOnSuccess,
-                    final Boolean alertOnError)
+  public BackupTask(@Nullable final String taskID,
+              @NotNull final String backupDirectory,
+              @Nullable final List<String> backendIDs,
+              @Nullable final String backupID,
+              final boolean incremental,
+              @Nullable final String incrementalBaseID,
+              final boolean compress, final boolean encrypt,
+              @Nullable final String encryptionPassphraseFile,
+              @Nullable final String encryptionSettingsDefinitionID,
+              final boolean hash, final boolean signHash,
+              @Nullable final Integer maxMegabytesPerSecond,
+              @Nullable final Integer retainPreviousFullBackupCount,
+              @Nullable final String retainPreviousFullBackupAge,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, BACKUP_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -858,7 +879,7 @@ public final class BackupTask
    * @throws  TaskException  If the provided entry cannot be parsed as a backup
    *                         task entry.
    */
-  public BackupTask(final Entry entry)
+  public BackupTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -942,7 +963,7 @@ public final class BackupTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid backup task.
    */
-  public BackupTask(final Map<TaskProperty,List<Object>> properties)
+  public BackupTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(BACKUP_TASK_CLASS, properties);
@@ -1073,6 +1094,7 @@ public final class BackupTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_BACKUP.get();
@@ -1084,6 +1106,7 @@ public final class BackupTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_BACKUP.get();
@@ -1101,6 +1124,7 @@ public final class BackupTask
    * @return  The path to the backup directory in which the backup files should
    *          be written.
    */
+  @NotNull()
   public String getBackupDirectory()
   {
     return backupDirectory;
@@ -1129,6 +1153,7 @@ public final class BackupTask
    *          or an empty list if the server should back up all supported
    *          backends.
    */
+  @NotNull()
   public List<String> getBackendIDs()
   {
     return backendIDs;
@@ -1142,6 +1167,7 @@ public final class BackupTask
    * @return  The backup ID for the backup to generate, or {@code null} if the
    *          server should generate a backup ID.
    */
+  @Nullable()
   public String getBackupID()
   {
     return backupID;
@@ -1172,6 +1198,7 @@ public final class BackupTask
    *          incremental backup or the server should use the most recent
    *          backup available as the base for the new incremental backup.
    */
+  @Nullable()
   public String getIncrementalBaseID()
   {
     return incrementalBaseID;
@@ -1214,6 +1241,7 @@ public final class BackupTask
    *          not be encrypted or if the encryption key should be obtained
    *          through some other means.
    */
+  @Nullable()
   public String getEncryptionPassphraseFile()
   {
     return encryptionPassphraseFile;
@@ -1230,6 +1258,7 @@ public final class BackupTask
    *          not be encrypted or if the encryption key should be obtained
    *          through some other means.
    */
+  @Nullable()
   public String getEncryptionSettingsDefinitionID()
   {
     return encryptionSettingsDefinitionID;
@@ -1271,6 +1300,7 @@ public final class BackupTask
    *          should be written, or {@code null} if the writing should not be
    *          rate limited.
    */
+  @Nullable()
   public Integer getMaxMegabytesPerSecond()
   {
     return maxMegabytesPerSecond;
@@ -1287,6 +1317,7 @@ public final class BackupTask
    *          {@code null} if no backups should be removed or if the backup age
    *          should be the only retention criteria.
    */
+  @Nullable()
   public Integer getRetainPreviousFullBackupCount()
   {
     return retainPreviousFullBackupCount;
@@ -1303,6 +1334,7 @@ public final class BackupTask
    *          successfully, or {@code null} if no backups should be removed or
    *          if the backup count should be the only retention criteria.
    */
+  @Nullable()
   public String getRetainPreviousFullBackupAge()
   {
     return retainPreviousFullBackupAge;
@@ -1314,6 +1346,7 @@ public final class BackupTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_BACKUP_TASK);
@@ -1325,6 +1358,7 @@ public final class BackupTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(20);
@@ -1394,6 +1428,7 @@ public final class BackupTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final List<TaskProperty> propList = Arrays.asList(
@@ -1421,6 +1456,7 @@ public final class BackupTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

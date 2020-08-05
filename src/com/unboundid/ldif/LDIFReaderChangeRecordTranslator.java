@@ -38,6 +38,8 @@ package com.unboundid.ldif;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,6 +74,8 @@ public interface LDIFReaderChangeRecordTranslator
    *                         exception will be re-thrown to the caller of
    *                         readChangeRecord.
    */
-  LDIFChangeRecord translate(LDIFChangeRecord original, long firstLineNumber)
+  @Nullable()
+  LDIFChangeRecord translate(@NotNull LDIFChangeRecord original,
+                             long firstLineNumber)
        throws LDIFException;
 }

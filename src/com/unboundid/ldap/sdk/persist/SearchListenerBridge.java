@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,10 +67,10 @@ final class SearchListenerBridge<T>
 
 
   // The persister that will be used to decode any entries that are returned.
-  private final LDAPPersister<T> persister;
+  @NotNull private final LDAPPersister<T> persister;
 
   // The listener to which decoded objects will be provided.
-  private final ObjectSearchListener<T> listener;
+  @NotNull private final ObjectSearchListener<T> listener;
 
 
 
@@ -83,8 +84,8 @@ final class SearchListenerBridge<T>
    * @param  listener   The listener to which decoded objects should be
    *                    forwarded.
    */
-  SearchListenerBridge(final LDAPPersister<T> persister,
-                       final ObjectSearchListener<T> listener)
+  SearchListenerBridge(@NotNull final LDAPPersister<T> persister,
+                       @NotNull final ObjectSearchListener<T> listener)
   {
     this.persister = persister;
     this.listener  = listener;
@@ -96,7 +97,7 @@ final class SearchListenerBridge<T>
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     try
     {
@@ -116,7 +117,7 @@ final class SearchListenerBridge<T>
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     listener.searchReferenceReturned(searchReference);
   }

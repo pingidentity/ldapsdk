@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SASLBindRequest;
 import com.unboundid.ldap.sdk.ToCodeArgHelper;
 import com.unboundid.ldap.sdk.ToCodeHelper;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -82,7 +84,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
   /**
    * The name for the UnboundID certificate plus password SASL mechanism.
    */
-  public static final String UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME =
+  @NotNull public static final String UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME =
        "UNBOUNDID-CERTIFICATE-PLUS-PASSWORD";
 
 
@@ -95,7 +97,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
 
 
   // The password to use to authenticate.
-  private final ASN1OctetString password;
+  @NotNull private final ASN1OctetString password;
 
   // The message ID from the last LDAP message sent from this request.
   private volatile int messageID = -1;
@@ -112,8 +114,9 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    *                   may be {@code null} or empty if no request controls are
    *                   needed.
    */
-  public UnboundIDCertificatePlusPasswordBindRequest(final String password,
-                                                     final Control... controls)
+  public UnboundIDCertificatePlusPasswordBindRequest(
+              @NotNull final String password,
+              @Nullable final Control... controls)
   {
     this(new ASN1OctetString(CRED_TYPE_SASL, password), controls);
   }
@@ -130,8 +133,9 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    *                   may be {@code null} or empty if no request controls are
    *                   needed.
    */
-  public UnboundIDCertificatePlusPasswordBindRequest(final byte[] password,
-                                                     final Control... controls)
+  public UnboundIDCertificatePlusPasswordBindRequest(
+              @NotNull final byte[] password,
+              @Nullable final Control... controls)
   {
     this(new ASN1OctetString(CRED_TYPE_SASL, password), controls);
   }
@@ -149,7 +153,8 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    *                   needed.
    */
   private UnboundIDCertificatePlusPasswordBindRequest(
-               final ASN1OctetString password, final Control... controls)
+               @NotNull final ASN1OctetString password,
+               @Nullable final Control... controls)
   {
     super(controls);
 
@@ -168,6 +173,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * @return  The password to use to authenticate as the user identified by the
    *          certificate.
    */
+  @NotNull()
   public ASN1OctetString getPassword()
   {
     return password;
@@ -179,6 +185,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME;
@@ -190,7 +197,9 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     messageID = InternalSDKHelper.nextMessageID(connection);
@@ -215,6 +224,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDCertificatePlusPasswordBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -226,8 +236,9 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDCertificatePlusPasswordBindRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final UnboundIDCertificatePlusPasswordBindRequest bindRequest =
          new UnboundIDCertificatePlusPasswordBindRequest(password, controls);
@@ -241,8 +252,9 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDCertificatePlusPasswordBindRequest getRebindRequest(
-              final String host, final int port)
+              @NotNull final String host, final int port)
   {
     return duplicate();
   }
@@ -253,7 +265,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UnboundIDCertificatePlusPasswordBindRequest(");
 
@@ -282,7 +294,8 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

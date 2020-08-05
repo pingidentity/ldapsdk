@@ -67,6 +67,8 @@ import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -264,132 +266,132 @@ public final class InMemoryDirectoryServerTool
 
   // The argument used to indicate that access log information should be written
   // to standard output.
-  private BooleanArgument accessLogToStandardOutArgument;
+  @Nullable private BooleanArgument accessLogToStandardOutArgument;
 
   // Indicates that the should not attempt to validate custom schema definitions
   // provided by the useSchemaFile argument.
-  private BooleanArgument doNotValidateSchemaDefinitions;
+  @Nullable private BooleanArgument doNotValidateSchemaDefinitions;
 
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
-  private BooleanArgument dontStartArgument;
+  @Nullable private BooleanArgument dontStartArgument;
 
   // The argument used to indicate that the server should generate a self-signed
   // certificate for use in SSL or StartTLS negotiation.
-  private BooleanArgument generateSelfSignedCertificateArgument;
+  @Nullable private BooleanArgument generateSelfSignedCertificateArgument;
 
   // The argument used to indicate that JSON-formatted access log information
   // should be written to standard output.
-  private BooleanArgument jsonAccessLogToStandardOutArgument;
+  @Nullable private BooleanArgument jsonAccessLogToStandardOutArgument;
 
   // The argument used to indicate that LDAP debug log information should be
   // written to standard output.
-  private BooleanArgument ldapDebugLogToStandardOutArgument;
+  @Nullable private BooleanArgument ldapDebugLogToStandardOutArgument;
 
   // The argument used to indicate that the default standard schema should be
   // used.
-  private BooleanArgument useDefaultSchemaArgument;
+  @Nullable private BooleanArgument useDefaultSchemaArgument;
 
   // The argument used to indicate that the server should use SSL
-  private BooleanArgument useSSLArgument;
+  @Nullable private BooleanArgument useSSLArgument;
 
   // The argument used to indicate that the server should support the StartTLS
   // extended operation
-  private BooleanArgument useStartTLSArgument;
+  @Nullable private BooleanArgument useStartTLSArgument;
 
   // The argument used to specify an additional bind DN to use for the server.
-  private DNArgument additionalBindDNArgument;
+  @Nullable private DNArgument additionalBindDNArgument;
 
   // The argument used to specify the base DNs to use for the server.
-  private DNArgument baseDNArgument;
+  @Nullable private DNArgument baseDNArgument;
 
   // The argument used to specify the path to an access log file to which
   // information should be written about operations processed by the server.
-  private FileArgument accessLogFileArgument;
+  @Nullable private FileArgument accessLogFileArgument;
 
   // The argument used to specify the code log file to use, if any.
-  private FileArgument codeLogFile;
+  @Nullable private FileArgument codeLogFile;
 
   // The argument used to specify the path to an access log file to which
   // JSON-formatted operation should be written about operations processed by
   // the server.
-  private FileArgument jsonAccessLogFileArgument;
+  @Nullable private FileArgument jsonAccessLogFileArgument;
 
   // The argument used to specify the path to the SSL key store file.
-  private FileArgument keyStorePathArgument;
+  @Nullable private FileArgument keyStorePathArgument;
 
   // The argument used to specify the path to an LDAP debug log file to which
   // information should be written about detailed LDAP communication performed
   // by the server.
-  private FileArgument ldapDebugLogFileArgument;
+  @Nullable private FileArgument ldapDebugLogFileArgument;
 
   // The argument used to specify the path to an LDIF file with data to use to
   // initially populate the server.
-  private FileArgument ldifFileArgument;
+  @Nullable private FileArgument ldifFileArgument;
 
   // The argument used to specify the path to the SSL trust store file.
-  private FileArgument trustStorePathArgument;
+  @Nullable private FileArgument trustStorePathArgument;
 
   // The argument used to specify the path to a directory containing schema
   // definitions.
-  private FileArgument useSchemaFileArgument;
+  @Nullable private FileArgument useSchemaFileArgument;
 
   // The in-memory directory server instance that has been created by this tool.
-  private InMemoryDirectoryServer directoryServer;
+  @Nullable private InMemoryDirectoryServer directoryServer;
 
   // The argument used to specify the maximum number of changelog entries that
   // the server should maintain.
-  private IntegerArgument maxChangeLogEntriesArgument;
+  @Nullable private IntegerArgument maxChangeLogEntriesArgument;
 
   // The argument used to specify the maximum number of concurrent connections.
-  private IntegerArgument maxConcurrentConnectionsArgument;
+  @Nullable private IntegerArgument maxConcurrentConnectionsArgument;
 
   // The argument used to specify the port on which the server should listen.
-  private IntegerArgument portArgument;
+  @Nullable private IntegerArgument portArgument;
 
   // The argument used to specify the maximum search size limit.
-  private IntegerArgument sizeLimitArgument;
+  @Nullable private IntegerArgument sizeLimitArgument;
 
   // The argument used to specify the password for the additional bind DN.
-  private StringArgument additionalBindPasswordArgument;
+  @Nullable private StringArgument additionalBindPasswordArgument;
 
   // The argument used to specify the types of allowed operations.
-  private StringArgument allowedOperationTypeArgument;
+  @Nullable private StringArgument allowedOperationTypeArgument;
 
   // The argument used to specify the types of operations for which
   // authentication is required.
-  private StringArgument authenticationRequiredOperationTypeArgument;
+  @Nullable private StringArgument authenticationRequiredOperationTypeArgument;
 
   // The argument used to specify the name of the default encoding scheme to use
   // use for clear-text passwords.
-  private StringArgument defaultPasswordEncodingArgument;
+  @Nullable private StringArgument defaultPasswordEncodingArgument;
 
   // The argument used to specify the attributes for which to maintain equality
   // indexes.
-  private StringArgument equalityIndexArgument;
+  @Nullable private StringArgument equalityIndexArgument;
 
   // The argument used to specify the password to use to access the contents of
   // the SSL key store
-  private StringArgument keyStorePasswordArgument;
+  @Nullable private StringArgument keyStorePasswordArgument;
 
   // The argument used to specify the key store type.
-  private StringArgument keyStoreTypeArgument;
+  @Nullable private StringArgument keyStoreTypeArgument;
 
   // The argument used to specify the password attribute types.
-  private StringArgument passwordAttributeArgument;
+  @Nullable private StringArgument passwordAttributeArgument;
 
   // The argument used to specify the password to use to access the contents of
   // the SSL trust store
-  private StringArgument trustStorePasswordArgument;
+  @Nullable private StringArgument trustStorePasswordArgument;
 
   // The argument used to specify the trust store type.
-  private StringArgument trustStoreTypeArgument;
+  @Nullable private StringArgument trustStoreTypeArgument;
 
   // The argument used to specify the server vendor name.
-  private StringArgument vendorNameArgument;
+  @Nullable private StringArgument vendorNameArgument;
 
   // The argument used to specify the server vendor version.
-  private StringArgument vendorVersionArgument;
+  @Nullable private StringArgument vendorVersionArgument;
 
 
 
@@ -399,7 +401,7 @@ public final class InMemoryDirectoryServerTool
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -424,9 +426,9 @@ public final class InMemoryDirectoryServerTool
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final InMemoryDirectoryServerTool tool =
          new InMemoryDirectoryServerTool(outStream, errStream);
@@ -450,8 +452,8 @@ public final class InMemoryDirectoryServerTool
    *                    or a custom output stream if the output should be sent
    *                    to an alternate location.
    */
-  public InMemoryDirectoryServerTool(final OutputStream outStream,
-                                     final OutputStream errStream)
+  public InMemoryDirectoryServerTool(@Nullable final OutputStream outStream,
+                                     @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -498,6 +500,7 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "in-memory-directory-server";
@@ -522,6 +525,7 @@ public final class InMemoryDirectoryServerTool
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -533,7 +537,7 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     portArgument = new IntegerArgument('p', "port", false, 1,
@@ -1006,6 +1010,7 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Create a base configuration.
@@ -1094,6 +1099,7 @@ public final class InMemoryDirectoryServerTool
    * @throws  LDAPException  If a problem is encountered while creating the
    *                         configuration.
    */
+  @NotNull()
   private InMemoryDirectoryServerConfig getConfig()
           throws LDAPException
   {
@@ -1624,9 +1630,9 @@ public final class InMemoryDirectoryServerTool
    *                          for the password encoder.
    * @param  encoderMap       The map to which the encoder will bea added.
    */
-  private static void addUnsaltedEncoder(final String schemeName,
-                           final String digestAlgorithm,
-                           final Map<String,InMemoryPasswordEncoder> encoderMap)
+  private static void addUnsaltedEncoder(@NotNull final String schemeName,
+               @NotNull final String digestAlgorithm,
+               @NotNull final Map<String,InMemoryPasswordEncoder> encoderMap)
   {
     try
     {
@@ -1655,9 +1661,9 @@ public final class InMemoryDirectoryServerTool
    *                          for the password encoder.
    * @param  encoderMap       The map to which the encoder will bea added.
    */
-  private static void addSaltedEncoder(final String schemeName,
-                           final String digestAlgorithm,
-                           final Map<String,InMemoryPasswordEncoder> encoderMap)
+  private static void addSaltedEncoder(@NotNull final String schemeName,
+               @NotNull final String digestAlgorithm,
+               @NotNull final Map<String,InMemoryPasswordEncoder> encoderMap)
   {
     try
     {
@@ -1687,9 +1693,9 @@ public final class InMemoryDirectoryServerTool
    *                          clear.
    * @param  encoderMap       The map to which the encoder will bea added.
    */
-  private static void addClearEncoder(final String schemeName,
-                           final PasswordEncoderOutputFormatter outputFormatter,
-                           final Map<String,InMemoryPasswordEncoder> encoderMap)
+  private static void addClearEncoder(@NotNull final String schemeName,
+               @Nullable final PasswordEncoderOutputFormatter outputFormatter,
+               @NotNull final Map<String,InMemoryPasswordEncoder> encoderMap)
   {
     final ClearInMemoryPasswordEncoder encoder =
          new ClearInMemoryPasswordEncoder('{' + schemeName + '}',
@@ -1703,6 +1709,7 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> exampleUsages =
@@ -1738,6 +1745,7 @@ public final class InMemoryDirectoryServerTool
    *          this tool, or {@code null} if the directory server instance has
    *          not been successfully created.
    */
+  @Nullable()
   public InMemoryDirectoryServer getDirectoryServer()
   {
     return directoryServer;
@@ -1749,8 +1757,8 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
-  public void connectionCreationFailure(final Socket socket,
-                                        final Throwable cause)
+  public void connectionCreationFailure(@Nullable final Socket socket,
+                                        @NotNull final Throwable cause)
   {
     wrapErr(0, WRAP_COLUMN,
          ERR_MEM_DS_TOOL_ERROR_ACCEPTING_CONNECTION.get(
@@ -1764,8 +1772,8 @@ public final class InMemoryDirectoryServerTool
    */
   @Override()
   public void connectionTerminated(
-                   final LDAPListenerClientConnection connection,
-                   final LDAPException cause)
+                   @NotNull final LDAPListenerClientConnection connection,
+                   @NotNull final LDAPException cause)
   {
     wrapErr(0, WRAP_COLUMN,
          ERR_MEM_DS_TOOL_CONNECTION_TERMINATED_BY_EXCEPTION.get(

@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import java.io.Closeable;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -129,6 +130,7 @@ public abstract class EntrySource
    * @throws  EntrySourceException  If a problem occurs while attempting to read
    *                                the next entry from the entry source.
    */
+  @Nullable()
   public abstract Entry nextEntry()
          throws EntrySourceException;
 

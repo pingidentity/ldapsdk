@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -59,10 +61,11 @@ final class InterceptedSearchReference
       implements InMemoryInterceptedSearchReference
 {
   // The search request for this operation.
+  @NotNull
   private final ReadOnlySearchRequest searchRequest;
 
   // The search result reference to be processed.
-  private SearchResultReference reference;
+  @Nullable private SearchResultReference reference;
 
 
 
@@ -74,9 +77,9 @@ final class InterceptedSearchReference
    * @param  reference        The search result reference to be processed.
    * @param  requestControls  The set of controls included in the request.
    */
-  InterceptedSearchReference(final InterceptedSearchOperation op,
-                             final SearchResultReferenceProtocolOp reference,
-                             final Control... requestControls)
+  InterceptedSearchReference(@NotNull final InterceptedSearchOperation op,
+       @NotNull final SearchResultReferenceProtocolOp reference,
+       @Nullable final Control... requestControls)
   {
     super(op);
 
@@ -90,6 +93,7 @@ final class InterceptedSearchReference
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReadOnlySearchRequest getRequest()
   {
     return searchRequest;
@@ -101,6 +105,7 @@ final class InterceptedSearchReference
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public SearchResultReference getSearchReference()
   {
     return reference;
@@ -112,7 +117,8 @@ final class InterceptedSearchReference
    * {@inheritDoc}
    */
   @Override()
-  public void setSearchReference(final SearchResultReference reference)
+  public void setSearchReference(
+                   @Nullable final SearchResultReference reference)
   {
     this.reference = reference;
   }
@@ -123,7 +129,7 @@ final class InterceptedSearchReference
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedSearchReference(");
     appendCommonToString(buffer);

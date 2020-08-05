@@ -44,6 +44,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -79,19 +81,19 @@ public final class MonitorAttribute
 
 
   // The data type for the values of this monitor attribute.
-  private final Class<?> dataType;
+  @NotNull private final Class<?> dataType;
 
   // The set of values for this monitor attribute.
-  private final Object[] values;
+  @NotNull private final Object[] values;
 
   // The description for this monitor attribute.
-  private final String description;
+  @Nullable private final String description;
 
   // The display name for this monitor attribute.
-  private final String displayName;
+  @NotNull private final String displayName;
 
   // The name used to identify this monitor attribute.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -109,8 +111,10 @@ public final class MonitorAttribute
    * @param  value        The {@code Boolean} value for this monitor attribute.
    *                      It must not be {@code null}.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Boolean value)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Boolean value)
   {
     this(name, displayName, description, Boolean.class, new Object[] { value });
 
@@ -133,8 +137,10 @@ public final class MonitorAttribute
    * @param  value        The {@code Date} value for this monitor attribute.  It
    *                      must not be {@code null}.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Date value)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Date value)
   {
     this(name, displayName, description, Date.class, new Object[] { value });
 
@@ -157,8 +163,10 @@ public final class MonitorAttribute
    * @param  values       The set of {@code Date} values for this monitor
    *                      attribute.  It must not be {@code null} or empty.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Date[] values)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Date[] values)
   {
     this(name, displayName, description, Date.class, values);
   }
@@ -179,8 +187,10 @@ public final class MonitorAttribute
    * @param  value        The {@code Double} value for this monitor attribute.
    *                      It must not be {@code null}.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Double value)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Double value)
   {
     this(name, displayName, description, Double.class, new Object[] { value });
 
@@ -203,8 +213,10 @@ public final class MonitorAttribute
    * @param  values       The set of {@code Double} values for this monitor
    *                      attribute.  It must not be {@code null} or empty.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Double[] values)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Double[] values)
   {
     this(name, displayName, description, Double.class, values);
   }
@@ -225,8 +237,10 @@ public final class MonitorAttribute
    * @param  value        The {@code Integer} value for this monitor attribute.
    *                      It must not be {@code null}.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Integer value)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Integer value)
   {
     this(name, displayName, description, Integer.class, new Object[] { value });
 
@@ -249,8 +263,10 @@ public final class MonitorAttribute
    * @param  values       The set of {@code Integer} values for this monitor
    *                      attribute.  It must not be {@code null} or empty.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Integer[] values)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Integer[] values)
   {
     this(name, displayName, description, Integer.class, values);
   }
@@ -271,8 +287,10 @@ public final class MonitorAttribute
    * @param  value        The {@code Long} value for this monitor attribute.  It
    *                      must not be {@code null}.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Long value)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Long value)
   {
     this(name, displayName, description, Long.class, new Object[] { value });
 
@@ -295,8 +313,10 @@ public final class MonitorAttribute
    * @param  values       The set of {@code Long} values for this monitor
    *                      attribute.  It must not be {@code null} or empty.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final Long[] values)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final Long[] values)
   {
     this(name, displayName, description, Long.class, values);
   }
@@ -317,8 +337,10 @@ public final class MonitorAttribute
    * @param  value        The {@code String} value for this monitor attribute.
    *                      It must not be {@code null}.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final String value)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final String value)
   {
     this(name, displayName, description, String.class, new Object[] { value });
 
@@ -341,8 +363,10 @@ public final class MonitorAttribute
    * @param  values       The set of {@code String} values for this monitor
    *                      attribute.  It must not be {@code null} or empty.
    */
-  public MonitorAttribute(final String name, final String displayName,
-                          final String description, final String[] values)
+  public MonitorAttribute(@NotNull final String name,
+                          @NotNull final String displayName,
+                          @Nullable final String description,
+                          @NotNull final String[] values)
   {
     this(name, displayName, description, String.class, values);
   }
@@ -367,9 +391,11 @@ public final class MonitorAttribute
    *                      of the {@code dataType} attribute.  It must not be
    *                      {@code null} or empty.
    */
-  private MonitorAttribute(final String name, final String displayName,
-                           final String description, final Class<?> dataType,
-                           final Object[] values)
+  private MonitorAttribute(@NotNull final String name,
+                           @NotNull final String displayName,
+                           @Nullable final String description,
+                           @NotNull final Class<?> dataType,
+                           @NotNull final Object[] values)
   {
     Validator.ensureNotNull(name, displayName, dataType, values);
     Validator.ensureFalse(values.length == 0,
@@ -392,6 +418,7 @@ public final class MonitorAttribute
    *
    * @return  The name used to identify this monitor attribute.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -404,6 +431,7 @@ public final class MonitorAttribute
    *
    * @return  The human-readable display name for this monitor attribute.
    */
+  @NotNull()
   public String getDisplayName()
   {
     return displayName;
@@ -418,6 +446,7 @@ public final class MonitorAttribute
    * @return  The human-readable description for this monitor attribute, or
    *          {@code null} if none is available.
    */
+  @Nullable()
   public String getDescription()
   {
     return description;
@@ -432,6 +461,7 @@ public final class MonitorAttribute
    *
    * @return  The class representing the data type for this monitor attribute.
    */
+  @NotNull()
   public Class<?> getDataType()
   {
     return dataType;
@@ -458,6 +488,7 @@ public final class MonitorAttribute
    *
    * @return  The value for this monitor attribute as an {@code Object}.
    */
+  @NotNull()
   public Object getValue()
   {
     return values[0];
@@ -472,6 +503,7 @@ public final class MonitorAttribute
    * @return  The set of values for this monitor attribute as a list of
    *          {@code Object}s.
    */
+  @NotNull()
   public List<Object> getValues()
   {
     return Collections.unmodifiableList(Arrays.asList(values));
@@ -487,6 +519,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Boolean}.
    */
+  @NotNull()
   public Boolean getBooleanValue()
          throws ClassCastException
   {
@@ -503,6 +536,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Date}.
    */
+  @NotNull()
   public Date getDateValue()
          throws ClassCastException
   {
@@ -521,6 +555,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Date}.
    */
+  @NotNull()
   public List<Date> getDateValues()
          throws ClassCastException
   {
@@ -537,6 +572,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Double}.
    */
+  @NotNull()
   public Double getDoubleValue()
          throws ClassCastException
   {
@@ -555,6 +591,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Double}.
    */
+  @NotNull()
   public List<Double> getDoubleValues()
          throws ClassCastException
   {
@@ -572,6 +609,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Integer}.
    */
+  @NotNull()
   public Integer getIntegerValue()
          throws ClassCastException
   {
@@ -590,6 +628,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Integer}.
    */
+  @NotNull()
   public List<Integer> getIntegerValues()
          throws ClassCastException
   {
@@ -606,6 +645,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Long}.
    */
+  @NotNull()
   public Long getLongValue()
          throws ClassCastException
   {
@@ -624,6 +664,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code Long}.
    */
+  @NotNull()
   public List<Long> getLongValues()
          throws ClassCastException
   {
@@ -640,6 +681,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code String}.
    */
+  @NotNull()
   public String getStringValue()
          throws ClassCastException
   {
@@ -658,6 +700,7 @@ public final class MonitorAttribute
    * @throws  ClassCastException  If the data type for this monitor attribute is
    *                              not {@code String}.
    */
+  @NotNull()
   public List<String> getStringValues()
          throws ClassCastException
   {
@@ -672,6 +715,7 @@ public final class MonitorAttribute
    * @return  A string representation of this monitor attribute.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -688,7 +732,7 @@ public final class MonitorAttribute
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MonitorAttribute(name='");
     buffer.append(name);

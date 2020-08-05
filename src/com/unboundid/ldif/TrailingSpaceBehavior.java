@@ -37,6 +37,8 @@ package com.unboundid.ldif;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -84,7 +86,8 @@ public enum TrailingSpaceBehavior
    * @return  The requested trailing space behavior, or {@code null} if no such
    *          behavior is defined.
    */
-  public static TrailingSpaceBehavior forName(final String name)
+  @Nullable()
+  public static TrailingSpaceBehavior forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

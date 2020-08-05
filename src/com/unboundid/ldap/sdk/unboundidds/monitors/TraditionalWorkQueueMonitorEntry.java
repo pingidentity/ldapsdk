@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -101,7 +103,7 @@ public final class TraditionalWorkQueueMonitorEntry
   /**
    * The structural object class used in LDAP statistics monitor entries.
    */
-  static final String TRADITIONAL_WORK_QUEUE_MONITOR_OC =
+  @NotNull static final String TRADITIONAL_WORK_QUEUE_MONITOR_OC =
        "ds-traditional-work-queue-monitor-entry";
 
 
@@ -110,7 +112,8 @@ public final class TraditionalWorkQueueMonitorEntry
    * The name of the attribute that contains the average observed work queue
    * request backlog.
    */
-  private static final String ATTR_AVERAGE_BACKLOG = "averageRequestBacklog";
+  @NotNull private static final String ATTR_AVERAGE_BACKLOG =
+       "averageRequestBacklog";
 
 
 
@@ -118,7 +121,8 @@ public final class TraditionalWorkQueueMonitorEntry
    * The name of the attribute that contains the current work queue request
    * backlog.
    */
-  private static final String ATTR_CURRENT_BACKLOG = "currentRequestBacklog";
+  @NotNull private static final String ATTR_CURRENT_BACKLOG =
+       "currentRequestBacklog";
 
 
 
@@ -126,7 +130,7 @@ public final class TraditionalWorkQueueMonitorEntry
    * The name of the attribute that contains the maximum observed work queue
    * request backlog.
    */
-  private static final String ATTR_MAX_BACKLOG = "maxRequestBacklog";
+  @NotNull private static final String ATTR_MAX_BACKLOG = "maxRequestBacklog";
 
 
 
@@ -134,7 +138,7 @@ public final class TraditionalWorkQueueMonitorEntry
    * The name of the attribute that contains the total number of requests that
    * have been rejected because the work queue was full.
    */
-  private static final String ATTR_REQUESTS_REJECTED =
+  @NotNull private static final String ATTR_REQUESTS_REJECTED =
        "requestsRejectedDueToQueueFull";
 
 
@@ -143,7 +147,8 @@ public final class TraditionalWorkQueueMonitorEntry
    * The name of the attribute that contains the total number of requests
    * submitted.
    */
-  private static final String ATTR_REQUESTS_SUBMITTED = "requestsSubmitted";
+  @NotNull private static final String ATTR_REQUESTS_SUBMITTED =
+       "requestsSubmitted";
 
 
 
@@ -155,19 +160,19 @@ public final class TraditionalWorkQueueMonitorEntry
 
 
   // The average work queue backlog.
-  private final Long averageBacklog;
+  @Nullable private final Long averageBacklog;
 
   // The current work queue backlog.
-  private final Long currentBacklog;
+  @Nullable private final Long currentBacklog;
 
   // The maximum work queue backlog.
-  private final Long maxBacklog;
+  @Nullable private final Long maxBacklog;
 
   // The total number of requests rejected due to a full work queue.
-  private final Long requestsRejected;
+  @Nullable private final Long requestsRejected;
 
   // The total number of requests submitted.
-  private final Long requestsSubmitted;
+  @Nullable private final Long requestsSubmitted;
 
 
 
@@ -177,7 +182,7 @@ public final class TraditionalWorkQueueMonitorEntry
    * @param  entry  The entry to be parsed as a traditional work queue monitor
    *                entry.  It must not be {@code null}.
    */
-  public TraditionalWorkQueueMonitorEntry(final Entry entry)
+  public TraditionalWorkQueueMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -197,6 +202,7 @@ public final class TraditionalWorkQueueMonitorEntry
    *          {@code null} if that information was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getAverageBacklog()
   {
     return averageBacklog;
@@ -212,6 +218,7 @@ public final class TraditionalWorkQueueMonitorEntry
    *          waiting to be processed, or {@code null} if that information was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentBacklog()
   {
     return currentBacklog;
@@ -227,6 +234,7 @@ public final class TraditionalWorkQueueMonitorEntry
    *          given time, or {@code null} if that information was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public Long getMaxBacklog()
   {
     return maxBacklog;
@@ -242,6 +250,7 @@ public final class TraditionalWorkQueueMonitorEntry
    *          queue was at its maximum capacity, or {@code null} if that
    *          information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getRequestsRejectedDueToQueueFull()
   {
     return requestsRejected;
@@ -257,6 +266,7 @@ public final class TraditionalWorkQueueMonitorEntry
    *          queue, or {@code null} if that information was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getRequestsSubmitted()
   {
     return requestsSubmitted;
@@ -268,6 +278,7 @@ public final class TraditionalWorkQueueMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_TRADITIONAL_WORK_QUEUE_MONITOR_DISPNAME.get();
@@ -279,6 +290,7 @@ public final class TraditionalWorkQueueMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_TRADITIONAL_WORK_QUEUE_MONITOR_DESC.get();
@@ -290,6 +302,7 @@ public final class TraditionalWorkQueueMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

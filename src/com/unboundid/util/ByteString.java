@@ -57,6 +57,7 @@ public interface ByteString
    *
    * @return  A byte array containing the binary value for this byte string.
    */
+  @NotNull()
   byte[] getValue();
 
 
@@ -66,6 +67,7 @@ public interface ByteString
    *
    * @return  The value for this byte string as a {@code String}.
    */
+  @NotNull()
   String stringValue();
 
 
@@ -77,7 +79,7 @@ public interface ByteString
    *
    * @param  buffer  The buffer to which the value should be appended.
    */
-  void appendValueTo(ByteStringBuffer buffer);
+  void appendValueTo(@NotNull ByteStringBuffer buffer);
 
 
 
@@ -86,5 +88,6 @@ public interface ByteString
    *
    * @return  An ASN.1 octet string with the value of this byte string.
    */
+  @NotNull()
   ASN1OctetString toASN1OctetString();
 }

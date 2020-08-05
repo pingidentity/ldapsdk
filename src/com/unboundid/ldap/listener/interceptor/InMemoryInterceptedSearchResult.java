@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,6 +68,7 @@ public interface InMemoryInterceptedSearchResult
    *
    * @return  The search request that was processed.
    */
+  @NotNull()
   ReadOnlySearchRequest getRequest();
 
 
@@ -75,6 +78,7 @@ public interface InMemoryInterceptedSearchResult
    *
    * @return  The search result to be returned to the client.
    */
+  @Nullable()
   LDAPResult getResult();
 
 
@@ -87,7 +91,7 @@ public interface InMemoryInterceptedSearchResult
    *                       the in-memory directory server.  It must not be
    *                       {@code null}.
    */
-  void setResult(LDAPResult searchResult);
+  void setResult(@NotNull LDAPResult searchResult);
 
 
 
@@ -106,7 +110,7 @@ public interface InMemoryInterceptedSearchResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result entry.
    */
-  void sendSearchEntry(Entry entry)
+  void sendSearchEntry(@NotNull Entry entry)
        throws LDAPException;
 
 
@@ -123,7 +127,7 @@ public interface InMemoryInterceptedSearchResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result reference.
    */
-  void sendSearchReference(SearchResultReference reference)
+  void sendSearchReference(@NotNull SearchResultReference reference)
        throws LDAPException;
 
 
@@ -140,6 +144,7 @@ public interface InMemoryInterceptedSearchResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
-         throws LDAPException;
+  void sendIntermediateResponse(
+            @NotNull IntermediateResponse intermediateResponse)
+       throws LDAPException;
 }

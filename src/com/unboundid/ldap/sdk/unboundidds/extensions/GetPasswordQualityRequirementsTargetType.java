@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -155,6 +157,7 @@ public enum GetPasswordQualityRequirementsTargetType
    *          specified BER type, or {@code null} if there is no target type
    *          with the specified BER type.
    */
+  @Nullable()
   public static GetPasswordQualityRequirementsTargetType forBERType(
                      final byte berType)
   {
@@ -181,8 +184,9 @@ public enum GetPasswordQualityRequirementsTargetType
    * @return  The requested get password quality requirements target type, or
    *          {@code null} if no such type is defined.
    */
+  @Nullable()
   public static GetPasswordQualityRequirementsTargetType forName(
-                                                              final String name)
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

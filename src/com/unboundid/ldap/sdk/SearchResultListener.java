@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,7 +69,7 @@ public interface SearchResultListener
    * @param  searchEntry  The search result entry that has been returned by the
    *                      server.
    */
-  void searchEntryReturned(SearchResultEntry searchEntry);
+  void searchEntryReturned(@NotNull SearchResultEntry searchEntry);
 
 
 
@@ -79,5 +80,5 @@ public interface SearchResultListener
    * @param  searchReference  The search result reference that has been returned
    *                          by the server.
    */
-  void searchReferenceReturned(SearchResultReference searchReference);
+  void searchReferenceReturned(@NotNull SearchResultReference searchReference);
 }

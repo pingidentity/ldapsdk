@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class ReplicationServerMonitorEntry
   /**
    * The structural object class used in replication server monitor entries.
    */
-  static final String REPLICATION_SERVER_MONITOR_OC =
+  @NotNull static final String REPLICATION_SERVER_MONITOR_OC =
        "ds-replication-server-monitor-entry";
 
 
@@ -96,7 +98,7 @@ public final class ReplicationServerMonitorEntry
    * The name of the attribute that contains the base DNs for the replicated
    * data.
    */
-  private static final String ATTR_BASE_DN = "base-dn";
+  @NotNull private static final String ATTR_BASE_DN = "base-dn";
 
 
 
@@ -104,7 +106,7 @@ public final class ReplicationServerMonitorEntry
    * The name of the attribute that contains the generation IDs that correspond
    * to the replicated base DNs.
    */
-  private static final String ATTR_BASE_DN_GENERATION_ID =
+  @NotNull private static final String ATTR_BASE_DN_GENERATION_ID =
        "base-dn-generation-id";
 
 
@@ -113,7 +115,7 @@ public final class ReplicationServerMonitorEntry
    * The name of the attribute that contains the server ID for the replication
    * server.
    */
-  private static final String ATTR_REPLICATION_SERVER_ID =
+  @NotNull private static final String ATTR_REPLICATION_SERVER_ID =
        "replication-server-id";
 
 
@@ -122,7 +124,7 @@ public final class ReplicationServerMonitorEntry
    * The name of the attribute that contains the port number on which the
    * replication server listens for communication from other servers.
    */
-  private static final String ATTR_REPLICATION_SERVER_PORT =
+  @NotNull private static final String ATTR_REPLICATION_SERVER_PORT =
        "replication-server-port";
 
 
@@ -131,7 +133,7 @@ public final class ReplicationServerMonitorEntry
    * The name of the attribute that indicates whether SSL encryption is
    * available for use.
    */
-  private static final String ATTR_SSL_AVAILABLE =
+  @NotNull private static final String ATTR_SSL_AVAILABLE =
        "ssl-encryption-available";
 
 
@@ -144,20 +146,20 @@ public final class ReplicationServerMonitorEntry
 
 
   // Indicates whether SSL encryption is available.
-  private final Boolean sslEncryptionAvailable;
+  @Nullable private final Boolean sslEncryptionAvailable;
 
   // The base DNs for the replicated data.
-  private final List<String> baseDNs;
+  @NotNull private final List<String> baseDNs;
 
   // The port number on which the replication server listens for communication
   // from other servers.
-  private final Long replicationServerPort;
+  @Nullable private final Long replicationServerPort;
 
   // A map of the generation IDs for each of the replicated base DNs.
-  private final Map<DN,String> generationIDs;
+  @NotNull private final Map<DN,String> generationIDs;
 
   // The replication server ID for the replication server.
-  private final String replicationServerID;
+  @Nullable private final String replicationServerID;
 
 
 
@@ -167,7 +169,7 @@ public final class ReplicationServerMonitorEntry
    * @param  entry  The entry to be parsed as a replication server monitor
    *                entry.  It must not be {@code null}.
    */
-  public ReplicationServerMonitorEntry(final Entry entry)
+  public ReplicationServerMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -205,6 +207,7 @@ public final class ReplicationServerMonitorEntry
    *          server, or an empty list if it was not included in the monitor
    *          entry.
    */
+  @NotNull()
   public List<String> getBaseDNs()
   {
     return baseDNs;
@@ -218,6 +221,7 @@ public final class ReplicationServerMonitorEntry
    * @return  A map of generation IDs for the available base DNs, or an empty
    *          map if it was not included in the monitor entry.
    */
+  @NotNull()
   public Map<DN,String> getGenerationIDs()
   {
     return generationIDs;
@@ -234,6 +238,7 @@ public final class ReplicationServerMonitorEntry
    *          there no generation ID is available for the provided base DN, or
    *          the provided base DN is not a valid DN.
    */
+  @Nullable()
   public String getGenerationID(final String baseDN)
   {
     try
@@ -257,6 +262,7 @@ public final class ReplicationServerMonitorEntry
    * @return  The generation ID for the specified base DN, or {@code null} if
    *          there no generation ID is available for the provided base DN.
    */
+  @Nullable()
   public String getGenerationID(final DN baseDN)
   {
     return generationIDs.get(baseDN);
@@ -270,6 +276,7 @@ public final class ReplicationServerMonitorEntry
    * @return  The server ID for the replication server, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public String getReplicationServerID()
   {
     return replicationServerID;
@@ -283,6 +290,7 @@ public final class ReplicationServerMonitorEntry
    * @return  The port number for the replication server, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getReplicationServerPort()
   {
     return replicationServerPort;
@@ -298,6 +306,7 @@ public final class ReplicationServerMonitorEntry
    *          {@code false} if it does not, or {@code null} if that information
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Boolean sslEncryptionAvailable()
   {
     return sslEncryptionAvailable;
@@ -309,6 +318,7 @@ public final class ReplicationServerMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_REPLICATION_SERVER_MONITOR_DISPNAME.get();
@@ -320,6 +330,7 @@ public final class ReplicationServerMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_REPLICATION_SERVER_MONITOR_DESC.get();
@@ -331,6 +342,7 @@ public final class ReplicationServerMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

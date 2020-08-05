@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -94,8 +96,9 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.30) for the get backup compatibility
    * descriptor extended request.
    */
-  public static final String GET_BACKUP_COMPATIBILITY_DESCRIPTOR_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.6.30";
+  @NotNull public static final String
+       GET_BACKUP_COMPATIBILITY_DESCRIPTOR_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.6.30";
 
 
 
@@ -115,7 +118,7 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
 
   // The base DN for the backend for which to obtain the backup compatibility
   // descriptor.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
 
 
@@ -130,8 +133,9 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * @param  controls  The set of controls to include in the request.  It may be
    *                   {@code null} or empty if no controls should be included.
    */
-  public GetBackupCompatibilityDescriptorExtendedRequest(final String baseDN,
-              final Control... controls)
+  public GetBackupCompatibilityDescriptorExtendedRequest(
+              @NotNull final String baseDN,
+              @Nullable final Control... controls)
   {
     super(GET_BACKUP_COMPATIBILITY_DESCRIPTOR_REQUEST_OID, encodeValue(baseDN),
          controls);
@@ -152,8 +156,8 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    *                        backup compatibility descriptor extended request.
    */
   public GetBackupCompatibilityDescriptorExtendedRequest(
-       final ExtendedRequest r)
-       throws LDAPException
+              @NotNull final ExtendedRequest r)
+         throws LDAPException
   {
     super(r);
 
@@ -194,7 +198,8 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * @return  The ASN.1 octet string containing the encoded representation of
    *          the provided information.
    */
-  private static ASN1OctetString encodeValue(final String baseDN)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String baseDN)
   {
     Validator.ensureNotNull(baseDN);
 
@@ -212,6 +217,7 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * @return  The base DN for the backend for which to obtain the backup
    *          compatibility descriptor.
    */
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -223,8 +229,9 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetBackupCompatibilityDescriptorExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -237,6 +244,7 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetBackupCompatibilityDescriptorExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -248,8 +256,9 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetBackupCompatibilityDescriptorExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final GetBackupCompatibilityDescriptorExtendedRequest r =
          new GetBackupCompatibilityDescriptorExtendedRequest(baseDN, controls);
@@ -263,6 +272,7 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_GET_BACKUP_COMPAT.get();
@@ -274,7 +284,7 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetBackupCompatibilityDescriptorExtendedRequest(baseDN='");
     buffer.append(baseDN);

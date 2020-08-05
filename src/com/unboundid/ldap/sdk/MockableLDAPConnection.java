@@ -44,6 +44,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -73,7 +75,7 @@ public class MockableLDAPConnection
    * @param  connection  The connection to which all non-overridden method calls
    *                     will be delegated.
    */
-  public MockableLDAPConnection(final LDAPConnection connection)
+  public MockableLDAPConnection(@NotNull final LDAPConnection connection)
   {
     Validator.ensureNotNullWithMessage(connection,
          "MockableLDAPConnection.connection must not be null.");
@@ -91,6 +93,7 @@ public class MockableLDAPConnection
    *          connection, and to which all non-overridden method calls will be
    *          delegated.
    */
+  @NotNull()
   public final LDAPConnection getWrappedConnection()
   {
     return connection;
@@ -113,6 +116,7 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public RootDSE getRootDSE()
          throws LDAPException
   {
@@ -125,6 +129,7 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public Schema getSchema()
          throws LDAPException
   {
@@ -137,7 +142,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public Schema getSchema(final String entryDN)
+  @Nullable()
+  public Schema getSchema(@Nullable final String entryDN)
          throws LDAPException
   {
     return connection.getSchema(entryDN);
@@ -149,7 +155,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry getEntry(final String dn)
+  @Nullable()
+  public SearchResultEntry getEntry(@NotNull final String dn)
          throws LDAPException
   {
     return connection.getEntry(dn);
@@ -161,7 +168,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry getEntry(final String dn, final String... attributes)
+  @Nullable()
+  public SearchResultEntry getEntry(@NotNull final String dn,
+                                    @Nullable final String... attributes)
          throws LDAPException
   {
     return connection.getEntry(dn, attributes);
@@ -173,7 +182,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult add(final String dn, final Attribute... attributes)
+  @NotNull()
+  public LDAPResult add(@NotNull final String dn,
+                        @NotNull final Attribute... attributes)
          throws LDAPException
   {
     return connection.add(dn, attributes);
@@ -185,7 +196,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult add(final String dn, final Collection<Attribute> attributes)
+  @NotNull()
+  public LDAPResult add(@NotNull final String dn,
+                        @NotNull final Collection<Attribute> attributes)
          throws LDAPException
   {
     return connection.add(dn, attributes);
@@ -197,7 +210,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult add(final Entry entry)
+  @NotNull()
+  public LDAPResult add(@NotNull final Entry entry)
          throws LDAPException
   {
     return connection.add(entry);
@@ -209,7 +223,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult add(final String... ldifLines)
+  @NotNull()
+  public LDAPResult add(@NotNull final String... ldifLines)
          throws LDIFException, LDAPException
   {
     return connection.add(ldifLines);
@@ -221,7 +236,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult add(final AddRequest addRequest)
+  @NotNull()
+  public LDAPResult add(@NotNull final AddRequest addRequest)
          throws LDAPException
   {
     return connection.add(addRequest);
@@ -233,7 +249,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult add(final ReadOnlyAddRequest addRequest)
+  @NotNull()
+  public LDAPResult add(@NotNull final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
     return connection.add(addRequest);
@@ -245,7 +262,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public BindResult bind(final String bindDN, final String password)
+  @NotNull()
+  public BindResult bind(@Nullable final String bindDN,
+                         @Nullable final String password)
          throws LDAPException
   {
     return connection.bind(bindDN, password);
@@ -257,7 +276,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public BindResult bind(final BindRequest bindRequest)
+  @NotNull()
+  public BindResult bind(@NotNull final BindRequest bindRequest)
          throws LDAPException
   {
     return connection.bind(bindRequest);
@@ -269,8 +289,10 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public CompareResult compare(final String dn, final String attributeName,
-                               final String assertionValue)
+  @NotNull()
+  public CompareResult compare(@NotNull final String dn,
+                               @NotNull final String attributeName,
+                               @NotNull final String assertionValue)
          throws LDAPException
   {
     return connection.compare(dn, attributeName, assertionValue);
@@ -282,7 +304,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public CompareResult compare(final CompareRequest compareRequest)
+  @NotNull()
+  public CompareResult compare(@NotNull final CompareRequest compareRequest)
          throws LDAPException
   {
     return connection.compare(compareRequest);
@@ -294,7 +317,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
+  @NotNull()
+  public CompareResult compare(
+              @NotNull final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
   {
     return connection.compare(compareRequest);
@@ -306,7 +331,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult delete(final String dn)
+  @NotNull()
+  public LDAPResult delete(@NotNull final String dn)
          throws LDAPException
   {
     return connection.delete(dn);
@@ -318,7 +344,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult delete(final DeleteRequest deleteRequest)
+  @NotNull()
+  public LDAPResult delete(@NotNull final DeleteRequest deleteRequest)
          throws LDAPException
   {
     return connection.delete(deleteRequest);
@@ -330,7 +357,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
+  @NotNull()
+  public LDAPResult delete(@NotNull final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
     return connection.delete(deleteRequest);
@@ -342,7 +370,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public ExtendedResult processExtendedOperation(final String requestOID)
+  @NotNull()
+  public ExtendedResult processExtendedOperation(
+                             @NotNull final String requestOID)
          throws LDAPException
   {
     return connection.processExtendedOperation(requestOID);
@@ -354,8 +384,10 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public ExtendedResult processExtendedOperation(final String requestOID,
-                             final ASN1OctetString requestValue)
+  @NotNull()
+  public ExtendedResult processExtendedOperation(
+                             @NotNull final String requestOID,
+                             @Nullable final ASN1OctetString requestValue)
          throws LDAPException
   {
     return connection.processExtendedOperation(requestOID, requestValue);
@@ -367,8 +399,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ExtendedResult processExtendedOperation(
-                             final ExtendedRequest extendedRequest)
+                             @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     return connection.processExtendedOperation(extendedRequest);
@@ -380,7 +413,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modify(final String dn, final Modification mod)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final Modification mod)
          throws LDAPException
   {
     return connection.modify(dn, mod);
@@ -392,7 +427,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modify(final String dn, final Modification... mods)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final Modification... mods)
          throws LDAPException
   {
     return connection.modify(dn, mods);
@@ -404,7 +441,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modify(final String dn, final List<Modification> mods)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final List<Modification> mods)
          throws LDAPException
   {
     return connection.modify(dn, mods);
@@ -416,7 +455,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modify(final String... ldifModificationLines)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
     return connection.modify(ldifModificationLines);
@@ -428,7 +468,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modify(final ModifyRequest modifyRequest)
+  @NotNull()
+  public LDAPResult modify(@NotNull final ModifyRequest modifyRequest)
          throws LDAPException
   {
     return connection.modify(modifyRequest);
@@ -440,7 +481,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
+  @NotNull()
+  public LDAPResult modify(@NotNull final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
     return connection.modify(modifyRequest);
@@ -452,7 +494,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modifyDN(final String dn, final String newRDN,
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final String dn,
+                             @NotNull final String newRDN,
                              final boolean deleteOldRDN)
          throws LDAPException
   {
@@ -465,9 +509,11 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modifyDN(final String dn, final String newRDN,
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final String dn,
+                             @NotNull final String newRDN,
                              final boolean deleteOldRDN,
-                             final String newSuperiorDN)
+                             @Nullable final String newSuperiorDN)
          throws LDAPException
   {
     return connection.modifyDN(dn, newRDN, deleteOldRDN, newSuperiorDN);
@@ -479,7 +525,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return connection.modifyDN(modifyDNRequest);
@@ -491,7 +538,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
+  @NotNull()
+  public LDAPResult modifyDN(
+              @NotNull final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return connection.modifyDN(modifyDNRequest);
@@ -503,8 +552,11 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final String filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(baseDN, scope, filter, attributes);
@@ -516,8 +568,11 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final Filter filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(baseDN, scope, filter, attributes);
@@ -529,9 +584,13 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(searchResultListener, baseDN, scope, filter,
@@ -544,9 +603,13 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(searchResultListener, baseDN, scope, filter,
@@ -559,11 +622,14 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+                             final boolean typesOnly,
+                             @NotNull final String filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(baseDN, scope, derefPolicy, sizeLimit, timeLimit,
@@ -576,11 +642,14 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+                             final boolean typesOnly,
+                             @NotNull final Filter filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(baseDN, scope, derefPolicy, sizeLimit, timeLimit,
@@ -593,12 +662,14 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(searchResultListener, baseDN, scope, derefPolicy,
@@ -611,12 +682,14 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.search(searchResultListener, baseDN, scope, derefPolicy,
@@ -629,7 +702,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final SearchRequest searchRequest)
+  @NotNull()
+  public SearchResult search(@NotNull final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     return connection.search(searchRequest);
@@ -641,7 +715,8 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResult search(final ReadOnlySearchRequest searchRequest)
+  @NotNull()
+  public SearchResult search(@NotNull final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return connection.search(searchRequest);
@@ -653,10 +728,11 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final String filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                          @NotNull final SearchScope scope,
+                                          @NotNull final String filter,
+                                          @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.searchForEntry(baseDN, scope, filter, attributes);
@@ -668,10 +744,11 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final Filter filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                          @NotNull final SearchScope scope,
+                                          @NotNull final Filter filter,
+                                          @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.searchForEntry(baseDN, scope, filter, attributes);
@@ -683,13 +760,13 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final String filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                @NotNull final SearchScope scope,
+                                @NotNull final DereferencePolicy derefPolicy,
+                                final int timeLimit, final boolean typesOnly,
+                                @NotNull final String filter,
+                                @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.searchForEntry(baseDN, scope, derefPolicy, timeLimit,
@@ -702,13 +779,13 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final Filter filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                @NotNull final SearchScope scope,
+                                @NotNull final DereferencePolicy derefPolicy,
+                                final int timeLimit, final boolean typesOnly,
+                                @NotNull final Filter filter,
+                                @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return connection.searchForEntry(baseDN, scope, derefPolicy, timeLimit,
@@ -721,7 +798,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
-  public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+  @Nullable()
+  public SearchResultEntry searchForEntry(
+                                @NotNull final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     return connection.searchForEntry(searchRequest);
@@ -733,8 +812,9 @@ public class MockableLDAPConnection
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public SearchResultEntry searchForEntry(
-                                final ReadOnlySearchRequest searchRequest)
+              @NotNull final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return connection.searchForEntry(searchRequest);

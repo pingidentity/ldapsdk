@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -77,13 +79,13 @@ public final class SearchEntryAccessLogMessage
 
 
   // The names of the attributes included in the entry that was returned.
-  private final List<String> attributesReturned;
+  @Nullable private final List<String> attributesReturned;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // The DN of the entry returned.
-  private final String dn;
+  @Nullable private final String dn;
 
 
 
@@ -97,7 +99,7 @@ public final class SearchEntryAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public SearchEntryAccessLogMessage(final String s)
+  public SearchEntryAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -112,7 +114,7 @@ public final class SearchEntryAccessLogMessage
    * @param  m  The log message to be parsed as a search entry access log
    *            message.
    */
-  public SearchEntryAccessLogMessage(final LogMessage m)
+  public SearchEntryAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -160,6 +162,7 @@ public final class SearchEntryAccessLogMessage
    * @return  The DN of the entry returned to the client, or {@code null} if it
    *          is not included in the log message.
    */
+  @Nullable()
   public String getDN()
   {
     return dn;
@@ -175,6 +178,7 @@ public final class SearchEntryAccessLogMessage
    *          returned, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public List<String> getAttributesReturned()
   {
     return attributesReturned;
@@ -188,6 +192,7 @@ public final class SearchEntryAccessLogMessage
    * @return  The OIDs of any response controls contained in the log message, or
    *          an empty list if it is not included in the log message.
    */
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -199,6 +204,7 @@ public final class SearchEntryAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.ENTRY;

@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.experimental;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -77,7 +79,7 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
    *
    * @param  name The human-readable name for this warning type.
    */
-  DraftBeheraLDAPPasswordPolicy10WarningType(final String name)
+  DraftBeheraLDAPPasswordPolicy10WarningType(@NotNull final String name)
   {
     this.name = name;
   }
@@ -89,6 +91,7 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
    *
    * @return  The human-readable name for this password policy warning type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -105,8 +108,9 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
    * @return  The requested password policy warning type, or {@code null} if no
    *          such type is defined.
    */
-  public static DraftBeheraLDAPPasswordPolicy10WarningType
-                     forName(final String name)
+  @Nullable()
+  public static DraftBeheraLDAPPasswordPolicy10WarningType forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -133,6 +137,7 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
    * @return  A string representation for this password policy warning type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

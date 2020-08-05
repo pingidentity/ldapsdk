@@ -39,6 +39,7 @@ package com.unboundid.asn1;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -109,7 +110,8 @@ public final class ASN1Long
    * @param  longValue  The long value to use for this element.
    * @param  value      The pre-encoded value to use for this element.
    */
-  private ASN1Long(final byte type, final long longValue, final byte[] value)
+  private ASN1Long(final byte type, final long longValue,
+                   @NotNull final byte[] value)
   {
     super(type, value);
 
@@ -126,6 +128,7 @@ public final class ASN1Long
    *
    * @return  A byte array containing the encoded value.
    */
+  @NotNull()
   static byte[] encodeLongValue(final long longValue)
   {
     if (longValue < 0)
@@ -328,7 +331,8 @@ public final class ASN1Long
    * @throws  ASN1Exception  If the provided array cannot be decoded as a long
    *                         element.
    */
-  public static ASN1Long decodeAsLong(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1Long decodeAsLong(@NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -461,7 +465,8 @@ public final class ASN1Long
    * @throws  ASN1Exception  If the provided element cannot be decoded as a long
    *                         element.
    */
-  public static ASN1Long decodeAsLong(final ASN1Element element)
+  @NotNull()
+  public static ASN1Long decodeAsLong(@NotNull final ASN1Element element)
          throws ASN1Exception
   {
     long longValue;
@@ -553,7 +558,7 @@ public final class ASN1Long
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(longValue);
   }

@@ -395,6 +395,7 @@ public final class FixedRateBarrier
    *
    * @return  Information about hte current target rate for this barrier.
    */
+  @NotNull()
   public synchronized ObjectPair<Long,Integer> getTargetRate()
   {
     return new ObjectPair<>(

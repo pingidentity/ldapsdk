@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class RecentLoginHistory
   /**
    * The name of the JSON field used to hold the set of failed attempts.
    */
-  private static final String JSON_FIELD_FAILED_ATTEMPTS =
+  @NotNull private static final String JSON_FIELD_FAILED_ATTEMPTS =
        "failed-attempts";
 
 
@@ -95,7 +97,7 @@ public final class RecentLoginHistory
   /**
    * The name of the JSON field used to hold the set of successful attempts.
    */
-  private static final String JSON_FIELD_SUCCESSFUL_ATTEMPTS =
+  @NotNull private static final String JSON_FIELD_SUCCESSFUL_ATTEMPTS =
        "successful-attempts";
 
 
@@ -109,13 +111,14 @@ public final class RecentLoginHistory
 
   // The JSON object providing an encoded representation of the recent login
   // history.
-  private final JSONObject jsonObject;
+  @NotNull private final JSONObject jsonObject;
 
   // A set of the recent failed authentication attempts.
-  private final SortedSet<RecentLoginHistoryAttempt> failedAttempts;
+  @NotNull private final SortedSet<RecentLoginHistoryAttempt> failedAttempts;
 
   // A set of the recent successful authentication attempts.
-  private final SortedSet<RecentLoginHistoryAttempt> successfulAttempts;
+  @NotNull private final SortedSet<RecentLoginHistoryAttempt>
+       successfulAttempts;
 
 
 
@@ -131,8 +134,8 @@ public final class RecentLoginHistory
    *                             there were no recent failed attempts.
    */
   public RecentLoginHistory(
-              final Collection<RecentLoginHistoryAttempt> successfulAttempts,
-              final Collection<RecentLoginHistoryAttempt> failedAttempts)
+       @Nullable final Collection<RecentLoginHistoryAttempt> successfulAttempts,
+       @Nullable final Collection<RecentLoginHistoryAttempt> failedAttempts)
   {
     final List<JSONValue> successValues = new ArrayList<>();
     final SortedSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
@@ -180,7 +183,7 @@ public final class RecentLoginHistory
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided JSON object as a recent login history.
    */
-  public RecentLoginHistory(final JSONObject jsonObject)
+  public RecentLoginHistory(@NotNull final JSONObject jsonObject)
          throws LDAPException
   {
     Validator.ensureNotNull(jsonObject,
@@ -261,6 +264,7 @@ public final class RecentLoginHistory
    *
    * @return  The set of recent successful login attempts.
    */
+  @NotNull()
   public SortedSet<RecentLoginHistoryAttempt> getSuccessfulAttempts()
   {
     return successfulAttempts;
@@ -273,6 +277,7 @@ public final class RecentLoginHistory
    *
    * @return  The set of recent failed login attempts.
    */
+  @NotNull()
   public SortedSet<RecentLoginHistoryAttempt> getFailedAttempts()
   {
     return failedAttempts;
@@ -287,6 +292,7 @@ public final class RecentLoginHistory
    * @return  A JSON object with an encoded representation of this recent long
    *          history.
    */
+  @NotNull()
   public JSONObject asJSONObject()
   {
     return jsonObject;
@@ -300,6 +306,7 @@ public final class RecentLoginHistory
    * @return  A string representation of this recent login history.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return jsonObject.toSingleLineString();

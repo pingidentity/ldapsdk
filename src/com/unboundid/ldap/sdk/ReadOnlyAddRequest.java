@@ -42,6 +42,8 @@ import java.util.List;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,6 +72,7 @@ public interface ReadOnlyAddRequest
    *
    * @return  The DN for this add request.
    */
+  @NotNull()
   String getDN();
 
 
@@ -79,6 +82,7 @@ public interface ReadOnlyAddRequest
    *
    * @return  The set of attributes for this add request.
    */
+  @NotNull()
   List<Attribute> getAttributes();
 
 
@@ -92,7 +96,8 @@ public interface ReadOnlyAddRequest
    * @return  The requested attribute, or {@code null} if it does not exist in
    *          the add request.
    */
-  Attribute getAttribute(String attributeName);
+  @Nullable()
+  Attribute getAttribute(@NotNull String attributeName);
 
 
 
@@ -105,7 +110,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains the specified attribute,
    *          or {@code false} if not.
    */
-  boolean hasAttribute(String attributeName);
+  boolean hasAttribute(@NotNull String attributeName);
 
 
 
@@ -120,7 +125,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains the specified attribute,
    *          or {@code false} if not.
    */
-  boolean hasAttribute(Attribute attribute);
+  boolean hasAttribute(@NotNull Attribute attribute);
 
 
 
@@ -136,7 +141,8 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(String attributeName, String attributeValue);
+  boolean hasAttributeValue(@NotNull String attributeName,
+                            @NotNull String attributeValue);
 
 
 
@@ -154,8 +160,9 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(String attributeName, String attributeValue,
-                            MatchingRule matchingRule);
+  boolean hasAttributeValue(@NotNull String attributeName,
+                            @NotNull String attributeValue,
+                            @NotNull MatchingRule matchingRule);
 
 
 
@@ -171,7 +178,8 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request  contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(String attributeName, byte[] attributeValue);
+  boolean hasAttributeValue(@NotNull String attributeName,
+                            @NotNull byte[] attributeValue);
 
 
 
@@ -189,8 +197,9 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request  contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(String attributeName, byte[] attributeValue,
-                            MatchingRule matchingRule);
+  boolean hasAttributeValue(@NotNull String attributeName,
+                            @NotNull byte[] attributeValue,
+                            @NotNull MatchingRule matchingRule);
 
 
 
@@ -203,7 +212,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains the specified object
    *          class, or {@code false} if not.
    */
-  boolean hasObjectClass(String objectClassName);
+  boolean hasObjectClass(@NotNull String objectClassName);
 
 
 
@@ -214,6 +223,7 @@ public interface ReadOnlyAddRequest
    * @return  An {@code Entry} object containing the DN and attributes of this
    *          add request.
    */
+  @NotNull()
   Entry toEntry();
 
 
@@ -222,6 +232,7 @@ public interface ReadOnlyAddRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   AddRequest duplicate();
 
 
@@ -230,7 +241,8 @@ public interface ReadOnlyAddRequest
    * {@inheritDoc}
    */
   @Override()
-  AddRequest duplicate(Control[] controls);
+  @NotNull()
+  AddRequest duplicate(@Nullable Control[] controls);
 
 
 
@@ -239,6 +251,7 @@ public interface ReadOnlyAddRequest
    *
    * @return  An LDIF add change record with the contents of this add request.
    */
+  @NotNull()
   LDIFAddChangeRecord toLDIFChangeRecord();
 
 
@@ -250,6 +263,7 @@ public interface ReadOnlyAddRequest
    * @return  A string array whose lines contain an LDIF representation of the
    *          corresponding add change record.
    */
+  @NotNull()
   String[] toLDIF();
 
 
@@ -259,5 +273,6 @@ public interface ReadOnlyAddRequest
    *
    * @return  An LDIF string representation of this add request.
    */
+  @NotNull()
   String toLDIFString();
 }

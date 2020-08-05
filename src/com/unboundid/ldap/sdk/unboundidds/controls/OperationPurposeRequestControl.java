@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -115,7 +117,7 @@ public final class OperationPurposeRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.19) for the operation purpose request
    * control.
    */
-  public static final String OPERATION_PURPOSE_REQUEST_OID =
+  @NotNull public static final String OPERATION_PURPOSE_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.19";
 
 
@@ -156,16 +158,16 @@ public final class OperationPurposeRequestControl
 
 
   // The application name for this control, if any.
-  private final String applicationName;
+  @Nullable private final String applicationName;
 
   // The application version for this control, if any.
-  private final String applicationVersion;
+  @Nullable private final String applicationVersion;
 
   // The code location for this control, if any.
-  private final String codeLocation;
+  @Nullable private final String codeLocation;
 
   // The request purpose for this control, if any.
-  private final String requestPurpose;
+  @Nullable private final String requestPurpose;
 
 
 
@@ -194,10 +196,10 @@ public final class OperationPurposeRequestControl
    *                             associated request.  It may be {@code null} if
    *                             this should not be included in the control.
    */
-  public OperationPurposeRequestControl(final String applicationName,
-                                        final String applicationVersion,
-                                        final int codeLocationFrames,
-                                        final String requestPurpose)
+  public OperationPurposeRequestControl(@Nullable final String applicationName,
+              @Nullable final String applicationVersion,
+              final int codeLocationFrames,
+              @Nullable final String requestPurpose)
   {
     this(false, applicationName, applicationVersion,
          generateStackTrace(codeLocationFrames), requestPurpose);
@@ -230,10 +232,10 @@ public final class OperationPurposeRequestControl
    *                             this should not be included in the control.
    */
   public OperationPurposeRequestControl(final boolean isCritical,
-                                        final String applicationName,
-                                        final String applicationVersion,
-                                        final String codeLocation,
-                                        final String requestPurpose)
+              @Nullable final String applicationName,
+              @Nullable final String applicationVersion,
+              @Nullable final String codeLocation,
+              @Nullable final String requestPurpose)
   {
     super(OPERATION_PURPOSE_REQUEST_OID, isCritical,
          encodeValue(applicationName, applicationVersion, codeLocation,
@@ -257,7 +259,7 @@ public final class OperationPurposeRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         operation purpose request control.
    */
-  public OperationPurposeRequestControl(final Control control)
+  public OperationPurposeRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -343,6 +345,7 @@ public final class OperationPurposeRequestControl
    *
    * @return  The generated stack trace for the current thread.
    */
+  @NotNull()
   private static String generateStackTrace(final int numFrames)
   {
     final StringBuilder buffer = new StringBuilder();
@@ -418,10 +421,12 @@ public final class OperationPurposeRequestControl
    *
    * @return  The encoded value for this control.
    */
-  private static ASN1OctetString encodeValue(final String applicationName,
-                                             final String applicationVersion,
-                                             final String codeLocation,
-                                             final String requestPurpose)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @Nullable final String applicationName,
+               @Nullable final String applicationVersion,
+               @Nullable final String codeLocation,
+               @Nullable final String requestPurpose)
   {
     Validator.ensureFalse((applicationName == null) &&
          (applicationVersion == null) && (codeLocation == null) &&
@@ -461,6 +466,7 @@ public final class OperationPurposeRequestControl
    * @return  The name of the application that generated the associated request,
    *          or {@code null} if that is not available.
    */
+  @Nullable()
   public String getApplicationName()
   {
     return applicationName;
@@ -475,6 +481,7 @@ public final class OperationPurposeRequestControl
    * @return  Information about the version of the application that generated
    *          the associated request, or {@code null} if that is not available.
    */
+  @Nullable()
   public String getApplicationVersion()
   {
     return applicationVersion;
@@ -490,6 +497,7 @@ public final class OperationPurposeRequestControl
    *          the associated request was created, or {@code null} if that is not
    *          available.
    */
+  @Nullable()
   public String getCodeLocation()
   {
     return codeLocation;
@@ -504,6 +512,7 @@ public final class OperationPurposeRequestControl
    * @return  A message with information about the purpose of the associated
    *          request, or {@code null} if that is not available.
    */
+  @Nullable()
   public String getRequestPurpose()
   {
     return requestPurpose;
@@ -515,6 +524,7 @@ public final class OperationPurposeRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_OP_PURPOSE.get();
@@ -526,7 +536,7 @@ public final class OperationPurposeRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("OperationPurposeRequestControl(isCritical=");
     buffer.append(isCritical());

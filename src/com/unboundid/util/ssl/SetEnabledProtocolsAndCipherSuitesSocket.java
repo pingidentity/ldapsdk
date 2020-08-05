@@ -51,6 +51,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -73,13 +75,13 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
       extends SSLSocket
 {
   // The cipher suites to be enabled when this socket is connected.
-  private final Set<String> cipherSuites;
+  @NotNull private final Set<String> cipherSuites;
 
   // The protocols to be enabled when this socket is connected.
-  private final Set<String> protocols;
+  @NotNull private final Set<String> protocols;
 
   // The socket to which most real processing will be delegated.
-  private final SSLSocket delegateSocket;
+  @NotNull private final SSLSocket delegateSocket;
 
 
 
@@ -94,9 +96,9 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @param  cipherSuites    The cipher suites to be enabled when this socket is
    *                         connected.
    */
-  SetEnabledProtocolsAndCipherSuitesSocket(final Socket delegateSocket,
-                                           final Set<String> protocols,
-                                           final Set<String> cipherSuites)
+  SetEnabledProtocolsAndCipherSuitesSocket(@NotNull final Socket delegateSocket,
+       @NotNull final Set<String> protocols,
+       @NotNull final Set<String> cipherSuites)
   {
     super();
 
@@ -120,7 +122,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *                       socket.
    */
   @Override()
-  public void connect(final SocketAddress endpoint)
+  public void connect(@NotNull final SocketAddress endpoint)
          throws IOException
   {
     connect(endpoint, 0);
@@ -140,7 +142,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *                       socket.
    */
   @Override()
-  public void connect(final SocketAddress endpoint, final int timeout)
+  public void connect(@NotNull final SocketAddress endpoint, final int timeout)
          throws IOException
   {
     delegateSocket.connect(endpoint, timeout);
@@ -158,7 +160,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @throws  IOException  If a problem is encountered while binding the socket.
    */
   @Override()
-  public void bind(final SocketAddress bindpoint)
+  public void bind(@NotNull final SocketAddress bindpoint)
          throws IOException
   {
     delegateSocket.bind(bindpoint);
@@ -173,6 +175,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *          {@code null} if it is not connected.
    */
   @Override()
+  @Nullable()
   public InetAddress getInetAddress()
   {
     return delegateSocket.getInetAddress();
@@ -187,6 +190,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *          it is not bound.
    */
   @Override()
+  @Nullable()
   public InetAddress getLocalAddress()
   {
     return delegateSocket.getLocalAddress();
@@ -230,6 +234,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *          connected, or {@code null} if it is not connected.
    */
   @Override()
+  @Nullable()
   public SocketAddress getRemoteSocketAddress()
   {
     return delegateSocket.getRemoteSocketAddress();
@@ -244,6 +249,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *          or {@code null} if it is not bound.
    */
   @Override()
+  @Nullable()
   public SocketAddress getLocalSocketAddress()
   {
     return delegateSocket.getLocalSocketAddress();
@@ -258,6 +264,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *          there is no socket channel.
    */
   @Override()
+  @Nullable()
   public SocketChannel getChannel()
   {
     return delegateSocket.getChannel();
@@ -274,6 +281,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *                       stream.
    */
   @Override()
+  @NotNull()
   public InputStream getInputStream()
          throws IOException
   {
@@ -291,6 +299,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *                       stream.
    */
   @Override()
+  @NotNull()
   public OutputStream getOutputStream()
          throws IOException
   {
@@ -786,6 +795,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @return  The set of supported cipher suites for this socket.
    */
   @Override()
+  @NotNull()
   public String[] getSupportedCipherSuites()
   {
     return delegateSocket.getSupportedCipherSuites();
@@ -799,6 +809,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @return  The set of enabled cipher suites for this socket.
    */
   @Override()
+  @NotNull()
   public String[] getEnabledCipherSuites()
   {
     return delegateSocket.getEnabledCipherSuites();
@@ -812,7 +823,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @param  suites  The set of enabled cipher suites for this socket.
    */
   @Override()
-  public void setEnabledCipherSuites(final String[] suites)
+  public void setEnabledCipherSuites(@NotNull final String[] suites)
   {
     delegateSocket.setEnabledCipherSuites(suites);
   }
@@ -825,6 +836,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @return  The set of supported protocols for this socket.
    */
   @Override()
+  @NotNull()
   public String[] getSupportedProtocols()
   {
     return delegateSocket.getSupportedProtocols();
@@ -838,6 +850,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @return  The set of enabled protocols for this socket.
    */
   @Override()
+  @NotNull()
   public String[] getEnabledProtocols()
   {
     return delegateSocket.getEnabledProtocols();
@@ -851,7 +864,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @param  protocols  The set of enabled protocols for this socket.
    */
   @Override()
-  public void setEnabledProtocols(final String[] protocols)
+  public void setEnabledProtocols(@NotNull final String[] protocols)
   {
     delegateSocket.setEnabledProtocols(protocols);
   }
@@ -864,6 +877,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @return  The SSL session for this socket.
    */
   @Override()
+  @NotNull()
   public SSLSession getSession()
   {
     return delegateSocket.getSession();
@@ -878,7 +892,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    */
   @Override()
   public void addHandshakeCompletedListener(
-                   final HandshakeCompletedListener listener)
+                   @NotNull final HandshakeCompletedListener listener)
   {
     delegateSocket.addHandshakeCompletedListener(listener);
   }
@@ -893,7 +907,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    */
   @Override()
   public void removeHandshakeCompletedListener(
-                   final HandshakeCompletedListener listener)
+                   @NotNull final HandshakeCompletedListener listener)
   {
     delegateSocket.removeHandshakeCompletedListener(listener);
   }
@@ -1031,6 +1045,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    * @return  A string representation of this socket.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return delegateSocket.toString();

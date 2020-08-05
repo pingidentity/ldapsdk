@@ -47,6 +47,8 @@ import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -77,7 +79,7 @@ public class ASN1Element
   private final byte type;
 
   // The encoded value for this element.
-  private final byte[] value;
+  @NotNull private final byte[] value;
 
   // The cached hashCode for this element.
   private int hashCode = -1;
@@ -111,7 +113,7 @@ public class ASN1Element
    * @param  type   The BER type for this element.
    * @param  value  The encoded value for this element.
    */
-  public ASN1Element(final byte type, final byte[] value)
+  public ASN1Element(final byte type, @Nullable final byte[] value)
   {
     this.type = type;
 
@@ -139,8 +141,8 @@ public class ASN1Element
    * @param  offset  The offset within the array at which the value begins.
    * @param  length  The number of bytes contained in the value.
    */
-  public ASN1Element(final byte type, final byte[] value, final int offset,
-                     final int length)
+  public ASN1Element(final byte type, @NotNull final byte[] value,
+                     final int offset, final int length)
   {
     this.type  = type;
     this.value = value;
@@ -206,6 +208,7 @@ public class ASN1Element
    *
    * @return  The array containing the value.
    */
+  @NotNull()
   byte[] getValueArray()
   {
     return value;
@@ -244,6 +247,7 @@ public class ASN1Element
    *
    * @return  The encoded value for this element.
    */
+  @NotNull()
   public byte[] getValue()
   {
     if ((valueOffset == 0) && (valueLength == value.length))
@@ -266,6 +270,7 @@ public class ASN1Element
    * @return  A byte array containing the encoded representation of this ASN.1
    *          element.
    */
+  @NotNull()
   public final byte[] encode()
   {
     final byte[] valueArray = getValueArray();
@@ -296,7 +301,8 @@ public class ASN1Element
    * @param  length  The length to be encoded.
    * @param  buffer  The buffer to which the length should be appended.
    */
-  static void encodeLengthTo(final int length, final ByteStringBuffer buffer)
+  static void encodeLengthTo(final int length,
+                             @NotNull final ByteStringBuffer buffer)
   {
     if ((length & 0x7F) == length)
     {
@@ -339,7 +345,7 @@ public class ASN1Element
    * @param  buffer  The buffer to which the encoded representation should be
    *                 appended.
    */
-  public void encodeTo(final ByteStringBuffer buffer)
+  public void encodeTo(@NotNull final ByteStringBuffer buffer)
   {
     final byte[] valueArray = getValueArray();
     final int    length     = getValueLength();
@@ -366,6 +372,7 @@ public class ASN1Element
    *
    * @return  A byte array containing the encoded length.
    */
+  @NotNull()
   public static byte[] encodeLength(final int length)
   {
     switch (length)
@@ -552,7 +559,8 @@ public class ASN1Element
    * @throws  ASN1Exception  If the provided byte array does not represent a
    *                         valid ASN.1 element.
    */
-  public static ASN1Element decode(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1Element decode(@NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -603,6 +611,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a bit string
    *                         element.
    */
+  @NotNull()
   public final ASN1BitString decodeAsBitString()
          throws ASN1Exception
   {
@@ -619,6 +628,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a Boolean
    *                         element.
    */
+  @NotNull()
   public final ASN1Boolean decodeAsBoolean()
          throws ASN1Exception
   {
@@ -635,6 +645,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as an enumerated
    *                         element.
    */
+  @NotNull()
   public final ASN1Enumerated decodeAsEnumerated()
          throws ASN1Exception
   {
@@ -651,6 +662,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a generalized
    *                         time element.
    */
+  @NotNull()
   public final ASN1GeneralizedTime decodeAsGeneralizedTime()
          throws ASN1Exception
   {
@@ -667,6 +679,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a IA5 string
    *                         element.
    */
+  @NotNull()
   public final ASN1IA5String decodeAsIA5String()
          throws ASN1Exception
   {
@@ -683,6 +696,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as an integer
    *                         element.
    */
+  @NotNull()
   public final ASN1Integer decodeAsInteger()
          throws ASN1Exception
   {
@@ -699,6 +713,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a long
    *                         element.
    */
+  @NotNull()
   public final ASN1Long decodeAsLong()
          throws ASN1Exception
   {
@@ -715,6 +730,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a big integer
    *                         element.
    */
+  @NotNull()
   public final ASN1BigInteger decodeAsBigInteger()
          throws ASN1Exception
   {
@@ -731,6 +747,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a null
    *                         element.
    */
+  @NotNull()
   public final ASN1Null decodeAsNull()
          throws ASN1Exception
   {
@@ -747,6 +764,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a numeric
    *                         string element.
    */
+  @NotNull()
   public final ASN1NumericString decodeAsNumericString()
          throws ASN1Exception
   {
@@ -763,6 +781,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as an object
    *                         identifier element.
    */
+  @NotNull()
   public final ASN1ObjectIdentifier decodeAsObjectIdentifier()
          throws ASN1Exception
   {
@@ -776,6 +795,7 @@ public class ASN1Element
    *
    * @return  The decoded octet string element.
    */
+  @NotNull()
   public final ASN1OctetString decodeAsOctetString()
   {
     return ASN1OctetString.decodeAsOctetString(this);
@@ -791,6 +811,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a printable
    *                         string element.
    */
+  @NotNull()
   public final ASN1PrintableString decodeAsPrintableString()
          throws ASN1Exception
   {
@@ -807,6 +828,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a sequence
    *                         element.
    */
+  @NotNull()
   public final ASN1Sequence decodeAsSequence()
          throws ASN1Exception
   {
@@ -823,6 +845,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a set
    *                         element.
    */
+  @NotNull()
   public final ASN1Set decodeAsSet()
          throws ASN1Exception
   {
@@ -839,6 +862,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a UTC time
    *                         element.
    */
+  @NotNull()
   public final ASN1UTCTime decodeAsUTCTime()
          throws ASN1Exception
   {
@@ -855,6 +879,7 @@ public class ASN1Element
    * @throws  ASN1Exception  If this element cannot be decoded as a UTF-8
    *                         string element.
    */
+  @NotNull()
   public final ASN1UTF8String decodeAsUTF8String()
          throws ASN1Exception
   {
@@ -877,7 +902,8 @@ public class ASN1Element
    * @throws  ASN1Exception  If a problem occurs while attempting to decode the
    *                         element.
    */
-  public static ASN1Element readFrom(final InputStream inputStream)
+  @Nullable()
+  public static ASN1Element readFrom(@NotNull final InputStream inputStream)
          throws IOException, ASN1Exception
   {
     return readFrom(inputStream, -1);
@@ -904,7 +930,8 @@ public class ASN1Element
    * @throws  ASN1Exception  If a problem occurs while attempting to decode the
    *                         element.
    */
-  public static ASN1Element readFrom(final InputStream inputStream,
+  @Nullable()
+  public static ASN1Element readFrom(@NotNull final InputStream inputStream,
                                      final int maxSize)
          throws IOException, ASN1Exception
   {
@@ -985,7 +1012,7 @@ public class ASN1Element
    *
    * @see  ASN1Writer#writeElement(ASN1Element,OutputStream)
    */
-  public final int writeTo(final OutputStream outputStream)
+  public final int writeTo(@NotNull final OutputStream outputStream)
          throws IOException
   {
     Debug.debugASN1Write(this);
@@ -1032,7 +1059,7 @@ public class ASN1Element
    *          ASN.1 element, or {@code false} if not.
    */
   @Override()
-  public final boolean equals(final Object o)
+  public final boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -1067,7 +1094,7 @@ public class ASN1Element
    * @return  {@code true} if the provided ASN.1 element is considered equal to
    *          this element (ignoring type differences), or {@code false} if not.
    */
-  public final boolean equalsIgnoreType(final ASN1Element element)
+  public final boolean equalsIgnoreType(@Nullable final ASN1Element element)
   {
     if (element == null)
     {
@@ -1090,6 +1117,7 @@ public class ASN1Element
    * @return  A string representation of the value for this ASN.1 element.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1105,7 +1133,7 @@ public class ASN1Element
    *
    * @param  buffer  The buffer to which to append the information.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     final byte[] v = getValue();
     buffer.append("ASN1Element(type=");

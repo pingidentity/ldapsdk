@@ -38,6 +38,7 @@ package com.unboundid.util.args;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,7 +65,7 @@ public abstract class ArgumentValueValidator
    * @throws  ArgumentException  If the provided value is determined to be
    *                             unacceptable.
    */
-  public abstract void validateArgumentValue(Argument argument,
-                                             String valueString)
+  public abstract void validateArgumentValue(@NotNull Argument argument,
+                                             @NotNull String valueString)
          throws ArgumentException;
 }

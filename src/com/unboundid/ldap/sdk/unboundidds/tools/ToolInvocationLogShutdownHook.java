@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,7 +69,7 @@ public final class ToolInvocationLogShutdownHook
        extends Thread
 {
   // An object with information about the logging that should be performed.
-  private final ToolInvocationLogDetails logDetails;
+  @NotNull private final ToolInvocationLogDetails logDetails;
 
 
 
@@ -79,7 +80,7 @@ public final class ToolInvocationLogShutdownHook
    *                     {@code null}.
    */
   public ToolInvocationLogShutdownHook(
-              final ToolInvocationLogDetails logDetails)
+              @NotNull final ToolInvocationLogDetails logDetails)
   {
     this.logDetails = logDetails;
   }

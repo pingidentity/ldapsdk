@@ -46,6 +46,7 @@ import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,7 +98,7 @@ public final class HostNameTrustManager
   private final boolean checkCNWhenSubjectAltNameIsPresent;
 
   // The set of hostname values that will be considered acceptable.
-  private final Set<String> acceptableHostNames;
+  @NotNull private final Set<String> acceptableHostNames;
 
 
 
@@ -117,7 +118,7 @@ public final class HostNameTrustManager
    *                              {@code null} or empty.
    */
   public HostNameTrustManager(final boolean allowWildcards,
-                              final String... acceptableHostNames)
+                              @NotNull final String... acceptableHostNames)
   {
     this(allowWildcards, StaticUtils.toList(acceptableHostNames));
   }
@@ -140,7 +141,7 @@ public final class HostNameTrustManager
    *                              {@code null} or empty.
    */
   public HostNameTrustManager(final boolean allowWildcards,
-                              final Collection<String> acceptableHostNames)
+              @NotNull final Collection<String> acceptableHostNames)
   {
     this(allowWildcards,
          HostNameSSLSocketVerifier.
@@ -176,8 +177,8 @@ public final class HostNameTrustManager
    *              acceptable.  It must not be {@code null} or empty.
    */
   public HostNameTrustManager(final boolean allowWildcards,
-                              final boolean checkCNWhenSubjectAltNameIsPresent,
-                              final Collection<String> acceptableHostNames)
+              final boolean checkCNWhenSubjectAltNameIsPresent,
+              @NotNull final Collection<String> acceptableHostNames)
   {
     Validator.ensureNotNull(acceptableHostNames);
     Validator.ensureFalse(acceptableHostNames.isEmpty(),
@@ -218,6 +219,7 @@ public final class HostNameTrustManager
    *
    * @return  The set of hostnames that will be considered acceptable.
    */
+  @NotNull()
   public Set<String> getAcceptableHostNames()
   {
     return acceptableHostNames;
@@ -237,8 +239,8 @@ public final class HostNameTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     final StringBuilder buffer = new StringBuilder();
@@ -270,8 +272,8 @@ public final class HostNameTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     final StringBuilder buffer = new StringBuilder();
@@ -298,6 +300,7 @@ public final class HostNameTrustManager
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

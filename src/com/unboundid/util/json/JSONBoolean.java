@@ -38,6 +38,8 @@ package com.unboundid.util.json;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -58,14 +60,14 @@ public final class JSONBoolean
   /**
    * A pre-allocated object that represents a value of {@code false}.
    */
-  public static final JSONBoolean FALSE = new JSONBoolean(false);
+  @NotNull public static final JSONBoolean FALSE = new JSONBoolean(false);
 
 
 
   /**
    * A pre-allocated object that represents a value of {@code true}.
    */
-  public static final JSONBoolean TRUE = new JSONBoolean(true);
+  @NotNull public static final JSONBoolean TRUE = new JSONBoolean(true);
 
 
 
@@ -80,7 +82,7 @@ public final class JSONBoolean
   private final boolean booleanValue;
 
   // The string representation for this object.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -125,7 +127,7 @@ public final class JSONBoolean
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == this)
     {
@@ -147,7 +149,8 @@ public final class JSONBoolean
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final JSONValue v, final boolean ignoreFieldNameCase,
+  public boolean equals(@NotNull final JSONValue v,
+                        final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
   {
@@ -168,6 +171,7 @@ public final class JSONBoolean
    *          in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;
@@ -186,7 +190,7 @@ public final class JSONBoolean
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringRepresentation);
   }
@@ -204,6 +208,7 @@ public final class JSONBoolean
    *          should appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toSingleLineString()
   {
     return stringRepresentation;
@@ -222,7 +227,7 @@ public final class JSONBoolean
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toSingleLineString(final StringBuilder buffer)
+  public void toSingleLineString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringRepresentation);
   }
@@ -240,6 +245,7 @@ public final class JSONBoolean
    *          should appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString()
   {
     return stringRepresentation;
@@ -258,7 +264,7 @@ public final class JSONBoolean
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringRepresentation);
   }
@@ -288,6 +294,7 @@ public final class JSONBoolean
    *          should appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString(final boolean ignoreFieldNameCase,
                                    final boolean ignoreValueCase,
                                    final boolean ignoreArrayOrder)
@@ -320,7 +327,7 @@ public final class JSONBoolean
    *                              {@code true}).
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer,
+  public void toNormalizedString(@NotNull final StringBuilder buffer,
                                  final boolean ignoreFieldNameCase,
                                  final boolean ignoreValueCase,
                                  final boolean ignoreArrayOrder)
@@ -334,7 +341,7 @@ public final class JSONBoolean
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendBoolean(booleanValue);
   }
@@ -345,8 +352,8 @@ public final class JSONBoolean
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final String fieldName,
-                                 final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final String fieldName,
+                                 @NotNull final JSONBuffer buffer)
   {
     buffer.appendBoolean(fieldName, booleanValue);
   }

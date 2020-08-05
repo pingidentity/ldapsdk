@@ -41,6 +41,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
 import com.unboundid.ldif.LDIFWriterEntryTranslator;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -65,5 +67,6 @@ public interface EntryTransformation
    *          the original entry if no transformations were necessary, or
    *          {@code null} if the entry should be suppressed.
    */
-  Entry transformEntry(Entry entry);
+  @Nullable()
+  Entry transformEntry(@NotNull Entry entry);
 }

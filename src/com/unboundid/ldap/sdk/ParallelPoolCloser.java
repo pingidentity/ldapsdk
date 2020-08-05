@@ -45,6 +45,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 
 
 
@@ -77,7 +78,7 @@ final class ParallelPoolCloser
    * @param  numThreads   The number of threads to use to close the connections
    *                      in parallel.
    */
-  ParallelPoolCloser(final Collection<LDAPConnection> connections,
+  ParallelPoolCloser(@NotNull final Collection<LDAPConnection> connections,
                      final boolean unbind, final int numThreads)
   {
     this.connections = connections;

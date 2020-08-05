@@ -85,10 +85,10 @@ public final class CloseableLock
 {
   // The {@code Closeable} object that will be returned by all of the methods
   // used to acquire the lock.
-  private final Lock lock;
+  @NotNull private final Lock lock;
 
   // The reentrant lock that will be used to actually perform the locking.
-  private final ReentrantLock reentrantLock;
+  @NotNull private final ReentrantLock reentrantLock;
 
 
 
@@ -143,6 +143,7 @@ public final class CloseableLock
    * @throws  InterruptedException  If the thread is interrupted while waiting
    *                                to acquire the lock.
    */
+  @NotNull()
   public Lock lockInterruptibly()
          throws InterruptedException
   {
@@ -170,7 +171,8 @@ public final class CloseableLock
    * @throws  TimeoutException  If the lock could not be acquired within the
    *                            specified length of time.
    */
-  public Lock tryLock(final long waitTime, final TimeUnit timeUnit)
+  @NotNull()
+  public Lock tryLock(final long waitTime, @NotNull final TimeUnit timeUnit)
          throws InterruptedException, TimeoutException
   {
     if (waitTime <= 0)
@@ -268,7 +270,7 @@ public final class CloseableLock
    * @return  {@code true} if the specified thread is currently waiting to
    *          acquire this lock, or {@code false} if not.
    */
-  public boolean hasQueuedThread(final Thread thread)
+  public boolean hasQueuedThread(@NotNull final Thread thread)
   {
     Validator.ensureNotNull(thread);
 
@@ -297,6 +299,7 @@ public final class CloseableLock
    * @return  A string representation of this lock.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return "CloseableLock(lock=" + reentrantLock.toString() + ')';
@@ -313,7 +316,7 @@ public final class CloseableLock
          implements Closeable
   {
     // The associated reentrant lock.
-    private final ReentrantLock lock;
+    @NotNull private final ReentrantLock lock;
 
 
 
@@ -323,7 +326,7 @@ public final class CloseableLock
      * @param  lock  The lock that will be unlocked when the [@link #close()}
      *               method is called.  This must not be {@code null}.
      */
-    private Lock(final ReentrantLock lock)
+    private Lock(@NotNull final ReentrantLock lock)
     {
       this.lock = lock;
     }

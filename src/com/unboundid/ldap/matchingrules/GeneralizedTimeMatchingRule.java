@@ -46,6 +46,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -67,7 +69,7 @@ public final class GeneralizedTimeMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final GeneralizedTimeMatchingRule INSTANCE =
+  @NotNull private static final GeneralizedTimeMatchingRule INSTANCE =
        new GeneralizedTimeMatchingRule();
 
 
@@ -76,7 +78,7 @@ public final class GeneralizedTimeMatchingRule
    * The date format that will be used for formatting generalized time values,
    * assuming that the associated formatter is using the UTC time zone.
    */
-  private static final String GENERALIZED_TIME_DATE_FORMAT =
+  @NotNull private static final String GENERALIZED_TIME_DATE_FORMAT =
        "yyyyMMddHHmmss.SSS'Z'";
 
 
@@ -84,14 +86,16 @@ public final class GeneralizedTimeMatchingRule
   /**
    * A reference to the "UTC" time zone.
    */
-  private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+  @NotNull private static final TimeZone UTC_TIME_ZONE =
+       TimeZone.getTimeZone("UTC");
 
 
 
   /**
    * The name for the generalizedTimeMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "generalizedTimeMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME =
+       "generalizedTimeMatch";
 
 
 
@@ -99,7 +103,7 @@ public final class GeneralizedTimeMatchingRule
    * The name for the generalizedTimeMatch equality matching rule, formatted in
    * all lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -107,14 +111,14 @@ public final class GeneralizedTimeMatchingRule
   /**
    * The OID for the generalizedTimeMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.27";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.27";
 
 
 
   /**
    * The name for the generalizedTimeOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_NAME =
+  @NotNull public static final String ORDERING_RULE_NAME =
        "generalizedTimeOrderingMatch";
 
 
@@ -123,7 +127,7 @@ public final class GeneralizedTimeMatchingRule
    * The name for the generalizedTimeOrderingMatch ordering matching rule,
    * formatted in all lowercase characters.
    */
-  static final String LOWER_ORDERING_RULE_NAME =
+  @NotNull static final String LOWER_ORDERING_RULE_NAME =
        StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
@@ -131,7 +135,7 @@ public final class GeneralizedTimeMatchingRule
   /**
    * The OID for the generalizedTimeOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_OID = "2.5.13.28";
+  @NotNull public static final String ORDERING_RULE_OID = "2.5.13.28";
 
 
 
@@ -143,7 +147,7 @@ public final class GeneralizedTimeMatchingRule
 
 
   // The thread-local date formatter for this class.
-  private static final ThreadLocal<SimpleDateFormat> dateFormat =
+  @NotNull private static final ThreadLocal<SimpleDateFormat> dateFormat =
        new ThreadLocal<>();
 
 
@@ -163,6 +167,7 @@ public final class GeneralizedTimeMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static GeneralizedTimeMatchingRule getInstance()
   {
     return INSTANCE;
@@ -174,6 +179,7 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -185,6 +191,7 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -196,6 +203,7 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleName()
   {
     return ORDERING_RULE_NAME;
@@ -207,6 +215,7 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleOID()
   {
     return ORDERING_RULE_OID;
@@ -218,6 +227,7 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getSubstringMatchingRuleName()
   {
     return null;
@@ -229,6 +239,7 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getSubstringMatchingRuleOID()
   {
     return null;
@@ -240,8 +251,8 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     final Date d1;
@@ -277,8 +288,8 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
-                                 final ASN1OctetString[] attributeValues)
+  public boolean matchesAnyValue(@NotNull final ASN1OctetString assertionValue,
+                      @NotNull final ASN1OctetString[] attributeValues)
          throws LDAPException
   {
     if ((assertionValue == null) || (attributeValues == null) ||
@@ -325,10 +336,10 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesSubstring(final ASN1OctetString value,
-                                  final ASN1OctetString subInitial,
-                                  final ASN1OctetString[] subAny,
-                                  final ASN1OctetString subFinal)
+  public boolean matchesSubstring(@NotNull final ASN1OctetString value,
+                      @Nullable final ASN1OctetString subInitial,
+                      @Nullable final ASN1OctetString[] subAny,
+                      @Nullable final ASN1OctetString subFinal)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
@@ -341,8 +352,8 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public int compareValues(final ASN1OctetString value1,
-                           final ASN1OctetString value2)
+  public int compareValues(@NotNull final ASN1OctetString value1,
+                           @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     final Date d1;
@@ -378,7 +389,8 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
          throws LDAPException
   {
     final Date d;
@@ -410,8 +422,10 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,

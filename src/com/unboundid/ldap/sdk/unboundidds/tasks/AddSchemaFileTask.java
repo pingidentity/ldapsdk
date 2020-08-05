@@ -47,6 +47,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,7 +90,7 @@ public final class AddSchemaFileTask
    * The fully-qualified name of the Java class that is used for the add schema
    * file task.
    */
-  static final String ADD_SCHEMA_FILE_TASK_CLASS =
+  @NotNull static final String ADD_SCHEMA_FILE_TASK_CLASS =
        "com.unboundid.directory.server.tasks.AddSchemaFileTask";
 
 
@@ -97,7 +99,7 @@ public final class AddSchemaFileTask
    * The name of the attribute used to specify the name(s) of the schema file(s)
    * to add.
    */
-  private static final String ATTR_SCHEMA_FILE =
+  @NotNull private static final String ATTR_SCHEMA_FILE =
        "ds-task-schema-file-name";
 
 
@@ -105,7 +107,7 @@ public final class AddSchemaFileTask
   /**
    * The name of the object class used in add schema file task entries.
    */
-  private static final String OC_ADD_SCHEMA_FILE_TASK =
+  @NotNull private static final String OC_ADD_SCHEMA_FILE_TASK =
        "ds-task-add-schema-file";
 
 
@@ -113,7 +115,7 @@ public final class AddSchemaFileTask
   /**
    * The task property that will be used for the schema file names.
    */
-  private static final TaskProperty PROPERTY_SCHEMA_FILE =
+  @NotNull private static final TaskProperty PROPERTY_SCHEMA_FILE =
      new TaskProperty(ATTR_SCHEMA_FILE, INFO_DISPLAY_NAME_SCHEMA_FILE.get(),
                       INFO_DESCRIPTION_SCHEMA_FILE.get(), String.class, true,
                       true, false);
@@ -128,7 +130,7 @@ public final class AddSchemaFileTask
 
 
   // The names of the schema files to be added.
-  private final List<String> schemaFileNames;
+  @NotNull private final List<String> schemaFileNames;
 
 
 
@@ -156,7 +158,8 @@ public final class AddSchemaFileTask
    *                         add to the server schema.  It must not be
    *                         {@code null}.
    */
-  public AddSchemaFileTask(final String taskID, final String schemaFileName)
+  public AddSchemaFileTask(@Nullable final String taskID,
+                           @NotNull final String schemaFileName)
   {
     this(taskID, Collections.singletonList(schemaFileName), null, null, null,
          null, null);
@@ -177,8 +180,8 @@ public final class AddSchemaFileTask
    *                          the files to add to the server schema.  It must
    *                          not be {@code null} or empty.
    */
-  public AddSchemaFileTask(final String taskID,
-                           final List<String> schemaFileNames)
+  public AddSchemaFileTask(@Nullable final String taskID,
+                           @NotNull final List<String> schemaFileNames)
   {
     this(taskID, schemaFileNames, null, null, null, null, null);
   }
@@ -211,13 +214,13 @@ public final class AddSchemaFileTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public AddSchemaFileTask(final String taskID,
-                           final List<String> schemaFileNames,
-                           final Date scheduledStartTime,
-                           final List<String> dependencyIDs,
-                           final FailedDependencyAction failedDependencyAction,
-                           final List<String> notifyOnCompletion,
-                           final List<String> notifyOnError)
+  public AddSchemaFileTask(@Nullable final String taskID,
+              @NotNull final List<String> schemaFileNames,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, schemaFileNames, scheduledStartTime, dependencyIDs,
          failedDependencyAction, null, notifyOnCompletion, null,
@@ -266,18 +269,18 @@ public final class AddSchemaFileTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public AddSchemaFileTask(final String taskID,
-                           final List<String> schemaFileNames,
-                           final Date scheduledStartTime,
-                           final List<String> dependencyIDs,
-                           final FailedDependencyAction failedDependencyAction,
-                           final List<String> notifyOnStart,
-                           final List<String> notifyOnCompletion,
-                           final List<String> notifyOnSuccess,
-                           final List<String> notifyOnError,
-                           final Boolean alertOnStart,
-                           final Boolean alertOnSuccess,
-                           final Boolean alertOnError)
+  public AddSchemaFileTask(@Nullable final String taskID,
+              @NotNull final List<String> schemaFileNames,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, ADD_SCHEMA_FILE_TASK_CLASS, scheduledStartTime,
           dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -301,7 +304,7 @@ public final class AddSchemaFileTask
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         add schema file task entry.
    */
-  public AddSchemaFileTask(final Entry entry)
+  public AddSchemaFileTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -330,7 +333,8 @@ public final class AddSchemaFileTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid add schema file task.
    */
-  public AddSchemaFileTask(final Map<TaskProperty,List<Object>> properties)
+  public AddSchemaFileTask(
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(ADD_SCHEMA_FILE_TASK_CLASS, properties);
@@ -364,6 +368,7 @@ public final class AddSchemaFileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_ADD_SCHEMA_FILE.get();
@@ -375,6 +380,7 @@ public final class AddSchemaFileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_ADD_SCHEMA_FILE.get();
@@ -388,6 +394,7 @@ public final class AddSchemaFileTask
    *
    * @return  The names of the schema files to be added to the server.
    */
+  @NotNull()
   public List<String> getSchemaFileNames()
   {
     return schemaFileNames;
@@ -399,6 +406,7 @@ public final class AddSchemaFileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_ADD_SCHEMA_FILE_TASK);
@@ -410,6 +418,7 @@ public final class AddSchemaFileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     return Collections.singletonList(
@@ -422,6 +431,7 @@ public final class AddSchemaFileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.singletonList(PROPERTY_SCHEMA_FILE);
@@ -433,6 +443,7 @@ public final class AddSchemaFileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

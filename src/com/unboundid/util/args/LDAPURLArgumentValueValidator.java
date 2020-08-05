@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -224,8 +225,8 @@ public final class LDAPURLArgumentValueValidator
    * {@inheritDoc}
    */
   @Override()
-  public void validateArgumentValue(final Argument argument,
-                                    final String valueString)
+  public void validateArgumentValue(@NotNull final Argument argument,
+                                    @NotNull final String valueString)
          throws ArgumentException
   {
     final LDAPURL ldapURL;
@@ -293,6 +294,7 @@ public final class LDAPURLArgumentValueValidator
    * @return  A string representation of this argument value validator.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -309,7 +311,7 @@ public final class LDAPURLArgumentValueValidator
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPURLArgumentValueValidator(requireHost=");
     buffer.append(requireHost);

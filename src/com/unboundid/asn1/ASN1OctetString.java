@@ -41,6 +41,8 @@ import com.unboundid.util.ByteString;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -93,11 +95,11 @@ public final class ASN1OctetString
 
 
   // The binary representation of the value for this element.
-  private byte[] valueBytes;
+  @Nullable private byte[] valueBytes;
 
   // A volatile variable used to guard publishing the valueBytes array.  See the
   // note above to explain why this is needed.
-  private volatile byte[] valueBytesGuard;
+  @Nullable private volatile byte[] valueBytesGuard;
 
   // The length of the value in the byte array, if applicable.
   private int length;
@@ -106,7 +108,7 @@ public final class ASN1OctetString
   private int offset;
 
   // The string representation of the value for this element.
-  private String stringValue;
+  @Nullable private String stringValue;
 
 
 
@@ -150,7 +152,7 @@ public final class ASN1OctetString
    *
    * @param  value  The value to use for this element.
    */
-  public ASN1OctetString(final byte[] value)
+  public ASN1OctetString(@Nullable final byte[] value)
   {
     super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
@@ -185,7 +187,8 @@ public final class ASN1OctetString
    *                 or equal to zero, and it must not extend beyond the end of
    *                 the array.
    */
-  public ASN1OctetString(final byte[] value, final int offset, final int length)
+  public ASN1OctetString(@NotNull final byte[] value, final int offset,
+                         final int length)
   {
     super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
@@ -208,7 +211,7 @@ public final class ASN1OctetString
    * @param  type   The BER type to use for this element.
    * @param  value  The value to use for this element.
    */
-  public ASN1OctetString(final byte type, final byte[] value)
+  public ASN1OctetString(final byte type, @Nullable final byte[] value)
   {
     super(type);
 
@@ -244,8 +247,8 @@ public final class ASN1OctetString
    *                 or equal to zero, and it must not extend beyond the end of
    *                 the array.
    */
-  public ASN1OctetString(final byte type, final byte[] value, final int offset,
-                         final int length)
+  public ASN1OctetString(final byte type, @NotNull final byte[] value,
+                         final int offset, final int length)
   {
     super(type);
 
@@ -266,7 +269,7 @@ public final class ASN1OctetString
    *
    * @param  value  The value to use for this element.
    */
-  public ASN1OctetString(final String value)
+  public ASN1OctetString(@Nullable final String value)
   {
     super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
@@ -295,7 +298,7 @@ public final class ASN1OctetString
    * @param  type   The BER type to use for this element.
    * @param  value  The value to use for this element.
    */
-  public ASN1OctetString(final byte type, final String value)
+  public ASN1OctetString(final byte type, @Nullable final String value)
   {
     super(type);
 
@@ -321,6 +324,7 @@ public final class ASN1OctetString
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   byte[] getValueArray()
   {
     return getValue();
@@ -354,6 +358,7 @@ public final class ASN1OctetString
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public byte[] getValue()
   {
     if (valueBytes == null)
@@ -381,7 +386,7 @@ public final class ASN1OctetString
    * {@inheritDoc}
    */
   @Override()
-  public void encodeTo(final ByteStringBuffer buffer)
+  public void encodeTo(@NotNull final ByteStringBuffer buffer)
   {
     buffer.append(getType());
 
@@ -432,6 +437,7 @@ public final class ASN1OctetString
    * @return  The String value for this element.
    */
   @Override()
+  @NotNull()
   public String stringValue()
   {
     if (stringValue == null)
@@ -511,7 +517,9 @@ public final class ASN1OctetString
    *
    * @return  The decoded ASN.1 octet string element.
    */
-  public static ASN1OctetString decodeAsOctetString(final ASN1Element element)
+  @NotNull()
+  public static ASN1OctetString decodeAsOctetString(
+                     @NotNull final ASN1Element element)
   {
     return new ASN1OctetString(element.getType(), element.getValue());
   }
@@ -524,7 +532,7 @@ public final class ASN1OctetString
    * @param  buffer  The buffer to which the value is to be appended.
    */
   @Override()
-  public void appendValueTo(final ByteStringBuffer buffer)
+  public void appendValueTo(@NotNull final ByteStringBuffer buffer)
   {
     if (valueBytes == null)
     {
@@ -544,6 +552,7 @@ public final class ASN1OctetString
    * @return  An ASN.1 octet string with the value of this byte string.
    */
   @Override()
+  @NotNull()
   public ASN1OctetString toASN1OctetString()
   {
     return this;
@@ -555,7 +564,7 @@ public final class ASN1OctetString
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringValue());
   }

@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.Reader;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,7 +74,7 @@ public final class AccessLogReader
        implements Closeable
 {
   // The reader used to read the contents of the log file.
-  private final BufferedReader reader;
+  @NotNull private final BufferedReader reader;
 
 
 
@@ -85,7 +87,7 @@ public final class AccessLogReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public AccessLogReader(final String path)
+  public AccessLogReader(@NotNull final String path)
          throws IOException
   {
     reader = new BufferedReader(new FileReader(path));
@@ -102,7 +104,7 @@ public final class AccessLogReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public AccessLogReader(final File file)
+  public AccessLogReader(@NotNull final File file)
          throws IOException
   {
     reader = new BufferedReader(new FileReader(file));
@@ -116,7 +118,7 @@ public final class AccessLogReader
    *
    * @param  reader  The reader to use to read log messages.
    */
-  public AccessLogReader(final Reader reader)
+  public AccessLogReader(@NotNull final Reader reader)
   {
     if (reader instanceof BufferedReader)
     {
@@ -142,6 +144,7 @@ public final class AccessLogReader
    * @throws  LogException  If an error occurs while trying to parse the log
    *                        message.
    */
+  @Nullable()
   public AccessLogMessage read()
          throws IOException, LogException
   {
@@ -174,7 +177,8 @@ public final class AccessLogReader
    * @throws  LogException  If an error occurs while trying to parse the log
    *                        message.
    */
-  public static AccessLogMessage parse(final String s)
+  @NotNull()
+  public static AccessLogMessage parse(@NotNull final String s)
          throws LogException
   {
     final LogMessage m = new LogMessage(s);

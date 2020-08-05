@@ -46,6 +46,8 @@ import java.util.Set;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -118,28 +120,29 @@ public final class UniquenessRequestControlProperties
 
   // An optional filter that should be used in the course of identifying
   // uniqueness conflicts.
-  private Filter filter = null;
+  @Nullable private Filter filter = null;
 
   // A potentially-empty set of attribute types that should be checked for
   // uniqueness conflicts.
-  private Set<String> attributeTypes = Collections.emptySet();
+  @NotNull private Set<String> attributeTypes = Collections.emptySet();
 
   // An optional base DN to use when checking for conflicts.
-  private String baseDN = null;
+  @Nullable private String baseDN = null;
 
   // The behavior that the server should exhibit if multiple attribute types
   // are configured.
-  private UniquenessMultipleAttributeBehavior multipleAttributeBehavior =
-       UniquenessMultipleAttributeBehavior.UNIQUE_WITHIN_EACH_ATTRIBUTE;
+  @NotNull private
+       UniquenessMultipleAttributeBehavior multipleAttributeBehavior =
+            UniquenessMultipleAttributeBehavior.UNIQUE_WITHIN_EACH_ATTRIBUTE;
 
   // The level of validation that the server should perform before processing
   // the associated change.
-  private UniquenessValidationLevel postCommitValidationLevel =
+  @NotNull private UniquenessValidationLevel postCommitValidationLevel =
        UniquenessValidationLevel.ALL_SUBTREE_VIEWS;
 
   // The level of validation that the server should perform after processing the
   // associated change.
-  private UniquenessValidationLevel preCommitValidationLevel =
+  @NotNull private UniquenessValidationLevel preCommitValidationLevel =
        UniquenessValidationLevel.ALL_SUBTREE_VIEWS;
 
 
@@ -167,7 +170,8 @@ public final class UniquenessRequestControlProperties
    *                         configured with equality indexes for each of these
    *                         attribute types.
    */
-  public UniquenessRequestControlProperties(final String... attributeTypes)
+  public UniquenessRequestControlProperties(
+              @NotNull final String... attributeTypes)
   {
     this();
 
@@ -192,7 +196,7 @@ public final class UniquenessRequestControlProperties
    *                         attribute types.
    */
   public UniquenessRequestControlProperties(
-              final Collection<String> attributeTypes)
+              @NotNull final Collection<String> attributeTypes)
   {
     this();
 
@@ -213,7 +217,7 @@ public final class UniquenessRequestControlProperties
    * @param  filter  The filter that the server will use to check for uniqueness
    *                 conflicts.  It must not be {@code null}.
    */
-  public UniquenessRequestControlProperties(final Filter filter)
+  public UniquenessRequestControlProperties(@NotNull final Filter filter)
   {
     this();
 
@@ -231,6 +235,7 @@ public final class UniquenessRequestControlProperties
    *          uniqueness conflicts, or an empty set if only a filter should be
    *          used to identify conflicts.
    */
+  @NotNull()
   public Set<String> getAttributeTypes()
   {
     return attributeTypes;
@@ -250,7 +255,7 @@ public final class UniquenessRequestControlProperties
    *                         configured with an equality index for each of the
    *                         provided attribute types.
    */
-  public void setAttributeTypes(final String... attributeTypes)
+  public void setAttributeTypes(@Nullable final String... attributeTypes)
   {
     if (attributeTypes == null)
     {
@@ -277,7 +282,8 @@ public final class UniquenessRequestControlProperties
    *                         configured with an equality index for each of the
    *                         provided attribute types.
    */
-  public void setAttributeTypes(final Collection<String> attributeTypes)
+  public void setAttributeTypes(
+                   @Nullable final Collection<String> attributeTypes)
   {
     if (attributeTypes == null)
     {
@@ -299,6 +305,7 @@ public final class UniquenessRequestControlProperties
    * @return  The behavior that the server should exhibit if multiple attribute
    *          types are configured.
    */
+  @NotNull()
   public UniquenessMultipleAttributeBehavior getMultipleAttributeBehavior()
   {
     return multipleAttributeBehavior;
@@ -316,6 +323,7 @@ public final class UniquenessRequestControlProperties
    *                                    {@code null}.
    */
   public void setMultipleAttributeBehavior(
+       @NotNull
        final UniquenessMultipleAttributeBehavior multipleAttributeBehavior)
   {
     Validator.ensureNotNull(multipleAttributeBehavior);
@@ -332,6 +340,7 @@ public final class UniquenessRequestControlProperties
    *          uniqueness conflicts, or {@code null} if the server should search
    *          below all public naming contexts.
    */
+  @Nullable()
   public String getBaseDN()
   {
     return baseDN;
@@ -348,7 +357,7 @@ public final class UniquenessRequestControlProperties
    *                 that the server should search below all public naming
    *                 contexts.
    */
-  public void setBaseDN(final String baseDN)
+  public void setBaseDN(@Nullable final String baseDN)
   {
     this.baseDN = baseDN;
   }
@@ -362,6 +371,7 @@ public final class UniquenessRequestControlProperties
    * @return  A filter that will be used to identify uniqueness conflicts, or
    *          {@code null} if no filter has been defined.
    */
+  @Nullable()
   public Filter getFilter()
   {
     return filter;
@@ -379,7 +389,7 @@ public final class UniquenessRequestControlProperties
    *                 configured.  If no attribute types are provided, then this
    *                 filter should be indexed within the server.
    */
-  public void setFilter(final Filter filter)
+  public void setFilter(@Nullable final Filter filter)
   {
     this.filter = filter;
   }
@@ -425,6 +435,7 @@ public final class UniquenessRequestControlProperties
    *
    * @return  The pre-commit validation level.
    */
+  @NotNull()
   public UniquenessValidationLevel getPreCommitValidationLevel()
   {
     return preCommitValidationLevel;
@@ -440,7 +451,7 @@ public final class UniquenessRequestControlProperties
    *                                   not be {@code null}.
    */
   public void setPreCommitValidationLevel(
-                   final UniquenessValidationLevel preCommitValidationLevel)
+       @NotNull final UniquenessValidationLevel preCommitValidationLevel)
   {
     Validator.ensureNotNull(preCommitValidationLevel);
     this.preCommitValidationLevel = preCommitValidationLevel;
@@ -455,6 +466,7 @@ public final class UniquenessRequestControlProperties
    *
    * @return  The post-commit validation level.
    */
+  @NotNull()
   public UniquenessValidationLevel getPostCommitValidationLevel()
   {
     return postCommitValidationLevel;
@@ -471,7 +483,7 @@ public final class UniquenessRequestControlProperties
    *                                    must not be {@code null}.
    */
   public void setPostCommitValidationLevel(
-                   final UniquenessValidationLevel postCommitValidationLevel)
+       @NotNull final UniquenessValidationLevel postCommitValidationLevel)
   {
     Validator.ensureNotNull(postCommitValidationLevel);
     this.postCommitValidationLevel = postCommitValidationLevel;
@@ -487,6 +499,7 @@ public final class UniquenessRequestControlProperties
    *          properties object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -502,7 +515,7 @@ public final class UniquenessRequestControlProperties
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UniquenessRequestControlProperties(attributeTypes={");
 

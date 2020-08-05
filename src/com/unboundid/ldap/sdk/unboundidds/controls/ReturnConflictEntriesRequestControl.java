@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,7 +80,7 @@ public final class ReturnConflictEntriesRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.13) for the return conflict entries request
    * control.
    */
-  public static final String RETURN_CONFLICT_ENTRIES_REQUEST_OID =
+  @NotNull public static final String RETURN_CONFLICT_ENTRIES_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.13";
 
 
@@ -125,7 +126,7 @@ public final class ReturnConflictEntriesRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         return conflict entries request control.
    */
-  public ReturnConflictEntriesRequestControl(final Control control)
+  public ReturnConflictEntriesRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -143,6 +144,7 @@ public final class ReturnConflictEntriesRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_RETURN_CONFLICT_ENTRIES_REQUEST.get();
@@ -154,7 +156,7 @@ public final class ReturnConflictEntriesRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ReturnConflictEntriesRequestControl(isCritical=");
     buffer.append(isCritical());

@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -166,7 +168,7 @@ public final class ContainsFieldJSONObjectFilter
    * The value that should be used for the filterType element of the JSON object
    * that represents a "contains field" filter.
    */
-  public static final String FILTER_TYPE = "containsField";
+  @NotNull public static final String FILTER_TYPE = "containsField";
 
 
 
@@ -174,7 +176,7 @@ public final class ContainsFieldJSONObjectFilter
    * The name of the JSON field that is used to specify the field in the target
    * JSON object for which to make the determination.
    */
-  public static final String FIELD_FIELD_PATH = "field";
+  @NotNull public static final String FIELD_FIELD_PATH = "field";
 
 
 
@@ -182,14 +184,14 @@ public final class ContainsFieldJSONObjectFilter
    * The name of the JSON field that is used to specify the expected data type
    * for the target field.
    */
-  public static final String FIELD_EXPECTED_TYPE = "expectedType";
+  @NotNull public static final String FIELD_EXPECTED_TYPE = "expectedType";
 
 
 
   /**
    * The pre-allocated set of required field names.
    */
-  private static final Set<String> REQUIRED_FIELD_NAMES =
+  @NotNull private static final Set<String> REQUIRED_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_FIELD_PATH)));
 
@@ -198,7 +200,7 @@ public final class ContainsFieldJSONObjectFilter
   /**
    * The pre-allocated set of optional field names.
    */
-  private static final Set<String> OPTIONAL_FIELD_NAMES =
+  @NotNull private static final Set<String> OPTIONAL_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_EXPECTED_TYPE)));
 
@@ -207,7 +209,8 @@ public final class ContainsFieldJSONObjectFilter
   /**
    * A pre-allocated set containing all expected value type values.
    */
-  private static final Set<ExpectedValueType> ALL_EXPECTED_VALUE_TYPES =
+  @NotNull private static final Set<ExpectedValueType>
+       ALL_EXPECTED_VALUE_TYPES =
        Collections.unmodifiableSet(EnumSet.allOf(ExpectedValueType.class));
 
 
@@ -220,10 +223,10 @@ public final class ContainsFieldJSONObjectFilter
 
 
   // The field path specifier for the target field.
-  private volatile List<String> field;
+  @NotNull private volatile List<String> field;
 
   // The expected value types for the target field.
-  private volatile Set<ExpectedValueType> expectedValueTypes;
+  @NotNull private volatile Set<ExpectedValueType> expectedValueTypes;
 
 
 
@@ -246,8 +249,8 @@ public final class ContainsFieldJSONObjectFilter
    * @param  field               The field path specifier for the target field.
    * @param  expectedValueTypes  The expected value types for the target field.
    */
-  private ContainsFieldJSONObjectFilter(final List<String> field,
-               final Set<ExpectedValueType> expectedValueTypes)
+  private ContainsFieldJSONObjectFilter(@NotNull final List<String> field,
+               @NotNull final Set<ExpectedValueType> expectedValueTypes)
   {
     this.field = field;
     this.expectedValueTypes = expectedValueTypes;
@@ -263,7 +266,7 @@ public final class ContainsFieldJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public ContainsFieldJSONObjectFilter(final String... field)
+  public ContainsFieldJSONObjectFilter(@NotNull final String... field)
   {
     this(StaticUtils.toList(field));
   }
@@ -278,7 +281,7 @@ public final class ContainsFieldJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public ContainsFieldJSONObjectFilter(final List<String> field)
+  public ContainsFieldJSONObjectFilter(@NotNull final List<String> field)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -295,6 +298,7 @@ public final class ContainsFieldJSONObjectFilter
    *
    * @return  The field path specifier for this filter.
    */
+  @NotNull()
   public List<String> getField()
   {
     return field;
@@ -310,7 +314,7 @@ public final class ContainsFieldJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final String... field)
+  public void setField(@NotNull final String... field)
   {
     setField(StaticUtils.toList(field));
   }
@@ -325,7 +329,7 @@ public final class ContainsFieldJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final List<String> field)
+  public void setField(@NotNull final List<String> field)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -340,6 +344,7 @@ public final class ContainsFieldJSONObjectFilter
    *
    * @return  The set of acceptable value types for the specified field.
    */
+  @NotNull()
   public Set<ExpectedValueType> getExpectedType()
   {
     return expectedValueTypes;
@@ -354,7 +359,8 @@ public final class ContainsFieldJSONObjectFilter
    *                        field.  It may be {@code null} or empty if the field
    *                        may have a value of any type.
    */
-  public void setExpectedType(final ExpectedValueType... expectedTypes)
+  public void setExpectedType(
+                   @Nullable final ExpectedValueType... expectedTypes)
   {
     setExpectedType(StaticUtils.toList(expectedTypes));
   }
@@ -368,7 +374,8 @@ public final class ContainsFieldJSONObjectFilter
    *                        field.  It may be {@code null} or empty if the field
    *                        may have a value of any type.
    */
-  public void setExpectedType(final Collection<ExpectedValueType> expectedTypes)
+  public void setExpectedType(
+                   @Nullable final Collection<ExpectedValueType> expectedTypes)
   {
     if ((expectedTypes == null) || expectedTypes.isEmpty())
     {
@@ -389,6 +396,7 @@ public final class ContainsFieldJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getFilterType()
   {
     return FILTER_TYPE;
@@ -400,6 +408,7 @@ public final class ContainsFieldJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getRequiredFieldNames()
   {
     return REQUIRED_FIELD_NAMES;
@@ -411,6 +420,7 @@ public final class ContainsFieldJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getOptionalFieldNames()
   {
     return OPTIONAL_FIELD_NAMES;
@@ -422,7 +432,7 @@ public final class ContainsFieldJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesJSONObject(final JSONObject o)
+  public boolean matchesJSONObject(@NotNull final JSONObject o)
   {
     final List<JSONValue> candidates = getValues(o, field);
     if (candidates.isEmpty())
@@ -496,6 +506,7 @@ public final class ContainsFieldJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public JSONObject toJSONObject()
   {
     final LinkedHashMap<String,JSONValue> fields =
@@ -546,8 +557,9 @@ public final class ContainsFieldJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected ContainsFieldJSONObjectFilter decodeFilter(
-                                               final JSONObject filterObject)
+                 @NotNull final JSONObject filterObject)
             throws JSONException
   {
     final List<String> fieldPath =

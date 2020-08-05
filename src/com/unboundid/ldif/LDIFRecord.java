@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,6 +73,7 @@ public interface LDIFRecord
    *
    * @return  The string representation of the DN for this LDIF record.
    */
+  @NotNull()
   String getDN();
 
 
@@ -83,6 +85,7 @@ public interface LDIFRecord
    *
    * @throws  LDAPException  If a problem occurs while trying to parse the DN.
    */
+  @NotNull()
   DN getParsedDN()
      throws LDAPException;
 
@@ -95,6 +98,7 @@ public interface LDIFRecord
    *
    * @return  An LDIF representation of this LDIF record.
    */
+  @NotNull()
   String[] toLDIF();
 
 
@@ -109,6 +113,7 @@ public interface LDIFRecord
    *
    * @return  An LDIF representation of this LDIF record.
    */
+  @NotNull()
   String[] toLDIF(int wrapColumn);
 
 
@@ -121,7 +126,7 @@ public interface LDIFRecord
    * @param  buffer  The buffer to which to append the LDIF representation of
    *                 this LDIF record.
    */
-  void toLDIF(ByteStringBuffer buffer);
+  void toLDIF(@NotNull ByteStringBuffer buffer);
 
 
 
@@ -135,7 +140,7 @@ public interface LDIFRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  void toLDIF(ByteStringBuffer buffer, int wrapColumn);
+  void toLDIF(@NotNull ByteStringBuffer buffer, int wrapColumn);
 
 
 
@@ -145,6 +150,7 @@ public interface LDIFRecord
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
+  @NotNull()
   String toLDIFString();
 
 
@@ -159,6 +165,7 @@ public interface LDIFRecord
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
+  @NotNull()
   String toLDIFString(int wrapColumn);
 
 
@@ -171,7 +178,7 @@ public interface LDIFRecord
    * @param  buffer  The buffer to which to append the LDIF representation of
    *                 this LDIF record.
    */
-  void toLDIFString(StringBuilder buffer);
+  void toLDIFString(@NotNull StringBuilder buffer);
 
 
 
@@ -185,7 +192,7 @@ public interface LDIFRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  void toLDIFString(StringBuilder buffer, int wrapColumn);
+  void toLDIFString(@NotNull StringBuilder buffer, int wrapColumn);
 
 
 
@@ -197,6 +204,7 @@ public interface LDIFRecord
    * @return  A string representation of this LDIF record.
    */
   @Override()
+  @NotNull()
   String toString();
 
 
@@ -209,5 +217,5 @@ public interface LDIFRecord
    * @param  buffer  The buffer to which the string representation of this LDIF
    *                 record should be appended.
    */
-  void toString(StringBuilder buffer);
+  void toString(@NotNull StringBuilder buffer);
 }

@@ -41,6 +41,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -62,7 +64,7 @@ public final class IntegerMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final IntegerMatchingRule INSTANCE =
+  @NotNull private static final IntegerMatchingRule INSTANCE =
        new IntegerMatchingRule();
 
 
@@ -70,7 +72,7 @@ public final class IntegerMatchingRule
   /**
    * The name for the integerMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "integerMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME = "integerMatch";
 
 
 
@@ -78,7 +80,7 @@ public final class IntegerMatchingRule
    * The name for the integerMatch equality matching rule, formatted in all
    * lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -86,14 +88,15 @@ public final class IntegerMatchingRule
   /**
    * The OID for the integerMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.14";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.14";
 
 
 
   /**
    * The name for the integerOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_NAME = "integerOrderingMatch";
+  @NotNull public static final String ORDERING_RULE_NAME =
+       "integerOrderingMatch";
 
 
 
@@ -101,7 +104,7 @@ public final class IntegerMatchingRule
    * The name for the integerOrderingMatch ordering matching rule, formatted
    * in all lowercase characters.
    */
-  static final String LOWER_ORDERING_RULE_NAME =
+  @NotNull static final String LOWER_ORDERING_RULE_NAME =
        StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
@@ -109,7 +112,7 @@ public final class IntegerMatchingRule
   /**
    * The OID for the integerOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_OID = "2.5.13.15";
+  @NotNull public static final String ORDERING_RULE_OID = "2.5.13.15";
 
 
 
@@ -135,6 +138,7 @@ public final class IntegerMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static IntegerMatchingRule getInstance()
   {
     return INSTANCE;
@@ -146,6 +150,7 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -157,6 +162,7 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -168,6 +174,7 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleName()
   {
     return ORDERING_RULE_NAME;
@@ -179,6 +186,7 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleOID()
   {
     return ORDERING_RULE_OID;
@@ -190,6 +198,7 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getSubstringMatchingRuleName()
   {
     return null;
@@ -201,6 +210,7 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getSubstringMatchingRuleOID()
   {
     return null;
@@ -212,8 +222,8 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     return normalize(value1).equals(normalize(value2));
@@ -225,8 +235,8 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
-                                 final ASN1OctetString[] attributeValues)
+  public boolean matchesAnyValue(@NotNull final ASN1OctetString assertionValue,
+                      @NotNull final ASN1OctetString[] attributeValues)
          throws LDAPException
   {
     if ((assertionValue == null) || (attributeValues == null) ||
@@ -262,10 +272,10 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesSubstring(final ASN1OctetString value,
-                                  final ASN1OctetString subInitial,
-                                  final ASN1OctetString[] subAny,
-                                  final ASN1OctetString subFinal)
+  public boolean matchesSubstring(@NotNull final ASN1OctetString value,
+                                  @Nullable final ASN1OctetString subInitial,
+                                  @Nullable final ASN1OctetString[] subAny,
+                                  @Nullable final ASN1OctetString subFinal)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
@@ -278,8 +288,8 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public int compareValues(final ASN1OctetString value1,
-                           final ASN1OctetString value2)
+  public int compareValues(@NotNull final ASN1OctetString value1,
+                           @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     final byte[] norm1Bytes = normalize(value1).getValue();
@@ -359,7 +369,8 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
          throws LDAPException
   {
     // It is likely that the provided value is already acceptable, so we should
@@ -484,8 +495,10 @@ public final class IntegerMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,

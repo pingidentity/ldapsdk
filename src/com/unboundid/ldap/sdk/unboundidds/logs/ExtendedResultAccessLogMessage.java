@@ -44,6 +44,8 @@ import java.util.StringTokenizer;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,66 +81,66 @@ public final class ExtendedResultAccessLogMessage
 
   // Indicates whether the any uncached data was accessed in the course of
   // processing this operation.
-  private final Boolean uncachedDataAccessed;
+  @Nullable private final Boolean uncachedDataAccessed;
 
   // The processing time for the operation.
-  private final Double processingTime;
+  @Nullable private final Double processingTime;
 
   // The queue time for the operation.
-  private final Double queueTime;
+  @Nullable private final Double queueTime;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
-  private final List<String> missingPrivileges;
+  @NotNull private final List<String> missingPrivileges;
 
   // The list of privileges used during the course of processing the operation
   // before an alternate authorization identity was assigned.
-  private final List<String> preAuthZUsedPrivileges;
+  @NotNull private final List<String> preAuthZUsedPrivileges;
 
   // The list of referral URLs for the operation.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // The list of servers accessed while processing the operation.
-  private final List<String> serversAccessed;
+  @NotNull private final List<String> serversAccessed;
 
   // The list of privileges used during the course of processing the operation.
-  private final List<String> usedPrivileges;
+  @NotNull private final List<String> usedPrivileges;
 
   // The number of intermediate response messages returned to the client.
-  private final Long intermediateResponsesReturned;
+  @Nullable private final Long intermediateResponsesReturned;
 
   // The result code for the operation.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // Additional information about the operation result.
-  private final String additionalInformation;
+  @Nullable private final String additionalInformation;
 
   // The name of the client connection policy selected for the client.
-  private final String clientConnectionPolicy;
+  @Nullable private final String clientConnectionPolicy;
 
   // The diagnostic message for the operation.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The intermediate client result for the operation.
-  private final String intermediateClientResult;
+  @Nullable private final String intermediateClientResult;
 
   // The matched DN for the operation.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
   // The OID of the extended response.
-  private final String responseOID;
+  @Nullable private final String responseOID;
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
 
 
@@ -152,7 +154,7 @@ public final class ExtendedResultAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ExtendedResultAccessLogMessage(final String s)
+  public ExtendedResultAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -167,7 +169,7 @@ public final class ExtendedResultAccessLogMessage
    * @param  m  The log message to be parsed as an extended result access log
    *            message.
    */
-  public ExtendedResultAccessLogMessage(final LogMessage m)
+  public ExtendedResultAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -320,6 +322,7 @@ public final class ExtendedResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -334,6 +337,7 @@ public final class ExtendedResultAccessLogMessage
    *          not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -350,6 +354,7 @@ public final class ExtendedResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public String getAdditionalInformation()
   {
     return additionalInformation;
@@ -364,6 +369,7 @@ public final class ExtendedResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -378,6 +384,7 @@ public final class ExtendedResultAccessLogMessage
    *          it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -396,6 +403,7 @@ public final class ExtendedResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getServersAccessed()
   {
     return serversAccessed;
@@ -413,6 +421,7 @@ public final class ExtendedResultAccessLogMessage
    *          it is not included in the log message (and the server likely did
    *          not access uncached data).
    */
+  @Nullable()
   public Boolean getUncachedDataAccessed()
   {
     return uncachedDataAccessed;
@@ -429,6 +438,7 @@ public final class ExtendedResultAccessLogMessage
    *          if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public Long getIntermediateResponsesReturned()
   {
     return intermediateResponsesReturned;
@@ -445,6 +455,7 @@ public final class ExtendedResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public Double getProcessingTimeMillis()
   {
     return processingTime;
@@ -461,6 +472,7 @@ public final class ExtendedResultAccessLogMessage
    *          the log message.
    */
   @Override()
+  @Nullable()
   public Double getQueueTimeMillis()
   {
     return queueTime;
@@ -475,6 +487,7 @@ public final class ExtendedResultAccessLogMessage
    *          an empty list if it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -490,6 +503,7 @@ public final class ExtendedResultAccessLogMessage
    *          or {@code null} if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getIntermediateClientResult()
   {
     return intermediateClientResult;
@@ -503,6 +517,7 @@ public final class ExtendedResultAccessLogMessage
    * @return  The OID for the extended response, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public String getResponseOID()
   {
     return responseOID;
@@ -518,6 +533,7 @@ public final class ExtendedResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -533,6 +549,7 @@ public final class ExtendedResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -546,6 +563,7 @@ public final class ExtendedResultAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -561,6 +579,7 @@ public final class ExtendedResultAccessLogMessage
    *          client connection, or {@code null} if it is not included in the
    *          log message.
    */
+  @Nullable()
   public String getClientConnectionPolicy()
   {
     return clientConnectionPolicy;
@@ -576,6 +595,7 @@ public final class ExtendedResultAccessLogMessage
    *          the operation, or an empty list if no privileges were used or this
    *          is not included in the log message.
    */
+  @NotNull()
   public List<String> getUsedPrivileges()
   {
     return usedPrivileges;
@@ -592,6 +612,7 @@ public final class ExtendedResultAccessLogMessage
    *          assigned, or an empty list if no privileges were used or this is
    *          not included in the log message.
    */
+  @NotNull()
   public List<String> getPreAuthorizationUsedPrivileges()
   {
     return preAuthZUsedPrivileges;
@@ -608,6 +629,7 @@ public final class ExtendedResultAccessLogMessage
    *          an empty list if there were no missing privileges or this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
@@ -619,6 +641,7 @@ public final class ExtendedResultAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.RESULT;

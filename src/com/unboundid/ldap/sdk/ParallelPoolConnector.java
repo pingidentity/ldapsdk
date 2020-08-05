@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 
 
 
@@ -66,11 +67,11 @@ final class ParallelPoolConnector
   private final int numThreads;
 
   // The connection pool with which the connections will be associated.
-  private final LDAPConnectionPool pool;
+  @NotNull private final LDAPConnectionPool pool;
 
   // The list that will hold the connections that are established.  It must be
   // threadsafe.
-  private final List<LDAPConnection> connList;
+  @NotNull private final List<LDAPConnection> connList;
 
 
 
@@ -94,8 +95,8 @@ final class ParallelPoolConnector
    *                                but may have fewer than the initial number
    *                                of connections (or possibly no connections).
    */
-  ParallelPoolConnector(final LDAPConnectionPool pool,
-                        final List<LDAPConnection> connList,
+  ParallelPoolConnector(@NotNull final LDAPConnectionPool pool,
+                        @NotNull final List<LDAPConnection> connList,
                         final int numConnections,
                         final int numThreads,
                         final boolean throwOnConnectFailure)

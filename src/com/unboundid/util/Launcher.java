@@ -131,7 +131,7 @@ public final class Launcher
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     main(System.out, System.err, args);
   }
@@ -152,9 +152,9 @@ public final class Launcher
    *
    * @return  A result code with information about the status of processing.
    */
-  public static ResultCode main(final OutputStream outStream,
-                                final OutputStream errStream,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream,
+                                @Nullable final String... args)
   {
 
 

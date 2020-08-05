@@ -119,6 +119,8 @@ import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.SubtreeDeleter;
@@ -171,73 +173,75 @@ public final class LDAPDelete
 
 
   // The set of arguments supported by this program.
-  private ArgumentParser parser = null;
-  private BooleanArgument authorizationIdentity = null;
-  private BooleanArgument clientSideSubtreeDelete = null;
-  private BooleanArgument continueOnError = null;
-  private BooleanArgument dryRun = null;
-  private BooleanArgument followReferrals = null;
-  private BooleanArgument getBackendSetID = null;
-  private BooleanArgument getServerID = null;
-  private BooleanArgument getUserResourceLimits = null;
-  private BooleanArgument hardDelete = null;
-  private BooleanArgument manageDsaIT = null;
-  private BooleanArgument noOperation = null;
-  private BooleanArgument replicationRepair = null;
-  private BooleanArgument retryFailedOperations = null;
-  private BooleanArgument softDelete = null;
-  private BooleanArgument serverSideSubtreeDelete = null;
-  private BooleanArgument suppressReferentialIntegrityUpdates = null;
-  private BooleanArgument useAdministrativeSession = null;
-  private BooleanArgument useAssuredReplication = null;
-  private BooleanArgument verbose = null;
-  private ControlArgument bindControl = null;
-  private ControlArgument deleteControl = null;
-  private DNArgument entryDN = null;
-  private DNArgument proxyV1As = null;
-  private DNArgument searchBaseDN = null;
-  private DurationArgument assuredReplicationTimeout = null;
-  private FileArgument dnFile = null;
-  private FileArgument encryptionPassphraseFile = null;
-  private FileArgument deleteEntriesMatchingFiltersFromFile = null;
-  private FileArgument rejectFile = null;
-  private FilterArgument assertionFilter = null;
-  private FilterArgument deleteEntriesMatchingFilter = null;
-  private IntegerArgument ratePerSecond = null;
-  private IntegerArgument searchPageSize = null;
-  private StringArgument assuredReplicationLocalLevel = null;
-  private StringArgument assuredReplicationRemoteLevel = null;
-  private StringArgument characterSet = null;
-  private StringArgument getAuthorizationEntryAttribute = null;
-  private StringArgument operationPurpose = null;
-  private StringArgument preReadAttribute = null;
-  private StringArgument proxyAs = null;
-  private StringArgument routeToBackendSet = null;
-  private StringArgument routeToServer = null;
+  @Nullable private ArgumentParser parser = null;
+  @Nullable private BooleanArgument authorizationIdentity = null;
+  @Nullable private BooleanArgument clientSideSubtreeDelete = null;
+  @Nullable private BooleanArgument continueOnError = null;
+  @Nullable private BooleanArgument dryRun = null;
+  @Nullable private BooleanArgument followReferrals = null;
+  @Nullable private BooleanArgument getBackendSetID = null;
+  @Nullable private BooleanArgument getServerID = null;
+  @Nullable private BooleanArgument getUserResourceLimits = null;
+  @Nullable private BooleanArgument hardDelete = null;
+  @Nullable private BooleanArgument manageDsaIT = null;
+  @Nullable private BooleanArgument noOperation = null;
+  @Nullable private BooleanArgument replicationRepair = null;
+  @Nullable private BooleanArgument retryFailedOperations = null;
+  @Nullable private BooleanArgument softDelete = null;
+  @Nullable private BooleanArgument serverSideSubtreeDelete = null;
+  @Nullable private BooleanArgument suppressReferentialIntegrityUpdates = null;
+  @Nullable private BooleanArgument useAdministrativeSession = null;
+  @Nullable private BooleanArgument useAssuredReplication = null;
+  @Nullable private BooleanArgument verbose = null;
+  @Nullable private ControlArgument bindControl = null;
+  @Nullable private ControlArgument deleteControl = null;
+  @Nullable private DNArgument entryDN = null;
+  @Nullable private DNArgument proxyV1As = null;
+  @Nullable private DNArgument searchBaseDN = null;
+  @Nullable private DurationArgument assuredReplicationTimeout = null;
+  @Nullable private FileArgument dnFile = null;
+  @Nullable private FileArgument encryptionPassphraseFile = null;
+  @Nullable private FileArgument deleteEntriesMatchingFiltersFromFile = null;
+  @Nullable private FileArgument rejectFile = null;
+  @Nullable private FilterArgument assertionFilter = null;
+  @Nullable private FilterArgument deleteEntriesMatchingFilter = null;
+  @Nullable private IntegerArgument ratePerSecond = null;
+  @Nullable private IntegerArgument searchPageSize = null;
+  @Nullable private StringArgument assuredReplicationLocalLevel = null;
+  @Nullable private StringArgument assuredReplicationRemoteLevel = null;
+  @Nullable private StringArgument characterSet = null;
+  @Nullable private StringArgument getAuthorizationEntryAttribute = null;
+  @Nullable private StringArgument operationPurpose = null;
+  @Nullable private StringArgument preReadAttribute = null;
+  @Nullable private StringArgument proxyAs = null;
+  @Nullable private StringArgument routeToBackendSet = null;
+  @Nullable private StringArgument routeToServer = null;
 
   // A reference to the reject writer that has been written, if it has been
   // created.
-  private final AtomicReference<LDIFWriter> rejectWriter =
+  @NotNull private final AtomicReference<LDIFWriter> rejectWriter =
        new AtomicReference<>();
 
   // The fixed-rate barrier (if any) used to enforce a rate limit on delete
   // operations.
-  private volatile FixedRateBarrier deleteRateLimiter = null;
+  @Nullable private volatile FixedRateBarrier deleteRateLimiter = null;
 
   // The input stream from to use for standard input.
-  private final InputStream in;
+  @NotNull private final InputStream in;
 
   // The connection pool to use to communicate with the directory server.
-  private volatile LDAPConnectionPool connectionPool = null;
+  @Nullable private volatile LDAPConnectionPool connectionPool = null;
 
   // Controls to include in requests.
-  private volatile List<Control> deleteControls = Collections.emptyList();
-  private volatile List<Control> searchControls = Collections.emptyList();
-  private final List<RouteToBackendSetRequestControl>
+  @NotNull private volatile List<Control> deleteControls =
+       Collections.emptyList();
+  @NotNull private volatile List<Control> searchControls =
+       Collections.emptyList();
+  @NotNull private final List<RouteToBackendSetRequestControl>
        routeToBackendSetRequestControls = new ArrayList<>(10);
 
   // The subtree deleter to use to process client-side subtree deletes.
-  private volatile SubtreeDeleter subtreeDeleter = null;
+  @Nullable private volatile SubtreeDeleter subtreeDeleter = null;
 
 
 
@@ -247,7 +251,7 @@ public final class LDAPDelete
    *
    * @param  args  The command-line arguments to provide to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.in, System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -272,8 +276,10 @@ public final class LDAPDelete
    * @return  The result code obtained when running the tool.  Any result code
    *          other than {@link ResultCode#SUCCESS} indicates an error.
    */
-  public static ResultCode main(final InputStream in, final OutputStream out,
-                                final OutputStream err, final String... args)
+  public static ResultCode main(@Nullable final InputStream in,
+                                @Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDAPDelete ldapDelete = new LDAPDelete(in, out, err);
     return ldapDelete.runTool(args);
@@ -290,7 +296,8 @@ public final class LDAPDelete
    * @param  err  The output stream to use for standard error.  If this is
    *              {@code null}, then standard error will be suppressed.
    */
-  public LDAPDelete(final OutputStream out, final OutputStream err)
+  public LDAPDelete(@Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     this(null, out, err);
   }
@@ -307,8 +314,9 @@ public final class LDAPDelete
    * @param  err  The output stream to use for standard error.  If this is
    *              {@code null}, then standard error will be suppressed.
    */
-  public LDAPDelete(final InputStream in, final OutputStream out,
-                    final OutputStream err)
+  public LDAPDelete(@Nullable final InputStream in,
+                    @Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -328,6 +336,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldapdelete";
@@ -339,6 +348,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_LDAPDELETE_TOOL_DESCRIPTION.get();
@@ -350,6 +360,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -383,6 +394,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return INFO_LDAPDELETE_TRAILING_ARGS_PLACEHOLDER.get();
@@ -482,7 +494,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -1154,6 +1166,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Control> getBindControls()
   {
     final ArrayList<Control> bindControls = new ArrayList<>(10);
@@ -1205,6 +1218,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -1223,6 +1237,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Get the controls that should be included in search and delete requests.
@@ -1403,7 +1418,7 @@ public final class LDAPDelete
    *                     not be {@code null}, but may be unset.
    */
   private void deleteFromEntryDNArgument(
-                    final AtomicReference<ResultCode> returnCode)
+                    @NotNull final AtomicReference<ResultCode> returnCode)
   {
     for (final DN dn : entryDN.getValues())
     {
@@ -1434,9 +1449,10 @@ public final class LDAPDelete
    *                               user should be interactively prompted for the
    *                               passphrase if a file happens to be encrypted.
    */
-  private void deleteFromDNFile(final AtomicReference<ResultCode> returnCode,
-                                final Charset charset,
-                                final char[] encryptionPassphrase)
+  private void deleteFromDNFile(
+                    @NotNull final AtomicReference<ResultCode> returnCode,
+                    @NotNull final Charset charset,
+                    @Nullable final char[] encryptionPassphrase)
   {
     final List<char[]> potentialPassphrases =
          new ArrayList<>(dnFile.getValues().size());
@@ -1506,9 +1522,10 @@ public final class LDAPDelete
    *                                    data read from the input stream.
    */
   private boolean deleteDNsFromInputStream(
-                       final AtomicReference<ResultCode> returnCode,
-                       final InputStream inputStream, final Charset charset,
-                       final List<char[]> potentialPassphrases)
+                       @NotNull final AtomicReference<ResultCode> returnCode,
+                       @NotNull final InputStream inputStream,
+                       @NotNull final Charset charset,
+                       @NotNull final List<char[]> potentialPassphrases)
           throws IOException, GeneralSecurityException
   {
     boolean successful = true;
@@ -1571,8 +1588,8 @@ public final class LDAPDelete
    *          target entry.
    */
   private boolean deleteDNFromInputStream(
-                       final AtomicReference<ResultCode> returnCode,
-                       final String rawString)
+                       @NotNull final AtomicReference<ResultCode> returnCode,
+                       @NotNull final String rawString)
   {
     final String lowerString = StaticUtils.toLowerCase(rawString);
     if (lowerString.startsWith("dn::"))
@@ -1646,9 +1663,11 @@ public final class LDAPDelete
    *                                    attempting to interact with encrypted
    *                                    data read from the input stream.
    */
-  private BufferedReader getBufferedReader(final InputStream inputStream,
-                              final Charset charset,
-                              final List<char[]> potentialPassphrases)
+  @NotNull()
+  private BufferedReader getBufferedReader(
+               @NotNull final InputStream inputStream,
+               @NotNull final Charset charset,
+               @NotNull final List<char[]> potentialPassphrases)
           throws IOException, GeneralSecurityException
   {
     // Check to see if the input stream is encrypted.  If so, then get access to
@@ -1703,7 +1722,8 @@ public final class LDAPDelete
    *                     from the first failure that is encountered.  It must
    *                     not be {@code null}, but may be unset.
    */
-  private void deleteFromFilters(final AtomicReference<ResultCode> returnCode)
+  private void deleteFromFilters(
+                    @NotNull final AtomicReference<ResultCode> returnCode)
   {
     for (final Filter f : deleteEntriesMatchingFilter.getValues())
     {
@@ -1735,8 +1755,9 @@ public final class LDAPDelete
    *                               passphrase if a file happens to be encrypted.
    */
   private void deleteFromFilterFile(
-                    final AtomicReference<ResultCode> returnCode,
-                    final Charset charset, final char[] encryptionPassphrase)
+                    @NotNull final AtomicReference<ResultCode> returnCode,
+                    @NotNull final Charset charset,
+                    @Nullable final char[] encryptionPassphrase)
   {
     final List<char[]> potentialPassphrases =
          new ArrayList<>(dnFile.getValues().size());
@@ -1806,8 +1827,8 @@ public final class LDAPDelete
    * @return  {@code true} if the search and all deletes were processed
    *          successfully, or {@code false} if any problems were encountered.
    */
-  private boolean searchAndDelete(final String filterString,
-                                  final AtomicReference<ResultCode> returnCode)
+  private boolean searchAndDelete(@NotNull final String filterString,
+                       @NotNull final AtomicReference<ResultCode> returnCode)
   {
     boolean successful = true;
     final AtomicLong entriesDeleted = new AtomicLong(0L);
@@ -1844,7 +1865,7 @@ public final class LDAPDelete
    * @param  baseDN          The base DN for the search request.  It must not
    *                         be {@code null}.
    * @param  filterString    The string representation of the filter ot use for
-   *                         the search request.  It must not be {@code nulL}.
+   *                         the search request.  It must not be {@code null}.
    * @param  returnCode      A reference that should be updated with the result
    *                         code from the first failure that is encountered.
    *                         It must not be {@code null}, but may be unset.
@@ -1857,10 +1878,10 @@ public final class LDAPDelete
    *          {@code false} if an error occurred while attempting to process a
    *          search or delete operation.
    */
-  private boolean doPagedSearchAndDelete(final String baseDN,
-                       final String filterString,
-                       final AtomicReference<ResultCode> returnCode,
-                       final AtomicLong entriesDeleted)
+  private boolean doPagedSearchAndDelete(@NotNull final String baseDN,
+                       @NotNull final String filterString,
+                       @NotNull final AtomicReference<ResultCode> returnCode,
+                       @NotNull final AtomicLong entriesDeleted)
   {
     ASN1OctetString cookie = null;
     final TreeSet<DN> matchingEntryDNs = new TreeSet<>();
@@ -1950,7 +1971,7 @@ public final class LDAPDelete
    * @param  baseDN          The base DN for the search request.  It must not
    *                         be {@code null}.
    * @param  filterString    The string representation of the filter ot use for
-   *                         the search request.  It must not be {@code nulL}.
+   *                         the search request.  It must not be {@code null}.
    * @param  returnCode      A reference that should be updated with the result
    *                         code from the first failure that is encountered.
    *                         It must not be {@code null}, but may be unset.
@@ -1963,10 +1984,10 @@ public final class LDAPDelete
    *          {@code false} if an error occurred while attempting to process a
    *          search or delete operation.
    */
-  private boolean doNonPagedSearchAndDelete(final String baseDN,
-                       final String filterString,
-                       final AtomicReference<ResultCode> returnCode,
-                       final AtomicLong entriesDeleted)
+  private boolean doNonPagedSearchAndDelete(@NotNull final String baseDN,
+                       @NotNull final String filterString,
+                       @NotNull final AtomicReference<ResultCode> returnCode,
+                       @NotNull final AtomicLong entriesDeleted)
   {
     final TreeSet<DN> matchingEntryDNs = new TreeSet<>();
     final LDAPDeleteSearchListener searchListener =
@@ -2033,7 +2054,7 @@ public final class LDAPDelete
    *                     not be {@code null}, but may be unset.
    */
   private void deleteFromTrailingArguments(
-                    final AtomicReference<ResultCode> returnCode)
+                    @NotNull final AtomicReference<ResultCode> returnCode)
   {
     for (final String dn : parser.getTrailingArguments())
     {
@@ -2064,8 +2085,9 @@ public final class LDAPDelete
    *                               encrypted.
    */
   private void deleteFromStandardInput(
-                    final AtomicReference<ResultCode> returnCode,
-                    final Charset charset, final char[] encryptionPassphrase)
+                    @NotNull final AtomicReference<ResultCode> returnCode,
+                    @NotNull final Charset charset,
+                    @Nullable final char[] encryptionPassphrase)
   {
     final List<char[]> potentialPassphrases = new ArrayList<>(1);
     if (encryptionPassphrase != null)
@@ -2104,8 +2126,8 @@ public final class LDAPDelete
    * @return  {@code true} if the entry was successfully deleted, or
    *          {@code false} if not.
    */
-  private boolean deleteEntry(final String dn,
-                              final AtomicReference<ResultCode> returnCode)
+  private boolean deleteEntry(@NotNull final String dn,
+               @NotNull final AtomicReference<ResultCode> returnCode)
   {
     // Display a message indicating that we're going to delete the entry.
     if (subtreeDeleter == null)
@@ -2296,8 +2318,8 @@ public final class LDAPDelete
    * @param  deleteRequest  The delete request that failed.
    * @param  deleteResult   The result for the failed delete.
    */
-  private void writeToRejects(final DeleteRequest deleteRequest,
-                              final LDAPResult deleteResult)
+  private void writeToRejects(@NotNull final DeleteRequest deleteRequest,
+                              @NotNull final LDAPResult deleteResult)
   {
     if (! rejectFile.isPresent())
     {
@@ -2349,6 +2371,7 @@ public final class LDAPDelete
    *
    * @return  The set of controls that should be included in delete requests.
    */
+  @NotNull()
   private List<Control> getDeleteControls()
   {
     final List<Control> controlList = new ArrayList<>(10);
@@ -2512,6 +2535,7 @@ public final class LDAPDelete
    *
    * @return  The set of controls that should be included in delete requests.
    */
+  @NotNull()
   private List<Control> getSearchControls()
   {
     final List<Control> controlList = new ArrayList<>(10);
@@ -2558,8 +2582,9 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
-  public void handleUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void handleUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     final ArrayList<String> lines = new ArrayList<>(10);
     ResultUtils.formatUnsolicitedNotification(lines, notification, true, 0,
@@ -2579,7 +2604,7 @@ public final class LDAPDelete
    *
    * @param  message  The message to be written.
    */
-  void commentToOut(final String message)
+  void commentToOut(@NotNull final String message)
   {
     for (final String line : StaticUtils.wrapLine(message, WRAP_COLUMN - 2))
     {
@@ -2595,7 +2620,7 @@ public final class LDAPDelete
    *
    * @param  message  The message to be written.
    */
-  void commentToErr(final String message)
+  void commentToErr(@NotNull final String message)
   {
     for (final String line : StaticUtils.wrapLine(message, WRAP_COLUMN - 2))
     {
@@ -2609,6 +2634,7 @@ public final class LDAPDelete
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

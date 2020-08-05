@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -129,7 +131,8 @@ public enum ErrorLogSeverity
    * @return  The requested error log severity, or {@code null} if no such
    *          severity is defined.
    */
-  public static ErrorLogSeverity forName(final String name)
+  @Nullable()
+  public static ErrorLogSeverity forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

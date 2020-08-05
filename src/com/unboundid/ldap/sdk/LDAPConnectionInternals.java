@@ -56,6 +56,8 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
@@ -72,27 +74,28 @@ final class LDAPConnectionInternals
   /**
    * A count of the number of active connections.
    */
-  private static final AtomicLong ACTIVE_CONNECTION_COUNT = new AtomicLong(0L);
+  @NotNull private static final AtomicLong ACTIVE_CONNECTION_COUNT =
+       new AtomicLong(0L);
 
 
 
   /**
    * A set of thread-local ASN.1 buffers used to prepare messages to be written.
    */
-  private static final AtomicReference<ThreadLocal<ASN1Buffer>> ASN1_BUFFERS =
-       new AtomicReference<>(new ThreadLocal<ASN1Buffer>());
+  @NotNull private static final AtomicReference<ThreadLocal<ASN1Buffer>>
+       ASN1_BUFFERS = new AtomicReference<>(new ThreadLocal<ASN1Buffer>());
 
 
 
   // The counter that will be used to obtain the next message ID to use when
   // sending requests to the server.
-  private final AtomicInteger nextMessageID;
+  @NotNull private final AtomicInteger nextMessageID;
 
   // Indicates whether to operate in synchronous mode.
   private final boolean synchronousMode;
 
   // The inet address to which the connection is established.
-  private final InetAddress inetAddress;
+  @NotNull private final InetAddress inetAddress;
 
   // The port of the server to which the connection is established.
   private final int port;
@@ -101,26 +104,26 @@ final class LDAPConnectionInternals
   private final long connectTime;
 
   // The LDAP connection with which this connection internals is associated.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // The LDAP connection reader with which this connection internals is
   // associated.
-  private final LDAPConnectionReader connectionReader;
+  @Nullable private final LDAPConnectionReader connectionReader;
 
   // The output stream used to send requests to the server.
-  private volatile OutputStream outputStream;
+  @Nullable private volatile OutputStream outputStream;
 
   // The SASL client used to provide communication security via QoP.
-  private volatile SaslClient saslClient;
+  @Nullable private volatile SaslClient saslClient;
 
   // The socket used to communicate with the directory server.
-  private volatile Socket socket;
+  @Nullable private volatile Socket socket;
 
   // The address of the server to which the connection is established.
-  private final String host;
+  @NotNull private final String host;
 
   // The write timeout handler for this connection.
-  private final WriteTimeoutHandler writeTimeoutHandler;
+  @NotNull private final WriteTimeoutHandler writeTimeoutHandler;
 
 
 
@@ -147,11 +150,12 @@ final class LDAPConnectionInternals
    * @throws  IOException  If a problem occurs while establishing the
    *                       connection.
    */
-  LDAPConnectionInternals(final LDAPConnection connection,
-                          final LDAPConnectionOptions options,
-                          final SocketFactory socketFactory, final String host,
-                          final InetAddress inetAddress, final int port,
-                          final int timeout)
+  LDAPConnectionInternals(@NotNull final LDAPConnection connection,
+                          @NotNull final LDAPConnectionOptions options,
+                          @NotNull final SocketFactory socketFactory,
+                          @NotNull final String host,
+                          @NotNull final InetAddress inetAddress,
+                          final int port, final int timeout)
        throws IOException
 
   {
@@ -279,6 +283,7 @@ final class LDAPConnectionInternals
    * @return  The LDAP connection with which this connection internals object is
    *          associated.
    */
+  @NotNull()
   LDAPConnection getConnection()
   {
     return connection;
@@ -294,6 +299,7 @@ final class LDAPConnectionInternals
    *          or {@code null} if the connection is operating in synchronous mode
    *          and is not using a connection reader.
    */
+  @Nullable()
   LDAPConnectionReader getConnectionReader()
   {
     return connectionReader;
@@ -306,6 +312,7 @@ final class LDAPConnectionInternals
    *
    * @return  The inet address to which this connection is established.
    */
+  @NotNull()
   InetAddress getInetAddress()
   {
     return inetAddress;
@@ -319,6 +326,7 @@ final class LDAPConnectionInternals
    *
    * @return  The address of the server to which this connection is established.
    */
+  @NotNull()
   String getHost()
   {
     return host;
@@ -343,6 +351,7 @@ final class LDAPConnectionInternals
    *
    * @return  The socket used to communicate with the directory server.
    */
+  @Nullable()
   Socket getSocket()
   {
     return socket;
@@ -357,7 +366,7 @@ final class LDAPConnectionInternals
    *
    * @param  socket  The socket used to communicate with the directory server.
    */
-  void setSocket(final Socket socket)
+  void setSocket(@NotNull final Socket socket)
   {
     this.socket = socket;
   }
@@ -369,6 +378,7 @@ final class LDAPConnectionInternals
    *
    * @return  The output stream used to send requests to the server.
    */
+  @Nullable()
   OutputStream getOutputStream()
   {
     return outputStream;
@@ -415,7 +425,7 @@ final class LDAPConnectionInternals
    * @throws  LDAPException  If a problem occurs while converting this
    *                         connection to use TLS.
    */
-  void convertToTLS(final SSLSocketFactory sslSocketFactory)
+  void convertToTLS(@NotNull final SSLSocketFactory sslSocketFactory)
        throws LDAPException
   {
     outputStream = connectionReader.doStartTLS(sslSocketFactory);
@@ -433,7 +443,7 @@ final class LDAPConnectionInternals
    * @throws  LDAPException  If a problem occurs while attempting to convert the
    *                         connection to use SASL QoP.
    */
-  void applySASLQoP(final SaslClient saslClient)
+  void applySASLQoP(@NotNull final SaslClient saslClient)
        throws LDAPException
   {
     this.saslClient = saslClient;
@@ -485,7 +495,7 @@ final class LDAPConnectionInternals
    *                         with the provided message ID.
    */
   void registerResponseAcceptor(final int messageID,
-                                final ResponseAcceptor responseAcceptor)
+            @NotNull final ResponseAcceptor responseAcceptor)
        throws LDAPException
   {
     if (! isConnected())
@@ -538,8 +548,8 @@ final class LDAPConnectionInternals
    *
    * @throws  LDAPException  If a problem occurs while sending the message.
    */
-  void sendMessage(final LDAPMessage message, final long sendTimeoutMillis,
-                   final boolean allowRetry)
+  void sendMessage(@NotNull final LDAPMessage message,
+                   final long sendTimeoutMillis, final boolean allowRetry)
        throws LDAPException
   {
     if (! isConnected())
@@ -835,6 +845,7 @@ final class LDAPConnectionInternals
    * @return  A string representation of this connection internals object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -850,7 +861,7 @@ final class LDAPConnectionInternals
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPConnectionInternals(host='");
     buffer.append(host);

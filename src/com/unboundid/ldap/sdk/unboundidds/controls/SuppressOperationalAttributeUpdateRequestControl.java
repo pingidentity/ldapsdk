@@ -54,6 +54,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -101,7 +102,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.27) for the suppress operational attribute
    * update request control.
    */
-  public static final  String SUPPRESS_OP_ATTR_UPDATE_REQUEST_OID =
+  @NotNull public static final String SUPPRESS_OP_ATTR_UPDATE_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.27";
 
 
@@ -120,7 +121,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
 
 
   // The set of suppress types to include in the control.
-  private final Set<SuppressType> suppressTypes;
+  @NotNull private final Set<SuppressType> suppressTypes;
 
 
 
@@ -132,7 +133,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    *                        It must not be {@code null} or empty.
    */
   public SuppressOperationalAttributeUpdateRequestControl(
-              final SuppressType... suppressTypes)
+              @NotNull final SuppressType... suppressTypes)
   {
     this(false, suppressTypes);
   }
@@ -147,7 +148,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    *                        It must not be {@code null} or empty.
    */
   public SuppressOperationalAttributeUpdateRequestControl(
-              final Collection<SuppressType> suppressTypes)
+              @NotNull final Collection<SuppressType> suppressTypes)
   {
     this(false, suppressTypes);
   }
@@ -164,7 +165,8 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    *                        It must not be {@code null} or empty.
    */
   public SuppressOperationalAttributeUpdateRequestControl(
-              final boolean isCritical, final SuppressType... suppressTypes)
+              final boolean isCritical,
+              @NotNull final SuppressType... suppressTypes)
   {
     this(isCritical, Arrays.asList(suppressTypes));
   }
@@ -182,7 +184,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    */
   public SuppressOperationalAttributeUpdateRequestControl(
               final boolean isCritical,
-              final Collection<SuppressType> suppressTypes)
+              @NotNull final Collection<SuppressType> suppressTypes)
   {
     super(SUPPRESS_OP_ATTR_UPDATE_REQUEST_OID, isCritical,
          encodeValue(suppressTypes));
@@ -210,7 +212,8 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         decode the provided control.
    */
-  public SuppressOperationalAttributeUpdateRequestControl(final Control control)
+  public SuppressOperationalAttributeUpdateRequestControl(
+              @NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -274,8 +277,9 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                      final Collection<SuppressType> suppressTypes)
+                      @NotNull final Collection<SuppressType> suppressTypes)
   {
     final ArrayList<ASN1Element> suppressTypeElements =
          new ArrayList<>(suppressTypes.size());
@@ -296,6 +300,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    *
    * @return  The set of suppress types for this control.
    */
+  @NotNull()
   public Set<SuppressType> getSuppressTypes()
   {
     return suppressTypes;
@@ -307,6 +312,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SUPPRESS_OP_ATTR_UPDATE_REQUEST.get();
@@ -318,7 +324,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SuppressOperationalAttributeUpdateRequestControl(" +
          "isCritical=");

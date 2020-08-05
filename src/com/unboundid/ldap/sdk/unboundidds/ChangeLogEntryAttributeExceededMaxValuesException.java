@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,7 +75,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesException
 
   // The object providing information about the attribute that had more values
   // than could be included in a changelog entry.
-  private final ChangeLogEntryAttributeExceededMaxValuesCount attrInfo;
+  @NotNull private final ChangeLogEntryAttributeExceededMaxValuesCount attrInfo;
 
 
 
@@ -87,8 +88,8 @@ public final class ChangeLogEntryAttributeExceededMaxValuesException
    *                   entry before and/or after the change was processed.
    */
   public ChangeLogEntryAttributeExceededMaxValuesException(
-              final String message,
-              final ChangeLogEntryAttributeExceededMaxValuesCount attrInfo)
+       @NotNull final String message,
+       @NotNull final ChangeLogEntryAttributeExceededMaxValuesCount attrInfo)
   {
     super(message);
 
@@ -106,6 +107,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesException
    *          values than could be included in a changelog entry before and/or
    *          after the change was processed.
    */
+  @NotNull()
   public ChangeLogEntryAttributeExceededMaxValuesCount getAttributeInfo()
   {
     return attrInfo;

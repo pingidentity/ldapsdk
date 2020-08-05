@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -115,7 +117,7 @@ public final class GetAuthorizationEntryRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.6) for the get authorization entry request
    * control.
    */
-  public static final String GET_AUTHORIZATION_ENTRY_REQUEST_OID =
+  @NotNull public static final String GET_AUTHORIZATION_ENTRY_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.6";
 
 
@@ -155,7 +157,7 @@ public final class GetAuthorizationEntryRequestControl
   private final boolean includeAuthZEntry;
 
   // The list of attributes to include in entries that are returned.
-  private final List<String> attributes;
+  @NotNull private final List<String> attributes;
 
 
 
@@ -184,8 +186,8 @@ public final class GetAuthorizationEntryRequestControl
    *                            request all user attributes.
    */
   public GetAuthorizationEntryRequestControl(final boolean includeAuthNEntry,
-                                             final boolean includeAuthZEntry,
-                                             final String... attributes)
+              final boolean includeAuthZEntry,
+              @Nullable final String... attributes)
   {
     this(false, includeAuthNEntry, includeAuthZEntry,
          (attributes == null) ? null : Arrays.asList(attributes));
@@ -206,8 +208,8 @@ public final class GetAuthorizationEntryRequestControl
    *                            request all user attributes.
    */
   public GetAuthorizationEntryRequestControl(final boolean includeAuthNEntry,
-                                             final boolean includeAuthZEntry,
-                                             final List<String> attributes)
+              final boolean includeAuthZEntry,
+              @Nullable final List<String> attributes)
   {
     this(false, includeAuthNEntry, includeAuthZEntry, attributes);
   }
@@ -229,9 +231,9 @@ public final class GetAuthorizationEntryRequestControl
    *                            request all user attributes.
    */
   public GetAuthorizationEntryRequestControl(final boolean isCritical,
-                                             final boolean includeAuthNEntry,
-                                             final boolean includeAuthZEntry,
-                                             final String... attributes)
+              final boolean includeAuthNEntry,
+              final boolean includeAuthZEntry,
+              @Nullable final String... attributes)
   {
     this(isCritical, includeAuthNEntry, includeAuthZEntry,
          (attributes == null) ? null : Arrays.asList(attributes));
@@ -254,9 +256,9 @@ public final class GetAuthorizationEntryRequestControl
    *                            request all user attributes.
    */
   public GetAuthorizationEntryRequestControl(final boolean isCritical,
-                                             final boolean includeAuthNEntry,
-                                             final boolean includeAuthZEntry,
-                                             final List<String> attributes)
+              final boolean includeAuthNEntry,
+              final boolean includeAuthZEntry,
+              @Nullable final List<String> attributes)
   {
     super(GET_AUTHORIZATION_ENTRY_REQUEST_OID, isCritical,
           encodeValue(includeAuthNEntry, includeAuthZEntry, attributes));
@@ -287,7 +289,7 @@ public final class GetAuthorizationEntryRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a get
    *                         authorization entry request control.
    */
-  public GetAuthorizationEntryRequestControl(final Control control)
+  public GetAuthorizationEntryRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -368,9 +370,10 @@ public final class GetAuthorizationEntryRequestControl
    * @return  An ASN.1 octet string appropriately encoded for use as the control
    *          value, or {@code null} if no value is needed.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(final boolean includeAuthNEntry,
-                                             final boolean includeAuthZEntry,
-                                             final List<String> attributes)
+                      final boolean includeAuthZEntry,
+                      @Nullable final List<String> attributes)
   {
     if (includeAuthNEntry && includeAuthZEntry &&
         ((attributes == null) || attributes.isEmpty()))
@@ -443,6 +446,7 @@ public final class GetAuthorizationEntryRequestControl
    *          and/or authorization entries, or an empty list if all user
    *          attributes should be included.
    */
+  @NotNull()
   public List<String> getAttributes()
   {
     return attributes;
@@ -454,6 +458,7 @@ public final class GetAuthorizationEntryRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_AUTHORIZATION_ENTRY_REQUEST.get();
@@ -465,7 +470,7 @@ public final class GetAuthorizationEntryRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetAuthorizationEntryRequestControl(isCritical=");
     buffer.append(isCritical());

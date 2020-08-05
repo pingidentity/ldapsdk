@@ -49,6 +49,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,25 +81,26 @@ public final class ValidateLDAPSchema
 
 
   // A reference to the completion message for this tool.
-  private final AtomicReference<String> completionMessage;
+  @NotNull private final AtomicReference<String> completionMessage;
 
   // Arguments used by this tool.
-  private BooleanArgument allowAttributeTypesWithoutSyntax;
-  private BooleanArgument allowElementsWithoutNames;
-  private BooleanArgument allowEmptyDescriptions;
-  private BooleanArgument allowMultipleEntriesPerSchemaFile;
-  private BooleanArgument allowNonNumericOIDs;
-  private BooleanArgument allowRedefiningElements;
-  private BooleanArgument allowSchemaFilesInSubdirectories;
-  private BooleanArgument allowStructuralObjectClassesWithoutSuperior;
-  private BooleanArgument rejectAttributeTypesWithoutEqualityMatchingRule;
-  private BooleanArgument rejectObjectClassesWithMultipleSuperiors;
-  private BooleanArgument useLenientNameValidation;
-  private BooleanArgument useLenientOIDValidation;
-  private FileArgument schemaPath;
-  private StringArgument allowedElementType;
-  private StringArgument allowUndefinedElementType;
-  private StringArgument prohibitedElementType;
+  @Nullable private BooleanArgument allowAttributeTypesWithoutSyntax;
+  @Nullable private BooleanArgument allowElementsWithoutNames;
+  @Nullable private BooleanArgument allowEmptyDescriptions;
+  @Nullable private BooleanArgument allowMultipleEntriesPerSchemaFile;
+  @Nullable private BooleanArgument allowNonNumericOIDs;
+  @Nullable private BooleanArgument allowRedefiningElements;
+  @Nullable private BooleanArgument allowSchemaFilesInSubdirectories;
+  @Nullable private BooleanArgument allowStructuralObjectClassesWithoutSuperior;
+  @Nullable private BooleanArgument
+       rejectAttributeTypesWithoutEqualityMatchingRule;
+  @Nullable private BooleanArgument rejectObjectClassesWithMultipleSuperiors;
+  @Nullable private BooleanArgument useLenientNameValidation;
+  @Nullable private BooleanArgument useLenientOIDValidation;
+  @Nullable private FileArgument schemaPath;
+  @Nullable private StringArgument allowedElementType;
+  @Nullable private StringArgument allowUndefinedElementType;
+  @Nullable private StringArgument prohibitedElementType;
 
 
 
@@ -106,7 +109,7 @@ public final class ValidateLDAPSchema
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -129,8 +132,9 @@ public final class ValidateLDAPSchema
    * @return  A result code that indicates whether processing completed
    *          successfully.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final ValidateLDAPSchema tool = new ValidateLDAPSchema(out, err);
     return tool.runTool(args);
@@ -147,7 +151,8 @@ public final class ValidateLDAPSchema
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public ValidateLDAPSchema(final OutputStream out, final OutputStream err)
+  public ValidateLDAPSchema(@Nullable final OutputStream out,
+                            @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -177,6 +182,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "validate-ldap-schema";
@@ -188,6 +194,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_VALIDATE_SCHEMA_TOOL_DESCRIPTION.get();
@@ -199,6 +206,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -265,6 +273,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return completionMessage.get();
@@ -276,7 +285,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     final boolean pingIdentityDSAvailable =
@@ -710,6 +719,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Create the schema validator instance.
@@ -854,6 +864,7 @@ public final class ValidateLDAPSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();

@@ -42,6 +42,7 @@ import java.io.FileInputStream;
 import java.util.Arrays;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -69,7 +70,7 @@ public final class ReadFromFilePasswordProvider
 
 
   // The password file to use.
-  private final File passwordFile;
+  @NotNull private final File passwordFile;
 
 
 
@@ -80,7 +81,7 @@ public final class ReadFromFilePasswordProvider
    * @param  passwordFile  The path to the file containing the password to use.
    *                       It must not be {@code null}.
    */
-  public ReadFromFilePasswordProvider(final String passwordFile)
+  public ReadFromFilePasswordProvider(@NotNull final String passwordFile)
   {
     Validator.ensureNotNull(passwordFile);
 
@@ -96,7 +97,7 @@ public final class ReadFromFilePasswordProvider
    * @param  passwordFile  The file containing the password to use.  It must not
    *                       be {@code null}.
    */
-  public ReadFromFilePasswordProvider(final File passwordFile)
+  public ReadFromFilePasswordProvider(@NotNull final File passwordFile)
   {
     Validator.ensureNotNull(passwordFile);
 
@@ -116,6 +117,7 @@ public final class ReadFromFilePasswordProvider
    *                         obtain the password.
    */
   @Override()
+  @NotNull()
   public byte[] getPasswordBytes()
          throws LDAPException
   {

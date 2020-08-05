@@ -56,7 +56,7 @@ public final class FormattableColumn
    * property should be a single character, and it is recommended to be either
    * the double quote character or the backslash character.
    */
-  public static final String CSV_QUOTE_ESCAPE_CHARACTER_PROPERTY =
+  @NotNull public static final String CSV_QUOTE_ESCAPE_CHARACTER_PROPERTY =
        FormattableColumn.class.getName() + ".csvQuoteEscapeCharacter";
 
 
@@ -92,13 +92,13 @@ public final class FormattableColumn
 
 
   // The alignment for this column.
-  private final HorizontalAlignment alignment;
+  @NotNull private final HorizontalAlignment alignment;
 
   // The width for this column.
   private final int width;
 
   // The lines that comprise the heading label for this column.
-  private final String[] labelLines;
+  @NotNull private final String[] labelLines;
 
 
 
@@ -112,8 +112,9 @@ public final class FormattableColumn
    * @param  labelLines  The lines to use as the label for this column.  It must
    *                     not be {@code null}.
    */
-  public FormattableColumn(final int width, final HorizontalAlignment alignment,
-                           final String... labelLines)
+  public FormattableColumn(final int width,
+                           @NotNull final HorizontalAlignment alignment,
+                           @NotNull final String... labelLines)
   {
     Validator.ensureTrue(width >= 1);
     Validator.ensureNotNull(alignment, labelLines);
@@ -142,6 +143,7 @@ public final class FormattableColumn
    *
    * @return  The alignment for this column.
    */
+  @NotNull()
   public HorizontalAlignment getAlignment()
   {
     return alignment;
@@ -154,6 +156,7 @@ public final class FormattableColumn
    *
    * @return  The lines to use as the label for this column.
    */
+  @NotNull()
   public String[] getLabelLines()
   {
     return labelLines;
@@ -167,6 +170,7 @@ public final class FormattableColumn
    *
    * @return  A single-line representation of the label.
    */
+  @NotNull()
   public String getSingleLabelLine()
   {
     switch (labelLines.length)
@@ -200,8 +204,9 @@ public final class FormattableColumn
    * @param  format  The format to use for the text.  It must not be
    *                 {@code null}.
    */
-  public void format(final StringBuilder buffer, final String text,
-                     final OutputFormat format)
+  public void format(@NotNull final StringBuilder buffer,
+                     @NotNull final String text,
+                     @NotNull final OutputFormat format)
   {
     switch (format)
     {
@@ -314,6 +319,7 @@ public final class FormattableColumn
    * @return  A string representation of this formattable column.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -330,7 +336,7 @@ public final class FormattableColumn
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("FormattableColumn(width=");
     buffer.append(width);

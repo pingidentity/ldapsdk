@@ -43,6 +43,8 @@ import java.util.Arrays;
 import com.unboundid.ldap.listener.SearchEntryParer;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 
 
 
@@ -53,7 +55,7 @@ import com.unboundid.ldap.sdk.schema.Schema;
 final class LDIFSearchSeparateSearchDetails
 {
   // The output file to which the results will be written.
-  private final File outputFile;
+  @NotNull private final File outputFile;
 
   // The LDAP URL with the associated search criteria.
   private final LDAPURL ldapURL;
@@ -76,9 +78,10 @@ final class LDIFSearchSeparateSearchDetails
    *                     the output file.
    * @param  schema      The schema to use when paring search result entries.
    */
-  LDIFSearchSeparateSearchDetails(final LDAPURL ldapURL, final File outputFile,
-                                  final LDIFWriter ldifWriter,
-                                  final Schema schema)
+  LDIFSearchSeparateSearchDetails(final LDAPURL ldapURL,
+                                  @NotNull final File outputFile,
+                                  @NotNull final LDIFWriter ldifWriter,
+                                  @Nullable final Schema schema)
   {
     this.ldapURL = ldapURL;
     this.outputFile = outputFile;
@@ -95,6 +98,7 @@ final class LDIFSearchSeparateSearchDetails
    *
    * @return  The LDAP URL with the associated search criteria.
    */
+  @NotNull()
   LDAPURL getLDAPURL()
   {
     return ldapURL;
@@ -107,6 +111,7 @@ final class LDIFSearchSeparateSearchDetails
    *
    * @return  The output file to which results will be written.
    */
+  @NotNull()
   File getOutputFile()
   {
     return outputFile;
@@ -119,6 +124,7 @@ final class LDIFSearchSeparateSearchDetails
    *
    * @return  The LDIF writer to use to write the results.
    */
+  @NotNull()
   LDIFWriter getLDIFWriter()
   {
     return ldifWriter;
@@ -133,6 +139,7 @@ final class LDIFSearchSeparateSearchDetails
    * @return  The object that will be used to pare matching entries based on the
    *          set of requested attributes.
    */
+  @NotNull()
   SearchEntryParer getSearchEntryParer()
   {
     return searchEntryParer;

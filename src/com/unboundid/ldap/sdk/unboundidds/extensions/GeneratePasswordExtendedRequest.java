@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -143,7 +145,7 @@ public final class GeneratePasswordExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.62) for the generate password extended
    * request.
    */
-  public static final String GENERATE_PASSWORD_REQUEST_OID =
+  @NotNull public static final String GENERATE_PASSWORD_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.62";
 
 
@@ -192,15 +194,16 @@ public final class GeneratePasswordExtendedRequest
   private final int numberOfValidationAttempts;
 
   // The password policy selection type for the request.
-  private final GeneratePasswordPolicySelectionType passwordPolicySelectionType;
+  @NotNull private final GeneratePasswordPolicySelectionType
+       passwordPolicySelectionType;
 
   // The DN of the password policy that should be used in conjunction with the
   // PASSWORD_POLICY_DN password policy selection type.
-  private final String passwordPolicyDN;
+  @Nullable private final String passwordPolicyDN;
 
   // The DN of the target entry that should be used in conjunction with the
   // TARGET_ENTRY_DN password policy selection type.
-  private final String targetEntryDN;
+  @Nullable private final String targetEntryDN;
 
 
 
@@ -253,10 +256,13 @@ public final class GeneratePasswordExtendedRequest
    *              controls.
    */
   private GeneratePasswordExtendedRequest(
-       final GeneratePasswordPolicySelectionType passwordPolicySelectionType,
-       final String passwordPolicyDN, final String targetEntryDN,
-       final int numberOfPasswords, final int numberOfValidationAttempts,
-       final Control... controls)
+       @NotNull final GeneratePasswordPolicySelectionType
+            passwordPolicySelectionType,
+       @Nullable final String passwordPolicyDN,
+       @Nullable final String targetEntryDN,
+       final int numberOfPasswords,
+       final int numberOfValidationAttempts,
+       @Nullable final Control... controls)
   {
     super(GENERATE_PASSWORD_REQUEST_OID,
          encodeValue(passwordPolicySelectionType, passwordPolicyDN,
@@ -305,9 +311,12 @@ public final class GeneratePasswordExtendedRequest
    *          {@code null} if the request uses all the default settings and no
    *          value is needed.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(
-       final GeneratePasswordPolicySelectionType passwordPolicySelectionType,
-       final String passwordPolicyDN, final String targetEntryDN,
+       @NotNull final GeneratePasswordPolicySelectionType
+            passwordPolicySelectionType,
+       @Nullable final String passwordPolicyDN,
+       @Nullable final String targetEntryDN,
        final int numberOfPasswords, final int numberOfValidationAttempts)
   {
     Validator.ensureNotNullWithMessage(passwordPolicySelectionType,
@@ -398,7 +407,7 @@ public final class GeneratePasswordExtendedRequest
    * @throws  LDAPException  If the provided extended request cannot be decoded
    *                         as a generate password request.
    */
-  public GeneratePasswordExtendedRequest(final ExtendedRequest request)
+  public GeneratePasswordExtendedRequest(@NotNull final ExtendedRequest request)
          throws LDAPException
   {
     super(request);
@@ -516,10 +525,11 @@ public final class GeneratePasswordExtendedRequest
    *
    * @return  The generate password extended request that was created.
    */
+  @NotNull()
   public static GeneratePasswordExtendedRequest createDefaultPolicyRequest(
                      final int numberOfPasswords,
                      final int numberOfValidationAttempts,
-                     final Control... controls)
+                     @Nullable final Control... controls)
   {
     return new GeneratePasswordExtendedRequest(
          GeneratePasswordPolicySelectionType.DEFAULT_POLICY, null, null,
@@ -552,10 +562,12 @@ public final class GeneratePasswordExtendedRequest
    *
    * @return  The generate password extended request that was created.
    */
+  @NotNull()
   public static GeneratePasswordExtendedRequest createPasswordPolicyDNRequest(
-                     final String passwordPolicyDN, final int numberOfPasswords,
+                     @NotNull final String passwordPolicyDN,
+                     final int numberOfPasswords,
                      final int numberOfValidationAttempts,
-                     final Control... controls)
+                     @Nullable final Control... controls)
   {
     return new GeneratePasswordExtendedRequest(
          GeneratePasswordPolicySelectionType.PASSWORD_POLICY_DN,
@@ -591,10 +603,12 @@ public final class GeneratePasswordExtendedRequest
    *
    * @return  The generate password extended request that was created.
    */
+  @NotNull()
   public static GeneratePasswordExtendedRequest createTargetEntryDNRequest(
-                     final String targetEntryDN, final int numberOfPasswords,
+                     @NotNull final String targetEntryDN,
+                     final int numberOfPasswords,
                      final int numberOfValidationAttempts,
-                     final Control... controls)
+                     @Nullable final Control... controls)
   {
     return new GeneratePasswordExtendedRequest(
          GeneratePasswordPolicySelectionType.TARGET_ENTRY_DN, null,
@@ -609,6 +623,7 @@ public final class GeneratePasswordExtendedRequest
    *
    * @return  The password policy selection type for this request.
    */
+  @NotNull()
   public GeneratePasswordPolicySelectionType getPasswordPolicySelectionType()
   {
     return passwordPolicySelectionType;
@@ -628,6 +643,7 @@ public final class GeneratePasswordExtendedRequest
    *          {@code null} if the password policy selection type is anything
    *          other than {@code PASSWORD_POLICY_DN}.
    */
+  @Nullable()
   public String getPasswordPolicyDN()
   {
     return passwordPolicyDN;
@@ -647,6 +663,7 @@ public final class GeneratePasswordExtendedRequest
    *          {@code null} if the password policy selection type is anything
    *          other than {@code TARGET_ENTRY_DN}.
    */
+  @Nullable()
   public String getTargetEntryDN()
   {
     return targetEntryDN;
@@ -691,8 +708,9 @@ public final class GeneratePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected GeneratePasswordExtendedResult process(
-                 final LDAPConnection connection, final int depth)
+                 @NotNull final LDAPConnection connection, final int depth)
             throws LDAPException
   {
     return new GeneratePasswordExtendedResult(super.process(connection, depth));
@@ -704,6 +722,7 @@ public final class GeneratePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GeneratePasswordExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -715,7 +734,9 @@ public final class GeneratePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public GeneratePasswordExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public GeneratePasswordExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final GeneratePasswordExtendedRequest r =
          new GeneratePasswordExtendedRequest(passwordPolicySelectionType,
@@ -731,6 +752,7 @@ public final class GeneratePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_GENERATE_PASSWORD_REQUEST_NAME.get();
@@ -742,7 +764,7 @@ public final class GeneratePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GeneratePasswordExtendedRequest(" +
          "passwordPolicySelectionType='");

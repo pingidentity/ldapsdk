@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,11 +73,11 @@ public final class RetainConnectExceptionReferralConnector
 {
   // The wrapped referral connector that will actually be used to establish the
   // connection.
-  private final ReferralConnector wrappedReferralConnector;
+  @Nullable private final ReferralConnector wrappedReferralConnector;
 
   // The exception caught in the last attempt to establish a connection for the
   // purpose of following a referral.
-  private volatile LDAPException connectExceptionFromLastAttempt;
+  @Nullable private volatile LDAPException connectExceptionFromLastAttempt;
 
 
 
@@ -104,7 +106,7 @@ public final class RetainConnectExceptionReferralConnector
    *                                   received.
    */
   public RetainConnectExceptionReferralConnector(
-              final ReferralConnector wrappedReferralConnector)
+              @Nullable final ReferralConnector wrappedReferralConnector)
   {
     this.wrappedReferralConnector = wrappedReferralConnector;
 
@@ -122,6 +124,7 @@ public final class RetainConnectExceptionReferralConnector
    *          {@code null} if the last connection attempt was successful or if
    *          there have not yet been any connection attempts.
    */
+  @Nullable()
   public LDAPException getExceptionFromLastConnectAttempt()
   {
     return connectExceptionFromLastAttempt;
@@ -133,8 +136,10 @@ public final class RetainConnectExceptionReferralConnector
    * {@inheritDoc}
    */
   @Override()
-  public LDAPConnection getReferralConnection(final LDAPURL referralURL,
-                                              final LDAPConnection connection)
+  @NotNull()
+  public LDAPConnection getReferralConnection(
+                             @NotNull final LDAPURL referralURL,
+                             @NotNull final LDAPConnection connection)
                  throws LDAPException
   {
     final ReferralConnector connector;

@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -72,7 +74,7 @@ public final class LogException
 
 
   // The malformed log message that triggered this exception.
-  private final String logMessage;
+  @NotNull private final String logMessage;
 
 
 
@@ -84,7 +86,8 @@ public final class LogException
    * @param  explanation  A message explaining the problem that occurred.  It
    *                      must not be {@code null}.
    */
-  public LogException(final String logMessage, final String explanation)
+  public LogException(@NotNull final String logMessage,
+                      @NotNull final String explanation)
   {
     this(logMessage, explanation, null);
   }
@@ -100,8 +103,9 @@ public final class LogException
    *                      must not be {@code null}.
    * @param  cause        An underlying exception that triggered this exception.
    */
-  public LogException(final String logMessage, final String explanation,
-                      final Throwable cause)
+  public LogException(@NotNull final String logMessage,
+                      @NotNull final String explanation,
+                      @Nullable final Throwable cause)
   {
     super(explanation, cause);
 
@@ -117,6 +121,7 @@ public final class LogException
    *
    * @return  The malformed log message string that triggered this exception.
    */
+  @NotNull()
   public String getLogMessage()
   {
     return logMessage;

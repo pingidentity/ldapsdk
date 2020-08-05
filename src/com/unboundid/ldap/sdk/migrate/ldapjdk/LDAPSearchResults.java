@@ -56,6 +56,8 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -85,31 +87,31 @@ public class LDAPSearchResults
 
 
   // The asynchronous request ID for these search results.
-  private volatile AsyncRequestID asyncRequestID;
+  @Nullable private volatile AsyncRequestID asyncRequestID;
 
   // Indicates whether the search has been abandoned.
-  private final AtomicBoolean searchAbandoned;
+  @NotNull private final AtomicBoolean searchAbandoned;
 
   // Indicates whether the end of the result set has been reached.
-  private final AtomicBoolean searchDone;
+  @NotNull private final AtomicBoolean searchDone;
 
   // The number of items that can be read immediately without blocking.
-  private final AtomicInteger count;
+  @NotNull private final AtomicInteger count;
 
   // The set of controls for the last result element returned.
-  private final AtomicReference<Control[]> lastControls;
+  @NotNull private final AtomicReference<Control[]> lastControls;
 
   // The next object to be returned.
-  private final AtomicReference<Object> nextResult;
+  @NotNull private final AtomicReference<Object> nextResult;
 
   // The search result done message for the search.
-  private final AtomicReference<SearchResult> searchResult;
+  @NotNull private final AtomicReference<SearchResult> searchResult;
 
   // The maximum length of time in milliseconds to wait for a response.
   private final long maxWaitTime;
 
   // The queue used to hold results.
-  private final LinkedBlockingQueue<Object> resultQueue;
+  @NotNull private final LinkedBlockingQueue<Object> resultQueue;
 
 
 
@@ -160,6 +162,7 @@ public class LDAPSearchResults
    *
    * @return  The asynchronous request ID for the associates search operation.
    */
+  @Nullable()
   AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
@@ -173,7 +176,7 @@ public class LDAPSearchResults
    * @param  asyncRequestID  The asynchronous request ID for the associated
    *                         search operation.
    */
-  void setAsyncRequestID(final AsyncRequestID asyncRequestID)
+  void setAsyncRequestID(@Nullable final AsyncRequestID asyncRequestID)
   {
     this.asyncRequestID = asyncRequestID;
   }
@@ -188,6 +191,7 @@ public class LDAPSearchResults
    * @return  The next object returned from the server, or {@code null} if there
    *          are no more objects to return.
    */
+  @Nullable()
   private Object nextObject()
   {
     Object o = nextResult.get();
@@ -306,6 +310,7 @@ public class LDAPSearchResults
    * @throws  NoSuchElementException  If there are no more results.
    */
   @Override()
+  @NotNull()
   public Object nextElement()
          throws NoSuchElementException
   {
@@ -353,6 +358,7 @@ public class LDAPSearchResults
    *                         the next element in the set of results is not an
    *                         entry.
    */
+  @NotNull()
   public LDAPEntry next()
          throws LDAPException
   {
@@ -393,6 +399,7 @@ public class LDAPSearchResults
    *          {@code null} if no elements have yet been returned or if the last
    *          element did not include any controls.
    */
+  @Nullable()
   public LDAPControl[] getResponseControls()
   {
     final Control[] controls = lastControls.get();
@@ -411,7 +418,7 @@ public class LDAPSearchResults
    */
   @InternalUseOnly()
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     if (searchDone.get())
     {
@@ -445,7 +452,7 @@ public class LDAPSearchResults
   @InternalUseOnly()
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     if (searchDone.get())
     {
@@ -485,8 +492,8 @@ public class LDAPSearchResults
    */
   @InternalUseOnly()
   @Override()
-  public void searchResultReceived(final AsyncRequestID requestID,
-                                   final SearchResult searchResult)
+  public void searchResultReceived(@NotNull final AsyncRequestID requestID,
+                                   @NotNull final SearchResult searchResult)
   {
     if (searchDone.get())
     {

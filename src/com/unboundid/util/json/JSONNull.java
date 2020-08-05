@@ -38,6 +38,8 @@ package com.unboundid.util.json;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -56,7 +58,7 @@ public final class JSONNull
   /**
    * A pre-allocated JSON null value object.
    */
-  public static final JSONNull NULL = new JSONNull();
+  @NotNull public static final JSONNull NULL = new JSONNull();
 
 
 
@@ -91,7 +93,7 @@ public final class JSONNull
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     return ((o == this) || (o instanceof JSONNull));
   }
@@ -102,7 +104,8 @@ public final class JSONNull
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final JSONValue v, final boolean ignoreFieldNameCase,
+  public boolean equals(@NotNull final JSONValue v,
+                        final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
   {
@@ -120,6 +123,7 @@ public final class JSONNull
    *          in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return "null";
@@ -135,7 +139,7 @@ public final class JSONNull
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("null");
   }
@@ -151,6 +155,7 @@ public final class JSONNull
    *          should appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toSingleLineString()
   {
     return "null";
@@ -167,7 +172,7 @@ public final class JSONNull
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toSingleLineString(final StringBuilder buffer)
+  public void toSingleLineString(@NotNull final StringBuilder buffer)
   {
     buffer.append("null");
   }
@@ -183,6 +188,7 @@ public final class JSONNull
    *          should appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString()
   {
     return "null";
@@ -199,7 +205,7 @@ public final class JSONNull
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     buffer.append("null");
   }
@@ -227,6 +233,7 @@ public final class JSONNull
    *          should appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString(final boolean ignoreFieldNameCase,
                                    final boolean ignoreValueCase,
                                    final boolean ignoreArrayOrder)
@@ -257,7 +264,7 @@ public final class JSONNull
    *                              {@code true}).
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer,
+  public void toNormalizedString(@NotNull final StringBuilder buffer,
                                  final boolean ignoreFieldNameCase,
                                  final boolean ignoreValueCase,
                                  final boolean ignoreArrayOrder)
@@ -271,7 +278,7 @@ public final class JSONNull
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendNull();
   }
@@ -282,8 +289,8 @@ public final class JSONNull
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final String fieldName,
-                                 final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final String fieldName,
+                                 @NotNull final JSONBuffer buffer)
   {
     buffer.appendNull(fieldName);
   }

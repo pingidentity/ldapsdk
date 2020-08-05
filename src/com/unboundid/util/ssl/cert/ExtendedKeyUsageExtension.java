@@ -49,6 +49,7 @@ import com.unboundid.asn1.ASN1ObjectIdentifier;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -83,7 +84,8 @@ public final class ExtendedKeyUsageExtension
   /**
    * The OID (2.5.29.37) for extended key usage extensions.
    */
-  public static final OID EXTENDED_KEY_USAGE_OID = new OID("2.5.29.37");
+  @NotNull public static final OID EXTENDED_KEY_USAGE_OID =
+       new OID("2.5.29.37");
 
 
 
@@ -95,7 +97,7 @@ public final class ExtendedKeyUsageExtension
 
 
   // The set of key purpose IDs included in this extension.
-  private final Set<OID> keyPurposeIDs;
+  @NotNull private final Set<OID> keyPurposeIDs;
 
 
 
@@ -112,7 +114,7 @@ public final class ExtendedKeyUsageExtension
    *                         value for this extension.
    */
   ExtendedKeyUsageExtension(final boolean isCritical,
-                            final List<OID> keyPurposeIDs)
+                            @NotNull final List<OID> keyPurposeIDs)
        throws CertException
   {
     super(EXTENDED_KEY_USAGE_OID, isCritical, encodeValue(keyPurposeIDs));
@@ -133,7 +135,7 @@ public final class ExtendedKeyUsageExtension
    * @throws  CertException  If the provided extension cannot be decoded as an
    *                         extended key usage extension.
    */
-  ExtendedKeyUsageExtension(final X509CertificateExtension extension)
+  ExtendedKeyUsageExtension(@NotNull final X509CertificateExtension extension)
        throws CertException
   {
     super(extension);
@@ -174,7 +176,8 @@ public final class ExtendedKeyUsageExtension
    * @throws  CertException  If a problem is encountered while encoding the
    *                         value.
    */
-  private static byte[] encodeValue(final List<OID> keyPurposeIDs)
+  @NotNull()
+  private static byte[] encodeValue(@NotNull final List<OID> keyPurposeIDs)
           throws CertException
   {
     try
@@ -208,6 +211,7 @@ public final class ExtendedKeyUsageExtension
    *
    * @return  The OIDs of the key purpose values contained in this extension.
    */
+  @NotNull()
   public Set<OID> getKeyPurposeIDs()
   {
     return keyPurposeIDs;
@@ -219,6 +223,7 @@ public final class ExtendedKeyUsageExtension
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtensionName()
   {
     return INFO_EXTENDED_KEY_USAGE_EXTENSION_NAME.get();
@@ -230,7 +235,7 @@ public final class ExtendedKeyUsageExtension
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ExtendedKeyUsageExtension(oid='");
     buffer.append(getOID());

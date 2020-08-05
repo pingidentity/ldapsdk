@@ -119,16 +119,17 @@ final class TimestampValuePatternComponent
 
   // The random number generator that will be used to seed the thread-local
   // random number generators.
-  private final Random seedRandom;
+  @NotNull private final Random seedRandom;
 
   // The format string that will be used to format timestamps.
-  private final String dateFormatString;
+  @Nullable private final String dateFormatString;
 
   // The random-number generators that will be used by this class.
-  private final ThreadLocal<Random> threadLocalRandoms;
+  @NotNull private final ThreadLocal<Random> threadLocalRandoms;
 
   // The date formatters that will be used by this class.
-  private final ThreadLocal<SimpleDateFormat> threadLocalDateFormatters;
+  @NotNull private final ThreadLocal<SimpleDateFormat>
+       threadLocalDateFormatters;
 
 
 
@@ -144,7 +145,8 @@ final class TimestampValuePatternComponent
    * @throws  ParseException  If the provided pattern cannot be parsed to create
    *                          a valid timestamp value pattern component.
    */
-  TimestampValuePatternComponent(final String pattern, final long randomSeed)
+  TimestampValuePatternComponent(@NotNull final String pattern,
+                                 final long randomSeed)
        throws ParseException
   {
     seedRandom = new Random(randomSeed);
@@ -350,7 +352,7 @@ final class TimestampValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     final long selectedTime;
     if (lowerBound == -1L)
@@ -400,6 +402,7 @@ final class TimestampValuePatternComponent
    *
    * @return  A random number generator for use by the current thread.
    */
+  @NotNull()
   private Random getRandom()
   {
     Random random = threadLocalRandoms.get();
@@ -423,6 +426,7 @@ final class TimestampValuePatternComponent
    *
    * @return  A date formatter for use byt he current thread.
    */
+  @NotNull()
   private SimpleDateFormat getDateFormatter()
   {
     SimpleDateFormat dateFormatter = threadLocalDateFormatters.get();

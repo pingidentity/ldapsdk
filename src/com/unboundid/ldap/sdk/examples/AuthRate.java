@@ -66,6 +66,8 @@ import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.RateAdjustor;
@@ -187,86 +189,86 @@ public final class AuthRate
 
 
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of authrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The argument used to indicate that bind requests should include the
   // authorization identity request control.
-  private BooleanArgument authorizationIdentityRequestControl;
+  @Nullable private BooleanArgument authorizationIdentityRequestControl;
 
   // The argument used to indicate whether the tool should only perform a bind
   // without a search.
-  private BooleanArgument bindOnly;
+  @Nullable private BooleanArgument bindOnly;
 
   // The argument used to indicate whether to generate output in CSV format.
-  private BooleanArgument csvFormat;
+  @Nullable private BooleanArgument csvFormat;
 
   // The argument used to indicate that bind requests should include the
   // password policy request control.
-  private BooleanArgument passwordPolicyRequestControl;
+  @Nullable private BooleanArgument passwordPolicyRequestControl;
 
   // The argument used to indicate whether to suppress information about error
   // result codes.
-  private BooleanArgument suppressErrorsArgument;
+  @Nullable private BooleanArgument suppressErrorsArgument;
 
   // The argument used to specify arbitrary controls to include in bind
   // requests.
-  private ControlArgument bindControl;
+  @Nullable private ControlArgument bindControl;
 
   // The argument used to specify arbitrary controls to include in search
   // requests.
-  private ControlArgument searchControl;
+  @Nullable private ControlArgument searchControl;
 
   // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
+  @Nullable private FileArgument sampleRateFile;
 
   // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
+  @Nullable private FileArgument variableRateData;
 
   // The argument used to specify the collection interval.
-  private IntegerArgument collectionInterval;
+  @Nullable private IntegerArgument collectionInterval;
 
   // The argument used to specify the number of intervals.
-  private IntegerArgument numIntervals;
+  @Nullable private IntegerArgument numIntervals;
 
   // The argument used to specify the number of threads.
-  private IntegerArgument numThreads;
+  @Nullable private IntegerArgument numThreads;
 
   // The argument used to specify the seed to use for the random number
   // generator.
-  private IntegerArgument randomSeed;
+  @Nullable private IntegerArgument randomSeed;
 
   // The target rate of authentications per second.
-  private IntegerArgument ratePerSecond;
+  @Nullable private IntegerArgument ratePerSecond;
 
   // The number of warm-up intervals to perform.
-  private IntegerArgument warmUpIntervals;
+  @Nullable private IntegerArgument warmUpIntervals;
 
   // The argument used to specify the attributes to return.
-  private StringArgument attributes;
+  @Nullable private StringArgument attributes;
 
   // The argument used to specify the type of authentication to perform.
-  private StringArgument authType;
+  @Nullable private StringArgument authType;
 
   // The argument used to specify the base DNs for the searches.
-  private StringArgument baseDN;
+  @Nullable private StringArgument baseDN;
 
   // The argument used to specify the filters for the searches.
-  private StringArgument filter;
+  @Nullable private StringArgument filter;
 
   // The argument used to specify the scope for the searches.
-  private ScopeArgument scopeArg;
+  @Nullable private ScopeArgument scopeArg;
 
   // The argument used to specify the timestamp format.
-  private StringArgument timestampFormat;
+  @Nullable private StringArgument timestampFormat;
 
   // The argument used to specify the password to use to authenticate.
-  private StringArgument userPassword;
+  @Nullable private StringArgument userPassword;
 
   // A wakeable sleeper that will be used to sleep between reporting intervals.
-  private final WakeableSleeper sleeper;
+  @NotNull private final WakeableSleeper sleeper;
 
 
 
@@ -276,7 +278,7 @@ public final class AuthRate
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -301,9 +303,9 @@ public final class AuthRate
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final AuthRate authRate = new AuthRate(outStream, errStream);
     return authRate.runTool(args);
@@ -321,7 +323,8 @@ public final class AuthRate
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public AuthRate(final OutputStream outStream, final OutputStream errStream)
+  public AuthRate(@Nullable final OutputStream outStream,
+                  @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -338,6 +341,7 @@ public final class AuthRate
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "authrate";
@@ -351,6 +355,7 @@ public final class AuthRate
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Perform repeated authentications against an LDAP directory " +
@@ -367,6 +372,7 @@ public final class AuthRate
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -491,7 +497,7 @@ public final class AuthRate
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     String description = "The base DN to use for the searches.  It may be a " +
@@ -749,6 +755,7 @@ public final class AuthRate
    *          for use with this tool.
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -766,6 +773,7 @@ public final class AuthRate
    * @return  The result code for the processing that was performed.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // If the sample rate file argument was specified, then generate the sample
@@ -1206,6 +1214,7 @@ public final class AuthRate
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

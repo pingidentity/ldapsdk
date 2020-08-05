@@ -63,6 +63,8 @@ import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
 
@@ -76,89 +78,89 @@ final class SearchAndModRateThread
       extends Thread
 {
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of authrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The counter used to track the number of errors encountered while searching.
-  private final AtomicLong errorCounter;
+  @NotNull private final AtomicLong errorCounter;
 
   // The counter used to track the number of modifications performed.
-  private final AtomicLong modCounter;
+  @NotNull private final AtomicLong modCounter;
 
   // The value that will be updated with total duration of the modifies.
-  private final AtomicLong modDurations;
+  @NotNull private final AtomicLong modDurations;
 
   // The counter used to track the number of iterations remaining on the
   // current connection.
-  private final AtomicLong remainingIterationsBeforeReconnect;
+  @NotNull private final AtomicLong remainingIterationsBeforeReconnect;
 
   // The counter used to track the number of searches performed.
-  private final AtomicLong searchCounter;
+  @NotNull private final AtomicLong searchCounter;
 
   // The value that will be updated with total duration of the searches.
-  private final AtomicLong searchDurations;
+  @NotNull private final AtomicLong searchDurations;
 
   // The thread that is actually performing the search and modify operations.
-  private final AtomicReference<Thread> searchAndModThread;
+  @NotNull private final AtomicReference<Thread> searchAndModThread;
 
   // The result code for this thread.
-  private final AtomicReference<ResultCode> resultCode;
+  @NotNull private final AtomicReference<ResultCode> resultCode;
 
   // The set of characters that may be included in modify values.
-  private final byte[] charSet;
+  @NotNull private final byte[] charSet;
 
   // The barrier that will be used to coordinate starting among all the threads.
-  private final CyclicBarrier startBarrier;
+  @NotNull private final CyclicBarrier startBarrier;
+
+  // The barrier to use for controlling the rate of searches.  null if no
+  // rate-limiting should be used.
+  @Nullable private final FixedRateBarrier fixedRateBarrier;
 
   // The length to use for modify values.
   private final int valueLength;
 
   // The page size that should be used with the simple paged results request
   // control.
-  private final Integer simplePageSize;
+  @Nullable private final Integer simplePageSize;
 
   // The connection to use for the searches.
-  private LDAPConnection connection;
+  @Nullable private LDAPConnection connection;
 
   // The set of controls that should be included in modify requests.
-  private final List<Control> modifyControls;
+  @NotNull private final List<Control> modifyControls;
 
   // The set of controls that should be included in search requests.
-  private final List<Control> searchControls;
+  @NotNull private final List<Control> searchControls;
 
   // The number of iterations to request on a connection before closing and
   // re-establishing it.
   private final long iterationsBeforeReconnect;
 
   // The random number generator to use for this thread.
-  private final Random random;
+  @NotNull private final Random random;
 
   // The result code counter to use for failed operations.
-  private final ResultCodeCounter rcCounter;
+  @NotNull private final ResultCodeCounter rcCounter;
 
   // A reference to the associated tool.
-  private final SearchAndModRate searchAndModRate;
+  @NotNull private final SearchAndModRate searchAndModRate;
 
   // The search request to generate.
-  private final SearchRequest searchRequest;
+  @NotNull private final SearchRequest searchRequest;
 
   // The set of attributes to modify.
-  private final String[] modAttributes;
+  @NotNull private final String[] modAttributes;
 
   // The value pattern to use for proxied authorization.
-  private final ValuePattern authzID;
+  @Nullable private final ValuePattern authzID;
 
   // The value pattern to use for the base DNs.
-  private final ValuePattern baseDN;
+  @NotNull private final ValuePattern baseDN;
 
   // The value pattern to use for the filters.
-  private final ValuePattern filter;
-
-  // The barrier to use for controlling the rate of searches.  null if no
-  // rate-limiting should be used.
-  private final FixedRateBarrier fixedRateBarrier;
+  @NotNull private final ValuePattern filter;
 
 
 
@@ -225,19 +227,29 @@ final class SearchAndModRateThread
    *                                    rate of searches.  {@code null} if no
    *                                    rate-limiting should be used.
    */
-  SearchAndModRateThread(final SearchAndModRate searchAndModRate,
-       final int threadNumber, final LDAPConnection connection,
-       final ValuePattern baseDN, final SearchScope scope,
-       final ValuePattern filter, final String[] returnAttributes,
-       final String[] modAttributes, final int valueLength,
-       final byte[] charSet, final ValuePattern authzID,
-       final Integer simplePageSize, final List<Control> searchControls,
-       final List<Control> modifyControls, final long iterationsBeforeReconnect,
-       final long randomSeed, final AtomicInteger runningThreads,
-       final CyclicBarrier startBarrier, final AtomicLong searchCounter,
-       final AtomicLong modCounter, final AtomicLong searchDurations,
-       final AtomicLong modDurations, final AtomicLong errorCounter,
-       final ResultCodeCounter rcCounter, final FixedRateBarrier rateBarrier)
+  SearchAndModRateThread(@NotNull final SearchAndModRate searchAndModRate,
+       final int threadNumber,
+       @NotNull final LDAPConnection connection,
+       @NotNull final ValuePattern baseDN,
+       @NotNull final SearchScope scope,
+       @NotNull final ValuePattern filter,
+       @NotNull final String[] returnAttributes,
+       @NotNull final String[] modAttributes, final int valueLength,
+       @NotNull final byte[] charSet,
+       @Nullable final ValuePattern authzID,
+       @Nullable final Integer simplePageSize,
+       @NotNull final List<Control> searchControls,
+       @NotNull final List<Control> modifyControls,
+       final long iterationsBeforeReconnect, final long randomSeed,
+       @NotNull final AtomicInteger runningThreads,
+       @NotNull final CyclicBarrier startBarrier,
+       @NotNull final AtomicLong searchCounter,
+       @NotNull final AtomicLong modCounter,
+       @NotNull final AtomicLong searchDurations,
+       @NotNull final AtomicLong modDurations,
+       @NotNull final AtomicLong errorCounter,
+       @NotNull final ResultCodeCounter rcCounter,
+       @Nullable final FixedRateBarrier rateBarrier)
   {
     setName("SearchAndModRate Thread " + threadNumber);
     setDaemon(true);
@@ -536,6 +548,7 @@ searchLoop:
    * @return  A result code that provides information about whether any errors
    *          were encountered during processing.
    */
+  @NotNull()
   public ResultCode stopRunning()
   {
     stopRequested.set(true);

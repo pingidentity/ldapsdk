@@ -41,6 +41,7 @@ import javax.net.ssl.SSLSocket;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,7 +73,7 @@ public abstract class SSLSocketVerifier
    *                         provided {@code SSLSocket} from remaining
    *                         established.
    */
-  public abstract void verifySSLSocket(String host, int port,
-                                       SSLSocket sslSocket)
+  public abstract void verifySSLSocket(@NotNull String host, int port,
+                                       @NotNull SSLSocket sslSocket)
          throws LDAPException;
 }

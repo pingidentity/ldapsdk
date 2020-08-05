@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,7 +72,7 @@ public final class CompareResult
    * @param  ldapResult  The LDAP result object to use to create this compare
    *                     response.
    */
-  public CompareResult(final LDAPResult ldapResult)
+  public CompareResult(@NotNull final LDAPResult ldapResult)
   {
     super(ldapResult);
   }
@@ -83,7 +85,7 @@ public final class CompareResult
    * @param  exception  The {@code LDAPException} to use to create this compare
    *                    result.
    */
-  public CompareResult(final LDAPException exception)
+  public CompareResult(@NotNull final LDAPException exception)
   {
     super(exception.toLDAPResult());
   }
@@ -104,10 +106,12 @@ public final class CompareResult
    * @param  responseControls   The set of controls from the response, if
    *                            available.
    */
-  public CompareResult(final int messageID, final ResultCode resultCode,
-                       final String diagnosticMessage, final String matchedDN,
-                       final String[] referralURLs,
-                       final Control[] responseControls)
+  public CompareResult(final int messageID,
+                       @NotNull final ResultCode resultCode,
+                       @Nullable final String diagnosticMessage,
+                       @Nullable final String matchedDN,
+                       @Nullable final String[] referralURLs,
+                       @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           responseControls);
@@ -131,9 +135,10 @@ public final class CompareResult
    * @throws  LDAPException  If a problem occurs while reading or decoding data
    *                         from the ASN.1 stream reader.
    */
+  @NotNull()
   static CompareResult readCompareResultFrom(final int messageID,
-                            final ASN1StreamReaderSequence messageSequence,
-                            final ASN1StreamReader reader)
+              @NotNull final ASN1StreamReaderSequence messageSequence,
+              @NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     return new CompareResult(LDAPResult.readLDAPResultFrom(messageID,

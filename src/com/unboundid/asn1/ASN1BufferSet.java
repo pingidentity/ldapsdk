@@ -40,6 +40,7 @@ package com.unboundid.asn1;
 import java.io.Serializable;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,6 +67,7 @@ public final class ASN1BufferSet
 
 
   // The ASN.1 buffer with which the set is associated.
+  @NotNull
   private final ASN1Buffer buffer;
 
   // The position in the ASN.1 buffer at which the first set value begins.
@@ -78,7 +80,7 @@ public final class ASN1BufferSet
    *
    * @param  buffer  The ASN.1 buffer with which this object will be associated.
    */
-  ASN1BufferSet(final ASN1Buffer buffer)
+  ASN1BufferSet(@NotNull final ASN1Buffer buffer)
   {
     this.buffer = buffer;
 

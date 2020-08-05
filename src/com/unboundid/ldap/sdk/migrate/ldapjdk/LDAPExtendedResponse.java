@@ -41,6 +41,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,7 +72,7 @@ public class LDAPExtendedResponse
 
 
   // The extended result for this LDAP extended response.
-  private final ExtendedResult extendedResult;
+  @NotNull private final ExtendedResult extendedResult;
 
 
 
@@ -81,7 +83,7 @@ public class LDAPExtendedResponse
    * @param  extendedResult  The {@code ExtendedResult} to use to create this
    *                         LDAP extended response.
    */
-  public LDAPExtendedResponse(final ExtendedResult extendedResult)
+  public LDAPExtendedResponse(@NotNull final ExtendedResult extendedResult)
   {
     super(extendedResult);
 
@@ -96,6 +98,7 @@ public class LDAPExtendedResponse
    * @return  The OID for this LDAP extended response, or {@code null} if there
    *          is none.
    */
+  @Nullable()
   public String getID()
   {
     return extendedResult.getOID();
@@ -109,6 +112,7 @@ public class LDAPExtendedResponse
    * @return  The value for this LDAP extended response, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public byte[] getValue()
   {
     final ASN1OctetString value = extendedResult.getValue();
@@ -131,6 +135,7 @@ public class LDAPExtendedResponse
    * @return  An {@code ExtendedResult} object that is the equivalent of this
    *          LDAP extended response.
    */
+  @NotNull()
   public final ExtendedResult toExtendedResult()
   {
     return extendedResult;
@@ -144,6 +149,7 @@ public class LDAPExtendedResponse
    * @return  A string representation of this LDAP extended response.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return extendedResult.toString();

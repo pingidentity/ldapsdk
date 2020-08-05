@@ -56,7 +56,7 @@ public final class SynchronizedSocketFactory
        extends SocketFactory
 {
   // The wrapped socket factory.
-  private final SocketFactory factory;
+  @NotNull private final SocketFactory factory;
 
 
 
@@ -66,7 +66,7 @@ public final class SynchronizedSocketFactory
    *
    * @param  factory  The socket factory to be wrapped.
    */
-  public SynchronizedSocketFactory(final SocketFactory factory)
+  public SynchronizedSocketFactory(@NotNull final SocketFactory factory)
   {
     this.factory = factory;
   }
@@ -80,6 +80,7 @@ public final class SynchronizedSocketFactory
    * @return  The {@code SocketFactory} instance wrapped by this synchronized
    *          socket factory.
    */
+  @NotNull()
   public SocketFactory getWrappedSocketFactory()
   {
     return factory;
@@ -98,7 +99,8 @@ public final class SynchronizedSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port)
          throws IOException
   {
     synchronized (factory)
@@ -116,18 +118,17 @@ public final class SynchronizedSocketFactory
    *                       established.
    * @param  port          The port to which the connection should be
    *                       established.
-   * @param  localAddress  The local address to use for the connection.  This
-   *                       will be ignored.
-   * @param  localPort     The local port to use for the connection.  This will
-   *                       be ignored.
+   * @param  localAddress  The local address to use for the connection.
+   * @param  localPort     The local port to use for the connection.
    *
    * @return  The socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {
@@ -150,7 +151,8 @@ public final class SynchronizedSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port)
          throws IOException
   {
     synchronized (factory)
@@ -168,18 +170,17 @@ public final class SynchronizedSocketFactory
    *                       established.
    * @param  port          The port to which the connection should be
    *                       established.
-   * @param  localAddress  The local address to use for the connection.  This
-   *                       will be ignored.
-   * @param  localPort     The local port to use for the connection.  This will
-   *                       be ignored.
+   * @param  localAddress  The local address to use for the connection.
+   * @param  localPort     The local port to use for the connection.
    *
    * @return  The socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {

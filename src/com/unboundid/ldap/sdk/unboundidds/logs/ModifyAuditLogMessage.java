@@ -49,6 +49,8 @@ import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,11 +85,11 @@ public final class ModifyAuditLogMessage
 
 
   // Indicates whether the modify operation targets a soft-deleted entry.
-  private final Boolean isSoftDeletedEntry;
+  @Nullable private final Boolean isSoftDeletedEntry;
 
   // An LDIF change record that encapsulates the change represented by this
   // modify audit log message.
-  private final LDIFModifyChangeRecord modifyChangeRecord;
+  @NotNull private final LDIFModifyChangeRecord modifyChangeRecord;
 
 
 
@@ -105,7 +107,7 @@ public final class ModifyAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  public ModifyAuditLogMessage(final String... logMessageLines)
+  public ModifyAuditLogMessage(@NotNull final String... logMessageLines)
          throws AuditLogException
   {
     this(StaticUtils.toList(logMessageLines), logMessageLines);
@@ -127,7 +129,7 @@ public final class ModifyAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  public ModifyAuditLogMessage(final List<String> logMessageLines)
+  public ModifyAuditLogMessage(@NotNull final List<String> logMessageLines)
          throws AuditLogException
   {
     this(logMessageLines, StaticUtils.toArray(logMessageLines, String.class));
@@ -146,8 +148,8 @@ public final class ModifyAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  private ModifyAuditLogMessage(final List<String> logMessageLineList,
-                                final String[] logMessageLineArray)
+  private ModifyAuditLogMessage(@NotNull final List<String> logMessageLineList,
+                                @NotNull final String[] logMessageLineArray)
           throws AuditLogException
   {
     super(logMessageLineList);
@@ -198,9 +200,9 @@ public final class ModifyAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  ModifyAuditLogMessage(final List<String> logMessageLines,
-                        final LDIFModifyChangeRecord modifyChangeRecord)
-         throws AuditLogException
+  ModifyAuditLogMessage(@NotNull final List<String> logMessageLines,
+       @NotNull final LDIFModifyChangeRecord modifyChangeRecord)
+       throws AuditLogException
   {
     super(logMessageLines);
 
@@ -216,6 +218,7 @@ public final class ModifyAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDN()
   {
     return modifyChangeRecord.getDN();
@@ -230,6 +233,7 @@ public final class ModifyAuditLogMessage
    * @return  A list of the modifications included in the associated modify
    *          operation.
    */
+  @NotNull()
   public List<Modification> getModifications()
   {
     return Collections.unmodifiableList(
@@ -248,7 +252,7 @@ public final class ModifyAuditLogMessage
    *          operation did not target a soft-deleted entry, or {@code null} if
    *          this is not available.
    */
-  public Boolean getIsSoftDeletedEntry()
+@Nullable   public Boolean getIsSoftDeletedEntry()
   {
     return isSoftDeletedEntry;
   }
@@ -259,6 +263,7 @@ public final class ModifyAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ChangeType getChangeType()
   {
     return ChangeType.MODIFY;
@@ -270,6 +275,7 @@ public final class ModifyAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDIFModifyChangeRecord getChangeRecord()
   {
     return modifyChangeRecord;
@@ -344,6 +350,7 @@ public final class ModifyAuditLogMessage
    *          modification, or {@code null} if the provided modification cannot
    *          be reverted.
    */
+  @Nullable()
   static Modification getRevertModification(final Modification m)
   {
     switch (m.getModificationType().intValue())
@@ -388,6 +395,7 @@ public final class ModifyAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<LDIFChangeRecord> getRevertChangeRecords()
          throws AuditLogException
   {
@@ -416,7 +424,7 @@ public final class ModifyAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(getUncommentedHeaderLine());
     buffer.append("; changeType=modify; dn=\"");

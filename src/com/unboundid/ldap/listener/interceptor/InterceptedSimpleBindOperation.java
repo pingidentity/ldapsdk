@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,10 +63,10 @@ final class InterceptedSimpleBindOperation
                  InMemoryInterceptedSimpleBindResult
 {
   // The bind result for this operation.
-  private BindResult bindResult;
+  @NotNull private BindResult bindResult;
 
   // The bind request for this operation.
-  private SimpleBindRequest bindRequest;
+  @Nullable private SimpleBindRequest bindRequest;
 
 
 
@@ -81,8 +83,9 @@ final class InterceptedSimpleBindOperation
    *                           client.
    */
   InterceptedSimpleBindOperation(
-       final LDAPListenerClientConnection clientConnection, final int messageID,
-       final BindRequestProtocolOp requestOp, final Control... requestControls)
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID, @NotNull final BindRequestProtocolOp requestOp,
+       @Nullable final Control... requestControls)
   {
     super(clientConnection, messageID);
 
@@ -96,6 +99,7 @@ final class InterceptedSimpleBindOperation
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SimpleBindRequest getRequest()
   {
     return bindRequest;
@@ -107,7 +111,7 @@ final class InterceptedSimpleBindOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setRequest(final SimpleBindRequest bindRequest)
+  public void setRequest(@NotNull final SimpleBindRequest bindRequest)
   {
     this.bindRequest = bindRequest;
   }
@@ -118,6 +122,7 @@ final class InterceptedSimpleBindOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public BindResult getResult()
   {
     return bindResult;
@@ -129,7 +134,7 @@ final class InterceptedSimpleBindOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setResult(final BindResult bindResult)
+  public void setResult(@NotNull final BindResult bindResult)
   {
     this.bindResult = bindResult;
   }
@@ -140,7 +145,7 @@ final class InterceptedSimpleBindOperation
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedSimpleBindOperation(");
     appendCommonToString(buffer);

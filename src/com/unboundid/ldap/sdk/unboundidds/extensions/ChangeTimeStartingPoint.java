@@ -42,6 +42,7 @@ import java.util.Date;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.StaticUtils;
@@ -89,7 +90,7 @@ public final class ChangeTimeStartingPoint
 
   // The string representation of the start time, using the generalized time
   // syntax.
-  private final String changeTimeString;
+  @NotNull private final String changeTimeString;
 
 
 
@@ -127,6 +128,7 @@ public final class ChangeTimeStartingPoint
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return new ASN1OctetString(TYPE, changeTimeString);
@@ -138,7 +140,7 @@ public final class ChangeTimeStartingPoint
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ChangeTimeStartingPoint(time='");
     buffer.append(changeTimeString);

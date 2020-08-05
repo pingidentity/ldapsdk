@@ -45,6 +45,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class DiskSpaceUsageMonitorEntry
   /**
    * The structural object class used in disk space usage monitor entries.
    */
-  static final String DISK_SPACE_USAGE_MONITOR_OC =
+  @NotNull static final String DISK_SPACE_USAGE_MONITOR_OC =
        "ds-disk-space-usage-monitor-entry";
 
 
@@ -96,7 +98,8 @@ public final class DiskSpaceUsageMonitorEntry
    * The name of the attribute that contains information about the current disk
    * space state for the server.
    */
-  private static final String ATTR_CURRENT_STATE = "current-disk-space-state";
+  @NotNull private static final String ATTR_CURRENT_STATE =
+       "current-disk-space-state";
 
 
 
@@ -104,7 +107,7 @@ public final class DiskSpaceUsageMonitorEntry
    * The prefix used for attributes that provide information about the name of
    * a disk space consumer.
    */
-  private static final String ATTR_PREFIX_CONSUMER_NAME =
+  @NotNull private static final String ATTR_PREFIX_CONSUMER_NAME =
        "disk-space-consumer-name-";
 
 
@@ -113,7 +116,7 @@ public final class DiskSpaceUsageMonitorEntry
    * The prefix used for attributes that provide information about the path of
    * a disk space consumer.
    */
-  private static final String ATTR_PREFIX_CONSUMER_PATH =
+  @NotNull private static final String ATTR_PREFIX_CONSUMER_PATH =
        "disk-space-consumer-path-";
 
 
@@ -122,7 +125,7 @@ public final class DiskSpaceUsageMonitorEntry
    * The prefix used for attributes that provide information about total bytes
    * for a disk space consumer.
    */
-  private static final String ATTR_PREFIX_CONSUMER_TOTAL_BYTES =
+  @NotNull private static final String ATTR_PREFIX_CONSUMER_TOTAL_BYTES =
        "disk-space-consumer-total-bytes-";
 
 
@@ -131,7 +134,7 @@ public final class DiskSpaceUsageMonitorEntry
    * The prefix used for attributes that provide information about usable bytes
    * for a disk space consumer.
    */
-  private static final String ATTR_PREFIX_CONSUMER_USABLE_BYTES =
+  @NotNull private static final String ATTR_PREFIX_CONSUMER_USABLE_BYTES =
        "disk-space-consumer-usable-bytes-";
 
 
@@ -140,7 +143,7 @@ public final class DiskSpaceUsageMonitorEntry
    * The prefix used for attributes that provide information about usable
    * percent for a disk space consumer.
    */
-  private static final String ATTR_PREFIX_CONSUMER_USABLE_PERCENT =
+  @NotNull private static final String ATTR_PREFIX_CONSUMER_USABLE_PERCENT =
        "disk-space-consumer-usable-percent-";
 
 
@@ -153,10 +156,10 @@ public final class DiskSpaceUsageMonitorEntry
 
 
   // The list of disk space info objects parsed from this monitor entry.
-  private final List<DiskSpaceInfo> diskSpaceInfo;
+  @NotNull private final List<DiskSpaceInfo> diskSpaceInfo;
 
   // The current disk space usage state for the server.
-  private final String currentState;
+  @Nullable private final String currentState;
 
 
 
@@ -166,7 +169,7 @@ public final class DiskSpaceUsageMonitorEntry
    * @param  entry  The entry to be parsed as a disk space usage monitor entry.
    *                It must not be {@code null}.
    */
-  public DiskSpaceUsageMonitorEntry(final Entry entry)
+  public DiskSpaceUsageMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -207,6 +210,7 @@ public final class DiskSpaceUsageMonitorEntry
    * @return  The current disk space state for the Directory Server, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public String getCurrentState()
   {
     return currentState;
@@ -221,6 +225,7 @@ public final class DiskSpaceUsageMonitorEntry
    * @return  A list of information about the disk space consumers defined in
    *          the Directory Server.
    */
+  @NotNull()
   public List<DiskSpaceInfo> getDiskSpaceInfo()
   {
     return diskSpaceInfo;
@@ -232,6 +237,7 @@ public final class DiskSpaceUsageMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_DISK_SPACE_USAGE_MONITOR_DISPNAME.get();
@@ -243,6 +249,7 @@ public final class DiskSpaceUsageMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_DISK_SPACE_USAGE_MONITOR_DESC.get();
@@ -254,6 +261,7 @@ public final class DiskSpaceUsageMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
@@ -317,7 +325,7 @@ public final class DiskSpaceUsageMonitorEntry
                info.getUsableBytes());
         }
 
-        if (info.getUsableBytes() != null)
+        if (info.getUsablePercent() != null)
         {
           addMonitorAttribute(attrs,
                ATTR_PREFIX_CONSUMER_USABLE_PERCENT + i,

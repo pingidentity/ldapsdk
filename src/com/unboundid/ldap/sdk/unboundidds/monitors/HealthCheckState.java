@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.monitors;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public enum HealthCheckState
 
 
   // The name for this health check state.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -112,7 +114,7 @@ public enum HealthCheckState
    *
    * @param  name  The name for this health check state.
    */
-  HealthCheckState(final String name)
+  HealthCheckState(@NotNull final String name)
   {
     this.name = name;
   }
@@ -124,6 +126,7 @@ public enum HealthCheckState
    *
    * @return  The name for this health check state.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -140,7 +143,8 @@ public enum HealthCheckState
    * @return  The health check state with the specified name, or {@code null} if
    *          there is no health check state with the given name.
    */
-  public static HealthCheckState forName(final String name)
+  @Nullable()
+  public static HealthCheckState forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -171,6 +175,7 @@ public enum HealthCheckState
    * @return  A string representation of this health check state.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

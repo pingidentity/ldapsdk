@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,6 +80,7 @@ public final class WhoAmIExtendedOperationHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedOperationHandlerName()
   {
     return "Who Am I?";
@@ -90,6 +92,7 @@ public final class WhoAmIExtendedOperationHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getSupportedExtendedRequestOIDs()
   {
     return Collections.singletonList(
@@ -102,9 +105,11 @@ public final class WhoAmIExtendedOperationHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ExtendedResult processExtendedOperation(
-                             final InMemoryRequestHandler handler,
-                             final int messageID, final ExtendedRequest request)
+              @NotNull final InMemoryRequestHandler handler,
+              final int messageID,
+              @NotNull final ExtendedRequest request)
   {
     // This extended operation handler does not support any controls.  If the
     // request has any critical controls, then reject it.

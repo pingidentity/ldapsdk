@@ -43,6 +43,7 @@ import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
@@ -63,24 +64,24 @@ final class SASLHelper
   private volatile int messageID;
 
   // The connection to use to communicate with the directory server.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // A list that will be updated with messages about any unhandled callbacks
   // encountered during processing.
-  private final List<String> unhandledCallbackMessages;
+  @NotNull private final List<String> unhandledCallbackMessages;
 
   // The maximum length of time in milliseconds to wait for a response from the
   // server.
   private final long responseTimeoutMillis;
 
   // The SASL bind request being processed.
-  private final SASLBindRequest bindRequest;
+  @NotNull private final SASLBindRequest bindRequest;
 
   // The SASL client to use to perform the processing.
-  private final SaslClient saslClient;
+  @NotNull private final SaslClient saslClient;
 
   // The name of the SASL mechanism to use.
-  private final String mechanism;
+  @NotNull private final String mechanism;
 
 
 
@@ -101,10 +102,13 @@ final class SASLHelper
    * @param  unhandledCallbackMessages  A list that will be updated with
    *                                    messages about any unhandled callbacks.
    */
-  SASLHelper(final SASLBindRequest bindRequest, final LDAPConnection connection,
-             final String mechanism, final SaslClient saslClient,
-             final Control[] controls, final long responseTimeoutMillis,
-             final List<String> unhandledCallbackMessages)
+  SASLHelper(@NotNull final SASLBindRequest bindRequest,
+             @NotNull final LDAPConnection connection,
+             @NotNull final String mechanism,
+             @NotNull final SaslClient saslClient,
+             @NotNull final Control[] controls,
+             final long responseTimeoutMillis,
+             @NotNull final List<String> unhandledCallbackMessages)
   {
     this.bindRequest               = bindRequest;
     this.connection                = connection;
@@ -126,6 +130,7 @@ final class SASLHelper
    *
    * @throws  LDAPException  If a problem occurs while processing the bind.
    */
+  @NotNull()
   BindResult processSASLBind()
          throws LDAPException
   {

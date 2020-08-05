@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -118,7 +119,7 @@ public final class DraftZeilengaLDAPNoOp12RequestControl
   /**
    * The OID (1.3.6.1.4.1.4203.1.10.2) for the LDAP no-op request control.
    */
-  public static final String NO_OP_REQUEST_OID =
+  @NotNull public static final String NO_OP_REQUEST_OID =
        "1.3.6.1.4.1.4203.1.10.2";
 
 
@@ -151,7 +152,7 @@ public final class DraftZeilengaLDAPNoOp12RequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         no-op request control.
    */
-  public DraftZeilengaLDAPNoOp12RequestControl(final Control control)
+  public DraftZeilengaLDAPNoOp12RequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -169,6 +170,7 @@ public final class DraftZeilengaLDAPNoOp12RequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_NOOP_REQUEST.get();
@@ -180,7 +182,7 @@ public final class DraftZeilengaLDAPNoOp12RequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("NoOpRequestControl(isCritical=");
     buffer.append(isCritical());

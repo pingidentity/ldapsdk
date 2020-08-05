@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -115,6 +117,7 @@ public enum RouteToBackendSetRoutingType
    * @return  The routing type value that corresponds to the provided BER type,
    *          or {@code null} if there is no corresponding routing type value.
    */
+  @Nullable()
   public static RouteToBackendSetRoutingType valueOf(final byte berType)
   {
     for (final RouteToBackendSetRoutingType t : values())
@@ -139,7 +142,8 @@ public enum RouteToBackendSetRoutingType
    * @return  The requested route to backend set routing type, or {@code null}
    *          if no such type is defined.
    */
-  public static RouteToBackendSetRoutingType forName(final String name)
+  @Nullable()
+  public static RouteToBackendSetRoutingType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

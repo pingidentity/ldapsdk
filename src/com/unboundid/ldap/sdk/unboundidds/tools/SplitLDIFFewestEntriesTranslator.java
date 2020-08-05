@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,16 +81,16 @@ final class SplitLDIFFewestEntriesTranslator
       extends SplitLDIFTranslator
 {
   // The map used to cache decisions made by this translator.
-  private final ConcurrentHashMap<String,Set<String>> rdnCache;
+  @Nullable private final ConcurrentHashMap<String,Set<String>> rdnCache;
 
   // A map used to keep track of the number of entries added to each set.
-  private final Map<Set<String>,AtomicLong> setCounts;
+  @NotNull private final Map<Set<String>,AtomicLong> setCounts;
 
   // The sets in which entries outside the split base should be placed.
-  private final Set<String> outsideSplitBaseSetNames;
+  @NotNull private final Set<String> outsideSplitBaseSetNames;
 
   // The sets in which the split base entry should be placed.
-  private final Set<String> splitBaseEntrySetNames;
+  @NotNull private final Set<String> splitBaseEntrySetNames;
 
 
 
@@ -115,7 +117,8 @@ final class SplitLDIFFewestEntriesTranslator
    *                                               outside the split should be
    *                                               added to all sets.
    */
-  SplitLDIFFewestEntriesTranslator(final DN splitBaseDN, final int numSets,
+  SplitLDIFFewestEntriesTranslator(@NotNull final DN splitBaseDN,
+       final int numSets,
        final boolean assumeFlatDIT,
        final boolean addEntriesOutsideSplitToAllSets,
        final boolean addEntriesOutsideSplitToDedicatedSet)
@@ -163,7 +166,8 @@ final class SplitLDIFFewestEntriesTranslator
    * {@inheritDoc}
    */
   @Override()
-  public SplitLDIFEntry translate(final Entry original,
+  @NotNull()
+  public SplitLDIFEntry translate(@NotNull final Entry original,
                                   final long firstLineNumber)
          throws LDIFException
   {

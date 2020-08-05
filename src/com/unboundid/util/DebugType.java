@@ -127,7 +127,7 @@ public enum DebugType
    * @param  name  The name for this debug type.  It should be in all lowercase
    *               characters.
    */
-  DebugType(final String name)
+  DebugType(@NotNull final String name)
   {
     this.name = name;
   }
@@ -139,6 +139,7 @@ public enum DebugType
    *
    * @return  The name for this debug type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -155,7 +156,8 @@ public enum DebugType
    * @return  The requested debug type, or {@code null} if there is no such
    *          debug type.
    */
-  public static DebugType forName(final String name)
+  @Nullable()
+  public static DebugType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -194,6 +196,7 @@ public enum DebugType
    *
    * @return  A comma-delimited list of the defined debug type names.
    */
+  @NotNull()
   public static String getTypeNameList()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -220,6 +223,7 @@ public enum DebugType
    * @return  A string representation of this debug type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

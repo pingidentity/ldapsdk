@@ -48,6 +48,8 @@ import java.util.Set;
 
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -78,13 +80,13 @@ public final class CompactEntry
 
 
   // The set of attributes for this entry.
-  private final CompactAttribute[] attributes;
+  @NotNull private final CompactAttribute[] attributes;
 
   // The hash code for this entry, if it has been calculated.
   private int hashCode;
 
   // The DN for this entry.
-  private final String dn;
+  @NotNull private final String dn;
 
 
 
@@ -94,7 +96,7 @@ public final class CompactEntry
    * @param  entry  The entry to use to create this compact entry.  It must not
    *                be {@code null}.
    */
-  public CompactEntry(final Entry entry)
+  public CompactEntry(@NotNull final Entry entry)
   {
     Validator.ensureNotNull(entry);
 
@@ -117,6 +119,7 @@ public final class CompactEntry
    *
    * @return  The DN for this entry.
    */
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -131,6 +134,7 @@ public final class CompactEntry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @NotNull()
   public DN getParsedDN()
          throws LDAPException
   {
@@ -146,6 +150,7 @@ public final class CompactEntry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @Nullable()
   public RDN getRDN()
          throws LDAPException
   {
@@ -162,6 +167,7 @@ public final class CompactEntry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @Nullable()
   public DN getParentDN()
          throws LDAPException
   {
@@ -178,6 +184,7 @@ public final class CompactEntry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @Nullable()
   public String getParentDNString()
          throws LDAPException
   {
@@ -195,7 +202,7 @@ public final class CompactEntry
    * @return  {@code true} if this entry contains the specified attribute, or
    *          {@code false} if not.
    */
-  public boolean hasAttribute(final String attributeName)
+  public boolean hasAttribute(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -223,7 +230,7 @@ public final class CompactEntry
    * @return  {@code true} if this entry contains the specified attribute, or
    *          {@code false}.
    */
-  public boolean hasAttribute(final Attribute attribute)
+  public boolean hasAttribute(@NotNull final Attribute attribute)
   {
     Validator.ensureNotNull(attribute);
 
@@ -252,8 +259,8 @@ public final class CompactEntry
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  public boolean hasAttributeValue(final String attributeName,
-                                   final String attributeValue)
+  public boolean hasAttributeValue(@NotNull final String attributeName,
+                                   @NotNull final String attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -283,8 +290,8 @@ public final class CompactEntry
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  public boolean hasAttributeValue(final String attributeName,
-                                   final byte[] attributeValue)
+  public boolean hasAttributeValue(@NotNull final String attributeName,
+                                   @NotNull final byte[] attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -311,7 +318,7 @@ public final class CompactEntry
    * @return  {@code true} if this entry contains the specified object class, or
    *          {@code false} if not.
    */
-  public boolean hasObjectClass(final String objectClassName)
+  public boolean hasObjectClass(@NotNull final String objectClassName)
   {
     return hasAttributeValue("objectClass", objectClassName);
   }
@@ -323,6 +330,7 @@ public final class CompactEntry
    *
    * @return  The set of attributes contained in this entry.
    */
+  @NotNull()
   public Collection<Attribute> getAttributes()
   {
     final ArrayList<Attribute> attrList =
@@ -346,7 +354,8 @@ public final class CompactEntry
    * @return  The requested attribute from this entry, or {@code null} if the
    *          specified attribute is not present in this entry.
    */
-  public Attribute getAttribute(final String attributeName)
+  @Nullable()
+  public Attribute getAttribute(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -379,8 +388,10 @@ public final class CompactEntry
    *          specified options.  It may be empty if there are no attributes
    *          with the specified base name and set of options.
    */
-  public List<Attribute> getAttributesWithOptions(final String baseName,
-                                                  final Set<String> options)
+  @NotNull()
+  public List<Attribute> getAttributesWithOptions(
+                              @NotNull final String baseName,
+                              @NotNull final Set<String> options)
   {
     return toEntry().getAttributesWithOptions(baseName, options);
   }
@@ -397,7 +408,8 @@ public final class CompactEntry
    * @return  The value for the specified attribute, or {@code null} if that
    *          attribute is not available.
    */
-  public String getAttributeValue(final String attributeName)
+  @Nullable()
+  public String getAttributeValue(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -433,7 +445,8 @@ public final class CompactEntry
    * @return  The value for the specified attribute as a byte array, or
    *          {@code null} if that attribute is not available.
    */
-  public byte[] getAttributeValueBytes(final String attributeName)
+  @Nullable()
+  public byte[] getAttributeValueBytes(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -472,7 +485,8 @@ public final class CompactEntry
    *          {@code null} if that attribute is not available or the value
    *          cannot be parsed as a Boolean.
    */
-  public Boolean getAttributeValueAsBoolean(final String attributeName)
+  @Nullable()
+  public Boolean getAttributeValueAsBoolean(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -501,7 +515,8 @@ public final class CompactEntry
    *           {@code null} if that attribute is not available or the value
    *           cannot be parsed as a Date.
    */
-  public Date getAttributeValueAsDate(final String attributeName)
+  @Nullable()
+  public Date getAttributeValueAsDate(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -530,7 +545,8 @@ public final class CompactEntry
    *           {@code null} if that attribute is not available or the value
    *           cannot be parsed as a DN.
    */
-  public DN getAttributeValueAsDN(final String attributeName)
+  @Nullable()
+  public DN getAttributeValueAsDN(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -559,7 +575,8 @@ public final class CompactEntry
    *          {@code null} if that attribute is not available or the value
    *          cannot be parsed as an Integer.
    */
-  public Integer getAttributeValueAsInteger(final String attributeName)
+  @Nullable()
+  public Integer getAttributeValueAsInteger(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -588,7 +605,8 @@ public final class CompactEntry
    *          {@code null} if that attribute is not available or the value
    *          cannot be parsed as a Long.
    */
-  public Long getAttributeValueAsLong(final String attributeName)
+  @Nullable()
+  public Long getAttributeValueAsLong(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -614,7 +632,8 @@ public final class CompactEntry
    * @return  The set of values for the specified attribute, or {@code null} if
    *          that attribute is not available.
    */
-  public String[] getAttributeValues(final String attributeName)
+  @Nullable()
+  public String[] getAttributeValues(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -641,7 +660,9 @@ public final class CompactEntry
    * @return  The set of values for the specified attribute as byte arrays, or
    *          {@code null} if that attribute is not available.
    */
-  public byte[][] getAttributeValueByteArrays(final String attributeName)
+  @Nullable()
+  public byte[][] getAttributeValueByteArrays(
+                       @NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -664,6 +685,7 @@ public final class CompactEntry
    * @return  The "objectClass" attribute from the entry, or {@code null} if
    *          that attribute not available.
    */
+  @Nullable()
   public Attribute getObjectClassAttribute()
   {
     return getAttribute("objectClass");
@@ -678,6 +700,7 @@ public final class CompactEntry
    * @return  The values of the "objectClass" attribute from the entry, or
    *          {@code null} if that attribute is not available.
    */
+  @Nullable()
   public String[] getObjectClassValues()
   {
     return getAttributeValues("objectClass");
@@ -690,6 +713,7 @@ public final class CompactEntry
    *
    * @return  The entry created from this compact entry.
    */
+  @NotNull()
   public Entry toEntry()
   {
     final Attribute[] attrs = new Attribute[attributes.length];
@@ -732,7 +756,7 @@ public final class CompactEntry
    *          entry, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if ((o == null) || (! (o instanceof CompactEntry)))
     {
@@ -750,6 +774,7 @@ public final class CompactEntry
    *
    * @return  An LDIF representation of this entry.
    */
+  @NotNull()
   public String[] toLDIF()
   {
     return toLDIF(0);
@@ -767,6 +792,7 @@ public final class CompactEntry
    *
    * @return  An LDIF representation of this entry.
    */
+  @NotNull()
   public String[] toLDIF(final int wrapColumn)
   {
     return toEntry().toLDIF(wrapColumn);
@@ -781,7 +807,7 @@ public final class CompactEntry
    * @param  buffer The buffer to which the LDIF representation of this entry
    *                should be written.
    */
-  public void toLDIF(final ByteStringBuffer buffer)
+  public void toLDIF(@NotNull final ByteStringBuffer buffer)
   {
     toLDIF(buffer, 0);
   }
@@ -797,7 +823,8 @@ public final class CompactEntry
    *                     value less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
+  public void toLDIF(@NotNull final ByteStringBuffer buffer,
+                     final int wrapColumn)
   {
     toEntry().toLDIF(buffer, wrapColumn);
   }
@@ -810,6 +837,7 @@ public final class CompactEntry
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
+  @NotNull()
   public String toLDIFString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -829,6 +857,7 @@ public final class CompactEntry
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
+  @NotNull()
   public String toLDIFString(final int wrapColumn)
   {
     final StringBuilder buffer = new StringBuilder();
@@ -846,7 +875,7 @@ public final class CompactEntry
    * @param  buffer  The buffer to which to append the LDIF representation of
    *                 this entry.
    */
-  public void toLDIFString(final StringBuilder buffer)
+  public void toLDIFString(@NotNull final StringBuilder buffer)
   {
     toLDIFString(buffer, 0);
   }
@@ -863,8 +892,8 @@ public final class CompactEntry
    *                     value less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  public void toLDIFString(final StringBuilder buffer,
-                                 final int wrapColumn)
+  public void toLDIFString(@NotNull final StringBuilder buffer,
+                           final int wrapColumn)
   {
     toEntry().toLDIFString(buffer, wrapColumn);
   }
@@ -877,6 +906,7 @@ public final class CompactEntry
    * @return  A string representation of this entry.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -892,7 +922,7 @@ public final class CompactEntry
    * @param  buffer  The buffer to which to append the string representation of
    *                 this entry.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("Entry(dn='");
     buffer.append(dn);

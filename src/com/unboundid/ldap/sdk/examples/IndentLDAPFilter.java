@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,7 +83,7 @@ public final class IndentLDAPFilter
    * The name of the argument used to specify the number of additional spaces
    * to indent each level of hierarchy.
    */
-  private static final String ARG_INDENT_SPACES = "indent-spaces";
+  @NotNull private static final String ARG_INDENT_SPACES = "indent-spaces";
 
 
 
@@ -89,12 +91,12 @@ public final class IndentLDAPFilter
    * The name of the argument used to indicate that the tool should not attempt
    * to simplify the provided filter.
    */
-  private static final String ARG_DO_NOT_SIMPLIFY = "do-not-simplify";
+  @NotNull private static final String ARG_DO_NOT_SIMPLIFY = "do-not-simplify";
 
 
 
   // The argument parser for this tool.
-  private ArgumentParser parser;
+  @Nullable private ArgumentParser parser;
 
 
 
@@ -103,7 +105,7 @@ public final class IndentLDAPFilter
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -129,9 +131,9 @@ public final class IndentLDAPFilter
    *          Any result code other than {@link ResultCode#SUCCESS} should be
    *          considered an error.
    */
-  public static ResultCode main(final OutputStream out,
-                                final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final IndentLDAPFilter indentLDAPFilter = new IndentLDAPFilter(out, err);
     return indentLDAPFilter.runTool(args);
@@ -149,7 +151,8 @@ public final class IndentLDAPFilter
    * @param  err  The output stream to which standard error should be written.
    *              It may be {@code null} if standard error should be suppressed.
    */
-  public IndentLDAPFilter(final OutputStream out, final OutputStream err)
+  public IndentLDAPFilter(@Nullable final OutputStream out,
+                          @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -165,6 +168,7 @@ public final class IndentLDAPFilter
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "indent-ldap-filter";
@@ -182,6 +186,7 @@ public final class IndentLDAPFilter
    * @return  A human-readable description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Parses a provided LDAP filter string and displays it a " +
@@ -201,6 +206,7 @@ public final class IndentLDAPFilter
    *          available.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -257,6 +263,7 @@ public final class IndentLDAPFilter
    *          arguments are not supported.
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return "{filter}";
@@ -352,7 +359,7 @@ public final class IndentLDAPFilter
    *                             argument parser.
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -397,6 +404,7 @@ public final class IndentLDAPFilter
    *          successfully.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Make sure that we can parse the filter string.
@@ -483,10 +491,10 @@ public final class IndentLDAPFilter
    *                              indented filter should be added.  It must not
    *                              be {@code null}, and must be updatable.
    */
-  public static void indentLDAPFilter(final Filter filter,
-                                      final String currentIndentString,
-                                      final String indentSpaces,
-                                      final List<String> indentedFilterLines)
+  public static void indentLDAPFilter(@NotNull final Filter filter,
+                          @NotNull final String currentIndentString,
+                          @NotNull final String indentSpaces,
+                          @NotNull final List<String> indentedFilterLines)
   {
     switch (filter.getFilterType())
     {
@@ -562,6 +570,7 @@ public final class IndentLDAPFilter
    *          information is available.
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

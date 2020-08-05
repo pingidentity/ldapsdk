@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -313,7 +315,7 @@ public final class RouteToBackendSetRequestControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.35) for the route to server request control.
    */
-  public static final String ROUTE_TO_BACKEND_SET_REQUEST_OID =
+  @NotNull public static final String ROUTE_TO_BACKEND_SET_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.35";
 
 
@@ -326,20 +328,20 @@ public final class RouteToBackendSetRequestControl
 
 
   // The routing type for the request.
-  private final RouteToBackendSetRoutingType routingType;
+  @NotNull private final RouteToBackendSetRoutingType routingType;
 
   // The backend set IDs for an absolute routing request.
-  private final Set<String> absoluteBackendSetIDs;
+  @Nullable private final Set<String> absoluteBackendSetIDs;
 
   // The backend set IDs for the fallback sets of a routing hint.
-  private final Set<String> routingHintFallbackSetIDs;
+  @Nullable private final Set<String> routingHintFallbackSetIDs;
 
   // The backend set IDs for the first guess of a routing hint.
-  private final Set<String> routingHintFirstGuessSetIDs;
+  @Nullable private final Set<String> routingHintFirstGuessSetIDs;
 
   // The identifier for the entry-balancing request processor with which the
   // backend set IDs are associated.
-  private final String entryBalancingRequestProcessorID;
+  @NotNull private final String entryBalancingRequestProcessorID;
 
 
 
@@ -390,12 +392,12 @@ public final class RouteToBackendSetRequestControl
    *                                           also be non-empty.
    */
   private RouteToBackendSetRequestControl(final boolean isCritical,
-               final ASN1OctetString encodedValue,
-               final String entryBalancingRequestProcessorID,
-               final RouteToBackendSetRoutingType routingType,
-               final Collection<String> absoluteBackendSetIDs,
-               final Collection<String> routingHintFirstGuessSetIDs,
-               final Collection<String> routingHintFallbackSetIDs)
+               @NotNull final ASN1OctetString encodedValue,
+               @NotNull final String entryBalancingRequestProcessorID,
+               @NotNull final RouteToBackendSetRoutingType routingType,
+               @Nullable final Collection<String> absoluteBackendSetIDs,
+               @Nullable final Collection<String> routingHintFirstGuessSetIDs,
+               @Nullable final Collection<String> routingHintFallbackSetIDs)
   {
     super(ROUTE_TO_BACKEND_SET_REQUEST_OID, isCritical, encodedValue);
 
@@ -445,7 +447,7 @@ public final class RouteToBackendSetRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         route to backend set request control.
    */
-  public RouteToBackendSetRequestControl(final Control control)
+  public RouteToBackendSetRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -577,10 +579,11 @@ public final class RouteToBackendSetRequestControl
    * @return  The route to backend set request control created from the
    *          provided information.
    */
+  @NotNull()
   public static RouteToBackendSetRequestControl createAbsoluteRoutingRequest(
                      final boolean isCritical,
-                     final String entryBalancingRequestProcessorID,
-                     final String backendSetID)
+                     @NotNull final String entryBalancingRequestProcessorID,
+                     @NotNull final String backendSetID)
   {
     return createAbsoluteRoutingRequest(isCritical,
          entryBalancingRequestProcessorID,
@@ -608,10 +611,11 @@ public final class RouteToBackendSetRequestControl
    * @return  The route to backend set request control created from the
    *          provided information.
    */
+  @NotNull()
   public static RouteToBackendSetRequestControl createAbsoluteRoutingRequest(
                      final boolean isCritical,
-                     final String entryBalancingRequestProcessorID,
-                     final Collection<String> backendSetIDs)
+                     @NotNull final String entryBalancingRequestProcessorID,
+                     @NotNull final Collection<String> backendSetIDs)
   {
     Validator.ensureNotNull(backendSetIDs);
     Validator.ensureFalse(backendSetIDs.isEmpty());
@@ -666,11 +670,12 @@ public final class RouteToBackendSetRequestControl
    * @return  The route to backend set request control created from the
    *          provided information.
    */
+  @NotNull()
   public static RouteToBackendSetRequestControl createRoutingHintRequest(
                      final boolean isCritical,
-                     final String entryBalancingRequestProcessorID,
-                     final String firstGuessSetID,
-                     final Collection<String> fallbackSetIDs)
+                     @NotNull final String entryBalancingRequestProcessorID,
+                     @NotNull final String firstGuessSetID,
+                     @Nullable final Collection<String> fallbackSetIDs)
   {
     return createRoutingHintRequest(isCritical,
          entryBalancingRequestProcessorID,
@@ -710,11 +715,12 @@ public final class RouteToBackendSetRequestControl
    * @return  The route to backend set request control created from the
    *          provided information.
    */
+  @NotNull()
   public static RouteToBackendSetRequestControl createRoutingHintRequest(
                      final boolean isCritical,
-                     final String entryBalancingRequestProcessorID,
-                     final Collection<String> firstGuessSetIDs,
-                     final Collection<String> fallbackSetIDs)
+                     @NotNull final String entryBalancingRequestProcessorID,
+                     @NotNull final Collection<String> firstGuessSetIDs,
+                     @Nullable final Collection<String> fallbackSetIDs)
   {
     Validator.ensureNotNull(firstGuessSetIDs);
     Validator.ensureFalse(firstGuessSetIDs.isEmpty());
@@ -765,6 +771,7 @@ public final class RouteToBackendSetRequestControl
    * @return  The identifier for the entry-balancing request processor with
    *          which the backend set IDs are associated.
    */
+  @NotNull()
   public String getEntryBalancingRequestProcessorID()
   {
     return entryBalancingRequestProcessorID;
@@ -777,6 +784,7 @@ public final class RouteToBackendSetRequestControl
    *
    * @return  The type of routing requested by this control.
    */
+  @NotNull()
   public RouteToBackendSetRoutingType getRoutingType()
   {
     return routingType;
@@ -792,6 +800,7 @@ public final class RouteToBackendSetRequestControl
    *          the request should be forwarded if the control uses absolute
    *          routing, or {@code null} if the control uses a routing hint.
    */
+  @Nullable()
   public Set<String> getAbsoluteBackendSetIDs()
   {
     return absoluteBackendSetIDs;
@@ -809,6 +818,7 @@ public final class RouteToBackendSetRequestControl
    *          a routing hint, or {@code null} if the control uses absolute
    *          routing.
    */
+  @Nullable()
   public Set<String> getRoutingHintFirstGuessSetIDs()
   {
     return routingHintFirstGuessSetIDs;
@@ -827,6 +837,7 @@ public final class RouteToBackendSetRequestControl
    *          control uses absolute routing or if a default group of fallback
    *          sets (all sets not included in the first guess) should be used.
    */
+  @Nullable()
   public Set<String> getRoutingHintFallbackSetIDs()
   {
     return routingHintFallbackSetIDs;
@@ -838,6 +849,7 @@ public final class RouteToBackendSetRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ROUTE_TO_BACKEND_SET_REQUEST.get();
@@ -849,7 +861,7 @@ public final class RouteToBackendSetRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RouteToBackendSetRequestControl(isCritical=");
     buffer.append(isCritical());

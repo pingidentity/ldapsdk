@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -138,25 +140,25 @@ public final class IntermediateClientRequestValue
 
 
   // Indicates whether the communication with the downstream client is secure.
-  private final Boolean downstreamClientSecure;
+  @Nullable private final Boolean downstreamClientSecure;
 
   // The downstream request value, if present.
-  private final IntermediateClientRequestValue downstreamRequest;
+  @Nullable private final IntermediateClientRequestValue downstreamRequest;
 
   // The requested client authorization identity, if present.
-  private final String clientIdentity;
+  @Nullable private final String clientIdentity;
 
   // The downstream client address, if present.
-  private final String downstreamClientAddress;
+  @Nullable private final String downstreamClientAddress;
 
   // The client name, which describes the client application, if present.
-  private final String clientName;
+  @Nullable private final String clientName;
 
   // The client request ID, if present.
-  private final String clientRequestID;
+  @Nullable private final String clientRequestID;
 
   // The client session ID, if present.
-  private final String clientSessionID;
+  @Nullable private final String clientSessionID;
 
 
 
@@ -195,11 +197,13 @@ public final class IntermediateClientRequestValue
    *                                  request identifier.
    */
   public IntermediateClientRequestValue(
-              final IntermediateClientRequestValue downstreamRequest,
-              final String downstreamClientAddress,
-              final Boolean downstreamClientSecure, final String clientIdentity,
-              final String clientName, final String clientSessionID,
-              final String clientRequestID)
+              @Nullable final IntermediateClientRequestValue downstreamRequest,
+              @Nullable final String downstreamClientAddress,
+              @Nullable final Boolean downstreamClientSecure,
+              @Nullable final String clientIdentity,
+              @Nullable final String clientName,
+              @Nullable final String clientSessionID,
+              @Nullable final String clientRequestID)
   {
     this.downstreamRequest       = downstreamRequest;
     this.downstreamClientAddress = downstreamClientAddress;
@@ -218,6 +222,7 @@ public final class IntermediateClientRequestValue
    * @return  The wrapped request from a downstream client, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public IntermediateClientRequestValue getDownstreamRequest()
   {
     return downstreamRequest;
@@ -231,6 +236,7 @@ public final class IntermediateClientRequestValue
    * @return  The requested client authorization identity, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public String getClientIdentity()
   {
     return clientIdentity;
@@ -246,6 +252,7 @@ public final class IntermediateClientRequestValue
    *          or {@code null} if there is no downstream client or its address is
    *          not available.
    */
+  @Nullable()
   public String getDownstreamClientAddress()
   {
     return downstreamClientAddress;
@@ -265,6 +272,7 @@ public final class IntermediateClientRequestValue
    *          {@code null} if there is no downstream client or it is not known
    *          whether the communication is secure.
    */
+  @Nullable()
   public Boolean downstreamClientSecure()
   {
     return downstreamClientSecure;
@@ -279,6 +287,7 @@ public final class IntermediateClientRequestValue
    * @return  A string that may be used to identify the client application that
    *          created this intermediate client request value.
    */
+  @Nullable()
   public String getClientName()
   {
     return clientName;
@@ -293,6 +302,7 @@ public final class IntermediateClientRequestValue
    * @return  A string that may be used to identify the session in the client
    *          application, or {@code null} if there is none.
    */
+  @Nullable()
   public String getClientSessionID()
   {
     return clientSessionID;
@@ -307,6 +317,7 @@ public final class IntermediateClientRequestValue
    * @return  A string that may be used to identify the request in the client
    *          application, or {@code null} if there is none.
    */
+  @Nullable()
   public String getClientRequestID()
   {
     return clientRequestID;
@@ -320,6 +331,7 @@ public final class IntermediateClientRequestValue
    *
    * @return  An ASN.1 octet string containing the encoded client request value.
    */
+  @NotNull()
   public ASN1Sequence encode()
   {
     return encode(ASN1Constants.UNIVERSAL_SEQUENCE_TYPE);
@@ -335,6 +347,7 @@ public final class IntermediateClientRequestValue
    *
    * @return  An ASN.1 octet string containing the encoded client request value.
    */
+  @NotNull()
   private ASN1Sequence encode(final byte type)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(7);
@@ -395,8 +408,9 @@ public final class IntermediateClientRequestValue
    * @throws  LDAPException  If the provided sequence cannot be decoded as an
    *                         intermediate client request value.
    */
-  public static IntermediateClientRequestValue
-                     decode(final ASN1Sequence sequence)
+  @NotNull()
+  public static IntermediateClientRequestValue decode(
+                     @NotNull final ASN1Sequence sequence)
          throws LDAPException
   {
     Boolean                        downstreamClientSecure  = null;
@@ -552,7 +566,7 @@ public final class IntermediateClientRequestValue
    *          intermediate client request value, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == this)
     {
@@ -686,6 +700,7 @@ public final class IntermediateClientRequestValue
    * @return  A string representation of this intermediate client request value.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -701,7 +716,7 @@ public final class IntermediateClientRequestValue
    *
    * @param  buffer  The buffer to which the information is to be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("IntermediateClientRequestValue(");
 

@@ -41,6 +41,8 @@ import java.net.InetAddress;
 import javax.net.ServerSocketFactory;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -76,7 +78,7 @@ public final class LDAPListenerConfig
   private boolean useTCPNoDelay;
 
   // The address on which to listen for client connections.
-  private InetAddress listenAddress;
+  @Nullable private InetAddress listenAddress;
 
   // The linger timeout in seconds to use for sockets accepted by the listener.
   private int lingerTimeout;
@@ -94,14 +96,14 @@ public final class LDAPListenerConfig
   private int sendBufferSize;
 
   // The exception handler to use for the listener and associated connections.
-  private LDAPListenerExceptionHandler exceptionHandler;
+  @Nullable private LDAPListenerExceptionHandler exceptionHandler;
 
   // The request handler that will be used to process requests read from
   // clients.
-  private LDAPListenerRequestHandler requestHandler;
+  @NotNull private LDAPListenerRequestHandler requestHandler;
 
   // The factory that will be used to create server sockets.
-  private ServerSocketFactory serverSocketFactory;
+  @NotNull private ServerSocketFactory serverSocketFactory;
 
 
 
@@ -117,7 +119,7 @@ public final class LDAPListenerConfig
    *                         {@code null}.
    */
   public LDAPListenerConfig(final int listenPort,
-                            final LDAPListenerRequestHandler requestHandler)
+              @NotNull final LDAPListenerRequestHandler requestHandler)
   {
     Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65_535));
     Validator.ensureNotNull(requestHandler);
@@ -178,6 +180,7 @@ public final class LDAPListenerConfig
    * @return  The LDAP listener request handler that should be used to process
    *          requests read from clients.
    */
+  @NotNull()
   public LDAPListenerRequestHandler getRequestHandler()
   {
     return requestHandler;
@@ -193,7 +196,8 @@ public final class LDAPListenerConfig
    *                         used to process requests read from clients.  It
    *                         must not be {@code null}.
    */
-  public void setRequestHandler(final LDAPListenerRequestHandler requestHandler)
+  public void setRequestHandler(
+                   @NotNull final LDAPListenerRequestHandler requestHandler)
   {
     Validator.ensureNotNull(requestHandler);
 
@@ -322,6 +326,7 @@ public final class LDAPListenerConfig
    *          {@code null} if it should listen on all available addresses on all
    *          interfaces.
    */
+  @Nullable()
   public InetAddress getListenAddress()
   {
     return listenAddress;
@@ -337,7 +342,7 @@ public final class LDAPListenerConfig
    *                        that it should listen on all available addresses on
    *                        all interfaces.
    */
-  public void setListenAddress(final InetAddress listenAddress)
+  public void setListenAddress(@Nullable final InetAddress listenAddress)
   {
     this.listenAddress = listenAddress;
   }
@@ -496,6 +501,7 @@ public final class LDAPListenerConfig
    *          caught while attempting to accept or interact with a client
    *          connection, or {@code null} if none is defined.
    */
+  @Nullable()
   public LDAPListenerExceptionHandler getExceptionHandler()
   {
     return exceptionHandler;
@@ -513,7 +519,7 @@ public final class LDAPListenerConfig
    *                           should be used.
    */
   public void setExceptionHandler(
-                   final LDAPListenerExceptionHandler exceptionHandler)
+              @Nullable final LDAPListenerExceptionHandler exceptionHandler)
   {
     this.exceptionHandler = exceptionHandler;
   }
@@ -527,6 +533,7 @@ public final class LDAPListenerConfig
    * @return  The factory that will be used to create the server socket that
    *          will listen for client connections.
    */
+  @NotNull()
   public ServerSocketFactory getServerSocketFactory()
   {
     return serverSocketFactory;
@@ -544,7 +551,7 @@ public final class LDAPListenerConfig
    *                              the JVM-default server socket factory.
    */
   public void setServerSocketFactory(
-                   final ServerSocketFactory serverSocketFactory)
+                   @Nullable final ServerSocketFactory serverSocketFactory)
   {
     if (serverSocketFactory == null)
     {
@@ -567,6 +574,7 @@ public final class LDAPListenerConfig
    *          this configuration, and which will not be altered by changes to
    *          this configuration.
    */
+  @NotNull()
   public LDAPListenerConfig duplicate()
   {
     final LDAPListenerConfig copy =
@@ -595,6 +603,7 @@ public final class LDAPListenerConfig
    * @return  A string representation of this LDAP listener config.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -610,7 +619,7 @@ public final class LDAPListenerConfig
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPListenerConfig(listenAddress=");
 

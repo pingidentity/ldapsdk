@@ -59,6 +59,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.SubtreeAccessibilityState;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -99,7 +101,7 @@ public final class SubtreeAccessibility
   /**
    * The set of allowed subtree accessibility state values.
    */
-  private static final Set<String> ALLOWED_ACCESSIBILITY_STATES =
+  @NotNull private static final Set<String> ALLOWED_ACCESSIBILITY_STATES =
        StaticUtils.setOf(
             SubtreeAccessibilityState.ACCESSIBLE.getStateName(),
             SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.getStateName(),
@@ -117,18 +119,18 @@ public final class SubtreeAccessibility
 
   // Indicates whether the set of subtree restrictions should be updated rather
   // than queried.
-  private BooleanArgument set;
+  @Nullable private BooleanArgument set;
 
   // The argument used to specify the base DN for the target subtree.
-  private DNArgument baseDN;
+  @Nullable private DNArgument baseDN;
 
   // The argument used to specify the DN of a user who can bypass restrictions
   // on the target subtree.
-  private DNArgument bypassUserDN;
+  @Nullable private DNArgument bypassUserDN;
 
   // The argument used to specify the accessibility state for the target
   // subtree.
-  private StringArgument accessibilityState;
+  @Nullable private StringArgument accessibilityState;
 
 
 
@@ -138,7 +140,7 @@ public final class SubtreeAccessibility
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -163,9 +165,10 @@ public final class SubtreeAccessibility
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  @NotNull()
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final SubtreeAccessibility tool =
          new SubtreeAccessibility(outStream, errStream);
@@ -184,8 +187,8 @@ public final class SubtreeAccessibility
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public SubtreeAccessibility(final OutputStream outStream,
-                              final OutputStream errStream)
+  public SubtreeAccessibility(@Nullable final OutputStream outStream,
+                              @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -204,6 +207,7 @@ public final class SubtreeAccessibility
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "subtree-accessibility";
@@ -217,6 +221,7 @@ public final class SubtreeAccessibility
    * @return  A human-readable description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "List or update the set of subtree accessibility restrictions " +
@@ -231,6 +236,7 @@ public final class SubtreeAccessibility
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -385,7 +391,7 @@ public final class SubtreeAccessibility
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     set = new BooleanArgument('s', "set", 1,
@@ -442,6 +448,7 @@ public final class SubtreeAccessibility
    *          successfully.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Get a connection to the target directory server.
@@ -488,7 +495,8 @@ public final class SubtreeAccessibility
    * @return  A result code with information about the result of operation
    *          processing.
    */
-  private ResultCode doGet(final LDAPConnection connection)
+  @NotNull()
+  private ResultCode doGet(@NotNull final LDAPConnection connection)
   {
     final GetSubtreeAccessibilityExtendedResult result;
     try
@@ -560,7 +568,8 @@ public final class SubtreeAccessibility
    * @return  A result code with information about the result of operation
    *          processing.
    */
-  private ResultCode doSet(final LDAPConnection connection)
+  @NotNull()
+  private ResultCode doSet(@NotNull final LDAPConnection connection)
   {
     final SubtreeAccessibilityState state =
          SubtreeAccessibilityState.forName(accessibilityState.getValue());
@@ -640,6 +649,7 @@ public final class SubtreeAccessibility
    *          information is available.
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> exampleMap =

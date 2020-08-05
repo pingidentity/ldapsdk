@@ -65,6 +65,8 @@ import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -98,20 +100,21 @@ public abstract class AuditLogMessage
    * A regular expression that can be used to determine if a line looks like an
    * audit log message header.
    */
-  private static final Pattern STARTS_WITH_TIMESTAMP_PATTERN = Pattern.compile(
-       "^# " +          // Starts with an octothorpe and a space.
-       "\\d\\d" +      // Two digits for the day of the month.
-       "\\/" +          // A slash to separate the day from the month.
-       "\\w\\w\\w" +    // Three characters for the month.
-       "\\/"       +    // A slash to separate the month from the year.
-       "\\d\\d\\d\\d" + // Four digits for the year.
-       ":" +            // A colon to separate the year from the hour.
-       "\\d\\d" +       // Two digits for the hour.
-       ":" +            // A colon to separate the hour from the minute.
-       "\\d\\d" +       // Two digits for the minute.
-       ":" +            // A colon to separate the minute from the second.
-       "\\d\\d" +       // Two digits for the second.
-       ".*$");           // The rest of the line.
+  @NotNull private static final Pattern STARTS_WITH_TIMESTAMP_PATTERN =
+       Pattern.compile(
+            "^# " +          // Starts with an octothorpe and a space.
+            "\\d\\d" +      // Two digits for the day of the month.
+            "\\/" +          // A slash to separate the day from the month.
+            "\\w\\w\\w" +    // Three characters for the month.
+            "\\/"       +    // A slash to separate the month from the year.
+            "\\d\\d\\d\\d" + // Four digits for the year.
+            ":" +            // A colon to separate the year from the hour.
+            "\\d\\d" +       // Two digits for the hour.
+            ":" +            // A colon to separate the hour from the minute.
+            "\\d\\d" +       // Two digits for the minute.
+            ":" +            // A colon to separate the minute from the second.
+            "\\d\\d" +       // Two digits for the second.
+            ".*$");           // The rest of the line.
 
 
 
@@ -119,7 +122,8 @@ public abstract class AuditLogMessage
    * The format string that will be used for log message timestamps
    * with second-level precision enabled.
    */
-  private static final String TIMESTAMP_SEC_FORMAT = "dd/MMM/yyyy:HH:mm:ss Z";
+  @NotNull private static final String TIMESTAMP_SEC_FORMAT =
+       "dd/MMM/yyyy:HH:mm:ss Z";
 
 
 
@@ -127,7 +131,7 @@ public abstract class AuditLogMessage
    * The format string that will be used for log message timestamps
    * with second-level precision enabled.
    */
-  private static final String TIMESTAMP_MS_FORMAT =
+  @NotNull private static final String TIMESTAMP_MS_FORMAT =
        "dd/MMM/yyyy:HH:mm:ss.SSS Z";
 
 
@@ -136,7 +140,7 @@ public abstract class AuditLogMessage
    * A set of thread-local date formatters that can be used to parse timestamps
    * with second-level precision.
    */
-  private static final ThreadLocal<SimpleDateFormat>
+  @NotNull private static final ThreadLocal<SimpleDateFormat>
        TIMESTAMP_SEC_FORMAT_PARSERS = new ThreadLocal<>();
 
 
@@ -145,7 +149,7 @@ public abstract class AuditLogMessage
    * A set of thread-local date formatters that can be used to parse timestamps
    * with millisecond-level precision.
    */
-  private static final ThreadLocal<SimpleDateFormat>
+  @NotNull private static final ThreadLocal<SimpleDateFormat>
        TIMESTAMP_MS_FORMAT_PARSERS = new ThreadLocal<>();
 
 
@@ -159,76 +163,77 @@ public abstract class AuditLogMessage
 
   // Indicates whether the associated operation was processed using a worker
   // thread from the administrative thread pool.
-  private final Boolean usingAdminSessionWorkerThread;
+  @Nullable private final Boolean usingAdminSessionWorkerThread;
 
   // The timestamp for this audit log message.
-  private final Date timestamp;
+  @NotNull private final Date timestamp;
 
   // The intermediate client request control for this audit log message.
-  private final IntermediateClientRequestControl
+  @Nullable private final IntermediateClientRequestControl
        intermediateClientRequestControl;
 
   // The lines that comprise the complete audit log message.
-  private final List<String> logMessageLines;
+  @NotNull private final List<String> logMessageLines;
 
   // The request control OIDs for this audit log message.
-  private final List<String> requestControlOIDs;
+  @Nullable private final List<String> requestControlOIDs;
 
   // The connection ID for this audit log message.
-  private final Long connectionID;
+  @Nullable private final Long connectionID;
 
   // The operation ID for this audit log message.
-  private final Long operationID;
+  @Nullable private final Long operationID;
 
   // The thread ID for this audit log message.
-  private final Long threadID;
+  @Nullable private final Long threadID;
 
   // The connection ID for the operation that triggered this audit log message.
-  private final Long triggeredByConnectionID;
+  @Nullable private final Long triggeredByConnectionID;
 
   // The operation ID for the operation that triggered this audit log message.
-  private final Long triggeredByOperationID;
+  @Nullable private final Long triggeredByOperationID;
 
   // The map of named fields contained in this audit log message.
-  private final Map<String, String> namedValues;
+  @NotNull private final Map<String, String> namedValues;
 
   // The operation purpose request control for this audit log message.
-  private final OperationPurposeRequestControl operationPurposeRequestControl;
+  @Nullable private final OperationPurposeRequestControl
+       operationPurposeRequestControl;
 
   // The DN of the alternate authorization identity for this audit log message.
-  private final String alternateAuthorizationDN;
+  @Nullable private final String alternateAuthorizationDN;
 
   // The line that comprises the header for this log message, including the
   // opening comment sequence.
-  private final String commentedHeaderLine;
+  @NotNull private final String commentedHeaderLine;
 
   // The server instance name for this audit log message.
-  private final String instanceName;
+  @Nullable private final String instanceName;
 
   // The origin for this audit log message.
-  private final String origin;
+  @Nullable private final String origin;
 
   // The replication change ID for the audit log message.
-  private final String replicationChangeID;
+  @Nullable private final String replicationChangeID;
 
   // The requester DN for this audit log message.
-  private final String requesterDN;
+  @Nullable private final String requesterDN;
 
   // The requester IP address for this audit log message.
-  private final String requesterIP;
+  @Nullable private final String requesterIP;
 
   // The product name for this audit log message.
-  private final String productName;
+  @Nullable private final String productName;
 
   // The startup ID for this audit log message.
-  private final String startupID;
+  @Nullable private final String startupID;
 
   // The transaction ID for this audit log message.
-  private final String transactionID;
+  @Nullable private final String transactionID;
 
   // The line that comprises the header for this log message, without the
   // opening comment sequence.
-  private final String uncommentedHeaderLine;
+  @NotNull private final String uncommentedHeaderLine;
 
 
 
@@ -246,7 +251,7 @@ public abstract class AuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  protected AuditLogMessage(final List<String> logMessageLines)
+  protected AuditLogMessage(@NotNull final List<String> logMessageLines)
             throws AuditLogException
   {
     if (logMessageLines == null)
@@ -360,9 +365,11 @@ public abstract class AuditLogMessage
    *
    * @throws  AuditLogException  If the line cannot be parsed as a valid header.
    */
-  private static Date parseHeaderLine(final List<String> logMessageLines,
-                                      final String uncommentedHeaderLine,
-                                      final Map<String,String> nameValuePairs)
+  @NotNull()
+  private static Date parseHeaderLine(
+               @NotNull final List<String> logMessageLines,
+               @NotNull final String uncommentedHeaderLine,
+               @NotNull final Map<String,String> nameValuePairs)
           throws AuditLogException
   {
     final byte[] uncommentedHeaderBytes =
@@ -405,9 +412,11 @@ public abstract class AuditLogMessage
    * @throws  AuditLogException  If the provided string cannot be parsed as a
    *                             timestamp.
    */
-  private static Date readTimestamp(final List<String> logMessageLines,
-                                    final ByteArrayInputStream inputStream,
-                                    final ByteStringBuffer buffer)
+  @NotNull()
+  private static Date readTimestamp(
+               @NotNull final List<String> logMessageLines,
+               @NotNull final ByteArrayInputStream inputStream,
+               @NotNull final ByteStringBuffer buffer)
           throws AuditLogException
   {
     while (true)
@@ -483,10 +492,11 @@ public abstract class AuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while trying to
    *                             read the name-value pair.
    */
-  private static boolean readNameValuePair(final List<String> logMessageLines,
-                              final ByteArrayInputStream inputStream,
-                              final Map<String,String> nameValuePairs,
-                              final ByteStringBuffer buffer)
+  private static boolean readNameValuePair(
+               @NotNull final List<String> logMessageLines,
+               @NotNull final ByteArrayInputStream inputStream,
+               @NotNull final Map<String,String> nameValuePairs,
+               @NotNull final ByteStringBuffer buffer)
           throws AuditLogException
   {
     // Read the property name.  It will be followed by an equal sign to separate
@@ -599,9 +609,11 @@ public abstract class AuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while trying to
    *                             read the JSON object.
    */
-  private static JSONObject readJSONObject(final List<String> logMessageLines,
-                                 final String propertyName,
-                                 final ByteArrayInputStream inputStream)
+  @NotNull()
+  private static JSONObject readJSONObject(
+               @NotNull final List<String> logMessageLines,
+               @NotNull final String propertyName,
+               @NotNull final ByteArrayInputStream inputStream)
           throws AuditLogException
   {
     final JSONObject jsonObject;
@@ -655,11 +667,12 @@ public abstract class AuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while trying to
    *                             read the string.
    */
-  private static String readString(final List<String> logMessageLines,
-                                   final String propertyName,
-                                   final boolean isQuoted,
-                                   final ByteArrayInputStream inputStream,
-                                   final ByteStringBuffer buffer)
+  @NotNull()
+  private static String readString(@NotNull final List<String> logMessageLines,
+               @NotNull final String propertyName,
+               final boolean isQuoted,
+               @NotNull final ByteArrayInputStream inputStream,
+               @NotNull final ByteStringBuffer buffer)
        throws AuditLogException
   {
     buffer.clear();
@@ -764,9 +777,9 @@ stringLoop:
    *                             that was read did not represent a hexadecimal
    *                             digit.
    */
-  private static int readHexDigit(final List<String> logMessageLines,
-                                  final String propertyName,
-                                  final ByteArrayInputStream inputStream)
+  private static int readHexDigit(@NotNull final List<String> logMessageLines,
+                          @NotNull final String propertyName,
+                          @NotNull final ByteArrayInputStream inputStream)
           throws AuditLogException
   {
     final int byteRead = inputStream.read();
@@ -838,9 +851,10 @@ stringLoop:
    * @throws  AuditLogException  If any byte is encountered that is not a space
    *                             or a semicolon.
    */
-  private static void readSpacesAndSemicolon(final List<String> logMessageLines,
-                           final String propertyName,
-                           final ByteArrayInputStream inputStream)
+  private static void readSpacesAndSemicolon(
+               @NotNull final List<String> logMessageLines,
+               @NotNull final String propertyName,
+               @NotNull final ByteArrayInputStream inputStream)
           throws AuditLogException
   {
     while (true)
@@ -875,8 +889,9 @@ stringLoop:
    *          {@code null} if the property is not defined or if it cannot be
    *          parsed as a {@code Boolean}.
    */
-  protected static Boolean getNamedValueAsBoolean(final String name,
-                                final Map<String,String> nameValuePairs)
+  @Nullable()
+  protected static Boolean getNamedValueAsBoolean(@NotNull final String name,
+                 @NotNull final Map<String,String> nameValuePairs)
   {
     final String valueString = nameValuePairs.get(name);
     if (valueString == null)
@@ -925,8 +940,9 @@ stringLoop:
    *          {@code null} if the property is not defined or if it cannot be
    *          parsed as a {@code Long}.
    */
-  protected static Long getNamedValueAsLong(final String name,
-                             final Map<String,String> nameValuePairs)
+  @Nullable()
+  protected static Long getNamedValueAsLong(@NotNull final String name,
+                 @NotNull final Map<String,String> nameValuePairs)
   {
     final String valueString = nameValuePairs.get(name);
     if (valueString == null)
@@ -964,9 +980,11 @@ stringLoop:
    *          be decoded.  If the commented entry does not include a DN, then
    *          the DN of the entry returned will be the null DN.
    */
-  protected static ReadOnlyEntry decodeCommentedEntry(final String header,
-                                      final List<String> logMessageLines,
-                                      final String entryDN)
+  @Nullable()
+  protected static ReadOnlyEntry decodeCommentedEntry(
+                 @NotNull final String header,
+                 @NotNull final List<String> logMessageLines,
+                 @Nullable final String entryDN)
   {
     List<String> ldifLines = null;
     StringBuilder invalidLDAPNameReason = null;
@@ -1051,9 +1069,10 @@ stringLoop:
    *          the provided set of name-value pairs, or {@code null} if no
    *          valid operation purpose request control was included.
    */
+  @Nullable()
   private static OperationPurposeRequestControl
                       decodeOperationPurposeRequestControl(
-                           final Map<String,String> nameValuePairs)
+                           @NotNull final Map<String,String> nameValuePairs)
   {
     final String valueString = nameValuePairs.get("operationPurpose");
     if (valueString == null)
@@ -1094,9 +1113,10 @@ stringLoop:
    *          the provided set of name-value pairs, or {@code null} if no
    *          valid operation purpose request control was included.
    */
+  @Nullable()
   private static IntermediateClientRequestControl
                       decodeIntermediateClientRequestControl(
-                           final Map<String,String> nameValuePairs)
+                           @NotNull final Map<String,String> nameValuePairs)
   {
     final String valueString =
          nameValuePairs.get("intermediateClientRequestControl");
@@ -1129,8 +1149,10 @@ stringLoop:
    * @return  The intermediate client request control value decoded from the
    *          provided JSON object.
    */
+  @Nullable()
   private static IntermediateClientRequestValue
-                      decodeIntermediateClientRequestValue(final JSONObject o)
+                      decodeIntermediateClientRequestValue(
+                           @Nullable final JSONObject o)
   {
     if (o == null)
     {
@@ -1161,6 +1183,7 @@ stringLoop:
    *
    * @return  The lines that comprise the complete audit log message.
    */
+  @NotNull()
   public final List<String> getLogMessageLines()
   {
     return logMessageLines;
@@ -1175,6 +1198,7 @@ stringLoop:
    * @return  The line that comprises the header for this log message, including
    *          the leading octothorpe (#) and space that make it a comment.
    */
+  @NotNull()
   public final String getCommentedHeaderLine()
   {
     return commentedHeaderLine;
@@ -1189,6 +1213,7 @@ stringLoop:
    * @return  The line that comprises the header for this log message, without
    *          the leading octothorpe (#) and space that make it a comment.
    */
+  @NotNull()
   public final String getUncommentedHeaderLine()
   {
     return uncommentedHeaderLine;
@@ -1201,6 +1226,7 @@ stringLoop:
    *
    * @return  The timestamp for this audit log message.
    */
+  @NotNull()
   public final Date getTimestamp()
   {
     return timestamp;
@@ -1215,6 +1241,7 @@ stringLoop:
    * @return  A map of the name-value pairs contained in the header for this log
    *          message.
    */
+  @NotNull()
   public final Map<String,String> getHeaderNamedValues()
   {
     return namedValues;
@@ -1228,6 +1255,7 @@ stringLoop:
    * @return  The server product name for this audit log message, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final String getProductName()
   {
     return productName;
@@ -1242,6 +1270,7 @@ stringLoop:
    * @return  The server instance name for this audit log message, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final String getInstanceName()
   {
     return instanceName;
@@ -1256,6 +1285,7 @@ stringLoop:
    * @return  The unique identifier generated when the server was started, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final String getStartupID()
   {
     return startupID;
@@ -1270,6 +1300,7 @@ stringLoop:
    * @return  The identifier for the server thread that processed the change, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final Long getThreadID()
   {
     return threadID;
@@ -1283,6 +1314,7 @@ stringLoop:
    * @return  The DN of the user that requested the change, or {@code null} if
    *          it is not available.
    */
+  @Nullable()
   public final String getRequesterDN()
   {
     return requesterDN;
@@ -1297,6 +1329,7 @@ stringLoop:
    * @return  The IP address of the client that requested the change, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final String getRequesterIPAddress()
   {
     return requesterIP;
@@ -1311,6 +1344,7 @@ stringLoop:
    * @return  The connection ID for the connection on which the change was
    *          requested, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Long getConnectionID()
   {
     return connectionID;
@@ -1325,6 +1359,7 @@ stringLoop:
    * @return  The connection ID for the connection on which the change was
    *          requested, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Long getOperationID()
   {
     return operationID;
@@ -1341,6 +1376,7 @@ stringLoop:
    *          internal operation with which this audit log message is
    *          associated, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Long getTriggeredByConnectionID()
   {
     return triggeredByConnectionID;
@@ -1357,6 +1393,7 @@ stringLoop:
    *          internal operation with which this audit log message is
    *          associated, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Long getTriggeredByOperationID()
   {
     return triggeredByOperationID;
@@ -1371,6 +1408,7 @@ stringLoop:
    * @return  The replication change ID for this audit log message, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final String getReplicationChangeID()
   {
     return replicationChangeID;
@@ -1385,6 +1423,7 @@ stringLoop:
    * @return  The alternate authorization DN for this audit log message, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final String getAlternateAuthorizationDN()
   {
     return alternateAuthorizationDN;
@@ -1398,6 +1437,7 @@ stringLoop:
    * @return  The transaction ID for this audit log message, or {@code null} if
    *          it is not available.
    */
+  @Nullable()
   public final String getTransactionID()
   {
     return transactionID;
@@ -1411,6 +1451,7 @@ stringLoop:
    * @return  The origin for this audit log message, or {@code null} if it is
    *          not available.
    */
+  @Nullable()
   public final String getOrigin()
   {
     return origin;
@@ -1428,6 +1469,7 @@ stringLoop:
    *          was not processed using an administrative session worker thread,
    *          or {@code null} if it is not available.
    */
+  @Nullable()
   public final Boolean getUsingAdminSessionWorkerThread()
   {
     return usingAdminSessionWorkerThread;
@@ -1443,6 +1485,7 @@ stringLoop:
    *          operation, an empty list if it is known that there were no request
    *          controls, or {@code null} if it is not available.
    */
+  @Nullable()
   public final List<String> getRequestControlOIDs()
   {
     return requestControlOIDs;
@@ -1458,6 +1501,7 @@ stringLoop:
    *          purpose for the associated operation, or {@code null} if it is not
    *          available.
    */
+  @Nullable()
   public final OperationPurposeRequestControl
                     getOperationPurposeRequestControl()
   {
@@ -1474,6 +1518,7 @@ stringLoop:
    *          downstream processing for the associated operation, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   public final IntermediateClientRequestControl
                     getIntermediateClientRequestControl()
   {
@@ -1487,6 +1532,7 @@ stringLoop:
    *
    * @return  The DN of the entry targeted by the associated operation.
    */
+  @NotNull()
   public abstract String getDN();
 
 
@@ -1496,6 +1542,7 @@ stringLoop:
    *
    * @return  The change type for this audit log message.
    */
+  @NotNull()
   public abstract ChangeType getChangeType();
 
 
@@ -1507,6 +1554,7 @@ stringLoop:
    * @return  An LDIF change record that encapsulates the change represented by
    *          this audit log message.
    */
+  @NotNull()
   public abstract LDIFChangeRecord getChangeRecord();
 
 
@@ -1535,6 +1583,7 @@ stringLoop:
    *
    * @throws  AuditLogException  If this audit log message cannot be reverted.
    */
+  @NotNull()
   public abstract List<LDIFChangeRecord> getRevertChangeRecords()
          throws AuditLogException;
 
@@ -1550,6 +1599,7 @@ stringLoop:
    * @return  A string representation of this audit log message.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1568,7 +1618,7 @@ stringLoop:
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 
 
 
@@ -1579,6 +1629,7 @@ stringLoop:
    *
    * @return  A multi-line string representation of this audit log message.
    */
+  @NotNull()
   public final String toMultiLineString()
   {
     return StaticUtils.concatenateStrings(null, null, StaticUtils.EOL, null,

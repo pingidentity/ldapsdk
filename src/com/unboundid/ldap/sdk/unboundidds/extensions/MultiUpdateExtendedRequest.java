@@ -66,6 +66,8 @@ import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -182,7 +184,7 @@ public final class MultiUpdateExtendedRequest
   /**
    * The OID (1.3.6.1.4.1.30221.2.6.17) for the multi-update extended request.
    */
-  public static final String MULTI_UPDATE_REQUEST_OID =
+  @NotNull public static final String MULTI_UPDATE_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.17";
 
 
@@ -195,10 +197,10 @@ public final class MultiUpdateExtendedRequest
 
 
   // The set of update requests to be processed.
-  private final List<LDAPRequest> requests;
+  @NotNull private final List<LDAPRequest> requests;
 
   // The behavior to exhibit if an error is encountered during processing.
-  private final MultiUpdateErrorBehavior errorBehavior;
+  @NotNull private final MultiUpdateErrorBehavior errorBehavior;
 
 
 
@@ -216,8 +218,8 @@ public final class MultiUpdateExtendedRequest
    *                         request types.
    */
   public MultiUpdateExtendedRequest(
-              final MultiUpdateErrorBehavior errorBehavior,
-              final LDAPRequest... requests)
+              @NotNull final MultiUpdateErrorBehavior errorBehavior,
+              @NotNull final LDAPRequest... requests)
          throws LDAPException
   {
     this(errorBehavior, Arrays.asList(requests));
@@ -245,9 +247,9 @@ public final class MultiUpdateExtendedRequest
    *                         request types.
    */
   public MultiUpdateExtendedRequest(
-              final MultiUpdateErrorBehavior errorBehavior,
-              final LDAPRequest[] requests,
-              final Control... controls)
+              @NotNull final MultiUpdateErrorBehavior errorBehavior,
+              @NotNull final LDAPRequest[] requests,
+              @Nullable final Control... controls)
          throws LDAPException
   {
     this(errorBehavior, Arrays.asList(requests), controls);
@@ -275,9 +277,9 @@ public final class MultiUpdateExtendedRequest
    *                         request types.
    */
   public MultiUpdateExtendedRequest(
-              final MultiUpdateErrorBehavior errorBehavior,
-              final List<LDAPRequest> requests,
-              final Control... controls)
+              @NotNull final MultiUpdateErrorBehavior errorBehavior,
+              @NotNull final List<LDAPRequest> requests,
+              @Nullable final Control... controls)
          throws LDAPException
   {
     super(MULTI_UPDATE_REQUEST_OID, encodeValue(errorBehavior, requests),
@@ -327,10 +329,10 @@ public final class MultiUpdateExtendedRequest
    *                        needed in the multi-update request.
    */
   private MultiUpdateExtendedRequest(
-               final MultiUpdateErrorBehavior errorBehavior,
-               final List<LDAPRequest> requests,
-               final ASN1OctetString encodedValue,
-               final Control... controls)
+               @NotNull final MultiUpdateErrorBehavior errorBehavior,
+               @NotNull final List<LDAPRequest> requests,
+               @NotNull final ASN1OctetString encodedValue,
+               @Nullable final Control... controls)
   {
     super(MULTI_UPDATE_REQUEST_OID, encodedValue, controls);
 
@@ -349,7 +351,8 @@ public final class MultiUpdateExtendedRequest
    *
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
-  public MultiUpdateExtendedRequest(final ExtendedRequest extendedRequest)
+  public MultiUpdateExtendedRequest(
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -463,9 +466,10 @@ public final class MultiUpdateExtendedRequest
    * @return  An ASN.1 octet string suitable for use as the value of a
    *          multi-update extended request.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                      final MultiUpdateErrorBehavior errorBehavior,
-                      final List<LDAPRequest> requests)
+                      @NotNull final MultiUpdateErrorBehavior errorBehavior,
+                      @NotNull final List<LDAPRequest> requests)
   {
     final ArrayList<ASN1Element> requestElements =
          new ArrayList<>(requests.size());
@@ -511,8 +515,9 @@ public final class MultiUpdateExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public MultiUpdateExtendedResult process(final LDAPConnection connection,
-                                           final int depth)
+  @NotNull()
+  public MultiUpdateExtendedResult process(
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -526,6 +531,7 @@ public final class MultiUpdateExtendedRequest
    *
    * @return  The behavior to exhibit if errors are encountered.
    */
+  @NotNull()
   public MultiUpdateErrorBehavior getErrorBehavior()
   {
     return errorBehavior;
@@ -539,6 +545,7 @@ public final class MultiUpdateExtendedRequest
    *
    * @return  The set of requests to be processed.
    */
+  @NotNull()
   public List<LDAPRequest> getRequests()
   {
     return requests;
@@ -550,6 +557,7 @@ public final class MultiUpdateExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public MultiUpdateExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -561,7 +569,9 @@ public final class MultiUpdateExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public MultiUpdateExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public MultiUpdateExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final MultiUpdateExtendedRequest r =
          new MultiUpdateExtendedRequest(errorBehavior, requests,
@@ -576,6 +586,7 @@ public final class MultiUpdateExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_MULTI_UPDATE.get();
@@ -587,7 +598,7 @@ public final class MultiUpdateExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MultiUpdateExtendedRequest(errorBehavior=");
     buffer.append(errorBehavior.name());

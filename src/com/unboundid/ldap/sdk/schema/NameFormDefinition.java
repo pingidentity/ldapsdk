@@ -45,6 +45,8 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -74,29 +76,29 @@ public final class NameFormDefinition
   private final boolean isObsolete;
 
   // The set of extensions for this name form.
-  private final Map<String,String[]> extensions;
+  @NotNull private final Map<String,String[]> extensions;
 
   // The description for this name form.
-  private final String description;
+  @Nullable private final String description;
 
   // The string representation of this name form.
-  private final String nameFormString;
+  @NotNull private final String nameFormString;
 
   // The OID for this name form.
-  private final String oid;
+  @NotNull private final String oid;
 
   // The set of names for this name form.
-  private final String[] names;
+  @NotNull private final String[] names;
 
   // The name or OID of the structural object class with which this name form
   // is associated.
-  private final String structuralClass;
+  @NotNull private final String structuralClass;
 
   // The names/OIDs of the optional attributes.
-  private final String[] optionalAttributes;
+  @NotNull private final String[] optionalAttributes;
 
   // The names/OIDs of the required attributes.
-  private final String[] requiredAttributes;
+  @NotNull private final String[] requiredAttributes;
 
 
 
@@ -110,7 +112,7 @@ public final class NameFormDefinition
    * @throws  LDAPException  If the provided string cannot be decoded as a name
    *                         form definition.
    */
-  public NameFormDefinition(final String s)
+  public NameFormDefinition(@NotNull final String s)
          throws LDAPException
   {
     Validator.ensureNotNull(s);
@@ -356,11 +358,12 @@ public final class NameFormDefinition
    *                            may be {@code null} or empty if there should
    *                            not be any extensions.
    */
-  public NameFormDefinition(final String oid, final String name,
-                               final String description,
-                               final String structuralClass,
-                               final String requiredAttribute,
-                               final Map<String,String[]> extensions)
+  public NameFormDefinition(@NotNull final String oid,
+                            @Nullable final String name,
+                            @Nullable final String description,
+                            @NotNull final String structuralClass,
+                            @NotNull final String requiredAttribute,
+                            @NotNull final Map<String,String[]> extensions)
   {
     this(oid, ((name == null) ? null : new String[] { name }), description,
          false, structuralClass, new String[] { requiredAttribute }, null,
@@ -391,18 +394,20 @@ public final class NameFormDefinition
    * @param  optionalAttributes  The names/OIDs of the attributes which may
    *                             optionally be present in the RDN for entries
    *                             with the associated structural class.  It may
-   *                             be {@code null} or empty
+   *                             be {@code null} or empty if no optional
+   *                             attributes are needed.
    * @param  extensions          The set of extensions for this name form.  It
    *                             may be {@code null} or empty if there should
    *                             not be any extensions.
    */
-  public NameFormDefinition(final String oid, final String[] names,
-                               final String description,
-                               final boolean isObsolete,
-                               final String structuralClass,
-                               final String[] requiredAttributes,
-                               final String[] optionalAttributes,
-                               final Map<String,String[]> extensions)
+  public NameFormDefinition(@NotNull final String oid,
+                            @Nullable final String[] names,
+                            @Nullable final String description,
+                            final boolean isObsolete,
+                            @NotNull final String structuralClass,
+                            @NotNull final String[] requiredAttributes,
+                            @Nullable final String[] optionalAttributes,
+                            @Nullable final Map<String,String[]> extensions)
   {
     Validator.ensureNotNull(oid, structuralClass, requiredAttributes);
     Validator.ensureFalse(requiredAttributes.length == 0);
@@ -454,7 +459,7 @@ public final class NameFormDefinition
    * @param  buffer  The buffer in which to construct a string representation of
    *                 this name form definition.
    */
-  private void createDefinitionString(final StringBuilder buffer)
+  private void createDefinitionString(@NotNull final StringBuilder buffer)
   {
     buffer.append("( ");
     buffer.append(oid);
@@ -575,6 +580,7 @@ public final class NameFormDefinition
    *
    * @return  The OID for this name form.
    */
+  @NotNull()
   public String getOID()
   {
     return oid;
@@ -588,6 +594,7 @@ public final class NameFormDefinition
    * @return  The set of names for this name form, or an empty array if it does
    *          not have any names.
    */
+  @NotNull()
   public String[] getNames()
   {
     return names;
@@ -602,6 +609,7 @@ public final class NameFormDefinition
    *
    * @return  The primary name that can be used to reference this name form.
    */
+  @NotNull()
   public String getNameOrOID()
   {
     if (names.length == 0)
@@ -626,7 +634,7 @@ public final class NameFormDefinition
    * @return  {@code true} if the provided string matches the OID or any of the
    *          names for this name form, or {@code false} if not.
    */
-  public boolean hasNameOrOID(final String s)
+  public boolean hasNameOrOID(@NotNull final String s)
   {
     for (final String name : names)
     {
@@ -647,6 +655,7 @@ public final class NameFormDefinition
    * @return  The description for this name form, or {@code null} if there is no
    *          description defined.
    */
+  @Nullable()
   public String getDescription()
   {
     return description;
@@ -674,6 +683,7 @@ public final class NameFormDefinition
    * @return  The name or OID of the structural object class associated with
    *          this name form.
    */
+  @NotNull()
   public String getStructuralClass()
   {
     return structuralClass;
@@ -689,6 +699,7 @@ public final class NameFormDefinition
    *          present in the RDN of entries with the associated structural
    *          object class.
    */
+  @NotNull()
   public String[] getRequiredAttributes()
   {
     return requiredAttributes;
@@ -705,6 +716,7 @@ public final class NameFormDefinition
    *          object class, or an empty array if there are no optional
    *          attributes.
    */
+  @NotNull()
   public String[] getOptionalAttributes()
   {
     return optionalAttributes;
@@ -719,6 +731,7 @@ public final class NameFormDefinition
    *
    * @return  The set of extensions for this name form.
    */
+  @NotNull()
   public Map<String,String[]> getExtensions()
   {
     return extensions;
@@ -730,6 +743,7 @@ public final class NameFormDefinition
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SchemaElementType getSchemaElementType()
   {
     return SchemaElementType.NAME_FORM;
@@ -752,7 +766,7 @@ public final class NameFormDefinition
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -791,6 +805,7 @@ public final class NameFormDefinition
    * @return  A string representation of this name form definition.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return nameFormString;

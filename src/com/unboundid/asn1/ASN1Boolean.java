@@ -39,6 +39,7 @@ package com.unboundid.asn1;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -60,7 +61,7 @@ public final class ASN1Boolean
    * A pre-allocated ASN.1 Boolean element with the universal Boolean BER type
    * and a value of "FALSE".
    */
-  public static final ASN1Boolean UNIVERSAL_BOOLEAN_FALSE_ELEMENT =
+  @NotNull public static final ASN1Boolean UNIVERSAL_BOOLEAN_FALSE_ELEMENT =
          new ASN1Boolean(false);
 
 
@@ -69,7 +70,7 @@ public final class ASN1Boolean
    * A pre-allocated ASN.1 Boolean element with the universal Boolean BER type
    * and a value of "TRUE".
    */
-  public static final ASN1Boolean UNIVERSAL_BOOLEAN_TRUE_ELEMENT =
+  @NotNull public static final ASN1Boolean UNIVERSAL_BOOLEAN_TRUE_ELEMENT =
          new ASN1Boolean(true);
 
 
@@ -130,7 +131,7 @@ public final class ASN1Boolean
    * @param  value         The pre-encoded value to use for this element.
    */
   private ASN1Boolean(final byte type, final boolean booleanValue,
-                      final byte[] value)
+                      @NotNull final byte[] value)
   {
     super(type, value);
 
@@ -162,7 +163,8 @@ public final class ASN1Boolean
    * @throws  ASN1Exception  If the provided array cannot be decoded as a
    *                         Boolean element.
    */
-  public static ASN1Boolean decodeAsBoolean(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1Boolean decodeAsBoolean(@NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -220,7 +222,8 @@ public final class ASN1Boolean
    * @throws  ASN1Exception  If the provided element cannot be decoded as a
    *                         Boolean element.
    */
-  public static ASN1Boolean decodeAsBoolean(final ASN1Element element)
+  @NotNull()
+  public static ASN1Boolean decodeAsBoolean(@NotNull final ASN1Element element)
          throws ASN1Exception
   {
     final byte[] value = element.getValue();
@@ -245,7 +248,7 @@ public final class ASN1Boolean
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(booleanValue);
   }

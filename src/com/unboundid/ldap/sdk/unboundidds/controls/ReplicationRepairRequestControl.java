@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,7 +87,7 @@ public final class ReplicationRepairRequestControl
    * The OID (1.3.6.1.4.1.30221.1.5.2) for the replication repair request
    * control.
    */
-  public static final String REPLICATION_REPAIR_REQUEST_OID =
+  @NotNull public static final String REPLICATION_REPAIR_REQUEST_OID =
        "1.3.6.1.4.1.30221.1.5.2";
 
 
@@ -119,7 +120,7 @@ public final class ReplicationRepairRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         replication repair request control.
    */
-  public ReplicationRepairRequestControl(final Control control)
+  public ReplicationRepairRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -137,6 +138,7 @@ public final class ReplicationRepairRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_REPLICATION_REPAIR_REQUEST.get();
@@ -148,7 +150,7 @@ public final class ReplicationRepairRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ReplicationRepairRequestControl()");
   }

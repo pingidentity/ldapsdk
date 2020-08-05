@@ -45,6 +45,7 @@ import com.unboundid.ldap.sdk.experimental.
             DraftBeheraLDAPPasswordPolicy10RequestControl;
 import com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -95,7 +96,7 @@ public final class TransactionSpecificationRequestControl
   /**
    * The OID (1.3.6.1.1.21.2) for the transaction specification request control.
    */
-  public static final String TRANSACTION_SPECIFICATION_REQUEST_OID =
+  @NotNull public static final String TRANSACTION_SPECIFICATION_REQUEST_OID =
        "1.3.6.1.1.21.2";
 
 
@@ -108,7 +109,7 @@ public final class TransactionSpecificationRequestControl
 
 
   // The transaction ID for the associated transaction.
-  private final ASN1OctetString transactionID;
+  @NotNull private final ASN1OctetString transactionID;
 
 
 
@@ -121,7 +122,7 @@ public final class TransactionSpecificationRequestControl
    *                        operation.  It must not be {@code null}.
    */
   public TransactionSpecificationRequestControl(
-              final ASN1OctetString transactionID)
+              @NotNull final ASN1OctetString transactionID)
   {
     super(TRANSACTION_SPECIFICATION_REQUEST_OID, true,
          new ASN1OctetString(transactionID.getValue()));
@@ -142,7 +143,8 @@ public final class TransactionSpecificationRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         transaction specification request control.
    */
-  public TransactionSpecificationRequestControl(final Control control)
+  public TransactionSpecificationRequestControl(
+              @NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -162,6 +164,7 @@ public final class TransactionSpecificationRequestControl
    *
    * @return  The transaction ID for the associated transaction.
    */
+  @NotNull()
   public ASN1OctetString getTransactionID()
   {
     return transactionID;
@@ -173,6 +176,7 @@ public final class TransactionSpecificationRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_TXN_SPECIFICATION_REQUEST.get();
@@ -184,7 +188,7 @@ public final class TransactionSpecificationRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("TransactionSpecificationRequestControl(transactionID='");
     buffer.append(transactionID.stringValue());

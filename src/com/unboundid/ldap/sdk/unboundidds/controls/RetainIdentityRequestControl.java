@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -115,7 +116,7 @@ public final class RetainIdentityRequestControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.3) for the retain identity request control.
    */
-  public static final String RETAIN_IDENTITY_REQUEST_OID =
+  @NotNull public static final String RETAIN_IDENTITY_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.3";
 
 
@@ -147,7 +148,7 @@ public final class RetainIdentityRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         retain identity request control.
    */
-  public RetainIdentityRequestControl(final Control control)
+  public RetainIdentityRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -165,6 +166,7 @@ public final class RetainIdentityRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_RETAIN_IDENTITY_REQUEST.get();
@@ -176,7 +178,7 @@ public final class RetainIdentityRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RetainIdentityRequestControl(isCritical=");
     buffer.append(isCritical());

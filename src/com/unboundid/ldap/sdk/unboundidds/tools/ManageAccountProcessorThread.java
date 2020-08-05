@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateExtendedRequest;
+import com.unboundid.util.NotNull;
 
 
 
@@ -61,7 +62,7 @@ final class ManageAccountProcessorThread
 {
   // The manage-account processor that will actually do the majority of the
   // work.
-  private final ManageAccountProcessor processor;
+  @NotNull private final ManageAccountProcessor processor;
 
 
 
@@ -76,7 +77,7 @@ final class ManageAccountProcessorThread
    *                       {@code null}.
    */
   ManageAccountProcessorThread(final int threadNumber,
-                               final ManageAccountProcessor processor)
+                               @NotNull final ManageAccountProcessor processor)
   {
     setName("manage-account Processor Thread " + threadNumber);
 

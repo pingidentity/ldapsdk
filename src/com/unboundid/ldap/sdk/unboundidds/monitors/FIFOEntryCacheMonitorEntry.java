@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public final class FIFOEntryCacheMonitorEntry
   /**
    * The structural object class used in entry cache monitor entries.
    */
-  static final String FIFO_ENTRY_CACHE_MONITOR_OC =
+  @NotNull static final String FIFO_ENTRY_CACHE_MONITOR_OC =
        "ds-fifo-entry-cache-monitor-entry";
 
 
@@ -112,35 +114,38 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the name of the associated FIFO entry
    * cache.
    */
-  private static final String ATTR_CACHE_NAME = "cacheName";
+  @NotNull private static final String ATTR_CACHE_NAME = "cacheName";
 
 
 
   /**
    * The name of the attribute that holds the number of cache hits.
    */
-  private static final String ATTR_ENTRY_CACHE_HITS = "entryCacheHits";
+  @NotNull private static final String ATTR_ENTRY_CACHE_HITS = "entryCacheHits";
 
 
 
   /**
    * The name of the attribute that holds the number of cache tries.
    */
-  private static final String ATTR_ENTRY_CACHE_TRIES = "entryCacheTries";
+  @NotNull private static final String ATTR_ENTRY_CACHE_TRIES =
+       "entryCacheTries";
 
 
 
   /**
    * The name of the attribute that holds the cache hit ratio.
    */
-  private static final String ATTR_ENTRY_CACHE_HIT_RATIO = "entryCacheHitRatio";
+  @NotNull private static final String ATTR_ENTRY_CACHE_HIT_RATIO =
+       "entryCacheHitRatio";
 
 
 
   /**
    * The name of the attribute that holds the maximum cache size in bytes.
    */
-  private static final String ATTR_MAX_ENTRY_CACHE_SIZE = "maxEntryCacheSize";
+  @NotNull private static final String ATTR_MAX_ENTRY_CACHE_SIZE =
+       "maxEntryCacheSize";
 
 
 
@@ -148,7 +153,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries currently in the
    * cache.
    */
-  private static final String ATTR_CURRENT_ENTRY_CACHE_COUNT =
+  @NotNull private static final String ATTR_CURRENT_ENTRY_CACHE_COUNT =
        "currentEntryCacheCount";
 
 
@@ -157,7 +162,8 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the maximum number of entries that may
    * be held in the cache.
    */
-  private static final String ATTR_MAX_ENTRY_CACHE_COUNT = "maxEntryCacheCount";
+  @NotNull private static final String ATTR_MAX_ENTRY_CACHE_COUNT =
+       "maxEntryCacheCount";
 
 
 
@@ -165,7 +171,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries added to or
    * replaced in the cache.
    */
-  private static final String ATTR_ENTRIES_ADDED_OR_UPDATED =
+  @NotNull private static final String ATTR_ENTRIES_ADDED_OR_UPDATED =
        "entriesAddedOrUpdated";
 
 
@@ -174,7 +180,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries evicted because
    * the entry cache had reached its maximum memory allocation.
    */
-  private static final String ATTR_EVICTIONS_DUE_TO_MAX_MEMORY =
+  @NotNull private static final String ATTR_EVICTIONS_DUE_TO_MAX_MEMORY =
        "evictionsDueToMaxMemory";
 
 
@@ -183,7 +189,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries evicted because
    * the entry cache had reached its maximum entry count.
    */
-  private static final String ATTR_EVICTIONS_DUE_TO_MAX_ENTRIES =
+  @NotNull private static final String ATTR_EVICTIONS_DUE_TO_MAX_ENTRIES =
        "evictionsDueToMaxEntries";
 
 
@@ -192,7 +198,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries that were not
    * added because they were already present in the cache.
    */
-  private static final String ATTR_ENTRIES_NOT_ADDED_ALREADY_PRESENT =
+  @NotNull private static final String ATTR_ENTRIES_NOT_ADDED_ALREADY_PRESENT =
        "entriesNotAddedAlreadyPresent";
 
 
@@ -201,8 +207,9 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries that were not
    * added because the cache had reached its maximum memory allocation.
    */
-  private static final String ATTR_ENTRIES_NOT_ADDED_DUE_TO_MAX_MEMORY =
-       "entriesNotAddedDueToMaxMemory";
+  @NotNull private static final String
+       ATTR_ENTRIES_NOT_ADDED_DUE_TO_MAX_MEMORY =
+            "entriesNotAddedDueToMaxMemory";
 
 
 
@@ -210,7 +217,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of entries that were not
    * added because they did not meet the necessary filter criteria.
    */
-  private static final String ATTR_ENTRIES_NOT_ADDED_DUE_TO_FILTER =
+  @NotNull private static final String ATTR_ENTRIES_NOT_ADDED_DUE_TO_FILTER =
        "entriesNotAddedDueToFilter";
 
 
@@ -220,8 +227,9 @@ public final class FIFOEntryCacheMonitorEntry
    * added because they did not have enough values to be considered for
    * inclusion in the cache.
    */
-  private static final String ATTR_ENTRIES_NOT_ADDED_DUE_TO_ENTRY_SMALLNESS =
-       "entriesNotAddedDueToEntrySmallness";
+  @NotNull private static final String
+       ATTR_ENTRIES_NOT_ADDED_DUE_TO_ENTRY_SMALLNESS =
+            "entriesNotAddedDueToEntrySmallness";
 
 
 
@@ -229,7 +237,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the number of times that entries were
    * purged from the cache because the JVM was running low on memory.
    */
-  private static final String ATTR_LOW_MEMORY_OCCURRENCES =
+  @NotNull private static final String ATTR_LOW_MEMORY_OCCURRENCES =
        "lowMemoryOccurrences";
 
 
@@ -238,7 +246,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the percentage of the maximum allowed
    * number of entries that are currently held in the cache.
    */
-  private static final String ATTR_PERCENT_FULL_MAX_ENTRIES =
+  @NotNull private static final String ATTR_PERCENT_FULL_MAX_ENTRIES =
        "percentFullMaxEntries";
 
 
@@ -247,7 +255,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the maximum percent of JVM memory that
    * may be consumed before entries may stop being added to the cache.
    */
-  private static final String ATTR_JVM_MEMORY_MAX_PERCENT_THRESHOLD =
+  @NotNull private static final String ATTR_JVM_MEMORY_MAX_PERCENT_THRESHOLD =
        "jvmMemoryMaxPercentThreshold";
 
 
@@ -256,7 +264,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the percent of JVM memory that is
    * currently consumed.
    */
-  private static final String ATTR_JVM_MEMORY_CURRENT_PERCENT_FULL =
+  @NotNull private static final String ATTR_JVM_MEMORY_CURRENT_PERCENT_FULL =
        "jvmMemoryCurrentPercentFull";
 
 
@@ -265,8 +273,9 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds the difference between the maximum
    * memory percent threshold and the current percent full.
    */
-  private static final String ATTR_JVM_MEMORY_BELOW_MAX_MEMORY_PERCENT =
-       "jvmMemoryBelowMaxMemoryPercent";
+  @NotNull private static final String
+       ATTR_JVM_MEMORY_BELOW_MAX_MEMORY_PERCENT =
+            "jvmMemoryBelowMaxMemoryPercent";
 
 
 
@@ -274,7 +283,7 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that indicates whether the entry cache is
    * currently full (based on memory usage or number of entries).
    */
-  private static final String ATTR_IS_FULL = "isFull";
+  @NotNull private static final String ATTR_IS_FULL = "isFull";
 
 
 
@@ -282,7 +291,8 @@ public final class FIFOEntryCacheMonitorEntry
    * The name of the attribute that holds a human-readable message about the
    * capacity and utilization of the cache.
    */
-  private static final String ATTR_CAPACITY_DETAILS = "capacityDetails";
+  @NotNull private static final String ATTR_CAPACITY_DETAILS =
+       "capacityDetails";
 
 
 
@@ -294,67 +304,67 @@ public final class FIFOEntryCacheMonitorEntry
 
 
   // The value of the isFull attribute.
-  private final Boolean isFull;
+  @Nullable private final Boolean isFull;
 
   // The value of the currentEntryCacheCount attribute.
-  private final Long currentEntryCacheCount;
+  @Nullable private final Long currentEntryCacheCount;
 
   // The value of the entriesAddedOrUpdated attribute.
-  private final Long entriesAddedOrUpdated;
+  @Nullable private final Long entriesAddedOrUpdated;
 
   // The value of the entriesNotAddedAlreadyPresent attribute.
-  private final Long entriesNotAddedAlreadyPresent;
+  @Nullable private final Long entriesNotAddedAlreadyPresent;
 
   // The value of the entriesNotAddedDueToEntrySmallness attribute.
-  private final Long entriesNotAddedDueToEntrySmallness;
+  @Nullable private final Long entriesNotAddedDueToEntrySmallness;
 
   // The value of the entriesNotAddedDueToFilter attribute.
-  private final Long entriesNotAddedDueToFilter;
+  @Nullable private final Long entriesNotAddedDueToFilter;
 
   // The value of the entriesNotAddedDueToMaxMemory attribute.
-  private final Long entriesNotAddedDueToMaxMemory;
+  @Nullable private final Long entriesNotAddedDueToMaxMemory;
 
   // The value of the entryCacheHitRatio attribute.
-  private final Long entryCacheHitRatio;
+  @Nullable private final Long entryCacheHitRatio;
 
   // The value of the entryCacheHits attribute.
-  private final Long entryCacheHits;
+  @Nullable private final Long entryCacheHits;
 
   // The value of the entryCacheTries attribute.
-  private final Long entryCacheTries;
+  @Nullable private final Long entryCacheTries;
 
   // The value of the evictionsDueToMaxEntries attribute.
-  private final Long evictionsDueToMaxEntries;
+  @Nullable private final Long evictionsDueToMaxEntries;
 
   // The value of the evictionsDueToMaxMemory attribute.
-  private final Long evictionsDueToMaxMemory;
+  @Nullable private final Long evictionsDueToMaxMemory;
 
   // The value of the jvmMemoryBelowMaxMemoryPercent attribute.
-  private final Long jvmMemoryBelowMaxMemoryPercent;
+  @Nullable private final Long jvmMemoryBelowMaxMemoryPercent;
 
   // The value of the jvmMemoryCurrentPercentFull attribute.
-  private final Long jvmMemoryCurrentPercentFull;
+  @Nullable private final Long jvmMemoryCurrentPercentFull;
 
   // The value of the jvmMemoryMaxPercentThreshold attribute.
-  private final Long jvmMemoryMaxPercentThreshold;
+  @Nullable private final Long jvmMemoryMaxPercentThreshold;
 
   // The value of the lowMemoryOccurrences attribute.
-  private final Long lowMemoryOccurrences;
+  @Nullable private final Long lowMemoryOccurrences;
 
   // The value of the maxEntryCacheCount attribute.
-  private final Long maxEntryCacheCount;
+  @Nullable private final Long maxEntryCacheCount;
 
   // The value of the maxEntryCacheSize attribute.
-  private final Long maxEntryCacheSize;
+  @Nullable private final Long maxEntryCacheSize;
 
   // The value of the percentFullMaxEntries attribute.
-  private final Long percentFullMaxEntries;
+  @Nullable private final Long percentFullMaxEntries;
 
   // The value of the cacheName attribute.
-  private final String cacheName;
+  @Nullable private final String cacheName;
 
   // The value of the capacityDetails attribute.
-  private final String capacityDetails;
+  @Nullable private final String capacityDetails;
 
 
 
@@ -364,7 +374,7 @@ public final class FIFOEntryCacheMonitorEntry
    * @param  entry  The entry to be parsed as a FIFO entry cache monitor entry.
    *                It must not be {@code null}.
    */
-  public FIFOEntryCacheMonitorEntry(final Entry entry)
+  public FIFOEntryCacheMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -404,6 +414,7 @@ public final class FIFOEntryCacheMonitorEntry
    * @return  The name of the associated FIFO entry cache, or {@code null} if
    *          this was not included in the monitor entry.
    */
+  @Nullable()
   public String getCacheName()
   {
     return cacheName;
@@ -419,6 +430,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          in the cache, or {@code null} if this was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getEntryCacheHits()
   {
     return entryCacheHits;
@@ -434,6 +446,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          from the cache, or {@code null} if this was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getEntryCacheTries()
   {
     return entryCacheTries;
@@ -449,6 +462,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          retrieved from the cache, or {@code null} if this was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public Long getEntryCacheHitRatio()
   {
     return entryCacheHitRatio;
@@ -464,6 +478,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          consume, or {@code null} if this was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getMaxEntryCacheSizeBytes()
   {
     return maxEntryCacheSize;
@@ -477,6 +492,7 @@ public final class FIFOEntryCacheMonitorEntry
    * @return  The number of entries currently held in the entry cache, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentEntryCacheCount()
   {
     return currentEntryCacheCount;
@@ -491,6 +507,7 @@ public final class FIFOEntryCacheMonitorEntry
    * @return  The maximum number of entries that may be held in the entry cache,
    *          or {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMaxEntryCacheCount()
   {
     return maxEntryCacheCount;
@@ -506,6 +523,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          the cache since it was enabled, or {@code null} if this was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getEntriesAddedOrUpdated()
   {
     return entriesAddedOrUpdated;
@@ -521,6 +539,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          because the maximum memory consumption had been reached, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getEvictionsDueToMaxMemory()
   {
     return evictionsDueToMaxMemory;
@@ -537,6 +556,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          entries, or {@code null} if this was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getEvictionsDueToMaxEntries()
   {
     return evictionsDueToMaxEntries;
@@ -552,6 +572,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          because it was already present, or {@code null} if this was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getEntriesNotAddedAlreadyPresent()
   {
     return entriesNotAddedAlreadyPresent;
@@ -567,6 +588,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          because it was already at its maximum memory consumption, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getEntriesNotAddedDueToMaxMemory()
   {
     return entriesNotAddedDueToMaxMemory;
@@ -582,6 +604,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          because it did not match the filter criteria for including it, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getEntriesNotAddedDueToFilter()
   {
     return entriesNotAddedDueToFilter;
@@ -598,6 +621,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          inclusion, or {@code null} if this was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getEntriesNotAddedDueToEntrySmallness()
   {
     return entriesNotAddedDueToEntrySmallness;
@@ -613,6 +637,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          because the available JVM memory had become critically low, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getLowMemoryOccurrences()
   {
     return lowMemoryOccurrences;
@@ -628,6 +653,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          currently held in the cache, or {@code null} if this was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getPercentFullMaxEntries()
   {
     return percentFullMaxEntries;
@@ -643,6 +669,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          for new entries to be added to the cache, or {@code null} if this
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getJVMMemoryMaxPercentThreshold()
   {
     return jvmMemoryMaxPercentThreshold;
@@ -656,6 +683,7 @@ public final class FIFOEntryCacheMonitorEntry
    * @return  The percentage of JVM memory that is currently being consumed, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getJVMMemoryCurrentPercentFull()
   {
     return jvmMemoryCurrentPercentFull;
@@ -672,6 +700,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          the JVM memory current percent full, or {@code null} if this was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public Long getJVMMemoryBelowMaxMemoryPercent()
   {
     return jvmMemoryBelowMaxMemoryPercent;
@@ -688,6 +717,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          {@code Boolean.FALSE} if the entry cache is not yet full, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Boolean isFull()
   {
     return isFull;
@@ -703,6 +733,7 @@ public final class FIFOEntryCacheMonitorEntry
    *          entry cache, or {@code null} if this was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public String getCapacityDetails()
   {
     return capacityDetails;
@@ -714,6 +745,7 @@ public final class FIFOEntryCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_FIFO_ENTRY_CACHE_MONITOR_DISPNAME.get();
@@ -725,6 +757,7 @@ public final class FIFOEntryCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_FIFO_ENTRY_CACHE_MONITOR_DESC.get();
@@ -736,6 +769,7 @@ public final class FIFOEntryCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

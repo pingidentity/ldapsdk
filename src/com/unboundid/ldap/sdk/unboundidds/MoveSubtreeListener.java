@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk.unboundidds;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -77,7 +79,8 @@ public interface MoveSubtreeListener
    *          entry should not be added to the target server (but will still be
    *          removed from the source server).
    */
-  ReadOnlyEntry doPreAddProcessing(ReadOnlyEntry entry);
+  @Nullable()
+  ReadOnlyEntry doPreAddProcessing(@NotNull ReadOnlyEntry entry);
 
 
 
@@ -92,7 +95,7 @@ public interface MoveSubtreeListener
    *                potentially be reverted if move processing encounters an
    *                error later in its processing.
    */
-  void doPostAddProcessing(ReadOnlyEntry entry);
+  void doPostAddProcessing(@NotNull ReadOnlyEntry entry);
 
 
 
@@ -105,7 +108,7 @@ public interface MoveSubtreeListener
    *                  to perform the move, the entry may already be inaccessible
    *                  in the source server.
    */
-  void doPreDeleteProcessing(DN entryDN);
+  void doPreDeleteProcessing(@NotNull DN entryDN);
 
 
 
@@ -118,5 +121,5 @@ public interface MoveSubtreeListener
    *                  if move processing encounters an error later in its
    *                  processing.
    */
-  void doPostDeleteProcessing(DN entryDN);
+  void doPostDeleteProcessing(@NotNull DN entryDN);
 }

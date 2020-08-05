@@ -104,6 +104,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             SubtreeAccessibilityState;
 import com.unboundid.util.Debug;
 import com.unboundid.util.MultiServerLDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ReverseComparator;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -145,27 +147,27 @@ public final class MoveSubtree
    * instances to provide a unique identifier that will be generated every time
    * the server starts.
    */
-  private static final String ATTR_STARTUP_UUID = "startupUUID";
+  @NotNull private static final String ATTR_STARTUP_UUID = "startupUUID";
 
 
 
   // The argument used to indicate whether to operate in verbose mode.
-  private BooleanArgument verbose = null;
+  @Nullable private BooleanArgument verbose = null;
 
   // The argument used to specify the base DNs of the subtrees to move.
-  private DNArgument baseDN = null;
+  @Nullable private DNArgument baseDN = null;
 
   // The argument used to specify a file with base DNs of the subtrees to move.
-  private FileArgument baseDNFile = null;
+  @Nullable private FileArgument baseDNFile = null;
 
   // The argument used to specify the maximum number of entries to move.
-  private IntegerArgument sizeLimit = null;
+  @Nullable private IntegerArgument sizeLimit = null;
 
   // A message that will be displayed if the tool is interrupted.
-  private volatile String interruptMessage = null;
+  @Nullable private volatile String interruptMessage = null;
 
   // The argument used to specify the purpose for the move.
-  private StringArgument purpose = null;
+  @Nullable private StringArgument purpose = null;
 
 
 
@@ -175,7 +177,7 @@ public final class MoveSubtree
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode rc = main(args, System.out, System.err);
     if (rc != ResultCode.SUCCESS)
@@ -199,8 +201,9 @@ public final class MoveSubtree
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args, final OutputStream out,
-                                final OutputStream err)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream out,
+                                @Nullable final OutputStream err)
   {
     final MoveSubtree moveSubtree = new MoveSubtree(out, err);
     return moveSubtree.runTool(args);
@@ -217,7 +220,8 @@ public final class MoveSubtree
    * @param  err  The output stream to which standard error should be written.
    *              It may be {@code null} if error messages should be suppressed.
    */
-  public MoveSubtree(final OutputStream out, final OutputStream err)
+  public MoveSubtree(@Nullable final OutputStream out,
+                     @Nullable final OutputStream err)
   {
     super(out, err, new String[] { "source", "target" }, null);
   }
@@ -228,6 +232,7 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "move-subtree";
@@ -239,6 +244,7 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_MOVE_SUBTREE_TOOL_DESCRIPTION.get();
@@ -250,6 +256,7 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -261,7 +268,7 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     baseDN = new DNArgument('b', "baseDN", false, 0,
@@ -302,6 +309,7 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -363,6 +371,7 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     final List<String> baseDNs;
@@ -628,12 +637,13 @@ public final class MoveSubtree
    * @return  An object with information about the result of the attempted
    *          subtree move.
    */
+  @NotNull()
   public static MoveSubtreeResult moveEntryWithInteractiveTransaction(
-                     final LDAPConnection sourceConnection,
-                     final LDAPConnection targetConnection,
-                     final String entryDN,
-                     final OperationPurposeRequestControl opPurposeControl,
-                     final MoveSubtreeListener listener)
+              @NotNull final LDAPConnection sourceConnection,
+              @NotNull final LDAPConnection targetConnection,
+              @NotNull final String entryDN,
+              @Nullable final OperationPurposeRequestControl opPurposeControl,
+              @Nullable final MoveSubtreeListener listener)
   {
     return moveEntryWithInteractiveTransaction(sourceConnection,
          targetConnection, entryDN, opPurposeControl, false, listener);
@@ -708,13 +718,14 @@ public final class MoveSubtree
    * @return  An object with information about the result of the attempted
    *          subtree move.
    */
+  @NotNull()
   public static MoveSubtreeResult moveEntryWithInteractiveTransaction(
-                     final LDAPConnection sourceConnection,
-                     final LDAPConnection targetConnection,
-                     final String entryDN,
-                     final OperationPurposeRequestControl opPurposeControl,
-                     final boolean suppressRefInt,
-                     final MoveSubtreeListener listener)
+              @NotNull final LDAPConnection sourceConnection,
+              @NotNull final LDAPConnection targetConnection,
+              @NotNull final String entryDN,
+              @Nullable final OperationPurposeRequestControl opPurposeControl,
+              final boolean suppressRefInt,
+              @Nullable final MoveSubtreeListener listener)
   {
     final StringBuilder errorMsg = new StringBuilder();
     final StringBuilder adminMsg = new StringBuilder();
@@ -1375,12 +1386,13 @@ processingBlock:
    * @return  An object with information about the result of the attempted
    *          subtree move.
    */
+  @NotNull()
   public static MoveSubtreeResult moveSubtreeWithRestrictedAccessibility(
-                     final LDAPConnection sourceConnection,
-                     final LDAPConnection targetConnection,
-                     final String baseDN, final int sizeLimit,
-                     final OperationPurposeRequestControl opPurposeControl,
-                     final MoveSubtreeListener listener)
+              @NotNull final LDAPConnection sourceConnection,
+              @NotNull final LDAPConnection targetConnection,
+              @NotNull final String baseDN, final int sizeLimit,
+              @Nullable final OperationPurposeRequestControl opPurposeControl,
+              @Nullable final MoveSubtreeListener listener)
   {
     return moveSubtreeWithRestrictedAccessibility(sourceConnection,
          targetConnection, baseDN, sizeLimit, opPurposeControl, false,
@@ -1461,13 +1473,14 @@ processingBlock:
    * @return  An object with information about the result of the attempted
    *          subtree move.
    */
+  @NotNull()
   public static MoveSubtreeResult moveSubtreeWithRestrictedAccessibility(
-                     final LDAPConnection sourceConnection,
-                     final LDAPConnection targetConnection,
-                     final String baseDN, final int sizeLimit,
-                     final OperationPurposeRequestControl opPurposeControl,
-                     final boolean suppressRefInt,
-                     final MoveSubtreeListener listener)
+              @NotNull final LDAPConnection sourceConnection,
+              @NotNull final LDAPConnection targetConnection,
+              @NotNull final String baseDN, final int sizeLimit,
+              @Nullable final OperationPurposeRequestControl opPurposeControl,
+              final boolean suppressRefInt,
+              @Nullable final MoveSubtreeListener listener)
   {
     return moveSubtreeWithRestrictedAccessibility(null, sourceConnection,
          targetConnection, baseDN, sizeLimit, opPurposeControl, suppressRefInt,
@@ -1511,14 +1524,15 @@ processingBlock:
    * @return  An object with information about the result of the attempted
    *          subtree move.
    */
+  @NotNull()
   private static MoveSubtreeResult moveSubtreeWithRestrictedAccessibility(
-                      final MoveSubtree tool,
-                      final LDAPConnection sourceConnection,
-                      final LDAPConnection targetConnection,
-                      final String baseDN, final int sizeLimit,
-                      final OperationPurposeRequestControl opPurposeControl,
-                      final boolean suppressRefInt,
-                      final MoveSubtreeListener listener)
+               @Nullable final MoveSubtree tool,
+               @NotNull final LDAPConnection sourceConnection,
+               @NotNull final LDAPConnection targetConnection,
+               @NotNull final String baseDN, final int sizeLimit,
+               @Nullable final OperationPurposeRequestControl opPurposeControl,
+               final boolean suppressRefInt,
+               @Nullable final MoveSubtreeListener listener)
   {
     // Ensure that the subtree is currently accessible in both the source and
     // target servers.
@@ -1931,9 +1945,11 @@ processingBlock:
    * @throws  LDAPException  If a problem is encountered while making the
    *                         determination.
    */
-  private static String getAuthenticatedUserDN(final LDAPConnection connection,
-                      final boolean isSource,
-                      final OperationPurposeRequestControl opPurposeControl)
+  @Nullable()
+  private static String getAuthenticatedUserDN(
+               @NotNull final LDAPConnection connection,
+               final boolean isSource,
+               @Nullable final OperationPurposeRequestControl opPurposeControl)
           throws LDAPException
   {
     final BindRequest bindRequest =
@@ -2019,11 +2035,12 @@ processingBlock:
    *          result that should be used if there is an accessibility problem
    *          with the subtree on the source and/or target server.
    */
+  @Nullable()
   private static MoveSubtreeResult checkInitialAccessibility(
-                      final LDAPConnection sourceConnection,
-                      final LDAPConnection targetConnection,
-                      final String baseDN,
-                      final OperationPurposeRequestControl opPurposeControl)
+               @NotNull final LDAPConnection sourceConnection,
+               @NotNull final LDAPConnection targetConnection,
+               @NotNull final String baseDN,
+               @Nullable final OperationPurposeRequestControl opPurposeControl)
   {
     final DN parsedBaseDN;
     try
@@ -2312,10 +2329,13 @@ processingBlock:
    * @throws  LDAPException  If a problem is encountered while attempting to set
    *                         the accessibility state for the subtree.
    */
-  private static void setAccessibility(final LDAPConnection connection,
-               final boolean isSource, final String baseDN,
-               final SubtreeAccessibilityState state, final String bypassDN,
-               final OperationPurposeRequestControl opPurposeControl)
+  private static void setAccessibility(
+               @NotNull final LDAPConnection connection,
+               final boolean isSource,
+               @NotNull final String baseDN,
+               @NotNull final SubtreeAccessibilityState state,
+               @Nullable final String bypassDN,
+               @Nullable final OperationPurposeRequestControl opPurposeControl)
           throws LDAPException
   {
     final String connectionName =
@@ -2391,7 +2411,8 @@ processingBlock:
    * @param  message  The interrupt message to set.  It may be {@code null} if
    *                  an existing interrupt message should be cleared.
    */
-  static void setInterruptMessage(final MoveSubtree tool, final String message)
+  static void setInterruptMessage(@Nullable final MoveSubtree tool,
+                                  @Nullable final String message)
   {
     if (tool != null)
     {
@@ -2427,13 +2448,16 @@ processingBlock:
    * @return  {@code true} if the delete was completely successful, or
    *          {@code false} if any errors were encountered.
    */
-  private static boolean deleteEntries(final LDAPConnection connection,
-               final boolean isSource, final TreeSet<DN> entryDNs,
-               final OperationPurposeRequestControl opPurposeControl,
-               final boolean suppressRefInt, final MoveSubtreeListener listener,
-               final AtomicInteger deleteCount,
-               final AtomicReference<ResultCode> resultCode,
-               final StringBuilder errorMsg)
+  private static boolean deleteEntries(
+               @NotNull final LDAPConnection connection,
+               final boolean isSource,
+               @NotNull final TreeSet<DN> entryDNs,
+               @Nullable final OperationPurposeRequestControl opPurposeControl,
+               final boolean suppressRefInt,
+               @Nullable final MoveSubtreeListener listener,
+               @NotNull final AtomicInteger deleteCount,
+               @NotNull final AtomicReference<ResultCode> resultCode,
+               @NotNull final StringBuilder errorMsg)
   {
     final ArrayList<Control> deleteControlList = new ArrayList<>(3);
     deleteControlList.add(new ManageDsaITRequestControl(true));
@@ -2530,7 +2554,8 @@ processingBlock:
    * @param  message  The message to be appended to the buffer.
    * @param  buffer   The buffer to which the message should be appended.
    */
-  static void append(final String message, final StringBuilder buffer)
+  static void append(@Nullable final String message,
+                     @NotNull final StringBuilder buffer)
   {
     if (message != null)
     {
@@ -2549,8 +2574,9 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
-  public void handleUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void handleUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     wrapOut(0, 79,
          INFO_MOVE_SUBTREE_UNSOLICITED_NOTIFICATION.get(notification.getOID(),
@@ -2564,7 +2590,8 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
-  public ReadOnlyEntry doPreAddProcessing(final ReadOnlyEntry entry)
+  @NotNull()
+  public ReadOnlyEntry doPreAddProcessing(@NotNull final ReadOnlyEntry entry)
   {
     // No processing required.
     return entry;
@@ -2576,7 +2603,7 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
-  public void doPostAddProcessing(final ReadOnlyEntry entry)
+  public void doPostAddProcessing(@NotNull final ReadOnlyEntry entry)
   {
     wrapOut(0, 79, INFO_MOVE_SUBTREE_ADD_SUCCESSFUL.get(entry.getDN()));
   }
@@ -2587,7 +2614,7 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
-  public void doPreDeleteProcessing(final DN entryDN)
+  public void doPreDeleteProcessing(@NotNull final DN entryDN)
   {
     // No processing required.
   }
@@ -2598,7 +2625,7 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
-  public void doPostDeleteProcessing(final DN entryDN)
+  public void doPostDeleteProcessing(@NotNull final DN entryDN)
   {
     wrapOut(0, 79, INFO_MOVE_SUBTREE_DELETE_SUCCESSFUL.get(entryDN.toString()));
   }
@@ -2620,7 +2647,7 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
-  protected void doShutdownHookProcessing(final ResultCode resultCode)
+  protected void doShutdownHookProcessing(@Nullable final ResultCode resultCode)
   {
     if (resultCode != null)
     {
@@ -2638,6 +2665,7 @@ processingBlock:
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> exampleMap =

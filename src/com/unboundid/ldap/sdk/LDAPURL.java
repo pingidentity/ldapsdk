@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -137,7 +139,7 @@ public final class LDAPURL
   /**
    * The default filter that will be used if none is provided.
    */
-  private static final Filter DEFAULT_FILTER =
+  @NotNull private static final Filter DEFAULT_FILTER =
        Filter.createPresenceFilter("objectClass");
 
 
@@ -169,21 +171,22 @@ public final class LDAPURL
   /**
    * The default scope that will be used if none is provided.
    */
-  private static final SearchScope DEFAULT_SCOPE = SearchScope.BASE;
+  @NotNull private static final SearchScope DEFAULT_SCOPE = SearchScope.BASE;
 
 
 
   /**
    * The default base DN that will be used if none is provided.
    */
-  private static final DN DEFAULT_BASE_DN = DN.NULL_DN;
+  @NotNull private static final DN DEFAULT_BASE_DN = DN.NULL_DN;
 
 
 
   /**
    * The default set of attributes that will be used if none is provided.
    */
-  private static final String[] DEFAULT_ATTRIBUTES = StaticUtils.NO_STRINGS;
+  @NotNull private static final String[] DEFAULT_ATTRIBUTES =
+       StaticUtils.NO_STRINGS;
 
 
 
@@ -210,32 +213,32 @@ public final class LDAPURL
   private final boolean scopeProvided;
 
   // The base DN used by this URL.
-  private final DN baseDN;
+  @NotNull private final DN baseDN;
 
   // The filter used by this URL.
-  private final Filter filter;
+  @NotNull private final Filter filter;
 
   // The port used by this URL.
   private final int port;
 
   // The search scope used by this URL.
-  private final SearchScope scope;
+  @NotNull private final SearchScope scope;
 
   // The host used by this URL.
-  private final String host;
+  @Nullable private final String host;
 
   // The normalized representation of this LDAP URL.
-  private volatile String normalizedURLString;
+  @Nullable private volatile String normalizedURLString;
 
   // The scheme used by this LDAP URL.  The standard only accepts "ldap", but
   // we will also accept "ldaps" and "ldapi".
-  private final String scheme;
+  @NotNull private final String scheme;
 
   // The string representation of this LDAP URL.
-  private final String urlString;
+  @NotNull private final String urlString;
 
   // The set of attributes included in this URL.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
 
 
@@ -248,7 +251,7 @@ public final class LDAPURL
    * @throws  LDAPException  If the provided URL string cannot be parsed as an
    *                         LDAP URL.
    */
-  public LDAPURL(final String urlString)
+  public LDAPURL(@NotNull final String urlString)
          throws LDAPException
   {
     Validator.ensureNotNull(urlString);
@@ -518,9 +521,11 @@ public final class LDAPURL
    * @throws  LDAPException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public LDAPURL(final String scheme, final String host, final Integer port,
-                 final DN baseDN, final String[] attributes,
-                 final SearchScope scope, final Filter filter)
+  public LDAPURL(@NotNull final String scheme, @Nullable final String host,
+                 @Nullable final Integer port, @Nullable final DN baseDN,
+                 @Nullable final String[] attributes,
+                 @Nullable final SearchScope scope,
+                 @Nullable final Filter filter)
          throws LDAPException
   {
     Validator.ensureNotNull(scheme);
@@ -700,8 +705,8 @@ public final class LDAPURL
    * @throws  LDAPException  If the provided string cannot be decoded as a
    *                         hostport element.
    */
-  private static int decodeHostPort(final String hostPort,
-                                    final StringBuilder hostBuffer)
+  private static int decodeHostPort(@NotNull final String hostPort,
+                                    @NotNull final StringBuilder hostBuffer)
           throws LDAPException
   {
     final int length = hostPort.length();
@@ -822,7 +827,8 @@ public final class LDAPURL
    * @throws  LDAPException  If an error occurred while attempting to decode the
    *                         attribute list.
    */
-  private static String[] decodeAttributes(final String s)
+  @NotNull()
+  private static String[] decodeAttributes(@NotNull final String s)
           throws LDAPException
   {
     final int length = s.length();
@@ -902,7 +908,8 @@ public final class LDAPURL
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided string.
    */
-  public static String percentDecode(final String s)
+  @NotNull()
+  public static String percentDecode(@NotNull final String s)
           throws LDAPException
   {
     // First, see if there are any percent characters at all in the provided
@@ -1089,7 +1096,8 @@ public final class LDAPURL
    * @param  s       The string to be encoded.
    * @param  buffer  The buffer to which the encoded string will be written.
    */
-  private static void percentEncode(final String s, final StringBuilder buffer)
+  private static void percentEncode(@NotNull final String s,
+                                    @NotNull final StringBuilder buffer)
   {
     final int length = s.length();
     for (int i=0; i < length; i++)
@@ -1199,6 +1207,7 @@ public final class LDAPURL
    *
    * @return  The scheme for this LDAP URL.
    */
+  @NotNull()
   public String getScheme()
   {
     return scheme;
@@ -1213,6 +1222,7 @@ public final class LDAPURL
    *          include a host and the client is supposed to have some external
    *          knowledge of what the host should be.
    */
+  @Nullable()
   public String getHost()
   {
     return host;
@@ -1263,6 +1273,7 @@ public final class LDAPURL
    *
    * @return  The base DN for this LDAP URL.
    */
+  @NotNull()
   public DN getBaseDN()
   {
     return baseDN;
@@ -1288,6 +1299,7 @@ public final class LDAPURL
    *
    * @return  The attribute list for this LDAP URL.
    */
+  @NotNull()
   public String[] getAttributes()
   {
     return attributes;
@@ -1313,6 +1325,7 @@ public final class LDAPURL
    *
    * @return  The scope for this LDAP URL.
    */
+  @NotNull()
   public SearchScope getScope()
   {
     return scope;
@@ -1338,6 +1351,7 @@ public final class LDAPURL
    *
    * @return  The filter for this LDAP URL.
    */
+  @NotNull()
   public Filter getFilter()
   {
     return filter;
@@ -1365,6 +1379,7 @@ public final class LDAPURL
    * @return  The search request created from the base DN, scope, filter, and
    *          requested attributes from this LDAP URL.
    */
+  @NotNull()
   public SearchRequest toSearchRequest()
   {
     return new SearchRequest(baseDN.toString(), scope, filter, attributes);
@@ -1396,7 +1411,7 @@ public final class LDAPURL
    *          {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -1425,6 +1440,7 @@ public final class LDAPURL
    * @return  A string representation of this LDAP URL.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return urlString;
@@ -1437,6 +1453,7 @@ public final class LDAPURL
    *
    * @return  A normalized string representation of this LDAP URL.
    */
+  @NotNull()
   public String toNormalizedString()
   {
     if (normalizedURLString == null)
@@ -1458,7 +1475,7 @@ public final class LDAPURL
    * @param  buffer  The buffer to which to append the normalized string
    *                 representation of this LDAP URL.
    */
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     buffer.append(scheme);
     buffer.append("://");

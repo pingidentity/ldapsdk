@@ -38,6 +38,7 @@ package com.unboundid.ldap.matchingrules;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -57,7 +58,7 @@ public final class CaseIgnoreStringMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final CaseIgnoreStringMatchingRule INSTANCE =
+  @NotNull private static final CaseIgnoreStringMatchingRule INSTANCE =
        new CaseIgnoreStringMatchingRule();
 
 
@@ -65,7 +66,7 @@ public final class CaseIgnoreStringMatchingRule
   /**
    * The name for the caseIgnoreMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "caseIgnoreMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME = "caseIgnoreMatch";
 
 
 
@@ -73,7 +74,7 @@ public final class CaseIgnoreStringMatchingRule
    * The name for the caseIgnoreMatch equality matching rule, formatted in all
    * lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -81,14 +82,15 @@ public final class CaseIgnoreStringMatchingRule
   /**
    * The OID for the caseIgnoreMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.2";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.2";
 
 
 
   /**
    * The name for the caseIgnoreOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_NAME = "caseIgnoreOrderingMatch";
+  @NotNull public static final String ORDERING_RULE_NAME =
+       "caseIgnoreOrderingMatch";
 
 
 
@@ -96,7 +98,7 @@ public final class CaseIgnoreStringMatchingRule
    * The name for the caseIgnoreOrderingMatch ordering matching rule, formatted
    * in all lowercase characters.
    */
-  static final String LOWER_ORDERING_RULE_NAME =
+  @NotNull static final String LOWER_ORDERING_RULE_NAME =
        StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
@@ -104,14 +106,15 @@ public final class CaseIgnoreStringMatchingRule
   /**
    * The OID for the caseIgnoreOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_OID = "2.5.13.3";
+  @NotNull public static final String ORDERING_RULE_OID = "2.5.13.3";
 
 
 
   /**
    * The name for the caseIgnoreSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_NAME = "caseIgnoreSubstringsMatch";
+  @NotNull public static final String SUBSTRING_RULE_NAME =
+       "caseIgnoreSubstringsMatch";
 
 
 
@@ -119,7 +122,7 @@ public final class CaseIgnoreStringMatchingRule
    * The name for the caseIgnoreSubstringsMatch substring matching rule,
    * formatted in all lowercase characters.
    */
-  static final String LOWER_SUBSTRING_RULE_NAME =
+  @NotNull static final String LOWER_SUBSTRING_RULE_NAME =
        StaticUtils.toLowerCase(SUBSTRING_RULE_NAME);
 
 
@@ -127,7 +130,7 @@ public final class CaseIgnoreStringMatchingRule
   /**
    * The OID for the caseIgnoreSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_OID = "2.5.13.4";
+  @NotNull public static final String SUBSTRING_RULE_OID = "2.5.13.4";
 
 
 
@@ -153,6 +156,7 @@ public final class CaseIgnoreStringMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static CaseIgnoreStringMatchingRule getInstance()
   {
     return INSTANCE;
@@ -164,6 +168,7 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -175,6 +180,7 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -186,6 +192,7 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleName()
   {
     return ORDERING_RULE_NAME;
@@ -197,6 +204,7 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleOID()
   {
     return ORDERING_RULE_OID;
@@ -208,6 +216,7 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleName()
   {
     return SUBSTRING_RULE_NAME;
@@ -219,6 +228,7 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleOID()
   {
     return SUBSTRING_RULE_OID;
@@ -230,8 +240,8 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
   {
     // Try to use a quick, no-copy determination if possible.  If this fails,
     // then we'll fall back on a more thorough, but more costly, approach.
@@ -294,7 +304,8 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
   {
     return normalizeInternal(value, false, (byte) 0x00);
   }
@@ -305,8 +316,10 @@ public final class CaseIgnoreStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
   {
     return normalizeInternal(value, true, substringType);
   }
@@ -326,9 +339,11 @@ public final class CaseIgnoreStringMatchingRule
    *
    * @return  The appropriately normalized form of the provided value.
    */
-  private static ASN1OctetString normalizeInternal(final ASN1OctetString value,
-                                                   final boolean isSubstring,
-                                                   final byte substringType)
+  @NotNull()
+  private static ASN1OctetString normalizeInternal(
+                                      @NotNull final ASN1OctetString value,
+                                      final boolean isSubstring,
+                                      final byte substringType)
   {
     final byte[] valueBytes = value.getValue();
     if (valueBytes.length == 0)
@@ -560,9 +575,11 @@ public final class CaseIgnoreStringMatchingRule
    *
    * @return  The normalized form of the value.
    */
-  private static ASN1OctetString normalizeNonASCII(final ASN1OctetString value,
-                                                   final boolean trimInitial,
-                                                   final boolean trimFinal)
+  @NotNull()
+  private static ASN1OctetString normalizeNonASCII(
+                                      @NotNull final ASN1OctetString value,
+                                      final boolean trimInitial,
+                                      final boolean trimFinal)
   {
     final StringBuilder buffer = new StringBuilder(value.stringValue());
 

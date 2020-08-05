@@ -47,6 +47,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -78,10 +80,10 @@ public abstract class SCRAMBindRequest
 
 
   // The password for this bind request.
-  private final ASN1OctetString password;
+  @NotNull private final ASN1OctetString password;
 
   // The username for this bind request.
-  private final String username;
+  @NotNull private final String username;
 
 
 
@@ -95,8 +97,9 @@ public abstract class SCRAMBindRequest
    * @param  controls  The set of controls to include in the bind request.  It
    *                   may be {@code null} or empty if no controls are needed.
    */
-  public SCRAMBindRequest(final String username, final ASN1OctetString password,
-                          final Control... controls)
+  public SCRAMBindRequest(@NotNull final String username,
+                          @NotNull final ASN1OctetString password,
+                          @Nullable final Control... controls)
   {
     super(controls);
 
@@ -117,6 +120,7 @@ public abstract class SCRAMBindRequest
    *
    * @return  The password for this bind request.
    */
+  @NotNull()
   public final String getUsername()
   {
     return username;
@@ -129,6 +133,7 @@ public abstract class SCRAMBindRequest
    *
    * @return  The password for this bind request, as a string.
    */
+  @NotNull()
   public final String getPasswordString()
   {
     return password.stringValue();
@@ -141,6 +146,7 @@ public abstract class SCRAMBindRequest
    *
    * @return  The bytes that comprise the password for this bind request.
    */
+  @NotNull()
   public final byte[] getPasswordBytes()
   {
     return password.getValue();
@@ -155,6 +161,7 @@ public abstract class SCRAMBindRequest
    * @return  The name of the digest algorithm that will be used in the
    *          authentication processing.
    */
+  @NotNull()
   protected abstract String getDigestAlgorithmName();
 
 
@@ -166,6 +173,7 @@ public abstract class SCRAMBindRequest
    * @return  The name of the MAC algorithm that will be used in the
    *          authentication processing.
    */
+  @NotNull()
   protected abstract String getMACAlgorithmName();
 
 
@@ -174,7 +182,8 @@ public abstract class SCRAMBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected final BindResult process(final LDAPConnection connection,
+  @NotNull()
+  protected final BindResult process(@NotNull final LDAPConnection connection,
                                      final int depth)
             throws LDAPException
   {
@@ -260,7 +269,8 @@ public abstract class SCRAMBindRequest
    * @throws  LDAPBindException  If a problem is encountered while computing the
    *                             MAC.
    */
-  final byte[] mac(final byte[] key, final byte[] data)
+  @NotNull()
+  final byte[] mac(@NotNull final byte[] key, @NotNull final byte[] data)
         throws LDAPBindException
   {
     return getMac(key).doFinal(data);
@@ -278,7 +288,8 @@ public abstract class SCRAMBindRequest
    * @throws  LDAPBindException  If a problem is encountered while obtaining the
    *                             MAC generator.
    */
-  final Mac getMac(final byte[] key)
+  @NotNull()
+  final Mac getMac(@NotNull final byte[] key)
         throws LDAPBindException
   {
     try
@@ -312,7 +323,8 @@ public abstract class SCRAMBindRequest
    * @throws  LDAPBindException  If a problem is encountered while computing the
    *                             digest.
    */
-  final byte[] digest(final byte[] data)
+  @NotNull()
+  final byte[] digest(@NotNull final byte[] data)
         throws LDAPBindException
   {
     try
@@ -338,8 +350,10 @@ public abstract class SCRAMBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public abstract SCRAMBindRequest getRebindRequest(final String host,
-                                                    final int port);
+  @NotNull()
+  public abstract SCRAMBindRequest getRebindRequest(
+                                        @NotNull final String host,
+                                        final int port);
 
 
 
@@ -347,6 +361,7 @@ public abstract class SCRAMBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public abstract SCRAMBindRequest duplicate();
 
 
@@ -355,7 +370,8 @@ public abstract class SCRAMBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public abstract SCRAMBindRequest duplicate(final Control[] controls);
+  @NotNull()
+  public abstract SCRAMBindRequest duplicate(@NotNull final Control[] controls);
 
 
 
@@ -363,7 +379,7 @@ public abstract class SCRAMBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(@NotNull final StringBuilder buffer);
 
 
 
@@ -371,8 +387,8 @@ public abstract class SCRAMBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public abstract void toCode(final List<String> lineList,
-                              final String requestID,
+  public abstract void toCode(@NotNull final List<String> lineList,
+                              @NotNull final String requestID,
                               final int indentSpaces,
                               final boolean includeProcessing);
 }

@@ -42,6 +42,8 @@ import java.util.Locale;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -481,10 +483,10 @@ public class LDAPException
   private final int resultCode;
 
   // The matched DN for this LDAP exception.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
   // The error message for this LDAP exception.
-  private final String serverErrorMessage;
+  @Nullable private final String serverErrorMessage;
 
 
 
@@ -503,7 +505,7 @@ public class LDAPException
    *
    * @param  message  The message for this exception, if available.
    */
-  public LDAPException(final String message)
+  public LDAPException(@Nullable final String message)
   {
     this(message, OTHER, null, null);
   }
@@ -516,7 +518,7 @@ public class LDAPException
    * @param  message     The message for this exception, if available.
    * @param  resultCode  The result code for this exception.
    */
-  public LDAPException(final String message, final int resultCode)
+  public LDAPException(@Nullable final String message, final int resultCode)
   {
     this(message, resultCode, null, null);
   }
@@ -531,8 +533,8 @@ public class LDAPException
    * @param  serverErrorMessage  The error message received from the server, if
    *                             available.
    */
-  public LDAPException(final String message, final int resultCode,
-                       final String serverErrorMessage)
+  public LDAPException(@Nullable final String message, final int resultCode,
+                       @Nullable final String serverErrorMessage)
   {
     this(message, resultCode, serverErrorMessage, null);
   }
@@ -549,8 +551,9 @@ public class LDAPException
    * @param  matchedDN           The matched DN for this exception, if
    *                             available.
    */
-  public LDAPException(final String message, final int resultCode,
-                       final String serverErrorMessage, final String matchedDN)
+  public LDAPException(@Nullable final String message, final int resultCode,
+                       @Nullable final String serverErrorMessage,
+                       @Nullable final String matchedDN)
   {
     super(getMessage(message, serverErrorMessage, resultCode));
 
@@ -568,7 +571,8 @@ public class LDAPException
    * @param  ldapException  The {@code LDAPException} object to use to create
    *                        this LDAP exception.
    */
-  public LDAPException(final com.unboundid.ldap.sdk.LDAPException ldapException)
+  public LDAPException(
+              @NotNull final com.unboundid.ldap.sdk.LDAPException ldapException)
   {
     this(ldapException.getMessage(), ldapException.getResultCode().intValue(),
          ldapException.getMessage(), ldapException.getMatchedDN());
@@ -586,8 +590,9 @@ public class LDAPException
    *
    * @return  The appropriate message to use for this LDAP exception.
    */
-  private static String getMessage(final String message,
-                                   final String serverErrorMessage,
+  @NotNull()
+  private static String getMessage(@Nullable final String message,
+                                   @Nullable final String serverErrorMessage,
                                    final int resultCode)
   {
     if ((message != null) && (! message.isEmpty()))
@@ -623,6 +628,7 @@ public class LDAPException
    * @return  The error message received from the server, or {@code null} if
    *          none is available.
    */
+  @Nullable()
   public String getLDAPErrorMessage()
   {
     return serverErrorMessage;
@@ -636,6 +642,7 @@ public class LDAPException
    * @return  The matched DN for this LDAP exception, or {@code null} if none is
    *          available.
    */
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -650,6 +657,7 @@ public class LDAPException
    * @return  The {@code LDAPException} object that is the equivalent of this
    *          LDAP exception.
    */
+  @NotNull()
   public final com.unboundid.ldap.sdk.LDAPException toLDAPException()
   {
     return new com.unboundid.ldap.sdk.LDAPException(
@@ -665,6 +673,7 @@ public class LDAPException
    * @return  A string representation of the result code for this LDAP
    *          exception.
    */
+  @NotNull()
   public String errorCodeToString()
   {
     return ResultCode.valueOf(resultCode).getName();
@@ -681,7 +690,8 @@ public class LDAPException
    * @return  A string representation of the result code for this LDAP
    *          exception.
    */
-  public String errorCodeToString(final Locale l)
+  @NotNull()
+  public String errorCodeToString(@Nullable final Locale l)
   {
     return ResultCode.valueOf(resultCode).getName();
   }
@@ -698,6 +708,7 @@ public class LDAPException
    * @return  A string representation of the result code for this LDAP
    *          exception.
    */
+  @NotNull()
   public static String errorCodeToString(final int code)
   {
     return ResultCode.valueOf(code).getName();
@@ -716,7 +727,9 @@ public class LDAPException
    * @return  A string representation of the result code for this LDAP
    *          exception.
    */
-  public static String errorCodeToString(final int code, final Locale locale)
+  @NotNull()
+  public static String errorCodeToString(final int code,
+                                         @Nullable final Locale locale)
   {
     return ResultCode.valueOf(code).getName();
   }
@@ -729,6 +742,7 @@ public class LDAPException
    * @return  A string representation of this LDAP exception.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return toLDAPException().toString();

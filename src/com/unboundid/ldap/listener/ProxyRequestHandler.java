@@ -78,6 +78,8 @@ import com.unboundid.ldap.sdk.ServerSet;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -104,13 +106,13 @@ public final class ProxyRequestHandler
 
 
   // The connection to the LDAP server to which requests will be forwarded.
-  private final LDAPConnection ldapConnection;
+  @Nullable private final LDAPConnection ldapConnection;
 
   // The client connection that has been established.
-  private final LDAPListenerClientConnection listenerConnection;
+  @Nullable private final LDAPListenerClientConnection listenerConnection;
 
   // The server set that will be used to establish the connection.
-  private final ServerSet serverSet;
+  @NotNull private final ServerSet serverSet;
 
 
 
@@ -146,9 +148,9 @@ public final class ProxyRequestHandler
    * @param  listenerConnection  The client connection with which this request
    *                             handler is associated.
    */
-  private ProxyRequestHandler(final ServerSet serverSet,
-               final LDAPConnection ldapConnection,
-               final LDAPListenerClientConnection listenerConnection)
+  private ProxyRequestHandler(@NotNull final ServerSet serverSet,
+               @NotNull final LDAPConnection ldapConnection,
+               @NotNull final LDAPListenerClientConnection listenerConnection)
   {
     this.serverSet          = serverSet;
     this.ldapConnection     = ldapConnection;
@@ -162,7 +164,7 @@ public final class ProxyRequestHandler
    */
   @Override()
   public ProxyRequestHandler newInstance(
-              final LDAPListenerClientConnection connection)
+              @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException
   {
     return new ProxyRequestHandler(serverSet, serverSet.getConnection(),
@@ -186,9 +188,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processAddRequest(final int messageID,
-                                       final AddRequestProtocolOp request,
-                                       final List<Control> controls)
+                          @NotNull final AddRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final AddRequest addRequest = new AddRequest(request.getDN(),
          request.getAttributes());
@@ -224,9 +227,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processBindRequest(final int messageID,
-                                        final BindRequestProtocolOp request,
-                                        final List<Control> controls)
+                          @NotNull final BindRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final Control[] controlArray;
     if ((controls == null) || (controls.isEmpty()))
@@ -280,9 +284,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processCompareRequest(final int messageID,
-                          final CompareRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final CompareRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final CompareRequest compareRequest = new CompareRequest(request.getDN(),
          request.getAttributeName(), request.getAssertionValue().getValue());
@@ -319,9 +324,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processDeleteRequest(final int messageID,
-                                          final DeleteRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final DeleteRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final DeleteRequest deleteRequest = new DeleteRequest(request.getDN());
     if (! controls.isEmpty())
@@ -356,9 +362,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ExtendedRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final ExtendedRequest extendedRequest;
     if (controls.isEmpty())
@@ -409,9 +416,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyRequest(final int messageID,
-                                          final ModifyRequestProtocolOp request,
-                                          final List<Control> controls)
+                         @NotNull final ModifyRequestProtocolOp request,
+                         @NotNull final List<Control> controls)
   {
     final ModifyRequest modifyRequest = new ModifyRequest(request.getDN(),
          request.getModifications());
@@ -447,9 +455,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyDNRequest(final int messageID,
-                          final ModifyDNRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ModifyDNRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final ModifyDNRequest modifyDNRequest = new ModifyDNRequest(request.getDN(),
          request.getNewRDN(), request.deleteOldRDN(),
@@ -488,9 +497,10 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processSearchRequest(final int messageID,
-                                          final SearchRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final SearchRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final String[] attrs;
     final List<String> attrList = request.getAttributes();
@@ -545,7 +555,7 @@ public final class ProxyRequestHandler
    */
   @Override()
   public void intermediateResponseReturned(
-                   final IntermediateResponse intermediateResponse)
+                   @NotNull final IntermediateResponse intermediateResponse)
   {
     try
     {

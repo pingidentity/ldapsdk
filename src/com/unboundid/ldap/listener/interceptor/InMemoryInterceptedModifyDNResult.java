@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyModifyDNRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,6 +66,7 @@ public interface InMemoryInterceptedModifyDNResult
    *
    * @return  The modify DN request that was processed.
    */
+  @NotNull()
   ReadOnlyModifyDNRequest getRequest();
 
 
@@ -73,6 +76,7 @@ public interface InMemoryInterceptedModifyDNResult
    *
    * @return  The modify DN result to be returned to the client.
    */
+  @Nullable()
   LDAPResult getResult();
 
 
@@ -85,7 +89,7 @@ public interface InMemoryInterceptedModifyDNResult
    *                         by the in-memory directory server.  It must not be
    *                         {@code null}.
    */
-  void setResult(LDAPResult modifyDNResult);
+  void setResult(@NotNull LDAPResult modifyDNResult);
 
 
 
@@ -101,6 +105,7 @@ public interface InMemoryInterceptedModifyDNResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
-         throws LDAPException;
+  void sendIntermediateResponse(
+            @NotNull IntermediateResponse intermediateResponse)
+       throws LDAPException;
 }

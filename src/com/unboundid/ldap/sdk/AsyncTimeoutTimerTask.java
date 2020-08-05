@@ -41,6 +41,7 @@ import java.util.TimerTask;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
@@ -55,7 +56,7 @@ final class AsyncTimeoutTimerTask
       extends TimerTask
 {
   // The async helper with which this task is associated.
-  private final CommonAsyncHelper helper;
+  @NotNull private final CommonAsyncHelper helper;
 
 
 
@@ -65,7 +66,7 @@ final class AsyncTimeoutTimerTask
    *
    * @param  helper  The async helper with which this task is associated.
    */
-  AsyncTimeoutTimerTask(final CommonAsyncHelper helper)
+  AsyncTimeoutTimerTask(@NotNull final CommonAsyncHelper helper)
   {
     this.helper = helper;
   }

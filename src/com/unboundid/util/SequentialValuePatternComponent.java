@@ -58,7 +58,7 @@ final class SequentialValuePatternComponent
 
 
   // The next value to return.
-  private final AtomicLong nextValue;
+  @NotNull private final AtomicLong nextValue;
 
   // The increment for this component.
   private final long increment;
@@ -70,10 +70,10 @@ final class SequentialValuePatternComponent
   private final long upperBound;
 
   // The format string that will be used by the decimal formatter.
-  private final String formatString;
+  @Nullable private final String formatString;
 
   // The decimal format that will be used by this component, if applicable.
-  private final ThreadLocal<DecimalFormat> decimalFormat;
+  @NotNull private final ThreadLocal<DecimalFormat> decimalFormat;
 
 
 
@@ -89,7 +89,7 @@ final class SequentialValuePatternComponent
    */
   SequentialValuePatternComponent(final long lowerBound, final long upperBound,
                                   final long increment,
-                                  final String formatString)
+                                  @Nullable final String formatString)
   {
     if (lowerBound == upperBound)
     {
@@ -137,7 +137,7 @@ final class SequentialValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     long value = nextValue.getAndAdd(increment);
     if (value > upperBound)

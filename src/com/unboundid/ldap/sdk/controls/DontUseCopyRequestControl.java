@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,7 +67,8 @@ public final class DontUseCopyRequestControl
   /**
    * The OID (1.3.6.1.1.22) for the don't use copy request control.
    */
-  public static final String DONT_USE_COPY_REQUEST_OID = "1.3.6.1.1.22";
+  @NotNull public static final String DONT_USE_COPY_REQUEST_OID =
+       "1.3.6.1.1.22";
 
 
 
@@ -98,7 +100,7 @@ public final class DontUseCopyRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         don't use copy request control.
    */
-  public DontUseCopyRequestControl(final Control control)
+  public DontUseCopyRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -116,6 +118,7 @@ public final class DontUseCopyRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_DONT_USE_COPY.get();
@@ -127,7 +130,7 @@ public final class DontUseCopyRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DontUseCopyRequestControl(isCritical=");
     buffer.append(isCritical());

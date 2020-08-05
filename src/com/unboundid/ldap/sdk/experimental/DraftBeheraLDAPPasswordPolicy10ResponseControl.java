@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,7 +85,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    * The OID (1.3.6.1.4.1.42.2.27.8.5.1) for the password policy response
    * control.
    */
-  public static final String PASSWORD_POLICY_RESPONSE_OID =
+  @NotNull public static final String PASSWORD_POLICY_RESPONSE_OID =
        "1.3.6.1.4.1.42.2.27.8.5.1";
 
 
@@ -127,10 +129,11 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
   private final int warningValue;
 
   // The password policy error type, if applicable.
-  private final DraftBeheraLDAPPasswordPolicy10ErrorType errorType;
+  @Nullable private final DraftBeheraLDAPPasswordPolicy10ErrorType errorType;
 
   // The password policy warning type, if applicable.
-  private final DraftBeheraLDAPPasswordPolicy10WarningType warningType;
+  @Nullable private final DraftBeheraLDAPPasswordPolicy10WarningType
+       warningType;
 
 
 
@@ -161,50 +164,11 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    *                       type.
    */
   public DraftBeheraLDAPPasswordPolicy10ResponseControl(
-              final DraftBeheraLDAPPasswordPolicy10WarningType warningType,
-              final int warningValue,
-              final DraftBeheraLDAPPasswordPolicy10ErrorType errorType)
+       @Nullable final DraftBeheraLDAPPasswordPolicy10WarningType warningType,
+       final int warningValue,
+       @Nullable final DraftBeheraLDAPPasswordPolicy10ErrorType errorType)
   {
     this(warningType, warningValue, errorType, false);
-  }
-
-
-
-  /**
-   * Creates a new password policy response control with the provided
-   * information.
-   *
-   * @param  warningType   The password policy warning type for this response
-   *                       control, or {@code null} if there should be no
-   *                       warning type.
-   * @param  warningValue  The value for the password policy warning type, or -1
-   *                       if there is no warning type.
-   * @param  errorType     The password policy error type for this response
-   *                       control, or {@code null} if there should be no error
-   *                       type.
-   * @param  isCritical    Indicates whether this control should be marked
-   *                       critical.
-   */
-  public DraftBeheraLDAPPasswordPolicy10ResponseControl(
-              final DraftBeheraLDAPPasswordPolicy10WarningType warningType,
-              final int warningValue,
-              final DraftBeheraLDAPPasswordPolicy10ErrorType errorType,
-              final boolean isCritical)
-  {
-    super(PASSWORD_POLICY_RESPONSE_OID, isCritical,
-          encodeValue(warningType, warningValue, errorType));
-
-    this.warningType = warningType;
-    this.errorType   = errorType;
-
-    if (warningType == null)
-    {
-      this.warningValue = -1;
-    }
-    else
-    {
-      this.warningValue = warningValue;
-    }
   }
 
 
@@ -222,8 +186,9 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         password policy response control.
    */
-  public DraftBeheraLDAPPasswordPolicy10ResponseControl(final String oid,
-              final boolean isCritical, final ASN1OctetString value)
+  public DraftBeheraLDAPPasswordPolicy10ResponseControl(
+              @NotNull final String oid,
+              final boolean isCritical, @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -347,12 +312,52 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
 
 
   /**
+   * Creates a new password policy response control with the provided
+   * information.
+   *
+   * @param  warningType   The password policy warning type for this response
+   *                       control, or {@code null} if there should be no
+   *                       warning type.
+   * @param  warningValue  The value for the password policy warning type, or -1
+   *                       if there is no warning type.
+   * @param  errorType     The password policy error type for this response
+   *                       control, or {@code null} if there should be no error
+   *                       type.
+   * @param  isCritical    Indicates whether this control should be marked
+   *                       critical.
+   */
+  public DraftBeheraLDAPPasswordPolicy10ResponseControl(
+       @Nullable final DraftBeheraLDAPPasswordPolicy10WarningType warningType,
+       final int warningValue,
+       @Nullable final DraftBeheraLDAPPasswordPolicy10ErrorType errorType,
+       final boolean isCritical)
+  {
+    super(PASSWORD_POLICY_RESPONSE_OID, isCritical,
+         encodeValue(warningType, warningValue, errorType));
+
+    this.warningType = warningType;
+    this.errorType   = errorType;
+
+    if (warningType == null)
+    {
+      this.warningValue = -1;
+    }
+    else
+    {
+      this.warningValue = warningValue;
+    }
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
-  public DraftBeheraLDAPPasswordPolicy10ResponseControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+  @NotNull()
+  public DraftBeheraLDAPPasswordPolicy10ResponseControl decodeControl(
+              @NotNull final String oid, final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new DraftBeheraLDAPPasswordPolicy10ResponseControl(oid, isCritical,
@@ -375,8 +380,9 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    *                         decode the password policy response control
    *                         contained in the provided result.
    */
+  @Nullable()
   public static DraftBeheraLDAPPasswordPolicy10ResponseControl get(
-                     final LDAPResult result)
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(PASSWORD_POLICY_RESPONSE_OID);
@@ -410,10 +416,11 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-       final DraftBeheraLDAPPasswordPolicy10WarningType warningType,
+       @Nullable final DraftBeheraLDAPPasswordPolicy10WarningType warningType,
        final int warningValue,
-       final DraftBeheraLDAPPasswordPolicy10ErrorType errorType)
+       @Nullable final DraftBeheraLDAPPasswordPolicy10ErrorType errorType)
   {
     final ArrayList<ASN1Element> valueElements = new ArrayList<>(2);
 
@@ -452,6 +459,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    * @return  The warning type for this password policy response control, or
    *          {@code null} if there is no warning type.
    */
+  @Nullable()
   public DraftBeheraLDAPPasswordPolicy10WarningType getWarningType()
   {
     return warningType;
@@ -480,6 +488,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    * @return  The error type for this password policy response control, or
    *          {@code null} if there is no error type.
    */
+  @Nullable()
   public DraftBeheraLDAPPasswordPolicy10ErrorType getErrorType()
   {
     return errorType;
@@ -491,6 +500,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_POLICY_RESPONSE.get();
@@ -502,7 +512,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     boolean elementAdded = false;
 

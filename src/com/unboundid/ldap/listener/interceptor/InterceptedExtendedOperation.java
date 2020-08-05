@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,10 +63,10 @@ final class InterceptedExtendedOperation
                  InMemoryInterceptedExtendedResult
 {
   // The extended request for this operation.
-  private ExtendedRequest extendedRequest;
+  @NotNull private ExtendedRequest extendedRequest;
 
   // The extended result for this operation.
-  private ExtendedResult extendedResult;
+  @Nullable private ExtendedResult extendedResult;
 
 
 
@@ -81,9 +83,9 @@ final class InterceptedExtendedOperation
    *                           client.
    */
   InterceptedExtendedOperation(
-       final LDAPListenerClientConnection clientConnection, final int messageID,
-       final ExtendedRequestProtocolOp requestOp,
-       final Control... requestControls)
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID, @NotNull final ExtendedRequestProtocolOp requestOp,
+       @Nullable final Control... requestControls)
   {
     super(clientConnection, messageID);
 
@@ -97,6 +99,7 @@ final class InterceptedExtendedOperation
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ExtendedRequest getRequest()
   {
     return extendedRequest;
@@ -108,7 +111,7 @@ final class InterceptedExtendedOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setRequest(final ExtendedRequest extendedRequest)
+  public void setRequest(@NotNull final ExtendedRequest extendedRequest)
   {
     this.extendedRequest = extendedRequest;
   }
@@ -119,6 +122,7 @@ final class InterceptedExtendedOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public ExtendedResult getResult()
   {
     return extendedResult;
@@ -130,7 +134,7 @@ final class InterceptedExtendedOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setResult(final ExtendedResult extendedResult)
+  public void setResult(@NotNull final ExtendedResult extendedResult)
   {
     this.extendedResult = extendedResult;
   }
@@ -141,7 +145,7 @@ final class InterceptedExtendedOperation
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedExtendedOperation(");
     appendCommonToString(buffer);

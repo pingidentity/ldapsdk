@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,13 +73,13 @@ public final class ModifyAssuranceCompletedAccessLogMessage
 
 
   // Indicates whether the local assurance requirement was satisfied.
-  private final Boolean localAssuranceSatisfied;
+  @Nullable private final Boolean localAssuranceSatisfied;
 
   // Indicates whether the remote assurance requirement was satisfied.
-  private final Boolean remoteAssuranceSatisfied;
+  @Nullable private final Boolean remoteAssuranceSatisfied;
 
   // A string with information about the per-server assurance results.
-  private final String serverAssuranceResults;
+  @Nullable private final String serverAssuranceResults;
 
 
 
@@ -91,7 +93,7 @@ public final class ModifyAssuranceCompletedAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ModifyAssuranceCompletedAccessLogMessage(final String s)
+  public ModifyAssuranceCompletedAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -106,7 +108,7 @@ public final class ModifyAssuranceCompletedAccessLogMessage
    * @param  m  The log message to be parsed as an modify assurance complete
    *            access log message.
    */
-  public ModifyAssuranceCompletedAccessLogMessage(final LogMessage m)
+  public ModifyAssuranceCompletedAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -126,6 +128,7 @@ public final class ModifyAssuranceCompletedAccessLogMessage
    *          satisfied, or {@code null} if it was not included in the log
    *          message.
    */
+  @Nullable()
   public Boolean getLocalAssuranceSatisfied()
   {
     return localAssuranceSatisfied;
@@ -141,6 +144,7 @@ public final class ModifyAssuranceCompletedAccessLogMessage
    *          satisfied, or {@code null} if it was not included in the log
    *          message.
    */
+  @Nullable()
   public Boolean getRemoteAssuranceSatisfied()
   {
     return remoteAssuranceSatisfied;
@@ -156,6 +160,7 @@ public final class ModifyAssuranceCompletedAccessLogMessage
    *          individual servers in the replication environment, or
    *          {@code null} if it was not included in the log message.
    */
+  @Nullable()
   public String getServerAssuranceResults()
   {
     return serverAssuranceResults;
@@ -167,6 +172,7 @@ public final class ModifyAssuranceCompletedAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.ASSURANCE_COMPLETE;

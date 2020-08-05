@@ -62,13 +62,13 @@ public final class WakeableSleeper
 
 
   // A flag used to prevent multiple concurrent attempts to sleep.
-  private final AtomicBoolean sleeping;
+  @NotNull private final AtomicBoolean sleeping;
 
   // A flag used to indicate that this WakeableSleeper has been shut down.
-  private final AtomicBoolean shutDown;
+  @NotNull private final AtomicBoolean shutDown;
 
   // The number of attempts to wake up this sleeper.
-  private final AtomicLong wakeupCount;
+  @NotNull private final AtomicLong wakeupCount;
 
 
 

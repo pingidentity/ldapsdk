@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import java.util.TimerTask;
 
+import com.unboundid.util.NotNull;
+
 
 
 /**
@@ -61,7 +63,7 @@ final class ServerSetBlacklistManagerTimerTask
    *                           is associated.  It must not be {@code null}.
    */
   ServerSetBlacklistManagerTimerTask(
-       final ServerSetBlacklistManager blacklistManager)
+       @NotNull final ServerSetBlacklistManager blacklistManager)
   {
     this.blacklistManager = blacklistManager;
   }

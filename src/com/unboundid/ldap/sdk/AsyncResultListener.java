@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,5 +62,6 @@ public interface AsyncResultListener
    *                     response was received.
    * @param  ldapResult  The LDAP result that has been received.
    */
-  void ldapResultReceived(AsyncRequestID requestID, LDAPResult ldapResult);
+  void ldapResultReceived(@NotNull AsyncRequestID requestID,
+                          @NotNull LDAPResult ldapResult);
 }

@@ -43,6 +43,8 @@ import java.util.TreeSet;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,7 +92,7 @@ public final class GenericFilter
   private final int hashCode;
 
   // The string representation for this filter.
-  private final String filterString;
+  @NotNull private final String filterString;
 
 
 
@@ -99,7 +101,7 @@ public final class GenericFilter
    *
    * @param  f  The filter to use to create a generic filter.
    */
-  public GenericFilter(final Filter f)
+  public GenericFilter(@NotNull final Filter f)
   {
     final StringBuilder b = new StringBuilder();
     b.append('(');
@@ -194,7 +196,8 @@ public final class GenericFilter
    * @param  f  The filter for which to provide the string representation.
    * @param  b  The buffer to which to append the string representation.
    */
-  private static void appendComponents(final Filter f, final StringBuilder b)
+  private static void appendComponents(@NotNull final Filter f,
+                                       @NotNull final StringBuilder b)
   {
     if (f.getFilterType() == Filter.FILTER_TYPE_AND)
     {
@@ -238,7 +241,7 @@ public final class GenericFilter
    *          or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -262,6 +265,7 @@ public final class GenericFilter
    * @return  A string representation of this generic filter.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return filterString;

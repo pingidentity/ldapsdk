@@ -41,6 +41,8 @@ import java.io.Closeable;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -91,7 +93,8 @@ public interface FullLDAPInterface
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  BindResult bind(String bindDN, String password)
+  @NotNull()
+  BindResult bind(@Nullable String bindDN, @Nullable String password)
        throws LDAPException;
 
 
@@ -108,7 +111,8 @@ public interface FullLDAPInterface
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  BindResult bind(BindRequest bindRequest)
+  @NotNull()
+  BindResult bind(@NotNull BindRequest bindRequest)
        throws LDAPException;
 
 
@@ -125,7 +129,8 @@ public interface FullLDAPInterface
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  ExtendedResult processExtendedOperation(String requestOID)
+  @NotNull()
+  ExtendedResult processExtendedOperation(@NotNull String requestOID)
        throws LDAPException;
 
 
@@ -145,8 +150,9 @@ public interface FullLDAPInterface
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  ExtendedResult processExtendedOperation(String requestOID,
-                                          ASN1OctetString requestValue)
+  @NotNull()
+  ExtendedResult processExtendedOperation(@NotNull String requestOID,
+                      @Nullable ASN1OctetString requestValue)
        throws LDAPException;
 
 
@@ -163,6 +169,8 @@ public interface FullLDAPInterface
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  ExtendedResult processExtendedOperation(ExtendedRequest extendedRequest)
+  @NotNull()
+  ExtendedResult processExtendedOperation(
+                      @NotNull ExtendedRequest extendedRequest)
        throws LDAPException;
 }

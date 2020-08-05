@@ -43,6 +43,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.unboundid.util.NotNull;
 import com.unboundid.util.UtilTestCase;
 
 
@@ -237,7 +238,7 @@ public class AsynchronousParallelProcessorTestCase
               {
                 @Override()
                 public void processResult(
-                     Result<Integer, Integer> integerIntegerResult)
+                     @NotNull Result<Integer, Integer> integerIntegerResult)
                      throws Exception
                 {
                   throw injectedFailure;

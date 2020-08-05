@@ -44,6 +44,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,7 +71,7 @@ public final class ValidityDateTrustManager
   /**
    * A pre-allocated empty certificate array.
    */
-  private static final X509Certificate[] NO_CERTIFICATES =
+  @NotNull private static final X509Certificate[] NO_CERTIFICATES =
        new X509Certificate[0];
 
 
@@ -97,8 +98,8 @@ public final class ValidityDateTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     checkCertificateValidity(chain[0]);
@@ -118,8 +119,8 @@ public final class ValidityDateTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     checkCertificateValidity(chain[0]);
@@ -136,7 +137,7 @@ public final class ValidityDateTrustManager
    * @throws  CertificateException  If the presented certificate is outside the
    *                                validity window.
    */
-  private static void checkCertificateValidity(final X509Certificate c)
+  private static void checkCertificateValidity(@NotNull final X509Certificate c)
          throws CertificateException
   {
     final Date currentTime = new Date();
@@ -167,6 +168,7 @@ public final class ValidityDateTrustManager
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

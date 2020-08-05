@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,6 +69,7 @@ public interface ReadOnlyDeleteRequest
    *
    * @return  The DN of the entry to delete.
    */
+  @NotNull()
   String getDN();
 
 
@@ -75,6 +78,7 @@ public interface ReadOnlyDeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   DeleteRequest duplicate();
 
 
@@ -83,7 +87,8 @@ public interface ReadOnlyDeleteRequest
    * {@inheritDoc}
    */
   @Override()
-  DeleteRequest duplicate(Control[] controls);
+  @NotNull()
+  DeleteRequest duplicate(@Nullable Control[] controls);
 
 
 
@@ -94,6 +99,7 @@ public interface ReadOnlyDeleteRequest
    * @return  An LDIF delete change record with the contents of this delete
    *          request.
    */
+  @NotNull()
   LDIFDeleteChangeRecord toLDIFChangeRecord();
 
 
@@ -105,6 +111,7 @@ public interface ReadOnlyDeleteRequest
    * @return  A string array whose lines contain an LDIF representation of the
    *          corresponding delete change record.
    */
+  @NotNull()
   String[] toLDIF();
 
 
@@ -114,5 +121,6 @@ public interface ReadOnlyDeleteRequest
    *
    * @return  An LDIF string representation of this delete request.
    */
+  @NotNull()
   String toLDIFString();
 }

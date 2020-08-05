@@ -44,6 +44,8 @@ import java.util.StringTokenizer;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -78,79 +80,79 @@ public final class BindResultAccessLogMessage
 
 
   // Indicates whether a retired password was used to perform the bind.
-  private final Boolean retiredPasswordUsed;
+  @Nullable private final Boolean retiredPasswordUsed;
 
   // Indicates whether the any uncached data was accessed in the course of
   // processing this operation.
-  private final Boolean uncachedDataAccessed;
+  @Nullable private final Boolean uncachedDataAccessed;
 
   // The processing time for the operation.
-  private final Double processingTime;
+  @Nullable private final Double processingTime;
 
   // The queue time for the operation.
-  private final Double queueTime;
+  @Nullable private final Double queueTime;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
-  private final List<String> missingPrivileges;
+  @NotNull private final List<String> missingPrivileges;
 
   // The list of privileges used during the course of processing the operation
   // before an alternate authorization identity was assigned.
-  private final List<String> preAuthZUsedPrivileges;
+  @NotNull private final List<String> preAuthZUsedPrivileges;
 
   // The list of referral URLs for the operation.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // The list of servers accessed while processing the operation.
-  private final List<String> serversAccessed;
+  @NotNull private final List<String> serversAccessed;
 
   // The list of privileges used during the course of processing the operation.
-  private final List<String> usedPrivileges;
+  @NotNull private final List<String> usedPrivileges;
 
   // The numeric identifier for the authentication failure reason.
-  private final Long authFailureID;
+  @Nullable private final Long authFailureID;
 
   // The number of intermediate response messages returned to the client.
-  private final Long intermediateResponsesReturned;
+  @Nullable private final Long intermediateResponsesReturned;
 
   // The result code for the operation.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // Additional information about the operation result.
-  private final String additionalInformation;
+  @Nullable private final String additionalInformation;
 
   // The DN of the authenticated user.
-  private final String authDN;
+  @Nullable private final String authDN;
 
   // A message with information about the reason for the authentication failure.
-  private final String authFailureReason;
+  @Nullable private final String authFailureReason;
 
   // The DN of the alternate authorization identity.
-  private final String authzDN;
+  @Nullable private final String authzDN;
 
   // The name of the client connection policy selected for the client.
-  private final String clientConnectionPolicy;
+  @Nullable private final String clientConnectionPolicy;
 
   // The diagnostic message for the operation.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The intermediate client result for the operation.
-  private final String intermediateClientResult;
+  @Nullable private final String intermediateClientResult;
 
   // The matched DN for the operation.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
 
 
@@ -163,7 +165,7 @@ public final class BindResultAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public BindResultAccessLogMessage(final String s)
+  public BindResultAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -177,7 +179,7 @@ public final class BindResultAccessLogMessage
    * @param  m  The log message to be parsed as a bind result access log
    *            message.
    */
-  public BindResultAccessLogMessage(final LogMessage m)
+  public BindResultAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -334,6 +336,7 @@ public final class BindResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -348,6 +351,7 @@ public final class BindResultAccessLogMessage
    *          not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -364,6 +368,7 @@ public final class BindResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public String getAdditionalInformation()
   {
     return additionalInformation;
@@ -378,6 +383,7 @@ public final class BindResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -392,6 +398,7 @@ public final class BindResultAccessLogMessage
    *          it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -408,6 +415,7 @@ public final class BindResultAccessLogMessage
    *          if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public Long getIntermediateResponsesReturned()
   {
     return intermediateResponsesReturned;
@@ -424,6 +432,7 @@ public final class BindResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public Double getProcessingTimeMillis()
   {
     return processingTime;
@@ -440,6 +449,7 @@ public final class BindResultAccessLogMessage
    *          the log message.
    */
   @Override()
+  @Nullable()
   public Double getQueueTimeMillis()
   {
     return queueTime;
@@ -454,6 +464,7 @@ public final class BindResultAccessLogMessage
    *          an empty list if it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -472,6 +483,7 @@ public final class BindResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getServersAccessed()
   {
     return serversAccessed;
@@ -489,6 +501,7 @@ public final class BindResultAccessLogMessage
    *          it is not included in the log message (and the server likely did
    *          not access uncached data).
    */
+  @Nullable()
   public Boolean getUncachedDataAccessed()
   {
     return uncachedDataAccessed;
@@ -504,6 +517,7 @@ public final class BindResultAccessLogMessage
    *          or {@code null} if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getIntermediateClientResult()
   {
     return intermediateClientResult;
@@ -517,6 +531,7 @@ public final class BindResultAccessLogMessage
    * @return  The DN of the user authenticated by the bind operation, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getAuthenticationDN()
   {
     return authDN;
@@ -532,6 +547,7 @@ public final class BindResultAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getAuthorizationDN()
   {
     return authzDN;
@@ -545,6 +561,7 @@ public final class BindResultAccessLogMessage
    * @return  The numeric identifier for the authentication failure reason, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public Long getAuthenticationFailureID()
   {
     return authFailureID;
@@ -560,6 +577,7 @@ public final class BindResultAccessLogMessage
    *          authentication attempt failed, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public String getAuthenticationFailureReason()
   {
     return authFailureReason;
@@ -577,6 +595,7 @@ public final class BindResultAccessLogMessage
    *          this was not included in the log message (and a retired password
    *          was likely not used in the course of processing the operation).
    */
+  @Nullable()
   public Boolean getRetiredPasswordUsed()
   {
     return retiredPasswordUsed;
@@ -592,6 +611,7 @@ public final class BindResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -607,6 +627,7 @@ public final class BindResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -620,6 +641,7 @@ public final class BindResultAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -635,6 +657,7 @@ public final class BindResultAccessLogMessage
    *          client connection, or {@code null} if it is not included in the
    *          log message.
    */
+  @Nullable()
   public String getClientConnectionPolicy()
   {
     return clientConnectionPolicy;
@@ -650,6 +673,7 @@ public final class BindResultAccessLogMessage
    *          the operation, or an empty list if no privileges were used or this
    *          is not included in the log message.
    */
+  @NotNull()
   public List<String> getUsedPrivileges()
   {
     return usedPrivileges;
@@ -666,6 +690,7 @@ public final class BindResultAccessLogMessage
    *          assigned, or an empty list if no privileges were used or this is
    *          not included in the log message.
    */
+  @NotNull()
   public List<String> getPreAuthorizationUsedPrivileges()
   {
     return preAuthZUsedPrivileges;
@@ -682,6 +707,7 @@ public final class BindResultAccessLogMessage
    *          an empty list if there were no missing privileges or this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
@@ -693,6 +719,7 @@ public final class BindResultAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.RESULT;

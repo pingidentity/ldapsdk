@@ -51,6 +51,7 @@ import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartBatchedTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -112,8 +113,9 @@ public final class BatchedTransactionSpecificationRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.1) for the batched transaction specification
    * request control.
    */
-  public static final String BATCHED_TRANSACTION_SPECIFICATION_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.5.1";
+  @NotNull public static final String
+       BATCHED_TRANSACTION_SPECIFICATION_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.5.1";
 
 
 
@@ -125,7 +127,7 @@ public final class BatchedTransactionSpecificationRequestControl
 
 
   // The transaction ID for the associated transaction.
-  private final ASN1OctetString transactionID;
+  @NotNull private final ASN1OctetString transactionID;
 
 
 
@@ -138,7 +140,7 @@ public final class BatchedTransactionSpecificationRequestControl
    *                        extended operation.  It must not be {@code null}.
    */
   public BatchedTransactionSpecificationRequestControl(
-              final ASN1OctetString transactionID)
+              @NotNull final ASN1OctetString transactionID)
   {
     super(BATCHED_TRANSACTION_SPECIFICATION_REQUEST_OID, true,
          new ASN1OctetString(transactionID.getValue()));
@@ -158,7 +160,8 @@ public final class BatchedTransactionSpecificationRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         batched transaction specification request control.
    */
-  public BatchedTransactionSpecificationRequestControl(final Control control)
+  public BatchedTransactionSpecificationRequestControl(
+              @NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -178,6 +181,7 @@ public final class BatchedTransactionSpecificationRequestControl
    *
    * @return  The transaction ID for the associated transaction.
    */
+  @NotNull()
   public ASN1OctetString getTransactionID()
   {
     return transactionID;
@@ -189,6 +193,7 @@ public final class BatchedTransactionSpecificationRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_BATCHED_TXN_REQUEST.get();
@@ -200,7 +205,7 @@ public final class BatchedTransactionSpecificationRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("BatchedTransactionSpecificationRequestControl(" +
                   "transactionID='");

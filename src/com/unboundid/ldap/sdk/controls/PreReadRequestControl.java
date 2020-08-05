@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,14 +89,14 @@ public final class PreReadRequestControl
   /**
    * The OID (1.3.6.1.1.13.1) for the pre-read request control.
    */
-  public static final String PRE_READ_REQUEST_OID = "1.3.6.1.1.13.1";
+  @NotNull public static final String PRE_READ_REQUEST_OID = "1.3.6.1.1.13.1";
 
 
 
   /**
    * The set of requested attributes that will be used if none are provided.
    */
-  private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
+  @NotNull private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
 
 
 
@@ -106,7 +108,7 @@ public final class PreReadRequestControl
 
 
   // The set of requested attributes to retrieve from the target entry.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
 
 
@@ -120,7 +122,7 @@ public final class PreReadRequestControl
    *                     is empty or {@code null}, then all user attributes
    *                     will be returned.
    */
-  public PreReadRequestControl(final String... attributes)
+  public PreReadRequestControl(@Nullable final String... attributes)
   {
     this(true, attributes);
   }
@@ -140,7 +142,7 @@ public final class PreReadRequestControl
    *                     will be returned.
    */
   public PreReadRequestControl(final boolean isCritical,
-                               final String... attributes)
+                               @Nullable final String... attributes)
   {
     super(PRE_READ_REQUEST_OID, isCritical, encodeValue(attributes));
 
@@ -166,7 +168,7 @@ public final class PreReadRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         pre-read request control.
    */
-  public PreReadRequestControl(final Control control)
+  public PreReadRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -213,7 +215,9 @@ public final class PreReadRequestControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
-  private static ASN1OctetString encodeValue(final String[] attributes)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+                                      @Nullable final String[] attributes)
   {
     if ((attributes == null) || (attributes.length == 0))
     {
@@ -239,6 +243,7 @@ public final class PreReadRequestControl
    *          entry returned in the response control, or an empty array if all
    *          user attributes should be returned.
    */
+  @NotNull()
   public String[] getAttributes()
   {
     return attributes;
@@ -250,6 +255,7 @@ public final class PreReadRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PRE_READ_REQUEST.get();
@@ -261,7 +267,7 @@ public final class PreReadRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PreReadRequestControl(attributes={");
     for (int i=0; i < attributes.length; i++)

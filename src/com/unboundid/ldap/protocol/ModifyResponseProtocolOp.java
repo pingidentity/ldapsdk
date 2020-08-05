@@ -49,8 +49,10 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
-import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -86,9 +88,10 @@ public final class ModifyResponseProtocolOp
    * @param  referralURLs       The list of referral URLs for this response, if
    *                            any.
    */
-  public ModifyResponseProtocolOp(final int resultCode, final String matchedDN,
-                                final String diagnosticMessage,
-                                final List<String> referralURLs)
+  public ModifyResponseProtocolOp(final int resultCode,
+                                  @Nullable final String matchedDN,
+                                  @Nullable final String diagnosticMessage,
+                                  @Nullable final List<String> referralURLs)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE, resultCode, matchedDN,
           diagnosticMessage, referralURLs);
@@ -102,7 +105,7 @@ public final class ModifyResponseProtocolOp
    *
    * @param  result  The LDAP result object to use to create this protocol op.
    */
-  public ModifyResponseProtocolOp(final LDAPResult result)
+  public ModifyResponseProtocolOp(@NotNull final LDAPResult result)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE,
          result.getResultCode().intValue(), result.getMatchedDN(),
@@ -122,7 +125,7 @@ public final class ModifyResponseProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         modify response.
    */
-  ModifyResponseProtocolOp(final ASN1StreamReader reader)
+  ModifyResponseProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     super(reader);
@@ -134,6 +137,7 @@ public final class ModifyResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
@@ -187,9 +191,10 @@ public final class ModifyResponseProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a modify response protocol op.
    */
+  @NotNull()
   public static ModifyResponseProtocolOp decodeProtocolOp(
-       final ASN1Element element)
-       throws LDAPException
+                     @NotNull final ASN1Element element)
+         throws LDAPException
   {
     try
     {

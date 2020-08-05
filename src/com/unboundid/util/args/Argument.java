@@ -49,6 +49,8 @@ import java.util.Map;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -100,21 +102,21 @@ public abstract class Argument
 
   // The set of short identifiers for this argument, associated with an
   // indication as to whether the identifier should be hidden.
-  private final Map<Character,Boolean> shortIdentifiers;
+  @NotNull private final Map<Character,Boolean> shortIdentifiers;
 
   // The set of long identifiers for this argument, associated with an
   // indication as to whether the identifier should be hidden.
-  private final Map<String,Boolean> longIdentifiers;
+  @NotNull private final Map<String,Boolean> longIdentifiers;
 
   // The argument group name for this argument, if any.
-  private String argumentGroupName;
+  @Nullable private String argumentGroupName;
 
   // The description for this argument.
-  private final String description;
+  @NotNull private final String description;
 
   // The value placeholder for this argument, or {@code null} if it does not
   // take a value.
-  private final String valuePlaceholder;
+  @Nullable private final String valuePlaceholder;
 
 
 
@@ -145,10 +147,11 @@ public abstract class Argument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  protected Argument(final Character shortIdentifier,
-                     final String longIdentifier,
+  protected Argument(@Nullable final Character shortIdentifier,
+                     @Nullable final String longIdentifier,
                      final boolean isRequired, final int maxOccurrences,
-                     final String valuePlaceholder, final String description)
+                     @Nullable final String valuePlaceholder,
+                     @NotNull final String description)
             throws ArgumentException
   {
     if (description == null)
@@ -202,7 +205,7 @@ public abstract class Argument
    *
    * @param  source  The argument to use as the source for this argument.
    */
-  protected Argument(final Argument source)
+  protected Argument(@NotNull final Argument source)
   {
     argumentGroupName = source.argumentGroupName;
     isHidden          = source.isHidden;
@@ -242,6 +245,7 @@ public abstract class Argument
    * @return  The short identifier for this argument, or {@code null} if none is
    *          defined.
    */
+  @Nullable()
   public final Character getShortIdentifier()
   {
     for (final Map.Entry<Character,Boolean> e : shortIdentifiers.entrySet())
@@ -266,6 +270,7 @@ public abstract class Argument
    * @return  The list of all short identifiers for this argument, or an empty
    *          list if there are no short identifiers.
    */
+  @NotNull()
   public final List<Character> getShortIdentifiers()
   {
     return getShortIdentifiers(true);
@@ -282,6 +287,7 @@ public abstract class Argument
    * @return  The list of short identifiers for this argument, or an empty list
    *          if there are none.
    */
+  @NotNull()
   public final List<Character> getShortIdentifiers(final boolean includeHidden)
   {
     final ArrayList<Character> identifierList =
@@ -310,7 +316,7 @@ public abstract class Argument
    * @throws  ArgumentException  If this argument is already registered with the
    *                             argument parser.
    */
-  public final void addShortIdentifier(final Character c)
+  public final void addShortIdentifier(@NotNull final Character c)
          throws ArgumentException
   {
     addShortIdentifier(c, false);
@@ -333,7 +339,7 @@ public abstract class Argument
    * @throws  ArgumentException  If this argument is already registered with the
    *                             argument parser.
    */
-  public final void addShortIdentifier(final Character c,
+  public final void addShortIdentifier(@NotNull final Character c,
                                        final boolean isHidden)
          throws ArgumentException
   {
@@ -368,6 +374,7 @@ public abstract class Argument
    * @return  The long identifier for this argument, or {@code null} if none is
    *          defined.
    */
+  @Nullable()
   public final String getLongIdentifier()
   {
     for (final Map.Entry<String,Boolean> e : longIdentifiers.entrySet())
@@ -392,6 +399,7 @@ public abstract class Argument
    * @return  The list of all long identifiers for this argument, or an empty
    *          list if there are no long identifiers.
    */
+  @NotNull()
   public final List<String> getLongIdentifiers()
   {
     return getLongIdentifiers(true);
@@ -408,6 +416,7 @@ public abstract class Argument
    * @return  The long identifier for this argument, or an empty list if there
    *          are none.
    */
+  @NotNull()
   public final List<String> getLongIdentifiers(final boolean includeHidden)
   {
     final ArrayList<String> identifierList =
@@ -436,7 +445,7 @@ public abstract class Argument
    * @throws  ArgumentException  If this argument is already registered with the
    *                             argument parser.
    */
-  public final void addLongIdentifier(final String s)
+  public final void addLongIdentifier(@NotNull final String s)
          throws ArgumentException
   {
     addLongIdentifier(s, false);
@@ -459,7 +468,8 @@ public abstract class Argument
    * @throws  ArgumentException  If this argument is already registered with the
    *                             argument parser.
    */
-  public final void addLongIdentifier(final String s, final boolean isHidden)
+  public final void addLongIdentifier(@NotNull final String s,
+                                      final boolean isHidden)
          throws ArgumentException
   {
     if (isRegistered)
@@ -481,6 +491,7 @@ public abstract class Argument
    *
    * @return  A string that may be used to identify this argument.
    */
+  @NotNull()
   public final String getIdentifierString()
   {
     for (final Map.Entry<String,Boolean> e : longIdentifiers.entrySet())
@@ -572,6 +583,7 @@ public abstract class Argument
    * @return  The value placeholder string for this argument, or {@code null} if
    *          it does not take a value.
    */
+  @Nullable()
   public final String getValuePlaceholder()
   {
     return valuePlaceholder;
@@ -593,6 +605,7 @@ public abstract class Argument
    * @return  A string representation of the value for this argument, or an
    *          empty list if the argument does not have a value.
    */
+  @NotNull()
   public abstract List<String> getValueStringRepresentations(
                                     boolean useDefault);
 
@@ -603,6 +616,7 @@ public abstract class Argument
    *
    * @return  The description for this argument.
    */
+  @NotNull()
   public final String getDescription()
   {
     return description;
@@ -616,6 +630,7 @@ public abstract class Argument
    * @return  The name of the argument group to which this argument belongs, or
    *          {@code null} if this argument has not been assigned to any group.
    */
+  @Nullable()
   public final String getArgumentGroupName()
   {
     return argumentGroupName;
@@ -634,7 +649,8 @@ public abstract class Argument
    *                            may be {@code null} if this argument should not
    *                            be assigned to any particular group.
    */
-  public final void setArgumentGroupName(final String argumentGroupName)
+  public final void setArgumentGroupName(
+                         @Nullable final String argumentGroupName)
   {
     this.argumentGroupName = argumentGroupName;
   }
@@ -761,7 +777,7 @@ public abstract class Argument
    *                             this argument already has the maximum allowed
    *                             number of values.
    */
-  protected abstract void addValue(String valueString)
+  protected abstract void addValue(@NotNull String valueString)
             throws ArgumentException;
 
 
@@ -849,6 +865,7 @@ public abstract class Argument
    * @return  A concise name of the data type with which this argument is
    *          associated.
    */
+  @NotNull()
   public abstract String getDataTypeName();
 
 
@@ -861,6 +878,7 @@ public abstract class Argument
    *          that may be imposed for values of this argument, or {@code null}
    *          if there are none.
    */
+  @Nullable()
   public String getValueConstraints()
   {
     return null;
@@ -888,6 +906,7 @@ public abstract class Argument
    *
    * @return  The "clean" copy of this argument.
    */
+  @NotNull()
   public abstract Argument getCleanCopy();
 
 
@@ -899,7 +918,7 @@ public abstract class Argument
    * @param  argStrings  The list to update with the string representation of
    *                     the command-line arguments.
    */
-  protected abstract void addToCommandLine(List<String> argStrings);
+  protected abstract void addToCommandLine(@NotNull List<String> argStrings);
 
 
 
@@ -908,6 +927,7 @@ public abstract class Argument
    *
    * @return  A string representation of this argument.
    */
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -922,7 +942,7 @@ public abstract class Argument
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 
 
 
@@ -932,7 +952,7 @@ public abstract class Argument
    *
    * @param  buffer  The buffer to which information should be appended.
    */
-  protected void appendBasicToStringInfo(final StringBuilder buffer)
+  protected void appendBasicToStringInfo(@NotNull final StringBuilder buffer)
   {
     switch (shortIdentifiers.size())
     {

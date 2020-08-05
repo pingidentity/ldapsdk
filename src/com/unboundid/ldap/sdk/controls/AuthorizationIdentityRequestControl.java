@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -93,7 +94,7 @@ public final class AuthorizationIdentityRequestControl
    * The OID (2.16.840.1.113730.3.4.16) for the authorization identity request
    * control.
    */
-  public static final String AUTHORIZATION_IDENTITY_REQUEST_OID =
+  @NotNull public static final String AUTHORIZATION_IDENTITY_REQUEST_OID =
        "2.16.840.1.113730.3.4.16";
 
 
@@ -139,7 +140,7 @@ public final class AuthorizationIdentityRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         authorization identity request control.
    */
-  public AuthorizationIdentityRequestControl(final Control control)
+  public AuthorizationIdentityRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -157,6 +158,7 @@ public final class AuthorizationIdentityRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_AUTHZID_REQUEST.get();
@@ -168,7 +170,7 @@ public final class AuthorizationIdentityRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AuthorizationIdentityRequestControl(isCritical=");
     buffer.append(isCritical());

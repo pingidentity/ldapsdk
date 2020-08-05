@@ -92,8 +92,8 @@ public final class PassphraseEncryptedOutputStream
    * a value assigned.  The cached value will be used for subsequent attempts to
    * use the strong encryption.
    */
-  private static final AtomicReference<Boolean> SUPPORTS_STRONG_ENCRYPTION =
-       new AtomicReference<>();
+  @NotNull private static final AtomicReference<Boolean>
+       SUPPORTS_STRONG_ENCRYPTION = new AtomicReference<>();
 
 
 
@@ -149,7 +149,8 @@ public final class PassphraseEncryptedOutputStream
   /**
    * The cipher transformation that will be used for the encryption.
    */
-  private static final String CIPHER_TRANSFORMATION = "AES/CBC/PKCS5Padding";
+  @NotNull private static final String CIPHER_TRANSFORMATION =
+       "AES/CBC/PKCS5Padding";
 
 
 
@@ -157,7 +158,7 @@ public final class PassphraseEncryptedOutputStream
    * The key factory algorithm that will be used when generating the encryption
    * key from the passphrase when using the baseline encryption strength.
    */
-  private static final String BASELINE_KEY_FACTORY_ALGORITHM =
+  @NotNull private static final String BASELINE_KEY_FACTORY_ALGORITHM =
        "PBKDF2WithHmacSHA1";
 
 
@@ -166,7 +167,7 @@ public final class PassphraseEncryptedOutputStream
    * The key factory algorithm that will be used when generating the encryption
    * key from the passphrase when using strong encryption.
    */
-  private static final String STRONG_KEY_FACTORY_ALGORITHM =
+  @NotNull private static final String STRONG_KEY_FACTORY_ALGORITHM =
        "PBKDF2WithHmacSHA512";
 
 
@@ -175,7 +176,7 @@ public final class PassphraseEncryptedOutputStream
    * The algorithm that will be used when generating a MAC of the header
    * contents when using the baseline encryption strength.
    */
-  private static final String BASELINE_MAC_ALGORITHM = "HmacSHA256";
+  @NotNull private static final String BASELINE_MAC_ALGORITHM = "HmacSHA256";
 
 
 
@@ -183,16 +184,16 @@ public final class PassphraseEncryptedOutputStream
    * The algorithm that will be used when generating a MAC of the header
    * contents when using strong encryption.
    */
-  private static final String STRONG_MAC_ALGORITHM = "HmacSHA512";
+  @NotNull private static final String STRONG_MAC_ALGORITHM = "HmacSHA512";
 
 
 
   // The cipher output stream that will be used to actually write the
   // encrypted output.
-  private final CipherOutputStream cipherOutputStream;
+  @NotNull private final CipherOutputStream cipherOutputStream;
 
   // A header containing the encoded encryption details.
-  private final PassphraseEncryptedStreamHeader encryptionHeader;
+  @NotNull private final PassphraseEncryptedStreamHeader encryptionHeader;
 
 
 
@@ -217,8 +218,8 @@ public final class PassphraseEncryptedOutputStream
    * @throws  IOException  If a problem is encountered while writing the
    *                       encryption header to the underlying output stream.
    */
-  public PassphraseEncryptedOutputStream(final String passphrase,
-                                         final OutputStream wrappedOutputStream)
+  public PassphraseEncryptedOutputStream(@NotNull final String passphrase,
+              @NotNull final OutputStream wrappedOutputStream)
          throws GeneralSecurityException, IOException
   {
     this(passphrase.toCharArray(), wrappedOutputStream);
@@ -247,8 +248,8 @@ public final class PassphraseEncryptedOutputStream
    * @throws  IOException  If a problem is encountered while writing the
    *                       encryption header to the underlying output stream.
    */
-  public PassphraseEncryptedOutputStream(final char[] passphrase,
-                                         final OutputStream wrappedOutputStream)
+  public PassphraseEncryptedOutputStream(@NotNull final char[] passphrase,
+              @NotNull final OutputStream wrappedOutputStream)
          throws GeneralSecurityException, IOException
   {
     this(passphrase, wrappedOutputStream, null, false, true);
@@ -298,11 +299,11 @@ public final class PassphraseEncryptedOutputStream
    * @throws  IOException  If a problem is encountered while writing the
    *                       encryption header to the underlying output stream.
    */
-  public PassphraseEncryptedOutputStream(final String passphrase,
-                                         final OutputStream wrappedOutputStream,
-                                         final String keyIdentifier,
-                                         final boolean useStrongEncryption,
-                                         final boolean writeHeaderToStream)
+  public PassphraseEncryptedOutputStream(@NotNull final String passphrase,
+              @NotNull final OutputStream wrappedOutputStream,
+              @Nullable final String keyIdentifier,
+              final boolean useStrongEncryption,
+              final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
     this(passphrase.toCharArray(), wrappedOutputStream, keyIdentifier,
@@ -353,11 +354,11 @@ public final class PassphraseEncryptedOutputStream
    * @throws  IOException  If a problem is encountered while writing the
    *                       encryption header to the underlying output stream.
    */
-  public PassphraseEncryptedOutputStream(final char[] passphrase,
-                                         final OutputStream wrappedOutputStream,
-                                         final String keyIdentifier,
-                                         final boolean useStrongEncryption,
-                                         final boolean writeHeaderToStream)
+  public PassphraseEncryptedOutputStream(@NotNull final char[] passphrase,
+              @NotNull final OutputStream wrappedOutputStream,
+              @Nullable final String keyIdentifier,
+              final boolean useStrongEncryption,
+              final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
     this(passphrase, wrappedOutputStream, keyIdentifier, useStrongEncryption,
@@ -414,12 +415,12 @@ public final class PassphraseEncryptedOutputStream
    * @throws  IOException  If a problem is encountered while writing the
    *                       encryption header to the underlying output stream.
    */
-  public PassphraseEncryptedOutputStream(final String passphrase,
-                                         final OutputStream wrappedOutputStream,
-                                         final String keyIdentifier,
-                                         final boolean useStrongEncryption,
-                                         final int keyFactoryIterationCount,
-                                         final boolean writeHeaderToStream)
+  public PassphraseEncryptedOutputStream(@NotNull final String passphrase,
+              @NotNull final OutputStream wrappedOutputStream,
+              @Nullable final String keyIdentifier,
+              final boolean useStrongEncryption,
+              final int keyFactoryIterationCount,
+              final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
     this(passphrase.toCharArray(), wrappedOutputStream, keyIdentifier,
@@ -473,12 +474,12 @@ public final class PassphraseEncryptedOutputStream
    * @throws  IOException  If a problem is encountered while writing the
    *                       encryption header to the underlying output stream.
    */
-  public PassphraseEncryptedOutputStream(final char[] passphrase,
-                                         final OutputStream wrappedOutputStream,
-                                         final String keyIdentifier,
-                                         final boolean useStrongEncryption,
-                                         final int keyFactoryIterationCount,
-                                         final boolean writeHeaderToStream)
+  public PassphraseEncryptedOutputStream(@NotNull final char[] passphrase,
+              @NotNull final OutputStream wrappedOutputStream,
+              @Nullable final String keyIdentifier,
+              final boolean useStrongEncryption,
+              final int keyFactoryIterationCount,
+              final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
     final SecureRandom random = new SecureRandom();
@@ -584,7 +585,7 @@ public final class PassphraseEncryptedOutputStream
    *                       or writing to the underlying output stream.
    */
   @Override()
-  public void write(final byte[] b)
+  public void write(@NotNull final byte[] b)
          throws IOException
   {
     cipherOutputStream.write(b);
@@ -610,7 +611,7 @@ public final class PassphraseEncryptedOutputStream
    *                       or writing to the underlying output stream.
    */
   @Override()
-  public void write(final byte[] b, final int offset, final int length)
+  public void write(@NotNull final byte[] b, final int offset, final int length)
          throws IOException
   {
     cipherOutputStream.write(b, offset, length);
@@ -663,6 +664,7 @@ public final class PassphraseEncryptedOutputStream
    *
    * @return  An encryption header with details about the encryption being used.
    */
+  @NotNull()
   public PassphraseEncryptedStreamHeader getEncryptionHeader()
   {
     return encryptionHeader;

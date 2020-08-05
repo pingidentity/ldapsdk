@@ -52,7 +52,7 @@ final class StringValuePatternComponent
 
 
   // The string that will be used by this component.
-  private final String valueString;
+  @NotNull private final String valueString;
 
 
 
@@ -61,7 +61,7 @@ final class StringValuePatternComponent
    *
    * @param  valueString  The string that will be used by this component.
    */
-  StringValuePatternComponent(final String valueString)
+  StringValuePatternComponent(@NotNull final String valueString)
   {
     this.valueString = valueString;
   }
@@ -72,7 +72,7 @@ final class StringValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     buffer.append(valueString);
   }

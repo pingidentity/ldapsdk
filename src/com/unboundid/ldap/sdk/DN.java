@@ -46,6 +46,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -131,14 +133,14 @@ public final class DN
   /**
    * The RDN array that will be used for the null DN.
    */
-  private static final RDN[] NO_RDNS = new RDN[0];
+  @NotNull private static final RDN[] NO_RDNS = new RDN[0];
 
 
 
   /**
    * A pre-allocated DN object equivalent to the null DN.
    */
-  public static final DN NULL_DN = new DN();
+  @NotNull public static final DN NULL_DN = new DN();
 
 
 
@@ -150,17 +152,17 @@ public final class DN
 
 
   // The set of RDN components that make up this DN.
-  private final RDN[] rdns;
+  @NotNull private final RDN[] rdns;
 
   // The schema to use to generate the normalized string representation of this
   // DN, if any.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The string representation of this DN.
-  private final String dnString;
+  @NotNull private final String dnString;
 
   // The normalized string representation of this DN.
-  private volatile String normalizedString;
+  @Nullable private volatile String normalizedString;
 
 
 
@@ -169,7 +171,7 @@ public final class DN
    *
    * @param  rdns  The RDN components for this DN.  It must not be {@code null}.
    */
-  public DN(final RDN... rdns)
+  public DN(@NotNull final RDN... rdns)
   {
     Validator.ensureNotNull(rdns);
 
@@ -210,7 +212,7 @@ public final class DN
    *
    * @param  rdns  The RDN components for this DN.  It must not be {@code null}.
    */
-  public DN(final List<RDN> rdns)
+  public DN(@NotNull final List<RDN> rdns)
   {
     Validator.ensureNotNull(rdns);
 
@@ -255,7 +257,7 @@ public final class DN
    * @param  parentDN  The parent DN for the new DN to create.  It must not be
    *                   {@code null}.
    */
-  public DN(final RDN rdn, final DN parentDN)
+  public DN(@NotNull final RDN rdn, @NotNull final DN parentDN)
   {
     Validator.ensureNotNull(rdn, parentDN);
 
@@ -294,7 +296,7 @@ public final class DN
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         DN.
    */
-  public DN(final String dnString)
+  public DN(@NotNull final String dnString)
          throws LDAPException
   {
     this(dnString, null, false);
@@ -314,7 +316,7 @@ public final class DN
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         DN.
    */
-  public DN(final String dnString, final Schema schema)
+  public DN(@NotNull final String dnString, @Nullable final Schema schema)
          throws LDAPException
   {
     this(dnString, schema, false);
@@ -340,7 +342,7 @@ public final class DN
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         DN.
    */
-  public DN(final String dnString, final Schema schema,
+  public DN(@NotNull final String dnString, @Nullable final Schema schema,
             final boolean strictNameChecking)
          throws LDAPException
   {
@@ -735,8 +737,9 @@ rdnLoop:
    *
    * @return  A properly-trimmed string representation of the RDN.
    */
-  private static String getTrimmedRDN(final String dnString, final int start,
-                                      final int end)
+  @NotNull()
+  private static String getTrimmedRDN(@NotNull final String dnString,
+                                      final int start, final int end)
   {
     final String rdnString = dnString.substring(start, end);
     if (! rdnString.endsWith(" "))
@@ -765,7 +768,7 @@ rdnLoop:
    * @return  {@code true} if the provided string represents a valid DN, or
    *          {@code false} if not.
    */
-  public static boolean isValidDN(final String s)
+  public static boolean isValidDN(@NotNull final String s)
   {
     return isValidDN(s, false);
   }
@@ -787,7 +790,7 @@ rdnLoop:
    * @return  {@code true} if the provided string represents a valid DN, or
    *          {@code false} if not.
    */
-  public static boolean isValidDN(final String s,
+  public static boolean isValidDN(@NotNull final String s,
                                   final boolean strictNameChecking)
   {
     try
@@ -811,6 +814,7 @@ rdnLoop:
    * @return  The leftmost RDN component for this DN, or {@code null} if this DN
    *          does not have any RDNs (i.e., it is the null DN).
    */
+  @Nullable()
   public RDN getRDN()
   {
     if (rdns.length == 0)
@@ -833,6 +837,7 @@ rdnLoop:
    *          DN, or {@code null} if this DN does not have any RDNs (i.e., it is
    *          the null DN).
    */
+  @Nullable()
   public String getRDNString()
   {
     if (rdns.length == 0)
@@ -861,7 +866,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public static String getRDNString(final String s)
+  @Nullable()
+  public static String getRDNString(@NotNull final String s)
          throws LDAPException
   {
     return new DN(s).getRDNString();
@@ -874,6 +880,7 @@ rdnLoop:
    *
    * @return  The set of RDNs that comprise this DN.
    */
+  @NotNull()
   public RDN[] getRDNs()
   {
     return rdns;
@@ -893,6 +900,7 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
+  @NotNull()
   public static RDN[] getRDNs(final String s)
          throws LDAPException
   {
@@ -908,6 +916,7 @@ rdnLoop:
    * @return  The set of string representations of the RDNs that comprise this
    *          DN.
    */
+  @NotNull()
   public String[] getRDNStrings()
   {
     final String[] rdnStrings = new String[rdns.length];
@@ -932,7 +941,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public static String[] getRDNStrings(final String s)
+  @NotNull()
+  public static String[] getRDNStrings(@NotNull final String s)
          throws LDAPException
   {
     return new DN(s).getRDNStrings();
@@ -962,6 +972,7 @@ rdnLoop:
    * @return  The DN that is the parent for this DN, or {@code null} if there
    *          is no parent.
    */
+  @Nullable()
   public DN getParent()
   {
     switch (rdns.length)
@@ -1004,6 +1015,7 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
+  @Nullable()
   public static DN getParent(final String s)
          throws LDAPException
   {
@@ -1020,6 +1032,7 @@ rdnLoop:
    * @return  The DN that is the parent for this DN, or {@code null} if there
    *          is no parent.
    */
+  @Nullable()
   public String getParentString()
   {
     final DN parentDN = getParent();
@@ -1049,7 +1062,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public static String getParentString(final String s)
+  @Nullable()
+  public static String getParentString(@NotNull final String s)
          throws LDAPException
   {
     return new DN(s).getParentString();
@@ -1073,7 +1087,7 @@ rdnLoop:
    * @return  {@code true} if this DN may be considered an ancestor of the
    *          provided DN, or {@code false} if not.
    */
-  public boolean isAncestorOf(final DN dn, final boolean allowEquals)
+  public boolean isAncestorOf(@NotNull final DN dn, final boolean allowEquals)
   {
     int thisPos = rdns.length - 1;
     int thatPos = dn.rdns.length - 1;
@@ -1128,7 +1142,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public boolean isAncestorOf(final String s, final boolean allowEquals)
+  public boolean isAncestorOf(@NotNull final String s,
+                              final boolean allowEquals)
          throws LDAPException
   {
     return isAncestorOf(new DN(s), allowEquals);
@@ -1159,7 +1174,8 @@ rdnLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as a DN.
    */
-  public static boolean isAncestorOf(final String s1, final String s2,
+  public static boolean isAncestorOf(@NotNull final String s1,
+                                     @NotNull final String s2,
                                      final boolean allowEquals)
          throws LDAPException
   {
@@ -1184,7 +1200,7 @@ rdnLoop:
    * @return  {@code true} if this DN may be considered a descendant of the
    *          provided DN, or {@code false} if not.
    */
-  public boolean isDescendantOf(final DN dn, final boolean allowEquals)
+  public boolean isDescendantOf(@NotNull final DN dn, final boolean allowEquals)
   {
     int thisPos = rdns.length - 1;
     int thatPos = dn.rdns.length - 1;
@@ -1239,7 +1255,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public boolean isDescendantOf(final String s, final boolean allowEquals)
+  public boolean isDescendantOf(@NotNull final String s,
+                                final boolean allowEquals)
          throws LDAPException
   {
     return isDescendantOf(new DN(s), allowEquals);
@@ -1270,7 +1287,8 @@ rdnLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as a DN.
    */
-  public static boolean isDescendantOf(final String s1, final String s2,
+  public static boolean isDescendantOf(@NotNull final String s1,
+                                       @NotNull final String s2,
                                        final boolean allowEquals)
          throws LDAPException
   {
@@ -1293,8 +1311,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If a problem occurs while making the determination.
    */
-  public boolean matchesBaseAndScope(final String baseDN,
-                                     final SearchScope scope)
+  public boolean matchesBaseAndScope(@NotNull final String baseDN,
+                                     @NotNull final SearchScope scope)
          throws LDAPException
   {
     return matchesBaseAndScope(new DN(baseDN), scope);
@@ -1316,7 +1334,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If a problem occurs while making the determination.
    */
-  public boolean matchesBaseAndScope(final DN baseDN, final SearchScope scope)
+  public boolean matchesBaseAndScope(@NotNull final DN baseDN,
+                                     @NotNull final SearchScope scope)
          throws LDAPException
   {
     Validator.ensureNotNull(baseDN, scope);
@@ -1367,7 +1386,7 @@ rdnLoop:
    *          DN, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -1401,7 +1420,7 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public boolean equals(final String s)
+  public boolean equals(@Nullable final String s)
          throws LDAPException
   {
     if (s == null)
@@ -1428,7 +1447,8 @@ rdnLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as a DN.
    */
-  public static boolean equals(final String s1, final String s2)
+  public static boolean equals(@NotNull final String s1,
+                               @NotNull final String s2)
          throws LDAPException
   {
     return new DN(s1).equals(new DN(s2));
@@ -1452,8 +1472,9 @@ rdnLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as a DN.
    */
-  public static boolean equals(final String s1, final String s2,
-                               final Schema schema)
+  public static boolean equals(@NotNull final String s1,
+                               @NotNull final String s2,
+                               @Nullable final Schema schema)
          throws LDAPException
   {
     return new DN(s1, schema).equals(new DN(s2, schema));
@@ -1467,6 +1488,7 @@ rdnLoop:
    * @return  A string representation of this DN.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return dnString;
@@ -1483,6 +1505,7 @@ rdnLoop:
    * @return  A string representation of this DN with minimal encoding for
    *          special characters.
    */
+  @NotNull()
   public String toMinimallyEncodedString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1498,7 +1521,7 @@ rdnLoop:
    * @param  buffer  The buffer to which to append the string representation of
    *                 this DN.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     toString(buffer, false);
   }
@@ -1518,7 +1541,7 @@ rdnLoop:
    *                           semicolons, greater-than, less-than, and
    *                           backslash characters will be encoded.
    */
-  public void toString(final StringBuilder buffer,
+  public void toString(@NotNull final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
     for (int i=0; i < rdns.length; i++)
@@ -1539,6 +1562,7 @@ rdnLoop:
    *
    * @return  A normalized string representation of this DN.
    */
+  @NotNull()
   public String toNormalizedString()
   {
     if (normalizedString == null)
@@ -1560,7 +1584,7 @@ rdnLoop:
    * @param  buffer  The buffer to which to append the normalized string
    *                 representation of this DN.
    */
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     for (int i=0; i < rdns.length; i++)
     {
@@ -1587,7 +1611,8 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public static String normalize(final String s)
+  @NotNull()
+  public static String normalize(@NotNull final String s)
          throws LDAPException
   {
     return normalize(s, null);
@@ -1610,7 +1635,9 @@ rdnLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
-  public static String normalize(final String s, final Schema schema)
+  @NotNull()
+  public static String normalize(@NotNull final String s,
+                                 @Nullable final Schema schema)
          throws LDAPException
   {
     return new DN(s, schema).toNormalizedString();
@@ -1631,7 +1658,7 @@ rdnLoop:
    *          be considered equal to this DN.
    */
   @Override()
-  public int compareTo(final DN dn)
+  public int compareTo(@NotNull final DN dn)
   {
     return compare(this, dn);
   }
@@ -1651,7 +1678,7 @@ rdnLoop:
    *          values can be considered equal.
    */
   @Override()
-  public int compare(final DN dn1, final DN dn2)
+  public int compare(@NotNull final DN dn1, @NotNull final DN dn2)
   {
     Validator.ensureNotNull(dn1, dn2);
 
@@ -1734,7 +1761,7 @@ rdnLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as a DN.
    */
-  public static int compare(final String s1, final String s2)
+  public static int compare(@NotNull final String s1, @NotNull final String s2)
          throws LDAPException
   {
     return compare(s1, s2, null);
@@ -1762,8 +1789,9 @@ rdnLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as a DN.
    */
-  public static int compare(final String s1, final String s2,
-                            final Schema schema)
+  public static int compare(@NotNull final String s1,
+                            @NotNull final String s2,
+                            @Nullable final Schema schema)
          throws LDAPException
   {
     return new DN(s1, schema).compareTo(new DN(s2, schema));

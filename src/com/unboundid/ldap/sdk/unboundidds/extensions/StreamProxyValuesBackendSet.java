@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -84,13 +85,13 @@ public final class StreamProxyValuesBackendSet
 
 
   // The backend set ID for this backend set.
-  private final ASN1OctetString backendSetID;
+  @NotNull private final ASN1OctetString backendSetID;
 
   // The ports of the directory servers in this backend set.
-  private final int[] ports;
+  @NotNull private final int[] ports;
 
   // The addresses of the directory servers in this backend set.
-  private final String[] hosts;
+  @NotNull private final String[] hosts;
 
 
 
@@ -108,8 +109,10 @@ public final class StreamProxyValuesBackendSet
    *                       the same number of elements as the {@code hosts}
    *                       array.
    */
-  public StreamProxyValuesBackendSet(final ASN1OctetString backendSetID,
-                                     final String[] hosts, final int[] ports)
+  public StreamProxyValuesBackendSet(
+              @NotNull final ASN1OctetString backendSetID,
+              @NotNull final String[] hosts,
+              @NotNull final int[] ports)
   {
     Validator.ensureNotNull(backendSetID, hosts, ports);
     Validator.ensureTrue(hosts.length > 0);
@@ -127,6 +130,7 @@ public final class StreamProxyValuesBackendSet
    *
    * @return  The backend set ID for this backend set.
    */
+  @NotNull()
   public ASN1OctetString getBackendSetID()
   {
     return backendSetID;
@@ -139,6 +143,7 @@ public final class StreamProxyValuesBackendSet
    *
    * @return  The addresses of the servers for this backend set.
    */
+  @NotNull()
   public String[] getHosts()
   {
     return hosts;
@@ -151,6 +156,7 @@ public final class StreamProxyValuesBackendSet
    *
    * @return  The ports of the servers for this backend set.
    */
+  @NotNull()
   public int[] getPorts()
   {
     return ports;
@@ -164,6 +170,7 @@ public final class StreamProxyValuesBackendSet
    *
    * @return  The encoded representation of this backend set.
    */
+  @NotNull()
   public ASN1Element encode()
   {
     final ASN1Element[] hostPortElements = new ASN1Element[hosts.length];
@@ -191,7 +198,9 @@ public final class StreamProxyValuesBackendSet
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a backend set.
    */
-  public static StreamProxyValuesBackendSet decode(final ASN1Element element)
+  @NotNull()
+  public static StreamProxyValuesBackendSet decode(
+              @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -233,6 +242,7 @@ public final class StreamProxyValuesBackendSet
    * @return  A string representation of this stream proxy values backend set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -249,7 +259,7 @@ public final class StreamProxyValuesBackendSet
    * @param  buffer  The buffer to which the stream representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StreamProxyValuesBackendSet(id=");
     backendSetID.toString(buffer);

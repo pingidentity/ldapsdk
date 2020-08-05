@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 
 
 
@@ -53,17 +54,17 @@ final class ParallelPoolConnectorTask
 {
   // A reference to the first exception caught while trying to create a
   // connection.
-  private final AtomicReference<LDAPException> firstException;
+  @NotNull private final AtomicReference<LDAPException> firstException;
 
   // Indicates whether to throw an exception if a problem is encountered while
   // attempting to establish the connections.
   private final boolean throwOnConnectFailure;
 
   // The connection pool with which the connection is associated.
-  private final LDAPConnectionPool pool;
+  @NotNull private final LDAPConnectionPool pool;
 
   // A list to which the established connection will be added.
-  private final List<LDAPConnection> connList;
+  @NotNull private final List<LDAPConnection> connList;
 
 
 
@@ -86,10 +87,10 @@ final class ParallelPoolConnectorTask
    *                                but may have fewer than the initial number
    *                                of connections (or possibly no connections).
    */
-  ParallelPoolConnectorTask(final LDAPConnectionPool pool,
-                            final List<LDAPConnection> connList,
-                            final AtomicReference<LDAPException> firstException,
-                            final boolean throwOnConnectFailure)
+  ParallelPoolConnectorTask(@NotNull final LDAPConnectionPool pool,
+       @NotNull final List<LDAPConnection> connList,
+       @NotNull final AtomicReference<LDAPException> firstException,
+       final boolean throwOnConnectFailure)
   {
     this.pool                  = pool;
     this.connList              = connList;

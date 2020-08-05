@@ -41,6 +41,8 @@ import java.net.Socket;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,7 +69,8 @@ public interface LDAPListenerExceptionHandler
    * @param  cause   An exception providing additional information about the
    *                 problem that occurred.  It will not be {@code null}.
    */
-  void connectionCreationFailure(Socket socket, Throwable cause);
+  void connectionCreationFailure(@Nullable Socket socket,
+                                 @NotNull Throwable cause);
 
 
 
@@ -81,6 +84,6 @@ public interface LDAPListenerExceptionHandler
    *                     reason for the termination.  It will not be
    *                     {@code null}.
    */
-  void connectionTerminated(LDAPListenerClientConnection connection,
-                            LDAPException cause);
+  void connectionTerminated(@NotNull LDAPListenerClientConnection connection,
+                            @NotNull LDAPException cause);
 }

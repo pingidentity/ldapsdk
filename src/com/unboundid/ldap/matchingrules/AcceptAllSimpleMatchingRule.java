@@ -41,6 +41,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,8 +70,8 @@ public abstract class AcceptAllSimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
   {
     return normalize(value1).equalsIgnoreType(normalize(value2));
   }
@@ -80,8 +82,8 @@ public abstract class AcceptAllSimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
-                                 final ASN1OctetString[] attributeValues)
+  public boolean matchesAnyValue(@NotNull final ASN1OctetString assertionValue,
+                      @NotNull final ASN1OctetString[] attributeValues)
   {
     if ((assertionValue == null) || (attributeValues == null) ||
         (attributeValues.length == 0))
@@ -108,10 +110,10 @@ public abstract class AcceptAllSimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesSubstring(final ASN1OctetString value,
-                                  final ASN1OctetString subInitial,
-                                  final ASN1OctetString[] subAny,
-                                  final ASN1OctetString subFinal)
+  public boolean matchesSubstring(@NotNull final ASN1OctetString value,
+                                  @Nullable final ASN1OctetString subInitial,
+                                  @Nullable final ASN1OctetString[] subAny,
+                                  @Nullable final ASN1OctetString subFinal)
   {
     try
     {
@@ -134,8 +136,8 @@ public abstract class AcceptAllSimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public int compareValues(final ASN1OctetString value1,
-                           final ASN1OctetString value2)
+  public int compareValues(@NotNull final ASN1OctetString value1,
+                           @NotNull final ASN1OctetString value2)
   {
     try
     {
@@ -159,7 +161,8 @@ public abstract class AcceptAllSimpleMatchingRule
    * to throw exceptions.
    */
   @Override()
-  public abstract ASN1OctetString normalize(ASN1OctetString value);
+  @NotNull()
+  public abstract ASN1OctetString normalize(@NotNull ASN1OctetString value);
 
 
 
@@ -168,6 +171,8 @@ public abstract class AcceptAllSimpleMatchingRule
    * allowed to throw exceptions.
    */
   @Override()
-  public abstract ASN1OctetString normalizeSubstring(ASN1OctetString value,
-                                                     byte substringType);
+  @NotNull()
+  public abstract ASN1OctetString normalizeSubstring(
+                                       @NotNull ASN1OctetString value,
+                                       byte substringType);
 }

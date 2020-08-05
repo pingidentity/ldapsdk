@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,7 +85,7 @@ public enum PKCS8PrivateKeyVersion
    * @param  name      The name for this private key version.  It must not be
    *                   {@code null}.
    */
-  PKCS8PrivateKeyVersion(final int intValue, final String name)
+  PKCS8PrivateKeyVersion(final int intValue, @NotNull final String name)
   {
     this.intValue = intValue;
     this.name = name;
@@ -111,6 +113,7 @@ public enum PKCS8PrivateKeyVersion
    *
    * @return  The name for this private key version.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -132,6 +135,7 @@ public enum PKCS8PrivateKeyVersion
    *          {@code null} if the provided version does not correspond to any
    *          known private key version value.
    */
+  @Nullable()
   static PKCS8PrivateKeyVersion valueOf(final int intValue)
   {
     for (final PKCS8PrivateKeyVersion v : values())
@@ -156,7 +160,8 @@ public enum PKCS8PrivateKeyVersion
    * @return  The requested PKCS #8 private key version, or {@code null} if no
    *          such version is defined.
    */
-  public static PKCS8PrivateKeyVersion forName(final String name)
+  @Nullable()
+  public static PKCS8PrivateKeyVersion forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

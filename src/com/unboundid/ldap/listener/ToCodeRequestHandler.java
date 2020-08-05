@@ -71,6 +71,8 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.ToCodeArgHelper;
 import com.unboundid.ldap.sdk.ToCodeHelper;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -89,24 +91,24 @@ public final class ToCodeRequestHandler
        extends LDAPListenerRequestHandler
 {
   // Indicates whether any messages have been written to the log so far.
-  private final AtomicBoolean firstMessage;
+  @NotNull private final AtomicBoolean firstMessage;
 
   // Indicates whether the output should include code that may be used to
   // process the request and handle the response.
   private final boolean includeProcessing;
 
   // The client connection with which this request handler is associated.
-  private final LDAPListenerClientConnection clientConnection;
+  @Nullable private final LDAPListenerClientConnection clientConnection;
 
   // The request handler that actually will be used to process any requests
   // received.
-  private final LDAPListenerRequestHandler requestHandler;
+  @NotNull private final LDAPListenerRequestHandler requestHandler;
 
   // The stream to which the generated code will be written.
-  private final PrintStream logStream;
+  @NotNull private final PrintStream logStream;
 
   // Thread-local lists used to hold the generated code.
-  private final ThreadLocal<List<String>> lineLists;
+  @NotNull private final ThreadLocal<List<String>> lineLists;
 
 
 
@@ -132,9 +134,9 @@ public final class ToCodeRequestHandler
    * @throws  IOException  If a problem is encountered while opening the
    *                       output file for writing.
    */
-  public ToCodeRequestHandler(final String outputFilePath,
-                              final boolean includeProcessing,
-                              final LDAPListenerRequestHandler requestHandler)
+  public ToCodeRequestHandler(@NotNull final String outputFilePath,
+              final boolean includeProcessing,
+              @NotNull final LDAPListenerRequestHandler requestHandler)
          throws IOException
   {
     this(new File(outputFilePath), includeProcessing, requestHandler);
@@ -163,9 +165,9 @@ public final class ToCodeRequestHandler
    * @throws  IOException  If a problem is encountered while opening the
    *                       output file for writing.
    */
-  public ToCodeRequestHandler(final File outputFile,
-                              final boolean includeProcessing,
-                              final LDAPListenerRequestHandler requestHandler)
+  public ToCodeRequestHandler(@NotNull final File outputFile,
+              final boolean includeProcessing,
+              @NotNull final LDAPListenerRequestHandler requestHandler)
          throws IOException
   {
     this(new FileOutputStream(outputFile, true), includeProcessing,
@@ -189,9 +191,9 @@ public final class ToCodeRequestHandler
    *                            to process any requests received.  It must not
    *                            be {@code null}.
    */
-  public ToCodeRequestHandler(final OutputStream outputStream,
-                              final boolean includeProcessing,
-                              final LDAPListenerRequestHandler requestHandler)
+  public ToCodeRequestHandler(@NotNull final OutputStream outputStream,
+              final boolean includeProcessing,
+              @NotNull final LDAPListenerRequestHandler requestHandler)
   {
     logStream = new PrintStream(outputStream, true);
 
@@ -216,8 +218,9 @@ public final class ToCodeRequestHandler
    * @throws  LDAPException  If a problem is encountered while creating a new
    *                         instance of the downstream request handler.
    */
-  private ToCodeRequestHandler(final ToCodeRequestHandler parentHandler,
-                               final LDAPListenerClientConnection connection)
+  private ToCodeRequestHandler(
+               @NotNull final ToCodeRequestHandler parentHandler,
+               @NotNull final LDAPListenerClientConnection connection)
           throws LDAPException
   {
     logStream         = parentHandler.logStream;
@@ -234,8 +237,9 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ToCodeRequestHandler newInstance(
-              final LDAPListenerClientConnection connection)
+              @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException
   {
     return new ToCodeRequestHandler(this, connection);
@@ -271,8 +275,8 @@ public final class ToCodeRequestHandler
    */
   @Override()
   public void processAbandonRequest(final int messageID,
-                                    final AbandonRequestProtocolOp request,
-                                    final List<Control> controls)
+                   @NotNull final AbandonRequestProtocolOp request,
+                   @NotNull final List<Control> controls)
   {
     // The LDAP SDK doesn't provide an AbandonRequest object.  In order to
     // process abandon operations, the LDAP SDK requires the client to have
@@ -310,9 +314,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processAddRequest(final int messageID,
-                                       final AddRequestProtocolOp request,
-                                       final List<Control> controls)
+                          @NotNull final AddRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -332,9 +337,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processBindRequest(final int messageID,
-                                        final BindRequestProtocolOp request,
-                                        final List<Control> controls)
+                          @NotNull final BindRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -354,9 +360,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processCompareRequest(final int messageID,
-                          final CompareRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final CompareRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -376,9 +383,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processDeleteRequest(final int messageID,
-                                          final DeleteRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final DeleteRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -398,9 +406,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ExtendedRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -420,9 +429,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyRequest(final int messageID,
-                                          final ModifyRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final ModifyRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -442,9 +452,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyDNRequest(final int messageID,
-                          final ModifyDNRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ModifyDNRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -464,9 +475,10 @@ public final class ToCodeRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processSearchRequest(final int messageID,
-                                          final SearchRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final SearchRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final List<String> lineList = getLineList(messageID);
 
@@ -487,8 +499,8 @@ public final class ToCodeRequestHandler
    */
   @Override()
   public void processUnbindRequest(final int messageID,
-                                   final UnbindRequestProtocolOp request,
-                                   final List<Control> controls)
+                   @NotNull final UnbindRequestProtocolOp request,
+                   @NotNull final List<Control> controls)
   {
     // The LDAP SDK doesn't provide an UnbindRequest object, because it is not
     // possible to separate an unbind request from a connection closure, which
@@ -527,6 +539,7 @@ public final class ToCodeRequestHandler
    *
    * @return  A list to use to hold the lines of output.
    */
+  @NotNull()
   private List<String> getLineList(final int messageID)
   {
     // Get a thread-local string list, creating it if necessary.
@@ -563,7 +576,7 @@ public final class ToCodeRequestHandler
    *
    * @param  lineList  The list containing the lines to be written.
    */
-  private void writeLines(final List<String> lineList)
+  private void writeLines(@NotNull final List<String> lineList)
   {
     synchronized (logStream)
     {
@@ -589,7 +602,9 @@ public final class ToCodeRequestHandler
    *
    * @return  An array of controls that corresponds to the provided list.
    */
-  private static Control[] getControlArray(final List<Control> controls)
+  @NotNull()
+  private static Control[] getControlArray(
+               @Nullable final List<Control> controls)
   {
     if ((controls == null) || controls.isEmpty())
     {

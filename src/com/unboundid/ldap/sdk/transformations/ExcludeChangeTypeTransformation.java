@@ -46,6 +46,8 @@ import java.util.Set;
 import com.unboundid.ldap.sdk.ChangeType;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -71,7 +73,7 @@ public final class ExcludeChangeTypeTransformation
 
 
   // The set of change types for records to be excluded.
-  private final Set<ChangeType> excludedChangeTypes;
+  @NotNull private final Set<ChangeType> excludedChangeTypes;
 
 
 
@@ -81,7 +83,8 @@ public final class ExcludeChangeTypeTransformation
    *
    * @param  changeTypes  The set of change types to exclude.
    */
-  public ExcludeChangeTypeTransformation(final ChangeType... changeTypes)
+  public ExcludeChangeTypeTransformation(
+              @Nullable final ChangeType... changeTypes)
   {
     this(StaticUtils.toList(changeTypes));
   }
@@ -95,7 +98,7 @@ public final class ExcludeChangeTypeTransformation
    * @param  changeTypes  The set of change types to exclude.
    */
   public ExcludeChangeTypeTransformation(
-              final Collection<ChangeType> changeTypes)
+              @Nullable final Collection<ChangeType> changeTypes)
   {
     if (changeTypes == null)
     {
@@ -115,8 +118,9 @@ public final class ExcludeChangeTypeTransformation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public LDIFChangeRecord transformChangeRecord(
-                               final LDIFChangeRecord changeRecord)
+                               @NotNull final LDIFChangeRecord changeRecord)
   {
     if (excludedChangeTypes.contains(changeRecord.getChangeType()))
     {
@@ -134,7 +138,8 @@ public final class ExcludeChangeTypeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public LDIFChangeRecord translate(final LDIFChangeRecord original,
+  @Nullable()
+  public LDIFChangeRecord translate(@NotNull final LDIFChangeRecord original,
                                     final long firstLineNumber)
   {
     if (excludedChangeTypes.contains(original.getChangeType()))
@@ -153,8 +158,9 @@ public final class ExcludeChangeTypeTransformation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public LDIFChangeRecord translateChangeRecordToWrite(
-                               final LDIFChangeRecord original)
+                               @NotNull final LDIFChangeRecord original)
   {
     if (excludedChangeTypes.contains(original.getChangeType()))
     {

@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,6 +65,6 @@ interface ResponseAcceptor
    *
    * @throws  LDAPException  If a problem occurs while handling the response.
    */
-  void responseReceived(LDAPResponse response)
+  void responseReceived(@Nullable LDAPResponse response)
        throws LDAPException;
 }

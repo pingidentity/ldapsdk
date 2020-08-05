@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -145,7 +147,7 @@ public final class GetEffectiveRightsRequestControl
    * The OID (1.3.6.1.4.1.42.2.27.9.5.2) for the get effective rights request
    * control.
    */
-  public static final String GET_EFFECTIVE_RIGHTS_REQUEST_OID =
+  @NotNull public static final String GET_EFFECTIVE_RIGHTS_REQUEST_OID =
        "1.3.6.1.4.1.42.2.27.9.5.2";
 
 
@@ -159,11 +161,11 @@ public final class GetEffectiveRightsRequestControl
 
   // The authorization ID of the user for which to calculate the effective
   // rights.
-  private final String authzID;
+  @NotNull private final String authzID;
 
   // The names of the attribute types for which to calculate the effective
   // rights.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
 
 
@@ -177,8 +179,8 @@ public final class GetEffectiveRightsRequestControl
    * @param  attributes  The set of attributes for which to calculate the
    *                     effective rights.
    */
-  public GetEffectiveRightsRequestControl(final String authzID,
-                                          final String... attributes)
+  public GetEffectiveRightsRequestControl(@NotNull final String authzID,
+                                          @NotNull final String... attributes)
   {
     this(false, authzID, attributes);
   }
@@ -198,8 +200,8 @@ public final class GetEffectiveRightsRequestControl
    *                     effective rights.
    */
   public GetEffectiveRightsRequestControl(final boolean isCritical,
-                                          final String authzID,
-                                          final String... attributes)
+                                          @NotNull final String authzID,
+                                          @NotNull final String... attributes)
   {
     super(GET_EFFECTIVE_RIGHTS_REQUEST_OID, isCritical,
           encodeValue(authzID, attributes));
@@ -220,7 +222,7 @@ public final class GetEffectiveRightsRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a get
    *                         effective rights request control.
    */
-  public GetEffectiveRightsRequestControl(final Control control)
+  public GetEffectiveRightsRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -294,8 +296,9 @@ public final class GetEffectiveRightsRequestControl
    *
    * @return  An ASN.1 octet string containing the encoded control value.
    */
-  private static ASN1OctetString encodeValue(final String authzID,
-                                             final String[] attributes)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String authzID,
+                      @Nullable final String[] attributes)
   {
     Validator.ensureNotNull(authzID);
 
@@ -335,6 +338,7 @@ public final class GetEffectiveRightsRequestControl
    * @return  The authorization ID of the user for whom to calculate the
    *          effective rights.
    */
+  @NotNull()
   public String getAuthzID()
   {
     return authzID;
@@ -350,6 +354,7 @@ public final class GetEffectiveRightsRequestControl
    *          rights information, or an empty array if no attribute names were
    *          specified.
    */
+  @NotNull()
   public String[] getAttributes()
   {
     return attributes;
@@ -361,6 +366,7 @@ public final class GetEffectiveRightsRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_EFFECTIVE_RIGHTS_REQUEST.get();
@@ -372,7 +378,7 @@ public final class GetEffectiveRightsRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetEffectiveRightsRequestControl(authzId='");
     buffer.append(authzID);

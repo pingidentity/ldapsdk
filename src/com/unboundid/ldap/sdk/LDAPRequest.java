@@ -41,8 +41,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -76,7 +78,7 @@ public abstract class LDAPRequest
   /**
    * The set of controls that will be used if none were provided.
    */
-  static final Control[] NO_CONTROLS = new Control[0];
+  @NotNull static final Control[] NO_CONTROLS = new Control[0];
 
 
 
@@ -89,13 +91,13 @@ public abstract class LDAPRequest
 
   // Indicates whether to automatically follow referrals returned while
   // processing this request.
-  private Boolean followReferrals;
+  @Nullable private Boolean followReferrals;
 
   // The set of controls for this request.
-  private Control[] controls;
+  @NotNull private Control[] controls;
 
   // The intermediate response listener for this request.
-  private IntermediateResponseListener intermediateResponseListener;
+  @Nullable private IntermediateResponseListener intermediateResponseListener;
 
   // The maximum length of time in milliseconds to wait for the response from
   // the server.  The default value of -1 indicates that it should be inherited
@@ -103,7 +105,7 @@ public abstract class LDAPRequest
   private long responseTimeout;
 
   // The referral connector to use when following referrals.
-  private ReferralConnector referralConnector;
+  @Nullable private ReferralConnector referralConnector;
 
 
 
@@ -112,7 +114,7 @@ public abstract class LDAPRequest
    *
    * @param  controls  The set of controls to include in this LDAP request.
    */
-  protected LDAPRequest(final Control[] controls)
+  protected LDAPRequest(@Nullable final Control[] controls)
   {
     if (controls == null)
     {
@@ -135,6 +137,7 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final Control[] getControls()
   {
     return controls;
@@ -146,6 +149,7 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final List<Control> getControlList()
   {
     return Collections.unmodifiableList(Arrays.asList(controls));
@@ -168,7 +172,7 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
-  public final boolean hasControl(final String oid)
+  public final boolean hasControl(@NotNull final String oid)
   {
     Validator.ensureNotNull(oid);
 
@@ -189,7 +193,8 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
-  public final Control getControl(final String oid)
+  @Nullable()
+  public final Control getControl(@NotNull final String oid)
   {
     Validator.ensureNotNull(oid);
 
@@ -212,7 +217,7 @@ public abstract class LDAPRequest
    *
    * @param  controls  The set of controls to use for this request.
    */
-  final void setControlsInternal(final Control[] controls)
+  final void setControlsInternal(@NotNull final Control[] controls)
   {
     this.controls = controls;
   }
@@ -223,7 +228,8 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
-  public final long getResponseTimeoutMillis(final LDAPConnection connection)
+  public final long getResponseTimeoutMillis(
+                         @Nullable final LDAPConnection connection)
   {
     if ((responseTimeout < 0L) && (connection != null))
     {
@@ -288,7 +294,7 @@ public abstract class LDAPRequest
    *          be automatically followed, or {@code false} if not.
    */
   @Override()
-  public final boolean followReferrals(final LDAPConnection connection)
+  public final boolean followReferrals(@NotNull final LDAPConnection connection)
   {
     if (followReferrals == null)
     {
@@ -309,6 +315,7 @@ public abstract class LDAPRequest
    *          for this request, {@code Boolean.FALSE} if not, or {@code null} if
    *          a per-request behavior is not specified.
    */
+  @Nullable()
   final Boolean followReferralsInternal()
   {
     return followReferrals;
@@ -329,7 +336,7 @@ public abstract class LDAPRequest
    *                          connection options for the connection used to
    *                          process the request.
    */
-  public final void setFollowReferrals(final Boolean followReferrals)
+  public final void setFollowReferrals(@Nullable final Boolean followReferrals)
   {
     this.followReferrals = followReferrals;
   }
@@ -340,8 +347,9 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final ReferralConnector getReferralConnector(
-                                      final LDAPConnection connection)
+                                      @NotNull final LDAPConnection connection)
   {
     if (referralConnector == null)
     {
@@ -363,6 +371,7 @@ public abstract class LDAPRequest
    *          request and the connection's default referral connector will be
    *          used if necessary.
    */
+  @Nullable()
   final ReferralConnector getReferralConnectorInternal()
   {
     return referralConnector;
@@ -384,7 +393,7 @@ public abstract class LDAPRequest
    *                            received.
    */
   public final void setReferralConnector(
-                         final ReferralConnector referralConnector)
+                         @Nullable final ReferralConnector referralConnector)
   {
     this.referralConnector = referralConnector;
   }
@@ -397,6 +406,7 @@ public abstract class LDAPRequest
    * @return  The intermediate response listener for this request, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public final IntermediateResponseListener getIntermediateResponseListener()
   {
     return intermediateResponseListener;
@@ -411,7 +421,7 @@ public abstract class LDAPRequest
    *                   may be {@code null} to clear any existing listener.
    */
   public final void setIntermediateResponseListener(
-                         final IntermediateResponseListener listener)
+                         @Nullable final IntermediateResponseListener listener)
   {
     intermediateResponseListener = listener;
   }
@@ -432,7 +442,9 @@ public abstract class LDAPRequest
    * @throws  LDAPException  If a problem occurs while processing the request.
    */
   @InternalUseOnly()
-  protected abstract LDAPResult process(LDAPConnection connection, int depth)
+  @NotNull()
+  protected abstract LDAPResult process(@NotNull LDAPConnection connection,
+                                        int depth)
             throws LDAPException;
 
 
@@ -453,6 +465,7 @@ public abstract class LDAPRequest
    *
    * @return  The type of operation that is represented by this request.
    */
+  @NotNull()
   public abstract OperationType getOperationType();
 
 
@@ -461,6 +474,7 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -474,5 +488,5 @@ public abstract class LDAPRequest
    * {@inheritDoc}
    */
   @Override()
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 }

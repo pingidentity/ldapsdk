@@ -47,6 +47,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -97,16 +99,16 @@ public final class EllipticCurvePrivateKey
 
 
   // The public key that corresponds to the private key.
-  private final ASN1BitString publicKey;
+  @Nullable private final ASN1BitString publicKey;
 
   // The bytes that make up the actual private key.
-  private final byte[] privateKeyBytes;
+  @NotNull private final byte[] privateKeyBytes;
 
   // The version number for the private key.
   private final int version;
 
   // The OID for the named curve.
-  private final OID namedCurveOID;
+  @Nullable private final OID namedCurveOID;
 
 
 
@@ -123,9 +125,10 @@ public final class EllipticCurvePrivateKey
    * @param  publicKey        The encoded public key.  This may be {@code null}
    *                          if it is not to be included in the private key.
    */
-  EllipticCurvePrivateKey(final int version, final byte[] privateKeyBytes,
-                          final OID namedCurveOID,
-                          final ASN1BitString publicKey)
+  EllipticCurvePrivateKey(final int version,
+                          @NotNull final byte[] privateKeyBytes,
+                          @Nullable final OID namedCurveOID,
+                          @Nullable final ASN1BitString publicKey)
   {
     this.version = version;
     this.privateKeyBytes = privateKeyBytes;
@@ -145,7 +148,7 @@ public final class EllipticCurvePrivateKey
    * @throws  CertException  If the provided private key cannot be decoded as an
    *                         elliptic curve private key.
    */
-  EllipticCurvePrivateKey(final ASN1OctetString encodedPrivateKey)
+  EllipticCurvePrivateKey(@NotNull final ASN1OctetString encodedPrivateKey)
        throws CertException
   {
     try
@@ -205,6 +208,7 @@ public final class EllipticCurvePrivateKey
    * @throws  CertException  If a problem is encountered while encoding this
    *                         private key.
    */
+  @NotNull()
   ASN1OctetString encode()
        throws CertException
   {
@@ -255,6 +259,7 @@ public final class EllipticCurvePrivateKey
    *
    * @return  The bytes that make up the actual elliptic curve private key.
    */
+  @NotNull()
   public byte[] getPrivateKeyBytes()
   {
     return privateKeyBytes;
@@ -270,6 +275,7 @@ public final class EllipticCurvePrivateKey
    *          associated, or {@code null} if it was not included in the encoded
    *          key.
    */
+  @Nullable()
   public OID getNamedCurveOID()
   {
     return namedCurveOID;
@@ -284,6 +290,7 @@ public final class EllipticCurvePrivateKey
    * @return  The encoded public key with which this private key is associated,
    *          or {@code null} if it was not included in the encoded key.
    */
+  @Nullable()
   public ASN1BitString getPublicKey()
   {
     return publicKey;
@@ -295,7 +302,7 @@ public final class EllipticCurvePrivateKey
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EllipticCurvePrivateKey(version=");
     buffer.append(version);

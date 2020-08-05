@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -73,7 +75,7 @@ public final class GroupCacheMonitorEntry
   /**
    * The structural object class used in group cache monitor entries.
    */
-  static final String GROUP_CACHE_MONITOR_OC =
+  @NotNull static final String GROUP_CACHE_MONITOR_OC =
        "ds-group-cache-monitor-entry";
 
 
@@ -82,7 +84,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the amount of
    * memory required by the group cache, in bytes.
    */
-  private static final String ATTR_CURRENT_CACHE_USED_BYTES =
+  @NotNull private static final String ATTR_CURRENT_CACHE_USED_BYTES =
        "current-cache-used-bytes";
 
 
@@ -92,7 +94,7 @@ public final class GroupCacheMonitorEntry
    * memory required by the group cache, as a percentage of the total JVM heap
    * size.
    */
-  private static final String ATTR_CURRENT_CACHE_USED_PERCENT =
+  @NotNull private static final String ATTR_CURRENT_CACHE_USED_PERCENT =
        "current-cache-used-as-percentage-of-max-heap";
 
 
@@ -101,7 +103,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the length of
    * time required to determine group cache memory usage.
    */
-  private static final String ATTR_CURRENT_CACHE_USED_UPDATE_MILLIS =
+  @NotNull private static final String ATTR_CURRENT_CACHE_USED_UPDATE_MILLIS =
        "current-cache-used-update-ms";
 
 
@@ -110,7 +112,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the number of
    * dynamic group entries defined in the server.
    */
-  private static final String ATTR_DYNAMIC_GROUP_ENTRIES =
+  @NotNull private static final String ATTR_DYNAMIC_GROUP_ENTRIES =
        "dynamic-group-entries";
 
 
@@ -119,7 +121,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the number of
    * static group entries defined in the server.
    */
-  private static final String ATTR_STATIC_GROUP_ENTRIES =
+  @NotNull private static final String ATTR_STATIC_GROUP_ENTRIES =
        "static-group-entries";
 
 
@@ -128,7 +130,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the total number
    * of static group members defined in the server.
    */
-  private static final String ATTR_TOTAL_STATIC_GROUP_MEMBERS =
+  @NotNull private static final String ATTR_TOTAL_STATIC_GROUP_MEMBERS =
        "static-group-members";
 
 
@@ -137,7 +139,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the number of
    * unique static group members defined in the server.
    */
-  private static final String ATTR_UNIQUE_STATIC_GROUP_MEMBERS =
+  @NotNull private static final String ATTR_UNIQUE_STATIC_GROUP_MEMBERS =
        "static-group-unique-members";
 
 
@@ -146,7 +148,7 @@ public final class GroupCacheMonitorEntry
    * The name of the attribute that contains information about the number of
    * virtual static group entries defined in the server.
    */
-  private static final String ATTR_VIRTUAL_STATIC_GROUP_ENTRIES =
+  @NotNull private static final String ATTR_VIRTUAL_STATIC_GROUP_ENTRIES =
        "virtual-static-group-entries";
 
 
@@ -160,28 +162,28 @@ public final class GroupCacheMonitorEntry
 
   // The length of time in milliseconds required to determine the current cache
   // usage.
-  private final Double currentCacheUsedUpdateMillis;
+  @Nullable private final Double currentCacheUsedUpdateMillis;
 
   // The percentage of the JVM heap used by the group cache.
-  private final Integer currentCacheUsedPercent;
+  @Nullable private final Integer currentCacheUsedPercent;
 
   // The amount of memory (in bytes) currently in use by the group cache.
-  private final Long currentCacheUsedBytes;
+  @Nullable private final Long currentCacheUsedBytes;
 
   // The number of dynamic group entries defined in the server.
-  private final Long dynamicGroupEntries;
+  @Nullable private final Long dynamicGroupEntries;
 
   // The number of static group entries defined in the server.
-  private final Long staticGroupEntries;
+  @Nullable private final Long staticGroupEntries;
 
   // The number of total static group members defined in the server.
-  private final Long staticGroupMembers;
+  @Nullable private final Long staticGroupMembers;
 
   // The number of unique static group members defined in the server.
-  private final Long staticGroupUniqueMembers;
+  @Nullable private final Long staticGroupUniqueMembers;
 
   // The number of virtual static group entries defined in the server.
-  private final Long virtualStaticGroupEntries;
+  @Nullable private final Long virtualStaticGroupEntries;
 
 
 
@@ -191,7 +193,7 @@ public final class GroupCacheMonitorEntry
    * @param  entry  The entry to be parsed as a group cache monitor entry.  It
    *                must not be {@code null}.
    */
-  public GroupCacheMonitorEntry(final Entry entry)
+  public GroupCacheMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -215,6 +217,7 @@ public final class GroupCacheMonitorEntry
    * @return  The number of static group entries defined in the server, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getStaticGroupEntries()
   {
     return staticGroupEntries;
@@ -230,6 +233,7 @@ public final class GroupCacheMonitorEntry
    * @return  The total number of static group members defined in the server, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getTotalStaticGroupMembers()
   {
     return staticGroupMembers;
@@ -245,6 +249,7 @@ public final class GroupCacheMonitorEntry
    * @return  The number of unique static group members defined in the server,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getUniqueStaticGroupMembers()
   {
     return staticGroupUniqueMembers;
@@ -259,6 +264,7 @@ public final class GroupCacheMonitorEntry
    * @return  The number of dynamic group entries defined in the server, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getDynamicGroupEntries()
   {
     return dynamicGroupEntries;
@@ -273,6 +279,7 @@ public final class GroupCacheMonitorEntry
    * @return  The number of virtual static group entries defined in the server,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getVirtualStaticGroupEntries()
   {
     return virtualStaticGroupEntries;
@@ -287,6 +294,7 @@ public final class GroupCacheMonitorEntry
    * @return  The amount of memory in bytes used by the group cache, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentCacheUsedBytes()
   {
     return currentCacheUsedBytes;
@@ -301,6 +309,7 @@ public final class GroupCacheMonitorEntry
    * @return  The amount of memory in bytes used by the group cache, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Integer getCurrentCacheUsedAsPercentOfMaxHeap()
   {
     return currentCacheUsedPercent;
@@ -316,6 +325,7 @@ public final class GroupCacheMonitorEntry
    *          cache size, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Double getCurrentCacheUsedUpdateDurationMillis()
   {
     return currentCacheUsedUpdateMillis;
@@ -327,6 +337,7 @@ public final class GroupCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_GROUP_CACHE_MONITOR_DISPNAME.get();
@@ -338,6 +349,7 @@ public final class GroupCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_GROUP_CACHE_MONITOR_DESC.get();
@@ -349,6 +361,7 @@ public final class GroupCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

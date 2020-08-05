@@ -38,6 +38,8 @@ package com.unboundid.ldif;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,5 +70,7 @@ public interface LDIFWriterChangeRecordTranslator
    *          {@code duplicate()} method to create a copy of the original and
    *          make the necessary changes to that duplicate.
    */
-  LDIFChangeRecord translateChangeRecordToWrite(LDIFChangeRecord original);
+  @Nullable
+  LDIFChangeRecord translateChangeRecordToWrite(
+       @NotNull LDIFChangeRecord original);
 }

@@ -63,10 +63,10 @@ public final class AggregateInputStream
        extends InputStream
 {
   // The currently-active input stream.
-  private volatile InputStream activeInputStream;
+  @Nullable private volatile InputStream activeInputStream;
 
   // The iterator that will be used to access the input streams.
-  private final Iterator<InputStream> streamIterator;
+  @NotNull private final Iterator<InputStream> streamIterator;
 
 
 
@@ -77,7 +77,7 @@ public final class AggregateInputStream
    * @param  inputStreams  The input streams to be used by this aggregate input
    *                       stream.  It must not be {@code null}.
    */
-  public AggregateInputStream(final InputStream... inputStreams)
+  public AggregateInputStream(@NotNull final InputStream... inputStreams)
   {
     this(StaticUtils.toList(inputStreams));
   }
@@ -92,7 +92,7 @@ public final class AggregateInputStream
    *                       stream.  It must not be {@code null}.
    */
   public AggregateInputStream(
-              final Collection<? extends InputStream> inputStreams)
+              @NotNull final Collection<? extends InputStream> inputStreams)
   {
     Validator.ensureNotNull(inputStreams);
 
@@ -113,7 +113,7 @@ public final class AggregateInputStream
    * @throws  IOException  If a problem is encountered while attempting to
    *                       create input streams for the provided files.
    */
-  public AggregateInputStream(final File... files)
+  public AggregateInputStream(@NotNull final File... files)
          throws IOException
   {
     this(false, files);
@@ -143,7 +143,7 @@ public final class AggregateInputStream
    *                       create input streams for the provided files.
    */
   public AggregateInputStream(final boolean ensureBlankLinesBetweenFiles,
-                              final File... files)
+                              @NotNull final File... files)
          throws IOException
   {
     Validator.ensureNotNull(files);
@@ -257,7 +257,7 @@ public final class AggregateInputStream
    *                       data from an input stream.
    */
   @Override()
-  public int read(final byte[] b)
+  public int read(@NotNull final byte[] b)
          throws IOException
   {
     return read(b, 0, b.length);
@@ -281,7 +281,7 @@ public final class AggregateInputStream
    *                       data from an input stream.
    */
   @Override()
-  public int read(final byte[] b, final int off, final int len)
+  public int read(@NotNull final byte[] b, final int off, final int len)
          throws IOException
   {
     while (true)

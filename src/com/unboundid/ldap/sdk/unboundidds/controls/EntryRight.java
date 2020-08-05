@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -110,7 +112,7 @@ public enum EntryRight
    *
    * @param  name  The name for this entry right.
    */
-  EntryRight(final String name)
+  EntryRight(@NotNull final String name)
   {
     this.name = name;
   }
@@ -122,6 +124,7 @@ public enum EntryRight
    *
    * @return  The name of this entry right.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -137,7 +140,8 @@ public enum EntryRight
    * @return  The requested entry right, or {@code null} if there is no such
    *          right.
    */
-  public static EntryRight forName(final String name)
+  @Nullable()
+  public static EntryRight forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -164,6 +168,7 @@ public enum EntryRight
    * @return  A string representation of this entry right.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

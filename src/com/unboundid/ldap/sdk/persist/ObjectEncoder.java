@@ -46,6 +46,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -80,7 +81,7 @@ public abstract class ObjectEncoder
    * @return  {@code true} if this object encoder may be used for objects of
    *          the specified type, or {@code false} if not.
    */
-  public abstract boolean supportsType(Type t);
+  public abstract boolean supportsType(@NotNull Type t);
 
 
 
@@ -100,7 +101,9 @@ public abstract class ObjectEncoder
    *                                encoding values for the associated field
    *                                type.
    */
-  public final AttributeTypeDefinition constructAttributeType(final Field f)
+  @NotNull()
+  public final AttributeTypeDefinition constructAttributeType(
+                                            @NotNull final Field f)
          throws LDAPPersistException
   {
     return constructAttributeType(f, DefaultOIDAllocator.getInstance());
@@ -125,8 +128,10 @@ public abstract class ObjectEncoder
    *                                encoding values for the associated field
    *                                type.
    */
-  public abstract AttributeTypeDefinition constructAttributeType(Field f,
-                                                                 OIDAllocator a)
+  @NotNull()
+  public abstract AttributeTypeDefinition constructAttributeType(
+                                               @NotNull Field f,
+                                               @NotNull OIDAllocator a)
          throws LDAPPersistException;
 
 
@@ -147,7 +152,9 @@ public abstract class ObjectEncoder
    *                                encoding values for the associated method
    *                                type.
    */
-  public final AttributeTypeDefinition constructAttributeType(final Method m)
+  @NotNull()
+  public final AttributeTypeDefinition constructAttributeType(
+                                            @NotNull final Method m)
          throws LDAPPersistException
   {
     return constructAttributeType(m, DefaultOIDAllocator.getInstance());
@@ -173,8 +180,10 @@ public abstract class ObjectEncoder
    *                                encoding values for the associated method
    *                                type.
    */
-  public abstract AttributeTypeDefinition constructAttributeType(Method m,
-                                                                 OIDAllocator a)
+  @NotNull()
+  public abstract AttributeTypeDefinition constructAttributeType(
+                                               @NotNull Method m,
+                                               @NotNull OIDAllocator a)
          throws LDAPPersistException;
 
 
@@ -188,7 +197,7 @@ public abstract class ObjectEncoder
    * @return  {@code true} if the provided field can hold multiple values, or
    *          {@code false} if not.
    */
-  public abstract boolean supportsMultipleValues(Field field);
+  public abstract boolean supportsMultipleValues(@NotNull Field field);
 
 
 
@@ -204,7 +213,7 @@ public abstract class ObjectEncoder
    * @return  {@code true} if the provided method takes an argument that can
    *          hold multiple values, or {@code false} if not.
    */
-  public abstract boolean supportsMultipleValues(Method method);
+  public abstract boolean supportsMultipleValues(@NotNull Method method);
 
 
 
@@ -221,8 +230,10 @@ public abstract class ObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                construct an attribute for the field.
    */
-  public abstract Attribute encodeFieldValue(Field field, Object value,
-                                             String name)
+  @NotNull()
+  public abstract Attribute encodeFieldValue(@NotNull Field field,
+                                             @NotNull Object value,
+                                             @NotNull String name)
          throws LDAPPersistException;
 
 
@@ -241,8 +252,10 @@ public abstract class ObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                construct an attribute for the method.
    */
-  public abstract Attribute encodeMethodValue(Method method, Object value,
-                                              String name)
+  @NotNull()
+  public abstract Attribute encodeMethodValue(@NotNull Method method,
+                                              @NotNull Object value,
+                                              @NotNull String name)
          throws LDAPPersistException;
 
 
@@ -259,8 +272,8 @@ public abstract class ObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                assign a value to the specified field.
    */
-  public abstract void decodeField(Field field, Object object,
-                                   Attribute attribute)
+  public abstract void decodeField(@NotNull Field field, @NotNull Object object,
+                                   @NotNull Attribute attribute)
          throws LDAPPersistException;
 
 
@@ -282,7 +295,7 @@ public abstract class ObjectEncoder
    *                                assign a {@code null} value to the specified
    *                                field.
    */
-  public void setNull(final Field f, final Object o)
+  public void setNull(@NotNull final Field f, @NotNull final Object o)
          throws LDAPPersistException
   {
     try
@@ -356,7 +369,7 @@ public abstract class ObjectEncoder
    *                                assign a {@code null} value to the specified
    *                                field.
    */
-  public void setNull(final Method m, final Object o)
+  public void setNull(@NotNull final Method m, @NotNull final Object o)
          throws LDAPPersistException
   {
     try
@@ -426,7 +439,8 @@ public abstract class ObjectEncoder
    *                                determine the value or invoke the specified
    *                                method.
    */
-  public abstract void invokeSetter(Method method, Object object,
-                                    Attribute attribute)
+  public abstract void invokeSetter(@NotNull Method method,
+                                    @NotNull Object object,
+                                    @NotNull Attribute attribute)
          throws LDAPPersistException;
 }

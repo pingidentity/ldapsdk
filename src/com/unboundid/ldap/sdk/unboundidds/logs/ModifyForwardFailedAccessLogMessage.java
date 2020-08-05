@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,19 +74,19 @@ public final class ModifyForwardFailedAccessLogMessage
 
 
   // The numeric result code for the failure.
-  private final Integer resultCode;
+  @Nullable private final Integer resultCode;
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The diagnostic message for the failure.
-  private final String message;
+  @Nullable private final String message;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
 
 
@@ -98,7 +100,7 @@ public final class ModifyForwardFailedAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ModifyForwardFailedAccessLogMessage(final String s)
+  public ModifyForwardFailedAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -113,7 +115,7 @@ public final class ModifyForwardFailedAccessLogMessage
    * @param  m  The log message to be parsed as a modify forward failed access
    *            log message.
    */
-  public ModifyForwardFailedAccessLogMessage(final LogMessage m)
+  public ModifyForwardFailedAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -134,6 +136,7 @@ public final class ModifyForwardFailedAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -149,6 +152,7 @@ public final class ModifyForwardFailedAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -162,6 +166,7 @@ public final class ModifyForwardFailedAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -175,6 +180,7 @@ public final class ModifyForwardFailedAccessLogMessage
    * @return  The result code received for the forwarded operation, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public Integer getResultCode()
   {
     return resultCode;
@@ -188,6 +194,7 @@ public final class ModifyForwardFailedAccessLogMessage
    * @return  The diagnostic message received for the forwarded operation, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return message;
@@ -199,6 +206,7 @@ public final class ModifyForwardFailedAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.FORWARD_FAILED;

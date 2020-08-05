@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,6 +66,7 @@ public interface InMemoryInterceptedSimpleBindResult
    *
    * @return  The simple bind request that was processed.
    */
+  @NotNull()
   SimpleBindRequest getRequest();
 
 
@@ -73,6 +76,7 @@ public interface InMemoryInterceptedSimpleBindResult
    *
    * @return  The bind result to be returned to the client.
    */
+  @Nullable()
   BindResult getResult();
 
 
@@ -85,7 +89,7 @@ public interface InMemoryInterceptedSimpleBindResult
    *                     in-memory directory server.  It must not be
    *                     {@code null}.
    */
-  void setResult(BindResult bindResult);
+  void setResult(@NotNull BindResult bindResult);
 
 
 
@@ -101,6 +105,7 @@ public interface InMemoryInterceptedSimpleBindResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
-         throws LDAPException;
+  void sendIntermediateResponse(
+            @NotNull IntermediateResponse intermediateResponse)
+       throws LDAPException;
 }

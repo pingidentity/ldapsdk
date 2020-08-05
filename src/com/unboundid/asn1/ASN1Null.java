@@ -39,6 +39,7 @@ package com.unboundid.asn1;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -60,7 +61,7 @@ public final class ASN1Null
   /**
    * A pre-allocated ASN.1 null element with the universal null BER type.
    */
-  public static final ASN1Null UNIVERSAL_NULL_ELEMENT = new ASN1Null();
+  @NotNull public static final ASN1Null UNIVERSAL_NULL_ELEMENT = new ASN1Null();
 
 
 
@@ -103,7 +104,8 @@ public final class ASN1Null
    * @throws  ASN1Exception  If the provided array cannot be decoded as a null
    *                         element.
    */
-  public static ASN1Null decodeAsNull(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1Null decodeAsNull(@NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -159,7 +161,8 @@ public final class ASN1Null
    * @throws  ASN1Exception  If the provided element cannot be decoded as a null
    *                         element.
    */
-  public static ASN1Null decodeAsNull(final ASN1Element element)
+  @NotNull()
+  public static ASN1Null decodeAsNull(@NotNull final ASN1Element element)
          throws ASN1Exception
   {
     if (element.getValue().length != 0)
@@ -176,7 +179,7 @@ public final class ASN1Null
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ASN1Null(type=");
     StaticUtils.toHex(getType(), buffer);

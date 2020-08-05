@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,7 +88,7 @@ public final class VirtualListViewResponseControl
    * The OID (2.16.840.1.113730.3.4.10) for the virtual list view response
    * control.
    */
-  public static final String VIRTUAL_LIST_VIEW_RESPONSE_OID =
+  @NotNull public static final String VIRTUAL_LIST_VIEW_RESPONSE_OID =
        "2.16.840.1.113730.3.4.10";
 
 
@@ -99,13 +101,13 @@ public final class VirtualListViewResponseControl
 
 
   // The context ID for this VLV response control, if available.
-  private final ASN1OctetString contextID;
+  @Nullable private final ASN1OctetString contextID;
 
   // The estimated total number of entries in the result set.
   private final int contentCount;
 
   // The result code for this VLV response control.
-  private final ResultCode resultCode;
+  @NotNull private final ResultCode resultCode;
 
   // The offset of the target entry for this VLV response control.
   private final int targetPosition;
@@ -139,8 +141,8 @@ public final class VirtualListViewResponseControl
    *                         may be {@code null} if no context ID is available.
    */
   public VirtualListViewResponseControl(final int targetPosition,
-              final int contentCount, final ResultCode resultCode,
-              final ASN1OctetString contextID)
+              final int contentCount, @NotNull final ResultCode resultCode,
+              @Nullable final ASN1OctetString contextID)
   {
     super(VIRTUAL_LIST_VIEW_RESPONSE_OID, false,
           encodeValue(targetPosition, contentCount, resultCode, contextID));
@@ -167,9 +169,9 @@ public final class VirtualListViewResponseControl
    *                         provided control as a virtual list view response
    *                         control.
    */
-  public VirtualListViewResponseControl(final String oid,
+  public VirtualListViewResponseControl(@NotNull final String oid,
                                         final boolean isCritical,
-                                        final ASN1OctetString value)
+                                        @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -253,9 +255,10 @@ public final class VirtualListViewResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public VirtualListViewResponseControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+  @NotNull()
+  public VirtualListViewResponseControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new VirtualListViewResponseControl(oid, isCritical, value);
@@ -277,7 +280,9 @@ public final class VirtualListViewResponseControl
    *                         decode the virtual list view response  control
    *                         contained in the provided result.
    */
-  public static VirtualListViewResponseControl get(final SearchResult result)
+  @Nullable()
+  public static VirtualListViewResponseControl get(
+                     @NotNull final SearchResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(VIRTUAL_LIST_VIEW_RESPONSE_OID);
@@ -314,10 +319,11 @@ public final class VirtualListViewResponseControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(final int targetPosition,
-                                             final int contentCount,
-                                             final ResultCode resultCode,
-                                             final ASN1OctetString contextID)
+                      final int contentCount,
+                      @NotNull final ResultCode resultCode,
+                      @Nullable final ASN1OctetString contextID)
   {
     final ASN1Element[] vlvElements;
     if (contextID == null)
@@ -376,6 +382,7 @@ public final class VirtualListViewResponseControl
    *
    * @return  The result code for this virtual list view response control.
    */
+  @NotNull()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -390,6 +397,7 @@ public final class VirtualListViewResponseControl
    * @return  The context ID for this virtual list view response control, or
    *          {@code null} if none was provided.
    */
+  @Nullable()
   public ASN1OctetString getContextID()
   {
     return contextID;
@@ -401,6 +409,7 @@ public final class VirtualListViewResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_VLV_RESPONSE.get();
@@ -412,7 +421,7 @@ public final class VirtualListViewResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("VirtualListViewResponseControl(targetPosition=");
     buffer.append(targetPosition);

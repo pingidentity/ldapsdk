@@ -55,6 +55,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -119,7 +121,7 @@ public final class AssuredReplicationResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.29) for the assured replication response
    * control.
    */
-  public static final String ASSURED_REPLICATION_RESPONSE_OID =
+  @NotNull public static final String ASSURED_REPLICATION_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.29";
 
 
@@ -180,10 +182,10 @@ public final class AssuredReplicationResponseControl
 
 
   // The assurance level for local processing.
-  private final AssuredReplicationLocalLevel localLevel;
+  @Nullable private final AssuredReplicationLocalLevel localLevel;
 
   // The assurance level for remote processing.
-  private final AssuredReplicationRemoteLevel remoteLevel;
+  @Nullable private final AssuredReplicationRemoteLevel remoteLevel;
 
   // Indicates whether the desired local assurance has been satisfied.
   private final boolean localAssuranceSatisfied;
@@ -192,18 +194,18 @@ public final class AssuredReplicationResponseControl
   private final boolean remoteAssuranceSatisfied;
 
   // The results from individual replication and/or directory servers.
-  private final List<AssuredReplicationServerResult> serverResults;
+  @NotNull private final List<AssuredReplicationServerResult> serverResults;
 
   // The replication change sequence number for the associated operation.
-  private final String csn;
+  @Nullable private final String csn;
 
   // An optional message with additional information about local assurance
   // processing.
-  private final String localAssuranceMessage;
+  @Nullable private final String localAssuranceMessage;
 
   // An optional message with additional information about local assurance
   // processing.
-  private final String remoteAssuranceMessage;
+  @Nullable private final String remoteAssuranceMessage;
 
 
 
@@ -263,13 +265,14 @@ public final class AssuredReplicationResponseControl
    *                                   results are available.
    */
   public AssuredReplicationResponseControl(
-              final AssuredReplicationLocalLevel localLevel,
-              final boolean localAssuranceSatisfied,
-              final String localAssuranceMessage,
-              final AssuredReplicationRemoteLevel remoteLevel,
-              final boolean remoteAssuranceSatisfied,
-              final String remoteAssuranceMessage, final String csn,
-              final Collection<AssuredReplicationServerResult> serverResults)
+       @Nullable final AssuredReplicationLocalLevel localLevel,
+       final boolean localAssuranceSatisfied,
+       @Nullable final String localAssuranceMessage,
+       @Nullable final AssuredReplicationRemoteLevel remoteLevel,
+       final boolean remoteAssuranceSatisfied,
+       @Nullable final String remoteAssuranceMessage,
+       @Nullable final String csn,
+       @Nullable final Collection<AssuredReplicationServerResult> serverResults)
   {
     super(ASSURED_REPLICATION_RESPONSE_OID, false,
          encodeValue(localLevel, localAssuranceSatisfied,
@@ -310,9 +313,9 @@ public final class AssuredReplicationResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         assured replication response control.
    */
-  public AssuredReplicationResponseControl(final String oid,
-                                           final boolean isCritical,
-                                           final ASN1OctetString value)
+  public AssuredReplicationResponseControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -488,14 +491,16 @@ public final class AssuredReplicationResponseControl
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-               final AssuredReplicationLocalLevel localLevel,
-               final boolean localAssuranceSatisfied,
-               final String localAssuranceMessage,
-               final AssuredReplicationRemoteLevel remoteLevel,
-               final boolean remoteAssuranceSatisfied,
-               final String remoteAssuranceMessage, final String csn,
-               final Collection<AssuredReplicationServerResult> serverResults)
+       @Nullable final AssuredReplicationLocalLevel localLevel,
+       final boolean localAssuranceSatisfied,
+       @Nullable final String localAssuranceMessage,
+       @Nullable final AssuredReplicationRemoteLevel remoteLevel,
+       final boolean remoteAssuranceSatisfied,
+       @Nullable final String remoteAssuranceMessage,
+       @Nullable final String csn,
+       @Nullable final Collection<AssuredReplicationServerResult> serverResults)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(8);
 
@@ -553,9 +558,10 @@ public final class AssuredReplicationResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public AssuredReplicationResponseControl decodeControl(final String oid,
-                                                final boolean isCritical,
-                                                final ASN1OctetString value)
+  @NotNull()
+  public AssuredReplicationResponseControl decodeControl(
+              @NotNull final String oid, final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new AssuredReplicationResponseControl(oid, isCritical, value);
@@ -579,7 +585,9 @@ public final class AssuredReplicationResponseControl
    *                         decode the assured replication response control
    *                         contained in the provided result.
    */
-  public static AssuredReplicationResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static AssuredReplicationResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c =
@@ -617,8 +625,9 @@ public final class AssuredReplicationResponseControl
    *                         decode any assured replication response control
    *                         contained in the provided result.
    */
+  @NotNull()
   public static List<AssuredReplicationResponseControl> getAll(
-                     final LDAPResult result)
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control[] controls = result.getResponseControls();
@@ -652,6 +661,7 @@ public final class AssuredReplicationResponseControl
    * @return  The local assurance level selected by the server for the
    *          associated operation, or {@code null} if this is not available.
    */
+  @Nullable()
   public AssuredReplicationLocalLevel getLocalLevel()
   {
     return localLevel;
@@ -680,6 +690,7 @@ public final class AssuredReplicationResponseControl
    * @return  A message with additional information about local assurance
    *          processing, or {@code null} if none is available.
    */
+  @Nullable()
   public String getLocalAssuranceMessage()
   {
     return localAssuranceMessage;
@@ -695,6 +706,7 @@ public final class AssuredReplicationResponseControl
    *          associated operation, or {@code null} if the remote assurance
    *          level is not available.
    */
+  @Nullable()
   public AssuredReplicationRemoteLevel getRemoteLevel()
   {
     return remoteLevel;
@@ -723,6 +735,7 @@ public final class AssuredReplicationResponseControl
    * @return  A message with additional information about remote assurance
    *          processing, or {@code null} if none is available.
    */
+  @Nullable()
   public String getRemoteAssuranceMessage()
   {
     return remoteAssuranceMessage;
@@ -737,6 +750,7 @@ public final class AssuredReplicationResponseControl
    * @return  The replication CSN assigned to the associated operation, or
    *          {@code null} if the CSN is not available.
    */
+  @Nullable()
   public String getCSN()
   {
     return csn;
@@ -752,6 +766,7 @@ public final class AssuredReplicationResponseControl
    * @return  A list of the results from individual replication servers and/or
    *          directory servers used in assurance processing.
    */
+  @NotNull()
   public List<AssuredReplicationServerResult> getServerResults()
   {
     return serverResults;
@@ -763,6 +778,7 @@ public final class AssuredReplicationResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ASSURED_REPLICATION_RESPONSE.get();
@@ -774,7 +790,7 @@ public final class AssuredReplicationResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AssuredReplicationResponseControl(isCritical=");
     buffer.append(isCritical());

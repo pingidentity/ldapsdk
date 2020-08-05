@@ -57,6 +57,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,10 +85,10 @@ public final class ModifyRequestProtocolOp
 
 
   // The list of modifications for this modify request.
-  private final List<Modification> modifications;
+  @NotNull private final List<Modification> modifications;
 
   // The entry DN for this modify request.
-  private final String dn;
+  @NotNull private final String dn;
 
 
 
@@ -97,8 +99,8 @@ public final class ModifyRequestProtocolOp
    * @param  modifications  The list of modifications to include in this modify
    *                        request.
    */
-  public ModifyRequestProtocolOp(final String dn,
-                                 final List<Modification> modifications)
+  public ModifyRequestProtocolOp(@NotNull final String dn,
+              @NotNull final List<Modification> modifications)
   {
     this.dn            = dn;
     this.modifications = Collections.unmodifiableList(modifications);
@@ -113,7 +115,7 @@ public final class ModifyRequestProtocolOp
    * @param  request  The modify request object to use to create this protocol
    *                  op.
    */
-  public ModifyRequestProtocolOp(final ModifyRequest request)
+  public ModifyRequestProtocolOp(@NotNull final ModifyRequest request)
   {
     dn            = request.getDN();
     modifications = request.getModifications();
@@ -131,7 +133,7 @@ public final class ModifyRequestProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         modify request.
    */
-  ModifyRequestProtocolOp(final ASN1StreamReader reader)
+  ModifyRequestProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -172,6 +174,7 @@ public final class ModifyRequestProtocolOp
    *
    * @return  The target entry DN for this modify request.
    */
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -184,6 +187,7 @@ public final class ModifyRequestProtocolOp
    *
    * @return  The list of modifications for this modify request.
    */
+  @NotNull()
   public List<Modification> getModifications()
   {
     return modifications;
@@ -206,6 +210,7 @@ public final class ModifyRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> modElements =
@@ -232,8 +237,9 @@ public final class ModifyRequestProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a modify request protocol op.
    */
+  @NotNull()
   public static ModifyRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
+                                             @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -269,7 +275,7 @@ public final class ModifyRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer writer)
+  public void writeTo(@NotNull final ASN1Buffer writer)
   {
     final ASN1BufferSequence opSequence =
          writer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST);
@@ -295,7 +301,8 @@ public final class ModifyRequestProtocolOp
    *
    * @return  The modify request that was created.
    */
-  public ModifyRequest toModifyRequest(final Control... controls)
+  @NotNull()
+  public ModifyRequest toModifyRequest(@Nullable final Control... controls)
   {
     return new ModifyRequest(dn, modifications, controls);
   }
@@ -308,6 +315,7 @@ public final class ModifyRequestProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -321,7 +329,7 @@ public final class ModifyRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ModifyRequestProtocolOp(dn='");
     buffer.append(dn);

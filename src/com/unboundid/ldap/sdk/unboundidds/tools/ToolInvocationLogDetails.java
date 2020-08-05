@@ -45,6 +45,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.NullOutputStream;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,18 +77,18 @@ public final class ToolInvocationLogDetails
 
   // A print stream that may be used to report information about any problems
   // encountered while attempting to perform invocation logging.
-  private final PrintStream toolErrorStream;
+  @NotNull private final PrintStream toolErrorStream;
 
   // The set of log files in which invocation logging should be performed.
-  private final Set<File> logFiles;
+  @NotNull private final Set<File> logFiles;
 
   // The name of the command used to invoke the tool.
-  private final String commandName;
+  @NotNull private final String commandName;
 
   // An identifier that will appear in launch and completion messages for the
   // tool so that those messages can be correlated for the same invocation of
   // the tool.
-  private final String invocationID;
+  @NotNull private final String invocationID;
 
 
 
@@ -114,10 +116,10 @@ public final class ToolInvocationLogDetails
    *                          must not be {@code null}.
    */
   private ToolInvocationLogDetails(final boolean logInvocation,
-                                   final String commandName,
-                                   final String invocationID,
-                                   final Set<File> logFiles,
-                                   final PrintStream toolErrorStream)
+                                   @NotNull final String commandName,
+                                   @Nullable final String invocationID,
+                                   @Nullable final Set<File> logFiles,
+                                   @NotNull final PrintStream toolErrorStream)
   {
     this.logInvocation = logInvocation;
     this.commandName = commandName;
@@ -153,8 +155,9 @@ public final class ToolInvocationLogDetails
    *
    * @return  The {@code ToolInvocationLogDetails} object that was created.
    */
+  @NotNull()
   static ToolInvocationLogDetails createDoNotLogDetails(
-                                       final String commandName)
+                                       @NotNull final String commandName)
   {
     return new ToolInvocationLogDetails(false, commandName, "",
          Collections.<File>emptySet(), NullOutputStream.getPrintStream());
@@ -185,10 +188,12 @@ public final class ToolInvocationLogDetails
    *
    * @return  The {@code ToolInvocationLogDetails} object that was created.
    */
-  static ToolInvocationLogDetails createLogDetails(final String commandName,
-                                       final String invocationID,
-                                       final Set<File> logFiles,
-                                       final PrintStream toolErrorStream)
+  @NotNull()
+  static ToolInvocationLogDetails createLogDetails(
+              @NotNull final String commandName,
+              @Nullable final String invocationID,
+              @NotNull final Set<File> logFiles,
+              @NotNull final PrintStream toolErrorStream)
   {
     return new ToolInvocationLogDetails(true, commandName, invocationID,
          logFiles, toolErrorStream);
@@ -202,6 +207,7 @@ public final class ToolInvocationLogDetails
    *
    * @return  The name of the command for the associated tool.
    */
+  @NotNull()
   public String getCommandName()
   {
     return commandName;
@@ -231,6 +237,7 @@ public final class ToolInvocationLogDetails
    *          completion messages for the tool invocation, or an empty string if
    *          no invocation logging should be performed for the tool.
    */
+  @NotNull()
   public String getInvocationID()
   {
     return invocationID;
@@ -246,6 +253,7 @@ public final class ToolInvocationLogDetails
    *          log messages should be recorded for the tool invocation.  It may
    *          be empty if no invocation logging should be performed.
    */
+  @NotNull()
   public Set<File> getLogFiles()
   {
     return logFiles;
@@ -261,6 +269,7 @@ public final class ToolInvocationLogDetails
    *          problems encountered while attempting to perform invocation
    *          logging.
    */
+  @NotNull()
   public PrintStream getToolErrorStream()
   {
     return toolErrorStream;
@@ -275,6 +284,7 @@ public final class ToolInvocationLogDetails
    *          object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -291,7 +301,7 @@ public final class ToolInvocationLogDetails
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ToolInvocationLogDetails(commandName='");
     buffer.append(commandName);

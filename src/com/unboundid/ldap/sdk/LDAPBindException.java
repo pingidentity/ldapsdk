@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,7 +68,7 @@ public class LDAPBindException
 
 
   // The bind result for this exception.
-  private final BindResult bindResult;
+  @NotNull private final BindResult bindResult;
 
 
 
@@ -75,7 +77,7 @@ public class LDAPBindException
    *
    * @param  bindResult  The bind result to use to create this exception.
    */
-  public LDAPBindException(final BindResult bindResult)
+  public LDAPBindException(@NotNull final BindResult bindResult)
   {
     super(bindResult);
 
@@ -88,6 +90,7 @@ public class LDAPBindException
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPResult toLDAPResult()
   {
     return bindResult;
@@ -100,6 +103,7 @@ public class LDAPBindException
    *
    * @return  The bind result that was returned by the server.
    */
+  @NotNull()
   public BindResult getBindResult()
   {
     return bindResult;
@@ -114,6 +118,7 @@ public class LDAPBindException
    *          {@code null} if the bind result did not include any server SASL
    *          credentials.
    */
+  @Nullable()
   public ASN1OctetString getServerSASLCredentials()
   {
     return bindResult.getServerSASLCredentials();

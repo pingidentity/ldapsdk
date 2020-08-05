@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -95,7 +97,7 @@ public enum CollectSupportDataSecurityLevel
 
 
   // The name used to identify this security level.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -104,7 +106,7 @@ public enum CollectSupportDataSecurityLevel
    *
    * @param  name  The name used to identify this security level.
    */
-  CollectSupportDataSecurityLevel(final String name)
+  CollectSupportDataSecurityLevel(@NotNull final String name)
   {
     this.name = name;
   }
@@ -116,6 +118,7 @@ public enum CollectSupportDataSecurityLevel
    *
    * @return  The name used to identify this security level.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -132,7 +135,9 @@ public enum CollectSupportDataSecurityLevel
    * @return  The collect support data security level with the given name, or
    *          {@code null} if there is no security level with the provided name.
    */
-  public static CollectSupportDataSecurityLevel forName(final String name)
+  @Nullable()
+  public static CollectSupportDataSecurityLevel forName(
+              @NotNull final String name)
   {
     final String normalizedName =
          StaticUtils.toLowerCase(name).replace('_', '-');
@@ -157,6 +162,7 @@ public enum CollectSupportDataSecurityLevel
    *          level.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

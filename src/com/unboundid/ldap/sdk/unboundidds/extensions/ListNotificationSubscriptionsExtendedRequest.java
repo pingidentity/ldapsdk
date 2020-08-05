@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,8 +99,9 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.40) for the list notification subscriptions
    * extended request.
    */
-  public static final String LIST_NOTIFICATION_SUBSCRIPTIONS_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.6.40";
+  @NotNull public static final String
+       LIST_NOTIFICATION_SUBSCRIPTIONS_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.6.40";
 
 
 
@@ -110,10 +113,10 @@ public final class ListNotificationSubscriptionsExtendedRequest
 
 
   // The notification destination IDs.
-  private final Set<String> destinationIDs;
+  @NotNull private final Set<String> destinationIDs;
 
   // The notification manager ID.
-  private final String managerID;
+  @NotNull private final String managerID;
 
 
 
@@ -129,8 +132,9 @@ public final class ListNotificationSubscriptionsExtendedRequest
    *                            information for all destinations should be
    *                            returned.
    */
-  public ListNotificationSubscriptionsExtendedRequest(final String managerID,
-              final String... destinationIDs)
+  public ListNotificationSubscriptionsExtendedRequest(
+              @NotNull final String managerID,
+              @Nullable final String... destinationIDs)
   {
     this(managerID, StaticUtils.toList(destinationIDs));
   }
@@ -152,9 +156,10 @@ public final class ListNotificationSubscriptionsExtendedRequest
    *                            It may be {@code null} or empty if no controls
    *                            are needed.
    */
-  public ListNotificationSubscriptionsExtendedRequest(final String managerID,
-              final Collection<String> destinationIDs,
-              final Control... controls)
+  public ListNotificationSubscriptionsExtendedRequest(
+              @NotNull final String managerID,
+              @Nullable final Collection<String> destinationIDs,
+              @Nullable final Control... controls)
   {
     super(LIST_NOTIFICATION_SUBSCRIPTIONS_REQUEST_OID,
          encodeValue(managerID, destinationIDs), controls);
@@ -184,7 +189,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public ListNotificationSubscriptionsExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -247,8 +252,9 @@ public final class ListNotificationSubscriptionsExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String managerID,
-                      final Collection<String> destinationIDs)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String managerID,
+                      @Nullable final Collection<String> destinationIDs)
   {
     Validator.ensureNotNull(managerID);
 
@@ -275,8 +281,9 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public ListNotificationSubscriptionsExtendedResult
-              process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  public ListNotificationSubscriptionsExtendedResult process(
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -290,6 +297,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
    *
    * @return  The notification manager ID.
    */
+  @NotNull()
   public String getManagerID()
   {
     return managerID;
@@ -303,6 +311,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * @return  The notification destination IDs, or an empty set if none were
    *          provided.
    */
+  @NotNull()
   public Set<String> getDestinationIDs()
   {
     return destinationIDs;
@@ -314,6 +323,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ListNotificationSubscriptionsExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -325,8 +335,9 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public ListNotificationSubscriptionsExtendedRequest
-              duplicate(final Control[] controls)
+  @NotNull()
+  public ListNotificationSubscriptionsExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final ListNotificationSubscriptionsExtendedRequest r =
          new ListNotificationSubscriptionsExtendedRequest(managerID,
@@ -341,6 +352,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_LIST_NOTIFICATION_SUBS.get();
@@ -352,7 +364,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ListNotificationSubscriptionsExtendedRequest(managerID='");
     buffer.append(managerID);

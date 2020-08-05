@@ -14,6 +14,15 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added new @NotNull and @Nullable annotation types and updated the LDAP SDK
+                  codebase to mark all non-primitive fields, parameters, and return values to
+                  indicate whether they may or may not be null.  These annotations will appear in
+                  the generated Javadoc documentation, and they will be available for runtime
+                  introspection by IDEs and other tools.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved the logic used to validate certificate hostnames.  The previous
                   implementation handled certificates that used wildcards in hostnames, but only
                   in the CN attribute of the subject DN or in the dNSName element of a subject

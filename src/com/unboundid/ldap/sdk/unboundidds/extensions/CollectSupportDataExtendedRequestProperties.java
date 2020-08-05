@@ -42,6 +42,8 @@ import java.io.Serializable;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.unboundidds.tasks.CollectSupportDataSecurityLevel;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -75,60 +77,60 @@ public final class CollectSupportDataExtendedRequestProperties
 
 
   // The passphrase to use to encrypt the contents of the support data archive.
-  private ASN1OctetString encryptionPassphrase;
+  @Nullable private ASN1OctetString encryptionPassphrase;
 
   // Indicates whether to include binary files in the support data archive.
-  private Boolean includeBinaryFiles;
+  @Nullable private Boolean includeBinaryFiles;
 
   // Indicates whether to include expensive data in the support data archive.
-  private Boolean includeExpensiveData;
+  @Nullable private Boolean includeExpensiveData;
 
   // Indicates whether to include third-party extension source code in the
   // support data archive.
-  private Boolean includeExtensionSource;
+  @Nullable private Boolean includeExtensionSource;
 
   // Indicates whether to include a replication state dump in the support data
   // archive.
-  private Boolean includeReplicationStateDump;
+  @Nullable private Boolean includeReplicationStateDump;
 
   // Indicates whether to capture information sequentially rather than in
   // parallel.
-  private Boolean useSequentialMode;
+  @Nullable private Boolean useSequentialMode;
 
   // The log capture window that indicates how much log content to include in
   // the support data archive.
-  private CollectSupportDataLogCaptureWindow logCaptureWindow;
+  @Nullable private CollectSupportDataLogCaptureWindow logCaptureWindow;
 
   // The security level to use for data included in the support data archive.
-  private CollectSupportDataSecurityLevel securityLevel;
+  @Nullable private CollectSupportDataSecurityLevel securityLevel;
 
   // The number of jstacks to include in the support data archive.
-  private Integer jstackCount;
+  @Nullable private Integer jstackCount;
 
   // The maximum size, in bytes, of any support data archive fragment to include
   // in a collect support data archive fragment intermediate response.
-  private Integer maximumFragmentSizeBytes;
+  @Nullable private Integer maximumFragmentSizeBytes;
 
   // The port of a backend Directory Server instance to which the collect
   // support data extended request should be forwarded.
-  private Integer proxyToServerPort;
+  @Nullable private Integer proxyToServerPort;
 
   // The report count to use for sampled metrics.
-  private Integer reportCount;
+  @Nullable private Integer reportCount;
 
   // The report interval in seconds to use for sampled metrics.
-  private Integer reportIntervalSeconds;
+  @Nullable private Integer reportIntervalSeconds;
 
   // The name (without any path information) the client intends to use for the
   // support data archive file.
-  private String archiveFileName;
+  @Nullable private String archiveFileName;
 
   // A comment to include in the support data archive.
-  private String comment;
+  @Nullable private String comment;
 
   // The address of a backend Directory Server to which the collect support data
   // extended request should be forwarded.
-  private String proxyToServerAddress;
+  @Nullable private String proxyToServerAddress;
 
 
 
@@ -166,7 +168,7 @@ public final class CollectSupportDataExtendedRequestProperties
    * @param  properties  The set of properties to duplicate.
    */
   public CollectSupportDataExtendedRequestProperties(
-              final CollectSupportDataExtendedRequestProperties properties)
+       @NotNull final CollectSupportDataExtendedRequestProperties properties)
   {
     encryptionPassphrase = properties.getEncryptionPassphrase();
     includeBinaryFiles = properties.getIncludeBinaryFiles();
@@ -196,7 +198,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                  set the property values.
    */
   public CollectSupportDataExtendedRequestProperties(
-              final CollectSupportDataExtendedRequest request)
+       @NotNull final CollectSupportDataExtendedRequest request)
   {
     encryptionPassphrase = request.getEncryptionPassphrase();
     includeBinaryFiles = request.getIncludeBinaryFiles();
@@ -226,6 +228,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          use for the support data archive file, or {@code null} if the
    *          server should generate an archive file name.
    */
+  @Nullable()
   public String getArchiveFileName()
   {
     return archiveFileName;
@@ -242,7 +245,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                          file.  It may be {@code null} if the server
    *                          should generate an archive file name.
    */
-  public void setArchiveFileName(final String archiveFileName)
+  public void setArchiveFileName(@Nullable final String archiveFileName)
   {
     this.archiveFileName = archiveFileName;
   }
@@ -257,6 +260,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          support data archive, or {@code null} if the archive should not
    *          be encrypted.
    */
+  @Nullable()
   public ASN1OctetString getEncryptionPassphrase()
   {
     return encryptionPassphrase;
@@ -273,32 +277,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *                               archive.  It may be {@code null} if the
    *                               support data archive should not be encrypted.
    */
-  public void setEncryptionPassphrase(final String encryptionPassphrase)
-  {
-    if (encryptionPassphrase == null)
-    {
-      this.encryptionPassphrase = null;
-    }
-    else
-    {
-      this.encryptionPassphrase = new ASN1OctetString(
-           CollectSupportDataExtendedRequest.TYPE_ENCRYPTION_PASSPHRASE,
-           encryptionPassphrase);
-    }
-  }
-
-
-
-  /**
-   * Specifies the passphrase that should be used to encrypt the contents of the
-   * support data archive.
-   *
-   * @param  encryptionPassphrase  The passphrase that should be used to
-   *                               encrypt the contents of the support data
-   *                               archive.  It may be {@code null} if the
-   *                               support data archive should not be encrypted.
-   */
-  public void setEncryptionPassphrase(final byte[] encryptionPassphrase)
+  public void setEncryptionPassphrase(
+                   @Nullable final String encryptionPassphrase)
   {
     if (encryptionPassphrase == null)
     {
@@ -324,7 +304,33 @@ public final class CollectSupportDataExtendedRequestProperties
    *                               support data archive should not be encrypted.
    */
   public void setEncryptionPassphrase(
-                   final ASN1OctetString encryptionPassphrase)
+                   @Nullable final byte[] encryptionPassphrase)
+  {
+    if (encryptionPassphrase == null)
+    {
+      this.encryptionPassphrase = null;
+    }
+    else
+    {
+      this.encryptionPassphrase = new ASN1OctetString(
+           CollectSupportDataExtendedRequest.TYPE_ENCRYPTION_PASSPHRASE,
+           encryptionPassphrase);
+    }
+  }
+
+
+
+  /**
+   * Specifies the passphrase that should be used to encrypt the contents of the
+   * support data archive.
+   *
+   * @param  encryptionPassphrase  The passphrase that should be used to
+   *                               encrypt the contents of the support data
+   *                               archive.  It may be {@code null} if the
+   *                               support data archive should not be encrypted.
+   */
+  public void setEncryptionPassphrase(
+                   @Nullable final ASN1OctetString encryptionPassphrase)
   {
     if (encryptionPassphrase == null)
     {
@@ -351,6 +357,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          request is created (in which case the server will use a default
    *          behavior of excluding expensive data).
    */
+  @Nullable()
   public Boolean getIncludeExpensiveData()
   {
     return includeExpensiveData;
@@ -371,7 +378,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *                               which case the server will use a default
    *                               behavior of excluding expensive data).
    */
-  public void setIncludeExpensiveData(final Boolean includeExpensiveData)
+  public void setIncludeExpensiveData(
+                   @Nullable final Boolean includeExpensiveData)
   {
     this.includeExpensiveData = includeExpensiveData;
   }
@@ -389,6 +397,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          (in which case the server will use a default behavior of
    *          excluding the state dump).
    */
+  @Nullable()
   public Boolean getIncludeReplicationStateDump()
   {
     return includeReplicationStateDump;
@@ -411,7 +420,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                      the state dump).
    */
   public void setIncludeReplicationStateDump(
-                   final Boolean includeReplicationStateDump)
+                   @Nullable final Boolean includeReplicationStateDump)
   {
     this.includeReplicationStateDump = includeReplicationStateDump;
   }
@@ -427,6 +436,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          should not be specified when the request is created (in which case
    *          the server will use a default behavior of excluding binary files).
    */
+  @Nullable()
   public Boolean getIncludeBinaryFiles()
   {
     return includeBinaryFiles;
@@ -445,7 +455,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                             (in which case the server will use a default
    *                             behavior of excluding binary files).
    */
-  public void setIncludeBinaryFiles(final Boolean includeBinaryFiles)
+  public void setIncludeBinaryFiles(@Nullable final Boolean includeBinaryFiles)
   {
     this.includeBinaryFiles = includeBinaryFiles;
   }
@@ -464,6 +474,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          (in which case the server will use a default behavior of excluding
    *          extension source code).
    */
+  @Nullable()
   public Boolean getIncludeExtensionSource()
   {
     return includeExtensionSource;
@@ -486,7 +497,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                 a default behavior of excluding extension
    *                                 source code).
    */
-  public void setIncludeExtensionSource(final Boolean includeExtensionSource)
+  public void setIncludeExtensionSource(
+                   @Nullable final Boolean includeExtensionSource)
   {
     this.includeExtensionSource = includeExtensionSource;
   }
@@ -506,6 +518,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          not be specified when the request is created (in which case the
    *          server will default to capturing data in parallel).
    */
+  @Nullable()
   public Boolean getUseSequentialMode()
   {
     return useSequentialMode;
@@ -528,7 +541,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                            request is created (in which case the server
    *                            will default to capturing data in parallel).
    */
-  public void setUseSequentialMode(final Boolean useSequentialMode)
+  public void setUseSequentialMode(@Nullable final Boolean useSequentialMode)
   {
     this.useSequentialMode = useSequentialMode;
   }
@@ -544,6 +557,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          specified when the request is created (in which case the server
    *          will use a default security level).
    */
+  @Nullable()
   public CollectSupportDataSecurityLevel getSecurityLevel()
   {
     return securityLevel;
@@ -562,7 +576,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                        use a default security level).
    */
   public void setSecurityLevel(
-                   final CollectSupportDataSecurityLevel securityLevel)
+       @Nullable final CollectSupportDataSecurityLevel securityLevel)
   {
     this.securityLevel = securityLevel;
   }
@@ -579,6 +593,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          request is created (in which case the server will use a default
    *          count).
    */
+  @Nullable()
   public Integer getJStackCount()
   {
     return jstackCount;
@@ -598,7 +613,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                      should not be specified when the request is created
    *                      (in which case the server will use a default count).
    */
-  public void setJStackCount(final Integer jstackCount)
+  public void setJStackCount(@Nullable final Integer jstackCount)
   {
     if (jstackCount != null)
     {
@@ -622,6 +637,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          should not be specified when the request is created (in which case
    *          the server will use a default report count).
    */
+  @Nullable()
   public Integer getReportCount()
   {
     return reportCount;
@@ -641,7 +657,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                      when the request is created (in which case the server
    *                      will use a default report count).
    */
-  public void setReportCount(final Integer reportCount)
+  public void setReportCount(@Nullable final Integer reportCount)
   {
     if (reportCount != null)
     {
@@ -665,6 +681,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          should not be specified when the request is created (in which case
    *          the server will use a default report interval).
    */
+  @Nullable()
   public Integer getReportIntervalSeconds()
   {
     return reportIntervalSeconds;
@@ -684,7 +701,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                request is created (in which case the server
    *                                will use a default report count).
    */
-  public void setReportIntervalSeconds(final Integer reportIntervalSeconds)
+  public void setReportIntervalSeconds(
+                   @Nullable final Integer reportIntervalSeconds)
   {
     if (reportIntervalSeconds != null)
     {
@@ -708,6 +726,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          if this should not be specified in the request and the server
    *          should choose an appropriate amount of log content.
    */
+  @Nullable()
   public CollectSupportDataLogCaptureWindow getLogCaptureWindow()
   {
     return logCaptureWindow;
@@ -726,7 +745,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                           appropriate amount of log content.
    */
   public void setLogCaptureWindow(
-                   final CollectSupportDataLogCaptureWindow logCaptureWindow)
+       @Nullable final CollectSupportDataLogCaptureWindow logCaptureWindow)
   {
     this.logCaptureWindow = logCaptureWindow;
   }
@@ -740,6 +759,7 @@ public final class CollectSupportDataExtendedRequestProperties
    * @return  An additional comment that should be included in the support data
    *          archive, or {@code null} if no comment should be included.
    */
+  @Nullable()
   public String getComment()
   {
     return comment;
@@ -755,7 +775,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                  support data archive.  It may be {@code null} if no
    *                  additional comment should be included.
    */
-  public void setComment(final String comment)
+  public void setComment(@Nullable final String comment)
   {
     this.comment = comment;
   }
@@ -771,6 +791,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          if the request should be processed directly by the server that
    *          receives it.
    */
+  @Nullable()
   public String getProxyToServerAddress()
   {
     return proxyToServerAddress;
@@ -787,6 +808,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          if the request should be processed directly by the server that
    *          receives it.
    */
+  @Nullable()
   public Integer getProxyToServerPort()
   {
     return proxyToServerPort;
@@ -812,7 +834,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *                  must also be non-{@code null}.  If it is non-{@code null},
    *                  then the value must be between 1 and 65535, inclusive.
    */
-  public void setProxyToServer(final String address, final Integer port)
+  public void setProxyToServer(@Nullable final String address,
+                               @Nullable final Integer port)
   {
     if (address == null)
     {
@@ -854,6 +877,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          response message, or {@code null} if the server should use a
    *          default maximum fragment size.
    */
+  @Nullable()
   public Integer getMaximumFragmentSizeBytes()
   {
     return maximumFragmentSizeBytes;
@@ -876,7 +900,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                   also be greater than zero.
    */
   public void setMaximumFragmentSizeBytes(
-                   final Integer maximumFragmentSizeBytes)
+                   @Nullable final Integer maximumFragmentSizeBytes)
   {
     if (maximumFragmentSizeBytes != null)
     {
@@ -899,6 +923,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *          properties object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -915,7 +940,7 @@ public final class CollectSupportDataExtendedRequestProperties
    * @param  buffer  The buffer to which the string representation will be
    *                 appended.  It must not be {@code null}.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CollectSupportDataArchiveProperties(");
     appendNameValuePair(buffer, "archiveFileName", archiveFileName);
@@ -957,8 +982,9 @@ public final class CollectSupportDataExtendedRequestProperties
    * @param  value   The value to be used.  It may be {@code null} if there is
    *                 no value for the property.
    */
-  private static void appendNameValuePair(final StringBuilder buffer,
-                                          final String name, final Object value)
+  private static void appendNameValuePair(@NotNull final StringBuilder buffer,
+               @NotNull final String name,
+               @Nullable final Object value)
   {
     if (value == null)
     {

@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,13 +90,13 @@ public final class ModifyDNRequestProtocolOp
   private final boolean deleteOldRDN;
 
   // The entry DN for this modify DN request.
-  private final String dn;
+  @NotNull private final String dn;
 
   // The new RDN for this modify DN request.
-  private final String newRDN;
+  @NotNull private final String newRDN;
 
   // The new superior DN for this modify DN request.
-  private final String newSuperiorDN;
+  @Nullable private final String newSuperiorDN;
 
 
 
@@ -107,9 +109,10 @@ public final class ModifyDNRequestProtocolOp
    * @param  newSuperiorDN  The new superior DN for this modify DN request, or
    *                        {@code null} if there is none.
    */
-  public ModifyDNRequestProtocolOp(final String dn, final String newRDN,
+  public ModifyDNRequestProtocolOp(@NotNull final String dn,
+                                   @NotNull final String newRDN,
                                    final boolean deleteOldRDN,
-                                   final String newSuperiorDN)
+                                   @Nullable final String newSuperiorDN)
   {
     this.dn            = dn;
     this.newRDN        = newRDN;
@@ -126,7 +129,7 @@ public final class ModifyDNRequestProtocolOp
    * @param  request  The modify DN request object to use to create this
    *                  protocol op.
    */
-  public ModifyDNRequestProtocolOp(final ModifyDNRequest request)
+  public ModifyDNRequestProtocolOp(@NotNull final ModifyDNRequest request)
   {
     dn            = request.getDN();
     newRDN        = request.getNewRDN();
@@ -146,7 +149,7 @@ public final class ModifyDNRequestProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         modify DN request.
    */
-  ModifyDNRequestProtocolOp(final ASN1StreamReader reader)
+  ModifyDNRequestProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -184,6 +187,7 @@ public final class ModifyDNRequestProtocolOp
    *
    * @return  The target entry DN for this modify DN request.
    */
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -196,6 +200,7 @@ public final class ModifyDNRequestProtocolOp
    *
    * @return  The new RDN for this modify DN request.
    */
+  @NotNull()
   public String getNewRDN()
   {
     return newRDN;
@@ -222,6 +227,7 @@ public final class ModifyDNRequestProtocolOp
    * @return  The new superior DN for this modify DN request, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public String getNewSuperiorDN()
   {
     return newSuperiorDN;
@@ -244,6 +250,7 @@ public final class ModifyDNRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     if (newSuperiorDN == null)
@@ -275,8 +282,9 @@ public final class ModifyDNRequestProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a modify DN request protocol op.
    */
+  @NotNull()
   public static ModifyDNRequestProtocolOp decodeProtocolOp(
-                                               final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -320,7 +328,7 @@ public final class ModifyDNRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST);
@@ -346,7 +354,8 @@ public final class ModifyDNRequestProtocolOp
    *
    * @return  The modify DN request that was created.
    */
-  public ModifyDNRequest toModifyDNRequest(final Control... controls)
+  @NotNull()
+  public ModifyDNRequest toModifyDNRequest(@Nullable final Control... controls)
   {
     return new ModifyDNRequest(dn, newRDN, deleteOldRDN, newSuperiorDN,
          controls);
@@ -360,6 +369,7 @@ public final class ModifyDNRequestProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -373,7 +383,7 @@ public final class ModifyDNRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ModifyDNRequestProtocolOp(dn='");
     buffer.append(dn);

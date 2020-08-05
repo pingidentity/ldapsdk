@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -93,12 +95,12 @@ public final class ToCodeHelper
    *                       It may be {@code null} or empty if no arguments are
    *                       needed.
    */
-  public static void generateMethodCall(final List<String> lineList,
-                                        final int indentSpaces,
-                                        final String returnType,
-                                        final String variableName,
-                                        final String methodName,
-                                        final ToCodeArgHelper... methodArgs)
+  public static void generateMethodCall(@NotNull final List<String> lineList,
+                          final int indentSpaces,
+                          @Nullable final String returnType,
+                          @Nullable final String variableName,
+                          @NotNull final String methodName,
+                          @Nullable final ToCodeArgHelper... methodArgs)
   {
     generateMethodCall(lineList, indentSpaces, returnType, variableName,
          methodName, StaticUtils.toList(methodArgs));
@@ -135,12 +137,12 @@ public final class ToCodeHelper
    *                       It may be {@code null} or empty if no arguments are
    *                       needed.
    */
-  public static void generateMethodCall(final List<String> lineList,
-                                        final int indentSpaces,
-                                        final String returnType,
-                                        final String variableName,
-                                        final String methodName,
-                                        final List<ToCodeArgHelper> methodArgs)
+  public static void generateMethodCall(@NotNull final List<String> lineList,
+                          final int indentSpaces,
+                          @Nullable final String returnType,
+                          @Nullable final String variableName,
+                          @NotNull final String methodName,
+                          @Nullable final List<ToCodeArgHelper> methodArgs)
   {
     final StringBuilder buffer = new StringBuilder();
 
@@ -234,11 +236,12 @@ public final class ToCodeHelper
    * @param  valueArg      The argument to use as the value for the assignment.
    *                       It must not be {@code null}.
    */
-  public static void generateVariableAssignment(final List<String> lineList,
-                                                final int indentSpaces,
-                                                final String dataType,
-                                                final String variableName,
-                                                final ToCodeArgHelper valueArg)
+  public static void generateVariableAssignment(
+                          @NotNull final List<String> lineList,
+                          final int indentSpaces,
+                          @Nullable final String dataType,
+                          @NotNull final String variableName,
+                          @NotNull final ToCodeArgHelper valueArg)
   {
     final StringBuilder buffer = new StringBuilder();
 

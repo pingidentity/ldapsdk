@@ -52,6 +52,8 @@ import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,10 +83,10 @@ public final class KeyStoreKeyManager
 
 
   // The path to the key store file.
-  private final String keyStoreFile;
+  @NotNull private final String keyStoreFile;
 
   // The format to use for the key store file.
-  private final String keyStoreFormat;
+  @NotNull private final String keyStoreFormat;
 
 
 
@@ -101,7 +103,8 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  public KeyStoreKeyManager(final File keyStoreFile, final char[] keyStorePIN)
+  public KeyStoreKeyManager(@NotNull final File keyStoreFile,
+                            @Nullable final char[] keyStorePIN)
          throws KeyStoreException
   {
     this(keyStoreFile.getAbsolutePath(), keyStorePIN, null, null);
@@ -122,7 +125,8 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  public KeyStoreKeyManager(final String keyStoreFile, final char[] keyStorePIN)
+  public KeyStoreKeyManager(@NotNull final String keyStoreFile,
+                            @Nullable final char[] keyStorePIN)
          throws KeyStoreException
   {
     this(keyStoreFile, keyStorePIN, null, null);
@@ -150,9 +154,10 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  public KeyStoreKeyManager(final File keyStoreFile, final char[] keyStorePIN,
-                            final String keyStoreFormat,
-                            final String certificateAlias)
+  public KeyStoreKeyManager(@NotNull final File keyStoreFile,
+                            @Nullable final char[] keyStorePIN,
+                            @Nullable final String keyStoreFormat,
+                            @Nullable final String certificateAlias)
          throws KeyStoreException
   {
     this(keyStoreFile.getAbsolutePath(), keyStorePIN, keyStoreFormat,
@@ -181,9 +186,10 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  public KeyStoreKeyManager(final String keyStoreFile, final char[] keyStorePIN,
-                            final String keyStoreFormat,
-                            final String certificateAlias)
+  public KeyStoreKeyManager(@NotNull final String keyStoreFile,
+                            @Nullable final char[] keyStorePIN,
+                            @Nullable final String keyStoreFormat,
+                            @Nullable final String certificateAlias)
          throws KeyStoreException
   {
     this(keyStoreFile, keyStorePIN, keyStoreFormat, certificateAlias, false);
@@ -220,9 +226,10 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager, or if validation fails.
    */
-  public KeyStoreKeyManager(final File keyStoreFile, final char[] keyStorePIN,
-                            final String keyStoreFormat,
-                            final String certificateAlias,
+  public KeyStoreKeyManager(@NotNull final File keyStoreFile,
+                            @Nullable final char[] keyStorePIN,
+                            @Nullable final String keyStoreFormat,
+                            @Nullable final String certificateAlias,
                             final boolean validateKeyStore)
          throws KeyStoreException
   {
@@ -261,9 +268,10 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager, or if validation fails.
    */
-  public KeyStoreKeyManager(final String keyStoreFile, final char[] keyStorePIN,
-                            final String keyStoreFormat,
-                            final String certificateAlias,
+  public KeyStoreKeyManager(@NotNull final String keyStoreFile,
+                            @Nullable final char[] keyStorePIN,
+                            @Nullable final String keyStoreFormat,
+                            @Nullable final String certificateAlias,
                             final boolean validateKeyStore)
          throws KeyStoreException
   {
@@ -316,11 +324,13 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager, or if validation fails.
    */
-  private static KeyManager[] getKeyManagers(final String keyStoreFile,
-                                             final char[] keyStorePIN,
-                                             final String keyStoreFormat,
-                                             final String certificateAlias,
-                                             final boolean validateKeyStore)
+  @NotNull()
+  private static KeyManager[] getKeyManagers(
+                                   @NotNull final String keyStoreFile,
+                                   @Nullable final char[] keyStorePIN,
+                                   @Nullable final String keyStoreFormat,
+                                   @Nullable final String certificateAlias,
+                                   final boolean validateKeyStore)
           throws KeyStoreException
   {
     Validator.ensureNotNull(keyStoreFile);
@@ -411,10 +421,10 @@ public final class KeyStoreKeyManager
    *
    * @throws  KeyStoreException  If a validation error was encountered.
    */
-  private static void validateKeyStore(final KeyStore keyStore,
-                                       final File keyStoreFile,
-                                       final char[] keyStorePIN,
-                                       final String certificateAlias)
+  private static void validateKeyStore(@NotNull final KeyStore keyStore,
+                                       @NotNull final File keyStoreFile,
+                                       @Nullable final char[] keyStorePIN,
+                                       @Nullable final String certificateAlias)
           throws KeyStoreException
   {
     final KeyStore.ProtectionParameter protectionParameter;
@@ -529,8 +539,9 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If any certificate in the chain is expired or
    *                             not yet valid.
    */
-  private static void ensureAllCertificatesInChainAreValid(final String alias,
-                           final KeyStore.PrivateKeyEntry entry)
+  private static void ensureAllCertificatesInChainAreValid(
+                           @NotNull final String alias,
+                           @NotNull final KeyStore.PrivateKeyEntry entry)
           throws KeyStoreException
   {
     final Date currentTime = new Date();
@@ -566,6 +577,7 @@ public final class KeyStoreKeyManager
    *
    * @return  The path to the key store file to use.
    */
+  @NotNull()
   public String getKeyStoreFile()
   {
     return keyStoreFile;
@@ -578,6 +590,7 @@ public final class KeyStoreKeyManager
    *
    * @return  The name of the key store file format.
    */
+  @NotNull()
   public String getKeyStoreFormat()
   {
     return keyStoreFormat;

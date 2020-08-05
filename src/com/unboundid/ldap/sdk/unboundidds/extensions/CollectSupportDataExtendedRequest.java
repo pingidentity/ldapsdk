@@ -58,6 +58,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.tasks.CollectSupportDataSecurityLevel;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -147,7 +149,7 @@ public final class CollectSupportDataExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.64) for the collect support data extended
    * request.
    */
-  public static final String COLLECT_SUPPORT_DATA_REQUEST_OID =
+  @NotNull public static final String COLLECT_SUPPORT_DATA_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.64";
 
 
@@ -303,64 +305,64 @@ public final class CollectSupportDataExtendedRequest
 
 
   // The passphrase to use to encrypt the contents of the support data archive.
-  private final ASN1OctetString encryptionPassphrase;
+  @Nullable private final ASN1OctetString encryptionPassphrase;
 
   // Indicates whether to include binary files in the support data archive.
-  private final Boolean includeBinaryFiles;
+  @Nullable private final Boolean includeBinaryFiles;
 
   // Indicates whether to include expensive data in the support data archive.
-  private final Boolean includeExpensiveData;
+  @Nullable private final Boolean includeExpensiveData;
 
   // Indicates whether to include third-party extension source code in the
   // support data archive.
-  private final Boolean includeExtensionSource;
+  @Nullable private final Boolean includeExtensionSource;
 
   // Indicates whether to include a replication state dump in the support data
   // archive.
-  private final Boolean includeReplicationStateDump;
+  @Nullable private final Boolean includeReplicationStateDump;
 
   // Indicates whether to capture information sequentially rather than in
   // parallel.
-  private final Boolean useSequentialMode;
+  @Nullable private final Boolean useSequentialMode;
 
   // The intermediate response listener that will be used for this operation.
-  private final CollectSupportDataIntermediateResponseListener
+  @NotNull private final CollectSupportDataIntermediateResponseListener
        intermediateResponseListener;
 
   // The log capture window that indicates how much log content to include in
   // the support data archive.
-  private final CollectSupportDataLogCaptureWindow logCaptureWindow;
+  @Nullable private final CollectSupportDataLogCaptureWindow logCaptureWindow;
 
   // The security level to use for data included in the support data archive.
-  private final CollectSupportDataSecurityLevel securityLevel;
+  @Nullable private final CollectSupportDataSecurityLevel securityLevel;
 
   // The number of jstacks to include in the support data archive.
-  private final Integer jstackCount;
+  @Nullable private final Integer jstackCount;
 
   // The maximum size, in bytes, of any support data archive fragment to include
   // in a collect support data archive fragment intermediate response.
-  private final Integer maximumFragmentSizeBytes;
+  @Nullable private final Integer maximumFragmentSizeBytes;
 
   // The port of a backend Directory Server instance to which the collect
   // support data extended request should be forwarded.
-  private final Integer proxyToServerPort;
+  @Nullable private final Integer proxyToServerPort;
 
   // The report count to use for sampled metrics.
-  private final Integer reportCount;
+  @Nullable private final Integer reportCount;
 
   // The report interval in seconds to use for sampled metrics.
-  private final Integer reportIntervalSeconds;
+  @Nullable private final Integer reportIntervalSeconds;
 
   // The name (without any path information) the client intends to use for the
   // support data archive file.
-  private final String archiveFileName;
+  @Nullable private final String archiveFileName;
 
   // A comment to include in the support data archive.
-  private final String comment;
+  @Nullable private final String comment;
 
   // The address of a backend Directory Server to which the collect support data
   // extended request should be forwarded.
-  private final String proxyToServerAddress;
+  @Nullable private final String proxyToServerAddress;
 
 
 
@@ -384,10 +386,10 @@ public final class CollectSupportDataExtendedRequest
    *                                       empty if no controls are needed.
    */
   public CollectSupportDataExtendedRequest(
-              final CollectSupportDataExtendedRequestProperties properties,
-              final CollectSupportDataIntermediateResponseListener
-                         intermediateResponseListener,
-              final Control... controls)
+       @NotNull final CollectSupportDataExtendedRequestProperties properties,
+       @NotNull final CollectSupportDataIntermediateResponseListener
+            intermediateResponseListener,
+       @Nullable final Control... controls)
   {
     super(COLLECT_SUPPORT_DATA_REQUEST_OID, encodeValue(properties), controls);
 
@@ -427,8 +429,9 @@ public final class CollectSupportDataExtendedRequest
    *
    * @return  the ASN.1 octet string that was created.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-               final CollectSupportDataExtendedRequestProperties properties)
+       @NotNull final CollectSupportDataExtendedRequestProperties properties)
   {
     final List<ASN1Element> elements = new ArrayList<>(20);
 
@@ -583,9 +586,10 @@ public final class CollectSupportDataExtendedRequest
    * @throws  LDAPException  If the provided extended request cannot be decoded
    *                         as a valid collect support data extended request.
    */
-  public CollectSupportDataExtendedRequest(final ExtendedRequest request,
-              final CollectSupportDataIntermediateResponseListener
-                         intermediateResponseListener)
+  public CollectSupportDataExtendedRequest(
+              @NotNull final ExtendedRequest request,
+              @NotNull final CollectSupportDataIntermediateResponseListener
+                   intermediateResponseListener)
          throws LDAPException
   {
     super(request);
@@ -753,6 +757,7 @@ public final class CollectSupportDataExtendedRequest
    *          fragment, or other types of intermediate response messages are
    *          in response to this extended request.
    */
+  @NotNull()
   public CollectSupportDataIntermediateResponseListener
               getCollectSupportDataIntermediateResponseListener()
   {
@@ -769,6 +774,7 @@ public final class CollectSupportDataExtendedRequest
    *          use for the support data archive file, or {@code null} if the
    *          server should generate an archive file name.
    */
+  @Nullable()
   public String getArchiveFileName()
   {
     return archiveFileName;
@@ -784,6 +790,7 @@ public final class CollectSupportDataExtendedRequest
    *          support data archive, or {@code null} if the archive should not
    *          be encrypted.
    */
+  @Nullable()
   public ASN1OctetString getEncryptionPassphrase()
   {
     return encryptionPassphrase;
@@ -802,6 +809,7 @@ public final class CollectSupportDataExtendedRequest
    *          task is created (in which case the server will use a default
    *          behavior of excluding expensive data).
    */
+  @Nullable()
   public Boolean getIncludeExpensiveData()
   {
     return includeExpensiveData;
@@ -820,6 +828,7 @@ public final class CollectSupportDataExtendedRequest
    *          which case the server will use a default behavior of excluding the
    *          state dump).
    */
+  @Nullable()
   public Boolean getIncludeReplicationStateDump()
   {
     return includeReplicationStateDump;
@@ -836,6 +845,7 @@ public final class CollectSupportDataExtendedRequest
    *          should not be specified when the task is created (in which case
    *          the server will use a default behavior of excluding binary files).
    */
+  @Nullable()
   public Boolean getIncludeBinaryFiles()
   {
     return includeBinaryFiles;
@@ -855,6 +865,7 @@ public final class CollectSupportDataExtendedRequest
    *          which case the server will use a default behavior of excluding
    *          extension source code).
    */
+  @Nullable()
   public Boolean getIncludeExtensionSource()
   {
     return includeExtensionSource;
@@ -875,6 +886,7 @@ public final class CollectSupportDataExtendedRequest
    *          not be specified when the task is created (in which case the
    *          server will default to capturing data in parallel).
    */
+  @Nullable()
   public Boolean getUseSequentialMode()
   {
     return useSequentialMode;
@@ -891,6 +903,7 @@ public final class CollectSupportDataExtendedRequest
    *          specified when the task is created (in which case the server will
    *          use a default security level).
    */
+  @Nullable()
   public CollectSupportDataSecurityLevel getSecurityLevel()
   {
     return securityLevel;
@@ -907,6 +920,7 @@ public final class CollectSupportDataExtendedRequest
    *          {@code null} if the property should not be specified when the task
    *          is created (in which case the server will use a default count).
    */
+  @Nullable()
   public Integer getJStackCount()
   {
     return jstackCount;
@@ -923,6 +937,7 @@ public final class CollectSupportDataExtendedRequest
    *          should not be specified when the task is created (in which case
    *          the server will use a default report count).
    */
+  @Nullable()
   public Integer getReportCount()
   {
     return reportCount;
@@ -939,6 +954,7 @@ public final class CollectSupportDataExtendedRequest
    *          should not be specified when the task is created (in which case
    *          the server will use a default report interval).
    */
+  @Nullable()
   public Integer getReportIntervalSeconds()
   {
     return reportIntervalSeconds;
@@ -955,6 +971,7 @@ public final class CollectSupportDataExtendedRequest
    *          if this should not be specified in the request and the server
    *          should choose an appropriate amount of log content.
    */
+  @Nullable()
   public CollectSupportDataLogCaptureWindow getLogCaptureWindow()
   {
     return logCaptureWindow;
@@ -969,6 +986,7 @@ public final class CollectSupportDataExtendedRequest
    * @return  An additional comment that should be included in the support data
    *          archive, or {@code null} if no comment should be included.
    */
+  @Nullable()
   public String getComment()
   {
     return comment;
@@ -985,6 +1003,7 @@ public final class CollectSupportDataExtendedRequest
    *          if the request should be processed directly by the server that
    *          receives it.
    */
+  @Nullable()
   public String getProxyToServerAddress()
   {
     return proxyToServerAddress;
@@ -1001,6 +1020,7 @@ public final class CollectSupportDataExtendedRequest
    *          if the request should be processed directly by the server that
    *          receives it.
    */
+  @Nullable()
   public Integer getProxyToServerPort()
   {
     return proxyToServerPort;
@@ -1018,6 +1038,7 @@ public final class CollectSupportDataExtendedRequest
    *          response message, or {@code null} if the server should use a
    *          default maximum fragment size.
    */
+  @Nullable()
   public Integer getMaximumFragmentSizeBytes()
   {
     return maximumFragmentSizeBytes;
@@ -1029,8 +1050,9 @@ public final class CollectSupportDataExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public CollectSupportDataExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -1043,6 +1065,7 @@ public final class CollectSupportDataExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public CollectSupportDataExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -1054,7 +1077,9 @@ public final class CollectSupportDataExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
-  public CollectSupportDataExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public CollectSupportDataExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     return new CollectSupportDataExtendedRequest(
          new CollectSupportDataExtendedRequestProperties(this),
@@ -1067,6 +1092,7 @@ public final class CollectSupportDataExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_COLLECT_SUPPORT_DATA_REQUEST_NAME.get();
@@ -1080,9 +1106,17 @@ public final class CollectSupportDataExtendedRequest
    */
   @Override()
   public void intermediateResponseReturned(
-                   final IntermediateResponse intermediateResponse)
+                   @NotNull final IntermediateResponse intermediateResponse)
   {
-    switch (intermediateResponse.getOID())
+    final String oid = intermediateResponse.getOID();
+    if (oid == null)
+    {
+      intermediateResponseListener.handleOtherIntermediateResponse(
+           intermediateResponse);
+      return;
+    }
+
+    switch (oid)
     {
       case CollectSupportDataOutputIntermediateResponse.
            COLLECT_SUPPORT_DATA_OUTPUT_INTERMEDIATE_RESPONSE_OID:
@@ -1140,7 +1174,7 @@ public final class CollectSupportDataExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CollectSupportDataExtendedRequest(oid='");
     buffer.append(getOID());

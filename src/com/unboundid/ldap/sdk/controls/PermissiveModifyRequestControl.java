@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -122,7 +123,7 @@ public final class PermissiveModifyRequestControl
    * The OID (1.2.840.113556.1.4.1413) for the permissive modify request
    * control.
    */
-  public static final String PERMISSIVE_MODIFY_REQUEST_OID =
+  @NotNull public static final String PERMISSIVE_MODIFY_REQUEST_OID =
        "1.2.840.113556.1.4.1413";
 
 
@@ -168,7 +169,7 @@ public final class PermissiveModifyRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         permissive modify request control.
    */
-  public PermissiveModifyRequestControl(final Control control)
+  public PermissiveModifyRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -186,6 +187,7 @@ public final class PermissiveModifyRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PERMISSIVE_MODIFY_REQUEST.get();
@@ -197,7 +199,7 @@ public final class PermissiveModifyRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PermissiveModifyRequestControl(isCritical=");
     buffer.append(isCritical());

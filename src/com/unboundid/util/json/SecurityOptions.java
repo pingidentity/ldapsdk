@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.StartTLSPostConnectProcessor;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -78,7 +80,7 @@ final class SecurityOptions
    * absent, then a client certificate will be automatically selected if
    * necessary.
    */
-  private static final String FIELD_CLIENT_CERT_ALIAS =
+  @NotNull private static final String FIELD_CLIENT_CERT_ALIAS =
        "client-certificate-alias";
 
 
@@ -89,7 +91,7 @@ final class SecurityOptions
    * path to a key store file in a supported format.  If it is absent, then no
    * key store file will be used.
    */
-  private static final String FIELD_KEY_STORE_FILE = "key-store-file";
+  @NotNull private static final String FIELD_KEY_STORE_FILE = "key-store-file";
 
 
 
@@ -102,7 +104,7 @@ final class SecurityOptions
    * present, and neither field may be present unless the key-store-file field
    * is present or the key-store-type field is present with a value of "PKCS11".
    */
-  private static final String FIELD_KEY_STORE_PIN = "key-store-pin";
+  @NotNull private static final String FIELD_KEY_STORE_PIN = "key-store-pin";
 
 
 
@@ -116,7 +118,8 @@ final class SecurityOptions
    * be present unless the key-store-file field is present or the key-store-type
    * field is present with a value of "PKCS11".
    */
-  private static final String FIELD_KEY_STORE_PIN_FILE = "key-store-pin-file";
+  @NotNull private static final String FIELD_KEY_STORE_PIN_FILE =
+       "key-store-pin-file";
 
 
 
@@ -129,7 +132,7 @@ final class SecurityOptions
    * absent, then a default key store type of "JKS" will be assumed if a
    * key-store-file field is present.
    */
-  private static final String FIELD_KEY_STORE_TYPE = "key-store-type";
+  @NotNull private static final String FIELD_KEY_STORE_TYPE = "key-store-type";
 
 
 
@@ -143,7 +146,7 @@ final class SecurityOptions
    * used.  If the value of "none" is used (or assumed as the default value),
    * then none of the other fields may be present.
    */
-  private static final String FIELD_SECURITY_TYPE = "security-type";
+  @NotNull private static final String FIELD_SECURITY_TYPE = "security-type";
 
 
 
@@ -157,7 +160,8 @@ final class SecurityOptions
    * trust-store-pin-file, and trust-store-type fields must not be provided.  If
    * it is absent, then a default of {@code false} will be used.
    */
-  private static final String FIELD_TRUST_ALL_CERTS = "trust-all-certificates";
+  @NotNull private static final String FIELD_TRUST_ALL_CERTS =
+       "trust-all-certificates";
 
 
 
@@ -173,7 +177,7 @@ final class SecurityOptions
    * validity window even if the trust-all-certificates field is present with a
    * value of true.
    */
-  private static final String FIELD_TRUST_EXPIRED_CERTS =
+  @NotNull private static final String FIELD_TRUST_EXPIRED_CERTS =
        "trust-expired-certificates";
 
 
@@ -183,7 +187,7 @@ final class SecurityOptions
    * signed by one of the JVM's default trusted issuers.  If present, the value
    * should be a boolean.
    */
-  private static final String FIELD_USE_JVM_DEFAULT_TRUST_STORE =
+  @NotNull private static final String FIELD_USE_JVM_DEFAULT_TRUST_STORE =
        "use-jvm-default-trust-store";
 
 
@@ -194,7 +198,8 @@ final class SecurityOptions
    * store file in a recognized format.  If this is absent, then no trust store
    * will be accessed and the JVM's default trust mechanism will be used.
    */
-  private static final String FIELD_TRUST_STORE_FILE = "trust-store-file";
+  @NotNull private static final String FIELD_TRUST_STORE_FILE =
+       "trust-store-file";
 
 
 
@@ -207,7 +212,8 @@ final class SecurityOptions
    * be present, and neither field may be present unless the trust-store-file
    * field is present.
    */
-  private static final String FIELD_TRUST_STORE_PIN = "trust-store-pin";
+  @NotNull private static final String FIELD_TRUST_STORE_PIN =
+       "trust-store-pin";
 
 
 
@@ -220,7 +226,7 @@ final class SecurityOptions
    * trust-store-pin-file fields must not both be present, and neither field may
    * be present unless the trust-store-file field is present.
    */
-  private static final String FIELD_TRUST_STORE_PIN_FILE =
+  @NotNull private static final String FIELD_TRUST_STORE_PIN_FILE =
        "trust-store-pin-file";
 
 
@@ -231,7 +237,8 @@ final class SecurityOptions
    * "PKCS12".  If it is absent, then a default trust store type of "JKS" will
    * be used if the trust-store-file field is present.
    */
-  private static final String FIELD_TRUST_STORE_TYPE = "trust-store-type";
+  @NotNull private static final String FIELD_TRUST_STORE_TYPE =
+       "trust-store-type";
 
 
 
@@ -245,7 +252,7 @@ final class SecurityOptions
    * subjectAltName extension in the certificate.  If it is not present, a
    * default value of {@code false} will be used.
    */
-  private static final String FIELD_VERIFY_ADDRESS =
+  @NotNull private static final String FIELD_VERIFY_ADDRESS =
        "verify-address-in-certificate";
 
 
@@ -254,11 +261,11 @@ final class SecurityOptions
   private final boolean verifyAddressInCertificate;
 
   // The socket factory to use when creating connections.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
   // The post-connect processor to use if StartTLS-protected connections are to
   // be used in a connection pool.
-  private final StartTLSPostConnectProcessor postConnectProcessor;
+  @Nullable private final StartTLSPostConnectProcessor postConnectProcessor;
 
 
 
@@ -272,7 +279,7 @@ final class SecurityOptions
    * @throws  LDAPException  If there is a problem with the security options
    *                         data in the provided JSON object.
    */
-  SecurityOptions(final JSONObject connectionDetailsObject)
+  SecurityOptions(@NotNull final JSONObject connectionDetailsObject)
        throws LDAPException
   {
     boolean useSSL = false;
@@ -646,6 +653,7 @@ final class SecurityOptions
    *
    * @return  The socket factory to use when establishing connections.
    */
+  @NotNull()
   SocketFactory getSocketFactory()
   {
     return socketFactory;
@@ -659,6 +667,7 @@ final class SecurityOptions
    *
    * @return  The StartTLS post-connect processor to use with a connection pool.
    */
+  @Nullable()
   StartTLSPostConnectProcessor getPostConnectProcessor()
   {
     return postConnectProcessor;

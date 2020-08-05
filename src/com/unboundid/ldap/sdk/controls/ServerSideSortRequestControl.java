@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -152,7 +153,7 @@ public final class ServerSideSortRequestControl
   /**
    * The OID (1.2.840.113556.1.4.473) for the server-side sort request control.
    */
-  public static final String SERVER_SIDE_SORT_REQUEST_OID =
+  @NotNull public static final String SERVER_SIDE_SORT_REQUEST_OID =
        "1.2.840.113556.1.4.473";
 
 
@@ -165,7 +166,7 @@ public final class ServerSideSortRequestControl
 
 
   // The set of sort keys to use with this control.
-  private final SortKey[] sortKeys;
+  @NotNull private final SortKey[] sortKeys;
 
 
 
@@ -177,7 +178,7 @@ public final class ServerSideSortRequestControl
    *                   the results should be returned.  It must not be
    *                   {@code null} or empty.
    */
-  public ServerSideSortRequestControl(final SortKey... sortKeys)
+  public ServerSideSortRequestControl(@NotNull final SortKey... sortKeys)
   {
     this(false, sortKeys);
   }
@@ -192,7 +193,7 @@ public final class ServerSideSortRequestControl
    *                   the results should be returned.  It must not be
    *                   {@code null} or empty.
    */
-  public ServerSideSortRequestControl(final List<SortKey> sortKeys)
+  public ServerSideSortRequestControl(@NotNull final List<SortKey> sortKeys)
   {
     this(false, sortKeys);
   }
@@ -210,7 +211,7 @@ public final class ServerSideSortRequestControl
    *                     {@code null} or empty.
    */
   public ServerSideSortRequestControl(final boolean isCritical,
-                                      final SortKey... sortKeys)
+                                      @NotNull final SortKey... sortKeys)
   {
     super(SERVER_SIDE_SORT_REQUEST_OID, isCritical, encodeValue(sortKeys));
 
@@ -230,7 +231,7 @@ public final class ServerSideSortRequestControl
    *                     {@code null} or empty.
    */
   public ServerSideSortRequestControl(final boolean isCritical,
-                                      final List<SortKey> sortKeys)
+                                      @NotNull final List<SortKey> sortKeys)
   {
     this(isCritical, sortKeys.toArray(new SortKey[sortKeys.size()]));
   }
@@ -247,7 +248,7 @@ public final class ServerSideSortRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         server-side sort request control.
    */
-  public ServerSideSortRequestControl(final Control control)
+  public ServerSideSortRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -291,7 +292,8 @@ public final class ServerSideSortRequestControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
-  private static ASN1OctetString encodeValue(final SortKey[] sortKeys)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final SortKey[] sortKeys)
   {
     Validator.ensureNotNull(sortKeys);
     Validator.ensureTrue(sortKeys.length > 0,
@@ -315,6 +317,7 @@ public final class ServerSideSortRequestControl
    * @return  The set of sort keys that define the desired order in which the
    *          results should be returned.
    */
+  @NotNull()
   public SortKey[] getSortKeys()
   {
     return sortKeys;
@@ -326,6 +329,7 @@ public final class ServerSideSortRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SORT_REQUEST.get();
@@ -337,7 +341,7 @@ public final class ServerSideSortRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ServerSideSortRequestControl(sortKeys={");
 

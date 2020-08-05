@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,10 +73,10 @@ public final class SecurityNegotiationAccessLogMessage
 
 
   // The negotiated cipher suite.
-  private final String cipher;
+  @Nullable private final String cipher;
 
   // The negotiated protocol.
-  private final String protocol;
+  @Nullable private final String protocol;
 
 
 
@@ -88,7 +90,7 @@ public final class SecurityNegotiationAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public SecurityNegotiationAccessLogMessage(final String s)
+  public SecurityNegotiationAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -102,7 +104,7 @@ public final class SecurityNegotiationAccessLogMessage
    *
    * @param  m  The log message to be parsed as a connect access log message.
    */
-  public SecurityNegotiationAccessLogMessage(final LogMessage m)
+  public SecurityNegotiationAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -117,6 +119,7 @@ public final class SecurityNegotiationAccessLogMessage
    *
    * @return  The name of the security protocol that was negotiated.
    */
+  @Nullable()
   public String getProtocol()
   {
     return protocol;
@@ -129,6 +132,7 @@ public final class SecurityNegotiationAccessLogMessage
    *
    * @return  The name of the cipher suite that was negotiated.
    */
+  @Nullable()
   public String getCipher()
   {
     return cipher;
@@ -140,6 +144,7 @@ public final class SecurityNegotiationAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.SECURITY_NEGOTIATION;

@@ -45,6 +45,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -106,7 +108,7 @@ public final class GeneralMonitorEntry
   /**
    * The structural object class used in general monitor entries.
    */
-  static final String GENERAL_MONITOR_OC = "ds-general-monitor-entry";
+  @NotNull static final String GENERAL_MONITOR_OC = "ds-general-monitor-entry";
 
 
 
@@ -114,7 +116,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the name of the cluster in which
    * the server is a member.
    */
-  private static final String ATTR_CLUSTER_NAME = "clusterName";
+  @NotNull private static final String ATTR_CLUSTER_NAME = "clusterName";
 
 
 
@@ -122,7 +124,8 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the number of connections currently
    * established to the server.
    */
-  private static final String ATTR_CURRENT_CONNECTIONS = "currentConnections";
+  @NotNull private static final String ATTR_CURRENT_CONNECTIONS =
+       "currentConnections";
 
 
 
@@ -130,7 +133,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the Directory Server's current
    * time.
    */
-  private static final String ATTR_CURRENT_TIME = "currentTime";
+  @NotNull private static final String ATTR_CURRENT_TIME = "currentTime";
 
 
 
@@ -138,7 +141,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the names of any alert types that
    * have caused the server to be classified as "degraded".
    */
-  private static final String ATTR_DEGRADED_ALERT_TYPE =
+  @NotNull private static final String ATTR_DEGRADED_ALERT_TYPE =
        "degraded-alert-type";
 
 
@@ -146,7 +149,7 @@ public final class GeneralMonitorEntry
   /**
    * The name of the attribute that contains the server instance name.
    */
-  private static final String ATTR_INSTANCE_NAME = "instanceName";
+  @NotNull private static final String ATTR_INSTANCE_NAME = "instanceName";
 
 
 
@@ -154,7 +157,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the DN of the server's location
    * config entry.
    */
-  private static final String ATTR_LOCATION_DN = "locationDN";
+  @NotNull private static final String ATTR_LOCATION_DN = "locationDN";
 
 
 
@@ -162,7 +165,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the name of the server's location
    * config entry.
    */
-  private static final String ATTR_LOCATION_NAME = "locationName";
+  @NotNull private static final String ATTR_LOCATION_NAME = "locationName";
 
 
 
@@ -170,14 +173,14 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the maximum number of concurrent
    * client connections established since startup.
    */
-  private static final String ATTR_MAX_CONNECTIONS = "maxConnections";
+  @NotNull private static final String ATTR_MAX_CONNECTIONS = "maxConnections";
 
 
 
   /**
    * The name of the attribute that contains the Directory Server product name.
    */
-  private static final String ATTR_PRODUCT_NAME = "productName";
+  @NotNull private static final String ATTR_PRODUCT_NAME = "productName";
 
 
 
@@ -185,28 +188,28 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the UUID value that was generated
    * when the server instance was initially created.
    */
-  private static final String ATTR_SERVER_UUID = "serverUUID";
+  @NotNull private static final String ATTR_SERVER_UUID = "serverUUID";
 
 
 
   /**
    * The name of the attribute that contains the Directory Server start time.
    */
-  private static final String ATTR_START_TIME = "startTime";
+  @NotNull private static final String ATTR_START_TIME = "startTime";
 
 
 
   /**
    * The name of the attribute that contains the Directory Server startup ID.
    */
-  private static final String ATTR_STARTUP_ID = "startupID";
+  @NotNull private static final String ATTR_STARTUP_ID = "startupID";
 
 
 
   /**
    * The name of the attribute that contains the Directory Server startup UUID.
    */
-  private static final String ATTR_STARTUP_UUID = "startupUUID";
+  @NotNull private static final String ATTR_STARTUP_UUID = "startupUUID";
 
 
 
@@ -214,7 +217,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that holds the DNs of the configuration entries
    * for any third-party extensions loaded in the server.
    */
-  private static final String ATTR_THIRD_PARTY_EXTENSION_DN =
+  @NotNull private static final String ATTR_THIRD_PARTY_EXTENSION_DN =
        "thirdPartyExtensionDN";
 
 
@@ -223,21 +226,22 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the total number of connections
    * that have been established since startup.
    */
-  private static final String ATTR_TOTAL_CONNECTIONS = "totalConnections";
+  @NotNull private static final String ATTR_TOTAL_CONNECTIONS =
+       "totalConnections";
 
 
 
   /**
    * The name of the attribute that contains the Directory Server's uptime.
    */
-  private static final String ATTR_UP_TIME = "upTime";
+  @NotNull private static final String ATTR_UP_TIME = "upTime";
 
 
 
   /**
    * The name of the attribute that contains the Directory Server vendor name.
    */
-  private static final String ATTR_VENDOR_NAME = "productVendor";
+  @NotNull private static final String ATTR_VENDOR_NAME = "productVendor";
 
 
 
@@ -245,7 +249,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the Directory Server version
    * string.
    */
-  private static final String ATTR_VERSION = "productVersion";
+  @NotNull private static final String ATTR_VERSION = "productVersion";
 
 
 
@@ -253,7 +257,7 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the names of any alert types that
    * have caused the server to be classified as "unavailable".
    */
-  private static final String ATTR_UNAVAILABLE_ALERT_TYPE =
+  @NotNull private static final String ATTR_UNAVAILABLE_ALERT_TYPE =
        "unavailable-alert-type";
 
 
@@ -266,65 +270,65 @@ public final class GeneralMonitorEntry
 
 
   // The server's current time.
-  private final Date currentTime;
+  @Nullable private final Date currentTime;
 
   // The server's start time.
-  private final Date startTime;
+  @Nullable private final Date startTime;
 
   // The names of the alert types that have caused the server to be classified
   // as "degraded".
-  private final List<String> degradedAlertTypes;
+  @NotNull private final List<String> degradedAlertTypes;
 
   // The DNs of the config entries for any third-party extensions loaded in the
   // server.
-  private final List<String> thirdPartyExtensionDNs;
+  @NotNull private final List<String> thirdPartyExtensionDNs;
 
   // The names of the alert types that have caused the server to be classified
   // as "unavailable".
-  private final List<String> unavailableAlertTypes;
+  @NotNull private final List<String> unavailableAlertTypes;
 
   // The number connections currently established.
-  private final Long currentConnections;
+  @Nullable private final Long currentConnections;
 
   // The maximum number connections established at any time since startup.
-  private final Long maxConnections;
+  @Nullable private final Long maxConnections;
 
   // The total number of connections that have been established since startup.
-  private final Long totalConnections;
+  @Nullable private final Long totalConnections;
 
   // The Directory Server cluster name.
-  private final String clusterName;
+  @Nullable private final String clusterName;
 
   // The Directory Server instance name.
-  private final String instanceName;
+  @Nullable private final String instanceName;
 
   // The DN of the Directory Server's location config entry.
-  private final String locationDN;
+  @Nullable private final String locationDN;
 
   // The name of the Directory Server's location config entry.
-  private final String locationName;
+  @Nullable private final String locationName;
 
   // The Directory Server product name.
-  private final String productName;
+  @Nullable private final String productName;
 
   // The UUID value that was generated when the server instance was initially
   // created.
-  private final String serverUUID;
+  @Nullable private final String serverUUID;
 
   // The Directory Server startup ID.
-  private final String startupID;
+  @Nullable private final String startupID;
 
   // The Directory Server startup UUID.
-  private final String startupUUID;
+  @Nullable private final String startupUUID;
 
   // The string representation of the uptime.
-  private final String uptime;
+  @Nullable private final String uptime;
 
   // The Directory Server vendor name.
-  private final String vendorName;
+  @Nullable private final String vendorName;
 
   // The Directory Server version string.
-  private final String versionString;
+  @Nullable private final String versionString;
 
 
 
@@ -334,7 +338,7 @@ public final class GeneralMonitorEntry
    * @param  entry  The entry to be parsed as a general monitor entry.  It must
    *                not be {@code null}.
    */
-  public GeneralMonitorEntry(final Entry entry)
+  public GeneralMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -367,6 +371,7 @@ public final class GeneralMonitorEntry
    * @return  The number of connections currently established, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentConnections()
   {
     return currentConnections;
@@ -382,6 +387,7 @@ public final class GeneralMonitorEntry
    *          time since startup, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getMaxConnections()
   {
     return maxConnections;
@@ -395,6 +401,7 @@ public final class GeneralMonitorEntry
    * @return  The total number of connections established since startup, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getTotalConnections()
   {
     return totalConnections;
@@ -408,6 +415,7 @@ public final class GeneralMonitorEntry
    * @return  The current time as reported by the Directory Server, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Date getCurrentTime()
   {
     return currentTime;
@@ -421,6 +429,7 @@ public final class GeneralMonitorEntry
    * @return  The time that the Directory Server was started, or {@code null} if
    *          it was not included in the monitor entry.
    */
+  @Nullable()
   public Date getStartTime()
   {
     return startTime;
@@ -434,6 +443,7 @@ public final class GeneralMonitorEntry
    * @return  The name of the cluster in which the server is a member, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getClusterName()
   {
     return clusterName;
@@ -447,6 +457,7 @@ public final class GeneralMonitorEntry
    * @return  The name assigned to the Directory Server instance, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getInstanceName()
   {
     return instanceName;
@@ -462,6 +473,7 @@ public final class GeneralMonitorEntry
    *          location, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public String getLocationName()
   {
     return locationName;
@@ -477,6 +489,7 @@ public final class GeneralMonitorEntry
    *          location, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public String getLocationDN()
   {
     return locationDN;
@@ -492,6 +505,7 @@ public final class GeneralMonitorEntry
    *          initially created, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public String getServerUUID()
   {
     return serverUUID;
@@ -507,6 +521,7 @@ public final class GeneralMonitorEntry
    *          Directory Server was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getStartupID()
   {
     return startupID;
@@ -521,6 +536,7 @@ public final class GeneralMonitorEntry
    * @return  The UUID that was generated when the Directory Server was started,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getStartupUUID()
   {
     return startupUUID;
@@ -534,6 +550,7 @@ public final class GeneralMonitorEntry
    * @return  The Directory Server uptime in milliseconds, or {@code null} if
    *          either the current time or the start time was not available.
    */
+  @Nullable()
   public Long getUptimeMillis()
   {
     if ((currentTime == null) || (startTime == null))
@@ -554,6 +571,7 @@ public final class GeneralMonitorEntry
    *          uptime, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public String getUptimeString()
   {
     return uptime;
@@ -567,6 +585,7 @@ public final class GeneralMonitorEntry
    * @return  The Directory Serve product name, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getProductName()
   {
     return productName;
@@ -580,6 +599,7 @@ public final class GeneralMonitorEntry
    * @return  The Directory Server vendor name string, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public String getVendorName()
   {
     return vendorName;
@@ -593,6 +613,7 @@ public final class GeneralMonitorEntry
    * @return  The Directory Server version string, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getVersionString()
   {
     return versionString;
@@ -609,6 +630,7 @@ public final class GeneralMonitorEntry
    *          not included in the monitor entry (which likely indicates that the
    *          server is not classified as "degraded").
    */
+  @NotNull()
   public List<String> getDegradedAlertTypes()
   {
     return degradedAlertTypes;
@@ -625,6 +647,7 @@ public final class GeneralMonitorEntry
    *          was not included in the monitor entry (which likely indicates that
    *          the server is not classified as "unavailable").
    */
+  @NotNull()
   public List<String> getUnavailableAlertTypes()
   {
     return unavailableAlertTypes;
@@ -640,6 +663,7 @@ public final class GeneralMonitorEntry
    *          extensions currently loaded in the server, or an empty list if it
    *          was not included in the monitor entry.
    */
+  @NotNull()
   public List<String> getThirdPartyExtensionDNs()
   {
     return thirdPartyExtensionDNs;
@@ -651,6 +675,7 @@ public final class GeneralMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_GENERAL_MONITOR_DISPNAME.get();
@@ -662,6 +687,7 @@ public final class GeneralMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_GENERAL_MONITOR_DESC.get();
@@ -673,6 +699,7 @@ public final class GeneralMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

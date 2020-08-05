@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -121,7 +123,7 @@ public final class MatchingEntryCountRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.36) for the matching entry count request
    * control.
    */
-  public static final String MATCHING_ENTRY_COUNT_REQUEST_OID =
+  @NotNull public static final String MATCHING_ENTRY_COUNT_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.36";
 
 
@@ -217,11 +219,11 @@ public final class MatchingEntryCountRequestControl
 
   // The short-circuit threshold that the server will use when evaluating filter
   // components that are not categorized as fast.
-  private final Long slowShortCircuitThreshold;
+  @Nullable private final Long slowShortCircuitThreshold;
 
   // The short-circuit threshold that the server will for index processing that
   // should be very fast.
-  private final Long fastShortCircuitThreshold;
+  @Nullable private final Long fastShortCircuitThreshold;
 
 
 
@@ -514,8 +516,8 @@ public final class MatchingEntryCountRequestControl
               final boolean alwaysExamineCandidates,
               final boolean processSearchIfUnindexed,
               final boolean skipResolvingExplodedIndexes,
-              final Long fastShortCircuitThreshold,
-              final Long slowShortCircuitThreshold,
+              @Nullable final Long fastShortCircuitThreshold,
+              @Nullable final Long slowShortCircuitThreshold,
               final boolean includeDebugInfo)
   {
     super(MATCHING_ENTRY_COUNT_REQUEST_OID, isCritical,
@@ -563,7 +565,7 @@ public final class MatchingEntryCountRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         matching entry count request control.
    */
-  public MatchingEntryCountRequestControl(final Control control)
+  public MatchingEntryCountRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -698,13 +700,14 @@ public final class MatchingEntryCountRequestControl
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
                       final int maxCandidatesToExamine,
                       final boolean alwaysExamineCandidates,
                       final boolean processSearchIfUnindexed,
                       final boolean skipResolvingExplodedIndexes,
-                      final Long fastShortCircuitThreshold,
-                      final Long slowShortCircuitThreshold,
+                      @Nullable final Long fastShortCircuitThreshold,
+                      @Nullable final Long slowShortCircuitThreshold,
                       final boolean includeDebugInfo)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
@@ -872,6 +875,7 @@ public final class MatchingEntryCountRequestControl
    *          during fast index processing, or {@code null} if the server should
    *          determine the appropriate fast short-circuit threshold to use.
    */
+  @Nullable()
   public Long getFastShortCircuitThreshold()
   {
     return fastShortCircuitThreshold;
@@ -904,6 +908,7 @@ public final class MatchingEntryCountRequestControl
    *          during slow index processing, or {@code null} if the server should
    *          determine the appropriate slow short-circuit threshold to use.
    */
+  @Nullable()
   public Long getSlowShortCircuitThreshold()
   {
     return slowShortCircuitThreshold;
@@ -931,6 +936,7 @@ public final class MatchingEntryCountRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MATCHING_ENTRY_COUNT_REQUEST.get();
@@ -942,7 +948,7 @@ public final class MatchingEntryCountRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MatchingEntryCountRequestControl(isCritical=");
     buffer.append(isCritical());

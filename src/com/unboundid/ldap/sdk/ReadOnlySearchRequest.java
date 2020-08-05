@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import java.util.List;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,6 +70,7 @@ public interface ReadOnlySearchRequest
    *
    * @return  The base DN for this search request.
    */
+  @NotNull()
   String getBaseDN();
 
 
@@ -77,6 +80,7 @@ public interface ReadOnlySearchRequest
    *
    * @return  The scope for this search request.
    */
+  @NotNull()
   SearchScope getScope();
 
 
@@ -88,6 +92,7 @@ public interface ReadOnlySearchRequest
    * @return  The dereference policy that should be used by the server for any
    *          aliases encountered during search processing.
    */
+  @NotNull()
   DereferencePolicy getDereferencePolicy();
 
 
@@ -133,6 +138,7 @@ public interface ReadOnlySearchRequest
    *
    * @return  The filter that should be used to identify matching entries.
    */
+  @NotNull()
   Filter getFilter();
 
 
@@ -144,6 +150,7 @@ public interface ReadOnlySearchRequest
    *          an empty array if the default set of attributes (all user
    *          attributes but no operational attributes) should be requested.
    */
+  @NotNull()
   List<String> getAttributeList();
 
 
@@ -152,6 +159,7 @@ public interface ReadOnlySearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   SearchRequest duplicate();
 
 
@@ -160,5 +168,6 @@ public interface ReadOnlySearchRequest
    * {@inheritDoc}
    */
   @Override()
-  SearchRequest duplicate(Control[] controls);
+  @NotNull()
+  SearchRequest duplicate(@Nullable Control[] controls);
 }

@@ -44,6 +44,7 @@ import java.util.Date;
 import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,7 +65,7 @@ public final class TrustAllTrustManager
   /**
    * A pre-allocated empty certificate array.
    */
-  private static final X509Certificate[] NO_CERTIFICATES =
+  @NotNull private static final X509Certificate[] NO_CERTIFICATES =
        new X509Certificate[0];
 
 
@@ -140,8 +141,8 @@ public final class TrustAllTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     if (examineValidityDates)
@@ -172,8 +173,8 @@ public final class TrustAllTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     if (examineValidityDates)
@@ -196,6 +197,7 @@ public final class TrustAllTrustManager
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

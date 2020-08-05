@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -78,19 +80,19 @@ public final class AddAttributeTransformation
   private final boolean onlyIfMissing;
 
   // The base DN to use to identify entries to which to add the attribute.
-  private final DN baseDN;
+  @NotNull private final DN baseDN;
 
   // The filter to use to identify entries to which to add the attribute.
-  private final Filter filter;
+  @NotNull private final Filter filter;
 
   // The schema to use when processing.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The scope to use to identify entries to which to add the attribute.
-  private final SearchScope scope;
+  @NotNull private final SearchScope scope;
 
   // The names that can be used to reference the target attribute.
-  private final Set<String> names;
+  @NotNull private final Set<String> names;
 
 
 
@@ -122,10 +124,11 @@ public final class AddAttributeTransformation
    *                         will be updated to include the new values in
    *                         addition to the existing values.
    */
-  public AddAttributeTransformation(final Schema schema, final DN baseDN,
-                                    final SearchScope scope,
-                                    final Filter filter,
-                                    final Attribute attributeToAdd,
+  public AddAttributeTransformation(@Nullable final Schema schema,
+                                    @Nullable final DN baseDN,
+                                    @Nullable final SearchScope scope,
+                                    @Nullable final Filter filter,
+                                    @NotNull final Attribute attributeToAdd,
                                     final boolean onlyIfMissing)
   {
     this.attributeToAdd = attributeToAdd;
@@ -225,7 +228,8 @@ public final class AddAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry transformEntry(final Entry e)
+  @Nullable()
+  public Entry transformEntry(@NotNull final Entry e)
   {
     if (e == null)
     {
@@ -306,7 +310,9 @@ public final class AddAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translate(final Entry original, final long firstLineNumber)
+  @Nullable()
+  public Entry translate(@NotNull final Entry original,
+                         final long firstLineNumber)
   {
     return transformEntry(original);
   }
@@ -317,7 +323,8 @@ public final class AddAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translateEntryToWrite(final Entry original)
+  @Nullable()
+  public Entry translateEntryToWrite(@NotNull final Entry original)
   {
     return transformEntry(original);
   }

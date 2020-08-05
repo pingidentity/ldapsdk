@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -66,7 +68,7 @@ public final class DraftChuLDAPLogSchema00ExtendedEntry
   /**
    * The name of the attribute used to hold the extended request value.
    */
-  public static final String ATTR_REQUEST_VALUE = "reqData";
+  @NotNull public static final String ATTR_REQUEST_VALUE = "reqData";
 
 
 
@@ -78,10 +80,10 @@ public final class DraftChuLDAPLogSchema00ExtendedEntry
 
 
   // The request value, if available.
-  private final ASN1OctetString requestValue;
+  @Nullable private final ASN1OctetString requestValue;
 
   // The request OID.
-  private final String requestOID;
+  @NotNull private final String requestOID;
 
 
 
@@ -97,7 +99,7 @@ public final class DraftChuLDAPLogSchema00ExtendedEntry
    *                         specification contained in
    *                         draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00ExtendedEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00ExtendedEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.EXTENDED);
@@ -142,6 +144,7 @@ public final class DraftChuLDAPLogSchema00ExtendedEntry
    * @return  The request OID for the extended request described by this
    *          extended operation access log entry.
    */
+  @NotNull()
   public String getRequestOID()
   {
     return requestOID;
@@ -157,6 +160,7 @@ public final class DraftChuLDAPLogSchema00ExtendedEntry
    *          extended operation access log entry, or {@code null} if no request
    *          value was included in the access log entry.
    */
+  @Nullable()
   public ASN1OctetString getRequestValue()
   {
     return requestValue;
@@ -171,6 +175,7 @@ public final class DraftChuLDAPLogSchema00ExtendedEntry
    * @return  The {@code ExtendedRequest} created from this extended operation
    *          access log entry.
    */
+  @NotNull()
   public ExtendedRequest toExtendedRequest()
   {
     return new ExtendedRequest(requestOID, requestValue,

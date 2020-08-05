@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -124,7 +126,7 @@ public final class GenerateServerProfileTask
    * The fully-qualified name of the Java class that is used for the generate
    * server profile task.
    */
-  static final String GENERATE_SERVER_PROFILE_TASK_CLASS =
+  @NotNull static final String GENERATE_SERVER_PROFILE_TASK_CLASS =
        "com.unboundid.directory.server.tasks.GenerateServerProfileTask";
 
 
@@ -133,7 +135,7 @@ public final class GenerateServerProfileTask
    * The name of the attribute used to specify additional paths within the
    * instance root that should be included in the generated server profile.
    */
-  private static final String ATTR_INCLUDE_PATH =
+  @NotNull private static final String ATTR_INCLUDE_PATH =
        "ds-task-generate-server-profile-include-path";
 
 
@@ -142,7 +144,7 @@ public final class GenerateServerProfileTask
    * The name of the attribute used to specify the path to which the generated
    * profile should be written.
    */
-  private static final String ATTR_PROFILE_ROOT =
+  @NotNull private static final String ATTR_PROFILE_ROOT =
        "ds-task-generate-server-profile-root";
 
 
@@ -151,7 +153,7 @@ public final class GenerateServerProfileTask
    * The name of the attribute used to specify the age of previous profile zip
    * files to retain.
    */
-  private static final String ATTR_RETAIN_AGE =
+  @NotNull private static final String ATTR_RETAIN_AGE =
        "ds-task-generate-server-profile-retain-age";
 
 
@@ -160,7 +162,7 @@ public final class GenerateServerProfileTask
    * The name of the attribute used to specify the number of previous profile
    * zip files to retain.
    */
-  private static final String ATTR_RETAIN_COUNT =
+  @NotNull private static final String ATTR_RETAIN_COUNT =
        "ds-task-generate-server-profile-retain-count";
 
 
@@ -169,7 +171,7 @@ public final class GenerateServerProfileTask
    * The name of the attribute used to indicate whether the generated server
    * profile should be packaged into a zip file.
    */
-  private static final String ATTR_ZIP =
+  @NotNull private static final String ATTR_ZIP =
        "ds-task-generate-server-profile-zip";
 
 
@@ -177,7 +179,7 @@ public final class GenerateServerProfileTask
   /**
    * The name of the object class used in generate server profile task entries.
    */
-  private static final String OC_GENERATE_SERVER_PROFILE_TASK =
+  @NotNull private static final String OC_GENERATE_SERVER_PROFILE_TASK =
        "ds-task-generate-server-profile";
 
 
@@ -185,29 +187,29 @@ public final class GenerateServerProfileTask
   /**
    * The task property that will be used for the optional include paths.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_PATH = new TaskProperty(
-       ATTR_INCLUDE_PATH,
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_INCLUDE_PATH.get(),
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_INCLUDE_PATH.get(),
-       String.class, false, true, false);
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_PATH =
+       new TaskProperty(ATTR_INCLUDE_PATH,
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_INCLUDE_PATH.get(),
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_INCLUDE_PATH.get(),
+            String.class, false, true, false);
 
 
 
   /**
    * The task property that will be used for the profile root.
    */
-  private static final TaskProperty PROPERTY_PROFILE_ROOT = new TaskProperty(
-       ATTR_PROFILE_ROOT,
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_PROFILE_ROOT.get(),
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_PROFILE_ROOT.get(),
-       String.class, false, false, false);
+  @NotNull private static final TaskProperty PROPERTY_PROFILE_ROOT =
+       new TaskProperty(ATTR_PROFILE_ROOT,
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_PROFILE_ROOT.get(),
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_PROFILE_ROOT.get(),
+            String.class, false, false, false);
 
 
 
   /**
    * The task property that will be used for the retain age.
    */
-  static final TaskProperty PROPERTY_RETAIN_AGE = new TaskProperty(
+  @NotNull static final TaskProperty PROPERTY_RETAIN_AGE = new TaskProperty(
        ATTR_RETAIN_AGE,
        INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_RETAIN_AGE.get(),
        INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_RETAIN_AGE.get(),
@@ -218,11 +220,11 @@ public final class GenerateServerProfileTask
   /**
    * The task property that will be used for the retain count.
    */
-  private static final TaskProperty PROPERTY_RETAIN_COUNT = new TaskProperty(
-       ATTR_RETAIN_COUNT,
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_RETAIN_COUNT.get(),
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_RETAIN_COUNT.get(),
-       Long.class, false, false, false);
+  @NotNull private static final TaskProperty PROPERTY_RETAIN_COUNT =
+       new TaskProperty(ATTR_RETAIN_COUNT,
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_RETAIN_COUNT.get(),
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_RETAIN_COUNT.get(),
+            Long.class, false, false, false);
 
 
 
@@ -230,10 +232,11 @@ public final class GenerateServerProfileTask
    * The task property that will be used to indicate whether to package the
    * server profile in a zip file.
    */
-  private static final TaskProperty PROPERTY_ZIP = new TaskProperty(ATTR_ZIP,
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_ZIP.get(),
-       INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_ZIP.get(),
-       Boolean.class, false, false, false);
+  @NotNull private static final TaskProperty PROPERTY_ZIP =
+       new TaskProperty(ATTR_ZIP,
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_ZIP.get(),
+            INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_ZIP.get(),
+            Boolean.class, false, false, false);
 
 
 
@@ -245,21 +248,21 @@ public final class GenerateServerProfileTask
 
 
   // Indicates whether to package the generated server profile into a zip file.
-  private final Boolean zipProfile;
+  @Nullable private final Boolean zipProfile;
 
   // The minimum number of previous profile zip files to retain.
-  private final Integer retainCount;
+  @Nullable private final Integer retainCount;
 
   // The list of additional paths within the instance root that should be
   // included in the generated server profile.
-  private final List<String> includePaths;
+  @NotNull private final List<String> includePaths;
 
   // The path to the zip file or directory to which the generated server profile
   // will be written.
-  private final String profileRoot;
+  @Nullable private final String profileRoot;
 
   // The minimum age of previous profile zip files to retain.
-  private final String retainAge;
+  @Nullable private final String retainAge;
 
 
 
@@ -342,12 +345,12 @@ public final class GenerateServerProfileTask
    *                          no preexisting profile zip files should be removed
    *                          (if no retain count is given).
    */
-  public GenerateServerProfileTask(final String taskID,
-                                   final String profileRoot,
-                                   final List<String> includePaths,
-                                   final Boolean zipProfile,
-                                   final Integer retainCount,
-                                   final Long retainAgeMillis)
+  public GenerateServerProfileTask(@Nullable final String taskID,
+                                   @Nullable final String profileRoot,
+                                   @Nullable final List<String> includePaths,
+                                   @Nullable final Boolean zipProfile,
+                                   @Nullable final Integer retainCount,
+                                   @Nullable final Long retainAgeMillis)
   {
     this(taskID, profileRoot, includePaths, zipProfile, retainCount,
          retainAgeMillis, null, null, null, null, null, null, null, null, null,
@@ -452,21 +455,22 @@ public final class GenerateServerProfileTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public GenerateServerProfileTask(final String taskID,
-                           final String profileRoot,
-                           final List<String> includePaths,
-                           final Boolean zipProfile, final Integer retainCount,
-                           final Long retainAgeMillis,
-                           final Date scheduledStartTime,
-                           final List<String> dependencyIDs,
-                           final FailedDependencyAction failedDependencyAction,
-                           final List<String> notifyOnStart,
-                           final List<String> notifyOnCompletion,
-                           final List<String> notifyOnSuccess,
-                           final List<String> notifyOnError,
-                           final Boolean alertOnStart,
-                           final Boolean alertOnSuccess,
-                           final Boolean alertOnError)
+  public GenerateServerProfileTask(@Nullable final String taskID,
+              @Nullable final String profileRoot,
+              @Nullable final List<String> includePaths,
+              @Nullable final Boolean zipProfile,
+              @Nullable final Integer retainCount,
+              @Nullable final Long retainAgeMillis,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, GENERATE_SERVER_PROFILE_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -509,7 +513,7 @@ public final class GenerateServerProfileTask
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         generate server profile task entry.
    */
-  public GenerateServerProfileTask(final Entry entry)
+  public GenerateServerProfileTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -562,7 +566,7 @@ public final class GenerateServerProfileTask
    *                         create a valid generate server profile task.
    */
   public GenerateServerProfileTask(
-              final Map<TaskProperty,List<Object>> properties)
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(GENERATE_SERVER_PROFILE_TASK_CLASS, properties);
@@ -637,6 +641,7 @@ public final class GenerateServerProfileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_GENERATE_SERVER_PROFILE.get();
@@ -648,6 +653,7 @@ public final class GenerateServerProfileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_GENERATE_SERVER_PROFILE.get();
@@ -666,6 +672,7 @@ public final class GenerateServerProfileTask
    *          {@code null} if the server will create the zip file or profile
    *          directory in the instance root with a generated name.
    */
+  @Nullable()
   public String getProfileRoot()
   {
     return profileRoot;
@@ -682,6 +689,7 @@ public final class GenerateServerProfileTask
    *          profile, or an empty list if no additional paths should be
    *          included.
    */
+  @NotNull()
   public List<String> getIncludePaths()
   {
     return includePaths;
@@ -699,6 +707,7 @@ public final class GenerateServerProfileTask
    *          {@code null} if this is not specified and the server will decide
    *          which behavior to exhibit.
    */
+  @Nullable()
   public Boolean getZipProfile()
   {
     return zipProfile;
@@ -716,6 +725,7 @@ public final class GenerateServerProfileTask
    *          the retain age (if defined) or if no retention processing should
    *          be performed.
    */
+  @Nullable()
   public Integer getRetainCount()
   {
     return retainCount;
@@ -737,6 +747,7 @@ public final class GenerateServerProfileTask
    *          the retain count (if defined) or if no retention processing should
    *          be performed.
    */
+  @Nullable()
   public String getRetainAge()
   {
     return retainAge;
@@ -757,6 +768,7 @@ public final class GenerateServerProfileTask
    * @throws  TaskException  If a problem is encountered while attempting to
    *                         parse the retain age as a duration.
    */
+  @Nullable()
   public Long getRetainAgeMillis()
          throws TaskException
   {
@@ -785,6 +797,7 @@ public final class GenerateServerProfileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(
@@ -797,6 +810,7 @@ public final class GenerateServerProfileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final List<Attribute> attrList = new ArrayList<>(5);
@@ -836,6 +850,7 @@ public final class GenerateServerProfileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -852,6 +867,7 @@ public final class GenerateServerProfileTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

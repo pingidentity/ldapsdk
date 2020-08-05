@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,10 +75,10 @@ public class ExtendedRequestAccessLogMessage
 
 
   // The OID for the extended request.
-  private final String requestOID;
+  @Nullable private final String requestOID;
 
   // The name for the extended request.
-  private final String requestType;
+  @Nullable private final String requestType;
 
 
 
@@ -90,7 +92,7 @@ public class ExtendedRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ExtendedRequestAccessLogMessage(final String s)
+  public ExtendedRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -105,7 +107,7 @@ public class ExtendedRequestAccessLogMessage
    * @param  m  The log message to be parsed as an extended request access log
    *            message.
    */
-  public ExtendedRequestAccessLogMessage(final LogMessage m)
+  public ExtendedRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -121,6 +123,7 @@ public class ExtendedRequestAccessLogMessage
    * @return  The OID of the extended request, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getRequestOID()
   {
     return requestOID;
@@ -135,6 +138,7 @@ public class ExtendedRequestAccessLogMessage
    * @return  The type of extended operation, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getRequestType()
   {
     return requestType;
@@ -146,6 +150,7 @@ public class ExtendedRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.EXTENDED;

@@ -40,6 +40,7 @@ package com.unboundid.asn1;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -77,8 +78,9 @@ public final class InternalASN1Helper
    *                           reader.
    */
   @InternalUseOnly()
-  public static void setSASLClient(final ASN1StreamReader asn1StreamReader,
-                                   final SaslClient saslClient)
+  public static void setSASLClient(
+                          @NotNull final ASN1StreamReader asn1StreamReader,
+                          @NotNull final SaslClient saslClient)
   {
     asn1StreamReader.setSASLClient(saslClient);
   }

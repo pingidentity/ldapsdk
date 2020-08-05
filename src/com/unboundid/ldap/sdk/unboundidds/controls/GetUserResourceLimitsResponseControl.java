@@ -55,6 +55,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -108,7 +110,7 @@ public final class GetUserResourceLimitsResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.26) for the get user resource limits
    * response control.
    */
-  public static final String GET_USER_RESOURCE_LIMITS_RESPONSE_OID =
+  @NotNull public static final String GET_USER_RESOURCE_LIMITS_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.26";
 
 
@@ -189,32 +191,32 @@ public final class GetUserResourceLimitsResponseControl
 
 
   // The set of other select attributes from the user entry.
-  private final List<Attribute> otherAttributes;
+  @NotNull private final List<Attribute> otherAttributes;
 
   // The set of group DNs for the user.
-  private final List<String> groupDNs;
+  @Nullable private final List<String> groupDNs;
 
   // The set of privilege names for the user.
-  private final List<String> privilegeNames;
+  @Nullable private final List<String> privilegeNames;
 
   // The custom idle time limit for the user.
-  private final Long idleTimeLimitSeconds;
+  @Nullable private final Long idleTimeLimitSeconds;
 
   // The custom lookthrough limit for the user.
-  private final Long lookthroughLimit;
+  @Nullable private final Long lookthroughLimit;
 
   // The custom size limit for the user.
-  private final Long sizeLimit;
+  @Nullable private final Long sizeLimit;
 
   // The custom time limit for the user, in seconds.
-  private final Long timeLimitSeconds;
+  @Nullable private final Long timeLimitSeconds;
 
   // The name of the client connection policy selected for the user.
-  private final String clientConnectionPolicyName;
+  @Nullable private final String clientConnectionPolicyName;
 
   // The DN of a user with equivalent authorization rights for use in servers
   // in an entry-balancing environment in which the user's entry does not exist.
-  private final String equivalentAuthzUserDN;
+  @Nullable private final String equivalentAuthzUserDN;
 
 
 
@@ -284,10 +286,12 @@ public final class GetUserResourceLimitsResponseControl
    *                                     connection policy name is not to be
    *                                     included in the control.
    */
-  public GetUserResourceLimitsResponseControl(final Long sizeLimit,
-              final Long timeLimitSeconds, final Long idleTimeLimitSeconds,
-              final Long lookthroughLimit, final String equivalentAuthzUserDN,
-              final String clientConnectionPolicyName)
+  public GetUserResourceLimitsResponseControl(@Nullable final Long sizeLimit,
+              @Nullable final Long timeLimitSeconds,
+              @Nullable final Long idleTimeLimitSeconds,
+              @Nullable final Long lookthroughLimit,
+              @Nullable final String equivalentAuthzUserDN,
+              @Nullable final String clientConnectionPolicyName)
   {
     this(sizeLimit, timeLimitSeconds, idleTimeLimitSeconds, lookthroughLimit,
          equivalentAuthzUserDN, clientConnectionPolicyName, null, null, null);
@@ -356,12 +360,15 @@ public final class GetUserResourceLimitsResponseControl
    *                                     or empty if no additional attributes
    *                                     are needed.
    */
-  public GetUserResourceLimitsResponseControl(final Long sizeLimit,
-              final Long timeLimitSeconds, final Long idleTimeLimitSeconds,
-              final Long lookthroughLimit, final String equivalentAuthzUserDN,
-              final String clientConnectionPolicyName,
-              final List<String> groupDNs, final List<String> privilegeNames,
-              final List<Attribute> otherAttributes)
+  public GetUserResourceLimitsResponseControl(@Nullable final Long sizeLimit,
+              @Nullable final Long timeLimitSeconds,
+              @Nullable final Long idleTimeLimitSeconds,
+              @Nullable final Long lookthroughLimit,
+              @Nullable final String equivalentAuthzUserDN,
+              @Nullable final String clientConnectionPolicyName,
+              @Nullable final List<String> groupDNs,
+              @Nullable final List<String> privilegeNames,
+              @Nullable final List<Attribute> otherAttributes)
   {
     super(GET_USER_RESOURCE_LIMITS_RESPONSE_OID, false,
          encodeValue(sizeLimit, timeLimitSeconds, idleTimeLimitSeconds,
@@ -499,12 +506,16 @@ public final class GetUserResourceLimitsResponseControl
    * @return  The octet string which may be used as the value of a get user
    *          resource limits response control
    */
-  private static ASN1OctetString encodeValue(final Long sizeLimit,
-              final Long timeLimitSeconds, final Long idleTimeLimitSeconds,
-              final Long lookthroughLimit, final String equivalentAuthzUserDN,
-              final String clientConnectionPolicyName,
-              final List<String> groupDNs, final List<String> privilegeNames,
-              final List<Attribute> otherAttributes)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@Nullable final Long sizeLimit,
+              @Nullable final Long timeLimitSeconds,
+              @Nullable final Long idleTimeLimitSeconds,
+              @Nullable final Long lookthroughLimit,
+              @Nullable final String equivalentAuthzUserDN,
+              @Nullable final String clientConnectionPolicyName,
+              @Nullable final List<String> groupDNs,
+              @Nullable final List<String> privilegeNames,
+              @Nullable final List<Attribute> otherAttributes)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(10);
 
@@ -623,9 +634,9 @@ public final class GetUserResourceLimitsResponseControl
    *                         generic control as a get user resource limits
    *                         response control.
    */
-  public GetUserResourceLimitsResponseControl(final String oid,
-                                              final boolean isCritical,
-                                              final ASN1OctetString value)
+  public GetUserResourceLimitsResponseControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -736,9 +747,11 @@ public final class GetUserResourceLimitsResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public GetUserResourceLimitsResponseControl decodeControl(final String oid,
-                                                   final boolean isCritical,
-                                                   final ASN1OctetString value)
+  @NotNull()
+  public GetUserResourceLimitsResponseControl decodeControl(
+              @NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new GetUserResourceLimitsResponseControl(oid, isCritical, value);
@@ -761,8 +774,9 @@ public final class GetUserResourceLimitsResponseControl
    *                         decode the get user resource limits response
    *                         control contained in the provided result.
    */
+  @Nullable()
   public static GetUserResourceLimitsResponseControl get(
-                     final BindResult result)
+                     @NotNull final BindResult result)
          throws LDAPException
   {
     final Control c =
@@ -792,6 +806,7 @@ public final class GetUserResourceLimitsResponseControl
    *          enforced for the user, or {@code null} if no custom size limit
    *          was included in the control.
    */
+  @Nullable()
   public Long getSizeLimit()
   {
     return sizeLimit;
@@ -806,6 +821,7 @@ public final class GetUserResourceLimitsResponseControl
    *          should be enforced for the user, or {@code null} if no custom time
    *          limit was included in the control.
    */
+  @Nullable()
   public Long getTimeLimitSeconds()
   {
     return timeLimitSeconds;
@@ -820,6 +836,7 @@ public final class GetUserResourceLimitsResponseControl
    *          time limit should be enforced for the user, or {@code null} if no
    *          custom idle time limit was included in the control.
    */
+  @Nullable()
   public Long getIdleTimeLimitSeconds()
   {
     return idleTimeLimitSeconds;
@@ -834,6 +851,7 @@ public final class GetUserResourceLimitsResponseControl
    *          limit should be enforced for the user, or {@code null} if no
    *          custom lookthrough limit was included in the control.
    */
+  @Nullable()
   public Long getLookthroughLimit()
   {
     return lookthroughLimit;
@@ -849,6 +867,7 @@ public final class GetUserResourceLimitsResponseControl
    *          if the equivalent authorization is anonymous, or {@code null} if
    *          no equivalent authorization user DN was included in the control.
    */
+  @Nullable()
   public String getEquivalentAuthzUserDN()
   {
     return equivalentAuthzUserDN;
@@ -864,6 +883,7 @@ public final class GetUserResourceLimitsResponseControl
    *          the user, or {@code null} if the client connection policy name was
    *          not included in the control.
    */
+  @Nullable()
   public String getClientConnectionPolicyName()
   {
     return clientConnectionPolicyName;
@@ -878,6 +898,7 @@ public final class GetUserResourceLimitsResponseControl
    *          if the user is not a member of any groups, or {@code null} if the
    *           set of group DNs is not known.
    */
+  @Nullable()
   public List<String> getGroupDNs()
   {
     return groupDNs;
@@ -892,6 +913,7 @@ public final class GetUserResourceLimitsResponseControl
    *          the user is known to have no privileges, or {@code null} if the
    *          set of user privileges is not known.
    */
+  @Nullable()
   public List<String> getPrivilegeNames()
   {
     return privilegeNames;
@@ -905,6 +927,7 @@ public final class GetUserResourceLimitsResponseControl
    * @return  A list containing additional attributes from the user's entry, or
    *          an empty list if no additional attributes were provided.
    */
+  @NotNull
   public List<Attribute> getOtherAttributes()
   {
     return otherAttributes;
@@ -921,7 +944,8 @@ public final class GetUserResourceLimitsResponseControl
    * @return  The "other" attribute with the specified name, or {@code null} if
    *          there is no such "other" attribute.
    */
-  public Attribute getOtherAttribute(final String name)
+  @Nullable()
+  public Attribute getOtherAttribute(@NotNull final String name)
   {
     for (final Attribute a : otherAttributes)
     {
@@ -940,6 +964,7 @@ public final class GetUserResourceLimitsResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_USER_RESOURCE_LIMITS_RESPONSE.get();
@@ -951,7 +976,7 @@ public final class GetUserResourceLimitsResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetUserResourceLimitsResponseControl(");
 

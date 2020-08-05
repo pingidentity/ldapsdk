@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -85,6 +87,7 @@ public final class PLAINBindHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return "PLAIN";
@@ -96,10 +99,12 @@ public final class PLAINBindHandler
    * {@inheritDoc}
    */
   @Override()
-  public BindResult processSASLBind(final InMemoryRequestHandler handler,
-                                    final int messageID, final DN bindDN,
-                                    final ASN1OctetString credentials,
-                                    final List<Control> controls)
+  @NotNull()
+  public BindResult processSASLBind(
+                         @NotNull final InMemoryRequestHandler handler,
+                         final int messageID, @NotNull final DN bindDN,
+                         @Nullable final ASN1OctetString credentials,
+                         @NotNull final List<Control> controls)
   {
     // Process the provided request controls.
     final Map<String,Control> controlMap;

@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.ToCodeArgHelper;
 import com.unboundid.ldap.sdk.ToCodeHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,7 +99,7 @@ public final class SingleUseTOTPBindRequest
 
 
   // The hard-coded TOTP password to include in the bind request.
-  private final String totpPassword;
+  @NotNull private final String totpPassword;
 
 
 
@@ -125,11 +127,11 @@ public final class SingleUseTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  public SingleUseTOTPBindRequest(final String authenticationID,
-                                  final String authorizationID,
-                                  final String totpPassword,
-                                  final String staticPassword,
-                                  final Control... controls)
+  public SingleUseTOTPBindRequest(@NotNull final String authenticationID,
+                                  @Nullable final String authorizationID,
+                                  @NotNull final String totpPassword,
+                                  @Nullable final String staticPassword,
+                                  @Nullable final Control... controls)
   {
     super(authenticationID, authorizationID, staticPassword, controls);
 
@@ -163,11 +165,11 @@ public final class SingleUseTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  public SingleUseTOTPBindRequest(final String authenticationID,
-                                  final String authorizationID,
-                                  final String totpPassword,
-                                  final byte[] staticPassword,
-                                  final Control... controls)
+  public SingleUseTOTPBindRequest(@NotNull final String authenticationID,
+                                  @Nullable final String authorizationID,
+                                  @NotNull final String totpPassword,
+                                  @Nullable final byte[] staticPassword,
+                                  @Nullable final Control... controls)
   {
     super(authenticationID, authorizationID, staticPassword, controls);
 
@@ -201,11 +203,11 @@ public final class SingleUseTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  private SingleUseTOTPBindRequest(final String authenticationID,
-                                   final String authorizationID,
-                                   final String totpPassword,
-                                   final ASN1OctetString staticPassword,
-                                   final Control... controls)
+  private SingleUseTOTPBindRequest(@NotNull final String authenticationID,
+               @Nullable final String authorizationID,
+               @NotNull final String totpPassword,
+               @Nullable final ASN1OctetString staticPassword,
+               @Nullable final Control... controls)
   {
     super(authenticationID, authorizationID, staticPassword, controls);
 
@@ -231,9 +233,9 @@ public final class SingleUseTOTPBindRequest
    * @throws  LDAPException  If the provided credentials are not valid for an
    *                         UNBOUNDID-TOTP bind request.
    */
-  public static SingleUseTOTPBindRequest
-              decodeSASLCredentials(final ASN1OctetString saslCredentials,
-                                    final Control... controls)
+  public static SingleUseTOTPBindRequest decodeSASLCredentials(
+                     @NotNull final ASN1OctetString saslCredentials,
+                     @Nullable final Control... controls)
          throws LDAPException
   {
     try
@@ -300,6 +302,7 @@ public final class SingleUseTOTPBindRequest
    *
    * @return  The hard-coded TOTP password to include in the bind request.
    */
+  @NotNull()
   public String getTOTPPassword()
   {
     return totpPassword;
@@ -311,6 +314,7 @@ public final class SingleUseTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected ASN1OctetString getSASLCredentials()
   {
     return encodeCredentials(getAuthenticationID(), getAuthorizationID(),
@@ -323,7 +327,8 @@ public final class SingleUseTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public SingleUseTOTPBindRequest getRebindRequest(final String host,
+  @Nullable()
+  public SingleUseTOTPBindRequest getRebindRequest(@NotNull final String host,
                                                    final int port)
   {
     // Automatic rebinding is not supported for single-use TOTP binds.
@@ -336,6 +341,7 @@ public final class SingleUseTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SingleUseTOTPBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -347,7 +353,8 @@ public final class SingleUseTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public SingleUseTOTPBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public SingleUseTOTPBindRequest duplicate(@Nullable final Control[] controls)
   {
     final SingleUseTOTPBindRequest bindRequest =
          new SingleUseTOTPBindRequest(getAuthenticationID(),
@@ -363,7 +370,8 @@ public final class SingleUseTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

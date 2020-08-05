@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.EntrySource;
 import com.unboundid.ldap.sdk.EntrySourceException;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -104,10 +106,10 @@ public final class LDIFEntrySource
        extends EntrySource
 {
   // Indicates whether this entry source has been closed.
-  private final AtomicBoolean closed;
+  @NotNull private final AtomicBoolean closed;
 
   // The LDIF reader from which entries will be read.
-  private final LDIFReader ldifReader;
+  @NotNull private final LDIFReader ldifReader;
 
 
 
@@ -118,7 +120,7 @@ public final class LDIFEntrySource
    * @param  ldifReader  The LDIF reader from which to read entries.  It must
    *                     not be {@code null}.
    */
-  public LDIFEntrySource(final LDIFReader ldifReader)
+  public LDIFEntrySource(@NotNull final LDIFReader ldifReader)
   {
     Validator.ensureNotNull(ldifReader);
 
@@ -133,6 +135,7 @@ public final class LDIFEntrySource
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public Entry nextEntry()
          throws EntrySourceException
   {

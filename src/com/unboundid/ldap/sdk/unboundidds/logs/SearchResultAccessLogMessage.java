@@ -44,6 +44,8 @@ import java.util.StringTokenizer;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -78,78 +80,78 @@ public final class SearchResultAccessLogMessage
 
 
   // Indicates whether the search was unindexed.
-  private final Boolean isUnindexed;
+  @Nullable private final Boolean isUnindexed;
 
   // Indicates whether the any uncached data was accessed in the course of
   // processing this operation.
-  private final Boolean uncachedDataAccessed;
+  @Nullable private final Boolean uncachedDataAccessed;
 
   // The processing time for the operation.
-  private final Double processingTime;
+  @Nullable private final Double processingTime;
 
   // The queue time for the operation.
-  private final Double queueTime;
+  @Nullable private final Double queueTime;
 
   // The list of indexes for which keys near the index entry limit were accessed
   // while processing the operation.
-  private final List<String> indexesWithKeysAccessedNearEntryLimit;
+  @NotNull private final List<String> indexesWithKeysAccessedNearEntryLimit;
 
   // The list of indexes for which keys over the index entry limit were accessed
   // while processing the operation.
-  private final List<String> indexesWithKeysAccessedOverEntryLimit;
+  @NotNull private final List<String> indexesWithKeysAccessedOverEntryLimit;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
-  private final List<String> missingPrivileges;
+  @NotNull private final List<String> missingPrivileges;
 
   // The list of privileges used during the course of processing the operation
   // before an alternate authorization identity was assigned.
-  private final List<String> preAuthZUsedPrivileges;
+  @NotNull private final List<String> preAuthZUsedPrivileges;
 
   // The list of referral URLs for the operation.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // The list of servers accessed while processing the operation.
-  private final List<String> serversAccessed;
+  @NotNull private final List<String> serversAccessed;
 
   // The list of privileges used during the course of processing the operation.
-  private final List<String> usedPrivileges;
+  @NotNull private final List<String> usedPrivileges;
 
   // The number of entries returned to the client.
-  private final Long entriesReturned;
+  @Nullable private final Long entriesReturned;
 
   // The number of intermediate response messages returned to the client.
-  private final Long intermediateResponsesReturned;
+  @Nullable private final Long intermediateResponsesReturned;
 
   // The result code for the operation.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // Additional information about the operation result.
-  private final String additionalInformation;
+  @Nullable private final String additionalInformation;
 
   // The alternate authorization DN for the operation.
-  private final String authzDN;
+  @Nullable private final String authzDN;
 
   // The diagnostic message for the operation.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The intermediate client result for the operation.
-  private final String intermediateClientResult;
+  @Nullable private final String intermediateClientResult;
 
   // The matched DN for the operation.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
 
 
@@ -162,7 +164,7 @@ public final class SearchResultAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public SearchResultAccessLogMessage(final String s)
+  public SearchResultAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -177,7 +179,7 @@ public final class SearchResultAccessLogMessage
    * @param  m  The log message to be parsed as a search result access log
    *            message.
    */
-  public SearchResultAccessLogMessage(final LogMessage m)
+  public SearchResultAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -369,6 +371,7 @@ public final class SearchResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -383,6 +386,7 @@ public final class SearchResultAccessLogMessage
    *          not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -399,6 +403,7 @@ public final class SearchResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public String getAdditionalInformation()
   {
     return additionalInformation;
@@ -413,6 +418,7 @@ public final class SearchResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -427,6 +433,7 @@ public final class SearchResultAccessLogMessage
    *          it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -443,6 +450,7 @@ public final class SearchResultAccessLogMessage
    *          if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public Long getIntermediateResponsesReturned()
   {
     return intermediateResponsesReturned;
@@ -459,6 +467,7 @@ public final class SearchResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public Double getProcessingTimeMillis()
   {
     return processingTime;
@@ -475,6 +484,7 @@ public final class SearchResultAccessLogMessage
    *          the log message.
    */
   @Override()
+  @Nullable()
   public Double getQueueTimeMillis()
   {
     return queueTime;
@@ -489,6 +499,7 @@ public final class SearchResultAccessLogMessage
    *          an empty list if it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -507,6 +518,7 @@ public final class SearchResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getServersAccessed()
   {
     return serversAccessed;
@@ -524,6 +536,7 @@ public final class SearchResultAccessLogMessage
    *          it is not included in the log message (and the server likely did
    *          not access uncached data).
    */
+  @Nullable()
   public Boolean getUncachedDataAccessed()
   {
     return uncachedDataAccessed;
@@ -539,6 +552,7 @@ public final class SearchResultAccessLogMessage
    *          or {@code null} if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getIntermediateClientResult()
   {
     return intermediateClientResult;
@@ -552,6 +566,7 @@ public final class SearchResultAccessLogMessage
    * @return  The number of entries returned to the client, or {@code null} if
    *          it is not included in the log message.
    */
+  @Nullable()
   public Long getEntriesReturned()
   {
     return entriesReturned;
@@ -566,6 +581,7 @@ public final class SearchResultAccessLogMessage
    *          {@code Boolean.FALSE} if it was not, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public Boolean isUnindexed()
   {
     return isUnindexed;
@@ -579,6 +595,7 @@ public final class SearchResultAccessLogMessage
    * @return  The alternate authorization DN for the operation, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   public String getAlternateAuthorizationDN()
   {
     return authzDN;
@@ -594,6 +611,7 @@ public final class SearchResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -609,6 +627,7 @@ public final class SearchResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -622,6 +641,7 @@ public final class SearchResultAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -637,6 +657,7 @@ public final class SearchResultAccessLogMessage
    *          the operation, or an empty list if no privileges were used or this
    *          is not included in the log message.
    */
+  @NotNull()
   public List<String> getUsedPrivileges()
   {
     return usedPrivileges;
@@ -653,6 +674,7 @@ public final class SearchResultAccessLogMessage
    *          assigned, or an empty list if no privileges were used or this is
    *          not included in the log message.
    */
+  @NotNull()
   public List<String> getPreAuthorizationUsedPrivileges()
   {
     return preAuthZUsedPrivileges;
@@ -669,6 +691,7 @@ public final class SearchResultAccessLogMessage
    *          an empty list if there were no missing privileges or this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
@@ -686,6 +709,7 @@ public final class SearchResultAccessLogMessage
    *          empty list if no such index keys were accessed, or if this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getIndexesWithKeysAccessedNearEntryLimit()
   {
     return indexesWithKeysAccessedNearEntryLimit;
@@ -702,6 +726,7 @@ public final class SearchResultAccessLogMessage
    *          empty list if no such index keys were accessed, or if this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getIndexesWithKeysAccessedOverEntryLimit()
   {
     return indexesWithKeysAccessedOverEntryLimit;
@@ -713,6 +738,7 @@ public final class SearchResultAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.RESULT;

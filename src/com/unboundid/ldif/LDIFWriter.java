@@ -53,6 +53,8 @@ import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKThreadFactory;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -115,7 +117,7 @@ public final class LDIFWriter
   /**
    * The bytes that comprise the LDIF version header.
    */
-  private static final byte[] VERSION_1_HEADER_BYTES =
+  @NotNull private static final byte[] VERSION_1_HEADER_BYTES =
        StaticUtils.getBytes("version: 1" + StaticUtils.EOL);
 
 
@@ -129,17 +131,18 @@ public final class LDIFWriter
 
 
   // The writer that will be used to actually write the data.
-  private final BufferedOutputStream writer;
+  @NotNull private final BufferedOutputStream writer;
 
   // The byte string buffer that will be used to convert LDIF records to LDIF.
   // It will only be used when operating synchronously.
-  private final ByteStringBuffer buffer;
+  @NotNull private final ByteStringBuffer buffer;
 
   // The translator to use for change records to be written, if any.
-  private final LDIFWriterChangeRecordTranslator changeRecordTranslator;
+  @Nullable private final LDIFWriterChangeRecordTranslator
+       changeRecordTranslator;
 
   // The translator to use for entries to be written, if any.
-  private final LDIFWriterEntryTranslator entryTranslator;
+  @Nullable private final LDIFWriterEntryTranslator entryTranslator;
 
   // The column at which to wrap long lines.
   private int wrapColumn = 0;
@@ -149,7 +152,7 @@ public final class LDIFWriter
 
   // non-null if this writer was configured to use multiple threads when
   // writing batches of entries.
-  private final ParallelProcessor<LDIFRecord,ByteStringBuffer>
+  @Nullable private final ParallelProcessor<LDIFRecord,ByteStringBuffer>
        toLdifBytesInvoker;
 
 
@@ -163,7 +166,7 @@ public final class LDIFWriter
    * @throws  IOException  If a problem occurs while opening the provided file
    *                       for writing.
    */
-  public LDIFWriter(final String path)
+  public LDIFWriter(@NotNull final String path)
          throws IOException
   {
     this(new FileOutputStream(path));
@@ -179,7 +182,7 @@ public final class LDIFWriter
    * @throws  IOException  If a problem occurs while opening the provided file
    *                       for writing.
    */
-  public LDIFWriter(final File file)
+  public LDIFWriter(@NotNull final File file)
          throws IOException
   {
     this(new FileOutputStream(file));
@@ -194,7 +197,7 @@ public final class LDIFWriter
    * @param  outputStream  The output stream to which the data is to be written.
    *                       It must not be {@code null}.
    */
-  public LDIFWriter(final OutputStream outputStream)
+  public LDIFWriter(@NotNull final OutputStream outputStream)
   {
     this(outputStream, 0);
   }
@@ -225,7 +228,8 @@ public final class LDIFWriter
    *                          records synchronously when one of the read
    *                          methods is called.
    */
-  public LDIFWriter(final OutputStream outputStream, final int parallelThreads)
+  public LDIFWriter(@NotNull final OutputStream outputStream,
+                    final int parallelThreads)
   {
     this(outputStream, parallelThreads, null);
   }
@@ -259,8 +263,9 @@ public final class LDIFWriter
    *                          entries before they are actually written.  This
    *                          may be {@code null} if no translator is needed.
    */
-  public LDIFWriter(final OutputStream outputStream, final int parallelThreads,
-                    final LDIFWriterEntryTranslator entryTranslator)
+  public LDIFWriter(@NotNull final OutputStream outputStream,
+                    final int parallelThreads,
+                    @Nullable final LDIFWriterEntryTranslator entryTranslator)
   {
     this(outputStream, parallelThreads, entryTranslator, null);
   }
@@ -301,9 +306,10 @@ public final class LDIFWriter
    *                                 actually written.  This may be {@code null}
    *                                 if no translator is needed.
    */
-  public LDIFWriter(final OutputStream outputStream, final int parallelThreads,
-              final LDIFWriterEntryTranslator entryTranslator,
-              final LDIFWriterChangeRecordTranslator changeRecordTranslator)
+  public LDIFWriter(@NotNull final OutputStream outputStream,
+       final int parallelThreads,
+       @Nullable final LDIFWriterEntryTranslator entryTranslator,
+       @Nullable final LDIFWriterChangeRecordTranslator changeRecordTranslator)
   {
     Validator.ensureNotNull(outputStream);
     Validator.ensureTrue(parallelThreads >= 0,
@@ -333,7 +339,8 @@ public final class LDIFWriter
       toLdifBytesInvoker = new ParallelProcessor<>(
            new Processor<LDIFRecord,ByteStringBuffer>() {
              @Override()
-             public ByteStringBuffer process(final LDIFRecord input)
+             @NotNull()
+             public ByteStringBuffer process(@NotNull final LDIFRecord input)
                     throws IOException
              {
                final LDIFRecord r;
@@ -509,7 +516,7 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeEntry(final Entry entry)
+  public void writeEntry(@NotNull final Entry entry)
          throws IOException
   {
     writeEntry(entry, null);
@@ -527,7 +534,8 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeEntry(final Entry entry, final String comment)
+  public void writeEntry(@NotNull final Entry entry,
+                         @Nullable final String comment)
          throws IOException
   {
     Validator.ensureNotNull(entry);
@@ -565,7 +573,7 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeChangeRecord(final LDIFChangeRecord changeRecord)
+  public void writeChangeRecord(@NotNull final LDIFChangeRecord changeRecord)
          throws IOException
   {
     writeChangeRecord(changeRecord, null);
@@ -584,8 +592,8 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeChangeRecord(final LDIFChangeRecord changeRecord,
-                                final String comment)
+  public void writeChangeRecord(@NotNull final LDIFChangeRecord changeRecord,
+                                @Nullable final String comment)
          throws IOException
   {
     Validator.ensureNotNull(changeRecord);
@@ -623,7 +631,7 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeLDIFRecord(final LDIFRecord record)
+  public void writeLDIFRecord(@NotNull final LDIFRecord record)
          throws IOException
   {
     writeLDIFRecord(record, null);
@@ -641,7 +649,8 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeLDIFRecord(final LDIFRecord record, final String comment)
+  public void writeLDIFRecord(@NotNull final LDIFRecord record,
+                              @Nullable final String comment)
          throws IOException
   {
 
@@ -700,7 +709,8 @@ public final class LDIFWriter
    * @throws InterruptedException  If this thread is interrupted while waiting
    *                               for the records to be written to the output.
    */
-  public void writeLDIFRecords(final List<? extends LDIFRecord> ldifRecords)
+  public void writeLDIFRecords(
+                   @NotNull final List<? extends LDIFRecord> ldifRecords)
          throws IOException, InterruptedException
   {
     if (toLdifBytesInvoker == null)
@@ -743,8 +753,8 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  public void writeComment(final String comment, final boolean spaceBefore,
-                           final boolean spaceAfter)
+  public void writeComment(@NotNull final String comment,
+                           final boolean spaceBefore, final boolean spaceAfter)
          throws IOException
   {
     Validator.ensureNotNull(comment);
@@ -793,7 +803,7 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  private void writeSingleLineComment(final String comment)
+  private void writeSingleLineComment(@NotNull final String comment)
           throws IOException
   {
     // We will always wrap comments, even if we won't wrap LDIF entries.  If
@@ -898,7 +908,7 @@ public final class LDIFWriter
    *
    * @throws  IOException  If a problem occurs while writing the LDIF data.
    */
-  private void writeLDIF(final LDIFRecord record)
+  private void writeLDIF(@NotNull final LDIFRecord record)
           throws IOException
   {
     buffer.clear();
@@ -920,8 +930,9 @@ public final class LDIFWriter
    *
    * @return  A new list of lines that have been wrapped as appropriate.
    */
+  @NotNull()
   public static List<String> wrapLines(final int wrapColumn,
-                                       final String... ldifLines)
+                                       @NotNull final String... ldifLines)
   {
     return wrapLines(wrapColumn, Arrays.asList(ldifLines));
   }
@@ -939,8 +950,9 @@ public final class LDIFWriter
    *
    * @return  A new list of lines that have been wrapped as appropriate.
    */
+  @NotNull()
   public static List<String> wrapLines(final int wrapColumn,
-                                       final List<String> ldifLines)
+                                       @NotNull final List<String> ldifLines)
   {
     if (wrapColumn <= 2)
     {
@@ -993,8 +1005,9 @@ public final class LDIFWriter
    *          provided value, or two colons and the base64-encoded
    *          representation of the provided value.
    */
-  public static String encodeNameAndValue(final String name,
-                                          final ASN1OctetString value)
+  @NotNull()
+  public static String encodeNameAndValue(@NotNull final String name,
+                                          @NotNull final ASN1OctetString value)
   {
     final StringBuilder buffer = new StringBuilder();
     encodeNameAndValue(name, value, buffer);
@@ -1013,9 +1026,9 @@ public final class LDIFWriter
    * @param  value   The value for the attribute.
    * @param  buffer  The buffer to which the name and value are to be written.
    */
-  public static void encodeNameAndValue(final String name,
-                                        final ASN1OctetString value,
-                                        final StringBuilder buffer)
+  public static void encodeNameAndValue(@NotNull final String name,
+                                        @NotNull final ASN1OctetString value,
+                                        @NotNull final StringBuilder buffer)
   {
     encodeNameAndValue(name, value, buffer, 0);
   }
@@ -1036,9 +1049,9 @@ public final class LDIFWriter
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  public static void encodeNameAndValue(final String name,
-                                        final ASN1OctetString value,
-                                        final StringBuilder buffer,
+  public static void encodeNameAndValue(@NotNull final String name,
+                                        @NotNull final ASN1OctetString value,
+                                        @NotNull final StringBuilder buffer,
                                         final int wrapColumn)
   {
     final int bufferStartPos = buffer.length();
@@ -1145,9 +1158,10 @@ public final class LDIFWriter
    * @param  buffer      The buffer to which the comment should be appended.
    * @param  wrapColumn  The column at which to wrap long lines.
    */
-  private static void writeBase64DecodedValueComment(final byte[] valueBytes,
-                                                     final StringBuilder buffer,
-                                                     final int wrapColumn)
+  private static void writeBase64DecodedValueComment(
+                           @NotNull final byte[] valueBytes,
+                           @NotNull final StringBuilder buffer,
+                           final int wrapColumn)
   {
     if (commentAboutBase64EncodedValues)
     {
@@ -1203,10 +1217,10 @@ public final class LDIFWriter
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  public static void encodeNameAndValue(final String name,
-                                        final ASN1OctetString value,
-                                        final ByteStringBuffer buffer,
-                                        final int wrapColumn)
+  public static void encodeNameAndValue(@NotNull final String name,
+                          @NotNull final ASN1OctetString value,
+                          @NotNull final ByteStringBuffer buffer,
+                          final int wrapColumn)
   {
     final int bufferStartPos = buffer.length();
     boolean base64Encoded = false;
@@ -1262,8 +1276,8 @@ public final class LDIFWriter
    * @return  {@code true} if the value was base64-encoded, or {@code false} if
    *          not.
    */
-  static boolean encodeValue(final ASN1OctetString value,
-                             final ByteStringBuffer buffer)
+  static boolean encodeValue(@NotNull final ASN1OctetString value,
+                             @NotNull final ByteStringBuffer buffer)
   {
     buffer.append(':');
 
@@ -1339,8 +1353,9 @@ public final class LDIFWriter
    * @param  buffer      The buffer to which the comment should be appended.
    * @param  wrapColumn  The column at which to wrap long lines.
    */
-  private static void writeBase64DecodedValueComment(final byte[] valueBytes,
-                           final ByteStringBuffer buffer,
+  private static void writeBase64DecodedValueComment(
+                           @NotNull final byte[] valueBytes,
+                           @NotNull final ByteStringBuffer buffer,
                            final int wrapColumn)
   {
     if (commentAboutBase64EncodedValues)
@@ -1391,7 +1406,8 @@ public final class LDIFWriter
    * @return  A string representation of the provided value with any special
    *          characters
    */
-  private static String getEscapedValue(final byte[] valueBytes)
+  @NotNull()
+  private static String getEscapedValue(@NotNull final byte[] valueBytes)
   {
     final StringBuilder buffer = new StringBuilder(valueBytes.length * 2);
     for (int i=0; i < valueBytes.length; i++)
@@ -1469,7 +1485,7 @@ public final class LDIFWriter
    *
    * @throws IOException  If t is a checked exception.
    */
-  static void rethrow(final Throwable t)
+  static void rethrow(@Nullable final Throwable t)
          throws IOException
   {
     if (t == null)

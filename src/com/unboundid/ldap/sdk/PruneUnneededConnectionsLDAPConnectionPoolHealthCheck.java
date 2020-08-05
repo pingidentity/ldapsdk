@@ -42,6 +42,7 @@ import java.util.logging.Level;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,7 +70,7 @@ public final class PruneUnneededConnectionsLDAPConnectionPoolHealthCheck
   // exceeded the minimum number of available connections.  It may reference a
   // null value if the last check indicated that the number of available
   // connections was not larger than the configured minimum.
-  private final AtomicReference<Long>
+  @NotNull private final AtomicReference<Long>
                      earliestTimeWithMoreThanMinAvailableConnections;
 
   // The minimum number of connections that should be maintained in the
@@ -164,7 +165,7 @@ public final class PruneUnneededConnectionsLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void performPoolMaintenance(final AbstractConnectionPool pool)
+  public void performPoolMaintenance(@NotNull final AbstractConnectionPool pool)
   {
     if (! (pool instanceof LDAPConnectionPool))
     {
@@ -219,7 +220,7 @@ public final class PruneUnneededConnectionsLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PruneUnneededConnectionsLDAPConnectionPoolHealthCheck(" +
          "minAvailableConnections=");

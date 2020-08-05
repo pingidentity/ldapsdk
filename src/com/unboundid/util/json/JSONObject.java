@@ -49,6 +49,8 @@ import java.util.TreeMap;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -112,7 +114,7 @@ public final class JSONObject
   /**
    * A pre-allocated empty JSON object.
    */
-  public static final JSONObject EMPTY_OBJECT = new JSONObject(
+  @NotNull public static final JSONObject EMPTY_OBJECT = new JSONObject(
        Collections.<String,JSONValue>emptyMap());
 
 
@@ -128,16 +130,16 @@ public final class JSONObject
   private int decodePos;
 
   // The hash code for this JSON object.
-  private Integer hashCode;
+  @Nullable private Integer hashCode;
 
   // The set of fields for this JSON object.
-  private final Map<String,JSONValue> fields;
+  @NotNull private final Map<String,JSONValue> fields;
 
   // The string representation for this JSON object.
-  private String stringRepresentation;
+  @Nullable private String stringRepresentation;
 
   // A buffer to use in decode processing.
-  private final StringBuilder decodeBuffer;
+  @Nullable private final StringBuilder decodeBuffer;
 
 
 
@@ -148,7 +150,7 @@ public final class JSONObject
    *                 {@code null} or empty if this object should not have any
    *                 fields.
    */
-  public JSONObject(final JSONField... fields)
+  public JSONObject(@Nullable final JSONField... fields)
   {
     if ((fields == null) || (fields.length == 0))
     {
@@ -181,7 +183,7 @@ public final class JSONObject
    * @param  fields  The set of fields for this JSON object.  It may be
    *                 {@code null} or empty if there should not be any fields.
    */
-  public JSONObject(final Map<String,JSONValue> fields)
+  public JSONObject(@Nullable final Map<String,JSONValue> fields)
   {
     if (fields == null)
     {
@@ -211,7 +213,7 @@ public final class JSONObject
    * @throws  JSONException  If the provided string cannot be parsed as a valid
    *                         JSON object.
    */
-  public JSONObject(final String stringRepresentation)
+  public JSONObject(@NotNull final String stringRepresentation)
          throws JSONException
   {
     this.stringRepresentation = stringRepresentation;
@@ -250,8 +252,8 @@ public final class JSONObject
    * @param  stringRepresentation  The string representation for the JSON
    *                               object.
    */
-  JSONObject(final LinkedHashMap<String,JSONValue> fields,
-             final String stringRepresentation)
+  JSONObject(@NotNull final LinkedHashMap<String,JSONValue> fields,
+             @NotNull final String stringRepresentation)
   {
     this.fields = Collections.unmodifiableMap(fields);
     this.stringRepresentation = stringRepresentation;
@@ -288,7 +290,8 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the
    *                         token.
    */
-  private Object readToken(final char[] chars)
+  @NotNull()
+  private Object readToken(@NotNull final char[] chars)
           throws JSONException
   {
     skipWhitespace(chars);
@@ -353,7 +356,7 @@ public final class JSONObject
    * @throws  JSONException  If a problem is encountered while skipping
    *                         whitespace.
    */
-  private void skipWhitespace(final char[] chars)
+  private void skipWhitespace(@NotNull final char[] chars)
           throws JSONException
   {
     while (decodePos < chars.length)
@@ -470,7 +473,8 @@ public final class JSONObject
    * @throws  JSONException  If the end of the value was encountered when a
    *                         character was expected.
    */
-  private char readCharacter(final char[] chars, final boolean advancePosition)
+  private char readCharacter(@NotNull final char[] chars,
+                             final boolean advancePosition)
           throws JSONException
   {
     if (decodePos >= chars.length)
@@ -501,7 +505,8 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the JSON
    *                         string.
    */
-  private JSONString readString(final char[] chars)
+  @NotNull()
+  private JSONString readString(@NotNull final char[] chars)
           throws JSONException
   {
     // Create a buffer to hold the string.  Note that if we've gotten here then
@@ -600,7 +605,8 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the JSON
    *                         Boolean.
    */
-  private JSONBoolean readBoolean(final char[] chars)
+  @NotNull()
+  private JSONBoolean readBoolean(@NotNull final char[] chars)
           throws JSONException
   {
     final int startPos = decodePos;
@@ -643,7 +649,8 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the JSON
    *                         null.
    */
-  private JSONNull readNull(final char[] chars)
+  @NotNull()
+  private JSONNull readNull(@NotNull final char[] chars)
           throws JSONException
   {
     final int startPos = decodePos;
@@ -673,7 +680,8 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the JSON
    *                         number.
    */
-  private JSONNumber readNumber(final char[] chars)
+  @NotNull()
+  private JSONNumber readNumber(@NotNull final char[] chars)
           throws JSONException
   {
     // Read until we encounter whitespace, a comma, a closing square bracket, or
@@ -719,7 +727,8 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the JSON
    *                         array.
    */
-  private JSONArray readArray(final char[] chars)
+  @NotNull()
+  private JSONArray readArray(@NotNull final char[] chars)
           throws JSONException
   {
     // The opening square bracket will have already been consumed, so read
@@ -799,8 +808,9 @@ public final class JSONObject
    * @throws  JSONException  If a problem was encountered while reading the JSON
    *                         object.
    */
-  private JSONObject readObject(final char[] chars,
-                                final Map<String,JSONValue> fields)
+  @NotNull()
+  private JSONObject readObject(@NotNull final char[] chars,
+                                @NotNull final Map<String,JSONValue> fields)
           throws JSONException
   {
     boolean firstField = true;
@@ -893,6 +903,7 @@ public final class JSONObject
    *
    * @return  A map of the fields contained in this JSON object.
    */
+  @NotNull()
   public Map<String,JSONValue> getFields()
   {
     return fields;
@@ -909,7 +920,8 @@ public final class JSONObject
    * @return  The value for the specified field, or {@code null} if the
    *          requested field is not present in the JSON object.
    */
-  public JSONValue getField(final String name)
+  @Nullable()
+  public JSONValue getField(@NotNull final String name)
   {
     return fields.get(name);
   }
@@ -926,7 +938,8 @@ public final class JSONObject
    *          this JSON object does not have a field with the specified name, or
    *          if the value of that field is not a string.
    */
-  public String getFieldAsString(final String name)
+  @Nullable()
+  public String getFieldAsString(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONString)))
@@ -949,7 +962,8 @@ public final class JSONObject
    *          this JSON object does not have a field with the specified name, or
    *          if the value of that field is not a Boolean.
    */
-  public Boolean getFieldAsBoolean(final String name)
+  @Nullable()
+  public Boolean getFieldAsBoolean(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONBoolean)))
@@ -973,7 +987,8 @@ public final class JSONObject
    *          if the value of that field is not a number that can be exactly
    *          represented as an integer.
    */
-  public Integer getFieldAsInteger(final String name)
+  @Nullable()
+  public Integer getFieldAsInteger(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONNumber)))
@@ -1006,7 +1021,8 @@ public final class JSONObject
    *          if the value of that field is not a number that can be exactly
    *          represented as a long.
    */
-  public Long getFieldAsLong(final String name)
+  @Nullable()
+  public Long getFieldAsLong(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONNumber)))
@@ -1038,7 +1054,8 @@ public final class JSONObject
    *          if this JSON object does not have a field with the specified name,
    *          or if the value of that field is not a number.
    */
-  public BigDecimal getFieldAsBigDecimal(final String name)
+  @Nullable()
+  public BigDecimal getFieldAsBigDecimal(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONNumber)))
@@ -1061,7 +1078,8 @@ public final class JSONObject
    *          if this JSON object does not have a field with the specified name,
    *          or if the value of that field is not an object.
    */
-  public JSONObject getFieldAsObject(final String name)
+  @Nullable()
+  public JSONObject getFieldAsObject(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONObject)))
@@ -1084,7 +1102,8 @@ public final class JSONObject
    *          {@code null} if this JSON object does not have a field with the
    *          specified name, or if the value of that field is not an array.
    */
-  public List<JSONValue> getFieldAsArray(final String name)
+  @Nullable()
+  public List<JSONValue> getFieldAsArray(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     if ((value == null) || (! (value instanceof JSONArray)))
@@ -1109,7 +1128,7 @@ public final class JSONObject
    *          a field with the specified name, or if the value of that field is
    *          not a null.
    */
-  public boolean hasNullField(final String name)
+  public boolean hasNullField(@NotNull final String name)
   {
     final JSONValue value = fields.get(name);
     return ((value != null) && (value instanceof JSONNull));
@@ -1127,7 +1146,7 @@ public final class JSONObject
    * @return  {@code true} if this JSON object has a field with the specified
    *          name, or {@code false} if not.
    */
-  public boolean hasField(final String fieldName)
+  public boolean hasField(@NotNull final String fieldName)
   {
     return fields.containsKey(fieldName);
   }
@@ -1160,7 +1179,7 @@ public final class JSONObject
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == this)
     {
@@ -1196,7 +1215,8 @@ public final class JSONObject
    *          provided object (subject to the specified constraints), or
    *          {@code false} if not.
    */
-  public boolean equals(final JSONObject o, final boolean ignoreFieldNameCase,
+  public boolean equals(@NotNull final JSONObject o,
+                        final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
   {
@@ -1289,7 +1309,8 @@ public final class JSONObject
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final JSONValue v, final boolean ignoreFieldNameCase,
+  public boolean equals(@NotNull final JSONValue v,
+                        final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
   {
@@ -1308,6 +1329,7 @@ public final class JSONObject
    * @return  A string representation of this JSON object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     if (stringRepresentation == null)
@@ -1331,7 +1353,7 @@ public final class JSONObject
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     if (stringRepresentation != null)
     {
@@ -1370,6 +1392,7 @@ public final class JSONObject
    * @return  A user-friendly string representation of this JSON object that may
    *          be formatted across multiple lines for better readability.
    */
+  @NotNull()
   public String toMultiLineString()
   {
     final JSONBuffer jsonBuffer = new JSONBuffer(null, 0, true);
@@ -1385,6 +1408,7 @@ public final class JSONObject
    * @return  A single-line string representation of this JSON object.
    */
   @Override()
+  @NotNull
   public String toSingleLineString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1401,7 +1425,7 @@ public final class JSONObject
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toSingleLineString(final StringBuilder buffer)
+  public void toSingleLineString(@NotNull final StringBuilder buffer)
   {
     buffer.append("{ ");
 
@@ -1444,6 +1468,7 @@ public final class JSONObject
    * @return  A normalized string representation of this JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1471,7 +1496,7 @@ public final class JSONObject
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     toNormalizedString(buffer, false, true, false);
   }
@@ -1507,6 +1532,7 @@ public final class JSONObject
    * @return  A normalized string representation of this JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString(final boolean ignoreFieldNameCase,
                                    final boolean ignoreValueCase,
                                    final boolean ignoreArrayOrder)
@@ -1549,7 +1575,7 @@ public final class JSONObject
    *                              {@code true}).
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer,
+  public void toNormalizedString(@NotNull final StringBuilder buffer,
                                  final boolean ignoreFieldNameCase,
                                  final boolean ignoreValueCase,
                                  final boolean ignoreArrayOrder)
@@ -1593,7 +1619,7 @@ public final class JSONObject
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.beginObject();
 
@@ -1613,8 +1639,8 @@ public final class JSONObject
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final String fieldName,
-                                 final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final String fieldName,
+                                 @NotNull final JSONBuffer buffer)
   {
     buffer.beginObject(fieldName);
 

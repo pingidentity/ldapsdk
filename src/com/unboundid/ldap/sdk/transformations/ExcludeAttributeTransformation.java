@@ -52,6 +52,8 @@ import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -71,10 +73,10 @@ public final class ExcludeAttributeTransformation
        implements EntryTransformation, LDIFChangeRecordTransformation
 {
   // The schema to use when processing.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The set of attributes to exclude from entries.
-  private final Set<String> attributes;
+  @NotNull private final Set<String> attributes;
 
 
 
@@ -89,8 +91,8 @@ public final class ExcludeAttributeTransformation
    * @param  attributes  The names of the attributes to strip from entries and
    *                     change records.  It must not be {@code null} or empty.
    */
-  public ExcludeAttributeTransformation(final Schema schema,
-                                      final String... attributes)
+  public ExcludeAttributeTransformation(@Nullable final Schema schema,
+                                        @NotNull final String... attributes)
   {
     this(schema, StaticUtils.toList(attributes));
   }
@@ -108,8 +110,8 @@ public final class ExcludeAttributeTransformation
    * @param  attributes  The names of the attributes to strip from entries and
    *                     change records.  It must not be {@code null} or empty.
    */
-  public ExcludeAttributeTransformation(final Schema schema,
-                                        final Collection<String> attributes)
+  public ExcludeAttributeTransformation(@Nullable final Schema schema,
+              @NotNull final Collection<String> attributes)
   {
     // If a schema was provided, then use it.  Otherwise, use the default
     // standard schema.
@@ -161,7 +163,8 @@ public final class ExcludeAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry transformEntry(final Entry e)
+  @Nullable()
+  public Entry transformEntry(@NotNull final Entry e)
   {
     if (e == null)
     {
@@ -208,7 +211,9 @@ public final class ExcludeAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public LDIFChangeRecord transformChangeRecord(final LDIFChangeRecord r)
+  @Nullable()
+  public LDIFChangeRecord transformChangeRecord(
+                               @NotNull final LDIFChangeRecord r)
   {
     if (r == null)
     {
@@ -273,7 +278,9 @@ public final class ExcludeAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translate(final Entry original, final long firstLineNumber)
+  @Nullable()
+  public Entry translate(@NotNull final Entry original,
+                         final long firstLineNumber)
   {
     return transformEntry(original);
   }
@@ -284,7 +291,8 @@ public final class ExcludeAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public LDIFChangeRecord translate(final LDIFChangeRecord original,
+  @Nullable()
+  public LDIFChangeRecord translate(@NotNull final LDIFChangeRecord original,
                                     final long firstLineNumber)
   {
     return transformChangeRecord(original);
@@ -296,7 +304,8 @@ public final class ExcludeAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translateEntryToWrite(final Entry original)
+  @Nullable()
+  public Entry translateEntryToWrite(@NotNull final Entry original)
   {
     return transformEntry(original);
   }
@@ -307,8 +316,9 @@ public final class ExcludeAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public LDIFChangeRecord translateChangeRecordToWrite(
-                               final LDIFChangeRecord original)
+                               @NotNull final LDIFChangeRecord original)
   {
     return transformChangeRecord(original);
   }

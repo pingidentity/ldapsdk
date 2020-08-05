@@ -42,6 +42,8 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSession;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,6 +78,7 @@ public interface LDAPConnectionInfo
    *          last connection attempt for this LDAP connection, or {@code null}
    *          if no attempt has yet been made to establish this connection.
    */
+  @Nullable()
   SocketFactory getLastUsedSocketFactory();
 
 
@@ -88,6 +91,7 @@ public interface LDAPConnectionInfo
    * @return  The socket factory to use to create the socket for subsequent
    *          connection attempts.
    */
+  @NotNull()
   SocketFactory getSocketFactory();
 
 
@@ -105,6 +109,7 @@ public interface LDAPConnectionInfo
    *          communication on this connection, or {@code null} if no
    *          {@code SSLSession} is available.
    */
+  @Nullable()
   SSLSession getSSLSession();
 
 
@@ -128,6 +133,7 @@ public interface LDAPConnectionInfo
    * @return  The user-friendly name that has been assigned to this connection,
    *          or {@code null} if none has been assigned.
    */
+  @Nullable()
   String getConnectionName();
 
 
@@ -141,6 +147,7 @@ public interface LDAPConnectionInfo
    *          none has been assigned or this connection is not associated with a
    *          connection pool.
    */
+  @Nullable()
   String getConnectionPoolName();
 
 
@@ -156,6 +163,7 @@ public interface LDAPConnectionInfo
    *          which the last connection attempt was made, or an empty string if
    *          no connection attempt has yet been made on this connection.
    */
+  @NotNull()
   String getHostPort();
 
 
@@ -168,6 +176,7 @@ public interface LDAPConnectionInfo
    *          currently established, or {@code null} if the connection is not
    *          established.
    */
+  @Nullable()
   String getConnectedAddress();
 
 
@@ -180,6 +189,7 @@ public interface LDAPConnectionInfo
    *          connection is currently established, or {@code null} if the
    *          connection is not established.
    */
+  @Nullable()
   String getConnectedIPAddress();
 
 
@@ -192,6 +202,7 @@ public interface LDAPConnectionInfo
    *          to which this connection is currently established, or {@code null}
    *          if the connection is not established.
    */
+  @Nullable()
   InetAddress getConnectedInetAddress();
 
 
@@ -218,6 +229,7 @@ public interface LDAPConnectionInfo
    *          connection, or {@code null} connect stack traces are not enabled,
    *          or if no attempt has been made to establish this connection.
    */
+  @Nullable()
   StackTraceElement[] getConnectStackTrace();
 
 
@@ -228,6 +240,7 @@ public interface LDAPConnectionInfo
    * @return  The disconnect type for this connection, or {@code null} if no
    *          disconnect type has been set.
    */
+  @Nullable()
   DisconnectType getDisconnectType();
 
 
@@ -239,6 +252,7 @@ public interface LDAPConnectionInfo
    * @return  The disconnect message for this connection, or {@code null} if
    *          no disconnect message has been set.
    */
+  @Nullable()
   String getDisconnectMessage();
 
 
@@ -250,6 +264,7 @@ public interface LDAPConnectionInfo
    * @return  The disconnect cause for this connection, or {@code null} if no
    *          disconnect cause has been set.
    */
+  @Nullable()
   Throwable getDisconnectCause();
 
 
@@ -261,6 +276,7 @@ public interface LDAPConnectionInfo
    *          may be {@code null} if no bind has been performed, or if the last
    *          bind attempt was not successful.
    */
+  @Nullable()
   BindRequest getLastBindRequest();
 
 
@@ -272,6 +288,7 @@ public interface LDAPConnectionInfo
    *          {@code null} if StartTLS has not been used to secure this
    *          connection.
    */
+  @Nullable()
   ExtendedRequest getStartTLSRequest();
 
 
@@ -320,6 +337,7 @@ public interface LDAPConnectionInfo
    *
    * @return  The connection statistics for this LDAP connection.
    */
+  @NotNull()
   LDAPConnectionStatistics getConnectionStatistics();
 
 
@@ -343,6 +361,7 @@ public interface LDAPConnectionInfo
    * @return  A string representation of this LDAP connection.
    */
   @Override()
+  @NotNull()
   String toString();
 
 
@@ -354,5 +373,5 @@ public interface LDAPConnectionInfo
    * @param  buffer  The buffer to which to append a string representation of
    *                 this LDAP connection.
    */
-  void toString(final StringBuilder buffer);
+  void toString(@NotNull final StringBuilder buffer);
 }

@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -116,7 +118,8 @@ public class LDAPSearchConstraints
    */
   public LDAPSearchConstraints(final int msLimit, final int dereference,
                                final int maxResults, final boolean doReferrals,
-                               final int batchSize, final LDAPRebind rebindProc,
+                               final int batchSize,
+                               @Nullable final LDAPRebind rebindProc,
                                final int hopLimit)
   {
     this();
@@ -154,7 +157,8 @@ public class LDAPSearchConstraints
   public LDAPSearchConstraints(final int msLimit, final int timeLimit,
                                final int dereference,
                                final int maxResults, final boolean doReferrals,
-                               final int batchSize, final LDAPRebind rebindProc,
+                               final int batchSize,
+                               @Nullable final LDAPRebind rebindProc,
                                final int hopLimit)
   {
     this();
@@ -192,7 +196,8 @@ public class LDAPSearchConstraints
   public LDAPSearchConstraints(final int msLimit, final int timeLimit,
                                final int dereference,
                                final int maxResults, final boolean doReferrals,
-                               final int batchSize, final LDAPBind bindProc,
+                               final int batchSize,
+                               @Nullable final LDAPBind bindProc,
                                final int hopLimit)
   {
     this();
@@ -341,6 +346,7 @@ public class LDAPSearchConstraints
    * @return  A duplicate of this search constraints object.
    */
   @Override()
+  @NotNull()
   public LDAPSearchConstraints duplicate()
   {
     final LDAPSearchConstraints c = new LDAPSearchConstraints();
@@ -369,6 +375,7 @@ public class LDAPSearchConstraints
    * @return  A string representation of this search constraints object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();

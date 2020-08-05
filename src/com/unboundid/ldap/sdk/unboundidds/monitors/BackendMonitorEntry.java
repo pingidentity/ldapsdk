@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,21 +99,21 @@ public final class BackendMonitorEntry
   /**
    * The structural object class used in backend monitor entries.
    */
-  static final String BACKEND_MONITOR_OC = "ds-backend-monitor-entry";
+  @NotNull static final String BACKEND_MONITOR_OC = "ds-backend-monitor-entry";
 
 
 
   /**
    * The name of the attribute that contains the backend ID.
    */
-  private static final String ATTR_BACKEND_ID = "ds-backend-id";
+  @NotNull private static final String ATTR_BACKEND_ID = "ds-backend-id";
 
 
 
   /**
    * The name of the attribute that specifies the base DN(s) for the backend.
    */
-  private static final String ATTR_BASE_DN = "ds-backend-base-dn";
+  @NotNull private static final String ATTR_BASE_DN = "ds-backend-base-dn";
 
 
 
@@ -119,7 +121,7 @@ public final class BackendMonitorEntry
    * The name of the attribute that specifies the number of entries per base DN
    * in the backend.
    */
-  private static final String ATTR_ENTRIES_PER_BASE_DN =
+  @NotNull private static final String ATTR_ENTRIES_PER_BASE_DN =
        "ds-base-dn-entry-count";
 
 
@@ -128,7 +130,8 @@ public final class BackendMonitorEntry
    * The name of the attribute that indicates whether the backend is a private
    * backend.
    */
-  private static final String ATTR_IS_PRIVATE = "ds-backend-is-private";
+  @NotNull private static final String ATTR_IS_PRIVATE =
+       "ds-backend-is-private";
 
 
 
@@ -136,7 +139,7 @@ public final class BackendMonitorEntry
    * The name of the attribute that holds the number of soft deletes processed
    * since the backend was initialized.
    */
-  private static final String ATTR_SOFT_DELETE_COUNT =
+  @NotNull private static final String ATTR_SOFT_DELETE_COUNT =
        "ds-soft-delete-operations-count";
 
 
@@ -145,7 +148,8 @@ public final class BackendMonitorEntry
    * The name of the attribute that specifies the total number of entries in the
    * backend.
    */
-  private static final String ATTR_TOTAL_ENTRIES = "ds-backend-entry-count";
+  @NotNull private static final String ATTR_TOTAL_ENTRIES =
+       "ds-backend-entry-count";
 
 
 
@@ -153,7 +157,7 @@ public final class BackendMonitorEntry
    * The name of the attribute that holds the number of undeletes processed
    * since the backend was initialized.
    */
-  private static final String ATTR_UNDELETE_COUNT =
+  @NotNull private static final String ATTR_UNDELETE_COUNT =
        "ds-undelete-operations-count";
 
 
@@ -162,7 +166,7 @@ public final class BackendMonitorEntry
    * The name of the attribute that specifies the writability mode for the
    * backend.
    */
-  private static final String ATTR_WRITABILITY_MODE =
+  @NotNull  private static final String ATTR_WRITABILITY_MODE =
        "ds-backend-writability-mode";
 
 
@@ -175,29 +179,29 @@ public final class BackendMonitorEntry
 
 
   // Indicates whether the backend is a private backend.
-  private final Boolean isPrivate;
+  @Nullable private final Boolean isPrivate;
 
   // The base DNs for the backend.
-  private final List<String> baseDNs;
+  @NotNull private final List<String> baseDNs;
 
   // The number of soft delete operations processed since the backend was
   // started.
-  private final Long softDeleteCount;
+  @Nullable private final Long softDeleteCount;
 
   // The total number of entries in the backend.
-  private final Long totalEntries;
+  @Nullable private final Long totalEntries;
 
   // The number of undelete operations processed since the backend was started.
-  private final Long undeleteCount;
+  @Nullable private final Long undeleteCount;
 
   // The number of entries per base DN in the backend.
-  private final Map<String,Long> entriesPerBaseDN;
+  @NotNull private final Map<String,Long> entriesPerBaseDN;
 
   // The backend ID for the backend.
-  private final String backendID;
+  @Nullable private final String backendID;
 
   // The writability mode for the backend.
-  private final String writabilityMode;
+  @Nullable private final String writabilityMode;
 
 
 
@@ -207,7 +211,7 @@ public final class BackendMonitorEntry
    * @param  entry  The entry to be parsed as a backend monitor entry.  It must
    *                not be {@code null}.
    */
-  public BackendMonitorEntry(final Entry entry)
+  public BackendMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -255,6 +259,7 @@ public final class BackendMonitorEntry
    * @return  The backend ID for the associated backend, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public String getBackendID()
   {
     return backendID;
@@ -268,6 +273,7 @@ public final class BackendMonitorEntry
    * @return  The base DNs for the associated backend, or an empty list if it
    *          was not included in the monitor entry.
    */
+  @NotNull()
   public List<String> getBaseDNs()
   {
     return baseDNs;
@@ -282,6 +288,7 @@ public final class BackendMonitorEntry
    *          {@code Boolean.FALSE} if it is not a private backend, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Boolean isPrivate()
   {
     return isPrivate;
@@ -295,6 +302,7 @@ public final class BackendMonitorEntry
    * @return  The writability mode for the associated backend, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getWritabilityMode()
   {
     return writabilityMode;
@@ -308,6 +316,7 @@ public final class BackendMonitorEntry
    * @return  The total number of entries in the associated backend, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getTotalEntries()
   {
     return totalEntries;
@@ -323,6 +332,7 @@ public final class BackendMonitorEntry
    *          backend, or an empty map if it was not included in the monitor
    *          entry.
    */
+  @NotNull()
   public Map<String,Long> getEntriesPerBaseDN()
   {
     return entriesPerBaseDN;
@@ -338,6 +348,7 @@ public final class BackendMonitorEntry
    *          since the backend was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getSoftDeleteCount()
   {
     return softDeleteCount;
@@ -353,6 +364,7 @@ public final class BackendMonitorEntry
    *          the backend was started, or {@code null} if it was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public Long getUndeleteCount()
   {
     return undeleteCount;
@@ -364,6 +376,7 @@ public final class BackendMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_BACKEND_MONITOR_DISPNAME.get();
@@ -375,6 +388,7 @@ public final class BackendMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_BACKEND_MONITOR_DESC.get();
@@ -386,6 +400,7 @@ public final class BackendMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

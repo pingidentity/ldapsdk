@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +98,7 @@ public final class RestoreTask
    * The fully-qualified name of the Java class that is used for the restore
    * task.
    */
-  static final String RESTORE_TASK_CLASS =
+  @NotNull static final String RESTORE_TASK_CLASS =
        "com.unboundid.directory.server.tasks.RestoreTask";
 
 
@@ -105,7 +107,7 @@ public final class RestoreTask
    * The name of the attribute used to specify the path to the backup directory
    * containing the backup to restore.
    */
-  private static final String ATTR_BACKUP_DIRECTORY =
+  @NotNull private static final String ATTR_BACKUP_DIRECTORY =
        "ds-backup-directory-path";
 
 
@@ -114,7 +116,7 @@ public final class RestoreTask
    * The name of the attribute used to specify the backup ID of the backup to
    * restore.
    */
-  private static final String ATTR_BACKUP_ID = "ds-backup-id";
+  @NotNull private static final String ATTR_BACKUP_ID = "ds-backup-id";
 
 
 
@@ -122,7 +124,7 @@ public final class RestoreTask
    * The name of the attribute used to specify the path to a file that contains
    * the passphrase to use to generate the encryption key.
    */
-  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+  @NotNull private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
        "ds-task-restore-encryption-passphrase-file";
 
 
@@ -131,7 +133,7 @@ public final class RestoreTask
    * The name of the attribute used to indicate whether to only verify the
    * backup but not actually restore it.
    */
-  private static final String ATTR_VERIFY_ONLY =
+  @NotNull private static final String ATTR_VERIFY_ONLY =
        "ds-task-restore-verify-only";
 
 
@@ -139,14 +141,14 @@ public final class RestoreTask
   /**
    * The name of the object class used in restore task entries.
    */
-  private static final String OC_RESTORE_TASK = "ds-task-restore";
+  @NotNull private static final String OC_RESTORE_TASK = "ds-task-restore";
 
 
 
   /**
    * The task property for the backup directory.
    */
-  private static final TaskProperty PROPERTY_BACKUP_DIRECTORY =
+  @NotNull private static final TaskProperty PROPERTY_BACKUP_DIRECTORY =
        new TaskProperty(ATTR_BACKUP_DIRECTORY,
                         INFO_DISPLAY_NAME_BACKUP_DIRECTORY.get(),
                         INFO_DESCRIPTION_BACKUP_DIRECTORY_RESTORE.get(),
@@ -157,7 +159,7 @@ public final class RestoreTask
   /**
    * The task property for the backup ID.
    */
-  private static final TaskProperty PROPERTY_BACKUP_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKUP_ID =
        new TaskProperty(ATTR_BACKUP_ID, INFO_DISPLAY_NAME_BACKUP_ID.get(),
                         INFO_DESCRIPTION_BACKUP_ID_RESTORE.get(), String.class,
                         false, false, true);
@@ -167,8 +169,9 @@ public final class RestoreTask
   /**
    * The task property that will be used for the encryption passphrase file.
    */
-  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
-       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+  @NotNull private static final TaskProperty
+       PROPERTY_ENCRYPTION_PASSPHRASE_FILE = new TaskProperty(
+            ATTR_ENCRYPTION_PASSPHRASE_FILE,
             INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
             INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
             String.class, false, false, true);
@@ -178,7 +181,7 @@ public final class RestoreTask
   /**
    * The task property for the verify only flag.
    */
-  private static final TaskProperty PROPERTY_VERIFY_ONLY =
+  @NotNull private static final TaskProperty PROPERTY_VERIFY_ONLY =
        new TaskProperty(ATTR_VERIFY_ONLY, INFO_DISPLAY_NAME_VERIFY_ONLY.get(),
                         INFO_DESCRIPTION_VERIFY_ONLY.get(), Boolean.class,
                         false, false, false);
@@ -196,14 +199,14 @@ public final class RestoreTask
   private final boolean verifyOnly;
 
   // The path to the backup directory containing the backup to restore.
-  private final String backupDirectory;
+  @NotNull private final String backupDirectory;
 
   // The path to a file containing the passphrase to use to generate the
   // encryption key.
-  private final String encryptionPassphraseFile;
+  @Nullable private final String encryptionPassphraseFile;
 
   // The backup ID of the backup to restore.
-  private final String backupID;
+  @Nullable private final String backupID;
 
 
 
@@ -239,8 +242,10 @@ public final class RestoreTask
    * @param  verifyOnly       Indicates whether to only verify the backup
    *                          without restoring it.
    */
-  public RestoreTask(final String taskID, final String backupDirectory,
-                     final String backupID, final boolean verifyOnly)
+  public RestoreTask(@Nullable final String taskID,
+                     @NotNull final String backupDirectory,
+                     @Nullable final String backupID,
+                     final boolean verifyOnly)
   {
     this(taskID, backupDirectory, backupID, verifyOnly, null, null, null, null,
          null);
@@ -280,13 +285,15 @@ public final class RestoreTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public RestoreTask(final String taskID, final String backupDirectory,
-                     final String backupID, final boolean verifyOnly,
-                     final Date scheduledStartTime,
-                     final List<String> dependencyIDs,
-                     final FailedDependencyAction failedDependencyAction,
-                     final List<String> notifyOnCompletion,
-                     final List<String> notifyOnError)
+  public RestoreTask(@Nullable final String taskID,
+              @NotNull final String backupDirectory,
+              @Nullable final String backupID,
+              final boolean verifyOnly,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backupDirectory, backupID, verifyOnly, null,
          scheduledStartTime, dependencyIDs, failedDependencyAction,
@@ -333,14 +340,16 @@ public final class RestoreTask
    *                                   individuals that should be notified if
    *                                   this task does not complete successfully.
    */
-  public RestoreTask(final String taskID, final String backupDirectory,
-                     final String backupID, final boolean verifyOnly,
-                     final String encryptionPassphraseFile,
-                     final Date scheduledStartTime,
-                     final List<String> dependencyIDs,
-                     final FailedDependencyAction failedDependencyAction,
-                     final List<String> notifyOnCompletion,
-                     final List<String> notifyOnError)
+  public RestoreTask(@Nullable final String taskID,
+              @NotNull final String backupDirectory,
+              @Nullable final String backupID,
+              final boolean verifyOnly,
+              @Nullable final String encryptionPassphraseFile,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backupDirectory, backupID, verifyOnly,
          encryptionPassphraseFile, scheduledStartTime, dependencyIDs,
@@ -402,18 +411,21 @@ public final class RestoreTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public RestoreTask(final String taskID, final String backupDirectory,
-                     final String backupID, final boolean verifyOnly,
-                     final String encryptionPassphraseFile,
-                     final Date scheduledStartTime,
-                     final List<String> dependencyIDs,
-                     final FailedDependencyAction failedDependencyAction,
-                     final List<String> notifyOnStart,
-                     final List<String> notifyOnCompletion,
-                     final List<String> notifyOnSuccess,
-                     final List<String> notifyOnError,
-                     final Boolean alertOnStart, final Boolean alertOnSuccess,
-                     final Boolean alertOnError)
+  public RestoreTask(@Nullable final String taskID,
+              @NotNull final String backupDirectory,
+              @Nullable final String backupID,
+              final boolean verifyOnly,
+              @Nullable final String encryptionPassphraseFile,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, RESTORE_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -438,7 +450,7 @@ public final class RestoreTask
    * @throws  TaskException  If the provided entry cannot be parsed as a restore
    *                         task entry.
    */
-  public RestoreTask(final Entry entry)
+  public RestoreTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -478,7 +490,7 @@ public final class RestoreTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid restore task.
    */
-  public RestoreTask(final Map<TaskProperty,List<Object>> properties)
+  public RestoreTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(RESTORE_TASK_CLASS, properties);
@@ -531,6 +543,7 @@ public final class RestoreTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_RESTORE.get();
@@ -542,6 +555,7 @@ public final class RestoreTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_RESTORE.get();
@@ -557,6 +571,7 @@ public final class RestoreTask
    * @return  The path to the backup directory which contains the backup to
    *          restore.
    */
+  @NotNull()
   public String getBackupDirectory()
   {
     return backupDirectory;
@@ -570,6 +585,7 @@ public final class RestoreTask
    * @return  The backup ID of the backup to restore, or {@code null} if the
    *          most recent backup in the backup directory should be restored.
    */
+  @Nullable()
   public String getBackupID()
   {
     return backupID;
@@ -600,6 +616,7 @@ public final class RestoreTask
    *          not encrypted or if the encryption key should be obtained through
    *          some other means.
    */
+  @Nullable()
   public String getEncryptionPassphraseFile()
   {
     return encryptionPassphraseFile;
@@ -611,6 +628,7 @@ public final class RestoreTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_RESTORE_TASK);
@@ -622,6 +640,7 @@ public final class RestoreTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(10);
@@ -649,6 +668,7 @@ public final class RestoreTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final List<TaskProperty> propList = Arrays.asList(
@@ -666,6 +686,7 @@ public final class RestoreTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

@@ -81,7 +81,7 @@ public final class Base32
   /**
    * The set of characters in the base32 alphabet.
    */
-  private static final char[] BASE32_ALPHABET =
+  @NotNull private static final char[] BASE32_ALPHABET =
        ("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567").toCharArray();
 
 
@@ -103,7 +103,7 @@ public final class Base32
    *
    * @return  The base32-encoded representation of the provided data.
    */
-  public static String encode(final String data)
+  public static String encode(@NotNull final String data)
   {
     Validator.ensureNotNull(data);
 
@@ -119,7 +119,7 @@ public final class Base32
    *
    * @return  The base32-encoded representation of the provided data.
    */
-  public static String encode(final byte[] data)
+  public static String encode(@NotNull final byte[] data)
   {
     Validator.ensureNotNull(data);
 
@@ -138,7 +138,8 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  public static void encode(final String data, final StringBuilder buffer)
+  public static void encode(@NotNull final String data,
+                            @NotNull final StringBuilder buffer)
   {
     Validator.ensureNotNull(data);
 
@@ -155,7 +156,8 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  public static void encode(final String data, final ByteStringBuffer buffer)
+  public static void encode(@NotNull final String data,
+                            @NotNull final ByteStringBuffer buffer)
   {
     Validator.ensureNotNull(data);
 
@@ -172,7 +174,8 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  public static void encode(final byte[] data, final StringBuilder buffer)
+  public static void encode(@NotNull final byte[] data,
+                            @NotNull final StringBuilder buffer)
   {
     encodeInternal(data, 0, data.length, buffer);
   }
@@ -190,8 +193,9 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  public static void encode(final byte[] data, final int off, final int length,
-                            final StringBuilder buffer)
+  public static void encode(@NotNull final byte[] data, final int off,
+                            final int length,
+                            @NotNull final StringBuilder buffer)
   {
     encodeInternal(data, off, length, buffer);
   }
@@ -206,7 +210,8 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  public static void encode(final byte[] data, final ByteStringBuffer buffer)
+  public static void encode(@NotNull final byte[] data,
+                            @NotNull final ByteStringBuffer buffer)
   {
     encodeInternal(data, 0, data.length, buffer);
   }
@@ -223,8 +228,9 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  public static void encode(final byte[] data, final int off, final int length,
-                            final ByteStringBuffer buffer)
+  public static void encode(@NotNull final byte[] data, final int off,
+                            final int length,
+                            @NotNull final ByteStringBuffer buffer)
   {
     encodeInternal(data, off, length, buffer);
   }
@@ -241,8 +247,9 @@ public final class Base32
    * @param  buffer  The buffer to which the base32-encoded data is to be
    *                 written.
    */
-  private static void encodeInternal(final byte[] data, final int off,
-                                     final int length, final Appendable buffer)
+  private static void encodeInternal(@NotNull final byte[] data, final int off,
+                                     final int length,
+                                     @NotNull final Appendable buffer)
   {
     Validator.ensureNotNull(data);
     Validator.ensureTrue(data.length >= off);
@@ -344,7 +351,8 @@ public final class Base32
    * @throws  ParseException  If the contents of the provided string cannot be
    *                          parsed as base32-encoded data.
    */
-  public static byte[] decode(final String data)
+  @NotNull()
+  public static byte[] decode(@NotNull final String data)
          throws ParseException
   {
     Validator.ensureNotNull(data);
@@ -569,7 +577,8 @@ public final class Base32
    *                          parsed as base32-encoded data using the UTF-8
    *                          encoding.
    */
-  public static String decodeToString(final String data)
+  @NotNull()
+  public static String decodeToString(@NotNull final String data)
          throws ParseException
   {
     Validator.ensureNotNull(data);

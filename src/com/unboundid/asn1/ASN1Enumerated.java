@@ -39,6 +39,7 @@ package com.unboundid.asn1;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -112,7 +113,7 @@ public final class ASN1Enumerated
    * @param  value     The pre-encoded value to use for this element.
    */
   private ASN1Enumerated(final byte type, final int intValue,
-                         final byte[] value)
+                         @NotNull final byte[] value)
   {
     super(type, value);
 
@@ -144,7 +145,9 @@ public final class ASN1Enumerated
    * @throws  ASN1Exception  If the provided array cannot be decoded as an
    *                         enumerated element.
    */
-  public static ASN1Enumerated decodeAsEnumerated(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1Enumerated decodeAsEnumerated(
+                                    @NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -236,7 +239,9 @@ public final class ASN1Enumerated
    * @throws  ASN1Exception  If the provided element cannot be decoded as an
    *                         enumerated element.
    */
-  public static ASN1Enumerated decodeAsEnumerated(final ASN1Element element)
+  @NotNull()
+  public static ASN1Enumerated decodeAsEnumerated(
+                                    @NotNull final ASN1Element element)
          throws ASN1Exception
   {
     int intValue;
@@ -287,7 +292,7 @@ public final class ASN1Enumerated
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(intValue);
   }

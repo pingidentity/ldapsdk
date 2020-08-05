@@ -64,6 +64,8 @@ import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -111,7 +113,7 @@ public class Entry
    * An empty octet string that will be used as the value for an attribute that
    * doesn't have any values.
    */
-  private static final ASN1OctetString EMPTY_OCTET_STRING =
+  @NotNull private static final ASN1OctetString EMPTY_OCTET_STRING =
        new ASN1OctetString();
 
 
@@ -124,16 +126,16 @@ public class Entry
 
 
   // The parsed DN for this entry.
-  private volatile DN parsedDN;
+  @Nullable private volatile DN parsedDN;
 
   // The set of attributes for this entry.
-  private final LinkedHashMap<String,Attribute> attributes;
+  @NotNull private final LinkedHashMap<String,Attribute> attributes;
 
   // The schema to use for this entry.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The DN for this entry.
-  private String dn;
+  @NotNull private String dn;
 
 
 
@@ -142,7 +144,7 @@ public class Entry
    *
    * @param  e  The entry to be wrapped.
    */
-  protected Entry(final Entry e)
+  protected Entry(@NotNull final Entry e)
   {
     parsedDN = e.parsedDN;
     attributes = e.attributes;
@@ -157,7 +159,7 @@ public class Entry
    *
    * @param  dn  The DN for this entry.  It must not be {@code null}.
    */
-  public Entry(final String dn)
+  public Entry(@NotNull final String dn)
   {
     this(dn, (Schema) null);
   }
@@ -171,7 +173,7 @@ public class Entry
    * @param  schema  The schema to use for operations involving this entry.  It
    *                 may be {@code null} if no schema is available.
    */
-  public Entry(final String dn, final Schema schema)
+  public Entry(@NotNull final String dn, @Nullable final Schema schema)
   {
     Validator.ensureNotNull(dn);
 
@@ -188,7 +190,7 @@ public class Entry
    *
    * @param  dn  The DN for this entry.  It must not be {@code null}.
    */
-  public Entry(final DN dn)
+  public Entry(@NotNull final DN dn)
   {
     this(dn, (Schema) null);
   }
@@ -202,7 +204,7 @@ public class Entry
    * @param  schema  The schema to use for operations involving this entry.  It
    *                 may be {@code null} if no schema is available.
    */
-  public Entry(final DN dn, final Schema schema)
+  public Entry(@NotNull final DN dn, @Nullable final Schema schema)
   {
     Validator.ensureNotNull(dn);
 
@@ -222,7 +224,7 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final String dn, final Attribute... attributes)
+  public Entry(@NotNull final String dn, @NotNull final Attribute... attributes)
   {
     this(dn, null, attributes);
   }
@@ -238,8 +240,8 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final String dn, final Schema schema,
-               final Attribute... attributes)
+  public Entry(@NotNull final String dn, @Nullable final Schema schema,
+               @NotNull final Attribute... attributes)
   {
     Validator.ensureNotNull(dn, attributes);
 
@@ -272,7 +274,7 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final DN dn, final Attribute... attributes)
+  public Entry(@NotNull final DN dn, @NotNull final Attribute... attributes)
   {
     this(dn, null, attributes);
   }
@@ -288,7 +290,8 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final DN dn, final Schema schema, final Attribute... attributes)
+  public Entry(@NotNull final DN dn, @Nullable final Schema schema,
+               @NotNull final Attribute... attributes)
   {
     Validator.ensureNotNull(dn, attributes);
 
@@ -322,7 +325,8 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final String dn, final Collection<Attribute> attributes)
+  public Entry(@NotNull final String dn,
+               @NotNull final Collection<Attribute> attributes)
   {
     this(dn, null, attributes);
   }
@@ -338,8 +342,8 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final String dn, final Schema schema,
-               final Collection<Attribute> attributes)
+  public Entry(@NotNull final String dn, @Nullable final Schema schema,
+               @NotNull final Collection<Attribute> attributes)
   {
     Validator.ensureNotNull(dn, attributes);
 
@@ -372,7 +376,8 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final DN dn, final Collection<Attribute> attributes)
+  public Entry(@NotNull final DN dn,
+               @NotNull final Collection<Attribute> attributes)
   {
     this(dn, null, attributes);
   }
@@ -388,8 +393,8 @@ public class Entry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public Entry(final DN dn, final Schema schema,
-               final Collection<Attribute> attributes)
+  public Entry(@NotNull final DN dn, @Nullable final Schema schema,
+               @NotNull final Collection<Attribute> attributes)
   {
     Validator.ensureNotNull(dn, attributes);
 
@@ -425,7 +430,7 @@ public class Entry
    * @throws  LDIFException  If the provided lines cannot be decoded as an entry
    *                         in LDIF format.
    */
-  public Entry(final String... entryLines)
+  public Entry(@NotNull final String... entryLines)
          throws LDIFException
   {
     this(null, entryLines);
@@ -444,7 +449,8 @@ public class Entry
    * @throws  LDIFException  If the provided lines cannot be decoded as an entry
    *                         in LDIF format.
    */
-  public Entry(final Schema schema, final String... entryLines)
+  public Entry(@Nullable final Schema schema,
+               @NotNull final String... entryLines)
          throws LDIFException
   {
     final Entry e = LDIFReader.decodeEntry(false, schema, entryLines);
@@ -464,6 +470,7 @@ public class Entry
    * @return  The DN for this entry.
    */
   @Override()
+  @NotNull()
   public final String getDN()
   {
     return dn;
@@ -476,7 +483,7 @@ public class Entry
    *
    * @param  dn  The DN for this entry.  It must not be {@code null}.
    */
-  public void setDN(final String dn)
+  public void setDN(@NotNull final String dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -491,7 +498,7 @@ public class Entry
    *
    * @param  dn  The DN for this entry.  It must not be {@code null}.
    */
-  public void setDN(final DN dn)
+  public void setDN(@NotNull final DN dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -509,6 +516,7 @@ public class Entry
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
   @Override()
+  @NotNull()
   public final DN getParsedDN()
          throws LDAPException
   {
@@ -529,6 +537,7 @@ public class Entry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @Nullable()
   public final RDN getRDN()
          throws LDAPException
   {
@@ -545,6 +554,7 @@ public class Entry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @Nullable()
   public final DN getParentDN()
          throws LDAPException
   {
@@ -566,6 +576,7 @@ public class Entry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @NotNull()
   public final String getParentDNString()
          throws LDAPException
   {
@@ -593,6 +604,7 @@ public class Entry
    * @return  The schema that will be used for this entry, or {@code null} if
    *          no schema was provided.
    */
+  @Nullable()
   protected Schema getSchema()
   {
     return schema;
@@ -609,7 +621,7 @@ public class Entry
    * @return  {@code true} if this entry contains the specified attribute, or
    *          {@code false} if not.
    */
-  public final boolean hasAttribute(final String attributeName)
+  public final boolean hasAttribute(@NotNull final String attributeName)
   {
     return hasAttribute(attributeName, schema);
   }
@@ -628,8 +640,8 @@ public class Entry
    * @return  {@code true} if this entry contains the specified attribute, or
    *          {@code false} if not.
    */
-  public final boolean hasAttribute(final String attributeName,
-                                    final Schema schema)
+  public final boolean hasAttribute(@NotNull final String attributeName,
+                                    @Nullable final Schema schema)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -691,7 +703,7 @@ public class Entry
    * @return  {@code true} if this entry contains the specified attribute, or
    *          {@code false} if not.
    */
-  public final boolean hasAttribute(final Attribute attribute)
+  public final boolean hasAttribute(@NotNull final Attribute attribute)
   {
     Validator.ensureNotNull(attribute);
 
@@ -714,8 +726,8 @@ public class Entry
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  public final boolean hasAttributeValue(final String attributeName,
-                                         final String attributeValue)
+  public final boolean hasAttributeValue(@NotNull final String attributeName,
+                                         @NotNull final String attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -740,9 +752,9 @@ public class Entry
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  public final boolean hasAttributeValue(final String attributeName,
-                                         final String attributeValue,
-                                         final MatchingRule matchingRule)
+  public final boolean hasAttributeValue(@NotNull final String attributeName,
+                            @NotNull final String attributeValue,
+                            @NotNull final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -765,8 +777,8 @@ public class Entry
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  public final boolean hasAttributeValue(final String attributeName,
-                                         final byte[] attributeValue)
+  public final boolean hasAttributeValue(@NotNull final String attributeName,
+                                         @NotNull final byte[] attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -791,9 +803,9 @@ public class Entry
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  public final boolean hasAttributeValue(final String attributeName,
-                                         final byte[] attributeValue,
-                                         final MatchingRule matchingRule)
+  public final boolean hasAttributeValue(@NotNull final String attributeName,
+                            @NotNull final byte[] attributeValue,
+                            @NotNull final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -813,7 +825,7 @@ public class Entry
    * @return  {@code true} if this entry contains the specified object class, or
    *          {@code false} if not.
    */
-  public final boolean hasObjectClass(final String objectClassName)
+  public final boolean hasObjectClass(@NotNull final String objectClassName)
   {
     return hasAttributeValue("objectClass", objectClassName);
   }
@@ -825,6 +837,7 @@ public class Entry
    *
    * @return  The set of attributes contained in this entry.
    */
+  @NotNull()
   public final Collection<Attribute> getAttributes()
   {
     return Collections.unmodifiableCollection(attributes.values());
@@ -841,7 +854,8 @@ public class Entry
    * @return  The requested attribute from this entry, or {@code null} if the
    *          specified attribute is not present in this entry.
    */
-  public final Attribute getAttribute(final String attributeName)
+  @Nullable()
+  public final Attribute getAttribute(@NotNull final String attributeName)
   {
     return getAttribute(attributeName, schema);
   }
@@ -860,8 +874,9 @@ public class Entry
    * @return  The requested attribute from this entry, or {@code null} if the
    *          specified attribute is not present in this entry.
    */
-  public final Attribute getAttribute(final String attributeName,
-                                      final Schema schema)
+  @Nullable()
+  public final Attribute getAttribute(@NotNull final String attributeName,
+                                      @Nullable final Schema schema)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -928,8 +943,10 @@ public class Entry
    *          specified options.  It may be empty if there are no attributes
    *          with the specified base name and set of options.
    */
-  public final List<Attribute> getAttributesWithOptions(final String baseName,
-                                    final Set<String> options)
+  @NotNull()
+  public final List<Attribute> getAttributesWithOptions(
+                                    @NotNull final String baseName,
+                                    @Nullable final Set<String> options)
   {
     Validator.ensureNotNull(baseName);
 
@@ -978,7 +995,8 @@ public class Entry
    * @return  The value for the specified attribute, or {@code null} if that
    *          attribute is not available.
    */
-  public String getAttributeValue(final String attributeName)
+  @Nullable()
+  public String getAttributeValue(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1007,7 +1025,8 @@ public class Entry
    * @return  The value for the specified attribute as a byte array, or
    *          {@code null} if that attribute is not available.
    */
-  public byte[] getAttributeValueBytes(final String attributeName)
+  @Nullable()
+  public byte[] getAttributeValueBytes(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1039,7 +1058,8 @@ public class Entry
    *          {@code null} if that attribute is not available or the value
    *          cannot be parsed as a Boolean.
    */
-  public Boolean getAttributeValueAsBoolean(final String attributeName)
+  @Nullable()
+  public Boolean getAttributeValueAsBoolean(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1069,7 +1089,8 @@ public class Entry
    *           {@code null} if that attribute is not available or the value
    *           cannot be parsed as a Date.
    */
-  public Date getAttributeValueAsDate(final String attributeName)
+  @Nullable()
+  public Date getAttributeValueAsDate(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1098,7 +1119,8 @@ public class Entry
    *          if that attribute is not available or the value cannot be parsed
    *          as a DN.
    */
-  public DN getAttributeValueAsDN(final String attributeName)
+  @Nullable()
+  public DN getAttributeValueAsDN(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1127,7 +1149,8 @@ public class Entry
    *          {@code null} if that attribute is not available or the value
    *          cannot be parsed as an Integer.
    */
-  public Integer getAttributeValueAsInteger(final String attributeName)
+  @Nullable()
+  public Integer getAttributeValueAsInteger(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1156,7 +1179,8 @@ public class Entry
    *          {@code null} if that attribute is not available or the value
    *          cannot be parsed as a Long.
    */
-  public Long getAttributeValueAsLong(final String attributeName)
+  @Nullable()
+  public Long getAttributeValueAsLong(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1182,7 +1206,8 @@ public class Entry
    * @return  The set of values for the specified attribute, or {@code null} if
    *          that attribute is not available.
    */
-  public String[] getAttributeValues(final String attributeName)
+  @Nullable()
+  public String[] getAttributeValues(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1209,7 +1234,9 @@ public class Entry
    * @return  The set of values for the specified attribute as byte arrays, or
    *          {@code null} if that attribute is not available.
    */
-  public byte[][] getAttributeValueByteArrays(final String attributeName)
+  @Nullable()
+  public byte[][] getAttributeValueByteArrays(
+                       @NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1232,6 +1259,7 @@ public class Entry
    * @return  The "objectClass" attribute from the entry, or {@code null} if
    *          that attribute not available.
    */
+  @Nullable()
   public final Attribute getObjectClassAttribute()
   {
     return getAttribute("objectClass");
@@ -1246,6 +1274,7 @@ public class Entry
    * @return  The values of the "objectClass" attribute from the entry, or
    *          {@code null} if that attribute is not available.
    */
+  @Nullable()
   public final String[] getObjectClassValues()
   {
     return getAttributeValues("objectClass");
@@ -1262,7 +1291,7 @@ public class Entry
    * @return  {@code true} if the entry was updated, or {@code false} because
    *          the specified attribute already existed with all provided values.
    */
-  public boolean addAttribute(final Attribute attribute)
+  public boolean addAttribute(@NotNull final Attribute attribute)
   {
     Validator.ensureNotNull(attribute);
 
@@ -1295,8 +1324,8 @@ public class Entry
    * @return  {@code true} if the entry was updated, or {@code false} because
    *          the specified attribute already existed with the given value.
    */
-  public boolean addAttribute(final String attributeName,
-                              final String attributeValue)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final String attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
     return addAttribute(new Attribute(attributeName, schema, attributeValue));
@@ -1316,8 +1345,8 @@ public class Entry
    * @return  {@code true} if the entry was updated, or {@code false} because
    *          the specified attribute already existed with the given value.
    */
-  public boolean addAttribute(final String attributeName,
-                              final byte[] attributeValue)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final byte[] attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
     return addAttribute(new Attribute(attributeName, schema, attributeValue));
@@ -1337,8 +1366,8 @@ public class Entry
    * @return  {@code true} if the entry was updated, or {@code false} because
    *          the specified attribute already existed with all provided values.
    */
-  public boolean addAttribute(final String attributeName,
-                              final String... attributeValues)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final String... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
     return addAttribute(new Attribute(attributeName, schema, attributeValues));
@@ -1358,8 +1387,8 @@ public class Entry
    * @return  {@code true} if the entry was updated, or {@code false} because
    *          the specified attribute already existed with all provided values.
    */
-  public boolean addAttribute(final String attributeName,
-                              final byte[]... attributeValues)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final byte[]... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
     return addAttribute(new Attribute(attributeName, schema, attributeValues));
@@ -1379,8 +1408,8 @@ public class Entry
    * @return  {@code true} if the entry was updated, or {@code false} because
    *          the specified attribute already existed with all provided values.
    */
-  public boolean addAttribute(final String attributeName,
-                              final Collection<String> attributeValues)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final Collection<String> attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
     return addAttribute(new Attribute(attributeName, schema, attributeValues));
@@ -1397,7 +1426,7 @@ public class Entry
    * @return  {@code true} if the attribute was removed from the entry, or
    *          {@code false} if it was not present.
    */
-  public boolean removeAttribute(final String attributeName)
+  public boolean removeAttribute(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -1437,8 +1466,8 @@ public class Entry
    * @return  {@code true} if the attribute value was removed from the entry, or
    *          {@code false} if it was not present.
    */
-  public boolean removeAttributeValue(final String attributeName,
-                                      final String attributeValue)
+  public boolean removeAttributeValue(@NotNull final String attributeName,
+                                      @NotNull final String attributeValue)
   {
     return removeAttributeValue(attributeName, attributeValue, null);
   }
@@ -1462,9 +1491,9 @@ public class Entry
    * @return  {@code true} if the attribute value was removed from the entry, or
    *          {@code false} if it was not present.
    */
-  public boolean removeAttributeValue(final String attributeName,
-                                      final String attributeValue,
-                                      final MatchingRule matchingRule)
+  public boolean removeAttributeValue(@NotNull final String attributeName,
+                                      @NotNull final String attributeValue,
+                                      @Nullable final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -1507,8 +1536,8 @@ public class Entry
    * @return  {@code true} if the attribute value was removed from the entry, or
    *          {@code false} if it was not present.
    */
-  public boolean removeAttributeValue(final String attributeName,
-                                      final byte[] attributeValue)
+  public boolean removeAttributeValue(@NotNull final String attributeName,
+                                      @NotNull final byte[] attributeValue)
   {
     return removeAttributeValue(attributeName, attributeValue, null);
   }
@@ -1532,9 +1561,9 @@ public class Entry
    * @return  {@code true} if the attribute value was removed from the entry, or
    *          {@code false} if it was not present.
    */
-  public boolean removeAttributeValue(final String attributeName,
-                                      final byte[] attributeValue,
-                                      final MatchingRule matchingRule)
+  public boolean removeAttributeValue(@NotNull final String attributeName,
+                                      @NotNull final byte[] attributeValue,
+                                      @Nullable final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -1577,8 +1606,8 @@ public class Entry
    * @return  {@code true} if any attribute values were removed from the entry,
    *          or {@code false} none of them were present.
    */
-  public boolean removeAttributeValues(final String attributeName,
-                                       final String... attributeValues)
+  public boolean removeAttributeValues(@NotNull final String attributeName,
+                                       @NotNull final String... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
 
@@ -1621,8 +1650,8 @@ public class Entry
    * @return  {@code true} if any attribute values were removed from the entry,
    *          or {@code false} none of them were present.
    */
-  public boolean removeAttributeValues(final String attributeName,
-                                       final byte[]... attributeValues)
+  public boolean removeAttributeValues(@NotNull final String attributeName,
+                                       @NotNull final byte[]... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
 
@@ -1658,7 +1687,7 @@ public class Entry
    * @param  attribute  The attribute to be included in this entry.  It must not
    *                    be {@code null}.
    */
-  public void setAttribute(final Attribute attribute)
+  public void setAttribute(@NotNull final Attribute attribute)
   {
     Validator.ensureNotNull(attribute);
 
@@ -1687,8 +1716,8 @@ public class Entry
    * @param  attributeValue  The value to use for the attribute.  It must not be
    *                         {@code null}.
    */
-  public void setAttribute(final String attributeName,
-                           final String attributeValue)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final String attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
     setAttribute(new Attribute(attributeName, schema, attributeValue));
@@ -1705,8 +1734,8 @@ public class Entry
    * @param  attributeValue  The value to use for the attribute.  It must not be
    *                         {@code null}.
    */
-  public void setAttribute(final String attributeName,
-                           final byte[] attributeValue)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final byte[] attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
     setAttribute(new Attribute(attributeName, schema, attributeValue));
@@ -1723,8 +1752,8 @@ public class Entry
    * @param  attributeValues  The set of values to use for the attribute.  It
    *                          must not be {@code null}.
    */
-  public void setAttribute(final String attributeName,
-                           final String... attributeValues)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final String... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
@@ -1741,8 +1770,8 @@ public class Entry
    * @param  attributeValues  The set of values to use for the attribute.  It
    *                          must not be {@code null}.
    */
-  public void setAttribute(final String attributeName,
-                           final byte[]... attributeValues)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final byte[]... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
@@ -1759,8 +1788,8 @@ public class Entry
    * @param  attributeValues  The set of values to use for the attribute.  It
    *                          must not be {@code null}.
    */
-  public void setAttribute(final String attributeName,
-                           final Collection<String> attributeValues)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final Collection<String> attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
@@ -1782,8 +1811,8 @@ public class Entry
    *
    * @throws  LDAPException  If a problem occurs while making the determination.
    */
-  public boolean matchesBaseAndScope(final String baseDN,
-                                     final SearchScope scope)
+  public boolean matchesBaseAndScope(@NotNull final String baseDN,
+                                     @NotNull final SearchScope scope)
          throws LDAPException
   {
     return getParsedDN().matchesBaseAndScope(new DN(baseDN), scope);
@@ -1805,7 +1834,8 @@ public class Entry
    *
    * @throws  LDAPException  If a problem occurs while making the determination.
    */
-  public boolean matchesBaseAndScope(final DN baseDN, final SearchScope scope)
+  public boolean matchesBaseAndScope(@NotNull final DN baseDN,
+                                     @NotNull final SearchScope scope)
          throws LDAPException
   {
     return getParsedDN().matchesBaseAndScope(baseDN, scope);
@@ -1839,10 +1869,11 @@ public class Entry
    * @return  A set of modifications that can be applied to the source entry in
    *          order to make it match the target entry.
    */
-  public static List<Modification> diff(final Entry sourceEntry,
-                                        final Entry targetEntry,
+  @NotNull()
+  public static List<Modification> diff(@NotNull final Entry sourceEntry,
+                                        @NotNull final Entry targetEntry,
                                         final boolean ignoreRDN,
-                                        final String... attributes)
+                                        @Nullable final String... attributes)
   {
     return diff(sourceEntry, targetEntry, ignoreRDN, true, attributes);
   }
@@ -1883,11 +1914,12 @@ public class Entry
    * @return  A set of modifications that can be applied to the source entry in
    *          order to make it match the target entry.
    */
-  public static List<Modification> diff(final Entry sourceEntry,
-                                        final Entry targetEntry,
+  @NotNull()
+  public static List<Modification> diff(@NotNull final Entry sourceEntry,
+                                        @NotNull final Entry targetEntry,
                                         final boolean ignoreRDN,
                                         final boolean reversible,
-                                        final String... attributes)
+                                        @Nullable final String... attributes)
   {
     return diff(sourceEntry, targetEntry, ignoreRDN, reversible, false,
          attributes);
@@ -1937,12 +1969,13 @@ public class Entry
    * @return  A set of modifications that can be applied to the source entry in
    *          order to make it match the target entry.
    */
-  public static List<Modification> diff(final Entry sourceEntry,
-                                        final Entry targetEntry,
+  @NotNull()
+  public static List<Modification> diff(@NotNull final Entry sourceEntry,
+                                        @NotNull final Entry targetEntry,
                                         final boolean ignoreRDN,
                                         final boolean reversible,
                                         final boolean byteForByte,
-                                        final String... attributes)
+                                        @Nullable final String... attributes)
   {
     HashSet<String> compareAttrs = null;
     if ((attributes != null) && (attributes.length > 0))
@@ -2248,7 +2281,8 @@ public class Entry
    * @return  An entry containing all attribute values present in at least one
    *          of the entries.
    */
-  public static Entry mergeEntries(final Entry... entries)
+  @NotNull()
+  public static Entry mergeEntries(@NotNull final Entry... entries)
   {
     Validator.ensureNotNull(entries);
     Validator.ensureTrue(entries.length > 0);
@@ -2279,7 +2313,8 @@ public class Entry
    * @return  An entry containing only attribute values contained in all of the
    *          provided entries.
    */
-  public static Entry intersectEntries(final Entry... entries)
+  @NotNull()
+  public static Entry intersectEntries(@NotNull final Entry... entries)
   {
     Validator.ensureNotNull(entries);
     Validator.ensureTrue(entries.length > 0);
@@ -2326,9 +2361,10 @@ public class Entry
    * @throws  LDAPException  If a problem occurs while attempting to apply the
    *                         modifications.
    */
-  public static Entry applyModifications(final Entry entry,
-                                         final boolean lenient,
-                                         final Modification... modifications)
+  @NotNull()
+  public static Entry applyModifications(@NotNull final Entry entry,
+                           final boolean lenient,
+                           @NotNull final Modification... modifications)
          throws LDAPException
   {
     Validator.ensureNotNull(entry, modifications);
@@ -2358,9 +2394,10 @@ public class Entry
    * @throws  LDAPException  If a problem occurs while attempting to apply the
    *                         modifications.
    */
-  public static Entry applyModifications(final Entry entry,
-                                         final boolean lenient,
-                                         final List<Modification> modifications)
+  @NotNull()
+  public static Entry applyModifications(@NotNull final Entry entry,
+                           final boolean lenient,
+                           @NotNull final List<Modification> modifications)
          throws LDAPException
   {
     Validator.ensureNotNull(entry, modifications);
@@ -2599,7 +2636,9 @@ public class Entry
    * @throws  LDAPException  If a problem is encountered during modify DN
    *                         processing.
    */
-  public static Entry applyModifyDN(final Entry entry, final String newRDN,
+  @NotNull()
+  public static Entry applyModifyDN(@NotNull final Entry entry,
+                                    @NotNull final String newRDN,
                                     final boolean deleteOldRDN)
          throws LDAPException
   {
@@ -2634,9 +2673,11 @@ public class Entry
    * @throws  LDAPException  If a problem is encountered during modify DN
    *                         processing.
    */
-  public static Entry applyModifyDN(final Entry entry, final String newRDN,
+  @NotNull()
+  public static Entry applyModifyDN(@NotNull final Entry entry,
+                                    @NotNull final String newRDN,
                                     final boolean deleteOldRDN,
-                                    final String newSuperiorDN)
+                                    @Nullable final String newSuperiorDN)
          throws LDAPException
   {
     Validator.ensureNotNull(entry);
@@ -2746,7 +2787,7 @@ public class Entry
    *          entry, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -2806,6 +2847,7 @@ public class Entry
    *
    * @return  A new entry that is a duplicate of this entry.
    */
+  @NotNull()
   public Entry duplicate()
   {
     return new Entry(dn, schema, attributes.values());
@@ -2820,6 +2862,7 @@ public class Entry
    * @return  An LDIF representation of this entry.
    */
   @Override()
+  @NotNull()
   public final String[] toLDIF()
   {
     return toLDIF(0);
@@ -2838,6 +2881,7 @@ public class Entry
    * @return  An LDIF representation of this entry.
    */
   @Override()
+  @NotNull()
   public final String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<>(2*attributes.size());
@@ -2881,9 +2925,9 @@ public class Entry
    * @param  value  The attribute value to be encoded.
    * @param  lines  The list of lines to be updated.
    */
-  private static void encodeNameAndValue(final String name,
-                                         final ASN1OctetString value,
-                                         final List<String> lines)
+  private static void encodeNameAndValue(@NotNull final String name,
+                                         @NotNull final ASN1OctetString value,
+                                         @NotNull final List<String> lines)
   {
     final String line = LDIFWriter.encodeNameAndValue(name, value);
     if (LDIFWriter.commentAboutBase64EncodedValues() &&
@@ -2911,7 +2955,7 @@ public class Entry
    *                should be written.
    */
   @Override()
-  public final void toLDIF(final ByteStringBuffer buffer)
+  public final void toLDIF(@NotNull final ByteStringBuffer buffer)
   {
     toLDIF(buffer, 0);
   }
@@ -2928,7 +2972,8 @@ public class Entry
    *                     wrapping should be performed.
    */
   @Override()
-  public final void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
+  public final void toLDIF(@NotNull final ByteStringBuffer buffer,
+                           final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(dn), buffer,
                        wrapColumn);
@@ -2963,6 +3008,7 @@ public class Entry
    * @return  An LDIF-formatted string representation of this entry.
    */
   @Override()
+  @NotNull()
   public final String toLDIFString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -2983,6 +3029,7 @@ public class Entry
    * @return  An LDIF-formatted string representation of this entry.
    */
   @Override()
+  @NotNull()
   public final String toLDIFString(final int wrapColumn)
   {
     final StringBuilder buffer = new StringBuilder();
@@ -3001,7 +3048,7 @@ public class Entry
    *                 this entry.
    */
   @Override()
-  public final void toLDIFString(final StringBuilder buffer)
+  public final void toLDIFString(@NotNull final StringBuilder buffer)
   {
     toLDIFString(buffer, 0);
   }
@@ -3019,7 +3066,7 @@ public class Entry
    *                     wrapping should be performed.
    */
   @Override()
-  public final void toLDIFString(final StringBuilder buffer,
+  public final void toLDIFString(@NotNull final StringBuilder buffer,
                                  final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(dn), buffer,
@@ -3054,6 +3101,7 @@ public class Entry
    * @return  A string representation of this entry.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -3070,7 +3118,7 @@ public class Entry
    *                 this entry.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("Entry(dn='");
     buffer.append(dn);

@@ -59,6 +59,8 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ValuePattern;
@@ -105,66 +107,66 @@ final class AuthRateThread
 
 
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of authrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The counter used to track the number of searches performed.
-  private final AtomicLong authCounter;
+  @NotNull private final AtomicLong authCounter;
 
   // The value that will be updated with total duration of the searches.
-  private final AtomicLong authDurations;
+  @NotNull private final AtomicLong authDurations;
 
   // The counter used to track the number of errors encountered while searching.
-  private final AtomicLong errorCounter;
+  @NotNull private final AtomicLong errorCounter;
 
   // The result code for this thread.
-  private final AtomicReference<ResultCode> resultCode;
+  @NotNull private final AtomicReference<ResultCode> resultCode;
 
   // The thread that is actually performing the searches.
-  private final AtomicReference<Thread> authThread;
+  @NotNull private final AtomicReference<Thread> authThread;
 
   // A reference to the associated authrate tool.
-  private final AuthRate authRate;
+  @NotNull private final AuthRate authRate;
 
   // Indicates whether the authentication attempts should only include bind
   // operations without the initial search.
   private final boolean bindOnly;
 
   // The set of controls to include in bind requests.
-  private final Control[] bindControls;
+  @NotNull private final Control[] bindControls;
 
   // The barrier that will be used to coordinate starting among all the threads.
-  private final CyclicBarrier startBarrier;
+  @NotNull private final CyclicBarrier startBarrier;
+
+  // The barrier to use for controlling the rate of auths.  null if no
+  // rate-limiting should be used.
+  @Nullable private final FixedRateBarrier fixedRateBarrier;
 
   // The type of authentication to perform.
   private final int authType;
 
   // The connection to use for the binds.
-  private LDAPConnection bindConnection;
+  @Nullable private LDAPConnection bindConnection;
 
   // The connection to use for the searches.
-  private LDAPConnection searchConnection;
+  @Nullable private LDAPConnection searchConnection;
 
   // The result code counter to use for failed operations.
-  private final ResultCodeCounter rcCounter;
+  @NotNull private final ResultCodeCounter rcCounter;
 
   // The search request to generate.
-  private final SearchRequest searchRequest;
+  @NotNull private final SearchRequest searchRequest;
 
   // The password to use to authenticate.
-  private final String userPassword;
+  @NotNull private final String userPassword;
 
   // The value pattern to use for the base DNs.
-  private final ValuePattern baseDN;
+  @NotNull private final ValuePattern baseDN;
 
   //The value pattern to use for the filters.
-  private final ValuePattern filter;
-
-  // The barrier to use for controlling the rate of auths.  null if no
-  // rate-limiting should be used.
-  private final FixedRateBarrier fixedRateBarrier;
+  @NotNull private final ValuePattern filter;
 
 
 
@@ -204,20 +206,25 @@ final class AuthRateThread
    *                           authorizations.  {@code null} if no rate-limiting
    *                           should be used.
    */
-  AuthRateThread(final AuthRate authRate, final int threadNumber,
-                 final LDAPConnection searchConnection,
-                 final LDAPConnection bindConnection, final ValuePattern baseDN,
-                 final SearchScope scope, final ValuePattern filter,
-                 final String[] attributes, final String userPassword,
-                 final boolean bindOnly, final String authType,
-                 final List<Control> searchControls,
-                 final List<Control> bindControls,
-                 final AtomicInteger runningThreads,
-                 final CyclicBarrier startBarrier,
-                 final AtomicLong authCounter, final AtomicLong authDurations,
-                 final AtomicLong errorCounter,
-                 final ResultCodeCounter rcCounter,
-                 final FixedRateBarrier rateBarrier)
+  AuthRateThread(@NotNull final AuthRate authRate, final int threadNumber,
+                 @NotNull final LDAPConnection searchConnection,
+                 @NotNull final LDAPConnection bindConnection,
+                 @NotNull final ValuePattern baseDN,
+                 @NotNull final SearchScope scope,
+                 @NotNull final ValuePattern filter,
+                 @NotNull final String[] attributes,
+                 @NotNull final String userPassword,
+                 final boolean bindOnly,
+                 @NotNull final String authType,
+                 @NotNull final List<Control> searchControls,
+                 @NotNull final List<Control> bindControls,
+                 @NotNull final AtomicInteger runningThreads,
+                 @NotNull final CyclicBarrier startBarrier,
+                 @NotNull final AtomicLong authCounter,
+                 @NotNull final AtomicLong authDurations,
+                 @NotNull final AtomicLong errorCounter,
+                 @NotNull final ResultCodeCounter rcCounter,
+                 @Nullable final FixedRateBarrier rateBarrier)
   {
     setName("AuthRate Thread " + threadNumber);
     setDaemon(true);
@@ -485,6 +492,7 @@ final class AuthRateThread
    * @return  A result code that provides information about whether any errors
    *          were encountered during processing.
    */
+  @NotNull()
   public ResultCode stopRunning()
   {
     stopRequested.set(true);

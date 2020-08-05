@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -82,7 +84,7 @@ public final class EndInteractiveTransactionExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.4) for the end interactive transaction
    * extended request.
    */
-  public static final String END_INTERACTIVE_TRANSACTION_REQUEST_OID =
+  @NotNull public static final String END_INTERACTIVE_TRANSACTION_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.4";
 
 
@@ -109,7 +111,7 @@ public final class EndInteractiveTransactionExtendedRequest
 
 
   // The transaction ID for the associated transaction.
-  private final ASN1OctetString transactionID;
+  @NotNull private final ASN1OctetString transactionID;
 
   // Indicates whether to commit or abort the associated transaction.
   private final boolean commit;
@@ -127,7 +129,8 @@ public final class EndInteractiveTransactionExtendedRequest
    *                        aborted.
    */
   public EndInteractiveTransactionExtendedRequest(
-              final ASN1OctetString transactionID, final boolean commit)
+              @NotNull final ASN1OctetString transactionID,
+              final boolean commit)
   {
     this(transactionID, commit, null);
   }
@@ -146,8 +149,9 @@ public final class EndInteractiveTransactionExtendedRequest
    * @param  controls       The set of controls to include in the request.
    */
   public EndInteractiveTransactionExtendedRequest(
-              final ASN1OctetString transactionID, final boolean commit,
-              final Control[] controls)
+              @NotNull final ASN1OctetString transactionID,
+              final boolean commit,
+              @Nullable final Control[] controls)
   {
     super(END_INTERACTIVE_TRANSACTION_REQUEST_OID,
           encodeValue(transactionID, commit),
@@ -169,7 +173,7 @@ public final class EndInteractiveTransactionExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public EndInteractiveTransactionExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -242,9 +246,10 @@ public final class EndInteractiveTransactionExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded request value.
    */
-  private static ASN1OctetString
-       encodeValue(final ASN1OctetString transactionID,
-                   final boolean commit)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @NotNull final ASN1OctetString transactionID,
+               final boolean commit)
   {
     Validator.ensureNotNull(transactionID);
 
@@ -275,6 +280,7 @@ public final class EndInteractiveTransactionExtendedRequest
    *
    * @return  The transaction ID for the transaction to commit or abort.
    */
+  @NotNull()
   public ASN1OctetString getTransactionID()
   {
     return transactionID;
@@ -299,6 +305,7 @@ public final class EndInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public EndInteractiveTransactionExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -310,8 +317,9 @@ public final class EndInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public EndInteractiveTransactionExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final EndInteractiveTransactionExtendedRequest r =
          new EndInteractiveTransactionExtendedRequest(transactionID, commit,
@@ -326,6 +334,7 @@ public final class EndInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_END_INTERACTIVE_TXN.get();
@@ -337,7 +346,7 @@ public final class EndInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EndInteractiveTransactionExtendedRequest(transactionID='");
     buffer.append(transactionID.stringValue());

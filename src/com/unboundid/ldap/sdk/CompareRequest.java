@@ -55,6 +55,8 @@ import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -127,20 +129,20 @@ public final class CompareRequest
 
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>();
 
   // The assertion value for this compare request.
-  private ASN1OctetString assertionValue;
+  @NotNull private ASN1OctetString assertionValue;
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
 
   // The name of the target attribute.
-  private String attributeName;
+  @NotNull private String attributeName;
 
   // The DN of the entry in which the comparison is to be performed.
-  private String dn;
+  @NotNull private String dn;
 
 
 
@@ -155,8 +157,9 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to verify within the entry.  It
    *                         must not be {@code null}.
    */
-  public CompareRequest(final String dn, final String attributeName,
-                        final String assertionValue)
+  public CompareRequest(@NotNull final String dn,
+                        @NotNull final String attributeName,
+                        @NotNull final String assertionValue)
   {
     super(null);
 
@@ -180,8 +183,9 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to verify within the entry.  It
    *                         must not be {@code null}.
    */
-  public CompareRequest(final String dn, final String attributeName,
-                        final byte[] assertionValue)
+  public CompareRequest(@NotNull final String dn,
+                        @NotNull final String attributeName,
+                        @NotNull final byte[] assertionValue)
   {
     super(null);
 
@@ -205,8 +209,9 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to verify within the entry.  It
    *                         must not be {@code null}.
    */
-  public CompareRequest(final DN dn, final String attributeName,
-                        final String assertionValue)
+  public CompareRequest(@NotNull final DN dn,
+                        @NotNull final String attributeName,
+                        @NotNull final String assertionValue)
   {
     super(null);
 
@@ -230,8 +235,9 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to verify within the entry.  It
    *                         must not be {@code null}.
    */
-  public CompareRequest(final DN dn, final String attributeName,
-                        final byte[] assertionValue)
+  public CompareRequest(@NotNull final DN dn,
+                        @NotNull final String attributeName,
+                        @NotNull final byte[] assertionValue)
   {
     super(null);
 
@@ -256,8 +262,10 @@ public final class CompareRequest
    *                         must not be {@code null}.
    * @param  controls        The set of controls for this compare request.
    */
-  public CompareRequest(final String dn, final String attributeName,
-                        final String assertionValue, final Control[] controls)
+  public CompareRequest(@NotNull final String dn,
+                        @NotNull final String attributeName,
+                        @NotNull final String assertionValue,
+                        @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -282,8 +290,10 @@ public final class CompareRequest
    *                         must not be {@code null}.
    * @param  controls        The set of controls for this compare request.
    */
-  public CompareRequest(final String dn, final String attributeName,
-                        final byte[] assertionValue, final Control[] controls)
+  public CompareRequest(@NotNull final String dn,
+                        @NotNull final String attributeName,
+                        @NotNull final byte[] assertionValue,
+                        @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -308,8 +318,10 @@ public final class CompareRequest
    *                         must not be {@code null}.
    * @param  controls        The set of controls for this compare request.
    */
-  public CompareRequest(final DN dn, final String attributeName,
-                        final String assertionValue, final Control[] controls)
+  public CompareRequest(@NotNull final DN dn,
+                        @NotNull final String attributeName,
+                        @NotNull final String assertionValue,
+                        @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -334,9 +346,10 @@ public final class CompareRequest
    *                         must not be {@code null}.
    * @param  controls        The set of controls for this compare request.
    */
-  public CompareRequest(final DN dn, final String attributeName,
-                        final ASN1OctetString assertionValue,
-                        final Control[] controls)
+  public CompareRequest(@NotNull final DN dn,
+                        @NotNull final String attributeName,
+                        @NotNull final ASN1OctetString assertionValue,
+                        @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -361,8 +374,10 @@ public final class CompareRequest
    *                         must not be {@code null}.
    * @param  controls        The set of controls for this compare request.
    */
-  public CompareRequest(final DN dn, final String attributeName,
-                        final byte[] assertionValue, final Control[] controls)
+  public CompareRequest(@NotNull final DN dn,
+                        @NotNull final String attributeName,
+                        @NotNull final byte[] assertionValue,
+                        @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -379,6 +394,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -392,7 +408,7 @@ public final class CompareRequest
    * @param  dn  The DN of the entry in which the comparison is to be performed.
    *             It must not be {@code null}.
    */
-  public void setDN(final String dn)
+  public void setDN(@NotNull final String dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -407,7 +423,7 @@ public final class CompareRequest
    * @param  dn  The DN of the entry in which the comparison is to be performed.
    *             It must not be {@code null}.
    */
-  public void setDN(final DN dn)
+  public void setDN(@NotNull final DN dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -420,6 +436,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -434,7 +451,7 @@ public final class CompareRequest
    * @param  attributeName  The name of the attribute for which the comparison
    *                        is to be performed.  It must not be {@code null}.
    */
-  public void setAttributeName(final String attributeName)
+  public void setAttributeName(@NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -447,6 +464,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getAssertionValue()
   {
     return assertionValue.stringValue();
@@ -458,6 +476,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public byte[] getAssertionValueBytes()
   {
     return assertionValue.getValue();
@@ -469,6 +488,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1OctetString getRawAssertionValue()
   {
     return assertionValue;
@@ -482,7 +502,7 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to specify within the target
    *                         entry.  It must not be {@code null}.
    */
-  public void setAssertionValue(final String assertionValue)
+  public void setAssertionValue(@NotNull final String assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
 
@@ -497,7 +517,7 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to specify within the target
    *                         entry.  It must not be {@code null}.
    */
-  public void setAssertionValue(final byte[] assertionValue)
+  public void setAssertionValue(@NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
 
@@ -512,7 +532,7 @@ public final class CompareRequest
    * @param  assertionValue  The assertion value to specify within the target
    *                         entry.  It must not be {@code null}.
    */
-  public void setAssertionValue(final ASN1OctetString assertionValue)
+  public void setAssertionValue(@NotNull final ASN1OctetString assertionValue)
   {
     this.assertionValue = assertionValue;
   }
@@ -534,7 +554,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence requestSequence =
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST);
@@ -555,6 +575,7 @@ public final class CompareRequest
    * @return  The ASN.1 element with the encoded compare request protocol op.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     // Create the compare request protocol op.
@@ -593,7 +614,8 @@ public final class CompareRequest
    *                         reading the response.
    */
   @Override()
-  protected CompareResult process(final LDAPConnection connection,
+  @NotNull()
+  protected CompareResult process(@NotNull final LDAPConnection connection,
                                   final int depth)
             throws LDAPException
   {
@@ -659,8 +681,9 @@ public final class CompareRequest
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncCompareResultListener resultListener)
+  @Nullable()
+  AsyncRequestID processAsync(@NotNull final LDAPConnection connection,
+                      @Nullable final AsyncCompareResultListener resultListener)
                  throws LDAPException
   {
     // Create the LDAP message.
@@ -744,7 +767,8 @@ public final class CompareRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private CompareResult processSync(final LDAPConnection connection,
+  @NotNull()
+  private CompareResult processSync(@NotNull final LDAPConnection connection,
                                     final int depth, final boolean allowRetry)
           throws LDAPException
   {
@@ -855,8 +879,9 @@ public final class CompareRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private CompareResult handleResponse(final LDAPConnection connection,
-                                       final LDAPResponse response,
+  @NotNull()
+  private CompareResult handleResponse(@NotNull final LDAPConnection connection,
+                                       @Nullable final LDAPResponse response,
                                        final long requestTime, final int depth,
                                        final boolean allowRetry)
           throws LDAPException
@@ -962,9 +987,11 @@ public final class CompareRequest
    * @return  The result from re-trying the compare, or {@code null} if it could
    *          not be re-tried.
    */
-  private CompareResult reconnectAndRetry(final LDAPConnection connection,
-                                          final int depth,
-                                          final ResultCode resultCode)
+  @Nullable()
+  private CompareResult reconnectAndRetry(
+                             @NotNull final LDAPConnection connection,
+                             final int depth,
+                             @NotNull final ResultCode resultCode)
   {
     try
     {
@@ -1006,9 +1033,11 @@ public final class CompareRequest
    *                         the referral connection, sending the request, or
    *                         reading the result.
    */
-  private CompareResult followReferral(final CompareResult referralResult,
-                                       final LDAPConnection connection,
-                                       final int depth)
+  @NotNull()
+  private CompareResult followReferral(
+                             @NotNull final CompareResult referralResult,
+                             @NotNull final LDAPConnection connection,
+                             final int depth)
           throws LDAPException
   {
     for (final String urlString : referralResult.getReferralURLs())
@@ -1066,7 +1095,7 @@ public final class CompareRequest
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -1106,6 +1135,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OperationType getOperationType()
   {
     return OperationType.COMPARE;
@@ -1117,6 +1147,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public CompareRequest duplicate()
   {
     return duplicate(getControls());
@@ -1128,7 +1159,8 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
-  public CompareRequest duplicate(final Control[] controls)
+  @NotNull()
+  public CompareRequest duplicate(@Nullable final Control[] controls)
   {
     final CompareRequest r = new CompareRequest(dn, attributeName,
          assertionValue.getValue(), controls);
@@ -1154,7 +1186,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CompareRequest(dn='");
     buffer.append(dn);
@@ -1189,8 +1221,10 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
-                     final int indentSpaces, final boolean includeProcessing)
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
+                     final int indentSpaces,
+                     final boolean includeProcessing)
   {
     // Create the arguments for the request variable.
     final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(3);

@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -125,7 +127,8 @@ public enum FilterUsage
    * @return  The requested filter usage, or {@code null} if no such usage is
    *          defined.
    */
-  public static FilterUsage forName(final String name)
+  @Nullable()
+  public static FilterUsage forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

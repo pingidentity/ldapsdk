@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -99,7 +101,7 @@ public final class EntryCacheMonitorEntry
   /**
    * The structural object class used in entry cache monitor entries.
    */
-  static final String ENTRY_CACHE_MONITOR_OC =
+  @NotNull static final String ENTRY_CACHE_MONITOR_OC =
        "ds-entry-cache-monitor-entry";
 
 
@@ -108,7 +110,8 @@ public final class EntryCacheMonitorEntry
    * The name of the attribute that provides the number of entries currently
    * held in the cache.
    */
-  private static final String ATTR_CURRENT_COUNT = "currentEntryCacheCount";
+  @NotNull private static final String ATTR_CURRENT_COUNT =
+       "currentEntryCacheCount";
 
 
 
@@ -116,21 +119,22 @@ public final class EntryCacheMonitorEntry
    * The name of the attribute that provides the current entry cache size in
    * bytes.
    */
-  private static final String ATTR_CURRENT_SIZE = "currentEntryCacheSize";
+  @NotNull private static final String ATTR_CURRENT_SIZE =
+       "currentEntryCacheSize";
 
 
 
   /**
    * The name of the attribute that provides the entry cache hit ratio.
    */
-  private static final String ATTR_HIT_RATIO = "entryCacheHitRatio";
+  @NotNull private static final String ATTR_HIT_RATIO = "entryCacheHitRatio";
 
 
 
   /**
    * The name of the attribute that provides the number of cache hits.
    */
-  private static final String ATTR_HITS = "entryCacheHits";
+  @NotNull private static final String ATTR_HITS = "entryCacheHits";
 
 
 
@@ -138,7 +142,7 @@ public final class EntryCacheMonitorEntry
    * The name of the attribute that provides the maximum number of entries that
    * may be held in the cache.
    */
-  private static final String ATTR_MAX_COUNT = "maxEntryCacheCount";
+  @NotNull private static final String ATTR_MAX_COUNT = "maxEntryCacheCount";
 
 
 
@@ -146,14 +150,14 @@ public final class EntryCacheMonitorEntry
    * The name of the attribute that provides the maximum entry cache size in
    * bytes.
    */
-  private static final String ATTR_MAX_SIZE = "maxEntryCacheSize";
+  @NotNull private static final String ATTR_MAX_SIZE = "maxEntryCacheSize";
 
 
 
   /**
    * The name of the attribute that provides the number of cache tries.
    */
-  private static final String ATTR_TRIES = "entryCacheTries";
+  @NotNull private static final String ATTR_TRIES = "entryCacheTries";
 
 
 
@@ -165,28 +169,28 @@ public final class EntryCacheMonitorEntry
 
 
   // The hit ratio.
-  private final Double hitRatio;
+  @Nullable private final Double hitRatio;
 
   // The number of cache hits.
-  private final Long cacheHits;
+  @Nullable private final Long cacheHits;
 
   // The number of cache misses.
-  private final Long cacheMisses;
+  @Nullable private final Long cacheMisses;
 
   // The number of cache tries.
-  private final Long cacheTries;
+  @Nullable private final Long cacheTries;
 
   // The current number of entries in the cache.
-  private final Long currentCount;
+  @Nullable private final Long currentCount;
 
   // The current size of the cache.
-  private final Long currentSize;
+  @Nullable private final Long currentSize;
 
   // The maximum number of entries in the cache.
-  private final Long maxCount;
+  @Nullable private final Long maxCount;
 
   // The maximum size of the cache.
-  private final Long maxSize;
+  @Nullable private final Long maxSize;
 
 
 
@@ -196,7 +200,7 @@ public final class EntryCacheMonitorEntry
    * @param  entry  The entry to be parsed as an entry cache monitor entry.  It
    *                must not be {@code null}.
    */
-  public EntryCacheMonitorEntry(final Entry entry)
+  public EntryCacheMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -226,6 +230,7 @@ public final class EntryCacheMonitorEntry
    * @return  The number of attempts to find an entry in the cache, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCacheTries()
   {
     return cacheTries;
@@ -241,6 +246,7 @@ public final class EntryCacheMonitorEntry
    *          entry was found, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getCacheHits()
   {
     return cacheHits;
@@ -256,6 +262,7 @@ public final class EntryCacheMonitorEntry
    *          entry was not found, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getCacheMisses()
   {
     return cacheMisses;
@@ -269,6 +276,7 @@ public final class EntryCacheMonitorEntry
    * @return  The ratio of the time a requested entry was found in the cache, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Double getCacheHitRatio()
   {
     return hitRatio;
@@ -282,6 +290,7 @@ public final class EntryCacheMonitorEntry
    * @return  The number of entries currently held in the entry cache, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentCount()
   {
     return currentCount;
@@ -296,6 +305,7 @@ public final class EntryCacheMonitorEntry
    * @return  The maximum number of entries that may be held in the entry cache,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMaxCount()
   {
     return maxCount;
@@ -311,6 +321,7 @@ public final class EntryCacheMonitorEntry
    *          cache, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getCurrentCacheSize()
   {
     return currentSize;
@@ -326,6 +337,7 @@ public final class EntryCacheMonitorEntry
    *          the entry cache, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getMaxCacheSize()
   {
     return maxSize;
@@ -337,6 +349,7 @@ public final class EntryCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_ENTRY_CACHE_MONITOR_DISPNAME.get();
@@ -348,6 +361,7 @@ public final class EntryCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_ENTRY_CACHE_MONITOR_DESC.get();
@@ -359,6 +373,7 @@ public final class EntryCacheMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.Reader;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,7 +72,7 @@ public final class ErrorLogReader
        implements Closeable
 {
   // The reader used to read the contents of the log file.
-  private final BufferedReader reader;
+  @NotNull private final BufferedReader reader;
 
 
 
@@ -83,7 +85,7 @@ public final class ErrorLogReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public ErrorLogReader(final String path)
+  public ErrorLogReader(@NotNull final String path)
          throws IOException
   {
     reader = new BufferedReader(new FileReader(path));
@@ -100,7 +102,7 @@ public final class ErrorLogReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public ErrorLogReader(final File file)
+  public ErrorLogReader(@NotNull final File file)
          throws IOException
   {
     reader = new BufferedReader(new FileReader(file));
@@ -114,7 +116,7 @@ public final class ErrorLogReader
    *
    * @param  reader  The reader to use to read log messages.
    */
-  public ErrorLogReader(final Reader reader)
+  public ErrorLogReader(@NotNull final Reader reader)
   {
     if (reader instanceof BufferedReader)
     {
@@ -140,6 +142,7 @@ public final class ErrorLogReader
    * @throws  LogException  If an error occurs while trying to parse the log
    *                        message.
    */
+  @Nullable()
   public ErrorLogMessage read()
          throws IOException, LogException
   {

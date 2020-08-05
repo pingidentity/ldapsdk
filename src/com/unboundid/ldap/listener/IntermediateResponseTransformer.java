@@ -40,6 +40,8 @@ package com.unboundid.ldap.listener;
 import com.unboundid.ldap.protocol.IntermediateResponseProtocolOp;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ObjectPair;
@@ -69,8 +71,9 @@ public interface IntermediateResponseTransformer
    *          response and set of controls, or {@code null} to indicate that the
    *          response should not be returned to the client.
    */
+  @Nullable()
   ObjectPair<IntermediateResponseProtocolOp,Control[]>
        transformIntermediateResponse(int messageID,
-                                     IntermediateResponseProtocolOp response,
-                                     Control[] controls);
+            @NotNull IntermediateResponseProtocolOp response,
+            @NotNull Control[] controls);
 }

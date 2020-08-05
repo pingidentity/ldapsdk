@@ -43,6 +43,8 @@ import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -68,7 +70,7 @@ public final class JNDIExtendedRequest
 
 
   // The SDK extended request that backs this JNDI extended request.
-  private final ExtendedRequest r;
+  @NotNull private final ExtendedRequest r;
 
 
 
@@ -78,7 +80,7 @@ public final class JNDIExtendedRequest
    * @param  r  The SDK extended request to use to create this JNDI extended
    *            request.
    */
-  public JNDIExtendedRequest(final ExtendedRequest r)
+  public JNDIExtendedRequest(@NotNull final ExtendedRequest r)
   {
     this.r = r;
   }
@@ -95,7 +97,7 @@ public final class JNDIExtendedRequest
    * @throws  NamingException  If a problem occurs while trying to create this
    *                           JNDI extended request.
    */
-  public JNDIExtendedRequest(final javax.naming.ldap.ExtendedRequest r)
+  public JNDIExtendedRequest(@NotNull final javax.naming.ldap.ExtendedRequest r)
          throws NamingException
   {
     this.r = toSDKExtendedRequest(r);
@@ -109,6 +111,7 @@ public final class JNDIExtendedRequest
    * @return  The object identifier for this extended request.
    */
   @Override()
+  @NotNull()
   public String getID()
   {
     return r.getOID();
@@ -124,6 +127,7 @@ public final class JNDIExtendedRequest
    *          there is no value.
    */
   @Override()
+  @Nullable()
   public byte[] getEncodedValue()
   {
     final ASN1OctetString value = r.getValue();
@@ -156,9 +160,10 @@ public final class JNDIExtendedRequest
    * @throws  NamingException  If a problem occurs while creating the response.
    */
   @Override()
-  public JNDIExtendedResponse createExtendedResponse(final String id,
-                                   final byte[] berValue, final int offset,
-                                   final int length)
+  @NotNull()
+  public JNDIExtendedResponse createExtendedResponse(@Nullable final String id,
+                                   @Nullable final byte[] berValue,
+                                   final int offset, final int length)
          throws NamingException
   {
     return new JNDIExtendedResponse(id, berValue, offset, length);
@@ -173,6 +178,7 @@ public final class JNDIExtendedRequest
    * @return  An LDAP SDK extended request that is the equivalent of this JNDI
    *          extended request.
    */
+  @NotNull()
   public ExtendedRequest toSDKExtendedRequest()
   {
     return r;
@@ -193,8 +199,9 @@ public final class JNDIExtendedRequest
    * @throws  NamingException  If a problem occurs while decoding the provided
    *                           JNDI extended request as an SDK extended request.
    */
+  @Nullable()
   public static ExtendedRequest toSDKExtendedRequest(
-                                     final javax.naming.ldap.ExtendedRequest r)
+                     @Nullable final javax.naming.ldap.ExtendedRequest r)
          throws NamingException
   {
     if (r == null)
@@ -231,6 +238,7 @@ public final class JNDIExtendedRequest
    * @return  A string representation of this JNDI request.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return r.toString();

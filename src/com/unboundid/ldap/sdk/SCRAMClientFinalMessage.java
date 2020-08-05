@@ -42,6 +42,7 @@ import javax.crypto.Mac;
 
 import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -60,7 +61,7 @@ final class SCRAMClientFinalMessage
   /**
    * The input bytes to provide to the MAC when generating the client key.
    */
-  private static final byte[] CLIENT_KEY_INPUT_BYTES =
+  @NotNull private static final byte[] CLIENT_KEY_INPUT_BYTES =
        StaticUtils.getBytes("Client Key");
 
 
@@ -69,7 +70,7 @@ final class SCRAMClientFinalMessage
    * The sequence of bytes that comprise the 32-bit representation of the number
    * one, which is used in the course of computing the salted password.
    */
-  private static final byte[] ONE_BYTES = { 0x00, 0x00, 0x00, 0x01 };
+  @NotNull private static final byte[] ONE_BYTES = { 0x00, 0x00, 0x00, 0x01 };
 
 
 
@@ -81,28 +82,28 @@ final class SCRAMClientFinalMessage
 
 
   // The bytes that comprise the auth message.
-  private final byte[] authMessageBytes;
+  @NotNull private final byte[] authMessageBytes;
 
   // The salted password that was generated in the course of constructing the
   // client proof.
-  private final byte[] saltedPassword;
+  @NotNull private final byte[] saltedPassword;
 
   // The bind request being processed.
-  private final SCRAMBindRequest bindRequest;
+  @NotNull private final SCRAMBindRequest bindRequest;
 
   // The client first message from the first stage of the authentication
   // process.
-  private final SCRAMClientFirstMessage clientFirstMessage;
+  @NotNull private final SCRAMClientFirstMessage clientFirstMessage;
 
   // The server first message from the first stage of the authentication
   // process.
-  private final SCRAMServerFirstMessage serverFirstMessage;
+  @NotNull private final SCRAMServerFirstMessage serverFirstMessage;
 
   // The string representation of the client final message.
-  private final String clientFinalMessage;
+  @NotNull private final String clientFinalMessage;
 
   // The base64-encoded string representation of the client proof.
-  private final String clientProofBase64;
+  @NotNull private final String clientProofBase64;
 
 
 
@@ -121,9 +122,9 @@ final class SCRAMClientFinalMessage
    * @throws  LDAPBindException  If a problem is encountered while constructing
    *                             the client final message.
    */
-  SCRAMClientFinalMessage(final SCRAMBindRequest bindRequest,
-                          final SCRAMClientFirstMessage clientFirstMessage,
-                          final SCRAMServerFirstMessage serverFirstMessage)
+  SCRAMClientFinalMessage(@NotNull final SCRAMBindRequest bindRequest,
+       @NotNull final SCRAMClientFirstMessage clientFirstMessage,
+       @NotNull final SCRAMServerFirstMessage serverFirstMessage)
        throws LDAPBindException
   {
     this.bindRequest = bindRequest;
@@ -182,9 +183,10 @@ final class SCRAMClientFinalMessage
    * @throws  LDAPBindException  If a problem is encountered while computing the
    *                             salted password.
    */
+  @NotNull()
   private static byte[] computeSaltedPassword(
-                             final SCRAMBindRequest bindRequest,
-                             final SCRAMServerFirstMessage serverFirstMessage)
+               @NotNull final SCRAMBindRequest bindRequest,
+               @NotNull final SCRAMServerFirstMessage serverFirstMessage)
           throws LDAPBindException
   {
     // Get a MAC generator with the password as the key.
@@ -234,6 +236,7 @@ final class SCRAMClientFinalMessage
    *
    * @return  The SCRAM bind request being processed.
    */
+  @NotNull()
   SCRAMBindRequest getBindRequest()
   {
     return bindRequest;
@@ -248,6 +251,7 @@ final class SCRAMClientFinalMessage
    * @return  The client first message with which this client final message is
    *          associated.
    */
+  @NotNull()
   SCRAMClientFirstMessage getClientFirstMessage()
   {
     return clientFirstMessage;
@@ -262,6 +266,7 @@ final class SCRAMClientFinalMessage
    * @return  The server first message with which this client final message is
    *          associated.
    */
+  @NotNull()
   SCRAMServerFirstMessage getServerFirstMessage()
   {
     return serverFirstMessage;
@@ -276,6 +281,7 @@ final class SCRAMClientFinalMessage
    * @return  The salted password that was computed for this client final
    *          message.
    */
+  @NotNull()
   byte[] getSaltedPassword()
   {
     return saltedPassword;
@@ -290,6 +296,7 @@ final class SCRAMClientFinalMessage
    * @return  The bytes that comprise the auth message computed for this client
    *          final message;
    */
+  @NotNull()
   byte[] getAuthMessageBytes()
   {
     return authMessageBytes;
@@ -304,6 +311,7 @@ final class SCRAMClientFinalMessage
    * @return  A base64-encoded representation of the client proof computed for
    *          this client final message.
    */
+  @NotNull()
   String getClientProofBase64()
   {
     return clientProofBase64;
@@ -316,6 +324,7 @@ final class SCRAMClientFinalMessage
    *
    * @return  The string representation of the complete client final message.
    */
+  @NotNull()
   String getClientFinalMessage()
   {
     return clientFinalMessage;
@@ -329,6 +338,7 @@ final class SCRAMClientFinalMessage
    * @return  A string representation of this SCRAM client final message.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return clientFinalMessage;

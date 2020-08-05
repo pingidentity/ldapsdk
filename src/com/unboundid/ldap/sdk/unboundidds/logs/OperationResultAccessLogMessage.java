@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 import java.util.List;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,6 +74,7 @@ public interface OperationResultAccessLogMessage
    *          client in the course of processing the operation, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   Long getIntermediateResponsesReturned();
 
 
@@ -82,6 +85,7 @@ public interface OperationResultAccessLogMessage
    * @return  The OIDs of any response controls contained in the log message, or
    *          an empty list if it is not included in the log message.
    */
+  @NotNull()
   List<String> getResponseControlOIDs();
 
 
@@ -96,6 +100,7 @@ public interface OperationResultAccessLogMessage
    *          of processing the operation, or an empty list if it is not
    *          included in the log message.
    */
+  @NotNull()
   List<String> getServersAccessed();
 
 
@@ -107,5 +112,6 @@ public interface OperationResultAccessLogMessage
    * @return  The content of the intermediate client result for the operation,
    *          or {@code null} if it is not included in the log message.
    */
+  @Nullable()
   String getIntermediateClientResult();
 }

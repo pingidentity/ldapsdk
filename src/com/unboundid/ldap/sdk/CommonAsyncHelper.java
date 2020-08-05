@@ -37,6 +37,10 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.NotNull;
+
+
+
 /**
  * This interface defines a set of methods that all async helper classes will
  * implement.
@@ -49,6 +53,7 @@ interface CommonAsyncHelper
    *
    * @return  The async request ID created for the associated operation.
    */
+  @NotNull()
   AsyncRequestID getAsyncRequestID();
 
 
@@ -58,6 +63,7 @@ interface CommonAsyncHelper
    *
    * @return  The connection with which the request is associated.
    */
+  @NotNull()
   LDAPConnection getConnection();
 
 
@@ -78,5 +84,6 @@ interface CommonAsyncHelper
    *
    * @return  The operation type for the associated operation.
    */
+  @NotNull()
   OperationType getOperationType();
 }

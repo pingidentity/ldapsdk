@@ -46,6 +46,8 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,22 +77,22 @@ public final class MatchingRuleUseDefinition
   private final boolean isObsolete;
 
   // The set of extensions for this matching rule use.
-  private final Map<String,String[]> extensions;
+  @NotNull private final Map<String,String[]> extensions;
 
   // The description for this matching rule use.
-  private final String description;
+  @Nullable private final String description;
 
   // The string representation of this matching rule use.
-  private final String matchingRuleUseString;
+  @NotNull private final String matchingRuleUseString;
 
   // The OID for this matching rule use.
-  private final String oid;
+  @NotNull private final String oid;
 
   // The set of attribute types to to which this matching rule use applies.
-  private final String[] applicableTypes;
+  @NotNull private final String[] applicableTypes;
 
   // The set of names for this matching rule use.
-  private final String[] names;
+  @NotNull private final String[] names;
 
 
 
@@ -104,7 +106,7 @@ public final class MatchingRuleUseDefinition
    * @throws  LDAPException  If the provided string cannot be decoded as a
    *                         matching rule use definition.
    */
-  public MatchingRuleUseDefinition(final String s)
+  public MatchingRuleUseDefinition(@NotNull final String s)
          throws LDAPException
   {
     Validator.ensureNotNull(s);
@@ -307,10 +309,11 @@ public final class MatchingRuleUseDefinition
    *                          It may be {@code null} or empty if there should
    *                          not be any extensions.
    */
-  public MatchingRuleUseDefinition(final String oid, final String name,
-                                   final String description,
-                                   final String[] applicableTypes,
-                                   final Map<String,String[]> extensions)
+  public MatchingRuleUseDefinition(@NotNull final String oid,
+              @Nullable final String name,
+              @Nullable final String description,
+              @NotNull final String[] applicableTypes,
+              @Nullable final Map<String,String[]> extensions)
   {
     this(oid, ((name == null) ? null : new String[] { name }), description,
          false, applicableTypes, extensions);
@@ -335,10 +338,11 @@ public final class MatchingRuleUseDefinition
    *                          It may be {@code null} or empty if there should
    *                          not be any extensions.
    */
-  public MatchingRuleUseDefinition(final String oid, final String name,
-                                   final String description,
-                                   final Collection<String> applicableTypes,
-                                   final Map<String,String[]> extensions)
+  public MatchingRuleUseDefinition(@NotNull final String oid,
+              @Nullable final String name,
+              @Nullable final String description,
+              @NotNull final Collection<String> applicableTypes,
+              @Nullable final Map<String,String[]> extensions)
   {
     this(oid, ((name == null) ? null : new String[] { name }), description,
          false, toArray(applicableTypes), extensions);
@@ -365,11 +369,12 @@ public final class MatchingRuleUseDefinition
    *                          It may be {@code null} or empty if there should
    *                          not be any extensions.
    */
-  public MatchingRuleUseDefinition(final String oid, final String[] names,
-                                   final String description,
-                                   final boolean isObsolete,
-                                   final String[] applicableTypes,
-                                   final Map<String,String[]> extensions)
+  public MatchingRuleUseDefinition(@NotNull final String oid,
+              @Nullable final String[] names,
+              @Nullable final String description,
+              final boolean isObsolete,
+              @NotNull final String[] applicableTypes,
+              @Nullable final Map<String,String[]> extensions)
   {
     Validator.ensureNotNull(oid, applicableTypes);
     Validator.ensureFalse(applicableTypes.length == 0);
@@ -411,7 +416,7 @@ public final class MatchingRuleUseDefinition
    * @param  buffer  The buffer in which to construct a string representation of
    *                 this matching rule use definition.
    */
-  private void createDefinitionString(final StringBuilder buffer)
+  private void createDefinitionString(@NotNull final StringBuilder buffer)
   {
     buffer.append("( ");
     buffer.append(oid);
@@ -504,6 +509,7 @@ public final class MatchingRuleUseDefinition
    *
    * @return  The OID for this matching rule use.
    */
+  @NotNull()
   public String getOID()
   {
     return oid;
@@ -517,6 +523,7 @@ public final class MatchingRuleUseDefinition
    * @return  The set of names for this matching rule use, or an empty array if
    *          it does not have any names.
    */
+  @NotNull()
   public String[] getNames()
   {
     return names;
@@ -532,6 +539,7 @@ public final class MatchingRuleUseDefinition
    * @return  The primary name that can be used to reference this matching rule
    *          use.
    */
+  @NotNull()
   public String getNameOrOID()
   {
     if (names.length == 0)
@@ -556,7 +564,7 @@ public final class MatchingRuleUseDefinition
    * @return  {@code true} if the provided string matches the OID or any of the
    *          names for this matching rule use, or {@code false} if not.
    */
-  public boolean hasNameOrOID(final String s)
+  public boolean hasNameOrOID(@NotNull final String s)
   {
     for (final String name : names)
     {
@@ -577,6 +585,7 @@ public final class MatchingRuleUseDefinition
    * @return  The description for this matching rule use, or {@code null} if
    *          there is no description defined.
    */
+  @Nullable()
   public String getDescription()
   {
     return description;
@@ -604,6 +613,7 @@ public final class MatchingRuleUseDefinition
    * @return  The names or OIDs of the attribute types to which this matching
    *          rule use applies.
    */
+  @NotNull()
   public String[] getApplicableAttributeTypes()
   {
     return applicableTypes;
@@ -618,6 +628,7 @@ public final class MatchingRuleUseDefinition
    *
    * @return  The set of extensions for this matching rule use.
    */
+  @NotNull()
   public Map<String,String[]> getExtensions()
   {
     return extensions;
@@ -629,6 +640,7 @@ public final class MatchingRuleUseDefinition
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SchemaElementType getSchemaElementType()
   {
     return SchemaElementType.MATCHING_RULE_USE;
@@ -651,7 +663,7 @@ public final class MatchingRuleUseDefinition
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -687,6 +699,7 @@ public final class MatchingRuleUseDefinition
    * @return  A string representation of this matching rule use definition.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return matchingRuleUseString;

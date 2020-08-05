@@ -68,10 +68,10 @@ public final class OID
 
 
   // The numeric components that comprise this OID.
-  private final List<Integer> components;
+  @Nullable private final List<Integer> components;
 
   // The string representation for this OID.
-  private final String oidString;
+  @NotNull private final String oidString;
 
 
 
@@ -80,7 +80,7 @@ public final class OID
    *
    * @param  oidString  The string to use to create this OID.
    */
-  public OID(final String oidString)
+  public OID(@Nullable final String oidString)
   {
     if (oidString == null)
     {
@@ -102,7 +102,7 @@ public final class OID
    *
    * @param  components  The numeric components to include in the OID.
    */
-  public OID(final int... components)
+  public OID(@Nullable final int... components)
   {
     this(toList(components));
   }
@@ -115,7 +115,7 @@ public final class OID
    *
    * @param  components  The numeric components to include in the OID.
    */
-  public OID(final List<Integer> components)
+  public OID(@Nullable final List<Integer> components)
   {
     if ((components == null) || components.isEmpty())
     {
@@ -149,7 +149,8 @@ public final class OID
    * @param  oidString   The string representation of this OID.
    * @param  components  The numeric components for this OID.
    */
-  private OID(final String oidString, final List<Integer> components)
+  private OID(@NotNull final String oidString,
+              @NotNull final List<Integer> components)
   {
     this.oidString = oidString;
     this.components = Collections.unmodifiableList(components);
@@ -164,7 +165,8 @@ public final class OID
    *
    * @return  The list of elements.
    */
-  private static List<Integer> toList(final int... components)
+  @Nullable()
+  private static List<Integer> toList(@Nullable final int... components)
   {
     if (components == null)
     {
@@ -191,7 +193,8 @@ public final class OID
    *          {@code null} if the provided string does not represent a valid
    *          numeric OID.
    */
-  public static List<Integer> parseComponents(final String oidString)
+  @Nullable()
+  public static List<Integer> parseComponents(@Nullable final String oidString)
   {
     if ((oidString == null) || oidString.isEmpty() ||
         oidString.startsWith(".") || oidString.endsWith(".") ||
@@ -243,7 +246,8 @@ public final class OID
    * @throws  ParseException  If the provided string cannot be parsed as a valid
    *                          numeric OID.
    */
-  public static OID parseNumericOID(final String oidString,
+  @NotNull()
+  public static OID parseNumericOID(@Nullable final String oidString,
                                     final boolean strict)
          throws ParseException
   {
@@ -399,7 +403,7 @@ public final class OID
    * @return  {@code true} if the provided string represents a valid numeric
    *          OID, or {@code false} if not.
    */
-  public static boolean isValidNumericOID(final String s)
+  public static boolean isValidNumericOID(@Nullable final String s)
   {
     return new OID(s).isValidNumericOID();
   }
@@ -440,7 +444,7 @@ public final class OID
    * @return  {@code true} if this object represents a strictly valid numeric
    *          OID, or {@code false} if not.
    */
-  public static boolean isStrictlyValidNumericOID(final String s)
+  public static boolean isStrictlyValidNumericOID(@Nullable final String s)
   {
     return new OID(s).isStrictlyValidNumericOID();
   }
@@ -495,6 +499,7 @@ public final class OID
    * @return  The numeric components that comprise this OID, or {@code null} if
    *          this object does not represent a valid numeric OID.
    */
+  @Nullable()
   public List<Integer> getComponents()
   {
     return components;
@@ -536,7 +541,7 @@ public final class OID
    *          {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -578,7 +583,7 @@ public final class OID
    *          represent equivalent values.
    */
   @Override()
-  public int compareTo(final OID oid)
+  public int compareTo(@NotNull final OID oid)
   {
     if (components == null)
     {
@@ -647,6 +652,7 @@ public final class OID
    * @return  A string representation of this OID.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return oidString;

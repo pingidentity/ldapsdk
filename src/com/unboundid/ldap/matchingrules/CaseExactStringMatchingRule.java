@@ -38,6 +38,7 @@ package com.unboundid.ldap.matchingrules;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -57,7 +58,7 @@ public final class CaseExactStringMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final CaseExactStringMatchingRule INSTANCE =
+  @NotNull private static final CaseExactStringMatchingRule INSTANCE =
        new CaseExactStringMatchingRule();
 
 
@@ -65,7 +66,7 @@ public final class CaseExactStringMatchingRule
   /**
    * The name for the caseExactMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "caseExactMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME = "caseExactMatch";
 
 
 
@@ -73,7 +74,7 @@ public final class CaseExactStringMatchingRule
    * The name for the caseExactMatch equality matching rule, formatted in all
    * lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -81,14 +82,15 @@ public final class CaseExactStringMatchingRule
   /**
    * The OID for the caseExactMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.5";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.5";
 
 
 
   /**
    * The name for the caseExactOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_NAME = "caseExactOrderingMatch";
+  @NotNull public static final String ORDERING_RULE_NAME =
+       "caseExactOrderingMatch";
 
 
 
@@ -96,7 +98,7 @@ public final class CaseExactStringMatchingRule
    * The name for the caseExactOrderingMatch ordering matching rule, formatted
    * in all lowercase characters.
    */
-  static final String LOWER_ORDERING_RULE_NAME =
+  @NotNull static final String LOWER_ORDERING_RULE_NAME =
        StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
@@ -104,14 +106,15 @@ public final class CaseExactStringMatchingRule
   /**
    * The OID for the caseExactOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_OID = "2.5.13.6";
+  @NotNull public static final String ORDERING_RULE_OID = "2.5.13.6";
 
 
 
   /**
    * The name for the caseExactSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_NAME = "caseExactSubstringsMatch";
+  @NotNull public static final String SUBSTRING_RULE_NAME =
+       "caseExactSubstringsMatch";
 
 
 
@@ -119,7 +122,7 @@ public final class CaseExactStringMatchingRule
    * The name for the caseExactSubstringsMatch substring matching rule,
    * formatted in all lowercase characters.
    */
-  static final String LOWER_SUBSTRING_RULE_NAME =
+  @NotNull static final String LOWER_SUBSTRING_RULE_NAME =
        StaticUtils.toLowerCase(SUBSTRING_RULE_NAME);
 
 
@@ -127,7 +130,7 @@ public final class CaseExactStringMatchingRule
   /**
    * The OID for the caseExactSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_OID = "2.5.13.7";
+  @NotNull public static final String SUBSTRING_RULE_OID = "2.5.13.7";
 
 
 
@@ -153,6 +156,7 @@ public final class CaseExactStringMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static CaseExactStringMatchingRule getInstance()
   {
     return INSTANCE;
@@ -164,6 +168,7 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -175,6 +180,7 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -186,6 +192,7 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleName()
   {
     return ORDERING_RULE_NAME;
@@ -197,6 +204,7 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleOID()
   {
     return ORDERING_RULE_OID;
@@ -208,6 +216,7 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleName()
   {
     return SUBSTRING_RULE_NAME;
@@ -219,6 +228,7 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleOID()
   {
     return SUBSTRING_RULE_OID;
@@ -230,8 +240,8 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
   {
     // Try to use a quick, no-copy determination if possible.  If this fails,
     // then we'll fall back on a more thorough, but more costly, approach.
@@ -278,7 +288,8 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
   {
     return normalizeInternal(value, false, (byte) 0x00);
   }
@@ -289,8 +300,10 @@ public final class CaseExactStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
   {
     return normalizeInternal(value, true, substringType);
   }
@@ -310,9 +323,11 @@ public final class CaseExactStringMatchingRule
    *
    * @return  The appropriately normalized form of the provided value.
    */
-  private static ASN1OctetString normalizeInternal(final ASN1OctetString value,
-                                                   final boolean isSubstring,
-                                                   final byte substringType)
+  @NotNull()
+  private static ASN1OctetString normalizeInternal(
+                                      @NotNull final ASN1OctetString value,
+                                      final boolean isSubstring,
+                                      final byte substringType)
   {
     final byte[] valueBytes = value.getValue();
     if (valueBytes.length == 0)
@@ -438,9 +453,11 @@ public final class CaseExactStringMatchingRule
    *
    * @return  The normalized form of the value.
    */
-  private static ASN1OctetString normalizeNonASCII(final ASN1OctetString value,
-                                                   final boolean trimInitial,
-                                                   final boolean trimFinal)
+  @NotNull()
+  private static ASN1OctetString normalizeNonASCII(
+                                      @NotNull final ASN1OctetString value,
+                                      final boolean trimInitial,
+                                      final boolean trimFinal)
   {
     final StringBuilder buffer = new StringBuilder(value.stringValue());
 

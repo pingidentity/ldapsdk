@@ -67,13 +67,13 @@ public final class DNFileReader
 {
   // A counter used to keep track of the line number for information read from
   // the file.
-  private final AtomicLong lineNumberCounter;
+  @NotNull private final AtomicLong lineNumberCounter;
 
   // The reader to use to read the DNs.
-  private final BufferedReader reader;
+  @NotNull private final BufferedReader reader;
 
   // The file from which the DNs are being read.
-  private final File dnFile;
+  @NotNull private final File dnFile;
 
 
 
@@ -87,7 +87,7 @@ public final class DNFileReader
    * @throws  IOException  If a problem is encountered while opening the file
    *                       for reading.
    */
-  public DNFileReader(final String path)
+  public DNFileReader(@NotNull final String path)
          throws IOException
   {
     this(new File(path));
@@ -104,7 +104,7 @@ public final class DNFileReader
    * @throws  IOException  If a problem is encountered while opening the file
    *                       for reading.
    */
-  public DNFileReader(final File dnFile)
+  public DNFileReader(@NotNull final File dnFile)
          throws IOException
   {
     this.dnFile = dnFile;
@@ -126,6 +126,7 @@ public final class DNFileReader
    *
    * @throws  LDAPException  If data read from the file can't be parsed as a DN.
    */
+  @Nullable()
   public DN readDN()
          throws IOException, LDAPException
   {

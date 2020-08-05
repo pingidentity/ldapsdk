@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -68,11 +70,11 @@ abstract class InterceptedOperation
   private final int messageID;
 
   // The client connection associated with this operation.
-  private final LDAPListenerClientConnection clientConnection;
+  @NotNull private final LDAPListenerClientConnection clientConnection;
 
   // A map that may be used to hold state information for correlating
   // information between a request and a response.
-  private final Map<String,Object> propertyMap;
+  @NotNull private final Map<String,Object> propertyMap;
 
 
 
@@ -84,8 +86,9 @@ abstract class InterceptedOperation
    *                           is associated.
    * @param  messageID         The message ID for the associated operation.
    */
-  InterceptedOperation(final LDAPListenerClientConnection clientConnection,
-                       final int messageID)
+  InterceptedOperation(
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID)
   {
     this.clientConnection = clientConnection;
     this.messageID        = messageID;
@@ -103,7 +106,7 @@ abstract class InterceptedOperation
    * @param  operation  The operation to use to create this intercepted
    *                    operation.
    */
-  InterceptedOperation(final InterceptedOperation operation)
+  InterceptedOperation(@NotNull final InterceptedOperation operation)
   {
     clientConnection = operation.clientConnection;
     messageID        = operation.messageID;
@@ -117,6 +120,7 @@ abstract class InterceptedOperation
    *
    * @return  The client connection associated with this operation.
    */
+  @NotNull()
   LDAPListenerClientConnection getClientConnection()
   {
     return clientConnection;
@@ -146,6 +150,7 @@ abstract class InterceptedOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getConnectedAddress()
   {
     if (clientConnection == null)
@@ -208,7 +213,7 @@ abstract class InterceptedOperation
    */
   @Override()
   public final void sendIntermediateResponse(
-                         final IntermediateResponse intermediateResponse)
+              @NotNull final IntermediateResponse intermediateResponse)
          throws LDAPException
   {
     clientConnection.sendIntermediateResponse(messageID,
@@ -223,7 +228,7 @@ abstract class InterceptedOperation
    */
   @Override()
   public final void sendUnsolicitedNotification(
-                         final ExtendedResult unsolicitedNotification)
+                         @NotNull final ExtendedResult unsolicitedNotification)
          throws LDAPException
   {
     clientConnection.sendUnsolicitedNotification(unsolicitedNotification);
@@ -235,7 +240,8 @@ abstract class InterceptedOperation
    * {@inheritDoc}
    */
   @Override()
-  public final Object getProperty(final String name)
+  @Nullable()
+  public final Object getProperty(@NotNull final String name)
   {
     return propertyMap.get(name);
   }
@@ -246,7 +252,9 @@ abstract class InterceptedOperation
    * {@inheritDoc}
    */
   @Override()
-  public final Object setProperty(final String name, final Object value)
+  @Nullable()
+  public final Object setProperty(@NotNull final String name,
+                                  @Nullable final Object value)
   {
     if (value == null)
     {
@@ -266,6 +274,7 @@ abstract class InterceptedOperation
    * @return  A string representation of this intercepted operation.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -282,7 +291,7 @@ abstract class InterceptedOperation
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 
 
 
@@ -293,7 +302,7 @@ abstract class InterceptedOperation
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  protected final void appendCommonToString(final StringBuilder buffer)
+  protected final void appendCommonToString(@NotNull final StringBuilder buffer)
   {
     buffer.append("connectionID=");
     buffer.append(getConnectionID());

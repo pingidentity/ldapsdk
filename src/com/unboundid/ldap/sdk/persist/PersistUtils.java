@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.DNEntrySource;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,7 +83,8 @@ public final class PersistUtils
    * @return  {@code true} if the provided string is acceptable for use as an
    *          LDAP attribute or object class name, or {@code false} if not.
    */
-  public static boolean isValidLDAPName(final String s, final StringBuilder r)
+  public static boolean isValidLDAPName(@NotNull final String s,
+                                        @NotNull final StringBuilder r)
   {
     return isValidLDAPName(s, false, r);
   }
@@ -102,8 +105,9 @@ public final class PersistUtils
    * @return  {@code true} if the provided string is acceptable for use as an
    *          LDAP attribute or object class name, or {@code false} if not.
    */
-  public static boolean isValidLDAPName(final String s, final boolean o,
-                                        final StringBuilder r)
+  public static boolean isValidLDAPName(@NotNull final String s,
+                                        final boolean o,
+                                        @NotNull final StringBuilder r)
   {
     int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -186,8 +190,9 @@ public final class PersistUtils
    * @return  {@code true} if the provided string represents a valid set of
    *          options, or {@code false} if not.
    */
-  private static boolean isValidOptionSet(final String b, final String o,
-                                          final StringBuilder r)
+  private static boolean isValidOptionSet(@NotNull final String b,
+                                          @NotNull final String o,
+                                          @NotNull final StringBuilder r)
   {
     boolean lastWasSemicolon = true;
 
@@ -254,8 +259,8 @@ public final class PersistUtils
    * @return  {@code true} if the provided string is acceptable for use as a
    *          Java identifier, or {@code false} if not.
    */
-  public static boolean isValidJavaIdentifier(final String s,
-                                              final StringBuilder r)
+  public static boolean isValidJavaIdentifier(@NotNull final String s,
+                                              @NotNull final StringBuilder r)
   {
     final int length = s.length();
     for (int i=0; i < length; i++)
@@ -298,7 +303,8 @@ public final class PersistUtils
    *
    * @return  A string that may be used as a valid Java identifier.
    */
-  public static String toJavaIdentifier(final String s)
+  @NotNull()
+  public static String toJavaIdentifier(@NotNull final String s)
   {
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -380,8 +386,10 @@ public final class PersistUtils
    * @throws  LDAPException  If a problem occurs while trying to retrieve the
    *                         entry or decode it as the specified type of object.
    */
-  public static <T> T getEntryAsObject(final DN dn, final Class<T> type,
-                                       final LDAPInterface conn)
+  @Nullable()
+  public static <T> T getEntryAsObject(@NotNull final DN dn,
+                                       @NotNull final Class<T> type,
+                                       @NotNull final LDAPInterface conn)
          throws LDAPException
   {
     Validator.ensureNotNull(dn, type, conn);
@@ -420,9 +428,11 @@ public final class PersistUtils
    * @throws  LDAPPersistException  If the requested type cannot be used with
    *                                the LDAP SDK persistence framework.
    */
-  public static <T> PersistedObjects<T> getEntriesAsObjects(final DN[] dns,
-                                             final Class<T> type,
-                                             final LDAPInterface conn)
+  @NotNull()
+  public static <T> PersistedObjects<T> getEntriesAsObjects(
+                                             @NotNull final DN[] dns,
+                                             @NotNull final Class<T> type,
+                                             @NotNull final LDAPInterface conn)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(dns, type, conn);

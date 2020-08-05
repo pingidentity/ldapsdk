@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -144,6 +146,7 @@ public enum AssuredReplicationRemoteLevel
    * @return  The requested remote assurance level, or {@code null} if there is
    *          no remote assurance level with the specified integer value.
    */
+  @Nullable()
   public static AssuredReplicationRemoteLevel valueOf(final int intValue)
   {
     for (final AssuredReplicationRemoteLevel l : values())
@@ -168,7 +171,9 @@ public enum AssuredReplicationRemoteLevel
    * @return  The requested remote assurance level, or {@code null} if no such
    *          level is defined.
    */
-  public static AssuredReplicationRemoteLevel forName(final String name)
+  @Nullable()
+  public static AssuredReplicationRemoteLevel forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -205,8 +210,8 @@ public enum AssuredReplicationRemoteLevel
    *          level values.
    */
   public static AssuredReplicationRemoteLevel getLessStrict(
-                     final AssuredReplicationRemoteLevel l1,
-                     final AssuredReplicationRemoteLevel l2)
+                     @NotNull final AssuredReplicationRemoteLevel l1,
+                     @NotNull final AssuredReplicationRemoteLevel l2)
   {
     // At present, the integer values can be used to make the comparison.  If
     // any more enum values are added, this may need to be changed.
@@ -234,8 +239,8 @@ public enum AssuredReplicationRemoteLevel
    *          level values.
    */
   public static AssuredReplicationRemoteLevel getMoreStrict(
-                     final AssuredReplicationRemoteLevel l1,
-                     final AssuredReplicationRemoteLevel l2)
+                     @NotNull final AssuredReplicationRemoteLevel l1,
+                     @NotNull final AssuredReplicationRemoteLevel l2)
   {
     // At present, the integer values can be used to make the comparison.  If
     // any more enum values are added, this may need to be changed.

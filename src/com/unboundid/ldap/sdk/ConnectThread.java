@@ -47,6 +47,7 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
@@ -69,19 +70,19 @@ final class ConnectThread
       extends Thread
 {
   // Indicates whether the connection has been successfully established.
-  private final AtomicBoolean connected;
+  @NotNull private final AtomicBoolean connected;
 
   // The socket used for the connection.
-  private final AtomicReference<Socket> socket;
+  @NotNull private final AtomicReference<Socket> socket;
 
   // The thread being used to establish the connection.
-  private final AtomicReference<Thread> thread;
+  @NotNull private final AtomicReference<Thread> thread;
 
   // The exception caught while trying to establish the connection.
-  private final AtomicReference<Throwable> exception;
+  @NotNull private final AtomicReference<Throwable> exception;
 
   // A latch that will be used to indicate that the thread has actually started.
-  private final CountDownLatch startLatch;
+  @NotNull private final CountDownLatch startLatch;
 
   // The maximum length of time in milliseconds that the connection attempt
   // should be allowed to block.
@@ -91,10 +92,10 @@ final class ConnectThread
   private final int port;
 
   // The socket factory that will be used to create the connection.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
   // The address to which the connection should be established.
-  private final InetAddress address;
+  @NotNull private final InetAddress address;
 
 
 
@@ -112,7 +113,8 @@ final class ConnectThread
    *                               that the connection attempt should be allowed
    *                               to block.
    */
-  ConnectThread(final SocketFactory socketFactory, final InetAddress address,
+  ConnectThread(@NotNull final SocketFactory socketFactory,
+                @NotNull final InetAddress address,
                 final int port, final int connectTimeoutMillis)
   {
     super("Background connect thread for " + address + ':' + port);
@@ -203,6 +205,7 @@ final class ConnectThread
    *                         the connection, or if it cannot be established
    *                         within the specified time limit.
    */
+  @NotNull()
   Socket getConnectedSocket()
          throws LDAPException
   {

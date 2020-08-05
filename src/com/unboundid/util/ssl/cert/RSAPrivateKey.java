@@ -50,6 +50,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -100,34 +101,34 @@ public final class RSAPrivateKey
 
 
   // The coefficient value for the RSA private key.
-  private final BigInteger coefficient;
+  @NotNull private final BigInteger coefficient;
 
   // The exponent1 value for the RSA private key.
-  private final BigInteger exponent1;
+  @NotNull private final BigInteger exponent1;
 
   // The exponent2 value for the RSA private key.
-  private final BigInteger exponent2;
+  @NotNull private final BigInteger exponent2;
 
   // The modulus for the RSA private key.
-  private final BigInteger modulus;
+  @NotNull private final BigInteger modulus;
 
   // The prime1 value for the RSA private key.
-  private final BigInteger prime1;
+  @NotNull private final BigInteger prime1;
 
   // The prime2 value for the RSA private key.
-  private final BigInteger prime2;
+  @NotNull private final BigInteger prime2;
 
   // The private exponent for the RSA private key.
-  private final BigInteger privateExponent;
+  @NotNull private final BigInteger privateExponent;
 
   // The public exponent for the RSA private key.
-  private final BigInteger publicExponent;
+  @NotNull private final BigInteger publicExponent;
 
   // A list of information about additional primes used by the RSA private key.
-  private final List<BigInteger[]> otherPrimeInfos;
+  @NotNull private final List<BigInteger[]> otherPrimeInfos;
 
   // The private key version.
-  private final RSAPrivateKeyVersion version;
+  @NotNull private final RSAPrivateKeyVersion version;
 
 
 
@@ -159,12 +160,16 @@ public final class RSAPrivateKey
    *                          prime, an exponent, and a coefficient,
    *                          respectively.
    */
-  RSAPrivateKey(final RSAPrivateKeyVersion version, final BigInteger modulus,
-                final BigInteger publicExponent,
-                final BigInteger privateExponent, final BigInteger prime1,
-                final BigInteger prime2, final BigInteger exponent1,
-                final BigInteger exponent2, final BigInteger coefficient,
-                final List<BigInteger[]> otherPrimeInfos)
+  RSAPrivateKey(@NotNull final RSAPrivateKeyVersion version,
+                @NotNull final BigInteger modulus,
+                @NotNull final BigInteger publicExponent,
+                @NotNull final BigInteger privateExponent,
+                @NotNull final BigInteger prime1,
+                @NotNull final BigInteger prime2,
+                @NotNull final BigInteger exponent1,
+                @NotNull final BigInteger exponent2,
+                @NotNull final BigInteger coefficient,
+                @NotNull final List<BigInteger[]> otherPrimeInfos)
   {
     this.version = version;
     this.modulus = modulus;
@@ -189,7 +194,7 @@ public final class RSAPrivateKey
    * @throws  CertException  If the provided private key cannot be decoded as an
    *                         RSA private key.
    */
-  RSAPrivateKey(final ASN1OctetString encodedPrivateKey)
+  RSAPrivateKey(@NotNull final ASN1OctetString encodedPrivateKey)
        throws CertException
   {
     try
@@ -260,6 +265,7 @@ public final class RSAPrivateKey
    *
    * @return  The ASN.1 octet string containing the encoded private key.
    */
+  @NotNull()
   ASN1OctetString encode()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(9);
@@ -298,6 +304,7 @@ public final class RSAPrivateKey
    *
    * @return  The version for the RSA private key.
    */
+  @NotNull()
   public RSAPrivateKeyVersion getVersion()
   {
     return version;
@@ -310,6 +317,7 @@ public final class RSAPrivateKey
    *
    * @return  The modulus for the RSA private key.
    */
+  @NotNull()
   public BigInteger getModulus()
   {
     return modulus;
@@ -322,6 +330,7 @@ public final class RSAPrivateKey
    *
    * @return  The public exponent for the RSA public key.
    */
+  @NotNull()
   public BigInteger getPublicExponent()
   {
     return publicExponent;
@@ -334,6 +343,7 @@ public final class RSAPrivateKey
    *
    * @return  The private exponent for the RSA private key.
    */
+  @NotNull()
   public BigInteger getPrivateExponent()
   {
     return privateExponent;
@@ -346,6 +356,7 @@ public final class RSAPrivateKey
    *
    * @return  The prime1 value for the RSA private key.
    */
+  @NotNull()
   public BigInteger getPrime1()
   {
     return prime1;
@@ -358,6 +369,7 @@ public final class RSAPrivateKey
    *
    * @return  The prime2 value for the RSA private key.
    */
+  @NotNull()
   public BigInteger getPrime2()
   {
     return prime2;
@@ -370,6 +382,7 @@ public final class RSAPrivateKey
    *
    * @return  The exponent1 value for the RSA private key.
    */
+  @NotNull()
   public BigInteger getExponent1()
   {
     return exponent1;
@@ -382,6 +395,7 @@ public final class RSAPrivateKey
    *
    * @return  The exponent2 value for the RSA private key.
    */
+  @NotNull()
   public BigInteger getExponent2()
   {
     return exponent2;
@@ -394,6 +408,7 @@ public final class RSAPrivateKey
    *
    * @return  The coefficient for the RSA private key.
    */
+  @NotNull()
   public BigInteger getCoefficient()
   {
     return coefficient;
@@ -409,6 +424,7 @@ public final class RSAPrivateKey
    *
    * @return  A list of information about other primes used by the private key.
    */
+  @NotNull()
   public List<BigInteger[]> getOtherPrimeInfos()
   {
     return otherPrimeInfos;
@@ -420,7 +436,7 @@ public final class RSAPrivateKey
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RSAPrivateKey(version='");
     buffer.append(version.getName());

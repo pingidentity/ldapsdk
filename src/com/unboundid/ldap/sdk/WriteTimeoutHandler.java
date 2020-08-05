@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -68,7 +69,7 @@ final class WriteTimeoutHandler
    * The timer that will be used to identify and close connections on which
    * write attempts have been blocked for too long.
    */
-  private static final AtomicReference<ObjectPair<Timer,AtomicLong>>
+  @NotNull private static final AtomicReference<ObjectPair<Timer,AtomicLong>>
        TIMER_REFERENCE = new AtomicReference<>();
 
 
@@ -83,24 +84,24 @@ final class WriteTimeoutHandler
 
 
   // Indicates whether this instance has been destroyed.
-  private final AtomicBoolean destroyed;
+  @NotNull private final AtomicBoolean destroyed;
 
   // A counter used to keep track of the number of connections using the
   // associated timer.
-  private final AtomicLong connectionsUsingTimer;
+  @NotNull private final AtomicLong connectionsUsingTimer;
 
   // A counter that will be used to create a unique identifier for each write.
-  private final AtomicLong counter;
+  @NotNull private final AtomicLong counter;
 
   // A map that associates a unique identifier for each write with the timeout
   // for that write.
-  private final ConcurrentHashMap<Long,Long> writeTimeouts;
+  @NotNull private final ConcurrentHashMap<Long,Long> writeTimeouts;
 
   // A handle to the connection with which this handler is associated.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // The timer with which this task is associated.
-  private final Timer timer;
+  @NotNull private final Timer timer;
 
 
 
@@ -110,7 +111,7 @@ final class WriteTimeoutHandler
    * @param  connection  The connection with which this write timeout handler is
    *                     associated.
    */
-  WriteTimeoutHandler(final LDAPConnection connection)
+  WriteTimeoutHandler(@NotNull final LDAPConnection connection)
   {
     this.connection = connection;
 

@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyDeleteRequest;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,10 +64,10 @@ final class InterceptedDeleteOperation
                  InMemoryInterceptedDeleteResult
 {
   // The delete request for this operation.
-  private DeleteRequest deleteRequest;
+  @NotNull private DeleteRequest deleteRequest;
 
   // The delete result for this operation.
-  private LDAPResult deleteResult;
+  @Nullable private LDAPResult deleteResult;
 
 
 
@@ -82,9 +84,9 @@ final class InterceptedDeleteOperation
    *                           client.
    */
   InterceptedDeleteOperation(
-       final LDAPListenerClientConnection clientConnection, final int messageID,
-       final DeleteRequestProtocolOp requestOp,
-       final Control... requestControls)
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID, @NotNull final DeleteRequestProtocolOp requestOp,
+       @Nullable final Control... requestControls)
   {
     super(clientConnection, messageID);
 
@@ -98,6 +100,7 @@ final class InterceptedDeleteOperation
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReadOnlyDeleteRequest getRequest()
   {
     return deleteRequest;
@@ -109,7 +112,7 @@ final class InterceptedDeleteOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setRequest(final DeleteRequest deleteRequest)
+  public void setRequest(@NotNull final DeleteRequest deleteRequest)
   {
     this.deleteRequest = deleteRequest;
   }
@@ -120,6 +123,7 @@ final class InterceptedDeleteOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public LDAPResult getResult()
   {
     return deleteResult;
@@ -131,7 +135,7 @@ final class InterceptedDeleteOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setResult(final LDAPResult deleteResult)
+  public void setResult(@NotNull final LDAPResult deleteResult)
   {
     this.deleteResult = deleteResult;
   }
@@ -142,7 +146,7 @@ final class InterceptedDeleteOperation
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedDeleteOperation(");
     appendCommonToString(buffer);

@@ -62,7 +62,7 @@ public abstract class LDAPSDKRuntimeException
    *
    * @param  message  The message to use for this exception.
    */
-  protected LDAPSDKRuntimeException(final String message)
+  protected LDAPSDKRuntimeException(@NotNull final String message)
   {
     super(message);
   }
@@ -77,7 +77,8 @@ public abstract class LDAPSDKRuntimeException
    * @param  cause    The underlying cause for this exception.  It may be
    *                  {@code null} if no cause is available.
    */
-  protected LDAPSDKRuntimeException(final String message, final Throwable cause)
+  protected LDAPSDKRuntimeException(@NotNull final String message,
+                                    @Nullable final Throwable cause)
   {
     super(message, cause);
   }
@@ -90,6 +91,7 @@ public abstract class LDAPSDKRuntimeException
    * @return  A string representation of this exception.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -105,7 +107,7 @@ public abstract class LDAPSDKRuntimeException
    * @param  buffer  The buffer to which the string representation of this
    *                 exception is to be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(super.toString());
   }

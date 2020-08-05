@@ -46,6 +46,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.unboundidds.AlarmSeverity;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -77,7 +79,7 @@ public class GaugeMonitorEntry
   /**
    * The base structural object class used in gauge monitor entries.
    */
-  static final String GAUGE_MONITOR_OC = "ds-gauge-monitor-entry";
+  @NotNull static final String GAUGE_MONITOR_OC = "ds-gauge-monitor-entry";
 
 
 
@@ -89,133 +91,133 @@ public class GaugeMonitorEntry
 
 
   // The current severity for the gauge.
-  private final AlarmSeverity currentSeverity;
+  @Nullable private final AlarmSeverity currentSeverity;
 
   // The previous severity for the gauge.
-  private final AlarmSeverity previousSeverity;
+  @Nullable private final AlarmSeverity previousSeverity;
 
   // The time the gauge entered the current severity.
-  private final Date currentSeverityStartTime;
+  @Nullable private final Date currentSeverityStartTime;
 
   // The time the gauge last exited the critical state.
-  private final Date lastCriticalStateEndTime;
+  @Nullable private final Date lastCriticalStateEndTime;
 
   // The time the gauge last entered the critical state.
-  private final Date lastCriticalStateStartTime;
+  @Nullable private final Date lastCriticalStateStartTime;
 
   // The time the gauge last exited the major state.
-  private final Date lastMajorStateEndTime;
+  @Nullable private final Date lastMajorStateEndTime;
 
   // The time the gauge last entered the major state.
-  private final Date lastMajorStateStartTime;
+  @Nullable private final Date lastMajorStateStartTime;
 
   // The time the gauge last exited the minor state.
-  private final Date lastMinorStateEndTime;
+  @Nullable private final Date lastMinorStateEndTime;
 
   // The time the gauge last entered the minor state.
-  private final Date lastMinorStateStartTime;
+  @Nullable private final Date lastMinorStateStartTime;
 
   // The time the gauge last exited the normal state.
-  private final Date lastNormalStateEndTime;
+  @Nullable private final Date lastNormalStateEndTime;
 
   // The time the gauge last entered the normal state.
-  private final Date lastNormalStateStartTime;
+  @Nullable private final Date lastNormalStateStartTime;
 
   // The time the gauge last exited the warning state.
-  private final Date lastWarningStateEndTime;
+  @Nullable private final Date lastWarningStateEndTime;
 
   // The time the gauge last entered the normal state.
-  private final Date lastWarningStateStartTime;
+  @Nullable private final Date lastWarningStateStartTime;
 
   // The time the gauge information was initialized.
-  private final Date initTime;
+  @Nullable private final Date initTime;
 
   // The time the gauge information was last updated.
-  private final Date updateTime;
+  @Nullable private final Date updateTime;
 
   // The error messages.
-  private final List<String> errorMessages;
+  @NotNull private final List<String> errorMessages;
 
   // The current severity duration in milliseconds.
-  private final Long currentSeverityDurationMillis;
+  @Nullable private final Long currentSeverityDurationMillis;
 
   // The last critical state duration in milliseconds.
-  private final Long lastCriticalStateDurationMillis;
+  @Nullable private final Long lastCriticalStateDurationMillis;
 
   // The last major state duration in milliseconds.
-  private final Long lastMajorStateDurationMillis;
+  @Nullable private final Long lastMajorStateDurationMillis;
 
   // The last minor state duration in milliseconds.
-  private final Long lastMinorStateDurationMillis;
+  @Nullable private final Long lastMinorStateDurationMillis;
 
   // The last normal state duration in milliseconds.
-  private final Long lastNormalStateDurationMillis;
+  @Nullable private final Long lastNormalStateDurationMillis;
 
   // The last warning state duration in milliseconds.
-  private final Long lastWarningStateDurationMillis;
+  @Nullable private final Long lastWarningStateDurationMillis;
 
   // The number of samples taken in the current interval.
-  private final Long samplesThisInterval;
+  @Nullable private final Long samplesThisInterval;
 
   // The total critical state duration in milliseconds.
-  private final Long totalCriticalStateDurationMillis;
+  @Nullable private final Long totalCriticalStateDurationMillis;
 
   // The total major state duration in milliseconds.
-  private final Long totalMajorStateDurationMillis;
+  @Nullable private final Long totalMajorStateDurationMillis;
 
   // The total minor state duration in milliseconds.
-  private final Long totalMinorStateDurationMillis;
+  @Nullable private final Long totalMinorStateDurationMillis;
 
   // The total normal state duration in milliseconds.
-  private final Long totalNormalStateDurationMillis;
+  @Nullable private final Long totalNormalStateDurationMillis;
 
   // The total warning state duration in milliseconds.
-  private final Long totalWarningStateDurationMillis;
+  @Nullable private final Long totalWarningStateDurationMillis;
 
   // The string representation of the current severity duration.
-  private final String currentSeverityDurationString;
+  @Nullable private final String currentSeverityDurationString;
 
   // The name for the gauge.
-  private final String gaugeName;
+  @Nullable private final String gaugeName;
 
   // The string representation of the last critical state duration.
-  private final String lastCriticalStateDurationString;
+  @Nullable private final String lastCriticalStateDurationString;
 
   // The string representation of the last major state duration.
-  private final String lastMajorStateDurationString;
+  @Nullable private final String lastMajorStateDurationString;
 
   // The string representation of the last minor state duration.
-  private final String lastMinorStateDurationString;
+  @Nullable private final String lastMinorStateDurationString;
 
   // The string representation of the last normal state duration.
-  private final String lastNormalStateDurationString;
+  @Nullable private final String lastNormalStateDurationString;
 
   // The string representation of the last warning state duration.
-  private final String lastWarningStateDurationString;
+  @Nullable private final String lastWarningStateDurationString;
 
   // The resource for the gauge.
-  private final String resource;
+  @Nullable private final String resource;
 
   // The resource type for the gauge.
-  private final String resourceType;
+  @Nullable private final String resourceType;
 
   // The summary message.
-  private final String summary;
+  @Nullable private final String summary;
 
   // The string representation of the total critical state duration.
-  private final String totalCriticalStateDurationString;
+  @Nullable private final String totalCriticalStateDurationString;
 
   // The string representation of the total major state duration.
-  private final String totalMajorStateDurationString;
+  @Nullable private final String totalMajorStateDurationString;
 
   // The string representation of the total minor state duration.
-  private final String totalMinorStateDurationString;
+  @Nullable private final String totalMinorStateDurationString;
 
   // The string representation of the total normal state duration.
-  private final String totalNormalStateDurationString;
+  @Nullable private final String totalNormalStateDurationString;
 
   // The string representation of the total warning state duration.
-  private final String totalWarningStateDurationString;
+  @Nullable private final String totalWarningStateDurationString;
 
 
 
@@ -225,7 +227,7 @@ public class GaugeMonitorEntry
    * @param  entry  The entry to be parsed as a gauge monitor entry.  It must
    *                not be {@code null}.
    */
-  public GaugeMonitorEntry(final Entry entry)
+  public GaugeMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -316,6 +318,7 @@ public class GaugeMonitorEntry
    * @return  The name for the gauge, or {@code null} if it was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public final String getGaugeName()
   {
     return gaugeName;
@@ -329,6 +332,7 @@ public class GaugeMonitorEntry
    * @return  The resource for the gauge, or {@code null} if it was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public final String getResource()
   {
     return resource;
@@ -342,6 +346,7 @@ public class GaugeMonitorEntry
    * @return  The resource type for the gauge, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public final String getResourceType()
   {
     return resourceType;
@@ -355,6 +360,7 @@ public class GaugeMonitorEntry
    * @return  The current severity for the gauge, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public final AlarmSeverity getCurrentSeverity()
   {
     return currentSeverity;
@@ -368,6 +374,7 @@ public class GaugeMonitorEntry
    * @return  The previous severity for the gauge, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public final AlarmSeverity getPreviousSeverity()
   {
     return previousSeverity;
@@ -381,6 +388,7 @@ public class GaugeMonitorEntry
    * @return  The summary message for the gauge, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public final String getSummary()
   {
     return summary;
@@ -394,6 +402,7 @@ public class GaugeMonitorEntry
    * @return  The list of error messages for the gauge, or an empty list if it
    *          was not included in the monitor entry.
    */
+  @NotNull()
   public final List<String> getErrorMessages()
   {
     return errorMessages;
@@ -407,6 +416,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge was initialized, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public final Date getInitTime()
   {
     return initTime;
@@ -420,6 +430,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge was last updated, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public final Date getUpdateTime()
   {
     return updateTime;
@@ -434,6 +445,7 @@ public class GaugeMonitorEntry
    * @return  The number of samples taken in the current interval, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getSamplesThisInterval()
   {
     return samplesThisInterval;
@@ -447,6 +459,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge entered the current severity, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getCurrentSeverityStartTime()
   {
     return currentSeverityStartTime;
@@ -461,6 +474,7 @@ public class GaugeMonitorEntry
    * @return  The current severity duration as a human-readable string, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final String getCurrentSeverityDurationString()
   {
     return currentSeverityDurationString;
@@ -474,6 +488,7 @@ public class GaugeMonitorEntry
    * @return  The current severity duration in milliseconds, or {@code null} if
    *          it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getCurrentSeverityDurationMillis()
   {
     return currentSeverityDurationMillis;
@@ -487,6 +502,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last entered the normal state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastNormalStateStartTime()
   {
     return lastNormalStateStartTime;
@@ -500,6 +516,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last exited the normal state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastNormalStateEndTime()
   {
     return lastNormalStateEndTime;
@@ -514,6 +531,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last normal state as a human-readable string,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final String getLastNormalStateDurationString()
   {
     return lastNormalStateDurationString;
@@ -528,6 +546,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last normal state in milliseconds, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getLastNormalStateDurationMillis()
   {
     return lastNormalStateDurationMillis;
@@ -543,6 +562,7 @@ public class GaugeMonitorEntry
    *          a human-readable string, or {@code null} if it was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public final String getTotalNormalStateDurationString()
   {
     return totalNormalStateDurationString;
@@ -558,6 +578,7 @@ public class GaugeMonitorEntry
    *          milliseconds, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public final Long getTotalNormalStateDurationMillis()
   {
     return totalNormalStateDurationMillis;
@@ -571,6 +592,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last entered the warning state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastWarningStateStartTime()
   {
     return lastWarningStateStartTime;
@@ -584,6 +606,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last exited the warning state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastWarningStateEndTime()
   {
     return lastWarningStateEndTime;
@@ -598,6 +621,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last warning state as a human-readable string,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final String getLastWarningStateDurationString()
   {
     return lastWarningStateDurationString;
@@ -612,6 +636,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last warning state in milliseconds, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getLastWarningStateDurationMillis()
   {
     return lastWarningStateDurationMillis;
@@ -627,6 +652,7 @@ public class GaugeMonitorEntry
    *          as a human-readable string, or {@code null} if it was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public final String getTotalWarningStateDurationString()
   {
     return totalWarningStateDurationString;
@@ -642,6 +668,7 @@ public class GaugeMonitorEntry
    *          in milliseconds, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public final Long getTotalWarningStateDurationMillis()
   {
     return totalWarningStateDurationMillis;
@@ -655,6 +682,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last entered the minor state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastMinorStateStartTime()
   {
     return lastMinorStateStartTime;
@@ -668,6 +696,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last exited the minor state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastMinorStateEndTime()
   {
     return lastMinorStateEndTime;
@@ -682,6 +711,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last minor state as a human-readable string,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final String getLastMinorStateDurationString()
   {
     return lastMinorStateDurationString;
@@ -696,6 +726,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last minor state in milliseconds, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getLastMinorStateDurationMillis()
   {
     return lastMinorStateDurationMillis;
@@ -711,6 +742,7 @@ public class GaugeMonitorEntry
    *          a human-readable string, or {@code null} if it was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public final String getTotalMinorStateDurationString()
   {
     return totalMinorStateDurationString;
@@ -726,6 +758,7 @@ public class GaugeMonitorEntry
    *          milliseconds, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public final Long getTotalMinorStateDurationMillis()
   {
     return totalMinorStateDurationMillis;
@@ -739,6 +772,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last entered the major state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastMajorStateStartTime()
   {
     return lastMajorStateStartTime;
@@ -752,6 +786,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last exited the major state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastMajorStateEndTime()
   {
     return lastMajorStateEndTime;
@@ -766,6 +801,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last major state as a human-readable string,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final String getLastMajorStateDurationString()
   {
     return lastMajorStateDurationString;
@@ -780,6 +816,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last major state in milliseconds, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getLastMajorStateDurationMillis()
   {
     return lastMajorStateDurationMillis;
@@ -795,6 +832,7 @@ public class GaugeMonitorEntry
    *          a human-readable string, or {@code null} if it was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public final String getTotalMajorStateDurationString()
   {
     return totalMajorStateDurationString;
@@ -810,6 +848,7 @@ public class GaugeMonitorEntry
    *          milliseconds, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public final Long getTotalMajorStateDurationMillis()
   {
     return totalMajorStateDurationMillis;
@@ -823,6 +862,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last entered the critical state, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastCriticalStateStartTime()
   {
     return lastCriticalStateStartTime;
@@ -836,6 +876,7 @@ public class GaugeMonitorEntry
    * @return  The time the gauge last exited the critical state, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Date getLastCriticalStateEndTime()
   {
     return lastCriticalStateEndTime;
@@ -851,6 +892,7 @@ public class GaugeMonitorEntry
    *          string, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public final String getLastCriticalStateDurationString()
   {
     return lastCriticalStateDurationString;
@@ -865,6 +907,7 @@ public class GaugeMonitorEntry
    * @return  The duration of the last critical state in milliseconds, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public final Long getLastCriticalStateDurationMillis()
   {
     return lastCriticalStateDurationMillis;
@@ -880,6 +923,7 @@ public class GaugeMonitorEntry
    *          as a human-readable string, or {@code null} if it was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public final String getTotalCriticalStateDurationString()
   {
     return totalCriticalStateDurationString;
@@ -895,6 +939,7 @@ public class GaugeMonitorEntry
    *          in milliseconds, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public final Long getTotalCriticalStateDurationMillis()
   {
     return totalCriticalStateDurationMillis;
@@ -906,6 +951,7 @@ public class GaugeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_GAUGE_MONITOR_DISPNAME.get();
@@ -917,6 +963,7 @@ public class GaugeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_GAUGE_MONITOR_DESC.get();
@@ -928,6 +975,7 @@ public class GaugeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

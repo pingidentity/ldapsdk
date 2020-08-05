@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONException;
@@ -99,7 +101,7 @@ public final class GetRecentLoginHistoryResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.62) for the get password policy state issues
    * response control.
    */
-  public static final String GET_RECENT_LOGIN_HISTORY_RESPONSE_OID =
+  @NotNull public static final String GET_RECENT_LOGIN_HISTORY_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.62";
 
 
@@ -112,7 +114,7 @@ public final class GetRecentLoginHistoryResponseControl
 
 
   // The recent login history contained in the response control.
-  private final RecentLoginHistory recentLoginHistory;
+  @NotNull private final RecentLoginHistory recentLoginHistory;
 
 
 
@@ -134,7 +136,7 @@ public final class GetRecentLoginHistoryResponseControl
    *                             response control.  It must not be {@code null}.
    */
   public GetRecentLoginHistoryResponseControl(
-              final RecentLoginHistory recentLoginHistory)
+              @NotNull final RecentLoginHistory recentLoginHistory)
   {
     super(GET_RECENT_LOGIN_HISTORY_RESPONSE_OID, false,
          new ASN1OctetString(recentLoginHistory.asJSONObject().toString()));
@@ -157,8 +159,8 @@ public final class GetRecentLoginHistoryResponseControl
    *                         decode the provided control as a get recent login
    *                         history response control.
    */
-  public GetRecentLoginHistoryResponseControl(final String oid,
-              final boolean isCritical, final ASN1OctetString value)
+  public GetRecentLoginHistoryResponseControl(@NotNull final String oid,
+              final boolean isCritical, @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -203,9 +205,10 @@ public final class GetRecentLoginHistoryResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetRecentLoginHistoryResponseControl decodeControl(
-              final String oid, final boolean isCritical,
-              final ASN1OctetString value)
+              @NotNull final String oid, final boolean isCritical,
+              @Nullable final ASN1OctetString value)
           throws LDAPException
   {
     return new GetRecentLoginHistoryResponseControl(oid, isCritical, value);
@@ -218,6 +221,7 @@ public final class GetRecentLoginHistoryResponseControl
    *
    * @return  The recent login history contained in this response control.
    */
+  @NotNull()
   public RecentLoginHistory getRecentLoginHistory()
   {
     return recentLoginHistory;
@@ -240,8 +244,9 @@ public final class GetRecentLoginHistoryResponseControl
    *                         decode the get recent login history response
    *                         control contained in the provided bind result.
    */
+  @Nullable()
   public static GetRecentLoginHistoryResponseControl get(
-                     final BindResult bindResult)
+                     @NotNull final BindResult bindResult)
          throws LDAPException
   {
     final Control c =
@@ -268,6 +273,7 @@ public final class GetRecentLoginHistoryResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_RECENT_LOGIN_HISTORY_RESPONSE.get();
@@ -279,7 +285,7 @@ public final class GetRecentLoginHistoryResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetRecentLoginHistoryResponseControl(recentLoginHistory=");
     buffer.append(recentLoginHistory.toString());

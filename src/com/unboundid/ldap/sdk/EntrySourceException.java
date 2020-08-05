@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -136,7 +137,7 @@ public class EntrySourceException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EntrySourceException(message='");
     buffer.append(getMessage());

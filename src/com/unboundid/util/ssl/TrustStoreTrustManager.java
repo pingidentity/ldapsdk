@@ -50,6 +50,8 @@ import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -74,7 +76,7 @@ public final class TrustStoreTrustManager
   /**
    * A pre-allocated empty certificate array.
    */
-  private static final X509Certificate[] NO_CERTIFICATES =
+  @NotNull private static final X509Certificate[] NO_CERTIFICATES =
        new X509Certificate[0];
 
 
@@ -91,13 +93,13 @@ public final class TrustStoreTrustManager
   private final boolean examineValidityDates;
 
   // The PIN to use to access the trust store.
-  private final char[] trustStorePIN;
+  @Nullable private final char[] trustStorePIN;
 
   // The path to the trust store file.
-  private final String trustStoreFile;
+  @NotNull private final String trustStoreFile;
 
   // The format to use for the trust store file.
-  private final String trustStoreFormat;
+  @NotNull private final String trustStoreFormat;
 
 
 
@@ -110,7 +112,7 @@ public final class TrustStoreTrustManager
    * @param  trustStoreFile  The path to the trust store file to use.  It must
    *                         not be {@code null}.
    */
-  public TrustStoreTrustManager(final File trustStoreFile)
+  public TrustStoreTrustManager(@NotNull final File trustStoreFile)
   {
     this(trustStoreFile.getAbsolutePath(), null, null, true);
   }
@@ -126,7 +128,7 @@ public final class TrustStoreTrustManager
    * @param  trustStoreFile  The path to the trust store file to use.  It must
    *                         not be {@code null}.
    */
-  public TrustStoreTrustManager(final String trustStoreFile)
+  public TrustStoreTrustManager(@NotNull final String trustStoreFile)
   {
     this(trustStoreFile, null, null, true);
   }
@@ -149,9 +151,9 @@ public final class TrustStoreTrustManager
    *                               the current time is outside the validity
    *                               window for the certificate.
    */
-  public TrustStoreTrustManager(final File trustStoreFile,
-                                final char[] trustStorePIN,
-                                final String trustStoreFormat,
+  public TrustStoreTrustManager(@NotNull final File trustStoreFile,
+                                @Nullable final char[] trustStorePIN,
+                                @Nullable final String trustStoreFormat,
                                 final boolean examineValidityDates)
   {
     this(trustStoreFile.getAbsolutePath(), trustStorePIN, trustStoreFormat,
@@ -176,9 +178,9 @@ public final class TrustStoreTrustManager
    *                               the current time is outside the validity
    *                               window for the certificate.
    */
-  public TrustStoreTrustManager(final String trustStoreFile,
-                                final char[] trustStorePIN,
-                                final String trustStoreFormat,
+  public TrustStoreTrustManager(@NotNull final String trustStoreFile,
+                                @Nullable final char[] trustStorePIN,
+                                @Nullable final String trustStoreFormat,
                                 final boolean examineValidityDates)
   {
     Validator.ensureNotNull(trustStoreFile);
@@ -204,6 +206,7 @@ public final class TrustStoreTrustManager
    *
    * @return  The path to the trust store file to use.
    */
+  @NotNull()
   public String getTrustStoreFile()
   {
     return trustStoreFile;
@@ -216,6 +219,7 @@ public final class TrustStoreTrustManager
    *
    * @return  The name of the trust store file format.
    */
+  @NotNull()
   public String getTrustStoreFormat()
   {
     return trustStoreFormat;
@@ -252,7 +256,9 @@ public final class TrustStoreTrustManager
    * @throws  CertificateException  If the provided client certificate chain
    *                                should not be trusted.
    */
-  private X509TrustManager[] getTrustManagers(final X509Certificate[] chain)
+  @NotNull()
+  private X509TrustManager[] getTrustManagers(
+                                  @NotNull final X509Certificate[] chain)
           throws CertificateException
   {
     if (examineValidityDates)
@@ -337,8 +343,8 @@ public final class TrustStoreTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     for (final X509TrustManager m : getTrustManagers(chain))
@@ -361,8 +367,8 @@ public final class TrustStoreTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     for (final X509TrustManager m : getTrustManagers(chain))
@@ -380,6 +386,7 @@ public final class TrustStoreTrustManager
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

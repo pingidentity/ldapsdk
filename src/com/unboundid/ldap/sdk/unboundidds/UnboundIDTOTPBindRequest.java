@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SASLBindRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -103,7 +105,8 @@ public abstract class UnboundIDTOTPBindRequest
   /**
    * The name for the UnboundID TOTP SASL mechanism.
    */
-  public static final String UNBOUNDID_TOTP_MECHANISM_NAME = "UNBOUNDID-TOTP";
+  @NotNull public static final String UNBOUNDID_TOTP_MECHANISM_NAME =
+       "UNBOUNDID-TOTP";
 
 
 
@@ -143,16 +146,16 @@ public abstract class UnboundIDTOTPBindRequest
 
 
   // The static password for the target user, if provided.
-  private final ASN1OctetString staticPassword;
+  @Nullable private final ASN1OctetString staticPassword;
 
   // The message ID from the last LDAP message sent from this request.
   private volatile int messageID = -1;
 
   // The authentication identity for the bind.
-  private final String authenticationID;
+  @NotNull private final String authenticationID;
 
   // The authorization identity for the bind, if provided.
-  private final String authorizationID;
+  @Nullable private final String authorizationID;
 
 
 
@@ -178,10 +181,10 @@ public abstract class UnboundIDTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  protected UnboundIDTOTPBindRequest(final String authenticationID,
-                                     final String authorizationID,
-                                     final String staticPassword,
-                                     final Control... controls)
+  protected UnboundIDTOTPBindRequest(@NotNull final String authenticationID,
+                                     @Nullable final String authorizationID,
+                                     @Nullable final String staticPassword,
+                                     @Nullable final Control... controls)
   {
     super(controls);
 
@@ -225,10 +228,10 @@ public abstract class UnboundIDTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  protected UnboundIDTOTPBindRequest(final String authenticationID,
-                                     final String authorizationID,
-                                     final byte[] staticPassword,
-                                     final Control... controls)
+  protected UnboundIDTOTPBindRequest(@NotNull final String authenticationID,
+                                     @Nullable final String authorizationID,
+                                     @Nullable final byte[] staticPassword,
+                                     @Nullable final Control... controls)
   {
     super(controls);
 
@@ -274,10 +277,10 @@ public abstract class UnboundIDTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  protected UnboundIDTOTPBindRequest(final String authenticationID,
-                                     final String authorizationID,
-                                     final ASN1OctetString staticPassword,
-                                     final Control... controls)
+  protected UnboundIDTOTPBindRequest(@NotNull final String authenticationID,
+                 @Nullable final String authorizationID,
+                 @Nullable final ASN1OctetString staticPassword,
+                 @Nullable final Control... controls)
   {
     super(controls);
 
@@ -300,6 +303,7 @@ public abstract class UnboundIDTOTPBindRequest
    *
    * @return  The authentication ID for the bind request.
    */
+  @NotNull()
   public final String getAuthenticationID()
   {
     return authenticationID;
@@ -313,6 +317,7 @@ public abstract class UnboundIDTOTPBindRequest
    * @return  The authorization ID for the bind request, or {@code null} if the
    *          authorization ID should be the same as the authentication ID.
    */
+  @Nullable()
   public final String getAuthorizationID()
   {
     return authorizationID;
@@ -327,6 +332,7 @@ public abstract class UnboundIDTOTPBindRequest
    *          static password was provided and only the one-time password should
    *          be used for authentication.
    */
+  @Nullable()
   public final ASN1OctetString getStaticPassword()
   {
     return staticPassword;
@@ -338,6 +344,7 @@ public abstract class UnboundIDTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final String getSASLMechanismName()
   {
     return UNBOUNDID_TOTP_MECHANISM_NAME;
@@ -349,7 +356,8 @@ public abstract class UnboundIDTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected final BindResult process(final LDAPConnection connection,
+  @NotNull()
+  protected final BindResult process(@NotNull final LDAPConnection connection,
                                      final int depth)
             throws LDAPException
   {
@@ -370,6 +378,7 @@ public abstract class UnboundIDTOTPBindRequest
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         obtain the encoded credentials.
    */
+  @NotNull()
   protected abstract ASN1OctetString getSASLCredentials()
             throws LDAPException;
 
@@ -400,10 +409,12 @@ public abstract class UnboundIDTOTPBindRequest
    *
    * @return  The encoded SASL credentials.
    */
-  public static ASN1OctetString encodeCredentials(final String authenticationID,
-                                    final String authorizationID,
-                                    final String totpPassword,
-                                    final ASN1OctetString staticPassword)
+  @NotNull()
+  public static ASN1OctetString encodeCredentials(
+                     @NotNull final String authenticationID,
+                     @Nullable final String authorizationID,
+                     @NotNull final String totpPassword,
+                     @Nullable final ASN1OctetString staticPassword)
   {
     Validator.ensureNotNull(authenticationID);
     Validator.ensureNotNull(totpPassword);
@@ -451,7 +462,7 @@ public abstract class UnboundIDTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public final void toString(final StringBuilder buffer)
+  public final void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UnboundIDTOTPBindRequest(authID='");
     buffer.append(authenticationID);

@@ -41,6 +41,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -63,6 +65,7 @@ public interface InMemoryInterceptedSearchEntry
    *
    * @return  The search request that was processed.
    */
+  @NotNull()
   ReadOnlySearchRequest getRequest();
 
 
@@ -72,6 +75,7 @@ public interface InMemoryInterceptedSearchEntry
    *
    * @return  The search result entry to be returned to the client.
    */
+  @Nullable()
   SearchResultEntry getSearchEntry();
 
 
@@ -92,5 +96,5 @@ public interface InMemoryInterceptedSearchEntry
    *                other type of {@code Entry}, then it will not include any
    *                controls.
    */
-  void setSearchEntry(Entry entry);
+  void setSearchEntry(@Nullable Entry entry);
 }

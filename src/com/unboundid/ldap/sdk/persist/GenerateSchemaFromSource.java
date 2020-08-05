@@ -58,6 +58,8 @@ import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -92,9 +94,9 @@ public final class GenerateSchemaFromSource
 
 
   // Arguments used by this tool.
-  private BooleanArgument modifyFormatArg;
-  private FileArgument    outputFileArg;
-  private StringArgument  classNameArg;
+  @Nullable private BooleanArgument modifyFormatArg;
+  @Nullable private FileArgument    outputFileArg;
+  @Nullable private StringArgument  classNameArg;
 
 
 
@@ -104,7 +106,7 @@ public final class GenerateSchemaFromSource
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -129,9 +131,10 @@ public final class GenerateSchemaFromSource
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  @NotNull()
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final GenerateSchemaFromSource tool =
          new GenerateSchemaFromSource(outStream, errStream);
@@ -150,8 +153,8 @@ public final class GenerateSchemaFromSource
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public GenerateSchemaFromSource(final OutputStream outStream,
-                                  final OutputStream errStream)
+  public GenerateSchemaFromSource(@Nullable final OutputStream outStream,
+                                  @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
   }
@@ -162,6 +165,7 @@ public final class GenerateSchemaFromSource
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "generate-schema-from-source";
@@ -173,6 +177,7 @@ public final class GenerateSchemaFromSource
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_GEN_SCHEMA_TOOL_DESCRIPTION.get();
@@ -186,6 +191,7 @@ public final class GenerateSchemaFromSource
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -252,7 +258,7 @@ public final class GenerateSchemaFromSource
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     classNameArg = new StringArgument('c', "javaClass", true, 1,
@@ -280,6 +286,7 @@ public final class GenerateSchemaFromSource
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Load the specified Java class.
@@ -406,6 +413,7 @@ public final class GenerateSchemaFromSource
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

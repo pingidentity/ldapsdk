@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -53,7 +54,8 @@ public final class DefaultNameResolver
   /**
    * The singleton instance of this default name resolver.
    */
-  private static final DefaultNameResolver INSTANCE = new DefaultNameResolver();
+  @NotNull private static final DefaultNameResolver INSTANCE =
+       new DefaultNameResolver();
 
 
 
@@ -72,6 +74,7 @@ public final class DefaultNameResolver
    *
    * @return  The singleton instance of this default name resolver.
    */
+  @NotNull()
   public static DefaultNameResolver getInstance()
   {
     return INSTANCE;
@@ -83,7 +86,7 @@ public final class DefaultNameResolver
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DefaultNameResolver()");
   }

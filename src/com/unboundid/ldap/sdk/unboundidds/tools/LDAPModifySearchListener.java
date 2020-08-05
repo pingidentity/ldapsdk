@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,32 +89,32 @@ final class LDAPModifySearchListener
 
 
   // The search filter being processed.
-  private final Filter searchFilter;
+  @NotNull private final Filter searchFilter;
 
   // The fixed-rate barrier that should be used for rate limiting.
-  private final FixedRateBarrier rateLimiter;
+  @Nullable private final FixedRateBarrier rateLimiter;
 
   // The connection pool to use to communicate with the directory server.
-  private final LDAPConnectionPool connectionPool;
+  @NotNull private final LDAPConnectionPool connectionPool;
 
   // The associated LDAPModify tool instance.
-  private final LDAPModify ldapModify;
+  @NotNull private final LDAPModify ldapModify;
 
   // The change record to with the changes to apply to entries returned from the
   // search.
-  private final LDIFModifyChangeRecord sourceChangeRecord;
+  @NotNull private final LDIFModifyChangeRecord sourceChangeRecord;
 
   // The reject writer to use to record information about failed modifications.
-  private final LDIFWriter rejectWriter;
+  @NotNull private final LDIFWriter rejectWriter;
 
   // The set of controls to include in modify requests.
-  private final List<Control> modifyControls;
+  @NotNull private final List<Control> modifyControls;
 
   // The result code obtained from processing.
-  private volatile ResultCode resultCode;
+  @NotNull  private volatile ResultCode resultCode;
 
   // A set used to hold the DNs of the entries that have been processed.
-  private final Set<DN> processedEntryDNs;
+  @NotNull private final Set<DN> processedEntryDNs;
 
 
 
@@ -139,14 +141,14 @@ final class LDAPModifySearchListener
    *                             processing and it is necessary to re-issue a
    *                             search request.
    */
-  LDAPModifySearchListener(final LDAPModify ldapModify,
-                           final LDIFModifyChangeRecord sourceChangeRecord,
-                           final Filter searchFilter,
-                           final List<Control> modifyControls,
-                           final LDAPConnectionPool connectionPool,
-                           final FixedRateBarrier rateLimiter,
-                           final LDIFWriter rejectWriter,
-                           final Set<DN> processedEntryDNs)
+  LDAPModifySearchListener(@NotNull final LDAPModify ldapModify,
+       @NotNull final LDIFModifyChangeRecord sourceChangeRecord,
+       @NotNull final Filter searchFilter,
+       @NotNull final List<Control> modifyControls,
+       @NotNull final LDAPConnectionPool connectionPool,
+       @Nullable final FixedRateBarrier rateLimiter,
+       @NotNull final LDIFWriter rejectWriter,
+       @NotNull final Set<DN> processedEntryDNs)
   {
     this.ldapModify         = ldapModify;
     this.sourceChangeRecord = sourceChangeRecord;
@@ -167,6 +169,7 @@ final class LDAPModifySearchListener
    *
    * @return  The result code obtained from processing.
    */
+  @NotNull()
   ResultCode getResultCode()
   {
     return resultCode;
@@ -178,7 +181,7 @@ final class LDAPModifySearchListener
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     // Get the parsed DN of the search result entry to see if it has already
     // been processed.  In the unlikely event that the DN can't be parsed, just
@@ -256,7 +259,7 @@ final class LDAPModifySearchListener
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     final StringBuilder urls = new StringBuilder();
     for (final String url : searchReference.getReferralURLs())

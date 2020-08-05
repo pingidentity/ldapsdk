@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -81,17 +83,17 @@ public class LDAPConstraints
 
   // The mechanism to use to authenticate to the target server when following
   // referrals.
-  private LDAPBind bindProc;
+  @Nullable private LDAPBind bindProc;
 
   // The client controls.
-  private LDAPControl[] clientControls;
+  @NotNull private LDAPControl[] clientControls;
 
   // The server controls.
-  private LDAPControl[] serverControls;
+  @NotNull private LDAPControl[] serverControls;
 
   // The mechanism to use to obtain credentials used when authenticating a
   // referral connection.
-  private LDAPRebind rebindProc;
+  @Nullable private LDAPRebind rebindProc;
 
 
 
@@ -123,7 +125,7 @@ public class LDAPConstraints
    *                      referral.
    */
   public LDAPConstraints(final int msLimit, final boolean doReferrals,
-                         final LDAPBind bindProc, final int hopLimit)
+                         @Nullable final LDAPBind bindProc, final int hopLimit)
   {
     this();
 
@@ -148,7 +150,8 @@ public class LDAPConstraints
    *                      referral.
    */
   public LDAPConstraints(final int msLimit, final boolean doReferrals,
-                         final LDAPRebind rebindProc, final int hopLimit)
+                         @Nullable final LDAPRebind rebindProc,
+                         final int hopLimit)
   {
     this();
 
@@ -230,6 +233,7 @@ public class LDAPConstraints
    * @return  The object that should be used to authenticate connections when
    *          following referrals, or {@code null} if none has been defined.
    */
+  @Nullable()
   public LDAPBind getBindProc()
   {
     return bindProc;
@@ -244,7 +248,7 @@ public class LDAPConstraints
    * @param  bindProc  The object that should be used to authenticate
    *                   connections when following referrals.
    */
-  public void setBindProc(final LDAPBind bindProc)
+  public void setBindProc(@Nullable final LDAPBind bindProc)
   {
     this.bindProc = bindProc;
   }
@@ -259,6 +263,7 @@ public class LDAPConstraints
    *          information for use when following referrals, or {@code null} if
    *          none has been defined.
    */
+  @Nullable()
   public LDAPRebind getRebindProc()
   {
     return rebindProc;
@@ -273,7 +278,7 @@ public class LDAPConstraints
    * @param  rebindProc  The object that should be used to obtain authentication
    *                     information for use when following referrals.
    */
-  public void setRebindProc(final LDAPRebind rebindProc)
+  public void setRebindProc(@Nullable final LDAPRebind rebindProc)
   {
     this.rebindProc = rebindProc;
   }
@@ -320,6 +325,7 @@ public class LDAPConstraints
    *
    * @return The controls that should be applied by the client.
    */
+  @NotNull()
   public LDAPControl[] getClientControls()
   {
     return clientControls;
@@ -332,7 +338,7 @@ public class LDAPConstraints
    *
    * @param  control  The control that should be applied by client.
    */
-  public void setClientControls(final LDAPControl control)
+  public void setClientControls(@NotNull final LDAPControl control)
   {
     clientControls = new LDAPControl[] { control };
   }
@@ -344,7 +350,7 @@ public class LDAPConstraints
    *
    * @param  controls  The controls that should be applied by client.
    */
-  public void setClientControls(final LDAPControl[] controls)
+  public void setClientControls(@Nullable final LDAPControl[] controls)
   {
     if (controls == null)
     {
@@ -363,6 +369,7 @@ public class LDAPConstraints
    *
    * @return The controls that should be applied by the server.
    */
+  @NotNull()
   public LDAPControl[] getServerControls()
   {
     return serverControls;
@@ -375,7 +382,7 @@ public class LDAPConstraints
    *
    * @param  control  The control that should be applied by server.
    */
-  public void setServerControls(final LDAPControl control)
+  public void setServerControls(@NotNull final LDAPControl control)
   {
     serverControls = new LDAPControl[] { control };
   }
@@ -387,7 +394,7 @@ public class LDAPConstraints
    *
    * @param  controls  The controls that should be applied by server.
    */
-  public void setServerControls(final LDAPControl[] controls)
+  public void setServerControls(@Nullable final LDAPControl[] controls)
   {
     if (controls == null)
     {
@@ -406,6 +413,7 @@ public class LDAPConstraints
    *
    * @return  A duplicate of this LDAP constraints object.
    */
+  @NotNull()
   public LDAPConstraints duplicate()
   {
     final LDAPConstraints c = new LDAPConstraints();
@@ -429,6 +437,7 @@ public class LDAPConstraints
    * @return  A string representation of this LDAP constraints object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();

@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -86,6 +87,7 @@ public abstract class ChangelogBatchChangeSelectionCriteria
    * @return  An ASN.1 element containing the encoded representation of this
    *          changelog batch change selection criteria value.
    */
+  @NotNull()
   public final ASN1Element encode()
   {
     return new ASN1Element(TYPE_SELECTION_CRITERIA,
@@ -102,6 +104,7 @@ public abstract class ChangelogBatchChangeSelectionCriteria
    *          encoded representation of the changelog batch change selection
    *          criteria element.
    */
+  @NotNull()
   protected abstract ASN1Element encodeInnerElement();
 
 
@@ -118,8 +121,9 @@ public abstract class ChangelogBatchChangeSelectionCriteria
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a changelog batch starting point.
    */
+  @NotNull()
   public static ChangelogBatchChangeSelectionCriteria decode(
-                     final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     Validator.ensureNotNull(element);
@@ -175,6 +179,7 @@ public abstract class ChangelogBatchChangeSelectionCriteria
    *          criteria value.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -190,5 +195,5 @@ public abstract class ChangelogBatchChangeSelectionCriteria
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 }

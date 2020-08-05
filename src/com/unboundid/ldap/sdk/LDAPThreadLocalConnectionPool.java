@@ -49,6 +49,8 @@ import java.util.logging.Level;
 
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -104,28 +106,29 @@ public final class LDAPThreadLocalConnectionPool
 
   // The types of operations that should be retried if they fail in a manner
   // that may be the result of a connection that is no longer valid.
-  private final AtomicReference<Set<OperationType>> retryOperationTypes;
+  @NotNull private final AtomicReference<Set<OperationType>>
+       retryOperationTypes;
 
   // Indicates whether this connection pool has been closed.
   private volatile boolean closed;
 
   // The bind request to use to perform authentication whenever a new connection
   // is established.
-  private volatile BindRequest bindRequest;
+  @Nullable private volatile BindRequest bindRequest;
 
   // The map of connections maintained for this connection pool.
-  private final ConcurrentHashMap<Thread,LDAPConnection> connections;
+  @NotNull private final ConcurrentHashMap<Thread,LDAPConnection> connections;
 
   // The health check implementation that should be used for this connection
   // pool.
-  private LDAPConnectionPoolHealthCheck healthCheck;
+  @NotNull private LDAPConnectionPoolHealthCheck healthCheck;
 
   // The thread that will be used to perform periodic background health checks
   // for this connection pool.
-  private final LDAPConnectionPoolHealthCheckThread healthCheckThread;
+  @NotNull private final LDAPConnectionPoolHealthCheckThread healthCheckThread;
 
   // The statistics for this connection pool.
-  private final LDAPConnectionPoolStatistics poolStatistics;
+  @NotNull private final LDAPConnectionPoolStatistics poolStatistics;
 
   // The length of time in milliseconds between periodic health checks against
   // the available connections in this pool.
@@ -145,16 +148,16 @@ public final class LDAPThreadLocalConnectionPool
 
   // The schema that should be shared for connections in this pool, along with
   // its expiration time.
-  private volatile ObjectPair<Long,Schema> pooledSchema;
+  @Nullable private volatile ObjectPair<Long,Schema> pooledSchema;
 
   // The post-connect processor for this connection pool, if any.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The server set to use for establishing connections for use by this pool.
-  private volatile ServerSet serverSet;
+  @NotNull private volatile ServerSet serverSet;
 
   // The user-friendly name assigned to this connection pool.
-  private String connectionPoolName;
+  @Nullable private String connectionPoolName;
 
 
 
@@ -174,7 +177,7 @@ public final class LDAPThreadLocalConnectionPool
    *                         connections associated with the pool (including the
    *                         one provided as an argument) will be closed.
    */
-  public LDAPThreadLocalConnectionPool(final LDAPConnection connection)
+  public LDAPThreadLocalConnectionPool(@NotNull final LDAPConnection connection)
          throws LDAPException
   {
     this(connection, null);
@@ -207,8 +210,9 @@ public final class LDAPThreadLocalConnectionPool
    *                         connections associated with the pool (including the
    *                         one provided as an argument) will be closed.
    */
-  public LDAPThreadLocalConnectionPool(final LDAPConnection connection,
-              final PostConnectProcessor postConnectProcessor)
+  public LDAPThreadLocalConnectionPool(
+              @NotNull final LDAPConnection connection,
+              @Nullable final PostConnectProcessor postConnectProcessor)
          throws LDAPException
   {
     Validator.ensureNotNull(connection);
@@ -300,8 +304,8 @@ public final class LDAPThreadLocalConnectionPool
    *                         pool may still need to re-authenticate the
    *                         connection.
    */
-  public LDAPThreadLocalConnectionPool(final ServerSet serverSet,
-                                       final BindRequest bindRequest)
+  public LDAPThreadLocalConnectionPool(@NotNull final ServerSet serverSet,
+                                       @Nullable final BindRequest bindRequest)
   {
     this(serverSet, bindRequest, null);
   }
@@ -338,9 +342,9 @@ public final class LDAPThreadLocalConnectionPool
    *                               the post-connect processor provided to the
    *                               pool must be {@code null}.
    */
-  public LDAPThreadLocalConnectionPool(final ServerSet serverSet,
-              final BindRequest bindRequest,
-              final PostConnectProcessor postConnectProcessor)
+  public LDAPThreadLocalConnectionPool(@NotNull final ServerSet serverSet,
+              @Nullable final BindRequest bindRequest,
+              @Nullable final PostConnectProcessor postConnectProcessor)
   {
     Validator.ensureNotNull(serverSet);
 
@@ -392,6 +396,7 @@ public final class LDAPThreadLocalConnectionPool
    *                         it will be closed.
    */
   @SuppressWarnings("deprecation")
+  @NotNull()
   private LDAPConnection createConnection()
           throws LDAPException
   {
@@ -722,9 +727,10 @@ public final class LDAPThreadLocalConnectionPool
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bindAndRevertAuthentication(final String bindDN,
-                                                final String password,
-                                                final Control... controls)
+  @NotNull()
+  public BindResult bindAndRevertAuthentication(@Nullable final String bindDN,
+                         @Nullable final String password,
+                         @Nullable final Control... controls)
          throws LDAPException
   {
     return bindAndRevertAuthentication(
@@ -755,7 +761,9 @@ public final class LDAPThreadLocalConnectionPool
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bindAndRevertAuthentication(final BindRequest bindRequest)
+  @NotNull()
+  public BindResult bindAndRevertAuthentication(
+                         @NotNull final BindRequest bindRequest)
          throws LDAPException
   {
     LDAPConnection conn = getConnection();
@@ -869,6 +877,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -974,7 +983,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
-  public void releaseConnection(final LDAPConnection connection)
+  public void releaseConnection(@NotNull final LDAPConnection connection)
   {
     if (connection == null)
     {
@@ -1038,7 +1047,7 @@ public final class LDAPThreadLocalConnectionPool
    *                     being re-authenticated.
    */
   public void releaseAndReAuthenticateConnection(
-       final LDAPConnection connection)
+                   @NotNull final LDAPConnection connection)
   {
     if (connection == null)
     {
@@ -1107,7 +1116,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
-  public void releaseDefunctConnection(final LDAPConnection connection)
+  public void releaseDefunctConnection(@NotNull final LDAPConnection connection)
   {
     if (connection == null)
     {
@@ -1129,7 +1138,7 @@ public final class LDAPThreadLocalConnectionPool
    *
    * @param  connection  The defunct connection to be replaced.
    */
-  private void handleDefunctConnection(final LDAPConnection connection)
+  private void handleDefunctConnection(@NotNull final LDAPConnection connection)
   {
     final Thread t = Thread.currentThread();
 
@@ -1160,8 +1169,9 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection replaceDefunctConnection(
-                             final LDAPConnection connection)
+                             @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     poolStatistics.incrementNumConnectionsClosedDefunct();
@@ -1188,6 +1198,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Set<OperationType> getOperationTypesToRetryDueToInvalidConnections()
   {
     return retryOperationTypes.get();
@@ -1200,7 +1211,7 @@ public final class LDAPThreadLocalConnectionPool
    */
   @Override()
   public void setRetryFailedOperationsDueToInvalidConnections(
-                   final Set<OperationType> operationTypes)
+                   @Nullable final Set<OperationType> operationTypes)
   {
     if ((operationTypes == null) || operationTypes.isEmpty())
     {
@@ -1225,7 +1236,7 @@ public final class LDAPThreadLocalConnectionPool
    * @return  {@code true} if the provided connection should be considered
    *          expired, or {@code false} if not.
    */
-  private boolean connectionIsExpired(final LDAPConnection connection)
+  private boolean connectionIsExpired(@NotNull final LDAPConnection connection)
   {
     // If connection expiration is not enabled, then there is nothing to do.
     if (maxConnectionAge <= 0L)
@@ -1264,7 +1275,7 @@ public final class LDAPThreadLocalConnectionPool
    *                      may be {@code null} if new connections should be
    *                      unauthenticated.
    */
-  public void setBindRequest(final BindRequest bindRequest)
+  public void setBindRequest(@Nullable final BindRequest bindRequest)
   {
     this.bindRequest = bindRequest;
   }
@@ -1280,7 +1291,7 @@ public final class LDAPThreadLocalConnectionPool
    *                    connections for use in this connection pool.  It must
    *                    not be {@code null}.
    */
-  public void setServerSet(final ServerSet serverSet)
+  public void setServerSet(@NotNull final ServerSet serverSet)
   {
     Validator.ensureNotNull(serverSet);
     this.serverSet = serverSet;
@@ -1292,6 +1303,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getConnectionPoolName()
   {
     return connectionPoolName;
@@ -1303,7 +1315,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
-  public void setConnectionPoolName(final String connectionPoolName)
+  public void setConnectionPoolName(@Nullable final String connectionPoolName)
   {
     this.connectionPoolName = connectionPoolName;
   }
@@ -1399,6 +1411,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionPoolHealthCheck getHealthCheck()
   {
     return healthCheck;
@@ -1412,7 +1425,8 @@ public final class LDAPThreadLocalConnectionPool
    * @param  healthCheck  The health check implementation for this connection
    *                      pool.  It must not be {@code null}.
    */
-  public void setHealthCheck(final LDAPConnectionPoolHealthCheck healthCheck)
+  public void setHealthCheck(
+                   @NotNull final LDAPConnectionPoolHealthCheck healthCheck)
   {
     Validator.ensureNotNull(healthCheck);
     this.healthCheck = healthCheck;
@@ -1497,6 +1511,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionPoolStatistics getConnectionPoolStatistics()
   {
     return poolStatistics;
@@ -1524,7 +1539,7 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPThreadLocalConnectionPool(");
 

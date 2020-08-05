@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,7 +91,7 @@ public final class StackTraceMonitorEntry
   /**
    * The structural object class used in stack trace monitor entries.
    */
-  static final String STACK_TRACE_MONITOR_OC =
+  @NotNull static final String STACK_TRACE_MONITOR_OC =
        "ds-stack-trace-monitor-entry";
 
 
@@ -99,7 +100,7 @@ public final class StackTraceMonitorEntry
    * The name of the attribute that contains the JVM stack trace for each
    * thread.
    */
-  private static final String ATTR_JVM_STACK_TRACE = "jvmThread";
+  @NotNull private static final String ATTR_JVM_STACK_TRACE = "jvmThread";
 
 
 
@@ -111,7 +112,7 @@ public final class StackTraceMonitorEntry
 
 
   // The list of thread stack traces.
-  private final List<ThreadStackTrace> stackTraces;
+  @NotNull private final List<ThreadStackTrace> stackTraces;
 
 
 
@@ -121,7 +122,7 @@ public final class StackTraceMonitorEntry
    * @param  entry  The entry to be parsed as a stack trace monitor entry.
    *                It must not be {@code null}.
    */
-  public StackTraceMonitorEntry(final Entry entry)
+  public StackTraceMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -226,6 +227,7 @@ public final class StackTraceMonitorEntry
    *          included in the monitor entry or a problem occurs while decoding
    *          the stack traces.
    */
+  @NotNull()
   public List<ThreadStackTrace> getStackTraces()
   {
     return stackTraces;
@@ -237,6 +239,7 @@ public final class StackTraceMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_STACK_TRACE_MONITOR_DISPNAME.get();
@@ -248,6 +251,7 @@ public final class StackTraceMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_STACK_TRACE_MONITOR_DESC.get();
@@ -259,6 +263,7 @@ public final class StackTraceMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

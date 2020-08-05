@@ -42,6 +42,7 @@ import java.util.StringTokenizer;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -76,10 +77,10 @@ final class SRVRecord
   private final long weight;
 
   // The address for this record.
-  private final String address;
+  @NotNull private final String address;
 
   // The string representation of this record.
-  private final String recordString;
+  @NotNull private final String recordString;
 
 
 
@@ -93,7 +94,7 @@ final class SRVRecord
    * @throws  LDAPException  If a problem is encountered while parsing the
    *                         record.
    */
-  SRVRecord(final String recordString)
+  SRVRecord(@NotNull final String recordString)
        throws LDAPException
   {
     this.recordString = recordString;
@@ -133,6 +134,7 @@ final class SRVRecord
    *
    * @return  The address of the server described by this DNS SRV record.
    */
+  @NotNull()
   public String getAddress()
   {
     return address;
@@ -182,6 +184,7 @@ final class SRVRecord
    * @return  A string representation of this DNS SRV record.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return recordString;

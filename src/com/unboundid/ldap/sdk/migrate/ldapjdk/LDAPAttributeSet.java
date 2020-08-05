@@ -45,6 +45,8 @@ import java.util.Iterator;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,7 +77,7 @@ public class LDAPAttributeSet
 
 
   // The list of LDAPAttribute objects.
-  private final ArrayList<LDAPAttribute> attributes;
+  @NotNull private final ArrayList<LDAPAttribute> attributes;
 
 
 
@@ -94,7 +96,7 @@ public class LDAPAttributeSet
    *
    * @param  attrs  The set of attributes to include in the set.
    */
-  public LDAPAttributeSet(final LDAPAttribute[] attrs)
+  public LDAPAttributeSet(@NotNull final LDAPAttribute[] attrs)
   {
     attributes = new ArrayList<>(Arrays.asList(attrs));
   }
@@ -106,7 +108,7 @@ public class LDAPAttributeSet
    *
    * @param  attrs  The set of attributes to include in the set.
    */
-  private LDAPAttributeSet(final ArrayList<LDAPAttribute> attrs)
+  private LDAPAttributeSet(@NotNull final ArrayList<LDAPAttribute> attrs)
   {
     attributes = new ArrayList<>(attrs);
   }
@@ -118,6 +120,7 @@ public class LDAPAttributeSet
    *
    * @return  An enumeration of the attributes in this set.
    */
+  @NotNull()
   public Enumeration<LDAPAttribute> getAttributes()
   {
     return new IterableEnumeration<>(attributes);
@@ -134,7 +137,8 @@ public class LDAPAttributeSet
    * @return  A new attribute set with all attributes from this set containing
    *          the specified subtype.
    */
-  public LDAPAttributeSet getSubset(final String subtype)
+  @NotNull()
+  public LDAPAttributeSet getSubset(@NotNull final String subtype)
   {
     final ArrayList<LDAPAttribute> subset = new ArrayList<>(attributes.size());
 
@@ -160,7 +164,8 @@ public class LDAPAttributeSet
    * @return  The requested attribute, or {@code null} if there is no such
    *          attribute in this set.
    */
-  public LDAPAttribute getAttribute(final String attrName)
+  @Nullable()
+  public LDAPAttribute getAttribute(@NotNull final String attrName)
   {
     for (final LDAPAttribute a : attributes)
     {
@@ -186,7 +191,9 @@ public class LDAPAttributeSet
    * @return  The attribute with the specified base name and language subtype,
    *          or {@code null} if there is no such attribute.
    */
-  public LDAPAttribute getAttribute(final String attrName, final String lang)
+  @Nullable()
+  public LDAPAttribute getAttribute(@NotNull final String attrName,
+                                    @Nullable final String lang)
   {
     if (lang == null)
     {
@@ -229,6 +236,7 @@ public class LDAPAttributeSet
    *
    * @throws  IndexOutOfBoundsException  If the provided index invalid.
    */
+  @NotNull()
   public LDAPAttribute elementAt(final int index)
          throws IndexOutOfBoundsException
   {
@@ -242,7 +250,7 @@ public class LDAPAttributeSet
    *
    * @param  attr  The attribute to be added to this set.
    */
-  public void add(final LDAPAttribute attr)
+  public void add(@NotNull final LDAPAttribute attr)
   {
     for (final LDAPAttribute a : attributes)
     {
@@ -266,7 +274,7 @@ public class LDAPAttributeSet
    *
    * @param  name  The name of the attribute to remove.
    */
-  public void remove(final String name)
+  public void remove(@NotNull final String name)
   {
     final Iterator<LDAPAttribute> iterator = attributes.iterator();
     while (iterator.hasNext())
@@ -314,6 +322,7 @@ public class LDAPAttributeSet
    *
    * @return  A duplicate of this attribute set.
    */
+  @NotNull()
   public LDAPAttributeSet duplicate()
   {
     return new LDAPAttributeSet(attributes);
@@ -327,6 +336,7 @@ public class LDAPAttributeSet
    * @return  A string representation of this attribute set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return attributes.toString();

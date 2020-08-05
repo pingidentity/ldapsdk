@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ReadOnlyModifyRequest;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,10 +64,10 @@ final class InterceptedModifyOperation
                  InMemoryInterceptedModifyResult
 {
   // The modify request for this operation.
-  private ModifyRequest modifyRequest;
+  @NotNull private ModifyRequest modifyRequest;
 
   // The modify result for this operation.
-  private LDAPResult modifyResult;
+  @Nullable private LDAPResult modifyResult;
 
 
 
@@ -82,9 +84,9 @@ final class InterceptedModifyOperation
    *                           client.
    */
   InterceptedModifyOperation(
-       final LDAPListenerClientConnection clientConnection, final int messageID,
-       final ModifyRequestProtocolOp requestOp,
-       final Control... requestControls)
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID, @NotNull final ModifyRequestProtocolOp requestOp,
+       @Nullable final Control... requestControls)
   {
     super(clientConnection, messageID);
 
@@ -98,6 +100,7 @@ final class InterceptedModifyOperation
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReadOnlyModifyRequest getRequest()
   {
     return modifyRequest;
@@ -109,7 +112,7 @@ final class InterceptedModifyOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setRequest(final ModifyRequest modifyRequest)
+  public void setRequest(@NotNull final ModifyRequest modifyRequest)
   {
     this.modifyRequest = modifyRequest;
   }
@@ -120,6 +123,7 @@ final class InterceptedModifyOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable
   public LDAPResult getResult()
   {
     return modifyResult;
@@ -131,7 +135,7 @@ final class InterceptedModifyOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setResult(final LDAPResult modifyResult)
+  public void setResult(@NotNull final LDAPResult modifyResult)
   {
     this.modifyResult = modifyResult;
   }
@@ -142,7 +146,7 @@ final class InterceptedModifyOperation
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedModifyOperation(");
     appendCommonToString(buffer);

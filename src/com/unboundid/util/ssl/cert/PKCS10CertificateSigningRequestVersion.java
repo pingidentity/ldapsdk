@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -62,7 +64,7 @@ public enum PKCS10CertificateSigningRequestVersion
   private final int intValue;
 
   // The name for this PKCS #10 certificate signing request version.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -79,7 +81,8 @@ public enum PKCS10CertificateSigningRequestVersion
    * @param  name      The name for this certificate signing request version.
    *                   It must not be {@code null}.
    */
-  PKCS10CertificateSigningRequestVersion(final int intValue, final String name)
+  PKCS10CertificateSigningRequestVersion(final int intValue,
+                                         @NotNull final String name)
   {
     this.intValue = intValue;
     this.name = name;
@@ -108,6 +111,7 @@ public enum PKCS10CertificateSigningRequestVersion
    *
    * @return  The name for this certificate signing request version.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -130,6 +134,7 @@ public enum PKCS10CertificateSigningRequestVersion
    *          value, or {@code null} if the provided version does not correspond
    *          to any known certificate signing request version value.
    */
+  @Nullable()
   static PKCS10CertificateSigningRequestVersion valueOf(final int intValue)
   {
     for (final PKCS10CertificateSigningRequestVersion v : values())
@@ -154,8 +159,9 @@ public enum PKCS10CertificateSigningRequestVersion
    * @return  The requested CSR version, or {@code null} if no such version is
    *          defined.
    */
+  @Nullable()
   public static PKCS10CertificateSigningRequestVersion forName(
-                                                            final String name)
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

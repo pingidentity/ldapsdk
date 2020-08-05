@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -123,10 +125,10 @@ public final class StartInteractiveTransactionExtendedResult
 
 
   // The transaction ID returned by the server.
-  private final ASN1OctetString transactionID;
+  @Nullable private final ASN1OctetString transactionID;
 
   // The list of base DNs returned by the server, if any.
-  private final List<String> baseDNs;
+  @Nullable private final List<String> baseDNs;
 
 
 
@@ -143,7 +145,7 @@ public final class StartInteractiveTransactionExtendedResult
    *                         transaction extended result.
    */
   public StartInteractiveTransactionExtendedResult(
-              final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -238,10 +240,13 @@ public final class StartInteractiveTransactionExtendedResult
    *                            available.
    */
   public StartInteractiveTransactionExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final ASN1OctetString transactionID, final List<String> baseDNs,
-              final Control[] responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final ASN1OctetString transactionID,
+              @Nullable final List<String> baseDNs,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, encodeValue(transactionID, baseDNs), responseControls);
@@ -272,9 +277,10 @@ public final class StartInteractiveTransactionExtendedResult
    * @return  The ASN.1 octet string containing the encoded value, or
    *          {@code null} if no value should be used.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(
-                                      final ASN1OctetString transactionID,
-                                      final List<String> baseDNs)
+                      @Nullable final ASN1OctetString transactionID,
+                      @Nullable final List<String> baseDNs)
   {
     if ((transactionID == null) && (baseDNs == null))
     {
@@ -310,6 +316,7 @@ public final class StartInteractiveTransactionExtendedResult
    * @return  The transaction ID for this start interactive transaction extended
    *          result, or {@code null} if none was provided.
    */
+  @Nullable()
   public ASN1OctetString getTransactionID()
   {
     return transactionID;
@@ -324,6 +331,7 @@ public final class StartInteractiveTransactionExtendedResult
    * @return  The list of base DNs for this start interactive transaction
    *          extended result, or {@code null} if no base DN list was provided.
    */
+  @Nullable()
   public List<String> getBaseDNs()
   {
     return baseDNs;
@@ -335,6 +343,7 @@ public final class StartInteractiveTransactionExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_START_INTERACTIVE_TXN.get();
@@ -346,7 +355,7 @@ public final class StartInteractiveTransactionExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StartInteractiveTransactionExtendedResult(resultCode=");
     buffer.append(getResultCode());

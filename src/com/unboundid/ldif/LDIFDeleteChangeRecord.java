@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,7 +83,7 @@ public final class LDIFDeleteChangeRecord
    *
    * @param  dn  The DN of the entry to delete.  It must not be {@code null}.
    */
-  public LDIFDeleteChangeRecord(final String dn)
+  public LDIFDeleteChangeRecord(@NotNull final String dn)
   {
     this(dn, null);
   }
@@ -96,7 +98,8 @@ public final class LDIFDeleteChangeRecord
    * @param  controls  The set of controls for this LDIF delete change record.
    *                   It may be {@code null} or empty if there are no controls.
    */
-  public LDIFDeleteChangeRecord(final String dn, final List<Control> controls)
+  public LDIFDeleteChangeRecord(@NotNull final String dn,
+                                @Nullable final List<Control> controls)
   {
     super(dn, controls);
   }
@@ -109,7 +112,7 @@ public final class LDIFDeleteChangeRecord
    * @param  deleteRequest  The delete request to use to create this LDIF delete
    *                        change record.  It must not be {@code null}.
    */
-  public LDIFDeleteChangeRecord(final DeleteRequest deleteRequest)
+  public LDIFDeleteChangeRecord(@NotNull final DeleteRequest deleteRequest)
   {
     super(deleteRequest.getDN(), deleteRequest.getControlList());
   }
@@ -122,6 +125,7 @@ public final class LDIFDeleteChangeRecord
    *
    * @return The delete request created from this LDIF delete change record.
    */
+  @NotNull()
   public DeleteRequest toDeleteRequest()
   {
     return toDeleteRequest(true);
@@ -138,6 +142,7 @@ public final class LDIFDeleteChangeRecord
    *
    * @return The delete request created from this LDIF delete change record.
    */
+  @NotNull()
   public DeleteRequest toDeleteRequest(final boolean includeControls)
   {
     final DeleteRequest deleteRequest = new DeleteRequest(getDN());
@@ -155,6 +160,7 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ChangeType getChangeType()
   {
     return ChangeType.DELETE;
@@ -166,7 +172,8 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDIFDeleteChangeRecord duplicate(final Control... controls)
+  @NotNull()
+  public LDIFDeleteChangeRecord duplicate(@Nullable final Control... controls)
   {
     return new LDIFDeleteChangeRecord(getDN(), StaticUtils.toList(controls));
   }
@@ -177,7 +184,8 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult processChange(final LDAPInterface connection,
+  @NotNull()
+  public LDAPResult processChange(@NotNull final LDAPInterface connection,
                                   final boolean includeControls)
          throws LDAPException
   {
@@ -190,6 +198,7 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<>(5);
@@ -218,7 +227,8 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
+  public void toLDIF(@NotNull final ByteStringBuffer buffer,
+                     final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
@@ -242,7 +252,8 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toLDIFString(final StringBuilder buffer, final int wrapColumn)
+  public void toLDIFString(@NotNull final StringBuilder buffer,
+                           final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
@@ -285,7 +296,7 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -329,7 +340,7 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDIFDeleteChangeRecord(dn='");
     buffer.append(getDN());

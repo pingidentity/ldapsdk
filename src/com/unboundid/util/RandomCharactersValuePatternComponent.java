@@ -63,16 +63,16 @@ final class RandomCharactersValuePatternComponent
 
 
   // The set of characters to include in the generated values.
-  private final char[] characterSet;
+  @NotNull private final char[] characterSet;
 
   // The number of characters to include in the generated values.
   private final int numCharacters;
 
   // The random number generator to use to seed the thread-local generators.
-  private final Random seedRandom;
+  @NotNull private final Random seedRandom;
 
   // The thread-local random number generators.
-  private final ThreadLocal<Random> threadLocalRandoms;
+  @NotNull private final ThreadLocal<Random> threadLocalRandoms;
 
 
 
@@ -88,7 +88,7 @@ final class RandomCharactersValuePatternComponent
    * @throws  ParseException  If the provided pattern cannot be parsed to create
    *                          a valid timestamp value pattern component.
    */
-  RandomCharactersValuePatternComponent(final String pattern,
+  RandomCharactersValuePatternComponent(@NotNull final String pattern,
                                         final long randomSeed)
        throws ParseException
   {
@@ -150,7 +150,7 @@ final class RandomCharactersValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     final Random random = getRandom();
     for (int i=0; i < numCharacters; i++)
@@ -177,6 +177,7 @@ final class RandomCharactersValuePatternComponent
    *
    * @return  A random number generator for use by the current thread.
    */
+  @NotNull()
   private Random getRandom()
   {
     Random random = threadLocalRandoms.get();

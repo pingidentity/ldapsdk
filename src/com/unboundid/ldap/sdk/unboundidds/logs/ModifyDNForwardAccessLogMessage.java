@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,13 +73,13 @@ public final class ModifyDNForwardAccessLogMessage
 
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
 
 
@@ -91,7 +93,7 @@ public final class ModifyDNForwardAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ModifyDNForwardAccessLogMessage(final String s)
+  public ModifyDNForwardAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -106,7 +108,7 @@ public final class ModifyDNForwardAccessLogMessage
    * @param  m  The log message to be parsed as a modify DN forward access log
    *            message.
    */
-  public ModifyDNForwardAccessLogMessage(final LogMessage m)
+  public ModifyDNForwardAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -125,6 +127,7 @@ public final class ModifyDNForwardAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -140,6 +143,7 @@ public final class ModifyDNForwardAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -153,6 +157,7 @@ public final class ModifyDNForwardAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -164,6 +169,7 @@ public final class ModifyDNForwardAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.FORWARD;

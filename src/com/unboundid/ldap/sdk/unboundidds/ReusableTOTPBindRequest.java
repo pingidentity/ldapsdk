@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ToCodeArgHelper;
 import com.unboundid.ldap.sdk.ToCodeHelper;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -87,7 +89,7 @@ public final class ReusableTOTPBindRequest
 
 
   // The shared secret key to use when generating the TOTP password.
-  private final byte[] sharedSecret;
+  @NotNull private final byte[] sharedSecret;
 
   // The duration (in seconds) of the time interval to use when generating the
   // TOTP password.
@@ -122,11 +124,11 @@ public final class ReusableTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  public ReusableTOTPBindRequest(final String authenticationID,
-                                 final String authorizationID,
-                                 final byte[] sharedSecret,
-                                 final String staticPassword,
-                                 final Control... controls)
+  public ReusableTOTPBindRequest(@NotNull final String authenticationID,
+                                 @Nullable final String authorizationID,
+                                 @NotNull final byte[] sharedSecret,
+                                 @Nullable final String staticPassword,
+                                 @Nullable final Control... controls)
   {
     this(authenticationID, authorizationID, sharedSecret, staticPassword,
          OneTimePassword.DEFAULT_TOTP_INTERVAL_DURATION_SECONDS,
@@ -159,11 +161,11 @@ public final class ReusableTOTPBindRequest
    * @param  controls          The set of controls to include in the bind
    *                           request.
    */
-  public ReusableTOTPBindRequest(final String authenticationID,
-                                 final String authorizationID,
-                                 final byte[] sharedSecret,
-                                 final byte[] staticPassword,
-                                 final Control... controls)
+  public ReusableTOTPBindRequest(@NotNull final String authenticationID,
+                                 @Nullable final String authorizationID,
+                                 @NotNull final byte[] sharedSecret,
+                                 @Nullable final byte[] staticPassword,
+                                 @Nullable final Control... controls)
   {
     this(authenticationID, authorizationID, sharedSecret, staticPassword,
          OneTimePassword.DEFAULT_TOTP_INTERVAL_DURATION_SECONDS,
@@ -207,13 +209,13 @@ public final class ReusableTOTPBindRequest
    * @param  controls                     The set of controls to include in the
    *                                      bind request.
    */
-  public ReusableTOTPBindRequest(final String authenticationID,
-                                 final String authorizationID,
-                                 final byte[] sharedSecret,
-                                 final String staticPassword,
+  public ReusableTOTPBindRequest(@NotNull final String authenticationID,
+                                 @Nullable final String authorizationID,
+                                 @NotNull final byte[] sharedSecret,
+                                 @Nullable final String staticPassword,
                                  final int totpIntervalDurationSeconds,
                                  final int totpNumDigits,
-                                 final Control... controls)
+                                 @Nullable final Control... controls)
   {
     super(authenticationID, authorizationID, staticPassword, controls);
 
@@ -262,13 +264,13 @@ public final class ReusableTOTPBindRequest
    * @param  controls                     The set of controls to include in the
    *                                      bind request.
    */
-  public ReusableTOTPBindRequest(final String authenticationID,
-                                 final String authorizationID,
-                                 final byte[] sharedSecret,
-                                 final byte[] staticPassword,
+  public ReusableTOTPBindRequest(@NotNull final String authenticationID,
+                                 @Nullable final String authorizationID,
+                                 @NotNull final byte[] sharedSecret,
+                                 @Nullable final byte[] staticPassword,
                                  final int totpIntervalDurationSeconds,
                                  final int totpNumDigits,
-                                 final Control... controls)
+                                 @Nullable final Control... controls)
   {
     super(authenticationID, authorizationID, staticPassword, controls);
 
@@ -318,13 +320,13 @@ public final class ReusableTOTPBindRequest
    * @param  controls                     The set of controls to include in the
    *                                      bind request.
    */
-  private ReusableTOTPBindRequest(final String authenticationID,
-                                  final String authorizationID,
-                                  final byte[] sharedSecret,
-                                  final ASN1OctetString staticPassword,
-                                  final int totpIntervalDurationSeconds,
-                                  final int totpNumDigits,
-                                  final Control... controls)
+  private ReusableTOTPBindRequest(@NotNull final String authenticationID,
+               @Nullable final String authorizationID,
+               @NotNull final byte[] sharedSecret,
+               @Nullable final ASN1OctetString staticPassword,
+               final int totpIntervalDurationSeconds,
+               final int totpNumDigits,
+               @Nullable final Control... controls)
   {
     super(authenticationID, authorizationID, staticPassword, controls);
 
@@ -340,6 +342,7 @@ public final class ReusableTOTPBindRequest
    *
    * @return  The shared secret key to use when generating the TOTP password.
    */
+  @NotNull()
   public byte[] getSharedSecret()
   {
     return sharedSecret;
@@ -377,6 +380,7 @@ public final class ReusableTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected ASN1OctetString getSASLCredentials()
             throws LDAPException
   {
@@ -395,7 +399,8 @@ public final class ReusableTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public ReusableTOTPBindRequest getRebindRequest(final String host,
+  @NotNull()
+  public ReusableTOTPBindRequest getRebindRequest(@NotNull final String host,
                                                   final int port)
   {
     return duplicate();
@@ -407,6 +412,7 @@ public final class ReusableTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReusableTOTPBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -418,7 +424,8 @@ public final class ReusableTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public ReusableTOTPBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public ReusableTOTPBindRequest duplicate(@Nullable final Control[] controls)
   {
     final ReusableTOTPBindRequest bindRequest =
          new ReusableTOTPBindRequest(getAuthenticationID(),
@@ -434,7 +441,8 @@ public final class ReusableTOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

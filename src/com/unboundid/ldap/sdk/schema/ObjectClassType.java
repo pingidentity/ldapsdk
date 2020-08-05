@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.schema;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -78,7 +80,7 @@ public enum ObjectClassType
 
 
   // The name for this object class type.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -87,7 +89,7 @@ public enum ObjectClassType
    *
    * @param  name  The name for this object class type.
    */
-  ObjectClassType(final String name)
+  ObjectClassType(@NotNull final String name)
   {
     this.name = name;
   }
@@ -99,6 +101,7 @@ public enum ObjectClassType
    *
    * @return  The name of this object class type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -115,7 +118,8 @@ public enum ObjectClassType
    * @return  The object class type with the specified name, or {@code null} if
    *          there is no type with the given name.
    */
-  public static ObjectClassType forName(final String name)
+  @Nullable()
+  public static ObjectClassType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -138,6 +142,7 @@ public enum ObjectClassType
    * @return  A string representation of this object class type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

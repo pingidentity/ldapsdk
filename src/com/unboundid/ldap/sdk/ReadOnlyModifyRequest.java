@@ -41,6 +41,8 @@ import java.util.List;
 
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,6 +71,7 @@ public interface ReadOnlyModifyRequest
    *
    * @return  The DN of the entry to modify.
    */
+  @NotNull()
   String getDN();
 
 
@@ -79,6 +82,7 @@ public interface ReadOnlyModifyRequest
    *
    * @return  The set of modifications for this modify request.
    */
+  @NotNull()
   List<Modification> getModifications();
 
 
@@ -87,6 +91,7 @@ public interface ReadOnlyModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   ModifyRequest duplicate();
 
 
@@ -95,7 +100,8 @@ public interface ReadOnlyModifyRequest
    * {@inheritDoc}
    */
   @Override()
-  ModifyRequest duplicate(Control[] controls);
+  @NotNull()
+  ModifyRequest duplicate(@Nullable Control[] controls);
 
 
 
@@ -106,6 +112,7 @@ public interface ReadOnlyModifyRequest
    * @return  An LDIF modify change record with the contents of this modify
    *          request.
    */
+  @NotNull()
   LDIFModifyChangeRecord toLDIFChangeRecord();
 
 
@@ -117,6 +124,7 @@ public interface ReadOnlyModifyRequest
    * @return  A string array whose lines contain an LDIF representation of the
    *          corresponding modify change record.
    */
+  @NotNull()
   String[] toLDIF();
 
 
@@ -126,5 +134,6 @@ public interface ReadOnlyModifyRequest
    *
    * @return  An LDIF string representation of this modify request.
    */
+  @NotNull()
   String toLDIFString();
 }

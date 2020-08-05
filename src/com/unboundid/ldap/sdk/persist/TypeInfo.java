@@ -42,6 +42,9 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
+
 
 
 /**
@@ -73,15 +76,15 @@ final class TypeInfo
   // The base class for the associated type.  For a Class object, it will simply
   // be the associated class.  For a parameterized type object, it will be the
   // raw type class.
-  private final Class<?> baseClass;
+  @Nullable private final Class<?> baseClass;
 
   // The component type for the associated type.  This will only be set for
   // array, list, and set objects, and it will specify the type of object that
   // can be held in that array, list, or set.
-  private final Class<?> componentType;
+  @Nullable private final Class<?> componentType;
 
   // The type used to create this object.
-  private final Type type;
+  @NotNull private final Type type;
 
 
 
@@ -91,7 +94,7 @@ final class TypeInfo
    * @param  type  The type to use to create this object.  It must not be
    *               {@code null}.
    */
-  TypeInfo(final Type type)
+  TypeInfo(@NotNull final Type type)
   {
     this.type = type;
 
@@ -193,6 +196,7 @@ final class TypeInfo
    *
    * @return  The type used to create this object.
    */
+  @NotNull()
   public Type getType()
   {
     return type;
@@ -216,8 +220,10 @@ final class TypeInfo
   /**
    * Retrieves the base class for the associated type.
    *
-   * @return  The base class for the associated type.
+   * @return  The base class for the associated type, or {@code null} if the
+   *          type is not supported.
    */
+  @Nullable()
   public Class<?> getBaseClass()
   {
     return baseClass;
@@ -231,6 +237,7 @@ final class TypeInfo
    * @return  The component type for the associated type, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public Class<?> getComponentType()
   {
     return componentType;

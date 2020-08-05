@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +98,7 @@ public final class GeneratePasswordResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.59) for the generate password response
    * control.
    */
-  public static final String GENERATE_PASSWORD_RESPONSE_OID =
+  @NotNull public static final String GENERATE_PASSWORD_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.59";
 
 
@@ -116,14 +118,14 @@ public final class GeneratePasswordResponseControl
 
 
   // The generated password included in the control.
-  private final ASN1OctetString generatedPassword;
+  @NotNull private final ASN1OctetString generatedPassword;
 
   // Indicates whether the user will be required to choose a new password the
   // first time they authenticate.
   private final boolean mustChangePassword;
 
   // The number of seconds until the new password will expire.
-  private final Long secondsUntilExpiration;
+  @Nullable private final Long secondsUntilExpiration;
 
 
 
@@ -154,9 +156,10 @@ public final class GeneratePasswordResponseControl
    *                                 {@code null} if the new password will not
    *                                 expire.
    */
-  public GeneratePasswordResponseControl(final String generatedPassword,
-                                         final boolean mustChangePassword,
-                                         final Long secondsUntilExpiration)
+  public GeneratePasswordResponseControl(
+              @NotNull final String generatedPassword,
+              final boolean mustChangePassword,
+              @Nullable final Long secondsUntilExpiration)
   {
     this(new ASN1OctetString(generatedPassword), mustChangePassword,
          secondsUntilExpiration);
@@ -178,9 +181,10 @@ public final class GeneratePasswordResponseControl
    *                                 {@code null} if the new password will not
    *                                 expire.
    */
-  public GeneratePasswordResponseControl(final byte[] generatedPassword,
-                                         final boolean mustChangePassword,
-                                         final Long secondsUntilExpiration)
+  public GeneratePasswordResponseControl(
+              @NotNull final byte[] generatedPassword,
+              final boolean mustChangePassword,
+              @Nullable final Long secondsUntilExpiration)
   {
     this(new ASN1OctetString(generatedPassword), mustChangePassword,
          secondsUntilExpiration);
@@ -203,9 +207,9 @@ public final class GeneratePasswordResponseControl
    *                                 expire.
    */
   private GeneratePasswordResponseControl(
-               final ASN1OctetString generatedPassword,
+               @NotNull final ASN1OctetString generatedPassword,
                final boolean mustChangePassword,
-               final Long secondsUntilExpiration)
+               @Nullable final Long secondsUntilExpiration)
   {
     super(GENERATE_PASSWORD_RESPONSE_OID, false,
          encodeValue(generatedPassword, mustChangePassword,
@@ -231,9 +235,9 @@ public final class GeneratePasswordResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         generate password response control.
    */
-  public GeneratePasswordResponseControl(final String oid,
+  public GeneratePasswordResponseControl(@NotNull final String oid,
                                          final boolean isCritical,
-                                         final ASN1OctetString value)
+                                         @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical,  value);
@@ -287,9 +291,11 @@ public final class GeneratePasswordResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public GeneratePasswordResponseControl decodeControl(final String oid,
-                                              final boolean isCritical,
-                                              final ASN1OctetString value)
+  @NotNull()
+  public GeneratePasswordResponseControl decodeControl(
+              @NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new GeneratePasswordResponseControl(oid, isCritical, value);
@@ -311,7 +317,9 @@ public final class GeneratePasswordResponseControl
    *                         decode the generate password response control
    *                         contained in the provided result.
    */
-  public static GeneratePasswordResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static GeneratePasswordResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(GENERATE_PASSWORD_RESPONSE_OID);
@@ -349,10 +357,11 @@ public final class GeneratePasswordResponseControl
    *
    * @return  The ASN.1 octet string suitable for use as the control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                                      final ASN1OctetString generatedPassword,
-                                      final boolean mustChangePassword,
-                                      final Long secondsUntilExpiration)
+                      @NotNull final ASN1OctetString generatedPassword,
+                      final boolean mustChangePassword,
+                      @Nullable final Long secondsUntilExpiration)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(generatedPassword);
@@ -376,6 +385,7 @@ public final class GeneratePasswordResponseControl
    *
    * @return  The password that was generated by the server.
    */
+  @NotNull()
   public ASN1OctetString getGeneratedPassword()
   {
     return generatedPassword;
@@ -390,6 +400,7 @@ public final class GeneratePasswordResponseControl
    * @return  A string representation of the password that was generated by the
    *          server.
    */
+  @NotNull()
   public String getGeneratedPasswordString()
   {
     return generatedPassword.stringValue();
@@ -404,6 +415,7 @@ public final class GeneratePasswordResponseControl
    * @return  The bytes that comprise the password that was generated by the
    *          server.
    */
+  @NotNull()
   public byte[] getGeneratedPasswordBytes()
   {
     return generatedPassword.getValue();
@@ -433,6 +445,7 @@ public final class GeneratePasswordResponseControl
    *          expire, or {@code null} if this is not available (e.g., because
    *          the generated password will not expire).
    */
+  @Nullable()
   public Long getSecondsUntilExpiration()
   {
     return secondsUntilExpiration;
@@ -444,6 +457,7 @@ public final class GeneratePasswordResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GENERATE_PASSWORD_RESPONSE.get();
@@ -455,7 +469,7 @@ public final class GeneratePasswordResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GeneratePasswordResponseControl(mustChangePassword=");
     buffer.append(mustChangePassword);

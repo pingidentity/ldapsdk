@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -105,10 +107,10 @@ public final class SortKey
   private final boolean reverseOrder;
 
   // The attribute name for this sort key.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
   // The matching rule ID for this sort key.
-  private final String matchingRuleID;
+  @Nullable private final String matchingRuleID;
 
 
 
@@ -120,7 +122,7 @@ public final class SortKey
    * @param  attributeName  The attribute name for this sort key.  It must not
    *                        be {@code null}.
    */
-  public SortKey(final String attributeName)
+  public SortKey(@NotNull final String attributeName)
   {
     this(attributeName, null, false);
   }
@@ -136,7 +138,8 @@ public final class SortKey
    * @param  reverseOrder   Indicates whether the sort should be performed in
    *                        reverse order.
    */
-  public SortKey(final String attributeName, final boolean reverseOrder)
+  public SortKey(@NotNull final String attributeName,
+                 final boolean reverseOrder)
   {
     this(attributeName, null, reverseOrder);
   }
@@ -155,7 +158,8 @@ public final class SortKey
    * @param  reverseOrder    Indicates whether the sort should be performed in
    *                         reverse order.
    */
-  public SortKey(final String attributeName, final String matchingRuleID,
+  public SortKey(@NotNull final String attributeName,
+                 @Nullable final String matchingRuleID,
                  final boolean reverseOrder)
   {
     Validator.ensureNotNull(attributeName);
@@ -172,6 +176,7 @@ public final class SortKey
    *
    * @return  The attribute name for this sort key.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -188,6 +193,7 @@ public final class SortKey
    *          default ordering matching rule associated with the specified
    *          attribute.
    */
+  @Nullable()
   public String getMatchingRuleID()
   {
     return matchingRuleID;
@@ -216,6 +222,7 @@ public final class SortKey
    * @return  An ASN.1 sequence containing the encoded representation of this
    *          sort key.
    */
+  @NotNull()
   ASN1Sequence encode()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
@@ -246,7 +253,8 @@ public final class SortKey
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a sort key.
    */
-  public static SortKey decode(final ASN1Element element)
+  @NotNull()
+  public static SortKey decode(@NotNull final ASN1Element element)
          throws LDAPException
   {
     final ASN1Element[] elements;
@@ -312,6 +320,7 @@ public final class SortKey
    * @return  A string representation of this sort key.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -327,7 +336,7 @@ public final class SortKey
    * @param  buffer  The buffer to which to append a string representation of
    *                 this sort key.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SortKey(attributeName=");
     buffer.append(attributeName);

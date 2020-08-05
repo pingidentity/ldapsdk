@@ -48,6 +48,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,14 +69,14 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
 {
   // The set of cipher suites that should be enabled for server sockets created
   // by this socket factory.
-  private final Set<String> cipherSuites;
+  @NotNull private final Set<String> cipherSuites;
 
   // The set of protocols that should be enabled for server sockets created by
   // this socket factory.
-  private final Set<String> protocols;
+  @NotNull private final Set<String> protocols;
 
   // The SSL server socket factory to which most of the work will be delegated.
-  private final SSLServerSocketFactory delegateFactory;
+  @NotNull private final SSLServerSocketFactory delegateFactory;
 
 
 
@@ -86,12 +87,13 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    * @param  delegateFactory  The SSL server socket factory to which most
    *                          processing will be delegated.
    * @param  defaultProtocol  The default protocol to use.
-   * @param  cipherSuites     The cipher suties to be enabled on sockets created
+   * @param  cipherSuites     The cipher suites to be enabled on sockets created
    *                          by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
-       final SSLServerSocketFactory delegateFactory,
-       final String defaultProtocol, final Set<String> cipherSuites)
+       @NotNull final SSLServerSocketFactory delegateFactory,
+       @NotNull final String defaultProtocol,
+       @NotNull final Set<String> cipherSuites)
   {
     this.delegateFactory = delegateFactory;
     this.cipherSuites = cipherSuites;
@@ -130,8 +132,9 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                          by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
-       final SSLServerSocketFactory delegateFactory,
-       final Set<String> protocols, final Set<String> cipherSuites)
+       @NotNull final SSLServerSocketFactory delegateFactory,
+       @NotNull final Set<String> protocols,
+       @NotNull final Set<String> cipherSuites)
   {
     this.delegateFactory = delegateFactory;
     this.protocols       = protocols;
@@ -149,6 +152,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                       socket.
    */
   @Override()
+  @NotNull()
   public ServerSocket createServerSocket()
          throws IOException
   {
@@ -171,6 +175,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                       socket.
    */
   @Override()
+  @NotNull()
   public ServerSocket createServerSocket(final int port)
          throws IOException
   {
@@ -196,6 +201,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                       socket.
    */
   @Override()
+  @NotNull()
   public ServerSocket createServerSocket(final int port, final int backlog)
          throws IOException
   {
@@ -224,8 +230,9 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                       socket.
    */
   @Override()
+  @NotNull()
   public ServerSocket createServerSocket(final int port, final int backlog,
-                                         final InetAddress ifAddress)
+                                         @NotNull final InetAddress ifAddress)
          throws IOException
   {
     final ServerSocket serverSocket =
@@ -243,6 +250,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    * @return  The set of cipher suites that are enabled by default.
    */
   @Override()
+  @NotNull()
   public String[] getDefaultCipherSuites()
   {
     return delegateFactory.getDefaultCipherSuites();
@@ -256,6 +264,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    * @return  The set of cipher suites that could be enabled.
    */
   @Override()
+  @NotNull()
   public String[] getSupportedCipherSuites()
   {
     return delegateFactory.getSupportedCipherSuites();

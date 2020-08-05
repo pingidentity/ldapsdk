@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -146,7 +147,7 @@ public final class GreaterThanJSONObjectFilter
    * The value that should be used for the filterType element of the JSON object
    * that represents a "greater than" filter.
    */
-  public static final String FILTER_TYPE = "greaterThan";
+  @NotNull public static final String FILTER_TYPE = "greaterThan";
 
 
 
@@ -154,7 +155,7 @@ public final class GreaterThanJSONObjectFilter
    * The name of the JSON field that is used to specify the field in the target
    * JSON object for which to make the determination.
    */
-  public static final String FIELD_FIELD_PATH = "field";
+  @NotNull public static final String FIELD_FIELD_PATH = "field";
 
 
 
@@ -162,7 +163,7 @@ public final class GreaterThanJSONObjectFilter
    * The name of the JSON field that is used to specify the value to use for
    * the matching.
    */
-  public static final String FIELD_VALUE = "value";
+  @NotNull public static final String FIELD_VALUE = "value";
 
 
 
@@ -170,7 +171,7 @@ public final class GreaterThanJSONObjectFilter
    * The name of the JSON field that is used to indicate whether to match JSON
    * objects with a value that is considered equal to the provided value.
    */
-  public static final String FIELD_ALLOW_EQUALS = "allowEquals";
+  @NotNull public static final String FIELD_ALLOW_EQUALS = "allowEquals";
 
 
 
@@ -178,7 +179,8 @@ public final class GreaterThanJSONObjectFilter
    * The name of the JSON field that is used to indicate whether to match all
    * elements of an array rather than just one or more.
    */
-  public static final String FIELD_MATCH_ALL_ELEMENTS = "matchAllElements";
+  @NotNull public static final String FIELD_MATCH_ALL_ELEMENTS =
+       "matchAllElements";
 
 
 
@@ -186,14 +188,14 @@ public final class GreaterThanJSONObjectFilter
    * The name of the JSON field that is used to indicate whether string matching
    * should be case-sensitive.
    */
-  public static final String FIELD_CASE_SENSITIVE = "caseSensitive";
+  @NotNull public static final String FIELD_CASE_SENSITIVE = "caseSensitive";
 
 
 
   /**
    * The pre-allocated set of required field names.
    */
-  private static final Set<String> REQUIRED_FIELD_NAMES =
+  @NotNull private static final Set<String> REQUIRED_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_FIELD_PATH, FIELD_VALUE)));
 
@@ -202,7 +204,7 @@ public final class GreaterThanJSONObjectFilter
   /**
    * The pre-allocated set of optional field names.
    */
-  private static final Set<String> OPTIONAL_FIELD_NAMES =
+  @NotNull private static final Set<String> OPTIONAL_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_ALLOW_EQUALS, FIELD_MATCH_ALL_ELEMENTS,
                  FIELD_CASE_SENSITIVE)));
@@ -228,10 +230,10 @@ public final class GreaterThanJSONObjectFilter
   private volatile boolean matchAllElements;
 
   // The expected value for the target field.
-  private volatile JSONValue value;
+  @NotNull private volatile JSONValue value;
 
   // The field path specifier for the target field.
-  private volatile List<String> field;
+  @NotNull private volatile List<String> field;
 
 
 
@@ -266,8 +268,8 @@ public final class GreaterThanJSONObjectFilter
    * @param  caseSensitive     Indicates whether string matching should be
    *                           case sensitive.
    */
-  private GreaterThanJSONObjectFilter(final List<String> field,
-                                      final JSONValue value,
+  private GreaterThanJSONObjectFilter(@NotNull final List<String> field,
+                                      @NotNull final JSONValue value,
                                       final boolean allowEquals,
                                       final boolean matchAllElements,
                                       final boolean caseSensitive)
@@ -290,7 +292,8 @@ public final class GreaterThanJSONObjectFilter
    *                information about field path specifiers.
    * @param  value  The target value for this filter.
    */
-  public GreaterThanJSONObjectFilter(final String field, final long value)
+  public GreaterThanJSONObjectFilter(@NotNull final String field,
+                                     final long value)
   {
     this(Collections.singletonList(field), new JSONNumber(value));
   }
@@ -306,7 +309,8 @@ public final class GreaterThanJSONObjectFilter
    *                information about field path specifiers.
    * @param  value  The target value for this filter.
    */
-  public GreaterThanJSONObjectFilter(final String field, final double value)
+  public GreaterThanJSONObjectFilter(@NotNull final String field,
+                                     final double value)
   {
     this(Collections.singletonList(field), new JSONNumber(value));
   }
@@ -323,7 +327,8 @@ public final class GreaterThanJSONObjectFilter
    * @param  value  The target value for this filter.  It must not be
    *                {@code null}.
    */
-  public GreaterThanJSONObjectFilter(final String field, final String value)
+  public GreaterThanJSONObjectFilter(@NotNull final String field,
+                                     @NotNull final String value)
   {
     this(Collections.singletonList(field), new JSONString(value));
   }
@@ -341,8 +346,8 @@ public final class GreaterThanJSONObjectFilter
    *                {@code null}, and it must be either a {@link JSONNumber} or
    *                a {@link JSONString}.
    */
-  public GreaterThanJSONObjectFilter(final String field,
-                                     final JSONValue value)
+  public GreaterThanJSONObjectFilter(@NotNull final String field,
+                                     @NotNull final JSONValue value)
   {
     this(Collections.singletonList(field), value);
   }
@@ -360,8 +365,8 @@ public final class GreaterThanJSONObjectFilter
    *                {@code null}, and it must be either a {@link JSONNumber} or
    *                a {@link JSONString}.
    */
-  public GreaterThanJSONObjectFilter(final List<String> field,
-                                     final JSONValue value)
+  public GreaterThanJSONObjectFilter(@NotNull final List<String> field,
+                                     @NotNull final JSONValue value)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -385,6 +390,7 @@ public final class GreaterThanJSONObjectFilter
    *
    * @return  The field path specifier for this filter.
    */
+  @NotNull()
   public List<String> getField()
   {
     return field;
@@ -400,7 +406,7 @@ public final class GreaterThanJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final String... field)
+  public void setField(@NotNull final String... field)
   {
     setField(StaticUtils.toList(field));
   }
@@ -415,7 +421,7 @@ public final class GreaterThanJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final List<String> field)
+  public void setField(@NotNull final List<String> field)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -430,6 +436,7 @@ public final class GreaterThanJSONObjectFilter
    *
    * @return  The target value for this filter.
    */
+  @NotNull()
   public JSONValue getValue()
   {
     return value;
@@ -467,7 +474,7 @@ public final class GreaterThanJSONObjectFilter
    * @param  value  The target value for this filter.  It must not be
    *                {@code null}.
    */
-  public void setValue(final String value)
+  public void setValue(@NotNull final String value)
   {
     Validator.ensureNotNull(value);
 
@@ -483,7 +490,7 @@ public final class GreaterThanJSONObjectFilter
    *                {@code null}, and it must be either a {@link JSONNumber} or
    *                a {@link JSONString}.
    */
-  public void setValue(final JSONValue value)
+  public void setValue(@NotNull final JSONValue value)
   {
     Validator.ensureNotNull(value);
     Validator.ensureTrue((value instanceof JSONNumber) ||
@@ -593,6 +600,7 @@ public final class GreaterThanJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getFilterType()
   {
     return FILTER_TYPE;
@@ -604,6 +612,7 @@ public final class GreaterThanJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getRequiredFieldNames()
   {
     return REQUIRED_FIELD_NAMES;
@@ -615,6 +624,7 @@ public final class GreaterThanJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getOptionalFieldNames()
   {
     return OPTIONAL_FIELD_NAMES;
@@ -626,7 +636,7 @@ public final class GreaterThanJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesJSONObject(final JSONObject o)
+  public boolean matchesJSONObject(@NotNull final JSONObject o)
   {
     final List<JSONValue> candidates = getValues(o, field);
     if (candidates.isEmpty())
@@ -684,7 +694,7 @@ public final class GreaterThanJSONObjectFilter
    * @return  {@code true} if the provided value matches the criteria of this
    *          filter, or {@code false} if not.
    */
-  private boolean matches(final JSONValue v)
+  private boolean matches(@NotNull final JSONValue v)
   {
     if ((v instanceof JSONNumber) && (value instanceof JSONNumber))
     {
@@ -738,6 +748,7 @@ public final class GreaterThanJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public JSONObject toJSONObject()
   {
     final LinkedHashMap<String,JSONValue> fields =
@@ -786,8 +797,9 @@ public final class GreaterThanJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected GreaterThanJSONObjectFilter decodeFilter(
-                                             final JSONObject filterObject)
+                 @NotNull final JSONObject filterObject)
             throws JSONException
   {
     final List<String> fieldPath =

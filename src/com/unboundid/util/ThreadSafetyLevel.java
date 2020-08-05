@@ -135,7 +135,8 @@ public enum ThreadSafetyLevel
    * @return  The requested thread safety level, or {@code null} if no such
    *          level is defined.
    */
-  public static ThreadSafetyLevel forName(final String name)
+  @Nullable()
+  public static ThreadSafetyLevel forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

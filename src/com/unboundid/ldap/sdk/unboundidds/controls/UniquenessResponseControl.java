@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -98,7 +100,7 @@ public final class UniquenessResponseControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.53) for the uniqueness response control.
    */
-  public static final String UNIQUENESS_RESPONSE_OID =
+  @NotNull public static final String UNIQUENESS_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.53";
 
 
@@ -141,17 +143,17 @@ public final class UniquenessResponseControl
 
 
   // Indicates whether post-commit validation passed.
-  private final Boolean postCommitValidationPassed;
+  @Nullable private final Boolean postCommitValidationPassed;
 
   // Indicates whether pre-commit validation passed.
-  private final Boolean preCommitValidationPassed;
+  @Nullable private final Boolean preCommitValidationPassed;
 
   // A value that will be used to correlate this response control with its
   // corresponding request control.
-  private final String uniquenessID;
+  @NotNull private final String uniquenessID;
 
   // The validation message, if any.
-  private final String validationMessage;
+  @Nullable private final String validationMessage;
 
 
 
@@ -190,10 +192,10 @@ public final class UniquenessResponseControl
    *                                     may be {@code null} if no validation
    *                                     message is needed.
    */
-  public UniquenessResponseControl(final String uniquenessID,
-                                   final Boolean preCommitValidationPassed,
-                                   final Boolean postCommitValidationPassed,
-                                   final String validationMessage)
+  public UniquenessResponseControl(@NotNull final String uniquenessID,
+              @Nullable final Boolean preCommitValidationPassed,
+              @Nullable final Boolean postCommitValidationPassed,
+              @Nullable final String validationMessage)
   {
     super(UNIQUENESS_RESPONSE_OID, false,
          encodeValue(uniquenessID, preCommitValidationPassed,
@@ -233,10 +235,12 @@ public final class UniquenessResponseControl
    *
    * @return  The encoded control value.
    */
-  private static ASN1OctetString encodeValue(final String uniquenessID,
-                                      final Boolean preCommitValidationPassed,
-                                      final Boolean postCommitValidationPassed,
-                                      final String validationMessage)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @NotNull final String uniquenessID,
+               @Nullable final Boolean preCommitValidationPassed,
+               @Nullable final Boolean postCommitValidationPassed,
+               @Nullable final String validationMessage)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(TYPE_UNIQUENESS_ID, uniquenessID));
@@ -276,8 +280,9 @@ public final class UniquenessResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         uniqueness response control.
    */
-  public UniquenessResponseControl(final String oid, final boolean isCritical,
-                                   final ASN1OctetString value)
+  public UniquenessResponseControl(@NotNull final String oid,
+                                   final boolean isCritical,
+                                   @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -350,9 +355,10 @@ public final class UniquenessResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public UniquenessResponseControl decodeControl(final String oid,
-                                                 final boolean isCritical,
-                                                 final ASN1OctetString value)
+  @NotNull()
+  public UniquenessResponseControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new UniquenessResponseControl(oid, isCritical, value);
@@ -374,8 +380,9 @@ public final class UniquenessResponseControl
    *                         of uniqueness response controls contained in the
    *                         provided result.
    */
-  public static Map<String,UniquenessResponseControl>
-                     get(final LDAPResult result)
+  @NotNull()
+  public static Map<String,UniquenessResponseControl> get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control[] responseControls = result.getResponseControls();
@@ -446,6 +453,7 @@ public final class UniquenessResponseControl
    * @return  The identifier that may be used to correlate this uniqueness
    *          response control with the corresponding request control.
    */
+  @NotNull()
   public String getUniquenessID()
   {
     return uniquenessID;
@@ -468,6 +476,7 @@ public final class UniquenessResponseControl
    *          {@link UniquenessValidationResult#VALIDATION_NOT_ATTEMPTED} if
    *          the server did not attempt any pre-commit validation.
    */
+  @NotNull()
   public UniquenessValidationResult getPreCommitValidationResult()
   {
     if (preCommitValidationPassed == null)
@@ -498,6 +507,7 @@ public final class UniquenessResponseControl
    *          attempted and did not pass, or {@code null} if pre-commit
    *          validation was not attempted.
    */
+  @Nullable()
   public Boolean getPreCommitValidationPassed()
   {
     return preCommitValidationPassed;
@@ -520,6 +530,7 @@ public final class UniquenessResponseControl
    *          {@link UniquenessValidationResult#VALIDATION_NOT_ATTEMPTED} if
    *          the server did not attempt any post-commit validation.
    */
+  @NotNull()
   public UniquenessValidationResult getPostCommitValidationResult()
   {
     if (postCommitValidationPassed == null)
@@ -547,6 +558,7 @@ public final class UniquenessResponseControl
    *          attempted and did not pass, or {@code null} if post-commit
    *          validation was not attempted.
    */
+  @Nullable()
   public Boolean getPostCommitValidationPassed()
   {
     return postCommitValidationPassed;
@@ -562,6 +574,7 @@ public final class UniquenessResponseControl
    *          processing that was performed, or {@code null} if no validation
    *          message is available.
    */
+  @Nullable()
   public String getValidationMessage()
   {
     return validationMessage;
@@ -573,6 +586,7 @@ public final class UniquenessResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_UNIQUENESS_RES_CONTROL_NAME.get();
@@ -584,7 +598,7 @@ public final class UniquenessResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UniquenessResponseControl(uniquenessID='");
     buffer.append(uniquenessID);

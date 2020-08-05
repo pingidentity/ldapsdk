@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +98,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * The OID (1.3.6.1.4.1.30221.2.6.66) for the collect support data archive
    * fragment intermediate response.
    */
-  public static final String
+  @NotNull public static final String
        COLLECT_SUPPORT_DATA_ARCHIVE_FRAGMENT_INTERMEDIATE_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.6.66";
 
@@ -145,14 +147,14 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
   private final boolean moreDataToReturn;
 
   // The data that comprises this fragment of the support data archive.
-  private final byte[] fragmentData;
+  @NotNull private final byte[] fragmentData;
 
   // The total size of the support data archive, in bytes.
   private final long totalArchiveSizeBytes;
 
   // The name (without any path information) that the server used for the
   // support data archive file.
-  private final String archiveFileName;
+  @NotNull private final String archiveFileName;
 
 
 
@@ -177,9 +179,11 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    *                                be included.
    */
   public CollectSupportDataArchiveFragmentIntermediateResponse(
-              final String archiveFileName, final long totalArchiveSizeBytes,
-              final boolean moreDataToReturn, final byte[] fragmentData,
-              final Control... controls)
+              @NotNull final String archiveFileName,
+              final long totalArchiveSizeBytes,
+              final boolean moreDataToReturn,
+              @NotNull final byte[] fragmentData,
+              @Nullable final Control... controls)
   {
     super(COLLECT_SUPPORT_DATA_ARCHIVE_FRAGMENT_INTERMEDIATE_RESPONSE_OID,
          encodeValue(archiveFileName, totalArchiveSizeBytes, moreDataToReturn,
@@ -212,10 +216,12 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String archiveFileName,
-                                             final long totalArchiveSizeBytes,
-                                             final boolean moreDataToReturn,
-                                             final byte[] fragmentData)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @NotNull final String archiveFileName,
+               final long totalArchiveSizeBytes,
+               final boolean moreDataToReturn,
+               @NotNull final byte[] fragmentData)
   {
     final ASN1Sequence valueSequence = new ASN1Sequence(
          new ASN1OctetString(TYPE_ARCHIVE_FILE_NAME, archiveFileName),
@@ -241,7 +247,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    *                         fragment intermediate response.
    */
   public CollectSupportDataArchiveFragmentIntermediateResponse(
-              final IntermediateResponse intermediateResponse)
+              @NotNull final IntermediateResponse intermediateResponse)
          throws LDAPException
   {
     super(intermediateResponse);
@@ -285,6 +291,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * @return  The name (without any path information) that the server used for
    *          the support data archive file.
    */
+  @NotNull()
   public String getArchiveFileName()
   {
     return archiveFileName;
@@ -325,6 +332,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    *
    * @return  The data included in this fragment.
    */
+  @NotNull()
   public byte[] getFragmentData()
   {
     return fragmentData;
@@ -336,6 +344,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getIntermediateResponseName()
   {
     return INFO_COLLECT_SUPPORT_DATA_FRAGMENT_IR_NAME.get();
@@ -347,6 +356,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String valueToString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -369,7 +379,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(
          "CollectSupportDataArchiveFragmentIntermediateResponse(oid='");

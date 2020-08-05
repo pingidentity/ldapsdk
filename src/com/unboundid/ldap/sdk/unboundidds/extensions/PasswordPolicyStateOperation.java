@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -911,7 +913,7 @@ public final class PasswordPolicyStateOperation
 
 
   // The set of values for this operation.
-  private final ASN1OctetString[] values;
+  @NotNull private final ASN1OctetString[] values;
 
   // The operation type for this operation.
   private final int opType;
@@ -941,7 +943,7 @@ public final class PasswordPolicyStateOperation
    * @param  values  The set of values for this password policy state operation.
    */
   public PasswordPolicyStateOperation(final int opType,
-                                      final ASN1OctetString[] values)
+                                      @Nullable final ASN1OctetString[] values)
   {
     this.opType = opType;
 
@@ -966,6 +968,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordPolicyDNOperation()
   {
@@ -983,6 +986,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountDisabledStateOperation()
   {
@@ -1002,6 +1006,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountDisabledStateOperation(
                           final boolean isDisabled)
@@ -1027,6 +1032,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearAccountDisabledStateOperation()
   {
@@ -1046,6 +1052,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountActivationTimeOperation()
   {
@@ -1069,6 +1076,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountActivationTimeOperation(
                           final Date expirationTime)
@@ -1089,6 +1097,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearAccountActivationTimeOperation()
   {
@@ -1108,6 +1117,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilAccountActivationOperation()
   {
@@ -1127,6 +1137,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountExpirationTimeOperation()
   {
@@ -1150,6 +1161,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountExpirationTimeOperation(
                           final Date expirationTime)
@@ -1170,6 +1182,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearAccountExpirationTimeOperation()
   {
@@ -1189,6 +1202,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilAccountExpirationOperation()
   {
@@ -1207,6 +1221,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordChangedTimeOperation()
   {
@@ -1228,6 +1243,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetPasswordChangedTimeOperation(
                           final Date passwordChangedTime)
@@ -1248,6 +1264,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearPasswordChangedTimeOperation()
   {
@@ -1266,6 +1283,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordExpirationWarnedTimeOperation()
   {
@@ -1290,9 +1308,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetPasswordExpirationWarnedTimeOperation(
-                          final Date passwordExpirationWarnedTime)
+                          @Nullable final Date passwordExpirationWarnedTime)
   {
     return new PasswordPolicyStateOperation(
          OP_TYPE_SET_PW_EXPIRATION_WARNED_TIME,
@@ -1311,6 +1330,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearPasswordExpirationWarnedTimeOperation()
   {
@@ -1330,6 +1350,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilPasswordExpirationOperation()
   {
@@ -1350,6 +1371,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilPasswordExpirationWarningOperation()
   {
@@ -1369,6 +1391,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAuthenticationFailureTimesOperation()
   {
@@ -1387,6 +1410,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createAddAuthenticationFailureTimeOperation()
   {
@@ -1410,9 +1434,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createAddAuthenticationFailureTimeOperation(
-                          final Date[] authFailureTimes)
+                          @Nullable final Date[] authFailureTimes)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_ADD_AUTH_FAILURE_TIME,
          createValues(authFailureTimes));
@@ -1436,9 +1461,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAuthenticationFailureTimesOperation(
-                          final Date[] authFailureTimes)
+                          @Nullable final Date[] authFailureTimes)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_SET_AUTH_FAILURE_TIMES,
          createValues(authFailureTimes));
@@ -1456,6 +1482,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearAuthenticationFailureTimesOperation()
   {
@@ -1476,6 +1503,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilAuthenticationFailureUnlockOperation()
   {
@@ -1497,6 +1525,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetRemainingAuthenticationFailureCountOperation()
   {
@@ -1516,6 +1545,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation createGetLastLoginTimeOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_GET_LAST_LOGIN_TIME);
@@ -1537,8 +1567,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
-                     createSetLastLoginTimeOperation(final Date lastLoginTime)
+                     createSetLastLoginTimeOperation(
+                          @Nullable final Date lastLoginTime)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_SET_LAST_LOGIN_TIME,
          createValues(lastLoginTime));
@@ -1556,6 +1588,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation createClearLastLoginTimeOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_CLEAR_LAST_LOGIN_TIME);
@@ -1573,6 +1606,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetLastLoginIPAddressOperation()
   {
@@ -1594,9 +1628,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetLastLoginIPAddressOperation(
-                          final String lastLoginIPAddress)
+                          @NotNull final String lastLoginIPAddress)
   {
     final ASN1OctetString[] values =
     {
@@ -1619,6 +1654,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearLastLoginIPAddressOperation()
   {
@@ -1639,6 +1675,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilIdleLockoutOperation()
   {
@@ -1658,6 +1695,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordResetStateOperation()
   {
@@ -1679,6 +1717,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetPasswordResetStateOperation(final boolean isReset)
   {
@@ -1701,6 +1740,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearPasswordResetStateOperation()
   {
@@ -1721,6 +1761,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilPasswordResetLockoutOperation()
   {
@@ -1739,6 +1780,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetGraceLoginUseTimesOperation()
   {
@@ -1756,6 +1798,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createAddGraceLoginUseTimeOperation()
   {
@@ -1778,9 +1821,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createAddGraceLoginUseTimeOperation(
-                          final Date[] graceLoginUseTimes)
+                          @Nullable final Date[] graceLoginUseTimes)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_ADD_GRACE_LOGIN_USE_TIME,
          createValues(graceLoginUseTimes));
@@ -1803,9 +1847,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetGraceLoginUseTimesOperation(
-                          final Date[] graceLoginUseTimes)
+                          @Nullable final Date[] graceLoginUseTimes)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_SET_GRACE_LOGIN_USE_TIMES,
          createValues(graceLoginUseTimes));
@@ -1822,6 +1867,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearGraceLoginUseTimesOperation()
   {
@@ -1842,6 +1888,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetRemainingGraceLoginCountOperation()
   {
@@ -1862,6 +1909,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordChangedByRequiredTimeOperation()
   {
@@ -1882,6 +1930,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetPasswordChangedByRequiredTimeOperation()
   {
@@ -1906,9 +1955,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetPasswordChangedByRequiredTimeOperation(
-                          final Date requiredTime)
+                          @Nullable final Date requiredTime)
   {
     return new PasswordPolicyStateOperation(
          OP_TYPE_SET_PW_CHANGED_BY_REQUIRED_TIME, createValues(requiredTime));
@@ -1927,6 +1977,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearPasswordChangedByRequiredTimeOperation()
   {
@@ -1948,6 +1999,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsUntilRequiredChangeTimeOperation()
   {
@@ -1971,6 +2023,7 @@ public final class PasswordPolicyStateOperation
    */
   @Deprecated()
   @SuppressWarnings("deprecation")
+  @NotNull()
   public static PasswordPolicyStateOperation createGetPasswordHistoryOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_GET_PW_HISTORY);
@@ -1986,6 +2039,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearPasswordHistoryOperation()
   {
@@ -2003,6 +2057,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation createHasRetiredPasswordOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_HAS_RETIRED_PASSWORD);
@@ -2021,6 +2076,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordRetiredTimeOperation()
   {
@@ -2040,6 +2096,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetRetiredPasswordExpirationTimeOperation()
   {
@@ -2058,6 +2115,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createPurgeRetiredPasswordOperation()
   {
@@ -2076,6 +2134,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountUsabilityNoticesOperation()
   {
@@ -2095,6 +2154,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountUsabilityWarningsOperation()
   {
@@ -2114,6 +2174,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountUsabilityErrorsOperation()
   {
@@ -2133,6 +2194,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsUsableOperation()
   {
@@ -2150,6 +2212,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsNotYetActiveOperation()
   {
@@ -2168,6 +2231,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsExpiredOperation()
   {
@@ -2185,6 +2249,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordExpirationTimeOperation()
   {
@@ -2202,6 +2267,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsFailureLockedOperation()
   {
@@ -2223,6 +2289,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountIsFailureLockedOperation(
                           final boolean isFailureLocked)
@@ -2248,6 +2315,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetFailureLockoutTimeOperation()
   {
@@ -2265,6 +2333,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsIdleLockedOperation()
   {
@@ -2282,6 +2351,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetIdleLockoutTimeOperation()
   {
@@ -2300,6 +2370,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsResetLockedOperation()
   {
@@ -2319,6 +2390,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetResetLockoutTimeOperation()
   {
@@ -2337,6 +2409,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordHistoryCountOperation()
   {
@@ -2354,6 +2427,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetPasswordIsExpiredOperation()
   {
@@ -2370,6 +2444,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAvailableSASLMechanismsOperation()
   {
@@ -2388,6 +2463,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAvailableOTPDeliveryMechanismsOperation()
   {
@@ -2409,6 +2485,7 @@ public final class PasswordPolicyStateOperation
    * @deprecated  Use {@link #createHasTOTPSharedSecretOperation} instead.
    */
   @Deprecated()
+  @NotNull()
   public static PasswordPolicyStateOperation createHasTOTPSharedSecret()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_HAS_TOTP_SHARED_SECRET);
@@ -2425,6 +2502,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createHasTOTPSharedSecretOperation()
   {
@@ -2447,9 +2525,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createAddTOTPSharedSecretOperation(
-                          final String... totpSharedSecrets)
+                          @NotNull final String... totpSharedSecrets)
   {
     final ASN1OctetString[] values =
          new ASN1OctetString[totpSharedSecrets.length];
@@ -2478,9 +2557,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createRemoveTOTPSharedSecretOperation(
-                          final String... totpSharedSecrets)
+                          @NotNull final String... totpSharedSecrets)
   {
     final ASN1OctetString[] values =
          new ASN1OctetString[totpSharedSecrets.length];
@@ -2508,9 +2588,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetTOTPSharedSecretsOperation(
-                          final String... totpSharedSecrets)
+                          @NotNull final String... totpSharedSecrets)
   {
     final ASN1OctetString[] values =
          new ASN1OctetString[totpSharedSecrets.length];
@@ -2534,6 +2615,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearTOTPSharedSecretsOperation()
   {
@@ -2552,6 +2634,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation createHasYubiKeyPublicIDOperation()
   {
     return new PasswordPolicyStateOperation(
@@ -2569,6 +2652,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetRegisteredYubiKeyPublicIDsOperation()
   {
@@ -2592,9 +2676,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createAddRegisteredYubiKeyPublicIDOperation(
-                          final String... publicIDs)
+                          @NotNull final String... publicIDs)
   {
     final ASN1OctetString[] values = new ASN1OctetString[publicIDs.length];
     for (int i=0; i < publicIDs.length; i++)
@@ -2622,9 +2707,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createRemoveRegisteredYubiKeyPublicIDOperation(
-                          final String... publicIDs)
+                          @NotNull final String... publicIDs)
   {
     final ASN1OctetString[] values = new ASN1OctetString[publicIDs.length];
     for (int i=0; i < publicIDs.length; i++)
@@ -2651,9 +2737,10 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetRegisteredYubiKeyPublicIDsOperation(
-                          final String... publicIDs)
+                          @NotNull final String... publicIDs)
   {
     final ASN1OctetString[] values = new ASN1OctetString[publicIDs.length];
     for (int i=0; i < publicIDs.length; i++)
@@ -2676,6 +2763,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearRegisteredYubiKeyPublicIDsOperation()
   {
@@ -2694,6 +2782,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation createHasStaticPasswordOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_HAS_STATIC_PASSWORD);
@@ -2712,6 +2801,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetLastBindPasswordValidationTimeOperation()
   {
@@ -2733,6 +2823,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetSecondsSinceLastBindPasswordValidationOperation()
   {
@@ -2758,6 +2849,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetLastBindPasswordValidationTimeOperation(
                           final Date validationTime)
@@ -2780,6 +2872,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearLastBindPasswordValidationTimeOperation()
   {
@@ -2799,6 +2892,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetAccountIsValidationLockedOperation()
   {
@@ -2823,6 +2917,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountIsValidationLockedOperation(
                           final boolean isValidationLocked)
@@ -2847,6 +2942,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createGetRecentLoginHistoryOperation()
   {
@@ -2864,6 +2960,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The created password policy state operation.
    */
+  @NotNull()
   public static PasswordPolicyStateOperation
                      createClearRecentLoginHistoryOperation()
   {
@@ -2889,6 +2986,7 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The set of raw values for this password policy state operation.
    */
+  @NotNull()
   public ASN1OctetString[] getRawValues()
   {
     return values;
@@ -2904,6 +3002,7 @@ public final class PasswordPolicyStateOperation
    * @return  The string representation of the value for this password policy
    *          state operation, or {@code null} if there are no values.
    */
+  @Nullable()
   public String getStringValue()
   {
     if (values.length == 0)
@@ -2925,6 +3024,7 @@ public final class PasswordPolicyStateOperation
    * @return  The string representations of the values for this password policy
    *          state operation.
    */
+  @NotNull()
   public String[] getStringValues()
   {
     final String[] stringValues = new String[values.length];
@@ -3014,6 +3114,7 @@ public final class PasswordPolicyStateOperation
    * @throws  ParseException  If the value cannot be decoded as a timestamp in
    *                          generalized time form.
    */
+  @Nullable()
   public Date getGeneralizedTimeValue()
          throws ParseException
   {
@@ -3039,6 +3140,7 @@ public final class PasswordPolicyStateOperation
    * @throws  ParseException  If any of the values cannot be decoded as a
    *                          timestamp in generalized time form.
    */
+  @NotNull()
   public Date[] getGeneralizedTimeValues()
          throws ParseException
   {
@@ -3062,7 +3164,8 @@ public final class PasswordPolicyStateOperation
    *
    * @return  The array of ASN.1 octet strings.
    */
-  private static ASN1OctetString[] createValues(final Date... dates)
+  @NotNull()
+  private static ASN1OctetString[] createValues(@Nullable final Date... dates)
   {
     if ((dates == null) || (dates.length == 0))
     {
@@ -3092,6 +3195,7 @@ public final class PasswordPolicyStateOperation
    * @return  An ASN.1 element containing an encoded representation of this
    *          password policy state operation.
    */
+  @NotNull()
   public ASN1Element encode()
   {
     final ASN1Element[] elements;
@@ -3127,7 +3231,9 @@ public final class PasswordPolicyStateOperation
    *                         provided ASN.1 element as a password policy state
    *                         operation.
    */
-  public static PasswordPolicyStateOperation decode(final ASN1Element element)
+  @NotNull()
+  public static PasswordPolicyStateOperation decode(
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     final ASN1Element[] elements;
@@ -3197,6 +3303,7 @@ public final class PasswordPolicyStateOperation
    * @return  A string representation of this password policy state operation.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -3212,7 +3319,7 @@ public final class PasswordPolicyStateOperation
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PasswordPolicyStateOperation(opType=");
     buffer.append(opType);

@@ -45,6 +45,8 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -80,7 +82,7 @@ public class BindResult
 
 
   // The server SASL credentials from the response, if available.
-  private final ASN1OctetString serverSASLCredentials;
+  @Nullable private final ASN1OctetString serverSASLCredentials;
 
 
 
@@ -98,10 +100,11 @@ public class BindResult
    * @param  responseControls   The set of controls from the response, if
    *                            available.
    */
-  public BindResult(final int messageID, final ResultCode resultCode,
-                    final String diagnosticMessage, final String matchedDN,
-                    final String[] referralURLs,
-                    final Control[] responseControls)
+  public BindResult(final int messageID, @NotNull final ResultCode resultCode,
+                    @Nullable final String diagnosticMessage,
+                    @Nullable final String matchedDN,
+                    @Nullable final String[] referralURLs,
+                    @Nullable final Control[] responseControls)
   {
     this(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          responseControls, null);
@@ -126,11 +129,12 @@ public class BindResult
    * @param  serverSASLCredentials  The server SASL credentials from the
    *                                response, if available.
    */
-  public BindResult(final int messageID, final ResultCode resultCode,
-                    final String diagnosticMessage, final String matchedDN,
-                    final String[] referralURLs,
-                    final Control[] responseControls,
-                    final ASN1OctetString serverSASLCredentials)
+  public BindResult(final int messageID, @NotNull final ResultCode resultCode,
+                    @Nullable final String diagnosticMessage,
+                    @Nullable final String matchedDN,
+                    @Nullable final String[] referralURLs,
+                    @Nullable final Control[] responseControls,
+                    @Nullable final ASN1OctetString serverSASLCredentials)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           responseControls);
@@ -145,7 +149,7 @@ public class BindResult
    *
    * @param  ldapResult  The LDAP result to use to create this bind result.
    */
-  public BindResult(final LDAPResult ldapResult)
+  public BindResult(@NotNull final LDAPResult ldapResult)
   {
     super(ldapResult);
 
@@ -160,7 +164,7 @@ public class BindResult
    * @param  exception  The {@code LDAPException} to use to create this bind
    *                    result.
    */
-  public BindResult(final LDAPException exception)
+  public BindResult(@NotNull final LDAPException exception)
   {
     super(exception.toLDAPResult());
 
@@ -183,7 +187,7 @@ public class BindResult
    *
    * @param  bindResult  The bind result to use to create this bind result.
    */
-  protected BindResult(final BindResult bindResult)
+  protected BindResult(@NotNull final BindResult bindResult)
   {
     super(bindResult);
 
@@ -208,9 +212,10 @@ public class BindResult
    * @throws  LDAPException  If a problem occurs while reading or decoding data
    *                         from the ASN.1 stream reader.
    */
+  @NotNull()
   static BindResult readBindResultFrom(final int messageID,
-                         final ASN1StreamReaderSequence messageSequence,
-                         final ASN1StreamReader reader)
+              @NotNull final ASN1StreamReaderSequence messageSequence,
+              @NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     try
@@ -300,6 +305,7 @@ public class BindResult
    * @return  The server SASL credentials from the bind response, or
    *          {@code null} if none were provided.
    */
+  @Nullable()
   public ASN1OctetString getServerSASLCredentials()
   {
     return serverSASLCredentials;
@@ -311,7 +317,7 @@ public class BindResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("BindResult(resultCode=");
     buffer.append(getResultCode());

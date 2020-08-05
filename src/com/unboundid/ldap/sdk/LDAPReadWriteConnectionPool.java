@@ -44,6 +44,8 @@ import java.util.List;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -74,10 +76,10 @@ public final class LDAPReadWriteConnectionPool
        implements LDAPInterface, Closeable
 {
   // The connection pool used for read operations.
-  private final LDAPConnectionPool readPool;
+  @NotNull private final LDAPConnectionPool readPool;
 
   // The connection pool used for write operations.
-  private final LDAPConnectionPool writePool;
+  @NotNull private final LDAPConnectionPool writePool;
 
 
 
@@ -128,9 +130,10 @@ public final class LDAPReadWriteConnectionPool
    *                         the read and write connections provided as
    *                         arguments) will be closed.
    */
-  public LDAPReadWriteConnectionPool(final LDAPConnection readConnection,
+  public LDAPReadWriteConnectionPool(
+              @NotNull final LDAPConnection readConnection,
               final int initialReadConnections, final int maxReadConnections,
-              final LDAPConnection writeConnection,
+              @NotNull final LDAPConnection writeConnection,
               final int initialWriteConnections, final int maxWriteConnections)
          throws LDAPException
   {
@@ -175,8 +178,8 @@ public final class LDAPReadWriteConnectionPool
    * @param  writePool  The connection pool to be used for write operations.  It
    *                    must not be {@code null}.
    */
-  public LDAPReadWriteConnectionPool(final LDAPConnectionPool readPool,
-                                     final LDAPConnectionPool writePool)
+  public LDAPReadWriteConnectionPool(@NotNull final LDAPConnectionPool readPool,
+              @NotNull final LDAPConnectionPool writePool)
   {
     Validator.ensureNotNull(readPool, writePool);
 
@@ -222,6 +225,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If no read connection is available, or a problem
    *                         occurs while creating a new connection to return.
    */
+  @NotNull()
   public LDAPConnection getReadConnection()
          throws LDAPException
   {
@@ -235,7 +239,7 @@ public final class LDAPReadWriteConnectionPool
    *
    * @param  connection  The connection to be released back to the read pool.
    */
-  public void releaseReadConnection(final LDAPConnection connection)
+  public void releaseReadConnection(@NotNull final LDAPConnection connection)
   {
     readPool.releaseConnection(connection);
   }
@@ -249,7 +253,8 @@ public final class LDAPReadWriteConnectionPool
    *
    * @param  connection  The defunct read connection being released.
    */
-  public void releaseDefunctReadConnection(final LDAPConnection connection)
+  public void releaseDefunctReadConnection(
+                   @NotNull final LDAPConnection connection)
   {
     readPool.releaseDefunctConnection(connection);
   }
@@ -264,6 +269,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If no write connection is available, or a problem
    *                         occurs while creating a new connection to return.
    */
+  @NotNull()
   public LDAPConnection getWriteConnection()
          throws LDAPException
   {
@@ -277,7 +283,7 @@ public final class LDAPReadWriteConnectionPool
    *
    * @param  connection  The connection to be released back to the write pool.
    */
-  public void releaseWriteConnection(final LDAPConnection connection)
+  public void releaseWriteConnection(@NotNull final LDAPConnection connection)
   {
     writePool.releaseConnection(connection);
   }
@@ -291,7 +297,8 @@ public final class LDAPReadWriteConnectionPool
    *
    * @param  connection  The defunct write connection being released.
    */
-  public void releaseDefunctWriteConnection(final LDAPConnection connection)
+  public void releaseDefunctWriteConnection(
+                   @NotNull final LDAPConnection connection)
   {
     writePool.releaseDefunctConnection(connection);
   }
@@ -303,6 +310,7 @@ public final class LDAPReadWriteConnectionPool
    *
    * @return  The set of statistics maintained for the read pool.
    */
+  @NotNull()
   public LDAPConnectionPoolStatistics getReadPoolStatistics()
   {
     return readPool.getConnectionPoolStatistics();
@@ -315,6 +323,7 @@ public final class LDAPReadWriteConnectionPool
    *
    * @return  The set of statistics maintained for the write pool.
    */
+  @NotNull()
   public LDAPConnectionPoolStatistics getWritePoolStatistics()
   {
     return writePool.getConnectionPoolStatistics();
@@ -327,6 +336,7 @@ public final class LDAPReadWriteConnectionPool
    *
    * @return  The connection pool that should be used for read operations.
    */
+  @NotNull()
   public LDAPConnectionPool getReadPool()
   {
     return readPool;
@@ -339,6 +349,7 @@ public final class LDAPReadWriteConnectionPool
    *
    * @return  The connection pool that should be used for write operations.
    */
+  @NotNull()
   public LDAPConnectionPool getWritePool()
   {
     return writePool;
@@ -357,6 +368,7 @@ public final class LDAPReadWriteConnectionPool
    *                         the server root DSE.
    */
   @Override()
+  @Nullable()
   public RootDSE getRootDSE()
          throws LDAPException
   {
@@ -381,6 +393,7 @@ public final class LDAPReadWriteConnectionPool
    *                         the server schema.
    */
   @Override()
+  @Nullable()
   public Schema getSchema()
          throws LDAPException
   {
@@ -410,7 +423,8 @@ public final class LDAPReadWriteConnectionPool
    *                         the server schema.
    */
   @Override()
-  public Schema getSchema(final String entryDN)
+  @Nullable()
+  public Schema getSchema(@Nullable final String entryDN)
          throws LDAPException
   {
     return readPool.getSchema(entryDN);
@@ -433,7 +447,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public SearchResultEntry getEntry(final String dn)
+  @Nullable()
+  public SearchResultEntry getEntry(@NotNull final String dn)
          throws LDAPException
   {
     return readPool.getEntry(dn);
@@ -459,7 +474,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public SearchResultEntry getEntry(final String dn, final String... attributes)
+  @Nullable()
+  public SearchResultEntry getEntry(@NotNull final String dn,
+                                    @Nullable final String... attributes)
          throws LDAPException
   {
     return readPool.getEntry(dn, attributes);
@@ -483,7 +500,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult add(final String dn, final Attribute... attributes)
+  @NotNull()
+  public LDAPResult add(@NotNull final String dn,
+                        @NotNull final Attribute... attributes)
          throws LDAPException
   {
     return writePool.add(dn, attributes);
@@ -507,7 +526,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult add(final String dn, final Collection<Attribute> attributes)
+  @NotNull()
+  public LDAPResult add(@NotNull final String dn,
+                        @NotNull final Collection<Attribute> attributes)
          throws LDAPException
   {
     return writePool.add(dn, attributes);
@@ -528,7 +549,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult add(final Entry entry)
+  @NotNull()
+  public LDAPResult add(@NotNull final Entry entry)
          throws LDAPException
   {
     return writePool.add(entry);
@@ -553,7 +575,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult add(final String... ldifLines)
+  @NotNull()
+  public LDAPResult add(@NotNull final String... ldifLines)
          throws LDIFException, LDAPException
   {
     return writePool.add(ldifLines);
@@ -575,7 +598,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult add(final AddRequest addRequest)
+  @NotNull()
+  public LDAPResult add(@NotNull final AddRequest addRequest)
          throws LDAPException
   {
     return writePool.add(addRequest);
@@ -597,7 +621,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult add(final ReadOnlyAddRequest addRequest)
+  @NotNull()
+  public LDAPResult add(@NotNull final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
     return writePool.add((AddRequest) addRequest);
@@ -624,7 +649,9 @@ public final class LDAPReadWriteConnectionPool
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bind(final String bindDN, final String password)
+  @NotNull()
+  public BindResult bind(@Nullable final String bindDN,
+                         @Nullable final String password)
          throws LDAPException
   {
     return readPool.bind(bindDN, password);
@@ -651,7 +678,8 @@ public final class LDAPReadWriteConnectionPool
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bind(final BindRequest bindRequest)
+  @NotNull()
+  public BindResult bind(@NotNull final BindRequest bindRequest)
          throws LDAPException
   {
     return readPool.bind(bindRequest);
@@ -677,8 +705,10 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public CompareResult compare(final String dn, final String attributeName,
-                               final String assertionValue)
+  @NotNull()
+  public CompareResult compare(@NotNull final String dn,
+                               @NotNull final String attributeName,
+                               @NotNull final String assertionValue)
          throws LDAPException
   {
     return readPool.compare(dn, attributeName, assertionValue);
@@ -700,7 +730,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public CompareResult compare(final CompareRequest compareRequest)
+  @NotNull()
+  public CompareResult compare(@NotNull final CompareRequest compareRequest)
          throws LDAPException
   {
     return readPool.compare(compareRequest);
@@ -722,7 +753,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
+  @NotNull()
+  public CompareResult compare(
+              @NotNull final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
   {
     return readPool.compare(compareRequest);
@@ -743,7 +776,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult delete(final String dn)
+  @NotNull()
+  public LDAPResult delete(@NotNull final String dn)
          throws LDAPException
   {
     return writePool.delete(dn);
@@ -765,7 +799,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult delete(final DeleteRequest deleteRequest)
+  @NotNull()
+  public LDAPResult delete(@NotNull final DeleteRequest deleteRequest)
          throws LDAPException
   {
     return writePool.delete(deleteRequest);
@@ -787,7 +822,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
+  @NotNull()
+  public LDAPResult delete(@NotNull final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
     return writePool.delete(deleteRequest);
@@ -810,7 +846,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult modify(final String dn, final Modification mod)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final Modification mod)
          throws LDAPException
   {
     return writePool.modify(dn, mod);
@@ -832,7 +870,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult modify(final String dn, final Modification... mods)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final Modification... mods)
          throws LDAPException
   {
     return writePool.modify(dn, mods);
@@ -855,7 +895,9 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult modify(final String dn, final List<Modification> mods)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final List<Modification> mods)
          throws LDAPException
   {
     return writePool.modify(dn, mods);
@@ -882,7 +924,8 @@ public final class LDAPReadWriteConnectionPool
    *
    */
   @Override()
-  public LDAPResult modify(final String... ldifModificationLines)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
     return writePool.modify(ldifModificationLines);
@@ -904,7 +947,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult modify(final ModifyRequest modifyRequest)
+  @NotNull()
+  public LDAPResult modify(@NotNull final ModifyRequest modifyRequest)
          throws LDAPException
   {
     return writePool.modify(modifyRequest);
@@ -926,7 +970,8 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    */
   @Override()
-  public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
+  @NotNull()
+  public LDAPResult modify(@NotNull final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
     return writePool.modify(modifyRequest);
@@ -952,7 +997,9 @@ public final class LDAPReadWriteConnectionPool
    *                         or reading the response.
    */
   @Override()
-  public LDAPResult modifyDN(final String dn, final String newRDN,
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final String dn,
+                             @NotNull final String newRDN,
                              final boolean deleteOldRDN)
          throws LDAPException
   {
@@ -982,9 +1029,11 @@ public final class LDAPReadWriteConnectionPool
    *                         or reading the response.
    */
   @Override()
-  public LDAPResult modifyDN(final String dn, final String newRDN,
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final String dn,
+                             @NotNull final String newRDN,
                              final boolean deleteOldRDN,
-                             final String newSuperiorDN)
+                             @Nullable final String newSuperiorDN)
          throws LDAPException
   {
     return writePool.modifyDN(dn, newRDN, deleteOldRDN, newSuperiorDN);
@@ -1006,7 +1055,8 @@ public final class LDAPReadWriteConnectionPool
    *                         or reading the response.
    */
   @Override()
-  public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return writePool.modifyDN(modifyDNRequest);
@@ -1028,7 +1078,9 @@ public final class LDAPReadWriteConnectionPool
    *                         or reading the response.
    */
   @Override()
-  public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
+  @NotNull()
+  public LDAPResult modifyDN(
+              @NotNull final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return writePool.modifyDN(modifyDNRequest);
@@ -1078,8 +1130,11 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final String filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(baseDN, scope, filter, attributes);
@@ -1127,8 +1182,11 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final Filter filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(baseDN, scope, filter, attributes);
@@ -1184,9 +1242,12 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(searchResultListener, baseDN, scope, filter,
@@ -1241,9 +1302,12 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(searchResultListener, baseDN, scope, filter,
@@ -1304,11 +1368,14 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+                             final boolean typesOnly,
+                             @NotNull final String filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(baseDN, scope, derefPolicy, sizeLimit, timeLimit,
@@ -1367,11 +1434,14 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+                             final boolean typesOnly,
+                             @NotNull final Filter filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(baseDN, scope, derefPolicy, sizeLimit, timeLimit,
@@ -1441,12 +1511,14 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(searchResultListener, baseDN, scope, derefPolicy,
@@ -1514,12 +1586,14 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.search(searchResultListener, baseDN, scope, derefPolicy,
@@ -1561,7 +1635,8 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final SearchRequest searchRequest)
+  @NotNull()
+  public SearchResult search(@NotNull final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     return readPool.search(searchRequest);
@@ -1602,7 +1677,8 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResult search(final ReadOnlySearchRequest searchRequest)
+  @NotNull()
+  public SearchResult search(@NotNull final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return readPool.search(searchRequest);
@@ -1653,10 +1729,11 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final String filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                          @NotNull final SearchScope scope,
+                                          @NotNull final String filter,
+                                          @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.searchForEntry(baseDN, scope, filter, attributes);
@@ -1707,10 +1784,11 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final Filter filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                          @NotNull final SearchScope scope,
+                                          @NotNull final Filter filter,
+                                          @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.searchForEntry(baseDN, scope, filter, attributes);
@@ -1768,13 +1846,12 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final String filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int timeLimit,
+              final boolean typesOnly, @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return readPool.searchForEntry(baseDN, scope, derefPolicy, timeLimit,
@@ -1832,13 +1909,12 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final Filter filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int timeLimit,
+              final boolean typesOnly, @NotNull final Filter filter,
+              @Nullable final String... attributes)
        throws LDAPSearchException
   {
     return readPool.searchForEntry(baseDN, scope, derefPolicy, timeLimit,
@@ -1883,7 +1959,9 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+  @Nullable()
+  public SearchResultEntry searchForEntry(
+              @NotNull final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     return readPool.searchForEntry(searchRequest);
@@ -1927,8 +2005,9 @@ public final class LDAPReadWriteConnectionPool
    *                               entries and/or references.
    */
   @Override()
+  @Nullable()
   public SearchResultEntry searchForEntry(
-                                final ReadOnlySearchRequest searchRequest)
+              @NotNull final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return readPool.searchForEntry(searchRequest);

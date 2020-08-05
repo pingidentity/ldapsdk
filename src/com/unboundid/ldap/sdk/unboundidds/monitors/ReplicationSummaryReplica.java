@@ -42,6 +42,8 @@ import java.util.Date;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,36 +77,36 @@ public final class ReplicationSummaryReplica
 
 
   // The date of the oldest backlog change.
-  private final Date oldestBacklogChangeDate;
+  @Nullable private final Date oldestBacklogChangeDate;
 
   // The LDAP server port for this replica.
-  private final Long ldapServerPort;
+  @Nullable private final Long ldapServerPort;
 
   // The replication backlog, presented as the number of missing changes in the
   // replica.
-  private final Long replicationBacklog;
+  @Nullable private final Long replicationBacklog;
 
   // The peak update rate in operations per second.
-  private final Long peakUpdateRate;
+  @Nullable private final Long peakUpdateRate;
 
   // The recent update rate in operations per second.
-  private final Long recentUpdateRate;
+  @Nullable private final Long recentUpdateRate;
 
   // The generation ID for the data in the replica.
-  private final String generationID;
+  @Nullable private final String generationID;
 
   // The LDAP server address for this replica.
-  private final String ldapServerAddress;
+  @Nullable private final String ldapServerAddress;
 
   // The replica ID for this replica.
-  private final String replicaID;
+  @Nullable private final String replicaID;
 
   // The replication server ID for the replication server to which this replica
   // is connected.
-  private final String replicationServerID;
+  @Nullable private final String replicationServerID;
 
   // The value used to create this replication summary replica object.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -115,7 +117,7 @@ public final class ReplicationSummaryReplica
    * @param  value  The value string to be parsed as a replication summary
    *                replica object.
    */
-  public ReplicationSummaryReplica(final String value)
+  public ReplicationSummaryReplica(@NotNull final String value)
   {
     stringRepresentation = value;
 
@@ -268,7 +270,9 @@ public final class ReplicationSummaryReplica
    *          {@code null} if it was not present, could not be determined, or
    *          was an empty string.
    */
-  private static String getElementValue(final String s, final String n)
+  @Nullable()
+  private static String getElementValue(@NotNull final String s,
+                                        @NotNull final String n)
   {
     final String nPlusEQ = n + "=\"";
 
@@ -296,6 +300,7 @@ public final class ReplicationSummaryReplica
    * @return  The replica ID for this replica, or {@code null} if that
    *          information is not available.
    */
+  @Nullable()
   public String getReplicaID()
   {
     return replicaID;
@@ -309,6 +314,7 @@ public final class ReplicationSummaryReplica
    * @return  The address used to communicate with this replica via LDAP, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public String getLDAPServerAddress()
   {
     return ldapServerAddress;
@@ -322,6 +328,7 @@ public final class ReplicationSummaryReplica
    * @return  The port number used to communicate with this replica via LDAP, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getLDAPServerPort()
   {
     return ldapServerPort;
@@ -337,6 +344,7 @@ public final class ReplicationSummaryReplica
    *          replica is connected, or {@code null} if that information is not
    *          available.
    */
+  @Nullable()
   public String getReplicationServerID()
   {
     return replicationServerID;
@@ -350,6 +358,7 @@ public final class ReplicationSummaryReplica
    * @return  The generation ID for this replica, or {@code null} if that
    *          information is not available.
    */
+  @Nullable()
   public String getGenerationID()
   {
     return generationID;
@@ -363,6 +372,7 @@ public final class ReplicationSummaryReplica
    * @return  The recent update rate for this replica in operations per second,
    *          or {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getRecentUpdateRate()
   {
     return recentUpdateRate;
@@ -376,6 +386,7 @@ public final class ReplicationSummaryReplica
    * @return  The peak update rate for this replica in operations per second, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getPeakUpdateRate()
   {
     return peakUpdateRate;
@@ -394,6 +405,7 @@ public final class ReplicationSummaryReplica
    * @deprecated  Use {@link #getReplicationBacklog()} instead.
    */
   @Deprecated
+  @Nullable()
   public Long getMissingChanges()
   {
     return getReplicationBacklog();
@@ -409,6 +421,7 @@ public final class ReplicationSummaryReplica
    *          changes, for this replica , or {@code null} if
    *          that information is not available.
    */
+  @Nullable()
   public Long getReplicationBacklog()
   {
     return replicationBacklog;
@@ -426,6 +439,7 @@ public final class ReplicationSummaryReplica
    * @deprecated  Use {@link #getOldestBacklogChangeDate()} instead.
    */
   @Deprecated
+  @Nullable()
   public Date getOldestMissingChangeDate()
   {
     return getOldestBacklogChangeDate();
@@ -440,6 +454,7 @@ public final class ReplicationSummaryReplica
    *          {@code null} if that information is not available or there are no
    *          backlog changes.
    */
+  @Nullable()
   public Date getOldestBacklogChangeDate()
   {
     return oldestBacklogChangeDate;
@@ -453,6 +468,7 @@ public final class ReplicationSummaryReplica
    * @return  A string representation of this replication summary replica.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;

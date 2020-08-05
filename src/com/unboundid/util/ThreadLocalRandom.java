@@ -52,14 +52,15 @@ public final class ThreadLocalRandom
   /**
    * The random number generator that will be used to seed per-thread instances.
    */
-  private static final Random SEED_RANDOM = new Random();
+  @NotNull private static final Random SEED_RANDOM = new Random();
 
 
 
   /**
    * The thread-local instances that have been created.
    */
-  private static final ThreadLocal<Random> INSTANCES = new ThreadLocal<>();
+  @NotNull private static final ThreadLocal<Random> INSTANCES =
+       new ThreadLocal<>();
 
 
 
@@ -78,6 +79,7 @@ public final class ThreadLocalRandom
    *
    * @return  A thread-local random number generator instance.
    */
+  @NotNull()
   public static Random get()
   {
     Random r = INSTANCES.get();

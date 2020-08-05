@@ -62,6 +62,8 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,10 +92,10 @@ public final class SearchRequestProtocolOp
   private final boolean typesOnly;
 
   // The dereference policy for this search request.
-  private final DereferencePolicy derefPolicy;
+  @NotNull private final DereferencePolicy derefPolicy;
 
   // The filter for this search request.
-  private final Filter filter;
+  @NotNull private final Filter filter;
 
   // The size limit for this search request.
   private final int sizeLimit;
@@ -102,13 +104,13 @@ public final class SearchRequestProtocolOp
   private final int timeLimit;
 
   // The set of attributes for this search request.
-  private final List<String> attributes;
+  @NotNull private final List<String> attributes;
 
   // The scope for this search request.
-  private final SearchScope scope;
+  @NotNull private final SearchScope scope;
 
   // The base DN for this search request.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
 
 
@@ -129,10 +131,12 @@ public final class SearchRequestProtocolOp
    * @param  attributes   The names of attributes to include in matching
    *                      entries.
    */
-  public SearchRequestProtocolOp(final String baseDN, final SearchScope scope,
-              final DereferencePolicy derefPolicy, final int sizeLimit,
-              final int timeLimit, final boolean typesOnly, final Filter filter,
-              final List<String> attributes)
+  public SearchRequestProtocolOp(@NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final List<String> attributes)
   {
     this.scope       = scope;
     this.derefPolicy = derefPolicy;
@@ -185,7 +189,7 @@ public final class SearchRequestProtocolOp
    * @param  request  The search request object to use to create this protocol
    *                  op.
    */
-  public SearchRequestProtocolOp(final SearchRequest request)
+  public SearchRequestProtocolOp(@NotNull final SearchRequest request)
   {
     baseDN      = request.getBaseDN();
     scope       = request.getScope();
@@ -209,7 +213,7 @@ public final class SearchRequestProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         search request.
    */
-  SearchRequestProtocolOp(final ASN1StreamReader reader)
+  SearchRequestProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -255,6 +259,7 @@ public final class SearchRequestProtocolOp
    *
    * @return  The base DN for this search request.
    */
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -267,6 +272,7 @@ public final class SearchRequestProtocolOp
    *
    * @return  The scope for this search request.
    */
+  @NotNull()
   public SearchScope getScope()
   {
     return scope;
@@ -279,6 +285,7 @@ public final class SearchRequestProtocolOp
    *
    * @return  The policy to use for any aliases encountered during the search.
    */
+  @NotNull()
   public DereferencePolicy getDerefPolicy()
   {
     return derefPolicy;
@@ -333,6 +340,7 @@ public final class SearchRequestProtocolOp
    *
    * @return  The filter for this search request.
    */
+  @NotNull()
   public Filter getFilter()
   {
     return filter;
@@ -345,6 +353,7 @@ public final class SearchRequestProtocolOp
    *
    * @return  The set of requested attributes for this search request.
    */
+  @NotNull()
   public List<String> getAttributes()
   {
     return attributes;
@@ -367,6 +376,7 @@ public final class SearchRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> attrElements =
@@ -399,8 +409,9 @@ public final class SearchRequestProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a search request protocol op.
    */
+  @NotNull()
   public static SearchRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
+                                             @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -446,7 +457,7 @@ public final class SearchRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST);
@@ -478,7 +489,8 @@ public final class SearchRequestProtocolOp
    *
    * @return  The search request that was created.
    */
-  public SearchRequest toSearchRequest(final Control... controls)
+  @NotNull()
+  public SearchRequest toSearchRequest(@Nullable final Control... controls)
   {
     final String[] attrArray = new String[attributes.size()];
     attributes.toArray(attrArray);
@@ -495,6 +507,7 @@ public final class SearchRequestProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -508,7 +521,7 @@ public final class SearchRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SearchRequestProtocolOp(baseDN='");
     buffer.append(baseDN);

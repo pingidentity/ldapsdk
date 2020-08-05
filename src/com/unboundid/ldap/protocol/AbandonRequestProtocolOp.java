@@ -46,6 +46,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,7 +98,7 @@ public final class AbandonRequestProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         abandon request.
    */
-  AbandonRequestProtocolOp(final ASN1StreamReader reader)
+  AbandonRequestProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -144,6 +145,7 @@ public final class AbandonRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1Integer(LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST,
@@ -162,8 +164,9 @@ public final class AbandonRequestProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         an abandon request protocol op.
    */
+  @NotNull()
   public static AbandonRequestProtocolOp decodeProtocolOp(
-                                              final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -187,7 +190,7 @@ public final class AbandonRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     buffer.addInteger(LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST,
                       idToAbandon);
@@ -201,6 +204,7 @@ public final class AbandonRequestProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -214,7 +218,7 @@ public final class AbandonRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AbandonRequestProtocolOp(idToAbandon=");
     buffer.append(idToAbandon);

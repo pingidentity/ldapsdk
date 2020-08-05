@@ -84,6 +84,8 @@ import com.unboundid.util.Base64;
 import com.unboundid.util.DNFileReader;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -130,55 +132,56 @@ public final class LDAPCompare
   /**
    * The value used to select the CSV output format.
    */
-  private static final String OUTPUT_FORMAT_CSV = "csv";
+  @NotNull private static final String OUTPUT_FORMAT_CSV = "csv";
 
 
 
   /**
    * The value used to select the JSON output format.
    */
-  private static final String OUTPUT_FORMAT_JSON = "json";
+  @NotNull private static final String OUTPUT_FORMAT_JSON = "json";
 
 
 
   /**
    * The value used to select the tab-delimited output format.
    */
-  private static final String OUTPUT_FORMAT_TAB_DELIMITED = "tab-delimited";
+  @NotNull private static final String OUTPUT_FORMAT_TAB_DELIMITED =
+       "tab-delimited";
 
 
 
   // A reference to the completion message to return for this tool.
-  private final AtomicReference<String> completionMessage;
+  @NotNull private final AtomicReference<String> completionMessage;
 
   // A reference to the argument parser for this tool.
-  private ArgumentParser argumentParser;
+  @Nullable private ArgumentParser argumentParser;
 
   // The supported command-line arguments.
-  private BooleanArgument authorizationIdentity;
-  private BooleanArgument continueOnError;
-  private BooleanArgument dryRun;
-  private BooleanArgument followReferrals;
-  private BooleanArgument getUserResourceLimits;
-  private BooleanArgument manageDsaIT;
-  private BooleanArgument scriptFriendly;
-  private BooleanArgument teeOutput;
-  private BooleanArgument terse;
-  private BooleanArgument useAdministrativeSession;
-  private BooleanArgument useCompareResultCodeAsExitCode;
-  private BooleanArgument usePasswordPolicyControl;
-  private BooleanArgument verbose;
-  private ControlArgument bindControl;
-  private ControlArgument compareControl;
-  private DNArgument proxyV1As;
-  private FileArgument assertionFile;
-  private FileArgument dnFile;
-  private FileArgument outputFile;
-  private FilterArgument assertionFilter;
-  private StringArgument getAuthorizationEntryAttribute;
-  private StringArgument operationPurpose;
-  private StringArgument outputFormat;
-  private StringArgument proxyAs;
+  @Nullable private BooleanArgument authorizationIdentity;
+  @Nullable private BooleanArgument continueOnError;
+  @Nullable private BooleanArgument dryRun;
+  @Nullable private BooleanArgument followReferrals;
+  @Nullable private BooleanArgument getUserResourceLimits;
+  @Nullable private BooleanArgument manageDsaIT;
+  @Nullable private BooleanArgument scriptFriendly;
+  @Nullable private BooleanArgument teeOutput;
+  @Nullable private BooleanArgument terse;
+  @Nullable private BooleanArgument useAdministrativeSession;
+  @Nullable private BooleanArgument useCompareResultCodeAsExitCode;
+  @Nullable private BooleanArgument usePasswordPolicyControl;
+  @Nullable private BooleanArgument verbose;
+  @Nullable private ControlArgument bindControl;
+  @Nullable private ControlArgument compareControl;
+  @Nullable private DNArgument proxyV1As;
+  @Nullable private FileArgument assertionFile;
+  @Nullable private FileArgument dnFile;
+  @Nullable private FileArgument outputFile;
+  @Nullable private FilterArgument assertionFilter;
+  @Nullable private StringArgument getAuthorizationEntryAttribute;
+  @Nullable private StringArgument operationPurpose;
+  @Nullable private StringArgument outputFormat;
+  @Nullable private StringArgument proxyAs;
 
 
 
@@ -188,7 +191,7 @@ public final class LDAPCompare
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -212,8 +215,9 @@ public final class LDAPCompare
    * @return  The result code obtained when running the tool.  Any result code
    *          other than {@link ResultCode#SUCCESS} indicates an error.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDAPCompare tool = new LDAPCompare(out, err);
     return tool.runTool(args);
@@ -230,7 +234,8 @@ public final class LDAPCompare
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public LDAPCompare(final OutputStream out, final OutputStream err)
+  public LDAPCompare(@Nullable final OutputStream out,
+                     @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -270,6 +275,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldapcompare";
@@ -281,6 +287,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_LDAPCOMPARE_TOOL_DESCRIPTION_1.get();
@@ -292,6 +299,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getAdditionalDescriptionParagraphs()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -307,6 +315,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -340,6 +349,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return INFO_LDAPCOMPARE_TRAILING_ARGS_PLACEHOLDER.get();
@@ -428,6 +438,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Control> getBindControls()
   {
     final List<Control> bindControls = new ArrayList<>(10);
@@ -489,6 +500,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -518,6 +530,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return completionMessage.get();
@@ -529,7 +542,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     argumentParser = parser;
@@ -768,6 +781,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     final List<CompareRequest> compareRequests;
@@ -1021,6 +1035,7 @@ public final class LDAPCompare
    * @throws  LDAPException  If a problem occurs while obtaining the compare
    *                         requests to process.
    */
+  @NotNull()
   private List<CompareRequest> getCompareRequests()
           throws LDAPException
   {
@@ -1111,8 +1126,9 @@ public final class LDAPCompare
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         attribute value assertion.
    */
+  @NotNull()
   private static ObjectPair<String,byte[]> parseAttributeValueAssertion(
-                                                final String avaString)
+                                                @NotNull final String avaString)
           throws LDAPException
   {
     final int colonPos = avaString.indexOf(':');
@@ -1206,7 +1222,9 @@ public final class LDAPCompare
    * @throws  LDAPException  If a problem is encountered while parsing the
    *                         contents of the assertion file.
    */
-  private List<CompareRequest> readAssertionFile(final Control[] controls)
+  @NotNull()
+  private List<CompareRequest> readAssertionFile(
+               @NotNull final Control[] controls)
           throws LDAPException
   {
     final File f = assertionFile.getValue();
@@ -1331,9 +1349,10 @@ public final class LDAPCompare
    * @throws  LDAPException  If a problem is encountered while parsing the
    *                         contents of the assertion file.
    */
-  private List<CompareRequest> readDNFile(final String attributeName,
-                                          final byte[] assertionValue,
-                                          final Control[] controls)
+  @NotNull()
+  private List<CompareRequest> readDNFile(@NotNull final String attributeName,
+                                          @NotNull final byte[] assertionValue,
+                                          @NotNull final Control[] controls)
           throws LDAPException
   {
     try (DNFileReader dnFileReader = new DNFileReader(dnFile.getValue()))
@@ -1390,6 +1409,7 @@ public final class LDAPCompare
    * @throws  LDAPException  If a problem occurs while trying to create any of
    *                         the controls.
    */
+  @NotNull()
   private Control[] getCompareControls()
           throws LDAPException
   {
@@ -1451,10 +1471,10 @@ public final class LDAPCompare
    * @throws  LDAPException  If a problem occurred while trying to write the
    *                         result.
    */
-  private void writeResult(final PrintStream writer,
-                           final LDAPCompareOutputHandler outputHandler,
-                           final CompareRequest request,
-                           final LDAPResult result)
+  private void writeResult(@Nullable final PrintStream writer,
+                    @NotNull final LDAPCompareOutputHandler outputHandler,
+                    @NotNull final CompareRequest request,
+                    @NotNull final LDAPResult result)
           throws LDAPException
   {
     if (shouldWriteResultToStdErr(result))
@@ -1496,7 +1516,7 @@ public final class LDAPCompare
    * @return  {@code true} if information about the result should be written to
    *          standard error, or {@code false} if not.
    */
-  private boolean shouldWriteResultToStdErr(final LDAPResult result)
+  private boolean shouldWriteResultToStdErr(@NotNull final LDAPResult result)
   {
     if (verbose.isPresent())
     {
@@ -1526,7 +1546,8 @@ public final class LDAPCompare
    *                  standard error rather than standard output.
    * @param  message  The message to be written.
    */
-  private void logCompletionMessage(final boolean isError, final String message)
+  private void logCompletionMessage(final boolean isError,
+                                    @NotNull final String message)
   {
     completionMessage.compareAndSet(null, message);
 
@@ -1549,8 +1570,9 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
-  public void handleUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void handleUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     if (! terse.isPresent())
     {
@@ -1571,6 +1593,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();

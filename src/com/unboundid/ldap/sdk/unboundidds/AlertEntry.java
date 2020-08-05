@@ -42,6 +42,8 @@ import java.util.Date;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,7 +74,7 @@ public final class AlertEntry
    * The name of the structural object class that will be used for entries
    * containing information about administrative alerts.
    */
-  public static final String OC_ALERT = "ds-admin-alert";
+  @NotNull public static final String OC_ALERT = "ds-admin-alert";
 
 
 
@@ -80,7 +82,8 @@ public final class AlertEntry
    * The name of the attribute that contains the fully-qualified name of the
    * server class that generated the alert notification.
    */
-  public static final String ATTR_ALERT_GENERATOR = "ds-alert-generator";
+  @NotNull public static final String ATTR_ALERT_GENERATOR =
+       "ds-alert-generator";
 
 
 
@@ -88,7 +91,7 @@ public final class AlertEntry
    * The name of the attribute that contains the unique ID assigned to the alert
    * notification.
    */
-  public static final String ATTR_ALERT_ID = "ds-alert-id";
+  @NotNull public static final String ATTR_ALERT_ID = "ds-alert-id";
 
 
 
@@ -96,7 +99,7 @@ public final class AlertEntry
    * The name of the attribute that contains a message with additional
    * information about the alert notification.
    */
-  public static final String ATTR_ALERT_MESSAGE = "ds-alert-message";
+  @NotNull public static final String ATTR_ALERT_MESSAGE = "ds-alert-message";
 
 
 
@@ -104,7 +107,7 @@ public final class AlertEntry
    * The name of the attribute that contains the severity of the alert
    * notification.
    */
-  public static final String ATTR_ALERT_SEVERITY = "ds-alert-severity";
+  @NotNull public static final String ATTR_ALERT_SEVERITY = "ds-alert-severity";
 
 
 
@@ -112,21 +115,21 @@ public final class AlertEntry
    * The name of the attribute that contains the time that the alert
    * notification was generated.
    */
-  public static final String ATTR_ALERT_TIME = "ds-alert-time";
+  @NotNull public static final String ATTR_ALERT_TIME = "ds-alert-time";
 
 
 
   /**
    * The name of the attribute that contains the name of the alert type.
    */
-  public static final String ATTR_ALERT_TYPE = "ds-alert-type";
+  @NotNull public static final String ATTR_ALERT_TYPE = "ds-alert-type";
 
 
 
   /**
    * The name of the attribute that contains the OID assigned to the alert type.
    */
-  public static final String ATTR_ALERT_TYPE_OID = "ds-alert-type-oid";
+  @NotNull public static final String ATTR_ALERT_TYPE_OID = "ds-alert-type-oid";
 
 
 
@@ -138,25 +141,25 @@ public final class AlertEntry
 
 
   // The severity for this alert entry.
-  private final AlertSeverity alertSeverity;
+  @Nullable private final AlertSeverity alertSeverity;
 
   // The time that the alert notification was generated.
-  private final Date alertTime;
+  @Nullable private final Date alertTime;
 
   // The fully-qualified name of the alert generator class.
-  private final String alertGeneratorClass;
+  @Nullable private final String alertGeneratorClass;
 
   // The unique identifier assigned to the alert notification.
-  private final String alertID;
+  @Nullable private final String alertID;
 
   // The message for the alert notification.
-  private final String alertMessage;
+  @Nullable private final String alertMessage;
 
   // The name of the alert type for the alert notification.
-  private final String alertType;
+  @Nullable private final String alertType;
 
   // The OID for the alert type.
-  private final String alertTypeOID;
+  @Nullable private final String alertTypeOID;
 
 
 
@@ -165,7 +168,7 @@ public final class AlertEntry
    *
    * @param  entry  The entry from which to create this alert entry.
    */
-  public AlertEntry(final Entry entry)
+  public AlertEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -198,6 +201,7 @@ public final class AlertEntry
    *          notification, or {@code null} if it was not included in the alert
    *          entry.
    */
+  @Nullable()
   public String getAlertGeneratorClass()
   {
     return alertGeneratorClass;
@@ -211,6 +215,7 @@ public final class AlertEntry
    * @return  The unique identifier for the alert notification, or {@code null}
    *          if it was not included in the alert entry.
    */
+  @Nullable()
   public String getAlertID()
   {
     return alertID;
@@ -224,6 +229,7 @@ public final class AlertEntry
    * @return  The message for the alert notification, or {@code null} if it was
    *          not included in the alert entry.
    */
+  @Nullable()
   public String getAlertMessage()
   {
     return alertMessage;
@@ -238,6 +244,7 @@ public final class AlertEntry
    *          not included in the alert entry, or if it included an unknown
    *          severity.
    */
+  @Nullable()
   public AlertSeverity getAlertSeverity()
   {
     return alertSeverity;
@@ -252,6 +259,7 @@ public final class AlertEntry
    *          {@code null} if it was not included in the alert entry or if the
    *          alert time value could not be parsed.
    */
+  @Nullable()
   public Date getAlertTime()
   {
     return alertTime;
@@ -265,6 +273,7 @@ public final class AlertEntry
    * @return  The name of the alert type for the alert notification, or
    *          {@code null} if it was not included in the alert entry.
    */
+  @Nullable()
   public String getAlertType()
   {
     return alertType;
@@ -278,6 +287,7 @@ public final class AlertEntry
    * @return  The OID of the alert type for the alert notification, or
    *          {@code null} if it was not included in the alert entry.
    */
+  @Nullable()
   public String getAlertTypeOID()
   {
     return alertTypeOID;

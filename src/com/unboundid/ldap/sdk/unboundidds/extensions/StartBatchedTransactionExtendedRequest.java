@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             IntermediateClientRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyRequestControl;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -231,7 +233,7 @@ public final class StartBatchedTransactionExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.1) for the start batched transaction
    * extended request.
    */
-  public static final String START_BATCHED_TRANSACTION_REQUEST_OID =
+  @NotNull public static final String START_BATCHED_TRANSACTION_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.1";
 
 
@@ -258,7 +260,8 @@ public final class StartBatchedTransactionExtendedRequest
    *
    * @param  controls  The set of controls to include in the request.
    */
-  public StartBatchedTransactionExtendedRequest(final Control[] controls)
+  public StartBatchedTransactionExtendedRequest(
+              @Nullable final Control[] controls)
   {
     super(START_BATCHED_TRANSACTION_REQUEST_OID, controls);
   }
@@ -275,7 +278,7 @@ public final class StartBatchedTransactionExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public StartBatchedTransactionExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -293,8 +296,9 @@ public final class StartBatchedTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartBatchedTransactionExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -307,6 +311,7 @@ public final class StartBatchedTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartBatchedTransactionExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -318,8 +323,9 @@ public final class StartBatchedTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartBatchedTransactionExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final StartBatchedTransactionExtendedRequest r =
          new StartBatchedTransactionExtendedRequest(controls);
@@ -333,6 +339,7 @@ public final class StartBatchedTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_START_BATCHED_TXN.get();
@@ -344,7 +351,7 @@ public final class StartBatchedTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StartBatchedTransactionExtendedRequest(");
 

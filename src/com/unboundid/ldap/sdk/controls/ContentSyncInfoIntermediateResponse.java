@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,7 +85,8 @@ public final class ContentSyncInfoIntermediateResponse
   /**
    * The OID (1.3.6.1.4.1.4203.1.9.1.4) for the sync info intermediate response.
    */
-  public static final String SYNC_INFO_OID = "1.3.6.1.4.1.4203.1.9.1.4";
+  @NotNull public static final String SYNC_INFO_OID =
+       "1.3.6.1.4.1.4203.1.9.1.4";
 
 
 
@@ -95,7 +98,7 @@ public final class ContentSyncInfoIntermediateResponse
 
 
   // An updated state cookie, if available.
-  private final ASN1OctetString cookie;
+  @Nullable private final ASN1OctetString cookie;
 
   // Indicates whether the provided set of UUIDs represent entries that have
   // been removed.
@@ -106,10 +109,10 @@ public final class ContentSyncInfoIntermediateResponse
 
   // The type of content synchronization information represented in this
   // response.
-  private final ContentSyncInfoType type;
+  @NotNull private final ContentSyncInfoType type;
 
   // A list of entryUUIDs for the set of entries associated with this message.
-  private final List<UUID> entryUUIDs;
+  @Nullable private final List<UUID> entryUUIDs;
 
 
 
@@ -132,10 +135,13 @@ public final class ContentSyncInfoIntermediateResponse
    * @param  controls        The set of controls to include in the intermediate
    *                         response, if any.
    */
-  private ContentSyncInfoIntermediateResponse(final ContentSyncInfoType type,
-                 final ASN1OctetString value, final ASN1OctetString cookie,
+  private ContentSyncInfoIntermediateResponse(
+                 @NotNull final ContentSyncInfoType type,
+                 @Nullable final ASN1OctetString value,
+                 @Nullable final ASN1OctetString cookie,
                  final boolean refreshDone, final boolean refreshDeletes,
-                 final List<UUID> entryUUIDs, final Control... controls)
+                 @Nullable final List<UUID> entryUUIDs,
+                 @Nullable final Control... controls)
   {
     super(SYNC_INFO_OID, value, controls);
 
@@ -160,8 +166,10 @@ public final class ContentSyncInfoIntermediateResponse
    *
    * @return  The created sync info intermediate response.
    */
+  @NotNull()
   public static ContentSyncInfoIntermediateResponse createNewCookieResponse(
-                     final ASN1OctetString cookie, final Control... controls)
+                     @NotNull final ASN1OctetString cookie,
+                     @Nullable final Control... controls)
   {
     Validator.ensureNotNull(cookie);
 
@@ -189,9 +197,11 @@ public final class ContentSyncInfoIntermediateResponse
    *
    * @return  The created sync info intermediate response.
    */
+  @NotNull()
   public static ContentSyncInfoIntermediateResponse createRefreshDeleteResponse(
-                     final ASN1OctetString cookie, final boolean refreshDone,
-                     final Control... controls)
+                     @Nullable final ASN1OctetString cookie,
+                     final boolean refreshDone,
+                     @Nullable final Control... controls)
   {
     final ContentSyncInfoType type = ContentSyncInfoType.REFRESH_DELETE;
 
@@ -217,10 +227,12 @@ public final class ContentSyncInfoIntermediateResponse
    *
    * @return  The created sync info intermediate response.
    */
+  @NotNull()
   public static ContentSyncInfoIntermediateResponse
-                     createRefreshPresentResponse(final ASN1OctetString cookie,
-                                                  final boolean refreshDone,
-                                                  final Control... controls)
+                     createRefreshPresentResponse(
+                          @Nullable final ASN1OctetString cookie,
+                          final boolean refreshDone,
+                          @Nullable final Control... controls)
   {
     final ContentSyncInfoType type = ContentSyncInfoType.REFRESH_PRESENT;
 
@@ -249,9 +261,12 @@ public final class ContentSyncInfoIntermediateResponse
    *
    * @return  The created sync info intermediate response.
    */
+  @NotNull()
   public static ContentSyncInfoIntermediateResponse createSyncIDSetResponse(
-                     final ASN1OctetString cookie, final List<UUID> entryUUIDs,
-                     final boolean refreshDeletes, final Control... controls)
+                     @Nullable final ASN1OctetString cookie,
+                     @NotNull final List<UUID> entryUUIDs,
+                     final boolean refreshDeletes,
+                     @Nullable final Control... controls)
   {
     Validator.ensureNotNull(entryUUIDs);
 
@@ -278,8 +293,9 @@ public final class ContentSyncInfoIntermediateResponse
    *                         provided intermediate response as a sync info
    *                         response.
    */
+  @NotNull()
   public static ContentSyncInfoIntermediateResponse decode(
-                     final IntermediateResponse r)
+                     @NotNull final IntermediateResponse r)
          throws LDAPException
   {
     final ASN1OctetString value = r.getValue();
@@ -429,11 +445,13 @@ public final class ContentSyncInfoIntermediateResponse
    *
    * @return  The encoded value.
    */
-  private static ASN1OctetString encodeValue(final ContentSyncInfoType type,
-                                             final ASN1OctetString cookie,
-                                             final boolean refreshDone,
-                                             final List<UUID> entryUUIDs,
-                                             final boolean refreshDeletes)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+                                      @NotNull final ContentSyncInfoType type,
+                                      @Nullable final ASN1OctetString cookie,
+                                      final boolean refreshDone,
+                                      @Nullable final List<UUID> entryUUIDs,
+                                      final boolean refreshDeletes)
   {
     final ASN1Element e;
     switch (type)
@@ -499,6 +517,7 @@ public final class ContentSyncInfoIntermediateResponse
    * @return  The type of content synchronization information represented in
    *          this response.
    */
+  @NotNull()
   public ContentSyncInfoType getType()
   {
     return type;
@@ -515,6 +534,7 @@ public final class ContentSyncInfoIntermediateResponse
    * @return  An updated state cookie for the synchronization session, or
    *          {@code null} if none is available.
    */
+  @Nullable()
   public ASN1OctetString getCookie()
   {
     return cookie;
@@ -548,6 +568,7 @@ public final class ContentSyncInfoIntermediateResponse
    *          message, or {@code null} if it is not applicable for this message
    *          type.
    */
+  @Nullable()
   public List<UUID> getEntryUUIDs()
   {
     return entryUUIDs;
@@ -576,6 +597,7 @@ public final class ContentSyncInfoIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getIntermediateResponseName()
   {
     return INFO_INTERMEDIATE_RESPONSE_NAME_SYNC_INFO.get();
@@ -587,6 +609,7 @@ public final class ContentSyncInfoIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String valueToString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -645,7 +668,7 @@ public final class ContentSyncInfoIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ContentSyncInfoIntermediateResponse(");
 

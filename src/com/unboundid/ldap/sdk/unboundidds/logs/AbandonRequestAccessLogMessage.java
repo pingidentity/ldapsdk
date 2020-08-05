@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,7 +75,7 @@ public class AbandonRequestAccessLogMessage
 
 
   // The message ID of the operation to abandon.
-  private final Integer idToAbandon;
+  @Nullable private final Integer idToAbandon;
 
 
 
@@ -87,7 +89,7 @@ public class AbandonRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public AbandonRequestAccessLogMessage(final String s)
+  public AbandonRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -102,7 +104,7 @@ public class AbandonRequestAccessLogMessage
    * @param  m  The log message to be parsed as an abandon request access log
    *            message.
    */
-  public AbandonRequestAccessLogMessage(final LogMessage m)
+  public AbandonRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -117,6 +119,7 @@ public class AbandonRequestAccessLogMessage
    * @return  The message ID of the operation that should be abandoned, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final Integer getMessageIDToAbandon()
   {
     return idToAbandon;
@@ -128,6 +131,7 @@ public class AbandonRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.ABANDON;

@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadLocalRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,13 +76,13 @@ final class SRVRecordPrioritySet
   private final long totalWeight;
 
   // The set of all records in this set.
-  private final List<SRVRecord> allRecords;
+  @NotNull private final List<SRVRecord> allRecords;
 
   // The set of records with nonzero weights.
-  private final List<SRVRecord> nonzeroWeightRecords;
+  @NotNull private final List<SRVRecord> nonzeroWeightRecords;
 
   // The set of records with zero weights.
-  private final List<SRVRecord> zeroWeightRecords;
+  @NotNull private final List<SRVRecord> zeroWeightRecords;
 
 
 
@@ -92,7 +93,8 @@ final class SRVRecordPrioritySet
    * @param  records   The set of records with the same priority.  It must not
    *                   be {@code null} or empty.
    */
-  SRVRecordPrioritySet(final long priority, final List<SRVRecord> records)
+  SRVRecordPrioritySet(final long priority,
+                       @NotNull final List<SRVRecord> records)
   {
     this.priority = priority;
 
@@ -140,6 +142,7 @@ final class SRVRecordPrioritySet
    *
    * @return  A list of SRV records in the order that they should be accessed.
    */
+  @NotNull()
   List<SRVRecord> getOrderedRecords()
   {
     final ArrayList<SRVRecord> records = new ArrayList<>(allRecords.size());
@@ -190,6 +193,7 @@ final class SRVRecordPrioritySet
    * @return  A string representation of this priority server set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -205,7 +209,7 @@ final class SRVRecordPrioritySet
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  private void toString(final StringBuilder buffer)
+  private void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SRVRecordPrioritySet(records={");
 

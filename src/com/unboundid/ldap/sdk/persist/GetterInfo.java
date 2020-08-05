@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,22 +85,22 @@ public final class GetterInfo
   private final boolean includeInRDN;
 
   // The class that contains the associated method.
-  private final Class<?> containingClass;
+  @NotNull private final Class<?> containingClass;
 
   // The filter usage for the associated method.
-  private final FilterUsage filterUsage;
+  @NotNull private final FilterUsage filterUsage;
 
   // The method with which this object is associated.
-  private final Method method;
+  @NotNull private final Method method;
 
   // The encoder used for this method.
-  private final ObjectEncoder encoder;
+  @NotNull private final ObjectEncoder encoder;
 
   // The name of the associated attribute type.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
   // The names of the object classes for the associated attribute.
-  private final String[] objectClasses;
+  @NotNull private final String[] objectClasses;
 
 
 
@@ -111,7 +113,7 @@ public final class GetterInfo
    * @throws  LDAPPersistException  If a problem occurs while processing the
    *                                given method.
    */
-  GetterInfo(final Method m, final Class<?> c)
+  GetterInfo(@NotNull final Method m, @NotNull final Class<?> c)
        throws LDAPPersistException
   {
     Validator.ensureNotNull(m, c);
@@ -242,6 +244,7 @@ public final class GetterInfo
    *
    * @return  The method with which this object is associated.
    */
+  @NotNull()
   public Method getMethod()
   {
     return method;
@@ -255,6 +258,7 @@ public final class GetterInfo
    *
    * @return  The class that contains the associated field.
    */
+  @NotNull()
   public Class<?> getContainingClass()
   {
     return containingClass;
@@ -315,6 +319,7 @@ public final class GetterInfo
    *
    * @return  The filter usage for the associated method.
    */
+  @NotNull()
   public FilterUsage getFilterUsage()
   {
     return filterUsage;
@@ -327,6 +332,7 @@ public final class GetterInfo
    *
    * @return  The encoder that should be used for the associated method.
    */
+  @NotNull()
   public ObjectEncoder getEncoder()
   {
     return encoder;
@@ -341,6 +347,7 @@ public final class GetterInfo
    * @return  The name of the LDAP attribute used to hold values for the
    *          associated method.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -355,6 +362,7 @@ public final class GetterInfo
    * @return  The names of the object classes containing the associated
    *          attribute.
    */
+  @NotNull()
   public String[] getObjectClasses()
   {
     return objectClasses;
@@ -374,6 +382,7 @@ public final class GetterInfo
    *                                encoding values for the associated field
    *                                type.
    */
+  @NotNull()
   AttributeTypeDefinition constructAttributeType()
        throws LDAPPersistException
   {
@@ -397,7 +406,8 @@ public final class GetterInfo
    *                                encoding values for the associated method
    *                                type.
    */
-  AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
+  @NotNull()
+  AttributeTypeDefinition constructAttributeType(@NotNull final OIDAllocator a)
        throws LDAPPersistException
   {
     return encoder.constructAttributeType(method, a);
@@ -418,7 +428,8 @@ public final class GetterInfo
    *                                value of the associated field for the
    *                                provided object.
    */
-  Attribute encode(final Object o)
+  @Nullable()
+  Attribute encode(@NotNull final Object o)
             throws LDAPPersistException
   {
     try

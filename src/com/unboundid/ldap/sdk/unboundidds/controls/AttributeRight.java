@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -119,7 +121,7 @@ public enum AttributeRight
 
 
   // The name of this attribute right.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -128,7 +130,7 @@ public enum AttributeRight
    *
    * @param  name  The name for this attribute right.
    */
-  AttributeRight(final String name)
+  AttributeRight(@NotNull final String name)
   {
     this.name = name;
   }
@@ -140,6 +142,7 @@ public enum AttributeRight
    *
    * @return  The name of this attribute right.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -156,7 +159,8 @@ public enum AttributeRight
    * @return  The requested attribute right, or {@code null} if there is no such
    *          right.
    */
-  public static AttributeRight forName(final String name)
+  @Nullable()
+  public static AttributeRight forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -200,6 +204,7 @@ public enum AttributeRight
    * @return  A string representation of this attribute right.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

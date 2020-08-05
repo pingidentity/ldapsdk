@@ -61,6 +61,8 @@ import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -111,17 +113,17 @@ public final class ModifyRequest
 
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>();
 
   // The set of modifications to perform.
-  private final ArrayList<Modification> modifications;
+  @NotNull private final ArrayList<Modification> modifications;
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
 
   // The DN of the entry to modify.
-  private String dn;
+  @NotNull private String dn;
 
 
 
@@ -132,7 +134,8 @@ public final class ModifyRequest
    * @param  mod  The modification to apply to the entry.  It must not be
    *              {@code null}.
    */
-  public ModifyRequest(final String dn, final Modification mod)
+  public ModifyRequest(@NotNull final String dn,
+                       @NotNull final Modification mod)
   {
     super(null);
 
@@ -153,7 +156,8 @@ public final class ModifyRequest
    * @param  mods  The set of modifications to apply to the entry.  It must not
    *               be {@code null} or empty.
    */
-  public ModifyRequest(final String dn, final Modification... mods)
+  public ModifyRequest(@NotNull final String dn,
+                       @NotNull final Modification... mods)
   {
     super(null);
 
@@ -176,7 +180,8 @@ public final class ModifyRequest
    * @param  mods  The set of modifications to apply to the entry.  It must not
    *               be {@code null} or empty.
    */
-  public ModifyRequest(final String dn, final List<Modification> mods)
+  public ModifyRequest(@NotNull final String dn,
+                       @NotNull final List<Modification> mods)
   {
     super(null);
 
@@ -198,7 +203,7 @@ public final class ModifyRequest
    * @param  mod  The modification to apply to the entry.  It must not be
    *              {@code null}.
    */
-  public ModifyRequest(final DN dn, final Modification mod)
+  public ModifyRequest(@NotNull final DN dn, @NotNull final Modification mod)
   {
     super(null);
 
@@ -219,7 +224,8 @@ public final class ModifyRequest
    * @param  mods  The set of modifications to apply to the entry.  It must not
    *               be {@code null} or empty.
    */
-  public ModifyRequest(final DN dn, final Modification... mods)
+  public ModifyRequest(@NotNull final DN dn,
+                       @NotNull final Modification... mods)
   {
     super(null);
 
@@ -242,7 +248,8 @@ public final class ModifyRequest
    * @param  mods  The set of modifications to apply to the entry.  It must not
    *               be {@code null} or empty.
    */
-  public ModifyRequest(final DN dn, final List<Modification> mods)
+  public ModifyRequest(@NotNull final DN dn,
+                       @NotNull final List<Modification> mods)
   {
     super(null);
 
@@ -266,8 +273,9 @@ public final class ModifyRequest
    *                   {@code null}.
    * @param  controls  The set of controls to include in the request.
    */
-  public ModifyRequest(final String dn, final Modification mod,
-                       final Control[] controls)
+  public ModifyRequest(@NotNull final String dn,
+                       @NotNull final Modification mod,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -290,8 +298,9 @@ public final class ModifyRequest
    *                   not be {@code null} or empty.
    * @param  controls  The set of controls to include in the request.
    */
-  public ModifyRequest(final String dn, final Modification[] mods,
-                       final Control[] controls)
+  public ModifyRequest(@NotNull final String dn,
+                       @NotNull final Modification[] mods,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -316,8 +325,9 @@ public final class ModifyRequest
    *                   not be {@code null} or empty.
    * @param  controls  The set of controls to include in the request.
    */
-  public ModifyRequest(final String dn, final List<Modification> mods,
-                       final Control[] controls)
+  public ModifyRequest(@NotNull final String dn,
+                       @NotNull final List<Modification> mods,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -341,8 +351,8 @@ public final class ModifyRequest
    *                   {@code null}.
    * @param  controls  The set of controls to include in the request.
    */
-  public ModifyRequest(final DN dn, final Modification mod,
-                       final Control[] controls)
+  public ModifyRequest(@NotNull final DN dn, @NotNull final Modification mod,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -365,8 +375,8 @@ public final class ModifyRequest
    *                   not be {@code null} or empty.
    * @param  controls  The set of controls to include in the request.
    */
-  public ModifyRequest(final DN dn, final Modification[] mods,
-                       final Control[] controls)
+  public ModifyRequest(@NotNull final DN dn, @NotNull final Modification[] mods,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -391,8 +401,9 @@ public final class ModifyRequest
    *                   not be {@code null} or empty.
    * @param  controls  The set of controls to include in the request.
    */
-  public ModifyRequest(final DN dn, final List<Modification> mods,
-                       final Control[] controls)
+  public ModifyRequest(@NotNull final DN dn,
+                       @NotNull final List<Modification> mods,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -418,7 +429,7 @@ public final class ModifyRequest
    * @throws  LDIFException  If the provided set of lines cannot be parsed as an
    *                         LDIF modify change record.
    */
-  public ModifyRequest(final String... ldifModificationLines)
+  public ModifyRequest(@NotNull final String... ldifModificationLines)
          throws LDIFException
   {
     super(null);
@@ -445,6 +456,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -457,7 +469,7 @@ public final class ModifyRequest
    *
    * @param  dn  The DN of the entry to modify.  It must not be {@code null}.
    */
-  public void setDN(final String dn)
+  public void setDN(@NotNull final String dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -471,7 +483,7 @@ public final class ModifyRequest
    *
    * @param  dn  The DN of the entry to modify.  It must not be {@code null}.
    */
-  public void setDN(final DN dn)
+  public void setDN(@NotNull final DN dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -484,6 +496,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<Modification> getModifications()
   {
     return Collections.unmodifiableList(modifications);
@@ -497,7 +510,7 @@ public final class ModifyRequest
    *
    * @param  mod  The modification to be added.  It must not be {@code null}.
    */
-  public void addModification(final Modification mod)
+  public void addModification(@NotNull final Modification mod)
   {
     Validator.ensureNotNull(mod);
 
@@ -515,7 +528,7 @@ public final class ModifyRequest
    * @return  {@code true} if the specified modification was found and removed,
    *          or {@code false} if not.
    */
-  public boolean removeModification(final Modification mod)
+  public boolean removeModification(@NotNull final Modification mod)
   {
     Validator.ensureNotNull(mod);
 
@@ -531,7 +544,7 @@ public final class ModifyRequest
    * @param  mod  The modification to use for this modify request.  It must not
    *              be {@code null}.
    */
-  public void setModifications(final Modification mod)
+  public void setModifications(@NotNull final Modification mod)
   {
     Validator.ensureNotNull(mod);
 
@@ -548,7 +561,7 @@ public final class ModifyRequest
    * @param  mods  The set of modification to use for this modify request.  It
    *               must not be {@code null} or empty.
    */
-  public void setModifications(final Modification[] mods)
+  public void setModifications(@NotNull final Modification[] mods)
   {
     Validator.ensureNotNull(mods);
     Validator.ensureFalse(mods.length == 0,
@@ -567,7 +580,7 @@ public final class ModifyRequest
    * @param  mods  The set of modification to use for this modify request.  It
    *               must not be {@code null} or empty.
    */
-  public void setModifications(final List<Modification> mods)
+  public void setModifications(@NotNull final List<Modification> mods)
   {
     Validator.ensureNotNull(mods);
     Validator.ensureFalse(mods.isEmpty(),
@@ -594,7 +607,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer writer)
+  public void writeTo(@NotNull final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
          writer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST);
@@ -617,6 +630,7 @@ public final class ModifyRequest
    * @return  The ASN.1 element with the encoded modify request protocol op.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] modElements = new ASN1Element[modifications.size()];
@@ -656,7 +670,9 @@ public final class ModifyRequest
    *                         reading the response.
    */
   @Override()
-  protected LDAPResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected LDAPResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     if (connection.synchronousMode())
@@ -721,8 +737,9 @@ public final class ModifyRequest
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncResultListener resultListener)
+  @Nullable()
+  AsyncRequestID processAsync(@NotNull final LDAPConnection connection,
+                      @Nullable final AsyncResultListener resultListener)
                  throws LDAPException
   {
     // Create the LDAP message.
@@ -806,7 +823,8 @@ public final class ModifyRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private LDAPResult processSync(final LDAPConnection connection,
+  @NotNull()
+  private LDAPResult processSync(@NotNull final LDAPConnection connection,
                                  final int depth, final boolean allowRetry)
           throws LDAPException
   {
@@ -917,8 +935,9 @@ public final class ModifyRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private LDAPResult handleResponse(final LDAPConnection connection,
-                                    final LDAPResponse response,
+  @NotNull()
+  private LDAPResult handleResponse(@NotNull final LDAPConnection connection,
+                                    @Nullable final LDAPResponse response,
                                     final long requestTime, final int depth,
                                     final boolean allowRetry)
           throws LDAPException
@@ -1013,9 +1032,10 @@ public final class ModifyRequest
    * @return  The result from re-trying the add, or {@code null} if it could not
    *          be re-tried.
    */
-  private LDAPResult reconnectAndRetry(final LDAPConnection connection,
+  @Nullable()
+  private LDAPResult reconnectAndRetry(@NotNull final LDAPConnection connection,
                                        final int depth,
-                                       final ResultCode resultCode)
+                                       @NotNull final ResultCode resultCode)
   {
     try
     {
@@ -1057,8 +1077,9 @@ public final class ModifyRequest
    *                         the referral connection, sending the request, or
    *                         reading the result.
    */
-  private LDAPResult followReferral(final LDAPResult referralResult,
-                                    final LDAPConnection connection,
+  @NotNull()
+  private LDAPResult followReferral(@NotNull final LDAPResult referralResult,
+                                    @NotNull final LDAPConnection connection,
                                     final int depth)
           throws LDAPException
   {
@@ -1116,7 +1137,7 @@ public final class ModifyRequest
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -1156,6 +1177,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OperationType getOperationType()
   {
     return OperationType.MODIFY;
@@ -1167,6 +1189,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ModifyRequest duplicate()
   {
     return duplicate(getControls());
@@ -1178,7 +1201,8 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
-  public ModifyRequest duplicate(final Control[] controls)
+  @NotNull()
+  public ModifyRequest duplicate(@Nullable final Control[] controls)
   {
     final ModifyRequest r = new ModifyRequest(dn,
          new ArrayList<>(modifications), controls);
@@ -1204,6 +1228,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDIFModifyChangeRecord toLDIFChangeRecord()
   {
     return new LDIFModifyChangeRecord(this);
@@ -1215,6 +1240,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -1226,6 +1252,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -1237,7 +1264,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ModifyRequest(dn='");
     buffer.append(dn);
@@ -1299,7 +1326,8 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

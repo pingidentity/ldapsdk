@@ -39,6 +39,8 @@ package com.unboundid.util.args;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -65,7 +67,7 @@ public final class ArgumentException
    *
    * @param  message  The message to use for this exception.
    */
-  public ArgumentException(final String message)
+  public ArgumentException(@NotNull final String message)
   {
     super(message);
   }
@@ -77,7 +79,8 @@ public final class ArgumentException
    * @param  message  The message to use for this exception.
    * @param  cause    The underlying exception that triggered this exception.
    */
-  public ArgumentException(final String message, final Throwable cause)
+  public ArgumentException(@NotNull final String message,
+                           @Nullable final Throwable cause)
   {
     super(message, cause);
   }

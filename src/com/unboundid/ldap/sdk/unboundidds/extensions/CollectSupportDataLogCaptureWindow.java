@@ -43,6 +43,7 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -150,7 +151,9 @@ public abstract class CollectSupportDataLogCaptureWindow
    *                         valid collect support data log capture window
    *                         object.
    */
-  public static CollectSupportDataLogCaptureWindow decode(final ASN1Element e)
+  @NotNull()
+  public static CollectSupportDataLogCaptureWindow decode(
+                     @NotNull final ASN1Element e)
          throws LDAPException
   {
     switch (e.getType())
@@ -180,6 +183,7 @@ public abstract class CollectSupportDataLogCaptureWindow
    * @return  The ASN.1 element that contains an encoded representation of this
    *          collect support data log capture window object.
    */
+  @NotNull()
   public abstract ASN1Element encode();
 
 
@@ -192,6 +196,7 @@ public abstract class CollectSupportDataLogCaptureWindow
    *          window object.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -208,5 +213,5 @@ public abstract class CollectSupportDataLogCaptureWindow
    * @param  buffer  The buffer to which the string representation will be
    *                 appended.  It must not be {@code null}.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(@NotNull final StringBuilder buffer);
 }

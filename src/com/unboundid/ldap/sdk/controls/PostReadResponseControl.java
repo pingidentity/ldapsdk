@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -83,7 +85,7 @@ public final class PostReadResponseControl
   /**
    * The OID (1.3.6.1.1.13.2) for the post-read response control.
    */
-  public static final String POST_READ_RESPONSE_OID = "1.3.6.1.1.13.2";
+  @NotNull public static final String POST_READ_RESPONSE_OID = "1.3.6.1.1.13.2";
 
 
 
@@ -95,7 +97,7 @@ public final class PostReadResponseControl
 
 
   // The entry returned in the response control.
-  private final ReadOnlyEntry entry;
+  @NotNull private final ReadOnlyEntry entry;
 
 
 
@@ -116,7 +118,7 @@ public final class PostReadResponseControl
    * @param  entry  The entry to include in this post-read response control.  It
    *                must not be {@code null}.
    */
-  public PostReadResponseControl(final ReadOnlyEntry entry)
+  public PostReadResponseControl(@NotNull final ReadOnlyEntry entry)
   {
     super(POST_READ_RESPONSE_OID, false, encodeValue(entry));
 
@@ -137,8 +139,9 @@ public final class PostReadResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         post-read response control.
    */
-  public PostReadResponseControl(final String oid, final boolean isCritical,
-                                final ASN1OctetString value)
+  public PostReadResponseControl(@NotNull final String oid,
+                                 final boolean isCritical,
+                                 @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -213,9 +216,10 @@ public final class PostReadResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public PostReadResponseControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+  @NotNull()
+  public PostReadResponseControl decodeControl(@NotNull final String oid,
+                                      final boolean isCritical,
+                                      @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new PostReadResponseControl(oid, isCritical, value);
@@ -237,7 +241,8 @@ public final class PostReadResponseControl
    *                         decode the post-read response control contained in
    *                         the provided result.
    */
-  public static PostReadResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static PostReadResponseControl get(@NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(POST_READ_RESPONSE_OID);
@@ -269,7 +274,8 @@ public final class PostReadResponseControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
-  private static ASN1OctetString encodeValue(final ReadOnlyEntry entry)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final ReadOnlyEntry entry)
   {
     Validator.ensureNotNull(entry);
 
@@ -298,6 +304,7 @@ public final class PostReadResponseControl
    * @return  A read-only copy of the entry returned by this post-read response
    *          control.
    */
+  @NotNull()
   public ReadOnlyEntry getEntry()
   {
     return entry;
@@ -309,6 +316,7 @@ public final class PostReadResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_POST_READ_RESPONSE.get();
@@ -320,7 +328,7 @@ public final class PostReadResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PostReadResponseControl(entry=");
     entry.toString(buffer);

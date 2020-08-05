@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -71,7 +72,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
    * The name of the attribute used to hold the attribute changes represented by
    * this add operation.
    */
-  public static final String ATTR_ATTRIBUTE_CHANGES = "reqMod";
+  @NotNull public static final String ATTR_ATTRIBUTE_CHANGES = "reqMod";
 
 
 
@@ -83,7 +84,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
 
 
   // The set of attributes included in the add request.
-  private final List<Attribute> attributes;
+  @NotNull private final List<Attribute> attributes;
 
 
 
@@ -97,7 +98,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
    *                         add access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00AddEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00AddEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.ADD);
@@ -210,6 +211,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
    * @return  A list of the attributes included in the add request described by
    *          this add access log entry.
    */
+  @NotNull()
   public List<Attribute> getAddAttributes()
   {
     return attributes;
@@ -222,6 +224,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
    *
    * @return  The {@code AddRequest} created from this add access log entry.
    */
+  @NotNull()
   public AddRequest toAddRequest()
   {
     return new AddRequest(getTargetEntryDN(), attributes,

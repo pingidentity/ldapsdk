@@ -50,6 +50,8 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -77,19 +79,19 @@ abstract class SplitLDIFTranslator
          implements LDIFReaderEntryTranslator
 {
   // The split base DN.
-  private final DN splitBaseDN;
+  @NotNull private final DN splitBaseDN;
 
   // The RDNs that comprise the split base DN.
-  private final RDN[] splitBaseRDNs;
+  @NotNull private final RDN[] splitBaseRDNs;
 
   // The sets in which entries should be placed if an error occurs.
-  private final Set<String> errorSetNames;
+  @NotNull private final Set<String> errorSetNames;
 
   // A set of thread-local buffers to use to encode entries.
-  private final ThreadLocal<ByteStringBuffer> ldifBuffers;
+  @NotNull private final ThreadLocal<ByteStringBuffer> ldifBuffers;
 
   // A set of thread-local MD5 message digest generators.
-  private final ThreadLocal<MessageDigest> messageDigests;
+  @NotNull private final ThreadLocal<MessageDigest> messageDigests;
 
 
 
@@ -99,7 +101,7 @@ abstract class SplitLDIFTranslator
    * @param  splitBaseDN  The base DN below which entries are to be split.  It
    *                      must not be {@code null}.
    */
-  SplitLDIFTranslator(final DN splitBaseDN)
+  SplitLDIFTranslator(@NotNull final DN splitBaseDN)
   {
     this.splitBaseDN = splitBaseDN;
 
@@ -116,6 +118,7 @@ abstract class SplitLDIFTranslator
    *
    * @return  The base DN below which entries are to be split.
    */
+  @NotNull()
   final DN getSplitBaseDN()
   {
     return splitBaseDN;
@@ -128,6 +131,7 @@ abstract class SplitLDIFTranslator
    *
    * @return  An array of the RDN components that comprise the split base DN.
    */
+  @NotNull()
   final RDN[] getSplitBaseRDNs()
   {
     return splitBaseRDNs;
@@ -142,6 +146,7 @@ abstract class SplitLDIFTranslator
    * @return  The set that should be used for SplitLDIF entries for which an
    *          error was encountered during processing.
    */
+  @NotNull()
   final Set<String> getErrorSetNames()
   {
     return errorSetNames;
@@ -157,6 +162,7 @@ abstract class SplitLDIFTranslator
    * @throws  NoSuchAlgorithmException  If the JVM doesn't support MD5.  This
    *                                    should never happen.
    */
+  @NotNull()
   MessageDigest getMD5()
                 throws NoSuchAlgorithmException
   {
@@ -184,7 +190,9 @@ abstract class SplitLDIFTranslator
    *
    * @return  The SplitLDIF entry that was created.
    */
-  SplitLDIFEntry createEntry(final Entry e, final Set<String> sets)
+  @NotNull()
+  SplitLDIFEntry createEntry(@NotNull final Entry e,
+                             @NotNull final Set<String> sets)
   {
     return createEntry(e, null, sets);
   }
@@ -206,8 +214,10 @@ abstract class SplitLDIFTranslator
    *
    * @return  The SplitLDIF entry that was created.
    */
-  SplitLDIFEntry createEntry(final Entry e, final String comment,
-                             final Set<String> sets)
+  @NotNull()
+  SplitLDIFEntry createEntry(@NotNull final Entry e,
+                             @Nullable final String comment,
+                             @NotNull final Set<String> sets)
   {
     // Get a byte string buffer to use when encoding the entry to LDIF.
     // Get a buffer to use during the encoding process.
@@ -258,8 +268,10 @@ abstract class SplitLDIFTranslator
    *
    * @return  The SplitLDIF entry that was created.
    */
-  SplitLDIFEntry createFromRDNHash(final Entry e, final DN dn,
-                                   final Map<Integer,Set<String>> setNames)
+  @NotNull()
+  SplitLDIFEntry createFromRDNHash(@NotNull final Entry e,
+                      @NotNull final DN dn,
+                      @NotNull final Map<Integer,Set<String>> setNames)
   {
     // Determine which RDN should be used to generate the checksum and get the
     // bytes that comprise the normalized representation of that RDN.
@@ -310,7 +322,8 @@ abstract class SplitLDIFTranslator
    * {@inheritDoc}
    */
   @Override()
-  public abstract SplitLDIFEntry translate(Entry original,
+  @NotNull()
+  public abstract SplitLDIFEntry translate(@NotNull Entry original,
                                            long firstLineNumber)
          throws LDIFException;
 }

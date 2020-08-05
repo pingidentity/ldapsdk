@@ -57,6 +57,8 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -89,7 +91,7 @@ public final class HostNameSSLSocketVerifier
    * have an appropriate subject alternative name extension, although some
    * clients may expect CN matching anyway.
    */
-  public static final String
+  @NotNull public static final String
        PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT =
             HostNameSSLSocketVerifier.class.getName() +
                  ".checkCNWhenSubjectAltNameIsPresent";
@@ -191,8 +193,8 @@ public final class HostNameSSLSocketVerifier
    *                         established.
    */
   @Override()
-  public void verifySSLSocket(final String host, final int port,
-                              final SSLSocket sslSocket)
+  public void verifySSLSocket(@NotNull final String host, final int port,
+                              @NotNull final SSLSocket sslSocket)
          throws LDAPException
   {
     try
@@ -280,11 +282,11 @@ public final class HostNameSSLSocketVerifier
    * @return  {@code true} if the expected hostname was found in the
    *          certificate, or {@code false} if not.
    */
-  static boolean certificateIncludesHostname(final String host,
-                      final X509Certificate certificate,
+  static boolean certificateIncludesHostname(@NotNull final String host,
+                      @NotNull final X509Certificate certificate,
                       final boolean allowWildcards,
                       final boolean checkCNWhenSubjectAltNameIsPresent,
-                      final StringBuilder certInfo)
+                      @NotNull final StringBuilder certInfo)
   {
     // Check to see if the provided hostname is an IP address.
     InetAddress hostInetAddress = null;
@@ -467,9 +469,9 @@ public final class HostNameSSLSocketVerifier
    * @return  {@code true} if the client hostname is considered a match for the
    *          certificate hostname, or {@code false} if not.
    */
-  private static boolean hostnameMatches(final String clientHostname,
-                                         final String certificateHostname,
-                                         final boolean allowWildcards)
+  private static boolean hostnameMatches(@NotNull final String clientHostname,
+                              @NotNull final String certificateHostname,
+                              final boolean allowWildcards)
   {
     // If the provided certificate hostname does not contain any asterisks,
     // then we just need to do a case-insensitive match.
@@ -553,7 +555,7 @@ public final class HostNameSSLSocketVerifier
    *          remainder of the address.
    */
   private static ObjectPair<String,String> getFirstComponentAndRemainder(
-                                                final String address)
+                                                @NotNull final String address)
   {
     final int periodPos = address.indexOf('.');
     if (periodPos < 0)
@@ -583,8 +585,9 @@ public final class HostNameSSLSocketVerifier
    * @return  {@code true} if the client hostname is considered a match for the
    *          certificate hostname, or {@code false} if not.
    */
-  private static boolean ipAddressMatches(final InetAddress clientIPAddress,
-                              final String certificateIPAddressString)
+  private static boolean ipAddressMatches(
+                              @NotNull final InetAddress clientIPAddress,
+                              @NotNull final String certificateIPAddressString)
   {
     final InetAddress certificateIPAddress;
     try
@@ -614,7 +617,8 @@ public final class HostNameSSLSocketVerifier
    * @return  The host extracted from the provided URI, or {@code null} if none
    *          is available (e.g., because the URI is malformed).
    */
-  private static String getHostFromURI(final String uriString)
+  @Nullable()
+  private static String getHostFromURI(@NotNull final String uriString)
   {
     final URI uri;
     try

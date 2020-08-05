@@ -120,5 +120,6 @@ public @interface ThreadSafety
    * @return  The thread safety level for the associated class, interface, enum,
    *          or method.
    */
+  @NotNull()
   ThreadSafetyLevel level();
 }

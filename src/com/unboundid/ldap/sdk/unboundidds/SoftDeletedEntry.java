@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             SoftDeletedEntryAccessRequestControl;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -122,7 +124,7 @@ public final class SoftDeletedEntry
    * indicate the original DN the entry held before it was converted to a
    * soft-deleted entry.
    */
-  public static final String ATTR_SOFT_DELETE_FROM_DN =
+  @NotNull public static final String ATTR_SOFT_DELETE_FROM_DN =
        "ds-soft-delete-from-dn";
 
 
@@ -131,7 +133,7 @@ public final class SoftDeletedEntry
    * The name of the attribute that will be included in a soft-deleted entry to
    * indicate the DN of the user that requested the soft delete operation.
    */
-  public static final String ATTR_SOFT_DELETE_REQUESTER_DN =
+  @NotNull public static final String ATTR_SOFT_DELETE_REQUESTER_DN =
        "ds-soft-delete-requester-dn";
 
 
@@ -141,7 +143,7 @@ public final class SoftDeletedEntry
    * indicate the IP address of the client that requested the soft delete
    * operation.
    */
-  public static final String ATTR_SOFT_DELETE_REQUESTER_IP_ADDRESS =
+  @NotNull public static final String ATTR_SOFT_DELETE_REQUESTER_IP_ADDRESS =
        "ds-soft-delete-requester-ip-address";
 
 
@@ -150,7 +152,7 @@ public final class SoftDeletedEntry
    * The name of the attribute that will be included in a soft-deleted entry to
    * indicate the time it was converted to a soft-deleted entry.
    */
-  public static final String ATTR_SOFT_DELETE_TIMESTAMP =
+  @NotNull public static final String ATTR_SOFT_DELETE_TIMESTAMP =
        "ds-soft-delete-timestamp";
 
 
@@ -159,7 +161,8 @@ public final class SoftDeletedEntry
    * The name of the auxiliary object class that will be used to mark
    * soft-deleted entries.
    */
-  public static final String OC_SOFT_DELETED_ENTRY = "ds-soft-delete-entry";
+  @NotNull public static final String OC_SOFT_DELETED_ENTRY =
+       "ds-soft-delete-entry";
 
 
 
@@ -171,17 +174,17 @@ public final class SoftDeletedEntry
 
 
   // The time the entry was converted to a soft-deleted entry.
-  private final Date softDeleteTimestamp;
+  @Nullable private final Date softDeleteTimestamp;
 
   // The DN held by the entry at the time it was converted to a soft-deleted
   // entry.
-  private final String softDeleteFromDN;
+  @NotNull private final String softDeleteFromDN;
 
   // The DN of the user that requested the soft delete operation.
-  private final String softDeleteRequesterDN;
+  @Nullable private final String softDeleteRequesterDN;
 
   // The IP address of the client that requested the soft delete operation.
-  private final String softDeleteRequesterIPAddress;
+  @Nullable private final String softDeleteRequesterIPAddress;
 
 
 
@@ -194,7 +197,7 @@ public final class SoftDeletedEntry
    * @throws  LDAPException  If the provided entry does not represent a valid
    *                         soft-deleted entry.
    */
-  public SoftDeletedEntry(final Entry entry)
+  public SoftDeletedEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry);
@@ -229,6 +232,7 @@ public final class SoftDeletedEntry
    * @return  The DN held by the entry at the time it was converted to a
    *          soft-deleted entry.
    */
+  @NotNull()
   public String getSoftDeleteFromDN()
   {
     return softDeleteFromDN;
@@ -243,6 +247,7 @@ public final class SoftDeletedEntry
    * @return  The time that the entry was converted to a soft-deleted entry, or
    *          {@code null} if this is not available in the entry.
    */
+  @Nullable()
   public Date getSoftDeleteTimestamp()
   {
     return softDeleteTimestamp;
@@ -257,6 +262,7 @@ public final class SoftDeletedEntry
    * @return  The DN of the user that requested the soft delete operation, or
    *          {@code null} if this is not available in the entry.
    */
+  @Nullable()
   public String getSoftDeleteRequesterDN()
   {
     return softDeleteRequesterDN;
@@ -271,6 +277,7 @@ public final class SoftDeletedEntry
    * @return  The IP address of the client that requested the soft delete
    *          operation, or {@code null} if this is not available in the entry.
    */
+  @Nullable()
   public String getSoftDeleteRequesterIPAddress()
   {
     return softDeleteRequesterIPAddress;
@@ -286,6 +293,7 @@ public final class SoftDeletedEntry
    * @return  A copy of the original entry as it appeared before the soft delete
    *          operation was processed.
    */
+  @NotNull()
   public ReadOnlyEntry getUndeletedEntry()
   {
     final Entry e = duplicate();
@@ -313,7 +321,7 @@ public final class SoftDeletedEntry
    *          ds-soft-delete-entry object class and a ds-soft-delete-from-dn
    *          attribute.
    */
-  public static boolean isSoftDeletedEntry(final Entry entry)
+  public static boolean isSoftDeletedEntry(@NotNull final Entry entry)
   {
     return (entry.hasObjectClass(OC_SOFT_DELETED_ENTRY) &&
          entry.hasAttribute(ATTR_SOFT_DELETE_FROM_DN));

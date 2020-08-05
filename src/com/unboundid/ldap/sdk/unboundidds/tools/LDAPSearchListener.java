@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.transformations.EntryTransformation;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,10 +78,10 @@ final class LDAPSearchListener
 
 
   // The output handler to use to display the results.
-  private final LDAPSearchOutputHandler outputHandler;
+  @NotNull private final LDAPSearchOutputHandler outputHandler;
 
   // The entry transformations to apply.
-  private final List<EntryTransformation> entryTransformations;
+  @Nullable private final List<EntryTransformation> entryTransformations;
 
 
 
@@ -92,8 +94,8 @@ final class LDAPSearchListener
    *                               be {@code null} or empty if no
    *                               transformations are needed.
    */
-  LDAPSearchListener(final LDAPSearchOutputHandler outputHandler,
-                     final List<EntryTransformation> entryTransformations)
+  LDAPSearchListener(@NotNull final LDAPSearchOutputHandler outputHandler,
+       @Nullable final List<EntryTransformation> entryTransformations)
   {
     this.outputHandler        = outputHandler;
     this.entryTransformations = entryTransformations;
@@ -105,7 +107,7 @@ final class LDAPSearchListener
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     final SearchResultEntry sre;
     if (entryTransformations == null)
@@ -118,6 +120,10 @@ final class LDAPSearchListener
       for (final EntryTransformation t : entryTransformations)
       {
         e = t.transformEntry(e);
+        if (e == null)
+        {
+          return;
+        }
       }
 
       sre = new SearchResultEntry(searchEntry.getMessageID(), e,
@@ -134,7 +140,7 @@ final class LDAPSearchListener
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     outputHandler.formatSearchResultReference(searchReference);
   }

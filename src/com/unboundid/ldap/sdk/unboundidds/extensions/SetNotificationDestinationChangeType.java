@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -121,6 +123,7 @@ public enum SetNotificationDestinationChangeType
    * @return  The requested change type, or {@code null} if there is no change
    *          type with the specified integer value.
    */
+  @Nullable()
   public static SetNotificationDestinationChangeType valueOf(final int intValue)
   {
     for (final SetNotificationDestinationChangeType t : values())
@@ -146,7 +149,9 @@ public enum SetNotificationDestinationChangeType
    * @return  The requested set notification destination change type, or
    *          {@code null} if no such type is defined.
    */
-  public static SetNotificationDestinationChangeType forName(final String name)
+  @Nullable()
+  public static SetNotificationDestinationChangeType forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

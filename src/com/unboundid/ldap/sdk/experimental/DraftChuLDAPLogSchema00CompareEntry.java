@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,7 +69,7 @@ public final class DraftChuLDAPLogSchema00CompareEntry
    * The name of the attribute used to hold the encoded attribute value
    * assertion.
    */
-  public static final String ATTR_ENCODED_ASSERTION = "reqAssertion";
+  @NotNull public static final String ATTR_ENCODED_ASSERTION = "reqAssertion";
 
 
 
@@ -80,10 +81,10 @@ public final class DraftChuLDAPLogSchema00CompareEntry
 
 
   // The assertion value for the compare operation.
-  private final ASN1OctetString assertionValue;
+  @NotNull private final ASN1OctetString assertionValue;
 
   // The attribute name for the compare operation.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
 
 
@@ -97,7 +98,7 @@ public final class DraftChuLDAPLogSchema00CompareEntry
    *                         compare access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00CompareEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00CompareEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.COMPARE);
@@ -142,6 +143,7 @@ public final class DraftChuLDAPLogSchema00CompareEntry
    * @return  The attribute name for the compare request described by this
    *          compare access log entry.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -156,6 +158,7 @@ public final class DraftChuLDAPLogSchema00CompareEntry
    * @return  The string representation of the assertion value for the compare
    *          request described by this compare access log entry.
    */
+  @NotNull()
   public String getAssertionValueString()
   {
     return assertionValue.stringValue();
@@ -170,6 +173,7 @@ public final class DraftChuLDAPLogSchema00CompareEntry
    * @return  The bytes that comprise the assertion value for the compare
    *          request described by this compare access log entry.
    */
+  @NotNull()
   public byte[] getAssertionValueBytes()
   {
     return assertionValue.getValue();
@@ -184,6 +188,7 @@ public final class DraftChuLDAPLogSchema00CompareEntry
    * @return  The {@code CompareRequest} created from this compare access log
    *          entry.
    */
+  @NotNull()
   public CompareRequest toCompareRequest()
   {
     return new CompareRequest(getTargetEntryDN(), attributeName,

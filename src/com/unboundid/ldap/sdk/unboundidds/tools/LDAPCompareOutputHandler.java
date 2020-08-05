@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -69,6 +70,7 @@ abstract class LDAPCompareOutputHandler
    * @return  The lines that comprise the header to display.  It may be
    *          empty, but must not be {@code null}.
    */
+  @NotNull()
   String[] getHeaderLines()
   {
     return StaticUtils.NO_STRINGS;
@@ -85,5 +87,6 @@ abstract class LDAPCompareOutputHandler
    *
    * @return  A string with a formatted representation of the message.
    */
-  abstract String formatResult(CompareRequest request, LDAPResult result);
+  abstract String formatResult(@NotNull CompareRequest request,
+                               @NotNull LDAPResult result);
 }

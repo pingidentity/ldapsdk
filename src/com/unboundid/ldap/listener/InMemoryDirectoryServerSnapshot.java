@@ -45,6 +45,7 @@ import java.util.TreeMap;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,7 +77,7 @@ public final class InMemoryDirectoryServerSnapshot
   private final long lastChangeNumber;
 
   // The set of entries held in the server at the time the snapshot was created.
-  private final Map<DN,ReadOnlyEntry> entryMap;
+  @NotNull private final Map<DN,ReadOnlyEntry> entryMap;
 
 
 
@@ -92,7 +93,7 @@ public final class InMemoryDirectoryServerSnapshot
    * @param  lastChangeNumber   The last change number value at the time the
    *                            snapshot was created.
    */
-  InMemoryDirectoryServerSnapshot(final Map<DN,ReadOnlyEntry> m,
+  InMemoryDirectoryServerSnapshot(@NotNull final Map<DN,ReadOnlyEntry> m,
                                   final long firstChangeNumber,
                                   final long lastChangeNumber)
   {
@@ -113,6 +114,7 @@ public final class InMemoryDirectoryServerSnapshot
    * @return  An unmodifiable map of all entries defined in the server at the
    *          time the snapshot was created.
    */
+  @NotNull()
   public Map<DN,ReadOnlyEntry> getEntryMap()
   {
     return entryMap;

@@ -55,6 +55,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -100,10 +102,10 @@ public final class PasswordPolicyStateExtendedResult
 
 
   // A map containing all of the response operations, indexed by operation type.
-  private final Map<Integer,PasswordPolicyStateOperation> operations;
+  @NotNull private final Map<Integer,PasswordPolicyStateOperation> operations;
 
   // The user DN from the response.
-  private final String userDN;
+  @Nullable private final String userDN;
 
 
 
@@ -118,7 +120,8 @@ public final class PasswordPolicyStateExtendedResult
    * @throws  LDAPException  If the provided extended result cannot be decoded
    *                         as a password policy state extended result.
    */
-  public PasswordPolicyStateExtendedResult(final ExtendedResult extendedResult)
+  public PasswordPolicyStateExtendedResult(
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -202,11 +205,13 @@ public final class PasswordPolicyStateExtendedResult
    *                            available.
    */
   public PasswordPolicyStateExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final String userDN,
-              final PasswordPolicyStateOperation[] operations,
-              final Control[] responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final String userDN,
+              @Nullable final PasswordPolicyStateOperation[] operations,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, encodeValue(userDN, operations), responseControls);
@@ -243,8 +248,9 @@ public final class PasswordPolicyStateExtendedResult
    * @return  An ASN.1 octet string containing the appropriately-encoded value
    *          for this control, or {@code null} if there should not be a value.
    */
-  private static ASN1OctetString encodeValue(final String userDN,
-       final PasswordPolicyStateOperation[] operations)
+  @Nullable()
+  private static ASN1OctetString encodeValue(@Nullable final String userDN,
+       @Nullable final PasswordPolicyStateOperation[] operations)
   {
     if ((userDN == null) && ((operations == null) || (operations.length == 0)))
     {
@@ -276,6 +282,7 @@ public final class PasswordPolicyStateExtendedResult
    * @return  The user DN included in the response, or {@code null} if the user
    *          DN is not available (e.g., if this is an error response).
    */
+  @Nullable()
   public String getUserDN()
   {
     return userDN;
@@ -288,6 +295,7 @@ public final class PasswordPolicyStateExtendedResult
    *
    * @return  The set of password policy operations included in the response.
    */
+  @NotNull()
   public Iterable<PasswordPolicyStateOperation> getOperations()
   {
     return operations.values();
@@ -304,6 +312,7 @@ public final class PasswordPolicyStateExtendedResult
    * @return  The requested password policy state operation, or {@code null} if
    *          no such operation was included in the response.
    */
+  @Nullable()
   public PasswordPolicyStateOperation getOperation(final int opType)
   {
     return operations.get(opType);
@@ -322,6 +331,7 @@ public final class PasswordPolicyStateExtendedResult
    *          or {@code null} if the specified operation was not included in the
    *          response or did not have any values.
    */
+  @Nullable()
   public String getStringValue(final int opType)
   {
     final PasswordPolicyStateOperation op = operations.get(opType);
@@ -346,6 +356,7 @@ public final class PasswordPolicyStateExtendedResult
    *          operation, or {@code null} if the specified operation was not
    *          included in the response.
    */
+  @Nullable()
   public String[] getStringValues(final int opType)
   {
     final PasswordPolicyStateOperation op = operations.get(opType);
@@ -438,6 +449,7 @@ public final class PasswordPolicyStateExtendedResult
    * @throws  ParseException  If the value cannot be parsed as a date in
    *                          generalized time format.
    */
+  @Nullable()
   public Date getGeneralizedTimeValue(final int opType)
          throws ParseException
   {
@@ -465,6 +477,7 @@ public final class PasswordPolicyStateExtendedResult
    * @throws  ParseException  If any of the values cannot be parsed as a date in
    *                          generalized time format.
    */
+  @Nullable()
   public Date[] getGeneralizedTimeValues(final int opType)
          throws ParseException
   {
@@ -483,6 +496,7 @@ public final class PasswordPolicyStateExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_PW_POLICY_STATE.get();
@@ -498,7 +512,7 @@ public final class PasswordPolicyStateExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PasswordPolicyStateExtendedResult(resultCode=");
     buffer.append(getResultCode());

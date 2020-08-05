@@ -49,8 +49,10 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
-import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,9 +90,9 @@ public final class SearchResultDoneProtocolOp
    *                            done, if any.
    */
   public SearchResultDoneProtocolOp(final int resultCode,
-                                    final String matchedDN,
-                                    final String diagnosticMessage,
-                                    final List<String> referralURLs)
+                                    @Nullable final String matchedDN,
+                                    @Nullable final String diagnosticMessage,
+                                    @Nullable final List<String> referralURLs)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_DONE, resultCode,
           matchedDN, diagnosticMessage, referralURLs);
@@ -104,7 +106,7 @@ public final class SearchResultDoneProtocolOp
    *
    * @param  result  The LDAP result object to use to create this protocol op.
    */
-  public SearchResultDoneProtocolOp(final LDAPResult result)
+  public SearchResultDoneProtocolOp(@NotNull final LDAPResult result)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_DONE,
          result.getResultCode().intValue(), result.getMatchedDN(),
@@ -124,7 +126,7 @@ public final class SearchResultDoneProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         search result done.
    */
-  SearchResultDoneProtocolOp(final ASN1StreamReader reader)
+  SearchResultDoneProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     super(reader);
@@ -136,6 +138,7 @@ public final class SearchResultDoneProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
@@ -189,8 +192,9 @@ public final class SearchResultDoneProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a search result done protocol op.
    */
+  @NotNull()
   public static SearchResultDoneProtocolOp decodeProtocolOp(
-                                                final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try

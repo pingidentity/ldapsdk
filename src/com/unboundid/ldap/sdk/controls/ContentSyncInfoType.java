@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -125,6 +127,7 @@ public enum ContentSyncInfoType
    *          type, or {@code null} if the given value does not correspond with
    *          any defined type.
    */
+  @Nullable()
   public static ContentSyncInfoType valueOf(final byte type)
   {
     if (type == NEW_COOKIE.getType())
@@ -160,7 +163,8 @@ public enum ContentSyncInfoType
    * @return  The requested content sync info type, or {@code null} if no such
    *          type is defined.
    */
-  public static ContentSyncInfoType forName(final String name)
+  @Nullable()
+  public static ContentSyncInfoType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

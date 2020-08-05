@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -153,7 +155,8 @@ public final class SimplePagedResultsControl
   /**
    * The OID (1.2.840.113556.1.4.319) for the paged results control.
    */
-  public static final String PAGED_RESULTS_OID = "1.2.840.113556.1.4.319";
+  @NotNull public static final String PAGED_RESULTS_OID =
+       "1.2.840.113556.1.4.319";
 
 
 
@@ -167,7 +170,7 @@ public final class SimplePagedResultsControl
   // The encoded cookie returned from the server (for a response control) or
   // that should be included in the next request to the server (for a request
   // control).
-  private final ASN1OctetString cookie;
+  @NotNull private final ASN1OctetString cookie;
 
   // The maximum requested page size (for a request control), or the estimated
   // total result set size (for a response control).
@@ -244,7 +247,7 @@ public final class SimplePagedResultsControl
    *                   will retrieve the first page of results.
    */
   public SimplePagedResultsControl(final int pageSize,
-                                   final ASN1OctetString cookie)
+                                   @Nullable final ASN1OctetString cookie)
   {
     super(PAGED_RESULTS_OID, false, encodeValue(pageSize, cookie));
 
@@ -277,7 +280,7 @@ public final class SimplePagedResultsControl
    *                     critical.
    */
   public SimplePagedResultsControl(final int pageSize,
-                                   final ASN1OctetString cookie,
+                                   @Nullable final ASN1OctetString cookie,
                                    final boolean isCritical)
   {
     super(PAGED_RESULTS_OID, isCritical, encodeValue(pageSize, cookie));
@@ -310,8 +313,9 @@ public final class SimplePagedResultsControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         simple paged results control.
    */
-  public SimplePagedResultsControl(final String oid, final boolean isCritical,
-                                   final ASN1OctetString value)
+  public SimplePagedResultsControl(@NotNull final String oid,
+                                   final boolean isCritical,
+                                   @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -363,9 +367,10 @@ public final class SimplePagedResultsControl
    * {@inheritDoc}
    */
   @Override()
-  public SimplePagedResultsControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+  @NotNull()
+  public SimplePagedResultsControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new SimplePagedResultsControl(oid, isCritical, value);
@@ -387,7 +392,9 @@ public final class SimplePagedResultsControl
    *                         decode the simple paged results response control
    *                         contained in the provided result.
    */
-  public static SimplePagedResultsControl get(final SearchResult result)
+  @Nullable()
+  public static SimplePagedResultsControl get(
+                     @NotNull final SearchResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(PAGED_RESULTS_OID);
@@ -422,8 +429,9 @@ public final class SimplePagedResultsControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(final int pageSize,
-                                             final ASN1OctetString cookie)
+                      @Nullable final ASN1OctetString cookie)
   {
     final ASN1Element[] valueElements;
     if (cookie == null)
@@ -471,8 +479,10 @@ public final class SimplePagedResultsControl
    * there are no more entries to send.  It should be non-empty for all other
    * conditions.
    *
-   * @return  The cookie for this control, or {@code null} if there is none.
+   * @return  The cookie for this control, or an empty cookie (with a value
+   *          length of zero) if there is none.
    */
+  @NotNull()
   public ASN1OctetString getCookie()
   {
     return cookie;
@@ -497,6 +507,7 @@ public final class SimplePagedResultsControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PAGED_RESULTS.get();
@@ -508,7 +519,7 @@ public final class SimplePagedResultsControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SimplePagedResultsControl(pageSize=");
     buffer.append(size);

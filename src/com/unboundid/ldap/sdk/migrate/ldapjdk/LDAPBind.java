@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,6 +67,6 @@ public interface LDAPBind
    *
    * @throws  LDAPException  If a problem occurs while processing the bind.
    */
-  void bind(LDAPConnection conn)
+  void bind(@NotNull LDAPConnection conn)
        throws LDAPException;
 }

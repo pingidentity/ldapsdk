@@ -57,6 +57,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLQualityOfProtection;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -82,7 +84,8 @@ final class AuthenticationDetails
    * authentication types, and its value must be a string that represents an
    * appropriate authentication ID for that authentication type.
    */
-  private static final String FIELD_AUTHENTICATION_ID = "authentication-id";
+  @NotNull private static final String FIELD_AUTHENTICATION_ID =
+       "authentication-id";
 
 
 
@@ -96,7 +99,8 @@ final class AuthenticationDetails
    * mechanism), "GSSAPI" (for the GSSAPI SASL mechanism), or "PLAIN" (for the
    * PLAIN SASL mechanism).
    */
-  private static final String FIELD_AUTHENTICATION_TYPE = "authentication-type";
+  @NotNull private static final String FIELD_AUTHENTICATION_TYPE =
+       "authentication-type";
 
 
 
@@ -107,7 +111,8 @@ final class AuthenticationDetails
    * authentication types.  If present, its value must be a string that
    * represents an appropriate authorization ID for that authentication type.
    */
-  private static final String FIELD_AUTHORIZATION_ID = "authorization-id";
+  @NotNull private static final String FIELD_AUTHORIZATION_ID =
+       "authorization-id";
 
 
 
@@ -119,7 +124,8 @@ final class AuthenticationDetails
    * then a temporary configuration file will be automatically created and used
    * for this purpose.
    */
-  private static final String FIELD_CONFIG_FILE_PATH = "config-file-path";
+  @NotNull private static final String FIELD_CONFIG_FILE_PATH =
+       "config-file-path";
 
 
 
@@ -130,7 +136,7 @@ final class AuthenticationDetails
    * must be the DN to use when performing simple authentication, or an empty
    * string to indicate anonymous authentication.
    */
-  private static final String FIELD_DN = "dn";
+  @NotNull private static final String FIELD_DN = "dn";
 
 
 
@@ -142,7 +148,7 @@ final class AuthenticationDetails
    * name or IP address.  If absent, the LDAP SDK will attempt to automatically
    * determine the address of the Kerberos KDC from the underlying system.
    */
-  private static final String FIELD_KDC_ADDRESS = "kdc-address";
+  @NotNull private static final String FIELD_KDC_ADDRESS = "kdc-address";
 
 
 
@@ -157,7 +163,7 @@ final class AuthenticationDetails
    * should be a string containing the password to use, or an empty string to
    * indicate anonymous authentication.
    */
-  private static final String FIELD_PASSWORD = "password";
+  @NotNull private static final String FIELD_PASSWORD = "password";
 
 
 
@@ -174,7 +180,7 @@ final class AuthenticationDetails
    * file should not be empty, so this field is not appropriate for anonymous
    * authentication.
    */
-  private static final String FIELD_PASSWORD_FILE = "password-file";
+  @NotNull private static final String FIELD_PASSWORD_FILE = "password-file";
 
 
 
@@ -186,7 +192,7 @@ final class AuthenticationDetails
    * If this is not provided, then a single-element array containing only the
    * "auth" value will be used.
    */
-  private static final String FIELD_QOP = "qop";
+  @NotNull private static final String FIELD_QOP = "qop";
 
 
 
@@ -198,7 +204,7 @@ final class AuthenticationDetails
    * it is absent, no realm will be provided to the server during the
    * authentication process.
    */
-  private static final String FIELD_REALM = "realm";
+  @NotNull private static final String FIELD_REALM = "realm";
 
 
 
@@ -210,7 +216,7 @@ final class AuthenticationDetails
    * boolean.  If this field is absent, then a default value of {@code false}
    * will be used.
    */
-  private static final String FIELD_RENEW_TGT = "renew-tgt";
+  @NotNull private static final String FIELD_RENEW_TGT = "renew-tgt";
 
 
 
@@ -222,7 +228,7 @@ final class AuthenticationDetails
    * If this field is absent, then a default value of {@code false} will be
    * used.
    */
-  private static final String FIELD_REQUIRE_CACHED_CREDENTIALS =
+  @NotNull private static final String FIELD_REQUIRE_CACHED_CREDENTIALS =
        "require-cached-credentials";
 
 
@@ -235,7 +241,8 @@ final class AuthenticationDetails
    * Kerberos ticket cache.  if this field is absent, then JVM will attempt to
    * automatically determine the ticket cache path.
    */
-  private static final String FIELD_TICKET_CACHE_PATH = "ticket-cache-path";
+  @NotNull private static final String FIELD_TICKET_CACHE_PATH =
+       "ticket-cache-path";
 
 
 
@@ -247,7 +254,7 @@ final class AuthenticationDetails
    * be a boolean.  If it is not provided, then a default value of {@code true}
    * will be used.
    */
-  private static final String FIELD_USE_SUBJECT_CREDS_ONLY =
+  @NotNull private static final String FIELD_USE_SUBJECT_CREDS_ONLY =
        "use-subject-credentials-only";
 
 
@@ -259,7 +266,8 @@ final class AuthenticationDetails
    * authentication type.  If present, its value must be a boolean.  If it is
    * not provided, then a default value of {@code true} will be used.
    */
-  private static final String FIELD_USE_TICKET_CACHE = "use-ticket-cache";
+  @NotNull private static final String FIELD_USE_TICKET_CACHE =
+       "use-ticket-cache";
 
 
 
@@ -271,7 +279,7 @@ final class AuthenticationDetails
 
 
   // The bind request created from the specification.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
 
 
@@ -285,7 +293,7 @@ final class AuthenticationDetails
    * @throws LDAPException  If there is a problem with the authentication
    *                         details data in the provided JSON object.
    */
-  AuthenticationDetails(final JSONObject connectionDetailsObject)
+  AuthenticationDetails(@NotNull final JSONObject connectionDetailsObject)
        throws LDAPException
   {
     final JSONObject o = LDAPConnectionDetailsJSONSpecification.getObject(
@@ -502,6 +510,7 @@ final class AuthenticationDetails
    *
    * @return  The bind request created from the authentication details.
    */
+  @Nullable()
   BindRequest getBindRequest()
   {
     return bindRequest;
@@ -522,9 +531,9 @@ final class AuthenticationDetails
    *                         permitted in conjunction with the specified
    *                         authentication type.
    */
-  private static void validateAllowedFields(final JSONObject o,
-                                            final String authType,
-                                            final String... allowedFields)
+  private static void validateAllowedFields(@NotNull final JSONObject o,
+                           @NotNull final String authType,
+                           @NotNull final String... allowedFields)
           throws LDAPException
   {
     final HashSet<String> s = new HashSet<>(Arrays.asList(allowedFields));
@@ -563,7 +572,9 @@ final class AuthenticationDetails
    *                         encountered while trying to read the password from
    *                         a file.
    */
-  private static String getPassword(final JSONObject o, final String authType,
+  @Nullable()
+  private static String getPassword(@NotNull final JSONObject o,
+                                    @NotNull final String authType,
                                     final boolean optional)
           throws LDAPException
   {
@@ -610,7 +621,9 @@ final class AuthenticationDetails
    *                         encountered while trying to read the password from
    *                         a file.
    */
-  private static List<SASLQualityOfProtection> getAllowedQoP(final JSONObject o)
+  @NotNull()
+  private static List<SASLQualityOfProtection> getAllowedQoP(
+                                                    @NotNull final JSONObject o)
           throws LDAPException
   {
     final JSONValue v = o.getField(FIELD_QOP);

@@ -43,6 +43,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.unboundid.util.NotNull;
+
 
 
 /**
@@ -124,7 +126,7 @@ public @interface LDAPGetter
    *
    * @return  The encoder class for this getter.
    */
-  Class<? extends ObjectEncoder> encoderClass()
+  @NotNull Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
 
 
@@ -136,7 +138,7 @@ public @interface LDAPGetter
    *
    * @return  The filter usage value for this getter.
    */
-  FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
+  @NotNull FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
 
 
 
@@ -151,7 +153,7 @@ public @interface LDAPGetter
    *          will be assumed that the attribute name matches the getter method
    *          name without the initial "get".
    */
-  String attribute() default "";
+  @NotNull String attribute() default "";
 
 
 
@@ -169,5 +171,5 @@ public @interface LDAPGetter
    *          may be used, or an empty array if it will be assumed to only be
    *          included in the structural object class.
    */
-  String[] objectClass() default {};
+  @NotNull String[] objectClass() default {};
 }

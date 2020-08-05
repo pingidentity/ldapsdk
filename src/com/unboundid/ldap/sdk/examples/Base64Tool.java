@@ -52,6 +52,8 @@ import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -101,7 +103,7 @@ public final class Base64Tool
    * The name of the argument used to indicate whether to add an end-of-line
    * marker to the end of the base64-encoded data.
    */
-  private static final String ARG_NAME_ADD_TRAILING_LINE_BREAK =
+  @NotNull private static final String ARG_NAME_ADD_TRAILING_LINE_BREAK =
        "addTrailingLineBreak";
 
 
@@ -109,7 +111,7 @@ public final class Base64Tool
   /**
    * The name of the argument used to specify the data to encode or decode.
    */
-  private static final String ARG_NAME_DATA = "data";
+  @NotNull private static final String ARG_NAME_DATA = "data";
 
 
 
@@ -117,7 +119,7 @@ public final class Base64Tool
    * The name of the argument used to indicate whether to ignore any end-of-line
    * marker that might be present at the end of the data to encode.
    */
-  private static final String ARG_NAME_IGNORE_TRAILING_LINE_BREAK =
+  @NotNull private static final String ARG_NAME_IGNORE_TRAILING_LINE_BREAK =
        "ignoreTrailingLineBreak";
 
 
@@ -126,7 +128,7 @@ public final class Base64Tool
    * The name of the argument used to specify the path to the input file with
    * the data to encode or decode.
    */
-  private static final String ARG_NAME_INPUT_FILE = "inputFile";
+  @NotNull private static final String ARG_NAME_INPUT_FILE = "inputFile";
 
 
 
@@ -134,7 +136,7 @@ public final class Base64Tool
    * The name of the argument used to specify the path to the output file into
    * which to write the encoded or decoded data.
    */
-  private static final String ARG_NAME_OUTPUT_FILE = "outputFile";
+  @NotNull private static final String ARG_NAME_OUTPUT_FILE = "outputFile";
 
 
 
@@ -143,29 +145,29 @@ public final class Base64Tool
    * should be performed using the base64url alphabet rather than the standard
    * base64 alphabet.
    */
-  private static final String ARG_NAME_URL = "url";
+  @NotNull private static final String ARG_NAME_URL = "url";
 
 
 
   /**
    * The name of the subcommand used to decode data.
    */
-  private static final String SUBCOMMAND_NAME_DECODE = "decode";
+  @NotNull private static final String SUBCOMMAND_NAME_DECODE = "decode";
 
 
 
   /**
    * The name of the subcommand used to encode data.
    */
-  private static final String SUBCOMMAND_NAME_ENCODE = "encode";
+  @NotNull private static final String SUBCOMMAND_NAME_ENCODE = "encode";
 
 
 
   // The argument parser for this tool.
-  private volatile ArgumentParser parser;
+  @Nullable private volatile ArgumentParser parser;
 
   // The input stream to use as standard input.
-  private final InputStream in;
+  @Nullable private final InputStream in;
 
 
 
@@ -174,7 +176,7 @@ public final class Base64Tool
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.in, System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -202,8 +204,10 @@ public final class Base64Tool
    *          other than {@link ResultCode#SUCCESS} will indicate that an error
    *          occurred.
    */
-  public static ResultCode main(final InputStream in, final OutputStream out,
-                                final OutputStream err, final String... args)
+  public static ResultCode main(@Nullable final InputStream in,
+                                @Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final Base64Tool tool = new Base64Tool(in, out, err);
     return tool.runTool(args);
@@ -221,7 +225,8 @@ public final class Base64Tool
    * @param  err  The output stream to which standard error should be written.
    *              It may be {@code null} if standard error should be suppressed.
    */
-  public Base64Tool(final OutputStream out, final OutputStream err)
+  public Base64Tool(@Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     this(null, out, err);
   }
@@ -239,8 +244,9 @@ public final class Base64Tool
    * @param  err  The output stream to which standard error should be written.
    *              It may be {@code null} if standard error should be suppressed.
    */
-  public Base64Tool(final InputStream in, final OutputStream out,
-                    final OutputStream err)
+  public Base64Tool(@Nullable final InputStream in,
+                    @Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -258,6 +264,7 @@ public final class Base64Tool
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "base64";
@@ -271,6 +278,7 @@ public final class Base64Tool
    * @return  A human-readable description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Encode raw data using the base64 algorithm or decode " +
@@ -286,6 +294,7 @@ public final class Base64Tool
    *          available.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -382,7 +391,7 @@ public final class Base64Tool
    *                             argument parser.
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -567,6 +576,7 @@ public final class Base64Tool
    *          successfully.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Get the subcommand selected by the user.
@@ -600,7 +610,8 @@ public final class Base64Tool
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
-  private ResultCode doEncode(final ArgumentParser p)
+  @NotNull()
+  private ResultCode doEncode(@NotNull final ArgumentParser p)
   {
     // Get the data to encode.
     final ByteStringBuffer rawDataBuffer = new ByteStringBuffer();
@@ -732,7 +743,8 @@ stripEOLLoop:
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
-  private ResultCode doDecode(final ArgumentParser p)
+  @NotNull()
+  private ResultCode doDecode(@NotNull final ArgumentParser p)
   {
     // Get the data to decode.  We'll always ignore the following:
     // - Line breaks
@@ -894,6 +906,7 @@ stripEOLLoop:
    *          information is available.
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

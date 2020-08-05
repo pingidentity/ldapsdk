@@ -40,6 +40,8 @@ package com.unboundid.ldap.matchingrules;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -61,7 +63,7 @@ public final class BooleanMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final BooleanMatchingRule INSTANCE =
+  @NotNull private static final BooleanMatchingRule INSTANCE =
        new BooleanMatchingRule();
 
 
@@ -70,7 +72,8 @@ public final class BooleanMatchingRule
    * The pre-defined value that will be used as the normalized representation
    * of a "TRUE" value.
    */
-  private static final ASN1OctetString TRUE_VALUE = new ASN1OctetString("TRUE");
+  @NotNull private static final ASN1OctetString TRUE_VALUE =
+       new ASN1OctetString("TRUE");
 
 
 
@@ -78,7 +81,7 @@ public final class BooleanMatchingRule
    * The pre-defined value that will be used as the normalized representation
    * of a "FALSE" value.
    */
-  private static final ASN1OctetString FALSE_VALUE =
+  @NotNull private static final ASN1OctetString FALSE_VALUE =
        new ASN1OctetString("FALSE");
 
 
@@ -86,7 +89,7 @@ public final class BooleanMatchingRule
   /**
    * The name for the booleanMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "booleanMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME = "booleanMatch";
 
 
 
@@ -94,7 +97,7 @@ public final class BooleanMatchingRule
    * The name for the booleanMatch equality matching rule, formatted in all
    * lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -102,7 +105,7 @@ public final class BooleanMatchingRule
   /**
    * The OID for the booleanMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.13";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.13";
 
 
 
@@ -128,6 +131,7 @@ public final class BooleanMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static BooleanMatchingRule getInstance()
   {
     return INSTANCE;
@@ -139,6 +143,7 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -150,6 +155,7 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -161,6 +167,7 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getOrderingMatchingRuleName()
   {
     return null;
@@ -172,6 +179,7 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getOrderingMatchingRuleOID()
   {
     return null;
@@ -183,6 +191,7 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getSubstringMatchingRuleName()
   {
     return null;
@@ -194,6 +203,7 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getSubstringMatchingRuleOID()
   {
     return null;
@@ -205,8 +215,8 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     return normalize(value1).equals(normalize(value2));
@@ -218,10 +228,10 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesSubstring(final ASN1OctetString value,
-                                  final ASN1OctetString subInitial,
-                                  final ASN1OctetString[] subAny,
-                                  final ASN1OctetString subFinal)
+  public boolean matchesSubstring(@NotNull final ASN1OctetString value,
+                                  @Nullable final ASN1OctetString subInitial,
+                                  @Nullable final ASN1OctetString[] subAny,
+                                  @Nullable final ASN1OctetString subFinal)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
@@ -234,8 +244,8 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public int compareValues(final ASN1OctetString value1,
-                           final ASN1OctetString value2)
+  public int compareValues(@NotNull final ASN1OctetString value1,
+                           @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
@@ -248,7 +258,8 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
          throws LDAPException
   {
     final byte[] valueBytes = value.getValue();
@@ -283,8 +294,10 @@ public final class BooleanMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,

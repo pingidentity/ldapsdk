@@ -45,6 +45,8 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -74,22 +76,22 @@ public final class MatchingRuleDefinition
   private final boolean isObsolete;
 
   // The set of extensions for this matching rule.
-  private final Map<String,String[]> extensions;
+  @NotNull private final Map<String,String[]> extensions;
 
   // The description for this matching rule.
-  private final String description;
+  @Nullable private final String description;
 
   // The string representation of this matching rule.
-  private final String matchingRuleString;
+  @NotNull private final String matchingRuleString;
 
   // The OID for this matching rule.
-  private final String oid;
+  @NotNull private final String oid;
 
   // The OID of the syntax for this matching rule.
-  private final String syntaxOID;
+  @NotNull private final String syntaxOID;
 
   // The set of names for this matching rule.
-  private final String[] names;
+  @NotNull private final String[] names;
 
 
 
@@ -103,7 +105,7 @@ public final class MatchingRuleDefinition
    * @throws  LDAPException  If the provided string cannot be decoded as a
    *                         matching rule definition.
    */
-  public MatchingRuleDefinition(final String s)
+  public MatchingRuleDefinition(@NotNull final String s)
          throws LDAPException
   {
     Validator.ensureNotNull(s);
@@ -302,10 +304,11 @@ public final class MatchingRuleDefinition
    *                      It may be {@code null} or empty if there should not be
    *                      any extensions.
    */
-  public MatchingRuleDefinition(final String oid, final String name,
-                                final String description,
-                                final String syntaxOID,
-                                final Map<String,String[]> extensions)
+  public MatchingRuleDefinition(@NotNull final String oid,
+                                @Nullable final String name,
+                                @Nullable final String description,
+                                @NotNull final String syntaxOID,
+                                @Nullable final Map<String,String[]> extensions)
   {
     this(oid, ((name == null) ? null : new String[] { name }), description,
          false, syntaxOID, extensions);
@@ -331,11 +334,12 @@ public final class MatchingRuleDefinition
    *                      It may be {@code null} or empty if there should not be
    *                      any extensions.
    */
-  public MatchingRuleDefinition(final String oid, final String[] names,
-                                final String description,
+  public MatchingRuleDefinition(@NotNull final String oid,
+                                @Nullable final String[] names,
+                                @Nullable final String description,
                                 final boolean isObsolete,
-                                final String syntaxOID,
-                                final Map<String,String[]> extensions)
+                                @NotNull final String syntaxOID,
+                                @Nullable final Map<String,String[]> extensions)
   {
     Validator.ensureNotNull(oid, syntaxOID);
 
@@ -376,7 +380,7 @@ public final class MatchingRuleDefinition
    * @param  buffer  The buffer in which to construct a string representation of
    *                 this matching rule definition.
    */
-  private void createDefinitionString(final StringBuilder buffer)
+  private void createDefinitionString(@NotNull final StringBuilder buffer)
   {
     buffer.append("( ");
     buffer.append(oid);
@@ -451,6 +455,7 @@ public final class MatchingRuleDefinition
    *
    * @return  The OID for this matching rule.
    */
+  @NotNull()
   public String getOID()
   {
     return oid;
@@ -464,6 +469,7 @@ public final class MatchingRuleDefinition
    * @return  The set of names for this matching rule, or an empty array if it
    *          does not have any names.
    */
+  @NotNull()
   public String[] getNames()
   {
     return names;
@@ -478,6 +484,7 @@ public final class MatchingRuleDefinition
    *
    * @return  The primary name that can be used to reference this matching rule.
    */
+  @NotNull()
   public String getNameOrOID()
   {
     if (names.length == 0)
@@ -502,7 +509,7 @@ public final class MatchingRuleDefinition
    * @return  {@code true} if the provided string matches the OID or any of the
    *          names for this matching rule, or {@code false} if not.
    */
-  public boolean hasNameOrOID(final String s)
+  public boolean hasNameOrOID(@NotNull final String s)
   {
     for (final String name : names)
     {
@@ -523,6 +530,7 @@ public final class MatchingRuleDefinition
    * @return  The description for this matching rule, or {@code null} if there
    *          is no description defined.
    */
+  @Nullable()
   public String getDescription()
   {
     return description;
@@ -548,6 +556,7 @@ public final class MatchingRuleDefinition
    *
    * @return  The OID of the syntax for this matching rule.
    */
+  @NotNull()
   public String getSyntaxOID()
   {
     return syntaxOID;
@@ -562,6 +571,7 @@ public final class MatchingRuleDefinition
    *
    * @return  The set of extensions for this matching rule.
    */
+  @NotNull()
   public Map<String,String[]> getExtensions()
   {
     return extensions;
@@ -573,6 +583,7 @@ public final class MatchingRuleDefinition
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SchemaElementType getSchemaElementType()
   {
     return SchemaElementType.MATCHING_RULE;
@@ -595,7 +606,7 @@ public final class MatchingRuleDefinition
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -630,6 +641,7 @@ public final class MatchingRuleDefinition
    * @return  A string representation of this matching rule definition.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return matchingRuleString;

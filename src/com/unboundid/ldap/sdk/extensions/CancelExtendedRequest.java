@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -130,7 +132,7 @@ public final class CancelExtendedRequest
   /**
    * The OID (1.3.6.1.1.8) for the cancel extended request.
    */
-  public static final String CANCEL_REQUEST_OID = "1.3.6.1.1.8";
+  @NotNull public static final String CANCEL_REQUEST_OID = "1.3.6.1.1.8";
 
 
 
@@ -153,7 +155,7 @@ public final class CancelExtendedRequest
    * @param  requestID  The async request ID of the request to cancel.  It must
    *                    not be {@code null}.
    */
-  public CancelExtendedRequest(final AsyncRequestID requestID)
+  public CancelExtendedRequest(@NotNull final AsyncRequestID requestID)
   {
     this(requestID.getMessageID(), null);
   }
@@ -181,8 +183,8 @@ public final class CancelExtendedRequest
    *                    not be {@code null}.
    * @param  controls   The set of controls to include in the request.
    */
-  public CancelExtendedRequest(final AsyncRequestID requestID,
-                               final Control[] controls)
+  public CancelExtendedRequest(@NotNull final AsyncRequestID requestID,
+                               @Nullable final Control[] controls)
   {
     this(requestID.getMessageID(), controls);
   }
@@ -197,7 +199,7 @@ public final class CancelExtendedRequest
    * @param  controls         The set of controls to include in the request.
    */
   public CancelExtendedRequest(final int targetMessageID,
-                               final Control[] controls)
+                               @Nullable final Control[] controls)
   {
     super(CANCEL_REQUEST_OID, encodeValue(targetMessageID), controls);
 
@@ -215,7 +217,7 @@ public final class CancelExtendedRequest
    *
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
-  public CancelExtendedRequest(final ExtendedRequest extendedRequest)
+  public CancelExtendedRequest(@NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -252,6 +254,7 @@ public final class CancelExtendedRequest
    *
    * @return  An ASN.1 octet string containing the encoded request value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(final int targetMessageID)
   {
     final ASN1Element[] sequenceValues =
@@ -268,7 +271,8 @@ public final class CancelExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  protected ExtendedResult process(final LDAPConnection connection,
+  @NotNull()
+  protected ExtendedResult process(@NotNull final LDAPConnection connection,
                                    final int depth)
             throws LDAPException
   {
@@ -299,6 +303,7 @@ public final class CancelExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public CancelExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -310,7 +315,8 @@ public final class CancelExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public CancelExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public CancelExtendedRequest duplicate(@Nullable final Control[] controls)
   {
     final CancelExtendedRequest cancelRequest =
          new CancelExtendedRequest(targetMessageID, controls);
@@ -324,6 +330,7 @@ public final class CancelExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_CANCEL.get();
@@ -335,7 +342,7 @@ public final class CancelExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CancelExtendedRequest(targetMessageID=");
     buffer.append(targetMessageID);

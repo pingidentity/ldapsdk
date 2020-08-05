@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,19 +78,19 @@ public final class IntermediateResponseAccessLogMessage
 
 
   // The operation type for this access log message.
-  private final AccessLogOperationType operationType;
+  @NotNull private final AccessLogOperationType operationType;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // A human-readable version of the intermediate response name.
-  private final String name;
+  @Nullable private final String name;
 
   // The OID of the intermediate response.
-  private final String oid;
+  @Nullable private final String oid;
 
   // A human-readable version of the intermediate response value.
-  private final String value;
+  @Nullable private final String value;
 
 
 
@@ -102,7 +104,7 @@ public final class IntermediateResponseAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public IntermediateResponseAccessLogMessage(final String s)
+  public IntermediateResponseAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -117,7 +119,7 @@ public final class IntermediateResponseAccessLogMessage
    * @param  m  The log message to be parsed as an intermediate response access
    *            log message.
    */
-  public IntermediateResponseAccessLogMessage(final LogMessage m)
+  public IntermediateResponseAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -193,6 +195,7 @@ public final class IntermediateResponseAccessLogMessage
    * @return  The OID of the intermediate response, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public String getOID()
   {
     return oid;
@@ -206,6 +209,7 @@ public final class IntermediateResponseAccessLogMessage
    * @return  A human-readable name for the intermediate response, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getIntermediateResponseName()
   {
     return name;
@@ -220,6 +224,7 @@ public final class IntermediateResponseAccessLogMessage
    * @return  A human-readable representation of the intermediate response
    *          value, or {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getValueString()
   {
     return value;
@@ -233,6 +238,7 @@ public final class IntermediateResponseAccessLogMessage
    * @return  The OIDs of any response controls contained in the log message, or
    *          an empty list if it is not included in the log message.
    */
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -244,6 +250,7 @@ public final class IntermediateResponseAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.INTERMEDIATE_RESPONSE;
@@ -255,6 +262,7 @@ public final class IntermediateResponseAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogOperationType getOperationType()
   {
     return operationType;

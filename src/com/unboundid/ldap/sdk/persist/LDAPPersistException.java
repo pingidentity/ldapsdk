@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -67,7 +69,7 @@ public final class LDAPPersistException
 
   // The object that was in the process of being decoded, if available.  If it
   // is non-null, then it will likely only be partially initialized.
-  private final Object partiallyDecodedObject;
+  @Nullable private final Object partiallyDecodedObject;
 
 
 
@@ -77,7 +79,7 @@ public final class LDAPPersistException
    *
    * @param  e  The LDAP exception to wrap with this LDAP persist exception.
    */
-  public LDAPPersistException(final LDAPException e)
+  public LDAPPersistException(@NotNull final LDAPException e)
   {
     super(e);
 
@@ -91,7 +93,7 @@ public final class LDAPPersistException
    *
    * @param  message  The message for this exception.
    */
-  public LDAPPersistException(final String message)
+  public LDAPPersistException(@NotNull final String message)
   {
     super(ResultCode.LOCAL_ERROR, message);
 
@@ -106,7 +108,8 @@ public final class LDAPPersistException
    * @param  message  The message for this exception.
    * @param  cause    The underlying cause for this exception.
    */
-  public LDAPPersistException(final String message, final Throwable cause)
+  public LDAPPersistException(@NotNull final String message,
+                              @Nullable final Throwable cause)
   {
     super(ResultCode.LOCAL_ERROR, message, cause);
 
@@ -128,9 +131,9 @@ public final class LDAPPersistException
    *                                 initialized.
    * @param  cause                   The underlying cause for this exception.
    */
-  public LDAPPersistException(final String message,
-                              final Object partiallyDecodedObject,
-                              final Throwable cause)
+  public LDAPPersistException(@NotNull final String message,
+                              @Nullable final Object partiallyDecodedObject,
+                              @Nullable final Throwable cause)
   {
     super(ResultCode.LOCAL_ERROR, message, cause);
 
@@ -148,6 +151,7 @@ public final class LDAPPersistException
    *          available or the exception was not thrown while decoding an
    *          object.
    */
+  @Nullable()
   public Object getPartiallyDecodedObject()
   {
     return partiallyDecodedObject;
@@ -159,7 +163,7 @@ public final class LDAPPersistException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     super.toString(buffer);
   }

@@ -54,10 +54,10 @@ final class CommandLineToolShutdownHook
       extends Thread
 {
   // A reference to the result code that will be returned by the tool (if set).
-  private final AtomicReference<ResultCode> resultCodeRef;
+  @NotNull private final AtomicReference<ResultCode> resultCodeRef;
 
   // The tool whose doShutdownHookProcessing method will be invoked.
-  private final CommandLineTool tool;
+  @NotNull private final CommandLineTool tool;
 
 
 
@@ -70,8 +70,8 @@ final class CommandLineToolShutdownHook
    * @param  resultCodeRef  A reference to the result code that will be returned
    *                        by the tool.
    */
-  CommandLineToolShutdownHook(final CommandLineTool tool,
-                              final AtomicReference<ResultCode> resultCodeRef)
+  CommandLineToolShutdownHook(@NotNull final CommandLineTool tool,
+       @NotNull final AtomicReference<ResultCode> resultCodeRef)
   {
     this.tool          = tool;
     this.resultCodeRef = resultCodeRef;

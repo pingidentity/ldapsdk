@@ -42,6 +42,8 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -99,7 +101,7 @@ public final class EXTERNALBindRequest
 
   // The authorization ID to send to the server in the bind request.  It may be
   // null, empty, or non-empty.
-  private final String authzID;
+  @Nullable private final String authzID;
 
 
 
@@ -127,7 +129,7 @@ public final class EXTERNALBindRequest
    *                  a non-empty string if the authorization identity should
    *                  be different from the authentication identity.
    */
-  public EXTERNALBindRequest(final String authzID)
+  public EXTERNALBindRequest(@Nullable final String authzID)
   {
     this(authzID, StaticUtils.NO_CONTROLS);
   }
@@ -140,7 +142,7 @@ public final class EXTERNALBindRequest
    * @param  controls  The set of controls to include in this SASL EXTERNAL
    *                   bind request.
    */
-  public EXTERNALBindRequest(final Control... controls)
+  public EXTERNALBindRequest(@Nullable final Control... controls)
   {
     this(null, controls);
   }
@@ -162,7 +164,8 @@ public final class EXTERNALBindRequest
    * @param  controls  The set of controls to include in this SASL EXTERNAL
    *                   bind request.
    */
-  public EXTERNALBindRequest(final String authzID, final Control... controls)
+  public EXTERNALBindRequest(@Nullable final String authzID,
+                             @Nullable final Control... controls)
   {
     super(controls);
 
@@ -182,6 +185,7 @@ public final class EXTERNALBindRequest
    *          same as the authentication identity and should be determined from
    *          what the server already knows about the client.
    */
+  @Nullable()
   public String getAuthorizationID()
   {
     return authzID;
@@ -193,6 +197,7 @@ public final class EXTERNALBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return EXTERNAL_MECHANISM_NAME;
@@ -216,7 +221,9 @@ public final class EXTERNALBindRequest
    *                         reading the response.
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     // Create the LDAP message.
@@ -242,7 +249,9 @@ public final class EXTERNALBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public EXTERNALBindRequest getRebindRequest(final String host, final int port)
+  @NotNull()
+  public EXTERNALBindRequest getRebindRequest(@NotNull final String host,
+                                              final int port)
   {
     return new EXTERNALBindRequest(authzID, getControls());
   }
@@ -264,6 +273,7 @@ public final class EXTERNALBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public EXTERNALBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -275,7 +285,8 @@ public final class EXTERNALBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public EXTERNALBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public EXTERNALBindRequest duplicate(@Nullable final Control[] controls)
   {
     final EXTERNALBindRequest bindRequest =
          new EXTERNALBindRequest(authzID, controls);
@@ -289,7 +300,7 @@ public final class EXTERNALBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EXTERNALBindRequest(");
 
@@ -332,7 +343,8 @@ public final class EXTERNALBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

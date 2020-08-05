@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,8 +74,9 @@ public final class SCRAMSHA512BindRequest
    * @param controls The set of controls to include in the bind request.  It may
    *                 be {@code null} or empty if no controls are needed.
    */
-  public SCRAMSHA512BindRequest(final String username, final String password,
-                                final Control... controls)
+  public SCRAMSHA512BindRequest(@NotNull final String username,
+                                @NotNull final String password,
+                                @Nullable final Control... controls)
   {
     super(username, new ASN1OctetString(password), controls);
   }
@@ -90,8 +93,9 @@ public final class SCRAMSHA512BindRequest
    * @param controls The set of controls to include in the bind request.  It may
    *                 be {@code null} or empty if no controls are needed.
    */
-  public SCRAMSHA512BindRequest(final String username, final byte[] password,
-                                final Control... controls)
+  public SCRAMSHA512BindRequest(@NotNull final String username,
+                                @NotNull final byte[] password,
+                                @Nullable final Control... controls)
   {
     super(username, new ASN1OctetString(password), controls);
   }
@@ -102,6 +106,7 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return "SCRAM-SHA-512";
@@ -113,6 +118,7 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected String getDigestAlgorithmName()
   {
     return "SHA-512";
@@ -124,6 +130,7 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected String getMACAlgorithmName()
   {
     return "HmacSHA512";
@@ -135,7 +142,8 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
-  public SCRAMSHA512BindRequest getRebindRequest(final String host,
+  @NotNull()
+  public SCRAMSHA512BindRequest getRebindRequest(@NotNull final String host,
                                                  final int port)
   {
     return duplicate();
@@ -147,6 +155,7 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SCRAMSHA512BindRequest duplicate()
   {
     return duplicate(getControls());
@@ -158,7 +167,8 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
-  public SCRAMSHA512BindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public SCRAMSHA512BindRequest duplicate(@Nullable final Control[] controls)
   {
     return new SCRAMSHA512BindRequest(getUsername(), getPasswordBytes(),
          controls);
@@ -170,7 +180,7 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SCRAMSHA512BindRequest(username='");
     buffer.append(getUsername());
@@ -201,7 +211,8 @@ public final class SCRAMSHA512BindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

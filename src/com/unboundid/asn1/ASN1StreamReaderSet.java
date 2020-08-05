@@ -38,6 +38,7 @@ package com.unboundid.asn1;
 
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -57,7 +58,7 @@ import static com.unboundid.asn1.ASN1Messages.*;
 public final class ASN1StreamReaderSet
 {
   // The ASN.1 stream reader associated with this object.
-  private final ASN1StreamReader reader;
+  @NotNull private final ASN1StreamReader reader;
 
   // The BER type for this ASN.1 set.
   private final byte type;
@@ -81,7 +82,7 @@ public final class ASN1StreamReaderSet
    * @param  length  The number of bytes contained in the encoded
    *                 representations of all the embedded values.
    */
-  ASN1StreamReaderSet(final ASN1StreamReader reader, final byte type,
+  ASN1StreamReaderSet(@NotNull final ASN1StreamReader reader, final byte type,
                       final int length)
   {
     this.reader = reader;

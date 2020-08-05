@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -106,7 +108,7 @@ public enum SubtreeAccessibilityState
   private final int intValue;
 
   // The name for this subtree accessibility state.
-  private final String stateName;
+  @NotNull private final String stateName;
 
 
 
@@ -116,7 +118,7 @@ public enum SubtreeAccessibilityState
    * @param  intValue   The integer value for this subtree accessibility state.
    * @param  stateName  The name for this subtree accessibility state.
    */
-  SubtreeAccessibilityState(final int intValue, final String stateName)
+  SubtreeAccessibilityState(final int intValue, @NotNull final String stateName)
   {
     this.intValue  = intValue;
     this.stateName = stateName;
@@ -141,6 +143,7 @@ public enum SubtreeAccessibilityState
    *
    * @return  The name for this subtree accessibility state.
    */
+  @NotNull()
   public String getStateName()
   {
     return stateName;
@@ -197,6 +200,7 @@ public enum SubtreeAccessibilityState
    *          or {@code null} if there is no accessibility state with the
    *          specified integer value.
    */
+  @Nullable()
   public static SubtreeAccessibilityState valueOf(final int intValue)
   {
     switch (intValue)
@@ -225,7 +229,8 @@ public enum SubtreeAccessibilityState
    * @return  The subtree accessibility state with the specified name, or
    *          {@code null} if no state has the provided name.
    */
-  public static SubtreeAccessibilityState forName(final String name)
+  @Nullable()
+  public static SubtreeAccessibilityState forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -254,6 +259,7 @@ public enum SubtreeAccessibilityState
    * @return  A string representation of this subtree accessibility state.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stateName;

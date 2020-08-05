@@ -63,6 +63,8 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -117,7 +119,7 @@ public final class SchemaValidator
    * The path to the schema directory for the available Ping Identity Directory
    * Server instance.
    */
-  static final File PING_IDENTITY_DIRECTORY_SERVER_SCHEMA_DIR;
+  @Nullable static final File PING_IDENTITY_DIRECTORY_SERVER_SCHEMA_DIR;
 
 
 
@@ -235,30 +237,31 @@ public final class SchemaValidator
 
   // A list of attribute syntax definitions to use when validating attribute
   // type definitions.
-  private List<AttributeSyntaxDefinition> attributeSyntaxList;
-
-  // A map of attribute syntax definitions to use when validating attribute type
-  // definitions.
-  private Map<String,AttributeSyntaxDefinition> attributeSyntaxMap;
+  @NotNull private List<AttributeSyntaxDefinition> attributeSyntaxList;
 
   // A list of matching rule definitions to use when validating attribute type
   // definitions.
-  private List<MatchingRuleDefinition> matchingRuleList;
+  @NotNull private List<MatchingRuleDefinition> matchingRuleList;
+
+  // A map of attribute syntax definitions to use when validating attribute type
+  // definitions.
+  @NotNull private Map<String,AttributeSyntaxDefinition> attributeSyntaxMap;
 
   // A map of matching rule definitions to use when validating attribute type
   // definitions.
-  private Map<String,MatchingRuleDefinition> matchingRuleMap;
+  @NotNull private Map<String,MatchingRuleDefinition> matchingRuleMap;
 
   // The pattern that files containing schema definitions are expected to match.
-  private Pattern schemaFileNamePattern;
+  @Nullable private Pattern schemaFileNamePattern;
 
   // The set of schema element types that are allowed to be present in schema
   // files.
-  private final Set<SchemaElementType> allowedSchemaElementTypes;
+  @NotNull private final Set<SchemaElementType> allowedSchemaElementTypes;
 
   // The set of schema element types that other elements may be allowed to
   // reference without the referenced type being defined.
-  private final Set<SchemaElementType> allowReferencesToUndefinedElementTypes;
+  @NotNull private final Set<SchemaElementType>
+       allowReferencesToUndefinedElementTypes;
 
 
 
@@ -317,6 +320,7 @@ public final class SchemaValidator
    * @return  The pattern that schema file names are expected to match, or
    *          {@code null} if no schema file name pattern is defined.
    */
+  @Nullable()
   public Pattern getSchemaFileNamePattern()
   {
     return schemaFileNamePattern;
@@ -366,7 +370,8 @@ public final class SchemaValidator
    *              warning message will be added to the given list if the name
    *              does not match the given pattern.
    */
-  public void setSchemaFileNamePattern(final Pattern schemaFileNamePattern,
+  public void setSchemaFileNamePattern(
+                   @Nullable final Pattern schemaFileNamePattern,
                    final boolean ignoreSchemaFilesNotMatchingFileNamePattern)
   {
     this.schemaFileNamePattern = schemaFileNamePattern;
@@ -504,6 +509,7 @@ public final class SchemaValidator
    * @return  An unmodifiable set set of the schema element types that may be
    *          defined in schema files.
    */
+  @NotNull()
   public Set<SchemaElementType> getAllowedSchemaElementTypes()
   {
     return Collections.unmodifiableSet(allowedSchemaElementTypes);
@@ -520,7 +526,7 @@ public final class SchemaValidator
    *              files.  It must not be {@code null} or empty.
    */
   public void setAllowedSchemaElementTypes(
-                   final SchemaElementType... allowedSchemaElementTypes)
+       @NotNull final SchemaElementType... allowedSchemaElementTypes)
   {
     setAllowedSchemaElementTypes(StaticUtils.toList(allowedSchemaElementTypes));
   }
@@ -536,7 +542,7 @@ public final class SchemaValidator
    *              files.  It must not be {@code null} or empty.
    */
   public void setAllowedSchemaElementTypes(
-       final Collection<SchemaElementType> allowedSchemaElementTypes)
+       @NotNull final Collection<SchemaElementType> allowedSchemaElementTypes)
   {
     Validator.ensureTrue(
          ((allowedSchemaElementTypes != null) &&
@@ -560,6 +566,7 @@ public final class SchemaValidator
    *          elements without the referenced types being known to the schema
    *          validator,
    */
+  @NotNull()
   public Set<SchemaElementType> getAllowReferencesToUndefinedElementTypes()
   {
     return Collections.unmodifiableSet(allowReferencesToUndefinedElementTypes);
@@ -579,7 +586,7 @@ public final class SchemaValidator
    *              undefined schema elements will be permitted.
    */
   public void setAllowReferencesToUndefinedElementTypes(
-                   final SchemaElementType... undefinedElementTypes)
+       @Nullable final SchemaElementType... undefinedElementTypes)
   {
     setAllowReferencesToUndefinedElementTypes(
          StaticUtils.toList(undefinedElementTypes));
@@ -599,7 +606,7 @@ public final class SchemaValidator
    *              undefined schema elements will be permitted.
    */
   public void setAllowReferencesToUndefinedElementTypes(
-                   final Collection<SchemaElementType> undefinedElementTypes)
+       @Nullable final Collection<SchemaElementType> undefinedElementTypes)
   {
     allowReferencesToUndefinedElementTypes.clear();
     if (undefinedElementTypes != null)
@@ -944,6 +951,7 @@ public final class SchemaValidator
    *          of validating attribute type definitions, or an empty list if the
    *          list of available syntaxes will be defined in the schema files.
    */
+  @NotNull()
   public List<AttributeSyntaxDefinition> getAttributeSyntaxes()
   {
     return Collections.unmodifiableList(new ArrayList<>(attributeSyntaxList));
@@ -962,7 +970,7 @@ public final class SchemaValidator
    *              files will be used.
    */
   public void setAttributeSyntaxes(
-       final Collection<AttributeSyntaxDefinition> attributeSyntaxes)
+       @Nullable final Collection<AttributeSyntaxDefinition> attributeSyntaxes)
   {
     attributeSyntaxList = new ArrayList<>();
     attributeSyntaxMap = new HashMap<>();
@@ -1090,6 +1098,7 @@ public final class SchemaValidator
    *          validating attribute type definitions, or an empty list if the
    *          list of matching rules will be defined in the schema files.
    */
+  @NotNull()
   public List<MatchingRuleDefinition> getMatchingRuleDefinitions()
   {
     return Collections.unmodifiableList(new ArrayList<>(matchingRuleList));
@@ -1108,7 +1117,7 @@ public final class SchemaValidator
    *              files will be used.
    */
   public void setMatchingRules(
-                   final Collection<MatchingRuleDefinition> matchingRules)
+       @Nullable final Collection<MatchingRuleDefinition> matchingRules)
   {
     matchingRuleList = new ArrayList<>();
     matchingRuleMap = new HashMap<>();
@@ -1480,15 +1489,15 @@ public final class SchemaValidator
    *              the directory will be processed in lexicographic order by
    *              filename, optionally restricted to files matching the schema
    *              file name pattern.
-   * @param  errorMessages
-   *              A list that will be updated with error messages about any
-   *              problems identified during processing.  It must not be
-   *              {@code null}, and it must be updatable.
    * @param  existingSchema
    *              An existing schema to use in the course of validating
    *              definitions.  It may be {@code null} if there is no existing
    *              schema and only the definitions read from the provided path
    *              should be used.
+   * @param  errorMessages
+   *              A list that will be updated with error messages about any
+   *              problems identified during processing.  It must not be
+   *              {@code null}, and it must be updatable.
    *
    * @return  A {@code Schema} object that contains the definitions that were
    *          loaded.  This may include schema elements that were flagged as
@@ -1498,9 +1507,10 @@ public final class SchemaValidator
    *          This may be {@code null} if an error prevented any schema files
    *          from being processed and no existing schema was provided.
    */
-  public Schema validateSchema(final File schemaPath,
-                               final Schema existingSchema,
-                               final List<String> errorMessages)
+  @Nullable()
+  public Schema validateSchema(@NotNull final File schemaPath,
+                               @Nullable final Schema existingSchema,
+                               @NotNull final List<String> errorMessages)
   {
     final boolean originalAllowEmptyDescription =
          SchemaElement.allowEmptyDescription();
@@ -1603,11 +1613,12 @@ public final class SchemaValidator
    *          an error prevented any schema files from being processed and no
    *          existing schema was provided.
    */
-  private Schema validateSchema(final File schemaPath,
-                                final List<String> errorMessages,
-                                final Schema existingSchema,
-                                final AtomicInteger schemaFilesProcessed,
-                                final List<File> nonSchemaFilesIgnored)
+  @Nullable()
+  private Schema validateSchema(@NotNull final File schemaPath,
+                      @NotNull final List<String> errorMessages,
+                      @Nullable final Schema existingSchema,
+                      @NotNull final AtomicInteger schemaFilesProcessed,
+                      @NotNull final List<File> nonSchemaFilesIgnored)
   {
     // Make sure the schema path represents a file or directory that exists.
     if (! schemaPath.exists())
@@ -1661,11 +1672,12 @@ public final class SchemaValidator
    *          an error prevented any schema files from being processed and no
    *          existing schema was provided.
    */
-  private Schema validateSchemaDirectory(final File schemaDirectory,
-                      final List<String> errorMessages,
-                      final Schema existingSchema,
-                      final AtomicInteger schemaFilesProcessed,
-                      final List<File> nonSchemaFilesIgnored)
+  @Nullable()
+  private Schema validateSchemaDirectory(@NotNull final File schemaDirectory,
+                      @NotNull final List<String> errorMessages,
+                      @Nullable final Schema existingSchema,
+                      @NotNull final AtomicInteger schemaFilesProcessed,
+                      @NotNull final List<File> nonSchemaFilesIgnored)
   {
     final TreeMap<String,File> schemaFiles = new TreeMap<>();
     final TreeMap<String,File> subDirectories = new TreeMap<>();
@@ -1758,11 +1770,12 @@ public final class SchemaValidator
    *          an error prevented any schema files from being processed and no
    *          existing schema was provided.
    */
-  private Schema validateSchemaFile(final File schemaFile,
-                                    final List<String> errorMessages,
-                                    final Schema existingSchema,
-                                    final AtomicInteger schemaFilesProcessed,
-                                    final List<File> nonSchemaFilesIgnored)
+  @Nullable()
+  private Schema validateSchemaFile(@NotNull final File schemaFile,
+                      @NotNull final List<String> errorMessages,
+                      @Nullable final Schema existingSchema,
+                      @NotNull final AtomicInteger schemaFilesProcessed,
+                      @NotNull final List<File> nonSchemaFilesIgnored)
   {
     if (schemaFileNamePattern != null)
     {
@@ -1863,10 +1876,11 @@ public final class SchemaValidator
    *          schema that is returned will be a merged representation of the
    *          existing schema and the newly loaded schema.
    */
-  private Schema validateSchemaEntry(final Entry schemaEntry,
-                                     final File schemaFile,
-                                     final List<String> errorMessages,
-                                     final Schema existingSchema)
+  @NotNull()
+  private Schema validateSchemaEntry(@NotNull final Entry schemaEntry,
+                      @NotNull final File schemaFile,
+                      @NotNull final List<String> errorMessages,
+                      @Nullable final Schema existingSchema)
   {
     if (schemaEntry.hasAttribute(Schema.ATTR_ATTRIBUTE_SYNTAX))
     {
@@ -2029,9 +2043,9 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateAttributeSyntaxes(final Entry schemaEntry,
-                                         final File schemaFile,
-                                         final List<String> errorMessages)
+  private void validateAttributeSyntaxes(@NotNull final Entry schemaEntry,
+                    @NotNull final File schemaFile,
+                    @NotNull final List<String> errorMessages)
   {
     for (final String syntaxString :
          schemaEntry.getAttributeValues(Schema.ATTR_ATTRIBUTE_SYNTAX))
@@ -2124,10 +2138,10 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateMatchingRules(final Entry schemaEntry,
-                                     final File schemaFile,
-                                     final Schema existingSchema,
-                                     final List<String> errorMessages)
+  private void validateMatchingRules(@NotNull final Entry schemaEntry,
+                    @NotNull final File schemaFile,
+                    @Nullable final Schema existingSchema,
+                    @NotNull final List<String> errorMessages)
   {
     for (final String matchingRuleString :
          schemaEntry.getAttributeValues(Schema.ATTR_MATCHING_RULE))
@@ -2313,11 +2327,11 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateAttributeTypes(final Entry schemaEntry,
-                    final File schemaFile,
-                    final Map<String,AttributeTypeDefinition> attributeTypeMap,
-                    final Schema existingSchema,
-                    final List<String> errorMessages)
+  private void validateAttributeTypes(@NotNull final Entry schemaEntry,
+       @NotNull final File schemaFile,
+       @NotNull final Map<String,AttributeTypeDefinition> attributeTypeMap,
+       @Nullable final Schema existingSchema,
+       @NotNull final List<String> errorMessages)
   {
     for (final String attributeTypeString :
          schemaEntry.getAttributeValues(Schema.ATTR_ATTRIBUTE_TYPE))
@@ -2657,11 +2671,11 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateObjectClasses(final Entry schemaEntry,
-                    final File schemaFile,
-                    final Map<String,ObjectClassDefinition> objectClassMap,
-                    final Schema existingSchema,
-                    final List<String> errorMessages)
+  private void validateObjectClasses(@NotNull final Entry schemaEntry,
+       @NotNull final File schemaFile,
+       @NotNull final Map<String,ObjectClassDefinition> objectClassMap,
+       @Nullable final Schema existingSchema,
+       @NotNull final List<String> errorMessages)
   {
     for (final String objectClassString :
          schemaEntry.getAttributeValues(Schema.ATTR_OBJECT_CLASS))
@@ -2890,10 +2904,11 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateSuperiorObjectClasses(final File schemaFile,
-       final ObjectClassDefinition objectClass,
-       final Map<String,ObjectClassDefinition> objectClassMap,
-       final Schema existingSchema, final List<String> errorMessages)
+  private void validateSuperiorObjectClasses(@NotNull final File schemaFile,
+       @NotNull final ObjectClassDefinition objectClass,
+       @NotNull final Map<String,ObjectClassDefinition> objectClassMap,
+       @NotNull final Schema existingSchema,
+       @NotNull final List<String> errorMessages)
   {
     // If the object class does not define any superior classes, then determine
     // if that's okay.
@@ -3070,11 +3085,13 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateNameForms(final Entry schemaEntry, final File schemaFile,
-       final Map<String,NameFormDefinition> nameFormsByNameOrOID,
-       final Map<ObjectClassDefinition,NameFormDefinition> nameFormsByOC,
-       final Schema existingSchema,
-       final List<String> errorMessages)
+  private void validateNameForms(@NotNull final Entry schemaEntry,
+       @NotNull final File schemaFile,
+       @NotNull final Map<String,NameFormDefinition> nameFormsByNameOrOID,
+       @NotNull final Map<ObjectClassDefinition,NameFormDefinition>
+            nameFormsByOC,
+       @NotNull final Schema existingSchema,
+       @NotNull final List<String> errorMessages)
   {
     for (final String nameFormString :
          schemaEntry.getAttributeValues(Schema.ATTR_NAME_FORM))
@@ -3367,11 +3384,11 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateDITContentRules(final Entry schemaEntry,
-                    final File schemaFile,
-                    final Map<String,DITContentRuleDefinition> dcrMap,
-                    final Schema existingSchema,
-                    final List<String> errorMessages)
+  private void validateDITContentRules(@NotNull final Entry schemaEntry,
+                    @NotNull final File schemaFile,
+                    @NotNull final Map<String,DITContentRuleDefinition> dcrMap,
+                    @NotNull final Schema existingSchema,
+                    @NotNull final List<String> errorMessages)
   {
     for (final String dcrString :
          schemaEntry.getAttributeValues(Schema.ATTR_DIT_CONTENT_RULE))
@@ -3731,12 +3748,13 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateDITStructureRules(final Entry schemaEntry,
-       final File schemaFile,
-       final Map<String,DITStructureRuleDefinition> dsrIDAndNameMap,
-       final Map<NameFormDefinition,DITStructureRuleDefinition> dsrNFMap,
-       final Schema existingSchema,
-       final List<String> errorMessages)
+  private void validateDITStructureRules(@NotNull final Entry schemaEntry,
+       @NotNull final File schemaFile,
+       @NotNull final Map<String,DITStructureRuleDefinition> dsrIDAndNameMap,
+       @NotNull final Map<NameFormDefinition,DITStructureRuleDefinition>
+            dsrNFMap,
+       @NotNull final Schema existingSchema,
+       @NotNull final List<String> errorMessages)
   {
     for (final String dsrString :
          schemaEntry.getAttributeValues(Schema.ATTR_DIT_STRUCTURE_RULE))
@@ -3951,11 +3969,11 @@ public final class SchemaValidator
    *              problems identified during processing.  It must not be
    *              {@code null}, and it must be updatable.
    */
-  private void validateMatchingRuleUses(final Entry schemaEntry,
-                    final File schemaFile,
-                    final Map<String,MatchingRuleUseDefinition> mruMap,
-                    final Schema existingSchema,
-                    final List<String> errorMessages)
+  private void validateMatchingRuleUses(@NotNull final Entry schemaEntry,
+                    @NotNull final File schemaFile,
+                    @NotNull final Map<String,MatchingRuleUseDefinition> mruMap,
+                    @NotNull final Schema existingSchema,
+                    @NotNull final List<String> errorMessages)
   {
     for (final String mruString :
          schemaEntry.getAttributeValues(Schema.ATTR_MATCHING_RULE_USE))
@@ -4197,7 +4215,8 @@ public final class SchemaValidator
    *
    * @throws  ParseException  If the provided OID is not valid.
    */
-  private void validateOID(final String oid, final String[] names)
+  private void validateOID(@NotNull final String oid,
+                           @Nullable final String[] names)
        throws ParseException
   {
     try
@@ -4243,7 +4262,7 @@ public final class SchemaValidator
    *
    * @throws  ParseException  If the provided name is not valid.
    */
-  void validateName(final String name)
+  void validateName(@NotNull final String name)
        throws ParseException
   {
     if (name.isEmpty())

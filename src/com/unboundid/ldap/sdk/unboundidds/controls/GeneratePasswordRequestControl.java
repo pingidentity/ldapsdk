@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,7 +80,7 @@ public final class GeneratePasswordRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.58) for the generate password request
    * control.
    */
-  public static final  String GENERATE_PASSWORD_REQUEST_OID =
+  @NotNull public static final  String GENERATE_PASSWORD_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.58";
 
 
@@ -126,7 +127,7 @@ public final class GeneratePasswordRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         generate password request control.
    */
-  public GeneratePasswordRequestControl(final Control control)
+  public GeneratePasswordRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -144,6 +145,7 @@ public final class GeneratePasswordRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GENERATE_PASSWORD_REQUEST.get();
@@ -155,7 +157,7 @@ public final class GeneratePasswordRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GeneratePasswordRequestControl(isCritical=");
     buffer.append(isCritical());

@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -109,7 +111,7 @@ public final class UndeleteRequestControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.23) for the undelete request control.
    */
-  public static final String UNDELETE_REQUEST_OID =
+  @NotNull public static final String UNDELETE_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.23";
 
 
@@ -118,7 +120,7 @@ public final class UndeleteRequestControl
    * The name of the optional attribute used to specify a set of changes to
    * apply to the soft-deleted entry during the course of the undelete.
    */
-  public static final String ATTR_CHANGES = "ds-undelete-changes";
+  @NotNull public static final String ATTR_CHANGES = "ds-undelete-changes";
 
 
 
@@ -127,7 +129,7 @@ public final class UndeleteRequestControl
    * newly-undeleted user account should be disabled and prevented from
    * authenticating.
    */
-  public static final String ATTR_DISABLE_ACCOUNT =
+  @NotNull public static final String ATTR_DISABLE_ACCOUNT =
        "ds-undelete-disable-account";
 
 
@@ -138,7 +140,7 @@ public final class UndeleteRequestControl
    * immediately after authenticating and before being required to request any
    * other operations.
    */
-  public static final String ATTR_MUST_CHANGE_PASSWORD =
+  @NotNull public static final String ATTR_MUST_CHANGE_PASSWORD =
        "ds-undelete-must-change-password";
 
 
@@ -147,7 +149,8 @@ public final class UndeleteRequestControl
    * The name of the optional attribute used to specify the new password for use
    * in the newly-undeleted entry.
    */
-  public static final String ATTR_NEW_PASSWORD = "ds-undelete-new-password";
+  @NotNull public static final String ATTR_NEW_PASSWORD =
+       "ds-undelete-new-password";
 
 
 
@@ -156,7 +159,8 @@ public final class UndeleteRequestControl
    * contained in the soft-deleted entry, to be validated as part of the
    * undelete process.
    */
-  public static final String ATTR_OLD_PASSWORD = "ds-undelete-old-password";
+  @NotNull public static final String ATTR_OLD_PASSWORD =
+       "ds-undelete-old-password";
 
 
 
@@ -164,7 +168,8 @@ public final class UndeleteRequestControl
    * The name of the required attribute used to specify the DN of the
    * soft-deleted entry to be undeleted.
    */
-  public static final String ATTR_SOFT_DELETED_ENTRY_DN = "ds-undelete-from-dn";
+  @NotNull public static final String ATTR_SOFT_DELETED_ENTRY_DN =
+       "ds-undelete-from-dn";
 
 
 
@@ -195,7 +200,7 @@ public final class UndeleteRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         undelete request control.
    */
-  public UndeleteRequestControl(final Control control)
+  public UndeleteRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -245,8 +250,9 @@ public final class UndeleteRequestControl
    *
    * @return  An add request with an appropriate set of content
    */
-  public static AddRequest createUndeleteRequest(final String targetDN,
-                                final String softDeletedEntryDN)
+  @NotNull()
+  public static AddRequest createUndeleteRequest(@NotNull final String targetDN,
+                                @NotNull final String softDeletedEntryDN)
   {
     return createUndeleteRequest(targetDN, softDeletedEntryDN, null, null, null,
          null, null);
@@ -292,13 +298,14 @@ public final class UndeleteRequestControl
    *
    * @return  An add request with an appropriate set of content
    */
-  public static AddRequest createUndeleteRequest(final String targetDN,
-                                final String softDeletedEntryDN,
-                                final List<Modification> changes,
-                                final String oldPassword,
-                                final String newPassword,
-                                final Boolean mustChangePassword,
-                                final Boolean disableAccount)
+  @NotNull()
+  public static AddRequest createUndeleteRequest(@NotNull final String targetDN,
+                                @NotNull final String softDeletedEntryDN,
+                                @Nullable final List<Modification> changes,
+                                @Nullable final String oldPassword,
+                                @Nullable final String newPassword,
+                                @Nullable final Boolean mustChangePassword,
+                                @Nullable final Boolean disableAccount)
   {
     final ArrayList<Attribute> attributes = new ArrayList<>(6);
     attributes.add(new Attribute(ATTR_SOFT_DELETED_ENTRY_DN,
@@ -362,6 +369,7 @@ public final class UndeleteRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_UNDELETE_REQUEST.get();
@@ -373,7 +381,7 @@ public final class UndeleteRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UndeleteRequestControl(isCritical=");
     buffer.append(isCritical());

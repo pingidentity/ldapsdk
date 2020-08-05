@@ -41,6 +41,7 @@ import java.io.Serializable;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -108,10 +109,10 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
   private final long maxResponseTime;
 
   // The search request to send to the server.
-  private final SearchRequest searchRequest;
+  @NotNull private final SearchRequest searchRequest;
 
   // The DN of the entry to retrieve.
-  private final String entryDN;
+  @NotNull private final String entryDN;
 
 
 
@@ -152,7 +153,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    *                                    exception is encountered when using the
    *                                    connection.
    */
-  public GetEntryLDAPConnectionPoolHealthCheck(final String entryDN,
+  public GetEntryLDAPConnectionPoolHealthCheck(@NotNull final String entryDN,
               final long maxResponseTime, final boolean invokeOnCreate,
               final boolean invokeOnCheckout, final boolean invokeOnRelease,
               final boolean invokeForBackgroundChecks,
@@ -208,7 +209,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    *              entry if an exception is encountered when using the
    *              connection.
    */
-  public GetEntryLDAPConnectionPoolHealthCheck(final String entryDN,
+  public GetEntryLDAPConnectionPoolHealthCheck(@NotNull final String entryDN,
               final long maxResponseTime, final boolean invokeOnCreate,
               final boolean invokeAfterAuthentication,
               final boolean invokeOnCheckout, final boolean invokeOnRelease,
@@ -251,7 +252,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void ensureNewConnectionValid(final LDAPConnection connection)
+  public void ensureNewConnectionValid(@NotNull final LDAPConnection connection)
          throws LDAPException
   {
     if (invokeOnCreate)
@@ -267,7 +268,8 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    */
   @Override()
   public void ensureConnectionValidAfterAuthentication(
-                   final LDAPConnection connection, final BindResult bindResult)
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final BindResult bindResult)
          throws LDAPException
   {
     if (invokeAfterAuthentication &&
@@ -283,7 +285,8 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void ensureConnectionValidForCheckout(final LDAPConnection connection)
+  public void ensureConnectionValidForCheckout(
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     if (invokeOnCheckout)
@@ -298,7 +301,8 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void ensureConnectionValidForRelease(final LDAPConnection connection)
+  public void ensureConnectionValidForRelease(
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     if (invokeOnRelease)
@@ -314,7 +318,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    */
   @Override()
   public void ensureConnectionValidForContinuedUse(
-                   final LDAPConnection connection)
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     if (invokeForBackgroundChecks)
@@ -330,8 +334,8 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    */
   @Override()
   public void ensureConnectionValidAfterException(
-                   final LDAPConnection connection,
-                   final LDAPException exception)
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final LDAPException exception)
          throws LDAPException
   {
     if (invokeOnException &&
@@ -350,6 +354,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * @return  The DN of the entry that will be retrieved when performing the
    *          health checks.
    */
+  @NotNull()
   public String getEntryDN()
   {
     return entryDN;
@@ -475,7 +480,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    *                         entry, or if it cannot be retrieved in an
    *                         acceptable length of time.
    */
-  private void getEntry(final LDAPConnection conn)
+  private void getEntry(@NotNull final LDAPConnection conn)
           throws LDAPException
   {
     try
@@ -505,7 +510,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetEntryLDAPConnectionPoolHealthCheck(entryDN='");
     buffer.append(entryDN);

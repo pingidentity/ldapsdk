@@ -62,6 +62,8 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -80,14 +82,14 @@ public final class JNDIConverter
   /**
    * An empty array of attributes.
    */
-  private static final Attribute[] NO_ATTRIBUTES = new Attribute[0];
+  @NotNull private static final Attribute[] NO_ATTRIBUTES = new Attribute[0];
 
 
 
   /**
    * An empty array of JNDI controls.
    */
-  private static final javax.naming.ldap.Control[] NO_JNDI_CONTROLS =
+  @NotNull private static final javax.naming.ldap.Control[] NO_JNDI_CONTROLS =
        new javax.naming.ldap.Control[0];
 
 
@@ -95,14 +97,15 @@ public final class JNDIConverter
   /**
    * An empty array of SDK modifications.
    */
-  private static final Modification[] NO_MODIFICATIONS = new Modification[0];
+  @NotNull private static final Modification[] NO_MODIFICATIONS =
+       new Modification[0];
 
 
 
   /**
    * An empty array of JNDI modification items.
    */
-  private static final ModificationItem[] NO_MODIFICATION_ITEMS =
+  @NotNull private static final ModificationItem[] NO_MODIFICATION_ITEMS =
        new ModificationItem[0];
 
 
@@ -110,7 +113,7 @@ public final class JNDIConverter
   /**
    * An empty array of SDK controls.
    */
-  private static final Control[] NO_SDK_CONTROLS = new Control[0];
+  @NotNull private static final Control[] NO_SDK_CONTROLS = new Control[0];
 
 
 
@@ -135,8 +138,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
+  @Nullable()
   public static Attribute convertAttribute(
-                               final javax.naming.directory.Attribute a)
+                     @Nullable final javax.naming.directory.Attribute a)
          throws NamingException
   {
     if (a == null)
@@ -173,8 +177,9 @@ public final class JNDIConverter
    * @return  The JNDI attribute that corresponds to the provided LDAP SDK
    *          attribute.
    */
+  @Nullable()
   public static javax.naming.directory.Attribute convertAttribute(
-                                                      final Attribute a)
+                     @Nullable final Attribute a)
   {
     if (a == null)
     {
@@ -203,7 +208,8 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Attribute[] convertAttributes(final Attributes a)
+  @NotNull()
+  public static Attribute[] convertAttributes(@Nullable final Attributes a)
          throws NamingException
   {
     if (a == null)
@@ -242,7 +248,8 @@ public final class JNDIConverter
    * @return  The JNDI attributes that corresponds to the provided LDAP SDK
    *          attributes.
    */
-  public static Attributes convertAttributes(final Attribute... a)
+  @NotNull()
+  public static Attributes convertAttributes(@Nullable final Attribute... a)
   {
     final BasicAttributes attrs = new BasicAttributes(true);
     if (a == null)
@@ -269,7 +276,9 @@ public final class JNDIConverter
    * @return  The JNDI attributes that corresponds to the provided LDAP SDK
    *          attributes.
    */
-  public static Attributes convertAttributes(final Collection<Attribute> a)
+  @NotNull()
+  public static Attributes convertAttributes(
+                                @Nullable final Collection<Attribute> a)
   {
     final BasicAttributes attrs = new BasicAttributes(true);
     if (a == null)
@@ -298,7 +307,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Control convertControl(final javax.naming.ldap.Control c)
+  @Nullable
+  public static Control convertControl(
+                             @Nullable final javax.naming.ldap.Control c)
          throws NamingException
   {
     if (c == null)
@@ -337,7 +348,9 @@ public final class JNDIConverter
    * @return  The JNDI control that corresponds to the provided LDAP SDK
    *          control.
    */
-  public static javax.naming.ldap.Control convertControl(final Control c)
+  @Nullable()
+  public static javax.naming.ldap.Control convertControl(
+                                               @Nullable final Control c)
   {
     if (c == null)
     {
@@ -369,7 +382,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Control[] convertControls(final javax.naming.ldap.Control... c)
+  @NotNull()
+  public static Control[] convertControls(
+                               @Nullable final javax.naming.ldap.Control... c)
          throws NamingException
   {
     if (c == null)
@@ -397,7 +412,9 @@ public final class JNDIConverter
    * @return  The array of JNDI controls that corresponds to the provided array
    *          of LDAP SDK controls.
    */
-  public static javax.naming.ldap.Control[] convertControls(final Control... c)
+  @NotNull()
+  public static javax.naming.ldap.Control[] convertControls(
+                                                 @Nullable final Control... c)
   {
     if (c == null)
     {
@@ -428,8 +445,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
+  @Nullable()
   public static ExtendedRequest convertExtendedRequest(
-                                     final javax.naming.ldap.ExtendedRequest r)
+                     @Nullable final javax.naming.ldap.ExtendedRequest r)
          throws NamingException
   {
     if (r == null)
@@ -450,8 +468,9 @@ public final class JNDIConverter
    * @return  The JNDI extended request that corresponds to the provided LDAP
    *          SDK extended request.
    */
+  @Nullable()
   public static javax.naming.ldap.ExtendedRequest convertExtendedRequest(
-                                                       final ExtendedRequest r)
+                     @Nullable final ExtendedRequest r)
   {
     if (r == null)
     {
@@ -475,7 +494,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static ExtendedResult convertExtendedResponse(final ExtendedResponse r)
+  @Nullable()
+  public static ExtendedResult convertExtendedResponse(
+                                    @Nullable final ExtendedResponse r)
          throws NamingException
   {
     if (r == null)
@@ -496,7 +517,9 @@ public final class JNDIConverter
    * @return  The JNDI extended response that corresponds to the provided LDAP
    *          SDK extended result.
    */
-  public static ExtendedResponse convertExtendedResult(final ExtendedResult r)
+  @Nullable()
+  public static ExtendedResponse convertExtendedResult(
+                                      @Nullable final ExtendedResult r)
   {
     if (r == null)
     {
@@ -519,7 +542,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Modification convertModification(final ModificationItem m)
+  @Nullable()
+  public static Modification convertModification(
+                                  @Nullable final ModificationItem m)
          throws NamingException
   {
     if (m == null)
@@ -561,7 +586,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static ModificationItem convertModification(final Modification m)
+  @Nullable()
+  public static ModificationItem convertModification(
+                                      @Nullable final Modification m)
          throws NamingException
   {
     if (m == null)
@@ -602,7 +629,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Modification[] convertModifications(final ModificationItem... m)
+  @NotNull()
+  public static Modification[] convertModifications(
+                                    @Nullable final ModificationItem... m)
          throws NamingException
   {
     if (m == null)
@@ -633,7 +662,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static ModificationItem[] convertModifications(final Modification... m)
+  @NotNull()
+  public static ModificationItem[] convertModifications(
+                                        @Nullable final Modification... m)
          throws NamingException
   {
     if (m == null)
@@ -663,7 +694,8 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Entry convertSearchEntry(final SearchResult r)
+  @Nullable()
+  public static Entry convertSearchEntry(@Nullable final SearchResult r)
          throws NamingException
   {
     return convertSearchEntry(r, null);
@@ -687,8 +719,9 @@ public final class JNDIConverter
    * @throws  NamingException  If a problem is encountered during the conversion
    *                           process.
    */
-  public static Entry convertSearchEntry(final SearchResult r,
-                                         final String contextBaseDN)
+  @Nullable
+  public static Entry convertSearchEntry(@Nullable final SearchResult r,
+                                         @Nullable final String contextBaseDN)
          throws NamingException
   {
     if (r == null)
@@ -727,7 +760,8 @@ public final class JNDIConverter
    * @return  The JNDI search result that corresponds to the provided LDAP SDK
    *          entry.
    */
-  public static SearchResult convertSearchEntry(final Entry e)
+  @Nullable()
+  public static SearchResult convertSearchEntry(@Nullable final Entry e)
   {
     return convertSearchEntry(e, null);
   }
@@ -748,8 +782,9 @@ public final class JNDIConverter
    * @return  The JNDI search result that corresponds to the provided LDAP SDK
    *          entry.
    */
-  public static SearchResult convertSearchEntry(final Entry e,
-                                                final String contextBaseDN)
+  @Nullable()
+  public static SearchResult convertSearchEntry(@Nullable final Entry e,
+                                  @Nullable final String contextBaseDN)
   {
     if (e == null)
     {

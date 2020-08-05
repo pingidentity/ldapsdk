@@ -52,6 +52,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OID;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
@@ -177,31 +178,31 @@ public final class GeneralNames
 
 
   // The EDI party names included in the extension.
-  private final List<ASN1Element> ediPartyNames;
+  @NotNull private final List<ASN1Element> ediPartyNames;
 
   // The X.400 names included in the extension.
-  private final List<ASN1Element> x400Addresses;
+  @NotNull private final List<ASN1Element> x400Addresses;
 
   // The directory names included in the extension.
-  private final List<DN> directoryNames;
+  @NotNull private final List<DN> directoryNames;
 
   // The IP addresses included in the extension.
-  private final List<InetAddress> ipAddresses;
+  @NotNull private final List<InetAddress> ipAddresses;
 
   // The other names included in the extension.
-  private final List<ObjectPair<OID,ASN1Element>> otherNames;
+  @NotNull private final List<ObjectPair<OID,ASN1Element>> otherNames;
 
   // The registered IDs included in the extension.
-  private final List<OID> registeredIDs;
+  @NotNull private final List<OID> registeredIDs;
 
   // The DNS names included in the extension.
-  private final List<String> dnsNames;
+  @NotNull private final List<String> dnsNames;
 
   // The RFC 822 names (email addresses) in the extension.
-  private final List<String> rfc822Names;
+  @NotNull private final List<String> rfc822Names;
 
   // The uniform resource identifiers in the extension.
-  private final List<String> uniformResourceIdentifiers;
+  @NotNull private final List<String> uniformResourceIdentifiers;
 
 
 
@@ -238,14 +239,15 @@ public final class GeneralNames
    *                                     include in the object.  This must not
    *                                     be {@code null} but may be empty.
    */
-  GeneralNames(final List<ObjectPair<OID,ASN1Element>> otherNames,
-               final List<String> rfc822Names, final List<String> dnsNames,
-               final List<ASN1Element> x400Addresses,
-               final List<DN> directoryNames,
-               final List<ASN1Element> ediPartyNames,
-               final List<String> uniformResourceIdentifiers,
-               final List<InetAddress> ipAddresses,
-               final List<OID> registeredIDs)
+  GeneralNames(@NotNull final List<ObjectPair<OID,ASN1Element>> otherNames,
+               @NotNull final List<String> rfc822Names,
+               @NotNull final List<String> dnsNames,
+               @NotNull final List<ASN1Element> x400Addresses,
+               @NotNull final List<DN> directoryNames,
+               @NotNull final List<ASN1Element> ediPartyNames,
+               @NotNull final List<String> uniformResourceIdentifiers,
+               @NotNull final List<InetAddress> ipAddresses,
+               @NotNull final List<OID> registeredIDs)
   {
     this.otherNames = otherNames;
     this.rfc822Names = rfc822Names;
@@ -269,7 +271,7 @@ public final class GeneralNames
    * @throws  CertException  If the provided element cannot be decoded as a
    *                         general names element.
    */
-  GeneralNames(final ASN1Element element)
+  GeneralNames(@NotNull final ASN1Element element)
        throws CertException
   {
     try
@@ -365,6 +367,7 @@ public final class GeneralNames
    * @throws  CertException  If a problem is encountered while encoding the
    *                         set of general name values.
    */
+  @NotNull()
   ASN1Element encode()
        throws CertException
   {
@@ -444,6 +447,7 @@ public final class GeneralNames
    *
    * @return  The otherName elements from the extension.
    */
+  @NotNull()
   public List<ObjectPair<OID,ASN1Element>> getOtherNames()
   {
     return otherNames;
@@ -456,6 +460,7 @@ public final class GeneralNames
    *
    * @return  The RFC 822 names from the extension.
    */
+  @NotNull()
   public List<String> getRFC822Names()
   {
     return rfc822Names;
@@ -468,6 +473,7 @@ public final class GeneralNames
    *
    * @return  The DNS names from the extension.
    */
+  @NotNull()
   public List<String> getDNSNames()
   {
     return dnsNames;
@@ -480,6 +486,7 @@ public final class GeneralNames
    *
    * @return  The x400Address elements from the extension.
    */
+  @NotNull()
   public List<ASN1Element> getX400Addresses()
   {
     return x400Addresses;
@@ -492,6 +499,7 @@ public final class GeneralNames
    *
    * @return  The directory names from the extension.
    */
+  @NotNull()
   public List<DN> getDirectoryNames()
   {
     return directoryNames;
@@ -504,6 +512,7 @@ public final class GeneralNames
    *
    * @return  The ediPartyName elements from the extension.
    */
+  @NotNull()
   public List<ASN1Element> getEDIPartyNames()
   {
     return ediPartyNames;
@@ -516,6 +525,7 @@ public final class GeneralNames
    *
    * @return  The URIs from the extension.
    */
+  @NotNull()
   public List<String> getUniformResourceIdentifiers()
   {
     return uniformResourceIdentifiers;
@@ -528,6 +538,7 @@ public final class GeneralNames
    *
    * @return  The IP addresses from the extension.
    */
+  @NotNull()
   public List<InetAddress> getIPAddresses()
   {
     return ipAddresses;
@@ -540,6 +551,7 @@ public final class GeneralNames
    *
    * @return  The registeredID elements from the extension.
    */
+  @NotNull()
   public List<OID> getRegisteredIDs()
   {
     return registeredIDs;
@@ -553,6 +565,7 @@ public final class GeneralNames
    * @return  A string representation of this general names element.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -568,7 +581,7 @@ public final class GeneralNames
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GeneralNames(");
 

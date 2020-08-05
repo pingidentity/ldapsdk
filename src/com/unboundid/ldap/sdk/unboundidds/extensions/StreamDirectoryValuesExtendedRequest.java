@@ -55,6 +55,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -110,7 +112,7 @@ public final class StreamDirectoryValuesExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.6) for the get stream directory values
    * extended request.
    */
-  public static final String STREAM_DIRECTORY_VALUES_REQUEST_OID =
+  @NotNull public static final String STREAM_DIRECTORY_VALUES_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.6";
 
 
@@ -175,13 +177,13 @@ public final class StreamDirectoryValuesExtendedRequest
   private final int valuesPerResponse;
 
   // The list of attribute values to be returned.
-  private final List<String> attributes;
+  @NotNull private final List<String> attributes;
 
   // The search scope to use if DN values are to be included.
-  private final SearchScope dnScope;
+  @Nullable private final SearchScope dnScope;
 
   // The base DN for this stream directory values request.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
 
 
@@ -208,10 +210,12 @@ public final class StreamDirectoryValuesExtendedRequest
    *                            It may be {@code null} or empty if no controls
    *                            should be included in the request.
    */
-  public StreamDirectoryValuesExtendedRequest(final String baseDN,
-              final SearchScope dnScope, final boolean returnRelativeDNs,
-              final List<String> attributes, final int valuesPerResponse,
-              final Control... controls)
+  public StreamDirectoryValuesExtendedRequest(@NotNull final String baseDN,
+              @Nullable final SearchScope dnScope,
+              final boolean returnRelativeDNs,
+              @Nullable final List<String> attributes,
+              final int valuesPerResponse,
+              @Nullable final Control... controls)
   {
     super(STREAM_DIRECTORY_VALUES_REQUEST_OID,
          encodeValue(baseDN, dnScope, returnRelativeDNs, attributes,
@@ -253,7 +257,7 @@ public final class StreamDirectoryValuesExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public StreamDirectoryValuesExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -387,9 +391,12 @@ public final class StreamDirectoryValuesExtendedRequest
    * @return  The ASN.1 octet string containing the encoded value to use for
    *          this extended request.
    */
-  private static ASN1OctetString encodeValue(final String baseDN,
-       final SearchScope scope, final boolean relativeDNs,
-       final List<String> attributes, final int valuesPerResponse)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String baseDN,
+               @Nullable final SearchScope scope,
+               final boolean relativeDNs,
+               @Nullable final List<String> attributes,
+               final int valuesPerResponse)
   {
     Validator.ensureNotNull(baseDN);
 
@@ -436,6 +443,7 @@ public final class StreamDirectoryValuesExtendedRequest
    *
    * @return  The base DN for this request.
    */
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -450,6 +458,7 @@ public final class StreamDirectoryValuesExtendedRequest
    *          or {@code null} if information about entry DNs should not be
    *          returned.
    */
+  @Nullable()
   public SearchScope getDNScope()
   {
     return dnScope;
@@ -479,6 +488,7 @@ public final class StreamDirectoryValuesExtendedRequest
    *          the client, or an empty list if only information about entry DNs
    *          should be returned.
    */
+  @NotNull()
   public List<String> getAttributes()
   {
     return attributes;
@@ -505,6 +515,7 @@ public final class StreamDirectoryValuesExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StreamDirectoryValuesExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -516,8 +527,9 @@ public final class StreamDirectoryValuesExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StreamDirectoryValuesExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final StreamDirectoryValuesExtendedRequest r =
          new StreamDirectoryValuesExtendedRequest(baseDN, dnScope,
@@ -532,6 +544,7 @@ public final class StreamDirectoryValuesExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_STREAM_DIRECTORY_VALUES.get();
@@ -543,7 +556,7 @@ public final class StreamDirectoryValuesExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StreamDirectoryValuesExtendedRequest(baseDN='");
     buffer.append(baseDN);

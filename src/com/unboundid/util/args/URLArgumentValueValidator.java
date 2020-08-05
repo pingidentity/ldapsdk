@@ -47,6 +47,8 @@ import java.util.Set;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,7 +77,7 @@ public final class URLArgumentValueValidator
 
 
   // The set of schemes allowed to be used in URLs.
-  private final Set<String> allowedSchemes;
+  @NotNull private final Set<String> allowedSchemes;
 
 
 
@@ -87,7 +89,7 @@ public final class URLArgumentValueValidator
    *                         accepted.  It may be {@code null} or empty if any
    *                         scheme will be accepted.
    */
-  public URLArgumentValueValidator(final String... allowedSchemes)
+  public URLArgumentValueValidator(@Nullable final String... allowedSchemes)
   {
     this(StaticUtils.toList(allowedSchemes));
   }
@@ -102,7 +104,8 @@ public final class URLArgumentValueValidator
    *                         accepted.  It may be {@code null} or empty if any
    *                         scheme will be accepted.
    */
-  public URLArgumentValueValidator(final Collection<String> allowedSchemes)
+  public URLArgumentValueValidator(
+              @Nullable final Collection<String> allowedSchemes)
   {
     if (allowedSchemes == null)
     {
@@ -123,6 +126,7 @@ public final class URLArgumentValueValidator
    * @return  The names of the schemes for the URLs that will be accepted, or
    *          an empty set if URLs will be allowed to have any scheme.
    */
+  @NotNull()
   public Set<String> getAllowedSchemes()
   {
     return allowedSchemes;
@@ -134,8 +138,8 @@ public final class URLArgumentValueValidator
    * {@inheritDoc}
    */
   @Override()
-  public void validateArgumentValue(final Argument argument,
-                                    final String valueString)
+  public void validateArgumentValue(@NotNull final Argument argument,
+                                    @NotNull final String valueString)
          throws ArgumentException
   {
     final URI uri;
@@ -176,6 +180,7 @@ public final class URLArgumentValueValidator
    * @return  A string representation of this argument value validator.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -192,30 +197,24 @@ public final class URLArgumentValueValidator
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("URLArgumentValueValidator(");
+    buffer.append("allowedSchemes={");
 
-    if (allowedSchemes != null)
+    final Iterator<String> iterator = allowedSchemes.iterator();
+    while (iterator.hasNext())
     {
-      buffer.append("allowedSchemes={");
+      buffer.append('\'');
+      buffer.append(iterator.next());
+      buffer.append('\'');
 
-      final Iterator<String> iterator = allowedSchemes.iterator();
-      while (iterator.hasNext())
+      if (iterator.hasNext())
       {
-        buffer.append('\'');
-        buffer.append(iterator.next());
-        buffer.append('\'');
-
-        if (iterator.hasNext())
-        {
-          buffer.append(", ");
-        }
+        buffer.append(", ");
       }
-
-      buffer.append('}');
     }
 
-    buffer.append(')');
+    buffer.append("})");
   }
 }

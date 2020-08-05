@@ -62,6 +62,8 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -130,7 +132,7 @@ public final class TLSCipherSuiteSelector
   /**
    * The singleton instance of this TLS cipher suite selector.
    */
-  private static final TLSCipherSuiteSelector INSTANCE =
+  @NotNull private static final TLSCipherSuiteSelector INSTANCE =
        new TLSCipherSuiteSelector();
 
 
@@ -138,22 +140,23 @@ public final class TLSCipherSuiteSelector
   // Retrieves a map of the supported cipher suites that are not recommended
   // for use, mapped to a list of the reasons that the cipher suites are not
   // recommended.
-  private final SortedMap<String,List<String>> nonRecommendedCipherSuites;
+  @NotNull private final SortedMap<String,List<String>>
+       nonRecommendedCipherSuites;
 
   // The set of TLS cipher suites enabled in the JVM by default, sorted in
   // order of most preferred to least preferred.
-  private final SortedSet<String> defaultCipherSuites;
+  @NotNull private final SortedSet<String> defaultCipherSuites;
 
   // The recommended set of TLS cipher suites selected by this class, sorted in
   // order of most preferred to least preferred.
-  private final SortedSet<String> recommendedCipherSuites;
+  @NotNull private final SortedSet<String> recommendedCipherSuites;
 
   // The full set of TLS cipher suites supported in the JVM, sorted in order of
   // most preferred to least preferred.
-  private final SortedSet<String> supportedCipherSuites;
+  @NotNull private final SortedSet<String> supportedCipherSuites;
 
   // The recommended set of TLS cipher suites as an array rather than a set.
-  private final String[] recommendedCipherSuiteArray;
+  @NotNull private final String[] recommendedCipherSuiteArray;
 
 
 
@@ -162,7 +165,7 @@ public final class TLSCipherSuiteSelector
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -185,8 +188,9 @@ public final class TLSCipherSuiteSelector
    * @return  A result code that indicates whether the processing was
    *          successful.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final TLSCipherSuiteSelector tool = new TLSCipherSuiteSelector(out, err);
     return tool.runTool(args);
@@ -216,8 +220,8 @@ public final class TLSCipherSuiteSelector
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public TLSCipherSuiteSelector(final OutputStream out,
-                                 final OutputStream err)
+  public TLSCipherSuiteSelector(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -284,6 +288,7 @@ public final class TLSCipherSuiteSelector
    *
    * @return  The set of all TLS cipher suites supported by the JVM.
    */
+  @NotNull()
   public static SortedSet<String> getSupportedCipherSuites()
   {
     return INSTANCE.supportedCipherSuites;
@@ -298,6 +303,7 @@ public final class TLSCipherSuiteSelector
    *
    * @return  The set of TLS cipher suites enabled by default in the JVM.
    */
+  @NotNull()
   public static SortedSet<String> getDefaultCipherSuites()
   {
     return INSTANCE.defaultCipherSuites;
@@ -313,6 +319,7 @@ public final class TLSCipherSuiteSelector
    * @return  The recommended set of TLS cipher suites as selected by this
    *          class.
    */
+  @NotNull()
   public static SortedSet<String> getRecommendedCipherSuites()
   {
     return INSTANCE.recommendedCipherSuites;
@@ -329,6 +336,7 @@ public final class TLSCipherSuiteSelector
    * @return  An array containing the recommended set of TLS cipher suites as
    *          selected by this class.
    */
+  @NotNull()
   public static String[] getRecommendedCipherSuiteArray()
   {
     return INSTANCE.recommendedCipherSuiteArray.clone();
@@ -347,6 +355,7 @@ public final class TLSCipherSuiteSelector
    * @return  A map containing the TLS cipher suites that are supported by the
    *          JVM but are not recommended for use
    */
+  @NotNull()
   public static SortedMap<String,List<String>> getNonRecommendedCipherSuites()
   {
     return INSTANCE.nonRecommendedCipherSuites;
@@ -365,8 +374,9 @@ public final class TLSCipherSuiteSelector
    *          map of non-recommended cipher suites and the reasons they are not
    *          recommended for use.
    */
+  @NotNull()
   static ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
-       selectCipherSuites(final String[] cipherSuiteArray)
+       selectCipherSuites(@NotNull final String[] cipherSuiteArray)
   {
     final SortedSet<String> recommendedSet =
          new TreeSet<>(TLSCipherSuiteComparator.getInstance());
@@ -564,6 +574,7 @@ public final class TLSCipherSuiteSelector
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "tls-cipher-suite-selector";
@@ -575,6 +586,7 @@ public final class TLSCipherSuiteSelector
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_TLS_CIPHER_SUITE_SELECTOR_TOOL_DESC.get();
@@ -586,6 +598,7 @@ public final class TLSCipherSuiteSelector
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -597,7 +610,7 @@ public final class TLSCipherSuiteSelector
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
        throws ArgumentException
   {
     // This tool does not require any arguments.
@@ -609,6 +622,7 @@ public final class TLSCipherSuiteSelector
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     generateOutput(getOut());
@@ -622,7 +636,7 @@ public final class TLSCipherSuiteSelector
    *
    * @param  s  The print stream to which the output should be written.
    */
-  private void generateOutput(final PrintStream s)
+  private void generateOutput(@NotNull final PrintStream s)
   {
     s.println("Supported TLS Cipher Suites:");
     for (final String cipherSuite : supportedCipherSuites)
@@ -670,8 +684,9 @@ public final class TLSCipherSuiteSelector
    *          or an empty set if none of the potential provided suite names are
    *          supported by the JVM.
    */
+  @NotNull()
   public static Set<String> selectSupportedCipherSuites(
-       final Collection<String> potentialSuiteNames)
+                     @Nullable final Collection<String> potentialSuiteNames)
   {
     if (potentialSuiteNames == null)
     {

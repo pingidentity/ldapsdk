@@ -46,6 +46,8 @@ import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -79,7 +81,7 @@ public final class BasicConstraintsExtension
   /**
    * The OID (2.5.29.19) for basic constraints extensions.
    */
-  public static final OID BASIC_CONSTRAINTS_OID = new OID("2.5.29.19");
+  @NotNull public static final OID BASIC_CONSTRAINTS_OID = new OID("2.5.29.19");
 
 
 
@@ -94,7 +96,7 @@ public final class BasicConstraintsExtension
   private final boolean isCA;
 
   // The path length constraint for paths that include the certificate.
-  private final Integer pathLengthConstraint;
+  @Nullable private final Integer pathLengthConstraint;
 
 
 
@@ -111,7 +113,7 @@ public final class BasicConstraintsExtension
    *                               the extension.
    */
   BasicConstraintsExtension(final boolean isCritical, final boolean isCA,
-                            final Integer pathLengthConstraint)
+                            @Nullable final Integer pathLengthConstraint)
   {
     super(BASIC_CONSTRAINTS_OID, isCritical,
          encodeValue(isCA, pathLengthConstraint));
@@ -132,7 +134,7 @@ public final class BasicConstraintsExtension
    * @throws  CertException  If the provided extension cannot be decoded as a
    *                         basic constraints extension.
    */
-  BasicConstraintsExtension(final X509CertificateExtension extension)
+  BasicConstraintsExtension(@NotNull final X509CertificateExtension extension)
        throws CertException
   {
     super(extension);
@@ -182,8 +184,9 @@ public final class BasicConstraintsExtension
    *
    * @return  The encoded extension value.
    */
+  @NotNull()
   private static byte[] encodeValue(final boolean isCA,
-                                    final Integer pathLengthConstraint)
+                             @Nullable final Integer pathLengthConstraint)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     if (isCA)
@@ -224,6 +227,7 @@ public final class BasicConstraintsExtension
    * @return  The path length constraint for the associated certificate, or
    *          {@code null} if no path length constraint is defined.
    */
+  @Nullable()
   public Integer getPathLengthConstraint()
   {
     return pathLengthConstraint;
@@ -235,6 +239,7 @@ public final class BasicConstraintsExtension
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtensionName()
   {
     return INFO_BASIC_CONSTRAINTS_EXTENSION_NAME.get();
@@ -246,7 +251,7 @@ public final class BasicConstraintsExtension
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("BasicConstraintsExtension(oid='");
     buffer.append(getOID());

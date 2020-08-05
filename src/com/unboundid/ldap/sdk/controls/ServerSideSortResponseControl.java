@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -75,7 +77,7 @@ public final class ServerSideSortResponseControl
   /**
    * The OID (1.2.840.113556.1.4.474) for the server-side sort response control.
    */
-  public static final String SERVER_SIDE_SORT_RESPONSE_OID =
+  @NotNull public static final String SERVER_SIDE_SORT_RESPONSE_OID =
        "1.2.840.113556.1.4.474";
 
 
@@ -95,10 +97,10 @@ public final class ServerSideSortResponseControl
 
 
   // The result code for this server-side sort response control.
-  private final ResultCode resultCode;
+  @NotNull private final ResultCode resultCode;
 
   // The name of the attribute associated with this result, if available.
-  private final String attributeName;
+  @Nullable private final String attributeName;
 
 
 
@@ -123,8 +125,8 @@ public final class ServerSideSortResponseControl
    *                        result.  It may be {@code null} if there is no
    *                        associated attribute name.
    */
-  public ServerSideSortResponseControl(final ResultCode resultCode,
-                                       final String attributeName)
+  public ServerSideSortResponseControl(@NotNull final ResultCode resultCode,
+                                       @Nullable final String attributeName)
   {
     this(resultCode, attributeName, false);
   }
@@ -143,8 +145,8 @@ public final class ServerSideSortResponseControl
    *                        critical.  Response controls should generally not be
    *                        critical.
    */
-  public ServerSideSortResponseControl(final ResultCode resultCode,
-                                       final String attributeName,
+  public ServerSideSortResponseControl(@NotNull final ResultCode resultCode,
+                                       @Nullable final String attributeName,
                                        final boolean isCritical)
   {
     super(SERVER_SIDE_SORT_RESPONSE_OID, isCritical,
@@ -170,9 +172,9 @@ public final class ServerSideSortResponseControl
    *                         provided control as a server-side sort response
    *                         control.
    */
-  public ServerSideSortResponseControl(final String oid,
+  public ServerSideSortResponseControl(@NotNull final String oid,
                                        final boolean isCritical,
-                                       final ASN1OctetString value)
+                                       @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -235,9 +237,10 @@ public final class ServerSideSortResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public ServerSideSortResponseControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+  @NotNull()
+  public ServerSideSortResponseControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new ServerSideSortResponseControl(oid, isCritical, value);
@@ -259,7 +262,9 @@ public final class ServerSideSortResponseControl
    *                         decode the server-side sort response control
    *                         contained in the provided result.
    */
-  public static ServerSideSortResponseControl get(final SearchResult result)
+  @Nullable()
+  public static ServerSideSortResponseControl get(
+                     @NotNull final SearchResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(SERVER_SIDE_SORT_RESPONSE_OID);
@@ -293,8 +298,10 @@ public final class ServerSideSortResponseControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
-  private static ASN1OctetString encodeValue(final ResultCode resultCode,
-                                             final String attributeName)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+                      @NotNull final ResultCode resultCode,
+                      @Nullable final String attributeName)
   {
     final ASN1Element[] valueElements;
     if (attributeName == null)
@@ -323,6 +330,7 @@ public final class ServerSideSortResponseControl
    *
    * @return  The result code for this server-side sort response control.
    */
+  @NotNull()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -337,6 +345,7 @@ public final class ServerSideSortResponseControl
    * @return  The attribute name for this server-side sort response control, or
    *          {@code null} if none was provided.
    */
+  @Nullable()
   public String getAttributeName()
   {
     return attributeName;
@@ -348,6 +357,7 @@ public final class ServerSideSortResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SORT_RESPONSE.get();
@@ -359,7 +369,7 @@ public final class ServerSideSortResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ServerSideSortResponseControl(resultCode=");
     buffer.append(resultCode);

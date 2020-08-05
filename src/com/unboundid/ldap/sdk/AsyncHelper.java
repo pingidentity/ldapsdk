@@ -44,6 +44,8 @@ import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
@@ -66,23 +68,24 @@ final class AsyncHelper
 
 
   // The async request ID created for the associated operation.
-  private final AsyncRequestID asyncRequestID;
+  @NotNull private final AsyncRequestID asyncRequestID;
 
   // The async result listener to be notified when the response arrives.
-  private final AsyncResultListener resultListener;
+  @Nullable private final AsyncResultListener resultListener;
 
   // Indicates whether the final response has been returned.
-  private final AtomicBoolean responseReturned;
+  @NotNull private final AtomicBoolean responseReturned;
 
   // The BER type for the operation with which this helper is associated.
-  private final OperationType operationType;
+  @NotNull private final OperationType operationType;
 
   // The intermediate response listener to be notified of any intermediate
   // response messages received.
-  private final IntermediateResponseListener intermediateResponseListener;
+  @Nullable private final IntermediateResponseListener
+       intermediateResponseListener;
 
   // The connection with which this async helper is associated.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // The time that this async helper was created.
   private final long createTime;
@@ -106,10 +109,11 @@ final class AsyncHelper
    *                                       response messages received.
    */
   @InternalUseOnly()
-  AsyncHelper(final LDAPConnection connection,
-              final OperationType operationType, final int messageID,
-              final AsyncResultListener resultListener,
-              final IntermediateResponseListener intermediateResponseListener)
+  AsyncHelper(@NotNull final LDAPConnection connection,
+              @NotNull final OperationType operationType, final int messageID,
+              @Nullable final AsyncResultListener resultListener,
+              @Nullable final IntermediateResponseListener
+                   intermediateResponseListener)
   {
     this.connection                   = connection;
     this.operationType                = operationType;
@@ -127,6 +131,7 @@ final class AsyncHelper
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
@@ -138,6 +143,7 @@ final class AsyncHelper
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection()
   {
     return connection;
@@ -160,6 +166,7 @@ final class AsyncHelper
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OperationType getOperationType()
   {
     return operationType;
@@ -172,7 +179,7 @@ final class AsyncHelper
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@Nullable final LDAPResponse response)
          throws LDAPException
   {
     if (! responseReturned.compareAndSet(false, true))
@@ -239,7 +246,7 @@ final class AsyncHelper
   @InternalUseOnly()
   @Override()
   public void intermediateResponseReturned(
-                   final IntermediateResponse intermediateResponse)
+                   @NotNull final IntermediateResponse intermediateResponse)
   {
     if (intermediateResponseListener == null)
     {

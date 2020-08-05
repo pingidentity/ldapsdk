@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             InteractiveTransactionSpecificationRequestControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -195,8 +197,9 @@ public final class StartInteractiveTransactionExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.3) for the start interactive transaction
    * extended request.
    */
-  public static final String START_INTERACTIVE_TRANSACTION_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.6.3";
+  @NotNull public static final String
+       START_INTERACTIVE_TRANSACTION_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.6.3";
 
 
 
@@ -215,7 +218,7 @@ public final class StartInteractiveTransactionExtendedRequest
 
 
   // The base DN for this request, if specified.
-  private final String baseDN;
+  @Nullable private final String baseDN;
 
 
 
@@ -238,7 +241,8 @@ public final class StartInteractiveTransactionExtendedRequest
    * @param  baseDN  The base DN to use for the request.  It may be {@code null}
    *                 if no base DN should be provided.
    */
-  public StartInteractiveTransactionExtendedRequest(final String baseDN)
+  public StartInteractiveTransactionExtendedRequest(
+              @Nullable final String baseDN)
   {
     super(START_INTERACTIVE_TRANSACTION_REQUEST_OID, encodeValue(baseDN));
 
@@ -254,8 +258,9 @@ public final class StartInteractiveTransactionExtendedRequest
    *                   {@code null} if no base DN should be provided.
    * @param  controls  The set of controls to include in the request.
    */
-  public StartInteractiveTransactionExtendedRequest(final String baseDN,
-                                                    final Control[] controls)
+  public StartInteractiveTransactionExtendedRequest(
+              @Nullable final String baseDN,
+              @Nullable final Control[] controls)
   {
     super(START_INTERACTIVE_TRANSACTION_REQUEST_OID, encodeValue(baseDN),
           controls);
@@ -275,7 +280,7 @@ public final class StartInteractiveTransactionExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public StartInteractiveTransactionExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -334,7 +339,8 @@ public final class StartInteractiveTransactionExtendedRequest
    * @return  The ASN.1 octet string containing the encoded value, or
    *          {@code null} if no value should be used.
    */
-  private static ASN1OctetString encodeValue(final String baseDN)
+  @Nullable()
+  private static ASN1OctetString encodeValue(@Nullable final String baseDN)
   {
     if (baseDN == null)
     {
@@ -358,6 +364,7 @@ public final class StartInteractiveTransactionExtendedRequest
    * @return  The base DN for this start interactive transaction extended
    *          request, or {@code null} if none was provided.
    */
+  @Nullable()
   public String getBaseDN()
   {
     return baseDN;
@@ -369,8 +376,9 @@ public final class StartInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartInteractiveTransactionExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -383,6 +391,7 @@ public final class StartInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartInteractiveTransactionExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -394,8 +403,9 @@ public final class StartInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartInteractiveTransactionExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final StartInteractiveTransactionExtendedRequest r =
          new StartInteractiveTransactionExtendedRequest(baseDN, controls);
@@ -409,6 +419,7 @@ public final class StartInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_START_INTERACTIVE_TXN.get();
@@ -420,7 +431,7 @@ public final class StartInteractiveTransactionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StartInteractiveTransactionExtendedRequest(");
 

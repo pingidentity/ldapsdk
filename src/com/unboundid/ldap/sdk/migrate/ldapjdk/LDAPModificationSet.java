@@ -43,6 +43,7 @@ import java.util.Iterator;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -92,7 +93,7 @@ public class LDAPModificationSet
    * @param  op    The modification type for the modification.
    * @param  attr  The attribute for the modification.
    */
-  public void add(final int op, final LDAPAttribute attr)
+  public void add(final int op, @NotNull final LDAPAttribute attr)
   {
     mods.add(new LDAPModification(op, attr));
   }
@@ -109,6 +110,7 @@ public class LDAPModificationSet
    *
    * @throws  IndexOutOfBoundsException  If the provided index is invalid.
    */
+  @NotNull()
   public LDAPModification elementAt(final int index)
          throws IndexOutOfBoundsException
   {
@@ -139,7 +141,7 @@ public class LDAPModificationSet
    *
    * @param  name  The name of the attribute to remove.
    */
-  public void remove(final String name)
+  public void remove(@NotNull final String name)
   {
     final Iterator<LDAPModification> iterator = mods.iterator();
     while (iterator.hasNext())
@@ -172,6 +174,7 @@ public class LDAPModificationSet
    *
    * @return  An array of the LDAP modifications contained in this set.
    */
+  @NotNull()
   public LDAPModification[] toArray()
   {
     final LDAPModification[] modArray = new LDAPModification[mods.size()];
@@ -186,6 +189,7 @@ public class LDAPModificationSet
    * @return  A string representation of this modification set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return mods.toString();

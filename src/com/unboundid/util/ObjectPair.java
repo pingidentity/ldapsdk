@@ -62,10 +62,10 @@ public final class ObjectPair<F,S>
 
 
   // The first object in this pair.
-  private final F first;
+  @Nullable private final F first;
 
   // The second object in this pair.
-  private final S second;
+  @Nullable private final S second;
 
 
 
@@ -75,7 +75,7 @@ public final class ObjectPair<F,S>
    * @param  first   The first object in this pair.
    * @param  second  The second object in this pair.
    */
-  public ObjectPair(final F first, final S second)
+  public ObjectPair(@Nullable final F first, @Nullable final S second)
   {
     this.first  = first;
     this.second = second;
@@ -88,6 +88,7 @@ public final class ObjectPair<F,S>
    *
    * @return  The first object in this pair.
    */
+  @Nullable()
   public F getFirst()
   {
     return first;
@@ -100,6 +101,7 @@ public final class ObjectPair<F,S>
    *
    * @return  The second object in this pair.
    */
+  @Nullable()
   public S getSecond()
   {
     return second;
@@ -141,7 +143,7 @@ public final class ObjectPair<F,S>
    *          or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -200,6 +202,7 @@ public final class ObjectPair<F,S>
    * @return  A string representation of this object pair.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -214,7 +217,7 @@ public final class ObjectPair<F,S>
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ObjectPair(first=");
     buffer.append(String.valueOf(first));

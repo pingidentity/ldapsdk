@@ -40,6 +40,7 @@ package com.unboundid.util.ssl.cert;
 import java.io.Serializable;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,6 +68,7 @@ public abstract class DecodedPrivateKey
    * @return  A string representation of this decoded private key.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -82,5 +84,5 @@ public abstract class DecodedPrivateKey
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 }

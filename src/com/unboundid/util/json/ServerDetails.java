@@ -51,6 +51,7 @@ import com.unboundid.ldap.sdk.RoundRobinServerSet;
 import com.unboundid.ldap.sdk.ServerSet;
 import com.unboundid.ldap.sdk.SingleServerSet;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -72,7 +73,7 @@ final class ServerDetails
    * The name of the field that provides the address of a directory server
    * instance.  Its value must be a string.
    */
-  private static final String FIELD_ADDRESS = "address";
+  @NotNull private static final String FIELD_ADDRESS = "address";
 
 
 
@@ -83,7 +84,7 @@ final class ServerDetails
    * should be one of the following types:  failover-set, fastest-connect-set,
    * fewest-connections-set, round-robin-set, or single-server.
    */
-  private static final String FIELD_FAILOVER_ORDER = "failover-order";
+  @NotNull private static final String FIELD_FAILOVER_ORDER = "failover-order";
 
 
 
@@ -94,7 +95,7 @@ final class ServerDetails
    * contain the failover-order field and may optionally contain the
    * maximum-failover-connection-age-millis and  re-order-on-failover fields.
    */
-  private static final String FIELD_FAILOVER_SET = "failover-set";
+  @NotNull private static final String FIELD_FAILOVER_SET = "failover-set";
 
 
 
@@ -104,7 +105,8 @@ final class ServerDetails
    * accepts a connection first.  Its value must be a JSON object that must
    * contain only the servers field.
    */
-  private static final String FIELD_FASTEST_CONNECT_SET = "fastest-connect-set";
+  @NotNull private static final String FIELD_FASTEST_CONNECT_SET =
+       "fastest-connect-set";
 
 
 
@@ -114,7 +116,7 @@ final class ServerDetails
    * the fewest active connections.  Its value must be a JSON object that must
    * contain only the servers field.
    */
-  private static final String FIELD_FEWEST_CONNECTIONS_SET =
+  @NotNull private static final String FIELD_FEWEST_CONNECTIONS_SET =
        "fewest-connections-set";
 
 
@@ -129,7 +131,7 @@ final class ServerDetails
    * then these connections will be given the associated connection pool's
    * maximum connection age.
    */
-  private static final String FIELD_MAX_FAILOVER_CONN_AGE_MILLIS =
+  @NotNull private static final String FIELD_MAX_FAILOVER_CONN_AGE_MILLIS =
        "maximum-failover-connection-age-millis";
 
 
@@ -138,7 +140,7 @@ final class ServerDetails
    * The name of the field that provides the port of a directory server
    * instance.  Its value must be an integer between 1 and 65535.
    */
-  private static final String FIELD_PORT = "port";
+  @NotNull private static final String FIELD_PORT = "port";
 
 
 
@@ -147,7 +149,8 @@ final class ServerDetails
    * of servers that should be accessed in a round-robin fashion.  Its value
    * must be a JSON object that must contain only the servers field.
    */
-  private static final String FIELD_ROUND_ROBIN_SET = "round-robin-set";
+  @NotNull private static final String FIELD_ROUND_ROBIN_SET =
+       "round-robin-set";
 
 
 
@@ -157,7 +160,7 @@ final class ServerDetails
    * more JSON objects, in which each object must contain only the address and
    * port fields.
    */
-  private static final String FIELD_SERVERS = "servers";
+  @NotNull private static final String FIELD_SERVERS = "servers";
 
 
 
@@ -166,12 +169,12 @@ final class ServerDetails
    * single directory server instance.  Its value must be a JSON object that
    * must contain only the address and port fields.
    */
-  private static final String FIELD_SINGLE_SERVER = "single-server";
+  @NotNull private static final String FIELD_SINGLE_SERVER = "single-server";
 
 
 
   // The server set created from the server details specification.
-  private final ServerSet serverSet;
+  @NotNull private final ServerSet serverSet;
 
 
 
@@ -189,9 +192,9 @@ final class ServerDetails
    * @throws  LDAPException  If there is a problem with the server details data
    *                         in the provided JSON object.
    */
-  ServerDetails(final JSONObject connectionDetailsObject,
-                final SecurityOptions securityOptions,
-                final ConnectionOptions connectionOptions)
+  ServerDetails(@NotNull final JSONObject connectionDetailsObject,
+                @NotNull final SecurityOptions securityOptions,
+                @NotNull final ConnectionOptions connectionOptions)
        throws LDAPException
   {
     final JSONObject o = LDAPConnectionDetailsJSONSpecification.getObject(
@@ -223,10 +226,11 @@ final class ServerDetails
    * @throws  LDAPException  If the provided JSON object cannot be parsed to
    *                         create a server set.
    */
-  private static ServerSet createServerSet(final JSONObject o,
-                                final String fieldName,
-                                final SecurityOptions securityOptions,
-                                final ConnectionOptions connectionOptions)
+  @NotNull()
+  private static ServerSet createServerSet(@NotNull final JSONObject o,
+                      @NotNull final String fieldName,
+                      @NotNull final SecurityOptions securityOptions,
+                      @NotNull final ConnectionOptions connectionOptions)
           throws LDAPException
   {
     LDAPConnectionDetailsJSONSpecification.validateAllowedFields(o, fieldName,
@@ -372,8 +376,10 @@ final class ServerDetails
    * @throws  LDAPException  If the provided JSON object cannot be parsed to
    *                         obtain information about a set of servers.
    */
-  private static ObjectPair<String[],int[]> parseServers(final JSONObject o,
-                                                         final String f)
+  @NotNull()
+  private static ObjectPair<String[],int[]> parseServers(
+                                                 @NotNull final JSONObject o,
+                                                 @NotNull final String f)
           throws LDAPException
   {
     LDAPConnectionDetailsJSONSpecification.validateAllowedFields(o, f,
@@ -436,8 +442,10 @@ final class ServerDetails
    * @throws  LDAPException  If the provided JSON object cannot be parsed to
    *                         obtain information about a server.
    */
-  private static ObjectPair<String,Integer> parseServer(final JSONObject o,
-                                                        final String f)
+  @NotNull()
+  private static ObjectPair<String,Integer> parseServer(
+                                                 @NotNull final JSONObject o,
+                                                 @NotNull final String f)
           throws LDAPException
   {
     LDAPConnectionDetailsJSONSpecification.validateAllowedFields(o, f,
@@ -470,6 +478,7 @@ final class ServerDetails
    *
    * @return  The server set.
    */
+  @NotNull()
   ServerSet getServerSet()
   {
     return serverSet;

@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -92,7 +94,7 @@ public final class RebuildTask
    * The fully-qualified name of the Java class that is used for the rebuild
    * task.
    */
-  static final String REBUILD_TASK_CLASS =
+  @NotNull static final String REBUILD_TASK_CLASS =
        "com.unboundid.directory.server.tasks.RebuildTask";
 
 
@@ -101,7 +103,7 @@ public final class RebuildTask
    * The name of the attribute used to specify the base DN for which to rebuild
    * the specified indexes.
    */
-  private static final String ATTR_BASE_DN = "ds-task-rebuild-base-dn";
+  @NotNull private static final String ATTR_BASE_DN = "ds-task-rebuild-base-dn";
 
 
 
@@ -109,7 +111,7 @@ public final class RebuildTask
    * The name of the attribute used to specify the names of the indexes to
    * rebuild.
    */
-  private static final String ATTR_INDEX = "ds-task-rebuild-index";
+  @NotNull private static final String ATTR_INDEX = "ds-task-rebuild-index";
 
 
 
@@ -117,21 +119,22 @@ public final class RebuildTask
    * The name of the attribute used to specify the maximum number of concurrent
    * threads to use to perform the rebuild.
    */
-  private static final String ATTR_MAX_THREADS = "ds-task-rebuild-max-threads";
+  @NotNull private static final String ATTR_MAX_THREADS =
+       "ds-task-rebuild-max-threads";
 
 
 
   /**
    * The name of the object class used in rebuild task entries.
    */
-  private static final String OC_REBUILD_TASK = "ds-task-rebuild";
+  @NotNull private static final String OC_REBUILD_TASK = "ds-task-rebuild";
 
 
 
   /**
    * The task property for the base DN.
    */
-  private static final TaskProperty PROPERTY_BASE_DN =
+  @NotNull private static final TaskProperty PROPERTY_BASE_DN =
        new TaskProperty(ATTR_BASE_DN, INFO_DISPLAY_NAME_BASE_DN_REBUILD.get(),
                         INFO_DESCRIPTION_BASE_DN_REBUILD.get(), String.class,
                         true, false, false);
@@ -141,7 +144,7 @@ public final class RebuildTask
   /**
    * The task property for the index names.
    */
-  private static final TaskProperty PROPERTY_INDEX =
+  @NotNull private static final TaskProperty PROPERTY_INDEX =
        new TaskProperty(ATTR_INDEX, INFO_DISPLAY_NAME_INDEX_REBUILD.get(),
                         INFO_DESCRIPTION_INDEX_REBUILD.get(), String.class,
                         true, true, false);
@@ -151,7 +154,7 @@ public final class RebuildTask
   /**
    * The task property for the max threads value.
    */
-  private static final TaskProperty PROPERTY_MAX_THREADS =
+  @NotNull private static final TaskProperty PROPERTY_MAX_THREADS =
        new TaskProperty(ATTR_MAX_THREADS,
                         INFO_DISPLAY_NAME_MAX_THREADS_REBUILD.get(),
                         INFO_DESCRIPTION_MAX_THREADS_REBUILD.get(), Long.class,
@@ -170,10 +173,10 @@ public final class RebuildTask
   private final int maxThreads;
 
   // The base DN for which to rebuild indexes.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
   // The names of the indexes to rebuild.
-  private final List<String> indexes;
+  @NotNull private final List<String> indexes;
 
 
 
@@ -203,8 +206,9 @@ public final class RebuildTask
    * @param  indexes  A list containing the names of the indexes to rebuild.  It
    *                  must not be {@code null} or empty.
    */
-  public RebuildTask(final String taskID, final String baseDN,
-                     final List<String> indexes)
+  public RebuildTask(@Nullable final String taskID,
+                     @NotNull final String baseDN,
+                     @NotNull final List<String> indexes)
   {
     this(taskID, baseDN, indexes, -1, null, null, null, null, null);
   }
@@ -244,13 +248,15 @@ public final class RebuildTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public RebuildTask(final String taskID, final String baseDN,
-                     final List<String> indexes, final int maxThreads,
-                     final Date scheduledStartTime,
-                     final List<String> dependencyIDs,
-                     final FailedDependencyAction failedDependencyAction,
-                     final List<String> notifyOnCompletion,
-                     final List<String> notifyOnError)
+  public RebuildTask(@Nullable final String taskID,
+              @NotNull final String baseDN,
+              @NotNull final List<String> indexes,
+              final int maxThreads,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, baseDN, indexes, maxThreads, scheduledStartTime, dependencyIDs,
          failedDependencyAction, null, notifyOnCompletion, null, notifyOnError,
@@ -306,17 +312,20 @@ public final class RebuildTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public RebuildTask(final String taskID, final String baseDN,
-                     final List<String> indexes, final int maxThreads,
-                     final Date scheduledStartTime,
-                     final List<String> dependencyIDs,
-                     final FailedDependencyAction failedDependencyAction,
-                     final List<String> notifyOnStart,
-                     final List<String> notifyOnCompletion,
-                     final List<String> notifyOnSuccess,
-                     final List<String> notifyOnError,
-                     final Boolean alertOnStart, final Boolean alertOnSuccess,
-                     final Boolean alertOnError)
+  public RebuildTask(@Nullable final String taskID,
+              @NotNull final String baseDN,
+              @NotNull final List<String> indexes,
+              final int maxThreads,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, REBUILD_TASK_CLASS, scheduledStartTime, dependencyIDs,
          failedDependencyAction, notifyOnStart, notifyOnCompletion,
@@ -342,7 +351,7 @@ public final class RebuildTask
    * @throws  TaskException  If the provided entry cannot be parsed as a rebuild
    *                         task entry.
    */
-  public RebuildTask(final Entry entry)
+  public RebuildTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -403,7 +412,7 @@ public final class RebuildTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid rebuild task.
    */
-  public RebuildTask(final Map<TaskProperty,List<Object>> properties)
+  public RebuildTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(REBUILD_TASK_CLASS, properties);
@@ -456,6 +465,7 @@ public final class RebuildTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_REBUILD.get();
@@ -467,7 +477,8 @@ public final class RebuildTask
    * {@inheritDoc}
    */
   @Override()
-  public String getTaskDescription()
+    @NotNull()
+public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_REBUILD.get();
   }
@@ -479,6 +490,7 @@ public final class RebuildTask
    *
    * @return  The base DN for which to rebuild the specified indexes.
    */
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -491,6 +503,7 @@ public final class RebuildTask
    *
    * @return  The names of the indexes to be rebuilt.
    */
+  @NotNull()
   public List<String> getIndexNames()
   {
     return indexes;
@@ -517,6 +530,7 @@ public final class RebuildTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_REBUILD_TASK);
@@ -528,6 +542,7 @@ public final class RebuildTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(3);
@@ -549,6 +564,7 @@ public final class RebuildTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final List<TaskProperty> propList = Arrays.asList(
@@ -565,6 +581,7 @@ public final class RebuildTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

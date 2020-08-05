@@ -84,6 +84,8 @@ import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PasswordReader;
@@ -122,7 +124,7 @@ public final class ManageCertificates
    * The path to the keystore with the JVM's set of default trusted issuer
    * certificates.
    */
-  private static final File JVM_DEFAULT_CACERTS_FILE;
+  @Nullable private static final File JVM_DEFAULT_CACERTS_FILE;
   static
   {
     File caCertsFile;
@@ -145,7 +147,7 @@ public final class ManageCertificates
    * The name of a system property that can be used to specify the default
    * keystore type for new keystores.
    */
-  private static final String PROPERTY_DEFAULT_KEYSTORE_TYPE =
+  @NotNull private static final String PROPERTY_DEFAULT_KEYSTORE_TYPE =
        ManageCertificates.class.getName() + ".defaultKeystoreType";
 
 
@@ -154,7 +156,7 @@ public final class ManageCertificates
    * The default keystore type that will be used for new keystores when the
    * type is not specified.
    */
-  private static final String DEFAULT_KEYSTORE_TYPE;
+  @NotNull private static final String DEFAULT_KEYSTORE_TYPE;
   static
   {
     final String propertyValue =
@@ -183,13 +185,13 @@ public final class ManageCertificates
 
 
   // The global argument parser used by this tool.
-  private volatile ArgumentParser globalParser = null;
+  @Nullable private volatile ArgumentParser globalParser = null;
 
   // The argument parser for the selected subcommand.
-  private volatile ArgumentParser subCommandParser = null;
+  @Nullable private volatile ArgumentParser subCommandParser = null;
 
   // The input stream to use for standard input.
-  private final InputStream in;
+  @NotNull private final InputStream in;
 
 
 
@@ -199,7 +201,7 @@ public final class ManageCertificates
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.in, System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -224,8 +226,11 @@ public final class ManageCertificates
    *
    * @return  The result code obtained from tool processing.
    */
-  public static ResultCode main(final InputStream in, final OutputStream out,
-                                final OutputStream err, final String... args)
+  @NotNull()
+  public static ResultCode main(@Nullable final InputStream in,
+                                @Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final ManageCertificates manageCertificates =
          new ManageCertificates(in, out, err);
@@ -243,7 +248,8 @@ public final class ManageCertificates
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public ManageCertificates(final OutputStream out, final OutputStream err)
+  public ManageCertificates(@Nullable final OutputStream out,
+                            @Nullable final OutputStream err)
   {
     this(null, out, err);
   }
@@ -261,8 +267,9 @@ public final class ManageCertificates
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public ManageCertificates(final InputStream in, final OutputStream out,
-                            final OutputStream err)
+  public ManageCertificates(@Nullable final InputStream in,
+                            @Nullable final OutputStream out,
+                            @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -285,6 +292,7 @@ public final class ManageCertificates
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "manage-certificates";
@@ -298,6 +306,7 @@ public final class ManageCertificates
    * @return  A human-readable description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_MANAGE_CERTS_TOOL_DESC.get();
@@ -312,6 +321,7 @@ public final class ManageCertificates
    *          available.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -431,7 +441,7 @@ public final class ManageCertificates
    *                             argument parser.
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     globalParser = parser;
@@ -3863,7 +3873,9 @@ public final class ManageCertificates
    *
    * @return  The constructed path.
    */
-  private static String getPlatformSpecificPath(final String... pathElements)
+  @NotNull()
+  private static String getPlatformSpecificPath(
+                             @NotNull final String... pathElements)
   {
     final StringBuilder buffer = new StringBuilder();
     for (int i=0; i < pathElements.length; i++)
@@ -3888,6 +3900,7 @@ public final class ManageCertificates
    *          successfully.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     final SubCommand selectedSubCommand = globalParser.getSelectedSubCommand();
@@ -3979,6 +3992,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doListCertificates()
   {
     // Get the values of a number of configured arguments.
@@ -4307,6 +4321,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doExportCertificate()
   {
     // Get the values of a number of configured arguments.
@@ -4596,6 +4611,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doExportPrivateKey()
   {
     // Get the values of a number of configured arguments.
@@ -4793,6 +4809,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doImportCertificate()
   {
     // Get the values of a number of configured arguments.
@@ -5539,6 +5556,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doDeleteCertificate()
   {
     // Get the values of a number of configured arguments.
@@ -5754,6 +5772,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doGenerateOrSignCertificateOrCSR()
   {
     // Figure out which subcommand we're processing.
@@ -7483,6 +7502,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doChangeCertificateAlias()
   {
     // Get the values of a number of configured arguments.
@@ -7664,6 +7684,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doChangeKeystorePassword()
   {
     // Get the values of a number of configured arguments.
@@ -7768,6 +7789,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doChangePrivateKeyPassword()
   {
     // Get the values of a number of configured arguments.
@@ -7939,6 +7961,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doTrustServerCertificate()
   {
     // Get the values of a number of configured arguments.
@@ -8217,6 +8240,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doCheckCertificateUsability()
   {
     // Get the values of a number of configured arguments.
@@ -8851,6 +8875,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doDisplayCertificateFile()
   {
     // Get the values of a number of configured arguments.
@@ -8923,6 +8948,7 @@ public final class ManageCertificates
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   private ResultCode doDisplayCertificateSigningRequestFile()
   {
     // Get the values of a number of configured arguments.
@@ -8981,8 +9007,9 @@ public final class ManageCertificates
    * @param  verbose      Indicates whether to display verbose information about
    *                      the certificate.
    */
-  private void printCertificate(final X509Certificate certificate,
-                                final String indent, final boolean verbose)
+  private void printCertificate(@NotNull final X509Certificate certificate,
+                                @NotNull final String indent,
+                                final boolean verbose)
   {
     if (verbose)
     {
@@ -9160,8 +9187,8 @@ public final class ManageCertificates
    *                  indent that line.
    */
   private void printCertificateSigningRequest(
-                    final PKCS10CertificateSigningRequest csr,
-                    final boolean verbose, final String indent)
+                    @NotNull final PKCS10CertificateSigningRequest csr,
+                    final boolean verbose, @NotNull final String indent)
   {
     out(indent +
          INFO_MANAGE_CERTS_PRINT_CSR_LABEL_VERSION.get(
@@ -9229,10 +9256,10 @@ public final class ManageCertificates
    * @param  indent            The string to place at the beginning of each
    *                           line to indent that line.
    */
-  private void printPublicKey(final ASN1BitString encodedPublicKey,
-                              final DecodedPublicKey decodedPublicKey,
-                              final ASN1Element parameters,
-                              final String indent)
+  private void printPublicKey(@NotNull final ASN1BitString encodedPublicKey,
+                              @Nullable final DecodedPublicKey decodedPublicKey,
+                              @Nullable final ASN1Element parameters,
+                              @NotNull final String indent)
   {
     if (decodedPublicKey == null)
     {
@@ -9326,9 +9353,11 @@ public final class ManageCertificates
    * @return  A short summary of the provided public key, or {@code null} if
    *          no summary is available.
    */
-  private static String getPublicKeySummary(final OID publicKeyAlgorithmOID,
-                                            final DecodedPublicKey publicKey,
-                                            final ASN1Element parameters)
+  @NotNull()
+  private static String getPublicKeySummary(
+                             @NotNull final OID publicKeyAlgorithmOID,
+                             @Nullable final DecodedPublicKey publicKey,
+                             @Nullable final ASN1Element parameters)
   {
     if (publicKey instanceof RSAPublicKey)
     {
@@ -9371,8 +9400,8 @@ public final class ManageCertificates
    * @param  indent      The string to place at the beginning of each line to
    *                     indent that line.
    */
-  void printExtensions(final List<X509CertificateExtension> extensions,
-                       final String indent)
+  void printExtensions(@NotNull final List<X509CertificateExtension> extensions,
+                       @NotNull final String indent)
   {
     if (extensions.isEmpty())
     {
@@ -9681,8 +9710,8 @@ public final class ManageCertificates
    * @param  indent        The string to place at the beginning of each line to
    *                       indent that line.
    */
-  private void printGeneralNames(final GeneralNames generalNames,
-                                 final String indent)
+  private void printGeneralNames(@NotNull final GeneralNames generalNames,
+                                 @NotNull final String indent)
   {
     for (final String dnsName : generalNames.getDNSNames())
     {
@@ -9755,8 +9784,9 @@ public final class ManageCertificates
    * @param  encodedCertificate  The bytes that comprise the encoded
    *                             certificate.  It must not be {@code null}.
    */
-  private static void writePEMCertificate(final PrintStream printStream,
-                                          final byte[] encodedCertificate)
+  private static void writePEMCertificate(
+                           @NotNull final PrintStream printStream,
+                           @NotNull final byte[] encodedCertificate)
   {
     final String certBase64 = Base64.encode(encodedCertificate);
     printStream.println("-----BEGIN CERTIFICATE-----");
@@ -9780,8 +9810,8 @@ public final class ManageCertificates
    *                      signing request.  It must not be {@code null}.
    */
   private static void writePEMCertificateSigningRequest(
-                           final PrintStream printStream,
-                           final byte[] encodedCSR)
+                           @NotNull final PrintStream printStream,
+                           @NotNull final byte[] encodedCSR)
   {
     final String certBase64 = Base64.encode(encodedCSR);
     printStream.println("-----BEGIN CERTIFICATE REQUEST-----");
@@ -9804,8 +9834,9 @@ public final class ManageCertificates
    * @param  encodedPrivateKey  The bytes that comprise the encoded private key.
    *                            It must not be {@code null}.
    */
-  private static void writePEMPrivateKey(final PrintStream printStream,
-                                         final byte[] encodedPrivateKey)
+  private static void writePEMPrivateKey(
+                           @NotNull final PrintStream printStream,
+                           @NotNull final byte[] encodedPrivateKey)
   {
     final String certBase64 = Base64.encode(encodedPrivateKey);
     printStream.println("-----BEGIN PRIVATE KEY-----");
@@ -9824,7 +9855,7 @@ public final class ManageCertificates
    *
    * @param  keytoolArgs  The arguments to provide to the keytool command.
    */
-  private void displayKeytoolCommand(final List<String> keytoolArgs)
+  private void displayKeytoolCommand(@NotNull final List<String> keytoolArgs)
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("#      keytool");
@@ -9872,6 +9903,7 @@ public final class ManageCertificates
    * @return  The path to the target keystore file, or {@code null} if no
    *          keystore path was configured.
    */
+  @Nullable()
   private File getKeystorePath()
   {
     final FileArgument keystoreArgument =
@@ -9906,7 +9938,8 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while trying to get the
    *                         keystore password.
    */
-  private char[] getKeystorePassword(final File keystoreFile)
+  @Nullable()
+  private char[] getKeystorePassword(@NotNull final File keystoreFile)
           throws LDAPException
   {
     return getKeystorePassword(keystoreFile, null);
@@ -9928,8 +9961,9 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while trying to get the
    *                         keystore password.
    */
-  private char[] getKeystorePassword(final File keystoreFile,
-                                     final String prefix)
+  @Nullable()
+  private char[] getKeystorePassword(@NotNull final File keystoreFile,
+                                     @Nullable final String prefix)
           throws LDAPException
   {
     final String prefixDash;
@@ -10077,7 +10111,8 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading the
    *                         password.
    */
-  private char[] promptForPassword(final String prompt,
+  @NotNull()
+  private char[] promptForPassword(@NotNull final String prompt,
                                    final boolean allowEmpty)
           throws LDAPException
   {
@@ -10121,7 +10156,7 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading data from
    *                         the client.
    */
-  private boolean promptForYesNo(final String prompt)
+  private boolean promptForYesNo(@NotNull final String prompt)
           throws LDAPException
   {
     while (true)
@@ -10184,6 +10219,7 @@ public final class ManageCertificates
    * @throws  IOException  If a problem is encountered while reading from
    *                       standard input.
    */
+  @NotNull()
   private String readLineFromIn()
           throws IOException
   {
@@ -10241,9 +10277,10 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while trying to get the
    *                         private key password.
    */
-  private char[] getPrivateKeyPassword(final KeyStore keystore,
-                                       final String alias,
-                                       final char[] keystorePassword)
+  @Nullable()
+  private char[] getPrivateKeyPassword(@NotNull final KeyStore keystore,
+                                       @NotNull final String alias,
+                                       @Nullable final char[] keystorePassword)
           throws LDAPException
   {
     return getPrivateKeyPassword(keystore, alias, null, keystorePassword);
@@ -10270,9 +10307,11 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while trying to get the
    *                         private key password.
    */
-  private char[] getPrivateKeyPassword(final KeyStore keystore,
-                                       final String alias, final String prefix,
-                                       final char[] keystorePassword)
+  @Nullable()
+  private char[] getPrivateKeyPassword(@NotNull final KeyStore keystore,
+                                       @NotNull final String alias,
+                                       @Nullable final String prefix,
+                                       @Nullable final char[] keystorePassword)
           throws LDAPException
   {
     final String prefixDash;
@@ -10436,13 +10475,13 @@ public final class ManageCertificates
    *
    * @param  keystorePath  The path to the file to examine.
    *
-   * @return  The keystore type inferred from the provided keystore file, or
-   *          {@code null} if the specified file does not exist.
+   * @return  The keystore type inferred from the provided keystore file.
    *
    * @throws  LDAPException  If a problem is encountered while trying to infer
    *                         the keystore type.
    */
-  private String inferKeystoreType(final File keystorePath)
+  @NotNull()
+  private String inferKeystoreType(@NotNull final File keystorePath)
           throws LDAPException
   {
     if (! keystorePath.exists())
@@ -10528,7 +10567,8 @@ public final class ManageCertificates
    *          keystore, or the provided string if it is for some other keystore
    *          type.
    */
-  static String getUserFriendlyKeystoreType(final String keystoreType)
+  @NotNull()
+  static String getUserFriendlyKeystoreType(@NotNull final String keystoreType)
   {
     if (keystoreType.equalsIgnoreCase("JKS"))
     {
@@ -10561,9 +10601,10 @@ public final class ManageCertificates
    *
    * @throws  LDAPException  If it is not possible to access the keystore.
    */
-  static KeyStore getKeystore(final String keystoreType,
-                              final File keystorePath,
-                              final char[] keystorePassword)
+  @NotNull()
+  static KeyStore getKeystore(@NotNull final String keystoreType,
+                              @NotNull final File keystorePath,
+                              @Nullable final char[] keystorePassword)
           throws LDAPException
   {
     // Instantiate a keystore instance of the desired keystore type.
@@ -10664,7 +10705,9 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading
    *                         certificates from the specified file.
    */
-  public static List<X509Certificate> readCertificatesFromFile(final File f)
+  @NotNull()
+  public static List<X509Certificate> readCertificatesFromFile(
+                                           @NotNull final File f)
          throws LDAPException
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
@@ -10850,7 +10893,8 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading the
    *                         private key.
    */
-  static PKCS8PrivateKey readPrivateKeyFromFile(final File f)
+  @NotNull()
+  static PKCS8PrivateKey readPrivateKeyFromFile(@NotNull final File f)
          throws LDAPException
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
@@ -11083,8 +11127,10 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading the
    *                         certificate signing request.
    */
+  @NotNull()
   public static PKCS10CertificateSigningRequest
-                     readCertificateSigningRequestFromFile(final File f)
+                     readCertificateSigningRequestFromFile(
+                          @NotNull final File f)
          throws LDAPException
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
@@ -11304,7 +11350,8 @@ public final class ManageCertificates
    * @return  A colon-delimited hexadecimal representation of the contents of
    *          the provided byte array.
    */
-  private static String toColonDelimitedHex(final byte... bytes)
+  @NotNull()
+  private static String toColonDelimitedHex(@NotNull final byte... bytes)
   {
     final StringBuilder buffer = new StringBuilder(bytes.length * 3);
     StaticUtils.toHex(bytes, ":", buffer);
@@ -11321,7 +11368,8 @@ public final class ManageCertificates
    *
    * @return  A formatted representation of the provided date.
    */
-  private static String formatDateAndTime(final Date d)
+  @NotNull()
+  private static String formatDateAndTime(@NotNull final Date d)
   {
     // Example:  Sunday, January 1, 2017
     final String dateFormatString = "EEEE, MMMM d, yyyy";
@@ -11364,7 +11412,8 @@ public final class ManageCertificates
    *
    * @return  A formatted representation of the provided date.
    */
-  private static String formatValidityStartTime(final Date d)
+  @NotNull()
+  private static String formatValidityStartTime(@NotNull final Date d)
   {
     // Example:  2017/01/01 01:23:45
     final String dateFormatString = "yyyy'/'MM'/'dd HH':'mm':'ss";
@@ -11395,9 +11444,11 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while getting the
    *                         certificate chain.
    */
-  private static X509Certificate[] getCertificateChain(final String alias,
-                      final KeyStore keystore,
-                      final AtomicReference<DN> missingIssuerRef)
+  @NotNull()
+  private static X509Certificate[] getCertificateChain(
+                      @NotNull final String alias,
+                      @NotNull final KeyStore keystore,
+                      @NotNull final AtomicReference<DN> missingIssuerRef)
           throws LDAPException
   {
     try
@@ -11485,11 +11536,12 @@ public final class ManageCertificates
    * @throws  Exception   If a problem is encountered while trying to retrieve
    *                      the issuer certificate.
    */
+  @Nullable()
   private static X509Certificate getIssuerCertificate(
-                      final X509Certificate certificate,
-                      final KeyStore keystore,
-                      final AtomicReference<KeyStore> jvmDefaultTrustStoreRef,
-                      final AtomicReference<DN> missingIssuerRef)
+               @NotNull final X509Certificate certificate,
+               @NotNull final KeyStore keystore,
+               @NotNull final AtomicReference<KeyStore> jvmDefaultTrustStoreRef,
+               @NotNull final AtomicReference<DN> missingIssuerRef)
           throws Exception
   {
     final DN subjectDN = certificate.getSubjectDN();
@@ -11569,9 +11621,10 @@ public final class ManageCertificates
    * @throws  Exception   If a problem is encountered while trying to retrieve
    *                      the issuer certificate.
    */
+  @Nullable()
   private static X509Certificate getIssuerCertificate(
-                                      final X509Certificate certificate,
-                                      final KeyStore keystore)
+                      @NotNull final X509Certificate certificate,
+                      @NotNull final KeyStore keystore)
           throws Exception
   {
     final Enumeration<String> aliases = keystore.aliases();
@@ -11624,7 +11677,9 @@ public final class ManageCertificates
    *          or {@code null} if the certificate does not have an authority
    *          key identifier.
    */
-  private static byte[] getAuthorityKeyIdentifier(final X509Certificate c)
+  @Nullable()
+  private static byte[] getAuthorityKeyIdentifier(
+                             @NotNull final X509Certificate c)
   {
     for (final X509CertificateExtension extension : c.getExtensions())
     {
@@ -11658,8 +11713,9 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while writing the
    *                         keystore.
    */
-  static void writeKeystore(final KeyStore keystore, final File keystorePath,
-                            final char[] keystorePassword)
+  static void writeKeystore(@NotNull final KeyStore keystore,
+                            @NotNull final File keystorePath,
+                            @Nullable final char[] keystorePassword)
           throws LDAPException
   {
     File copyOfExistingKeystore = null;
@@ -11743,8 +11799,8 @@ public final class ManageCertificates
    *          specified alias, or {@code false} if the alias doesn't exist or
    *          is associated with some other type of entry (like a key).
    */
-  private static boolean hasCertificateAlias(final KeyStore keystore,
-                                             final String alias)
+  private static boolean hasCertificateAlias(@NotNull final KeyStore keystore,
+                                             @NotNull final String alias)
   {
     try
     {
@@ -11772,8 +11828,8 @@ public final class ManageCertificates
    *          alias, or {@code false} if the alias doesn't exist or is
    *          associated with some other type of entry (like a certificate).
    */
-  private static boolean hasKeyAlias(final KeyStore keystore,
-                                     final String alias)
+  private static boolean hasKeyAlias(@NotNull final KeyStore keystore,
+                                     @NotNull final String alias)
   {
     try
     {
@@ -11813,13 +11869,14 @@ public final class ManageCertificates
    * @param  genericExtensions  The list of generic extensions to include.  It
    *                            must not be {@code null} but may be empty.
    */
-  private static void addExtensionArguments(final List<String> keytoolArguments,
-               final BasicConstraintsExtension basicConstraints,
-               final KeyUsageExtension keyUsage,
-               final ExtendedKeyUsageExtension extendedKeyUsage,
-               final Set<String> sanValues,
-               final Set<String> ianValues,
-               final List<X509CertificateExtension> genericExtensions)
+  private static void addExtensionArguments(
+               @NotNull final List<String> keytoolArguments,
+               @Nullable final BasicConstraintsExtension basicConstraints,
+               @Nullable final KeyUsageExtension keyUsage,
+               @Nullable final ExtendedKeyUsageExtension extendedKeyUsage,
+               @NotNull final Set<String> sanValues,
+               @NotNull final Set<String> ianValues,
+               @NotNull final List<X509CertificateExtension> genericExtensions)
   {
     if (basicConstraints != null)
     {
@@ -11984,8 +12041,8 @@ public final class ManageCertificates
    * @param  buffer  The buffer to which the value should be appended.
    * @param  value   The value to append to the buffer.
    */
-  private static void commaAppend(final StringBuilder buffer,
-                                  final String value)
+  private static void commaAppend(@NotNull final StringBuilder buffer,
+                                  @NotNull final String value)
   {
     if (buffer.length() > 0)
     {
@@ -12008,6 +12065,7 @@ public final class ManageCertificates
    *          information is available.
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final String keystorePath = getPlatformSpecificPath("config", "keystore");

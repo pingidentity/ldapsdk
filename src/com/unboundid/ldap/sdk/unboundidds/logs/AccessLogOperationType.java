@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -131,7 +133,7 @@ public enum AccessLogOperationType
 
 
   // The string that will be used to identify this message type in log files.
-  private final String logIdentifier;
+  @NotNull private final String logIdentifier;
 
 
 
@@ -141,7 +143,7 @@ public enum AccessLogOperationType
    * @param  logIdentifier  The string that will be used to identify this
    *                        operation type in log files.
    */
-  AccessLogOperationType(final String logIdentifier)
+  AccessLogOperationType(@NotNull final String logIdentifier)
   {
     this.logIdentifier = logIdentifier;
   }
@@ -155,6 +157,7 @@ public enum AccessLogOperationType
    * @return  The string that will be used to identify this operation type in
    *          log files.
    */
+  @NotNull()
   public String getLogIdentifier()
   {
     return logIdentifier;
@@ -171,7 +174,9 @@ public enum AccessLogOperationType
    * @return  The appropriate operation type, or {@code null} if there is no
    *          operation type associated with the provided identifier.
    */
-  public static AccessLogOperationType forName(final String logIdentifier)
+  @Nullable()
+  public static AccessLogOperationType forName(
+                     @NotNull final String logIdentifier)
   {
     for (final AccessLogOperationType t : values())
     {

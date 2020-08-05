@@ -61,10 +61,10 @@ public final class PassphraseEncryptedInputStream
 {
   // The cipher input stream that will be used to actually read and decrypt the
   // data.
-  private final CipherInputStream cipherInputStream;
+  @NotNull private final CipherInputStream cipherInputStream;
 
   // A header containing the encoded encryption details.
-  private final PassphraseEncryptedStreamHeader encryptionHeader;
+  @NotNull private final PassphraseEncryptedStreamHeader encryptionHeader;
 
 
 
@@ -92,8 +92,8 @@ public final class PassphraseEncryptedInputStream
    * @throws  GeneralSecurityException  If a problem occurs while attempting to
    *                                    initialize the decryption.
    */
-  public PassphraseEncryptedInputStream(final String passphrase,
-                                        final InputStream wrappedInputStream)
+  public PassphraseEncryptedInputStream(@NotNull final String passphrase,
+              @NotNull final InputStream wrappedInputStream)
          throws IOException, LDAPException, InvalidKeyException,
                 GeneralSecurityException
   {
@@ -126,8 +126,8 @@ public final class PassphraseEncryptedInputStream
    * @throws  GeneralSecurityException  If a problem occurs while attempting to
    *                                    initialize the decryption.
    */
-  public PassphraseEncryptedInputStream(final char[] passphrase,
-                                        final InputStream wrappedInputStream)
+  public PassphraseEncryptedInputStream(@NotNull final char[] passphrase,
+              @NotNull final InputStream wrappedInputStream)
          throws IOException, LDAPException, InvalidKeyException,
                 GeneralSecurityException
   {
@@ -152,8 +152,9 @@ public final class PassphraseEncryptedInputStream
    * @throws  GeneralSecurityException  If a problem occurs while attempting to
    *                                    initialize the decryption.
    */
-  public PassphraseEncryptedInputStream(final InputStream wrappedInputStream,
-              final PassphraseEncryptedStreamHeader encryptionHeader)
+  public PassphraseEncryptedInputStream(
+              @NotNull final InputStream wrappedInputStream,
+              @NotNull final PassphraseEncryptedStreamHeader encryptionHeader)
          throws GeneralSecurityException
   {
     this.encryptionHeader = encryptionHeader;
@@ -199,7 +200,7 @@ public final class PassphraseEncryptedInputStream
    *                       decrypting the data.
    */
   @Override()
-  public int read(final byte[] b)
+  public int read(@NotNull final byte[] b)
          throws IOException
   {
     return cipherInputStream.read(b);
@@ -229,7 +230,7 @@ public final class PassphraseEncryptedInputStream
    *                       decrypting the data.
    */
   @Override()
-  public int read(final byte[] b, final int offset, final int length)
+  public int read(@NotNull final byte[] b, final int offset, final int length)
          throws IOException
   {
     return cipherInputStream.read(b, offset, length);
@@ -351,6 +352,7 @@ public final class PassphraseEncryptedInputStream
    * @return  An encryption header with details about the encryption used when
    *          the data was originally written.
    */
+  @NotNull()
   public PassphraseEncryptedStreamHeader getEncryptionHeader()
   {
     return encryptionHeader;

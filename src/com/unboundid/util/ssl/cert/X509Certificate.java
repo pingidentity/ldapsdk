@@ -79,6 +79,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
@@ -208,41 +210,41 @@ public final class X509Certificate
 
 
   // The issuer unique identifier for the certificate.
-  private final ASN1BitString issuerUniqueID;
+  @Nullable private final ASN1BitString issuerUniqueID;
 
   // The signature value for the certificate.
-  private final ASN1BitString signatureValue;
+  @NotNull private final ASN1BitString signatureValue;
 
   // The encoded certificate public key.
-  private final ASN1BitString encodedPublicKey;
+  @NotNull private final ASN1BitString encodedPublicKey;
 
   // The subject unique identifier for the certificate.
-  private final ASN1BitString subjectUniqueID;
+  @Nullable private final ASN1BitString subjectUniqueID;
 
   // The ASN.1 element with the encoded public key algorithm parameters.
-  private final ASN1Element publicKeyAlgorithmParameters;
+  @Nullable private final ASN1Element publicKeyAlgorithmParameters;
 
   // The ASN.1 element with the encoded signature algorithm parameters.
-  private final ASN1Element signatureAlgorithmParameters;
+  @Nullable private final ASN1Element signatureAlgorithmParameters;
 
   // The certificate serial number.
-  private final BigInteger serialNumber;
+  @NotNull private final BigInteger serialNumber;
 
   // The bytes that comprise the encoded representation of the X.509
   // certificate.
-  private final byte[] x509CertificateBytes;
+  @NotNull private final byte[] x509CertificateBytes;
 
   // The decoded public key for this certificate, if available.
-  private final DecodedPublicKey decodedPublicKey;
+  @Nullable private final DecodedPublicKey decodedPublicKey;
 
   // The issuer DN for the certificate.
-  private final DN issuerDN;
+  @NotNull private final DN issuerDN;
 
   // The subject DN for the certificate.
-  private final DN subjectDN;
+  @NotNull private final DN subjectDN;
 
   // The list of extensions for the certificate.
-  private final List<X509CertificateExtension> extensions;
+  @NotNull private final List<X509CertificateExtension> extensions;
 
   // The time that indicates the end of the certificate validity window.
   private final long notAfter;
@@ -251,21 +253,21 @@ public final class X509Certificate
   private final long notBefore;
 
   // The OID for the public key algorithm.
-  private final OID publicKeyAlgorithmOID;
+  @NotNull private final OID publicKeyAlgorithmOID;
 
   // The OID for the signature algorithm.
-  private final OID signatureAlgorithmOID;
+  @NotNull private final OID signatureAlgorithmOID;
 
   // The public key algorithm name that corresponds with the public key
   // algorithm OID, if available.
-  private final String publicKeyAlgorithmName;
+  @Nullable private final String publicKeyAlgorithmName;
 
   // The signature algorithm name that corresponds with the signature algorithm
   // OID, if available.
-  private final String signatureAlgorithmName;
+  @Nullable private final String signatureAlgorithmName;
 
   // The X.509 certificate version.
-  private final X509CertificateVersion version;
+  @NotNull private final X509CertificateVersion version;
 
 
 
@@ -324,19 +326,21 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while creating the
    *                         certificate.
    */
-  X509Certificate(final X509CertificateVersion version,
-                  final BigInteger serialNumber,
-                  final OID signatureAlgorithmOID,
-                  final ASN1Element signatureAlgorithmParameters,
-                  final ASN1BitString signatureValue,
-                  final DN issuerDN, final long notBefore, final long notAfter,
-                  final DN subjectDN, final OID publicKeyAlgorithmOID,
-                  final ASN1Element publicKeyAlgorithmParameters,
-                  final ASN1BitString encodedPublicKey,
-                  final DecodedPublicKey decodedPublicKey,
-                  final ASN1BitString issuerUniqueID,
-                  final ASN1BitString subjectUniqueID,
-                  final X509CertificateExtension... extensions)
+  X509Certificate(@NotNull final X509CertificateVersion version,
+                  @NotNull final BigInteger serialNumber,
+                  @NotNull final OID signatureAlgorithmOID,
+                  @Nullable final ASN1Element signatureAlgorithmParameters,
+                  @NotNull final ASN1BitString signatureValue,
+                  @NotNull final DN issuerDN, final long notBefore,
+                  final long notAfter,
+                  @NotNull final DN subjectDN,
+                  @NotNull final OID publicKeyAlgorithmOID,
+                  @Nullable final ASN1Element publicKeyAlgorithmParameters,
+                  @NotNull final ASN1BitString encodedPublicKey,
+                  @Nullable final DecodedPublicKey decodedPublicKey,
+                  @Nullable final ASN1BitString issuerUniqueID,
+                  @Nullable final ASN1BitString subjectUniqueID,
+                  @NotNull final X509CertificateExtension... extensions)
        throws CertException
   {
     this.version = version;
@@ -393,7 +397,7 @@ public final class X509Certificate
    * @throws  CertException  If the contents of the provided byte array could
    *                         not be decoded as a valid X.509 certificate.
    */
-  public X509Certificate(final byte[] encodedCertificate)
+  public X509Certificate(@NotNull final byte[] encodedCertificate)
          throws CertException
   {
     x509CertificateBytes = encodedCertificate;
@@ -795,7 +799,8 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while trying to decode
    *                         the X.509 name.
    */
-  static DN decodeName(final ASN1Element element)
+  @NotNull()
+  static DN decodeName(@NotNull final ASN1Element element)
          throws CertException
   {
     Schema schema;
@@ -886,7 +891,7 @@ public final class X509Certificate
    * @throws  ASN1Exception  If the provided element cannot be decoded as a UTC
    *                         time element.
    */
-  private static long decodeUTCTime(final ASN1Element element)
+  private static long decodeUTCTime(@NotNull final ASN1Element element)
           throws ASN1Exception
   {
     final long timeValue = ASN1UTCTime.decodeAsUTCTime(element).getTime();
@@ -917,6 +922,7 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while trying to encode
    *                         the X.509 certificate.
    */
+  @NotNull()
   ASN1Element encode()
        throws CertException
   {
@@ -1031,7 +1037,8 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while encoding the
    *                         provided DN as an X.509 name.
    */
-  static ASN1Element encodeName(final DN dn)
+  @NotNull()
+  static ASN1Element encodeName(@NotNull final DN dn)
          throws CertException
   {
     final Schema schema;
@@ -1101,6 +1108,7 @@ public final class X509Certificate
    *
    * @return  The encoded validity sequence.
    */
+  @NotNull()
   static ASN1Sequence encodeValiditySequence(final long notBefore,
                                              final long notAfter)
   {
@@ -1155,13 +1163,14 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while creating the
    *                         certificate.
    */
+  @NotNull()
   public static ObjectPair<X509Certificate,KeyPair>
-              generateSelfSignedCertificate(
-                   final SignatureAlgorithmIdentifier signatureAlgorithm,
-                   final PublicKeyAlgorithmIdentifier publicKeyAlgorithm,
-                   final int keySizeBits, final DN subjectDN,
-                   final long notBefore, final long notAfter,
-                   final X509CertificateExtension... extensions)
+                     generateSelfSignedCertificate(
+              @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
+              @NotNull final PublicKeyAlgorithmIdentifier publicKeyAlgorithm,
+              final int keySizeBits, final DN subjectDN,
+              final long notBefore, final long notAfter,
+              @Nullable final X509CertificateExtension... extensions)
          throws CertException
   {
     // Generate the key pair for the certificate.
@@ -1245,11 +1254,12 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while creating the
    *                         certificate.
    */
+  @NotNull()
   public static X509Certificate generateSelfSignedCertificate(
-                   final SignatureAlgorithmIdentifier signatureAlgorithm,
-                   final KeyPair keyPair, final DN subjectDN,
-                   final long notBefore, final long notAfter,
-                   final X509CertificateExtension... extensions)
+              @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
+              @NotNull final KeyPair keyPair, @NotNull final DN subjectDN,
+              final long notBefore, final long notAfter,
+              @Nullable final X509CertificateExtension... extensions)
          throws CertException
   {
     // Extract the parameters and encoded public key from the generated key
@@ -1402,15 +1412,16 @@ public final class X509Certificate
    *                         certificate.
    */
   public static X509Certificate generateIssuerSignedCertificate(
-              final SignatureAlgorithmIdentifier signatureAlgorithm,
-              final X509Certificate issuerCertificate,
-              final PrivateKey issuerPrivateKey,
-              final OID publicKeyAlgorithmOID,
-              final ASN1Element publicKeyAlgorithmParameters,
-              final ASN1BitString encodedPublicKey,
-              final DecodedPublicKey decodedPublicKey, final DN subjectDN,
+              @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
+              @NotNull final X509Certificate issuerCertificate,
+              @NotNull final PrivateKey issuerPrivateKey,
+              @NotNull final OID publicKeyAlgorithmOID,
+              @Nullable final ASN1Element publicKeyAlgorithmParameters,
+              @NotNull final ASN1BitString encodedPublicKey,
+              @Nullable final DecodedPublicKey decodedPublicKey,
+              @NotNull final DN subjectDN,
               final long notBefore, final long notAfter,
-              final X509CertificateExtension... extensions)
+              @NotNull final X509CertificateExtension... extensions)
          throws CertException
   {
     // Generate a subject key identifier from the encoded public key.
@@ -1509,6 +1520,7 @@ public final class X509Certificate
    *
    * @return  The generated serial number.
    */
+  @NotNull()
   private static BigInteger generateSerialNumber()
   {
     final UUID uuid = UUID.randomUUID();
@@ -1557,16 +1569,17 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while generating the
    *                         certificate.
    */
+  @NotNull()
   private static ASN1BitString generateSignature(
-                      final SignatureAlgorithmIdentifier signatureAlgorithm,
-                      final PrivateKey privateKey,
-                      final BigInteger serialNumber,
-                      final DN issuerDN, final long notBefore,
-                      final long notAfter, final DN subjectDN,
-                      final OID publicKeyAlgorithmOID,
-                      final ASN1Element publicKeyAlgorithmParameters,
-                      final ASN1BitString encodedPublicKey,
-                      final X509CertificateExtension... extensions)
+               @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
+               @NotNull final PrivateKey privateKey,
+               @NotNull final BigInteger serialNumber,
+               @NotNull final DN issuerDN, final long notBefore,
+               final long notAfter, @NotNull final DN subjectDN,
+               @NotNull final OID publicKeyAlgorithmOID,
+               @Nullable final ASN1Element publicKeyAlgorithmParameters,
+               @NotNull final ASN1BitString encodedPublicKey,
+               @NotNull final X509CertificateExtension... extensions)
           throws CertException
   {
     // Get and initialize the signature generator.
@@ -1666,6 +1679,7 @@ public final class X509Certificate
    * @return  The bytes that comprise the encoded representation of this X.509
    *          certificate.
    */
+  @NotNull()
   public byte[] getX509CertificateBytes()
   {
     return x509CertificateBytes;
@@ -1678,6 +1692,7 @@ public final class X509Certificate
    *
    * @return  The certificate version.
    */
+  @NotNull()
   public X509CertificateVersion getVersion()
   {
     return version;
@@ -1690,6 +1705,7 @@ public final class X509Certificate
    *
    * @return  The certificate serial number.
    */
+  @NotNull()
   public BigInteger getSerialNumber()
   {
     return serialNumber;
@@ -1702,6 +1718,7 @@ public final class X509Certificate
    *
    * @return  The certificate signature algorithm OID.
    */
+  @NotNull()
   public OID getSignatureAlgorithmOID()
   {
     return signatureAlgorithmOID;
@@ -1716,6 +1733,7 @@ public final class X509Certificate
    *          signature algorithm OID does not correspond to any known algorithm
    *          name.
    */
+  @Nullable()
   public String getSignatureAlgorithmName()
   {
     return signatureAlgorithmName;
@@ -1729,6 +1747,7 @@ public final class X509Certificate
    *
    * @return  The signature algorithm name or OID.
    */
+  @NotNull()
   public String getSignatureAlgorithmNameOrOID()
   {
     if (signatureAlgorithmName != null)
@@ -1749,6 +1768,7 @@ public final class X509Certificate
    * @return  The encoded signature algorithm parameters, or {@code null} if
    *          there are no signature algorithm parameters.
    */
+  @Nullable()
   public ASN1Element getSignatureAlgorithmParameters()
   {
     return signatureAlgorithmParameters;
@@ -1761,6 +1781,7 @@ public final class X509Certificate
    *
    * @return  The certificate issuer DN.
    */
+  @NotNull()
   public DN getIssuerDN()
   {
     return issuerDN;
@@ -1813,6 +1834,7 @@ public final class X509Certificate
    *
    * @return  The certificate validity end time as a {@code Date}.
    */
+  @NotNull()
   public Date getNotAfterDate()
   {
     return new Date(notAfter);
@@ -1844,7 +1866,7 @@ public final class X509Certificate
    * @return  {@code true} if the provided {@code Date} is within the
    *          certificate's validity window, or {@code false} if not.
    */
-  public boolean isWithinValidityWindow(final Date date)
+  public boolean isWithinValidityWindow(@NotNull final Date date)
   {
     return isWithinValidityWindow(date.getTime());
   }
@@ -1872,6 +1894,7 @@ public final class X509Certificate
    *
    * @return  The certificate subject DN.
    */
+  @NotNull()
   public DN getSubjectDN()
   {
     return subjectDN;
@@ -1884,6 +1907,7 @@ public final class X509Certificate
    *
    * @return  The certificate public key algorithm OID.
    */
+  @NotNull()
   public OID getPublicKeyAlgorithmOID()
   {
     return publicKeyAlgorithmOID;
@@ -1898,6 +1922,7 @@ public final class X509Certificate
    *          public key algorithm OID does not correspond to any known
    *          algorithm name.
    */
+  @Nullable()
   public String getPublicKeyAlgorithmName()
   {
     return publicKeyAlgorithmName;
@@ -1911,6 +1936,7 @@ public final class X509Certificate
    *
    * @return  The signature algorithm name or OID.
    */
+  @NotNull()
   public String getPublicKeyAlgorithmNameOrOID()
   {
     if (publicKeyAlgorithmName != null)
@@ -1931,6 +1957,7 @@ public final class X509Certificate
    * @return  The encoded public key algorithm parameters, or {@code null} if
    *          there are no public key algorithm parameters.
    */
+  @Nullable()
   public ASN1Element getPublicKeyAlgorithmParameters()
   {
     return publicKeyAlgorithmParameters;
@@ -1943,6 +1970,7 @@ public final class X509Certificate
    *
    * @return  The encoded public key as a bit string.
    */
+  @NotNull()
   public ASN1BitString getEncodedPublicKey()
   {
     return encodedPublicKey;
@@ -1956,6 +1984,7 @@ public final class X509Certificate
    * @return  A decoded representation of the public key, or {@code null} if the
    *          public key could not be decoded.
    */
+  @Nullable()
   public DecodedPublicKey getDecodedPublicKey()
   {
     return decodedPublicKey;
@@ -1969,6 +1998,7 @@ public final class X509Certificate
    * @return  The issuer unique identifier for the certificate, or {@code null}
    *          if there is none.
    */
+  @Nullable()
   public ASN1BitString getIssuerUniqueID()
   {
     return issuerUniqueID;
@@ -1982,6 +2012,7 @@ public final class X509Certificate
    * @return  The subject unique identifier for the certificate, or {@code null}
    *          if there is none.
    */
+  @Nullable()
   public ASN1BitString getSubjectUniqueID()
   {
     return subjectUniqueID;
@@ -1994,6 +2025,7 @@ public final class X509Certificate
    *
    * @return  The list of certificate extensions.
    */
+  @NotNull()
   public List<X509CertificateExtension> getExtensions()
   {
     return extensions;
@@ -2006,6 +2038,7 @@ public final class X509Certificate
    *
    * @return  The signature value for the certificate.
    */
+  @NotNull()
   public ASN1BitString getSignatureValue()
   {
     return signatureValue;
@@ -2023,7 +2056,7 @@ public final class X509Certificate
    *
    * @throws  CertException  If the certificate signature could not be verified.
    */
-  public void verifySignature(final X509Certificate issuerCertificate)
+  public void verifySignature(@Nullable final X509Certificate issuerCertificate)
          throws CertException
   {
     // Get the issuer certificate.  If the certificate is self-signed, then it
@@ -2150,6 +2183,7 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while computing the
    *                         fingerprint.
    */
+  @NotNull()
   public byte[] getSHA1Fingerprint()
          throws CertException
   {
@@ -2168,6 +2202,7 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while computing the
    *                         fingerprint.
    */
+  @NotNull()
   public byte[] getSHA256Fingerprint()
          throws CertException
   {
@@ -2187,7 +2222,8 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while computing the
    *                         fingerprint.
    */
-  private byte[] getFingerprint(final String digestAlgorithm)
+  @NotNull()
+  private byte[] getFingerprint(@NotNull final String digestAlgorithm)
           throws CertException
   {
     try
@@ -2280,7 +2316,7 @@ public final class X509Certificate
    * @return  {@code true} if this certificate is considered the issuer for the
    *          provided certificate, or {@code } false if not.
    */
-  public boolean isIssuerFor(final X509Certificate c)
+  public boolean isIssuerFor(@NotNull final X509Certificate c)
   {
     return isIssuerFor(c, null);
   }
@@ -2314,8 +2350,8 @@ public final class X509Certificate
    * @return  {@code true} if this certificate is considered the issuer for the
    *          provided certificate, or {@code } false if not.
    */
-  public boolean isIssuerFor(final X509Certificate c,
-                             final StringBuilder nonMatchReason)
+  public boolean isIssuerFor(@NotNull final X509Certificate c,
+                             @Nullable final StringBuilder nonMatchReason)
   {
     if (! c.issuerDN.equals(subjectDN))
     {
@@ -2387,6 +2423,7 @@ public final class X509Certificate
    * @throws  CertificateException  If a problem is encountered while performing
    *                                the conversion.
    */
+  @NotNull()
   public Certificate toCertificate()
          throws CertificateException
   {
@@ -2402,6 +2439,7 @@ public final class X509Certificate
    * @return  A string representation of the decoded X.509 certificate.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -2417,7 +2455,7 @@ public final class X509Certificate
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("X509Certificate(version='");
     buffer.append(version.getName());
@@ -2546,6 +2584,7 @@ public final class X509Certificate
    * @return  A list of the lines that comprise a PEM representation of this
    *          X.509 certificate.
    */
+  @NotNull()
   public List<String> toPEM()
   {
     final ArrayList<String> lines = new ArrayList<>(10);
@@ -2568,6 +2607,7 @@ public final class X509Certificate
    * @return  A multi-line string containing a PEM representation of this X.509
    *          certificate.
    */
+  @NotNull()
   public String toPEMString()
   {
     final StringBuilder buffer = new StringBuilder();

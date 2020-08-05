@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -111,7 +113,7 @@ public final class MemoryUsageMonitorEntry
   /**
    * The structural object class used in memory usage monitor entries.
    */
-  static final String MEMORY_USAGE_MONITOR_OC =
+  @NotNull static final String MEMORY_USAGE_MONITOR_OC =
        "ds-memory-usage-monitor-entry";
 
 
@@ -120,7 +122,7 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the duration of the longest detected
    * pause.
    */
-  private static final String ATTR_LONGEST_PAUSE_TIME =
+  @NotNull private static final String ATTR_LONGEST_PAUSE_TIME =
        "max-detected-pause-time-millis";
 
 
@@ -129,7 +131,8 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the amount of non-heap memory used
    * by the JVM.
    */
-  private static final String ATTR_NON_HEAP_USED = "non-heap-memory-bytes-used";
+  @NotNull private static final String ATTR_NON_HEAP_USED =
+       "non-heap-memory-bytes-used";
 
 
 
@@ -137,7 +140,7 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the total amount of memory used by
    * memory consumers.
    */
-  private static final String ATTR_TOTAL_CONSUMER_MEMORY =
+  @NotNull private static final String ATTR_TOTAL_CONSUMER_MEMORY =
        "total-bytes-used-by-memory-consumers";
 
 
@@ -146,8 +149,9 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the percentage of committed tenured
    * memory held by memory consumers.
    */
-  private static final String ATTR_TOTAL_CONSUMER_MEMORY_AS_PCT_OF_COMMITTED =
-       "memory-consumers-total-as-percent-of-committed-tenured-memory";
+  @NotNull private static final String
+       ATTR_TOTAL_CONSUMER_MEMORY_AS_PCT_OF_COMMITTED =
+            "memory-consumers-total-as-percent-of-committed-tenured-memory";
 
 
 
@@ -155,15 +159,16 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the percentage of maximum allowed
    * tenured memory held by memory consumers.
    */
-  private static final String ATTR_TOTAL_CONSUMER_MEMORY_AS_PCT_OF_MAX =
-       "memory-consumers-total-as-percent-of-maximum-tenured-memory";
+  @NotNull private static final String
+       ATTR_TOTAL_CONSUMER_MEMORY_AS_PCT_OF_MAX =
+            "memory-consumers-total-as-percent-of-maximum-tenured-memory";
 
 
 
   /**
    * The prefix that will be used for pauses detected by the server.
    */
-  private static final String ATTR_PREFIX_DETECTED_PAUSE =
+  @NotNull private static final String ATTR_PREFIX_DETECTED_PAUSE =
        "detected-pauses-over-";
 
 
@@ -172,7 +177,7 @@ public final class MemoryUsageMonitorEntry
    * The suffix that will be used for attributes providing the total collection
    * count for a garbage collector.
    */
-  private static final String ATTR_SUFFIX_TOTAL_COLLECTION_COUNT =
+  @NotNull private static final String ATTR_SUFFIX_TOTAL_COLLECTION_COUNT =
        "-total-collection-count";
 
 
@@ -181,7 +186,7 @@ public final class MemoryUsageMonitorEntry
    * The suffix that will be used for attributes providing the total collection
    * duration for a garbage collector.
    */
-  private static final String ATTR_SUFFIX_TOTAL_COLLECTION_DURATION =
+  @NotNull private static final String ATTR_SUFFIX_TOTAL_COLLECTION_DURATION =
        "-total-collection-duration";
 
 
@@ -190,7 +195,7 @@ public final class MemoryUsageMonitorEntry
    * The suffix that will be used for attributes providing the average
    * collection duration for a garbage collector.
    */
-  private static final String ATTR_SUFFIX_AVERAGE_COLLECTION_DURATION =
+  @NotNull private static final String ATTR_SUFFIX_AVERAGE_COLLECTION_DURATION =
        "-average-collection-duration";
 
 
@@ -199,7 +204,7 @@ public final class MemoryUsageMonitorEntry
    * The suffix that will be used for attributes providing the recent collection
    * duration for a garbage collector.
    */
-  private static final String ATTR_SUFFIX_RECENT_COLLECTION_DURATION =
+  @NotNull private static final String ATTR_SUFFIX_RECENT_COLLECTION_DURATION =
        "-recent-collection-duration";
 
 
@@ -208,7 +213,7 @@ public final class MemoryUsageMonitorEntry
    * The suffix that will be used for attributes providing the current bytes
    * used in a memory pool.
    */
-  private static final String ATTR_SUFFIX_CURRENT_BYTES_USED =
+  @NotNull private static final String ATTR_SUFFIX_CURRENT_BYTES_USED =
        "-current-bytes-used";
 
 
@@ -217,8 +222,9 @@ public final class MemoryUsageMonitorEntry
    * The suffix that will be used for attributes providing the bytes used after
    * the last collection in a memory pool.
    */
-  private static final String ATTR_SUFFIX_BYTES_USED_AFTER_LAST_COLLECTION =
-       "-bytes-used-after-last-collection";
+  @NotNull private static final String
+       ATTR_SUFFIX_BYTES_USED_AFTER_LAST_COLLECTION =
+            "-bytes-used-after-last-collection";
 
 
 
@@ -226,7 +232,7 @@ public final class MemoryUsageMonitorEntry
    * The name of the property used to provide the numbers of pauses of various
    * durations detected.
    */
-  private static final String PROPERTY_DETECTED_PAUSE_COUNTS =
+  @NotNull private static final String PROPERTY_DETECTED_PAUSE_COUNTS =
        "detected-pause-counts";
 
 
@@ -235,7 +241,7 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the maximum amount of memory that may
    * be used by the JVM, in megabytes.
    */
-  private static final String ATTR_MAX_RESERVABLE_MEMORY_MB =
+  @NotNull private static final String ATTR_MAX_RESERVABLE_MEMORY_MB =
        "maxReservableMemoryMB";
 
 
@@ -244,7 +250,7 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the amount of memory currently
    * allocated for use by the JVM, in megabytes.
    */
-  private static final String ATTR_CURRENT_RESERVED_MEMORY_MB =
+  @NotNull private static final String ATTR_CURRENT_RESERVED_MEMORY_MB =
        "currentReservedMemoryMB";
 
 
@@ -253,7 +259,8 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the amount of allocated JVM memory
    * which is actually in use.
    */
-  private static final String ATTR_USED_MEMORY_MB = "usedReservedMemoryMB";
+  @NotNull private static final String ATTR_USED_MEMORY_MB =
+       "usedReservedMemoryMB";
 
 
 
@@ -261,7 +268,8 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the amount of allocated JVM memory
    * that is not currently in use.
    */
-  private static final String ATTR_FREE_MEMORY_MB = "freeReservedMemoryMB";
+  @NotNull private static final String ATTR_FREE_MEMORY_MB =
+       "freeReservedMemoryMB";
 
 
 
@@ -269,7 +277,7 @@ public final class MemoryUsageMonitorEntry
    * The name of the attribute that holds the percentage of the maximum JVM
    * memory that is actually in use.
    */
-  private static final String ATTR_RESERVED_MEMORY_PERCENT_FULL =
+  @NotNull private static final String ATTR_RESERVED_MEMORY_PERCENT_FULL =
        "reservedMemoryPercentFull";
 
 
@@ -282,63 +290,63 @@ public final class MemoryUsageMonitorEntry
 
 
   // The list of garbage collectors for which information is available.
-  private final List<String> garbageCollectors;
+  @NotNull private final List<String> garbageCollectors;
 
   // The list of memory pools for which information is available.
-  private final List<String> memoryPools;
+  @NotNull private final List<String> memoryPools;
 
   // The amount of memory that has currently been allocated by the JVM, in
   // megabytes.
-  private final Long currentReservedMemoryMB;
+  @Nullable private final Long currentReservedMemoryMB;
 
   // The amount of allocated JVM memory that is not currently in use, in
   // megabytes.
-  private final Long freeReservedMemoryMB;
+  @Nullable private final Long freeReservedMemoryMB;
 
   // The maximum pause time detected by the JVM.
-  private final Long maxDetectedPauseTime;
+  @Nullable private final Long maxDetectedPauseTime;
 
   // The maximum amount of memory that may be used by the JVM, in megabytes.
-  private final Long maxReservableMemoryMB;
+  @Nullable private final Long maxReservableMemoryMB;
 
   // The amount of non-heap memory consumed by the JVM.
-  private final Long nonHeapMemoryUsed;
+  @Nullable private final Long nonHeapMemoryUsed;
 
   // The percentage of committed tenured memory held by consumers.
-  private final Long percentOfCommittedTenuredMemory;
+  @Nullable private final Long percentOfCommittedTenuredMemory;
 
   // The percentage of maximum tenured memory held by consumers.
-  private final Long percentOfMaxTenuredMemory;
+  @Nullable private final Long percentOfMaxTenuredMemory;
 
   // The percentage of the maximum JVM memory that is currently in use.
-  private final Long reservedMemoryPercentFull;
+  @Nullable private final Long reservedMemoryPercentFull;
 
   // The total amount of memory held by memory consumers.
-  private final Long totalBytesHeldByConsumers;
+  @Nullable private final Long totalBytesHeldByConsumers;
 
   // The amount of allocated JVM memory that is currently in use, in megabytes.
-  private final Long usedReservedMemoryMB;
+  @Nullable private final Long usedReservedMemoryMB;
 
   // The number of pauses exceeding specified thresholds.
-  private final Map<Long,Long> detectedPauses;
+  @NotNull private final Map<Long,Long> detectedPauses;
 
   // The list of bytes used after the last collection per memory pool.
-  private final Map<String,Long> bytesUsedAfterLastCollectionPerMP;
+  @NotNull private final Map<String,Long> bytesUsedAfterLastCollectionPerMP;
 
   // The list of current bytes used per memory pool.
-  private final Map<String,Long> currentBytesUsedPerMP;
+  @NotNull private final Map<String,Long> currentBytesUsedPerMP;
 
   // The list of average collection durations per garbage collector.
-  private final Map<String,Long> averageCollectionDurationPerGC;
+  @NotNull private final Map<String,Long> averageCollectionDurationPerGC;
 
   // The list of recent collection durations per garbage collector.
-  private final Map<String,Long> recentCollectionDurationPerGC;
+  @NotNull private final Map<String,Long> recentCollectionDurationPerGC;
 
   // The list of total collection counts per garbage collector.
-  private final Map<String,Long> totalCollectionCountPerGC;
+  @NotNull private final Map<String,Long> totalCollectionCountPerGC;
 
   // The list of total collection durations per garbage collector.
-  private final Map<String,Long> totalCollectionDurationPerGC;
+  @NotNull private final Map<String,Long> totalCollectionDurationPerGC;
 
 
 
@@ -348,7 +356,7 @@ public final class MemoryUsageMonitorEntry
    * @param  entry  The entry to be parsed as a memory usage monitor entry.  It
    *                must not be {@code null}.
    */
-  public MemoryUsageMonitorEntry(final Entry entry)
+  public MemoryUsageMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -543,6 +551,7 @@ public final class MemoryUsageMonitorEntry
    *          and used by the JVM, or {@code null} if this was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public Long getMaxReservableMemoryMB()
   {
     return maxReservableMemoryMB;
@@ -558,6 +567,7 @@ public final class MemoryUsageMonitorEntry
    *          for use by the JVM, or {@code null} if this was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public Long getCurrentReservedMemoryMB()
   {
     return currentReservedMemoryMB;
@@ -573,6 +583,7 @@ public final class MemoryUsageMonitorEntry
    *          that is currently in use for holding Java objects, or {@code null}
    *          if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getUsedReservedMemoryMB()
   {
     return usedReservedMemoryMB;
@@ -588,6 +599,7 @@ public final class MemoryUsageMonitorEntry
    *          that is not currently in use for holding Java objects, or
    *          {@code null} if this was not included in the monitor entry.
    */
+  @Nullable()
   public Long getFreeReservedMemoryMB()
   {
     return freeReservedMemoryMB;
@@ -602,6 +614,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The percent of the currently-reserved memory that is actually in
    *          use by the JVM for storing Java objects.
    */
+  @Nullable()
   public Long getReservedMemoryPercentFull()
   {
     return reservedMemoryPercentFull;
@@ -616,6 +629,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The names of the garbage collectors for which information is
    *          available.
    */
+  @NotNull()
   public List<String> getGarbageCollectorNames()
   {
     return garbageCollectors;
@@ -628,6 +642,7 @@ public final class MemoryUsageMonitorEntry
    *
    * @return  The names of the memory pools for which information is available.
    */
+  @NotNull()
   public List<String> getMemoryPoolNames()
   {
     return memoryPools;
@@ -642,6 +657,7 @@ public final class MemoryUsageMonitorEntry
    * @return  A map containing the total number of garbage collections performed
    *          per collector.
    */
+  @NotNull()
   public Map<String,Long> getTotalCollectionCounts()
   {
     return totalCollectionCountPerGC;
@@ -659,6 +675,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The total number of garbage collections performed by the specified
    *          collector, or {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getTotalCollectionCount(final String collectorName)
   {
     return totalCollectionCountPerGC.get(
@@ -674,6 +691,7 @@ public final class MemoryUsageMonitorEntry
    * @return  A map containing the total length of time (in milliseconds) spent
    *          performing garbage collection per collector.
    */
+  @NotNull()
   public Map<String,Long> getTotalCollectionDurations()
   {
     return totalCollectionDurationPerGC;
@@ -692,6 +710,7 @@ public final class MemoryUsageMonitorEntry
    *          garbage collection for the specified collector, or {@code null} if
    *          that information is not available.
    */
+  @Nullable()
   public Long getTotalCollectionDuration(final String collectorName)
   {
     return totalCollectionDurationPerGC.get(
@@ -707,6 +726,7 @@ public final class MemoryUsageMonitorEntry
    * @return  A map containing the average garbage collection duration (in
    *          milliseconds) per garbage collector.
    */
+  @NotNull()
   public Map<String,Long> getAverageCollectionDurations()
   {
     return averageCollectionDurationPerGC;
@@ -725,6 +745,7 @@ public final class MemoryUsageMonitorEntry
    *          specified collector, or {@code null} if that information is not
    *          available.
    */
+  @Nullable()
   public Long getAverageCollectionDuration(final String collectorName)
   {
     return averageCollectionDurationPerGC.get(
@@ -740,6 +761,7 @@ public final class MemoryUsageMonitorEntry
    * @return  A map containing the duration of the most recent garbage
    *          collection duration (in milliseconds) per garbage collector.
    */
+  @NotNull()
   public Map<String,Long> getRecentCollectionDurations()
   {
     return recentCollectionDurationPerGC;
@@ -758,6 +780,7 @@ public final class MemoryUsageMonitorEntry
    *          collection for the specified collector, or {@code null} if that
    *          information is not available.
    */
+  @Nullable()
   public Long getRecentCollectionDuration(final String collectorName)
   {
     return recentCollectionDurationPerGC.get(
@@ -772,6 +795,7 @@ public final class MemoryUsageMonitorEntry
    *
    * @return  A map containing the current number of bytes used per memory pool.
    */
+  @NotNull()
   public Map<String,Long> getCurrentBytesUsed()
   {
     return currentBytesUsedPerMP;
@@ -788,6 +812,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The current number of bytes used for the specified memory pool, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getCurrentBytesUsed(final String poolName)
   {
     return currentBytesUsedPerMP.get(StaticUtils.toLowerCase(poolName));
@@ -802,6 +827,7 @@ public final class MemoryUsageMonitorEntry
    * @return  A map containing the number of bytes used after the last garbage
    *          collection per memory pool.
    */
+  @NotNull()
   public Map<String,Long> getBytesUsedAfterLastCollection()
   {
     return bytesUsedAfterLastCollectionPerMP;
@@ -820,6 +846,7 @@ public final class MemoryUsageMonitorEntry
    *          specified memory pool, or {@code null} if that information is not
    *          available.
    */
+  @Nullable()
   public Long getBytesUsedAfterLastCollection(final String poolName)
   {
     return bytesUsedAfterLastCollectionPerMP.get(
@@ -834,6 +861,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The amount of non-heap memory consumed by the JVM, or {@code null}
    *          if that information is not available.
    */
+  @Nullable()
   public Long getNonHeapMemoryBytesUsed()
   {
     return nonHeapMemoryUsed;
@@ -847,6 +875,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The total amount of memory in bytes held by memory consumers, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getTotalBytesUsedByMemoryConsumers()
   {
     return totalBytesHeldByConsumers;
@@ -863,6 +892,7 @@ public final class MemoryUsageMonitorEntry
    *          that is used by memory consumers, or {@code null} if that
    *          information is not available.
    */
+  @Nullable()
   public Long getPercentageOfMaximumTenuredMemoryUsedByMemoryConsumers()
   {
     return percentOfMaxTenuredMemory;
@@ -879,6 +909,7 @@ public final class MemoryUsageMonitorEntry
    *          used by memory consumers, or {@code null} if that information is
    *          not available.
    */
+  @Nullable()
   public Long getPercentageOfCommittedTenuredMemoryUsedByMemoryConsumers()
   {
     return percentOfCommittedTenuredMemory;
@@ -894,6 +925,7 @@ public final class MemoryUsageMonitorEntry
    *
    * @return  The number of pauses of various durations detected by the server.
    */
+  @NotNull()
   public Map<Long,Long> getDetectedPauseCounts()
   {
     return detectedPauses;
@@ -907,6 +939,7 @@ public final class MemoryUsageMonitorEntry
    * @return  The duration of the longest pause detected by the server, or
    *          {@code null} if that information is not available.
    */
+  @Nullable()
   public Long getMaxDetectedPauseTimeMillis()
   {
     return maxDetectedPauseTime;
@@ -918,6 +951,7 @@ public final class MemoryUsageMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_MEMORY_USAGE_MONITOR_DISPNAME.get();
@@ -929,6 +963,7 @@ public final class MemoryUsageMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_MEMORY_USAGE_MONITOR_DESC.get();
@@ -940,6 +975,7 @@ public final class MemoryUsageMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

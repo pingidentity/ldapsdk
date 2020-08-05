@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -88,7 +89,7 @@ public final class RealAttributesOnlyRequestControl
    * The OID (2.16.840.1.113730.3.4.17) for the real attributes only request
    * control.
    */
-  public static final String REAL_ATTRIBUTES_ONLY_REQUEST_OID =
+  @NotNull public static final String REAL_ATTRIBUTES_ONLY_REQUEST_OID =
        "2.16.840.1.113730.3.4.17";
 
 
@@ -135,7 +136,7 @@ public final class RealAttributesOnlyRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a real
    *                         attributes only request control.
    */
-  public RealAttributesOnlyRequestControl(final Control control)
+  public RealAttributesOnlyRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -153,6 +154,7 @@ public final class RealAttributesOnlyRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_REAL_ATTRS_ONLY_REQUEST.get();
@@ -164,7 +166,7 @@ public final class RealAttributesOnlyRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RealAttributesOnlyRequestControl(isCritical=");
     buffer.append(isCritical());

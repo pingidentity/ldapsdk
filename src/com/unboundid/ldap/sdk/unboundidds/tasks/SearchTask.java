@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -94,7 +96,7 @@ public final class SearchTask
    * The fully-qualified name of the Java class that is used for the search
    * task.
    */
-  static final String SEARCH_TASK_CLASS =
+  @NotNull static final String SEARCH_TASK_CLASS =
        "com.unboundid.directory.server.tasks.SearchTask";
 
 
@@ -102,28 +104,28 @@ public final class SearchTask
   /**
    * The name of the attribute used to specify the search base DN.
    */
-  private static final String ATTR_BASE_DN = "ds-task-search-base-dn";
+  @NotNull private static final String ATTR_BASE_DN = "ds-task-search-base-dn";
 
 
 
   /**
    * The name of the attribute used to specify the search scope.
    */
-  private static final String ATTR_SCOPE = "ds-task-search-scope";
+  @NotNull private static final String ATTR_SCOPE = "ds-task-search-scope";
 
 
 
   /**
    * The name of the attribute used to specify the search filter.
    */
-  private static final String ATTR_FILTER = "ds-task-search-filter";
+  @NotNull private static final String ATTR_FILTER = "ds-task-search-filter";
 
 
 
   /**
    * The name of the attribute used to specify the attribute(s) to return.
    */
-  private static final String ATTR_RETURN_ATTR =
+  @NotNull private static final String ATTR_RETURN_ATTR =
        "ds-task-search-return-attribute";
 
 
@@ -131,28 +133,30 @@ public final class SearchTask
   /**
    * The name of the attribute used to specify the authorization DN.
    */
-  private static final String ATTR_AUTHZ_DN = "ds-task-search-authz-dn";
+  @NotNull private static final String ATTR_AUTHZ_DN =
+       "ds-task-search-authz-dn";
 
 
 
   /**
    * The name of the attribute used to specify the output file.
    */
-  private static final String ATTR_OUTPUT_FILE = "ds-task-search-output-file";
+  @NotNull private static final String ATTR_OUTPUT_FILE =
+       "ds-task-search-output-file";
 
 
 
   /**
    * The name of the object class used in search task entries.
    */
-  private static final String OC_SEARCH_TASK = "ds-task-search";
+  @NotNull private static final String OC_SEARCH_TASK = "ds-task-search";
 
 
 
   /**
    * The task property that will be used for the base DN.
    */
-  private static final TaskProperty PROPERTY_BASE_DN =
+  @NotNull private static final TaskProperty PROPERTY_BASE_DN =
        new TaskProperty(ATTR_BASE_DN,
             INFO_SEARCH_TASK_DISPLAY_NAME_BASE_DN.get(),
             INFO_SEARCH_TASK_DESCRIPTION_BASE_DN.get(), String.class, true,
@@ -163,7 +167,7 @@ public final class SearchTask
   /**
    * The allowed values for the scope property.
    */
-  private static final Object[] ALLOWED_SCOPE_VALUES =
+  @NotNull private static final Object[] ALLOWED_SCOPE_VALUES =
   {
     "base", "baseobject", "0",
     "one", "onelevel", "singlelevel", "1",
@@ -176,7 +180,7 @@ public final class SearchTask
   /**
    * The task property that will be used for the scope.
    */
-  private static final TaskProperty PROPERTY_SCOPE =
+  @NotNull private static final TaskProperty PROPERTY_SCOPE =
        new TaskProperty(ATTR_SCOPE,
             INFO_SEARCH_TASK_DISPLAY_NAME_SCOPE.get(),
             INFO_SEARCH_TASK_DESCRIPTION_SCOPE.get(), String.class, true,
@@ -187,7 +191,7 @@ public final class SearchTask
   /**
    * The task property that will be used for the filter.
    */
-  private static final TaskProperty PROPERTY_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_FILTER =
        new TaskProperty(ATTR_FILTER,
             INFO_SEARCH_TASK_DISPLAY_NAME_FILTER.get(),
             INFO_SEARCH_TASK_DESCRIPTION_FILTER.get(), String.class, true,
@@ -198,7 +202,7 @@ public final class SearchTask
   /**
    * The task property that will be used for the requested attributes.
    */
-  private static final TaskProperty PROPERTY_REQUESTED_ATTR =
+  @NotNull private static final TaskProperty PROPERTY_REQUESTED_ATTR =
        new TaskProperty(ATTR_RETURN_ATTR,
             INFO_SEARCH_TASK_DISPLAY_NAME_RETURN_ATTR.get(),
             INFO_SEARCH_TASK_DESCRIPTION_RETURN_ATTR.get(), String.class, false,
@@ -209,7 +213,7 @@ public final class SearchTask
   /**
    * The task property that will be used for the authorization DN.
    */
-  private static final TaskProperty PROPERTY_AUTHZ_DN =
+  @NotNull private static final TaskProperty PROPERTY_AUTHZ_DN =
        new TaskProperty(ATTR_AUTHZ_DN,
             INFO_SEARCH_TASK_DISPLAY_NAME_AUTHZ_DN.get(),
             INFO_SEARCH_TASK_DESCRIPTION_AUTHZ_DN.get(), String.class, false,
@@ -220,7 +224,7 @@ public final class SearchTask
   /**
    * The task property that will be used for the output file.
    */
-  private static final TaskProperty PROPERTY_OUTPUT_FILE =
+  @NotNull private static final TaskProperty PROPERTY_OUTPUT_FILE =
        new TaskProperty(ATTR_OUTPUT_FILE,
             INFO_SEARCH_TASK_DISPLAY_NAME_OUTPUT_FILE.get(),
             INFO_SEARCH_TASK_DESCRIPTION_NAME_OUTPUT_FILE.get(), String.class,
@@ -236,22 +240,22 @@ public final class SearchTask
 
 
   // The search filter.
-  private final Filter filter;
+  @NotNull private final Filter filter;
 
   // The list of attributes to return.
-  private final List<String> attributes;
+  @NotNull private final List<String> attributes;
 
   // The search scope.
-  private final SearchScope scope;
+  @NotNull private final SearchScope scope;
 
   // The authorization DN.
-  private final String authzDN;
+  @Nullable private final String authzDN;
 
   // The search base DN.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
   // The output file path.
-  private final String outputFile;
+  @NotNull private final String outputFile;
 
 
 
@@ -292,9 +296,12 @@ public final class SearchTask
    *                     which the results should be written.  It must not be
    *                     {@code null}.
    */
-  public SearchTask(final String taskID, final String baseDN,
-                    final SearchScope scope, final Filter filter,
-                    final List<String> attributes, final String outputFile)
+  public SearchTask(@Nullable final String taskID,
+                    @NotNull final String baseDN,
+                    @NotNull final SearchScope scope,
+                    @NotNull final Filter filter,
+                    @Nullable final List<String> attributes,
+                    @NotNull final String outputFile)
   {
     this(taskID, baseDN, scope, filter, attributes, outputFile, null, null,
          null, null, null, null);
@@ -324,10 +331,13 @@ public final class SearchTask
    *                     processed.  If this is {@code null}, then it will be
    *                     processed as an internal root user.
    */
-  public SearchTask(final String taskID, final String baseDN,
-                    final SearchScope scope, final Filter filter,
-                    final List<String> attributes, final String outputFile,
-                    final String authzDN)
+  public SearchTask(@Nullable final String taskID,
+                    @NotNull final String baseDN,
+                    @NotNull final SearchScope scope,
+                    @NotNull final Filter filter,
+                    @Nullable final List<String> attributes,
+                    @NotNull final String outputFile,
+                    @Nullable final String authzDN)
   {
     this(taskID, baseDN, scope, filter, attributes, outputFile, authzDN, null,
          null, null, null, null);
@@ -373,14 +383,18 @@ public final class SearchTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public SearchTask(final String taskID, final String baseDN,
-                    final SearchScope scope, final Filter filter,
-                    final List<String> attributes, final String outputFile,
-                    final String authzDN,  final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public SearchTask(@Nullable final String taskID,
+              @NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final List<String> attributes,
+              @NotNull final String outputFile,
+              @Nullable final String authzDN,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, baseDN, scope, filter, attributes, outputFile, authzDN,
          scheduledStartTime, dependencyIDs, failedDependencyAction, null,
@@ -441,18 +455,23 @@ public final class SearchTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public SearchTask(final String taskID, final String baseDN,
-                    final SearchScope scope, final Filter filter,
-                    final List<String> attributes, final String outputFile,
-                    final String authzDN,  final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnStart,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnSuccess,
-                    final List<String> notifyOnError,
-                    final Boolean alertOnStart, final Boolean alertOnSuccess,
-                    final Boolean alertOnError)
+  public SearchTask(@Nullable final String taskID,
+              @NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final List<String> attributes,
+              @NotNull final String outputFile,
+              @Nullable final String authzDN,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, SEARCH_TASK_CLASS, scheduledStartTime, dependencyIDs,
          failedDependencyAction, notifyOnStart, notifyOnCompletion,
@@ -487,7 +506,7 @@ public final class SearchTask
    * @throws  TaskException  If the provided entry cannot be parsed as a search
    *                         task entry.
    */
-  public SearchTask(final Entry entry)
+  public SearchTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -594,7 +613,7 @@ public final class SearchTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid add schema file task.
    */
-  public SearchTask(final Map<TaskProperty,List<Object>> properties)
+  public SearchTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(SEARCH_TASK_CLASS, properties);
@@ -726,6 +745,7 @@ public final class SearchTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_SEARCH.get();
@@ -737,6 +757,7 @@ public final class SearchTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_SEARCH.get();
@@ -749,6 +770,7 @@ public final class SearchTask
    *
    * @return  The base DN for the search.
    */
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -761,6 +783,7 @@ public final class SearchTask
    *
    * @return  The scope for the search.
    */
+  @NotNull()
   public SearchScope getScope()
   {
     return scope;
@@ -773,6 +796,7 @@ public final class SearchTask
    *
    * @return  The filter for the search.
    */
+  @NotNull()
   public Filter getFilter()
   {
     return filter;
@@ -786,6 +810,7 @@ public final class SearchTask
    * @return  The list of attributes to include in matching entries, or an
    *          empty list of all user attributes should be requested.
    */
+  @NotNull()
   public List<String> getAttributes()
   {
     return attributes;
@@ -799,6 +824,7 @@ public final class SearchTask
    * @return  The DN of the user as whom the request should be processed, or
    *          {@code null} if it should be processed as an internal root user.
    */
+  @Nullable()
   public String getAuthzDN()
   {
     return authzDN;
@@ -813,6 +839,7 @@ public final class SearchTask
    * @return  The path to the file on the server filesystem to which the results
    *          should be written.
    */
+  @NotNull()
   public String getOutputFile()
   {
     return outputFile;
@@ -824,6 +851,7 @@ public final class SearchTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_SEARCH_TASK);
@@ -835,6 +863,7 @@ public final class SearchTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final LinkedList<Attribute> attrs = new LinkedList<>();
@@ -863,6 +892,7 @@ public final class SearchTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final LinkedList<TaskProperty> props = new LinkedList<>();
@@ -883,6 +913,7 @@ public final class SearchTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

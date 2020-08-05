@@ -45,6 +45,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPExtendedOperationException;
 import com.unboundid.ldap.sdk.PostConnectProcessor;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,7 +87,7 @@ public final class StartAdministrativeSessionPostConnectProcessor
 
   // The start administrative session extended request to be invoked for
   // newly-established connections.
-  private final StartAdministrativeSessionExtendedRequest request;
+  @NotNull private final StartAdministrativeSessionExtendedRequest request;
 
 
 
@@ -98,7 +99,7 @@ public final class StartAdministrativeSessionPostConnectProcessor
    *                  invoked for newly-established connections.
    */
   public StartAdministrativeSessionPostConnectProcessor(
-              final StartAdministrativeSessionExtendedRequest request)
+              @NotNull final StartAdministrativeSessionExtendedRequest request)
   {
     this.request = request;
   }
@@ -109,7 +110,8 @@ public final class StartAdministrativeSessionPostConnectProcessor
    * {@inheritDoc}
    */
   @Override()
-  public void processPreAuthenticatedConnection(final LDAPConnection connection)
+  public void processPreAuthenticatedConnection(
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     final ExtendedResult result =
@@ -127,7 +129,7 @@ public final class StartAdministrativeSessionPostConnectProcessor
    */
   @Override()
   public void processPostAuthenticatedConnection(
-                   final LDAPConnection connection)
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     // No implementation is required.

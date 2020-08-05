@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,13 +73,13 @@ public final class DeleteAssuranceCompletedAccessLogMessage
 
 
   // Indicates whether the local assurance requirement was satisfied.
-  private final Boolean localAssuranceSatisfied;
+  @Nullable private final Boolean localAssuranceSatisfied;
 
   // Indicates whether the remote assurance requirement was satisfied.
-  private final Boolean remoteAssuranceSatisfied;
+  @Nullable private final Boolean remoteAssuranceSatisfied;
 
   // A string with information about the per-server assurance results.
-  private final String serverAssuranceResults;
+  @Nullable private final String serverAssuranceResults;
 
 
 
@@ -91,7 +93,7 @@ public final class DeleteAssuranceCompletedAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public DeleteAssuranceCompletedAccessLogMessage(final String s)
+  public DeleteAssuranceCompletedAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -106,7 +108,7 @@ public final class DeleteAssuranceCompletedAccessLogMessage
    * @param  m  The log message to be parsed as an delete assurance complete
    *            access log message.
    */
-  public DeleteAssuranceCompletedAccessLogMessage(final LogMessage m)
+  public DeleteAssuranceCompletedAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -126,6 +128,7 @@ public final class DeleteAssuranceCompletedAccessLogMessage
    *          satisfied, or {@code null} if it was not included in the log
    *          message.
    */
+  @Nullable()
   public Boolean getLocalAssuranceSatisfied()
   {
     return localAssuranceSatisfied;
@@ -141,6 +144,7 @@ public final class DeleteAssuranceCompletedAccessLogMessage
    *          satisfied, or {@code null} if it was not included in the log
    *          message.
    */
+  @Nullable()
   public Boolean getRemoteAssuranceSatisfied()
   {
     return remoteAssuranceSatisfied;
@@ -156,6 +160,7 @@ public final class DeleteAssuranceCompletedAccessLogMessage
    *          individual servers in the replication environment, or
    *          {@code null} if it was not included in the log message.
    */
+  @Nullable()
   public String getServerAssuranceResults()
   {
     return serverAssuranceResults;
@@ -167,6 +172,7 @@ public final class DeleteAssuranceCompletedAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.ASSURANCE_COMPLETE;

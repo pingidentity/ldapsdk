@@ -44,6 +44,8 @@ import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -110,23 +112,23 @@ public final class FastestConnectServerSet
 {
   // The bind request to use to authenticate connections created by this
   // server set.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
   // The port numbers of the target servers.
-  private final int[] ports;
+  @NotNull private final int[] ports;
 
   // The set of connection options to use for new connections.
-  private final LDAPConnectionOptions connectionOptions;
+  @NotNull private final LDAPConnectionOptions connectionOptions;
 
   // The post-connect processor to invoke against connections created by this
   // server set.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
   // The addresses of the target servers.
-  private final String[] addresses;
+  @NotNull private final String[] addresses;
 
 
 
@@ -145,7 +147,8 @@ public final class FastestConnectServerSet
    *                    elements in the {@code addresses} array must correspond
    *                    to the order of elements in the {@code ports} array.
    */
-  public FastestConnectServerSet(final String[] addresses, final int[] ports)
+  public FastestConnectServerSet(@NotNull final String[] addresses,
+                                 @NotNull final int[] ports)
   {
     this(addresses, ports, null, null);
   }
@@ -170,8 +173,9 @@ public final class FastestConnectServerSet
    * @param  connectionOptions  The set of connection options to use for the
    *                            underlying connections.
    */
-  public FastestConnectServerSet(final String[] addresses, final int[] ports,
-                                 final LDAPConnectionOptions connectionOptions)
+  public FastestConnectServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(addresses, ports, null, connectionOptions);
   }
@@ -196,8 +200,9 @@ public final class FastestConnectServerSet
    * @param  socketFactory  The socket factory to use to create the underlying
    *                        connections.
    */
-  public FastestConnectServerSet(final String[] addresses, final int[] ports,
-                                 final SocketFactory socketFactory)
+  public FastestConnectServerSet(@NotNull final String[] addresses,
+                                 @NotNull final int[] ports,
+                                 @Nullable final SocketFactory socketFactory)
   {
     this(addresses, ports, socketFactory, null);
   }
@@ -224,9 +229,10 @@ public final class FastestConnectServerSet
    * @param  connectionOptions  The set of connection options to use for the
    *                            underlying connections.
    */
-  public FastestConnectServerSet(final String[] addresses, final int[] ports,
-                                 final SocketFactory socketFactory,
-                                 final LDAPConnectionOptions connectionOptions)
+  public FastestConnectServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(addresses, ports, socketFactory, connectionOptions, null, null);
   }
@@ -262,11 +268,12 @@ public final class FastestConnectServerSet
    *                               may be {@code null} if this server set should
    *                               not perform any post-connect processing.
    */
-  public FastestConnectServerSet(final String[] addresses, final int[] ports,
-              final SocketFactory socketFactory,
-              final LDAPConnectionOptions connectionOptions,
-              final BindRequest bindRequest,
-              final PostConnectProcessor postConnectProcessor)
+  public FastestConnectServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions,
+              @Nullable final BindRequest bindRequest,
+              @Nullable final PostConnectProcessor postConnectProcessor)
   {
     Validator.ensureNotNull(addresses, ports);
     Validator.ensureTrue(addresses.length > 0,
@@ -308,6 +315,7 @@ public final class FastestConnectServerSet
    * @return  The addresses of the directory servers to which the connections
    *          should be established.
    */
+  @NotNull()
   public String[] getAddresses()
   {
     return addresses;
@@ -322,6 +330,7 @@ public final class FastestConnectServerSet
    * @return  The ports of the directory servers to which the connections should
    *          be established.
    */
+  @NotNull()
   public int[] getPorts()
   {
     return ports;
@@ -334,6 +343,7 @@ public final class FastestConnectServerSet
    *
    * @return  The socket factory that will be used to establish connections.
    */
+  @NotNull()
   public SocketFactory getSocketFactory()
   {
     return socketFactory;
@@ -348,6 +358,7 @@ public final class FastestConnectServerSet
    * @return  The set of connection options that will be used for underlying
    *          connections.
    */
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     return connectionOptions;
@@ -381,6 +392,7 @@ public final class FastestConnectServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -393,8 +405,9 @@ public final class FastestConnectServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection(
-                             final LDAPConnectionPoolHealthCheck healthCheck)
+              @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     if (! connectionOptions.allowConcurrentSocketFactoryUse())
@@ -501,7 +514,7 @@ public final class FastestConnectServerSet
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("FastestConnectServerSet(servers={");
 

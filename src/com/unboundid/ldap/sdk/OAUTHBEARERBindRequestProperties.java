@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -65,29 +67,29 @@ public final class OAUTHBEARERBindRequestProperties
 
 
   // The port of the server to which the request will be sent.
-  private Integer serverPort;
+  @Nullable private Integer serverPort;
 
   // The access token to include in the bind request.
-  private String accessToken;
+  @NotNull private String accessToken;
 
   // The authorization identity to include in the GS2 header for the bind
   // request.
-  private String authorizationID;
+  @Nullable private String authorizationID;
 
   // The method to use for HTTP-based requests.
-  private String requestMethod;
+  @Nullable private String requestMethod;
 
   // The path to use for HTTP-based requests.
-  private String requestPath;
+  @Nullable private String requestPath;
 
   // The post data for HTTP-based requests.
-  private String requestPostData;
+  @Nullable private String requestPostData;
 
   // The query string for HTTP-based requests.
-  private String requestQueryString;
+  @Nullable private String requestQueryString;
 
   // The address of the server to which the request will be sent.
-  private String serverAddress;
+  @Nullable private String serverAddress;
 
 
 
@@ -98,7 +100,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @param  accessToken  The access token to include in the bind request.  It
    *                      must not be {@code null} or empty.
    */
-  public OAUTHBEARERBindRequestProperties(final String accessToken)
+  public OAUTHBEARERBindRequestProperties(@NotNull final String accessToken)
   {
     Validator.ensureNotNullOrEmpty(accessToken,
          "OAUTHBEARERBindRequestProperties.accessToken must not be null or " +
@@ -125,7 +127,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                     {@code null}.
    */
   public OAUTHBEARERBindRequestProperties(
-              final OAUTHBEARERBindRequestProperties properties)
+              @NotNull final OAUTHBEARERBindRequestProperties properties)
   {
     Validator.ensureNotNullWithMessage(properties,
          "OAUTHBEARERBindRequestProperties.properties must not be null.");
@@ -150,7 +152,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                      of properties.  It must not be {@code null}.
    */
   public OAUTHBEARERBindRequestProperties(
-              final OAUTHBEARERBindRequest bindRequest)
+              @NotNull final OAUTHBEARERBindRequest bindRequest)
   {
     Validator.ensureNotNullWithMessage(bindRequest,
          "OAUTHBEARERBindRequestProperties.bindRequest must not be null.");
@@ -172,6 +174,7 @@ public final class OAUTHBEARERBindRequestProperties
    *
    * @return  The access token to include in the bind request.
    */
+  @NotNull()
   public String getAccessToken()
   {
     return accessToken;
@@ -185,7 +188,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @param  accessToken  The access token to include in the bind request.  It
    *                      must not be {@code null} or empty.
    */
-  public void setAccessToken(final String accessToken)
+  public void setAccessToken(@NotNull final String accessToken)
   {
     Validator.ensureNotNullOrEmpty(accessToken,
          "OAUTHBEARERBindRequestProperties.accessToken must not be null or " +
@@ -204,6 +207,7 @@ public final class OAUTHBEARERBindRequestProperties
    *          request, or {@code null} if no authorization ID should be
    *          included.
    */
+  @Nullable()
   public String getAuthorizationID()
   {
     return authorizationID;
@@ -219,7 +223,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                          request.  It may be {@code null} if no
    *                          authorization ID should be provided.
    */
-  public void setAuthorizationID(final String authorizationID)
+  public void setAuthorizationID(@Nullable final String authorizationID)
   {
     this.authorizationID = authorizationID;
   }
@@ -232,6 +236,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @return  The server address to include in the bind request, or {@code null}
    *          if it should be omitted.
    */
+  @Nullable()
   public String getServerAddress()
   {
     return serverAddress;
@@ -246,7 +251,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                        It may be {@code null} if the server address should
    *                        be omitted.
    */
-  public void setServerAddress(final String serverAddress)
+  public void setServerAddress(@Nullable final String serverAddress)
   {
     this.serverAddress = serverAddress;
   }
@@ -259,6 +264,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @return  The server port to include in the bind request, or {@code null}
    *          if it should be omitted.
    */
+  @Nullable()
   public Integer getServerPort()
   {
     return serverPort;
@@ -274,7 +280,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                      omitted.  If it is non-{@code null}, then the value
    *                      must be between 1 and 65535, inclusive.
    */
-  public void setServerPort(final Integer serverPort)
+  public void setServerPort(@Nullable final Integer serverPort)
   {
     if (serverPort != null)
     {
@@ -294,6 +300,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @return  The method to use for HTTP-based requests, or {@code null} if it
    *          should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestMethod()
   {
     return requestMethod;
@@ -309,7 +316,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                         be {@code null} if the request method should be
    *                         omitted.
    */
-  public void setRequestMethod(final String requestMethod)
+  public void setRequestMethod(@Nullable final String requestMethod)
   {
     this.requestMethod = requestMethod;
   }
@@ -322,6 +329,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @return  The path to use for HTTP-based requests, or {@code null} if it
    *          should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestPath()
   {
     return requestPath;
@@ -336,7 +344,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @param  requestPath  The path to use for HTTP-based requests.  It may be
    *                      {@code null} if the request path should be omitted.
    */
-  public void setRequestPath(final String requestPath)
+  public void setRequestPath(@Nullable final String requestPath)
   {
     this.requestPath = requestPath;
   }
@@ -349,6 +357,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @return  The post data for HTTP-based requests, or {@code null} if it
    *          should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestPostData()
   {
     return requestPostData;
@@ -363,7 +372,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @param  requestPostData  The post data for HTTP-based requests.  It may be
    *                          {@code null} if the post data should be omitted.
    */
-  public void setRequestPostData(final String requestPostData)
+  public void setRequestPostData(@Nullable final String requestPostData)
   {
     this.requestPostData = requestPostData;
   }
@@ -376,6 +385,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @return  The query string to use for HTTP-based requests, or {@code null}
    *          if it should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestQueryString()
   {
     return requestQueryString;
@@ -391,7 +401,7 @@ public final class OAUTHBEARERBindRequestProperties
    *                             requests.  It may be {@code null} if it should
    *                             be omitted from the bind request.
    */
-  public void setRequestQueryString(final String requestQueryString)
+  public void setRequestQueryString(@Nullable final String requestQueryString)
   {
     this.requestQueryString = requestQueryString;
   }
@@ -406,6 +416,7 @@ public final class OAUTHBEARERBindRequestProperties
    *          properties.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -422,7 +433,7 @@ public final class OAUTHBEARERBindRequestProperties
    * @param  buffer  The buffer to which the information should be appended.  It
    *                 must not be {@code null}.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("OAUTHBEARERBindRequestProperties(accessToken='{redacted}'");
 

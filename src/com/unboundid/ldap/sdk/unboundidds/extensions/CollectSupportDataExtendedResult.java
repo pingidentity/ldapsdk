@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -100,7 +102,7 @@ public final class CollectSupportDataExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.67) for the collect support data extended
    * result.
    */
-  public static final String COLLECT_SUPPORT_DATA_RESULT_OID =
+  @NotNull public static final String COLLECT_SUPPORT_DATA_RESULT_OID =
        "1.3.6.1.4.1.30221.2.6.67";
 
 
@@ -121,7 +123,7 @@ public final class CollectSupportDataExtendedResult
 
 
   // The exit code returned by the collect-support-data tool.
-  private final Integer exitCode;
+  @Nullable private final Integer exitCode;
 
 
 
@@ -151,9 +153,12 @@ public final class CollectSupportDataExtendedResult
    *                            controls should be included.
    */
   public CollectSupportDataExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final Integer exitCode, final Control... controls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final Integer exitCode,
+              @Nullable final Control... controls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          (exitCode == null) ? null : COLLECT_SUPPORT_DATA_RESULT_OID,
@@ -177,7 +182,8 @@ public final class CollectSupportDataExtendedResult
    *          extended result, or {@code null} if the extended result should not
    *          have a value.
    */
-  private static ASN1OctetString encodeValue(final Integer exitCode)
+  @Nullable()
+  private static ASN1OctetString encodeValue(@Nullable final Integer exitCode)
   {
     if (exitCode == null)
     {
@@ -203,7 +209,8 @@ public final class CollectSupportDataExtendedResult
    * @throws  LDAPException  If the provided generic extended result cannot be
    *                         decoded as a collect support data extended result.
    */
-  public CollectSupportDataExtendedResult(final ExtendedResult extendedResult)
+  public CollectSupportDataExtendedResult(
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -242,6 +249,7 @@ public final class CollectSupportDataExtendedResult
    *          completed, or {@code null} if extended operation processing
    *          failed before the collect-support-data tool could complete.
    */
+  @Nullable()
   public Integer getExitCode()
   {
     return exitCode;
@@ -253,6 +261,7 @@ public final class CollectSupportDataExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_COLLECT_SUPPORT_DATA_RESULT_NAME.get();
@@ -264,7 +273,7 @@ public final class CollectSupportDataExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CollectSupportDataExtendedResult(resultCode=");
     buffer.append(getResultCode());

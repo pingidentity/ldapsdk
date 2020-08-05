@@ -46,6 +46,8 @@ import java.util.LinkedList;
 
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -92,14 +94,14 @@ public final class JSONBuffer
   private boolean needComma = false;
 
   // The buffer to which all data will be written.
-  private ByteStringBuffer buffer;
+  @NotNull private ByteStringBuffer buffer;
 
   // The maximum buffer size that should be retained.
   private final int maxBufferSize;
 
   // A list of the indents that we need to use when formatting multi-line
   // objects.
-  private final LinkedList<String> indents;
+  @NotNull private final LinkedList<String> indents;
 
 
 
@@ -152,8 +154,8 @@ public final class JSONBuffer
    *                        of this argument, there will not be an end-of-line
    *                        marker at the very end of the object.
    */
-  public JSONBuffer(final ByteStringBuffer buffer, final int maxBufferSize,
-                    final boolean multiLine)
+  public JSONBuffer(@Nullable final ByteStringBuffer buffer,
+                    final int maxBufferSize, final boolean multiLine)
   {
     this.multiLine = multiLine;
     this.maxBufferSize = maxBufferSize;
@@ -198,7 +200,7 @@ public final class JSONBuffer
    * @param  buffer  The underlying buffer to which the JSON object data will be
    *                 written.
    */
-  public void setBuffer(final ByteStringBuffer buffer)
+  public void setBuffer(@Nullable final ByteStringBuffer buffer)
   {
     if (buffer == null)
     {
@@ -249,7 +251,7 @@ public final class JSONBuffer
    *
    * @param  fieldName  The name of the field
    */
-  public void beginObject(final String fieldName)
+  public void beginObject(@NotNull final String fieldName)
   {
     addComma();
 
@@ -302,7 +304,7 @@ public final class JSONBuffer
    *
    * @param  fieldName  The name of the field
    */
-  public void beginArray(final String fieldName)
+  public void beginArray(@NotNull final String fieldName)
   {
     addComma();
 
@@ -363,7 +365,8 @@ public final class JSONBuffer
    * @param  fieldName  The name of the field.
    * @param  value      The Boolean value.
    */
-  public void appendBoolean(final String fieldName, final boolean value)
+  public void appendBoolean(@NotNull final String fieldName,
+                            final boolean value)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -399,7 +402,7 @@ public final class JSONBuffer
    *
    * @param  fieldName  The name of the field.
    */
-  public void appendNull(final String fieldName)
+  public void appendNull(@NotNull final String fieldName)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -415,7 +418,7 @@ public final class JSONBuffer
    *
    * @param  value  The number to add.
    */
-  public void appendNumber(final BigDecimal value)
+  public void appendNumber(@NotNull final BigDecimal value)
   {
     addComma();
     buffer.append(value.toPlainString());
@@ -461,7 +464,7 @@ public final class JSONBuffer
    * @param  value  The string representation of the number to add.  It must be
    *                properly formed.
    */
-  public void appendNumber(final String value)
+  public void appendNumber(@NotNull final String value)
   {
     addComma();
     buffer.append(value);
@@ -476,7 +479,8 @@ public final class JSONBuffer
    * @param  fieldName  The name of the field.
    * @param  value      The number value.
    */
-  public void appendNumber(final String fieldName, final BigDecimal value)
+  public void appendNumber(@NotNull final String fieldName,
+                           @NotNull final BigDecimal value)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -493,7 +497,7 @@ public final class JSONBuffer
    * @param  fieldName  The name of the field.
    * @param  value      The number value.
    */
-  public void appendNumber(final String fieldName, final int value)
+  public void appendNumber(@NotNull final String fieldName, final int value)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -510,7 +514,7 @@ public final class JSONBuffer
    * @param  fieldName  The name of the field.
    * @param  value      The number value.
    */
-  public void appendNumber(final String fieldName, final long value)
+  public void appendNumber(@NotNull final String fieldName, final long value)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -528,7 +532,8 @@ public final class JSONBuffer
    * @param  value      The string representation of the number ot add.  It must
    *                    be properly formed.
    */
-  public void appendNumber(final String fieldName, final String value)
+  public void appendNumber(@NotNull final String fieldName,
+                           @NotNull final String value)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -545,7 +550,7 @@ public final class JSONBuffer
    *
    * @param  value  The value to add.
    */
-  public void appendString(final String value)
+  public void appendString(@NotNull final String value)
   {
     addComma();
     JSONString.encodeString(value, buffer);
@@ -560,7 +565,8 @@ public final class JSONBuffer
    * @param  fieldName  The name of the field.
    * @param  value      The value to add.
    */
-  public void appendString(final String fieldName, final String value)
+  public void appendString(@NotNull final String fieldName,
+                           @NotNull final String value)
   {
     addComma();
     JSONString.encodeString(fieldName, buffer);
@@ -577,7 +583,7 @@ public final class JSONBuffer
    *
    * @param  value  The value to append.
    */
-  public void appendValue(final JSONValue value)
+  public void appendValue(@NotNull final JSONValue value)
   {
     value.appendToJSONBuffer(this);
   }
@@ -591,7 +597,8 @@ public final class JSONBuffer
    * @param  fieldName  The name of the field.
    * @param  value      The value to append.
    */
-  public void appendValue(final String fieldName, final JSONValue value)
+  public void appendValue(@NotNull final String fieldName,
+                          @NotNull final JSONValue value)
   {
     value.appendToJSONBuffer(fieldName, this);
   }
@@ -603,6 +610,7 @@ public final class JSONBuffer
    *
    * @return  The byte string buffer that backs this JSON buffer.
    */
+  @NotNull()
   public ByteStringBuffer getBuffer()
   {
     return buffer;
@@ -621,7 +629,7 @@ public final class JSONBuffer
    * @throws  IOException  If a problem is encountered while writing to the
    *                       provided output stream.
    */
-  public void writeTo(final OutputStream outputStream)
+  public void writeTo(@NotNull final OutputStream outputStream)
          throws IOException
   {
     buffer.write(outputStream);
@@ -638,6 +646,7 @@ public final class JSONBuffer
    *          buffer.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return buffer.toString();
@@ -653,6 +662,7 @@ public final class JSONBuffer
    * @throws  JSONException  If the buffer does not currently contain exactly
    *                         one valid JSON object.
    */
+  @NotNull()
   public JSONObject toJSONObject()
          throws JSONException
   {

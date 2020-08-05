@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -76,13 +77,13 @@ final class SplitLDIFRDNHashTranslator
       extends SplitLDIFTranslator
 {
   // A map of the names that will be used for each of the sets.
-  private final Map<Integer,Set<String>> setNames;
+  @NotNull private final Map<Integer,Set<String>> setNames;
 
   // The sets in which entries outside the split base should be placed.
-  private final Set<String> outsideSplitBaseSetNames;
+  @NotNull private final Set<String> outsideSplitBaseSetNames;
 
   // The sets in which the split base entry should be placed.
-  private final Set<String> splitBaseEntrySetNames;
+  @NotNull private final Set<String> splitBaseEntrySetNames;
 
 
 
@@ -100,7 +101,8 @@ final class SplitLDIFRDNHashTranslator
    *                                               outside the split should be
    *                                               added to all sets.
    */
-  SplitLDIFRDNHashTranslator(final DN splitBaseDN, final int numSets,
+  SplitLDIFRDNHashTranslator(@NotNull final DN splitBaseDN,
+                             final int numSets,
                              final boolean addEntriesOutsideSplitToAllSets,
                              final boolean addEntriesOutsideSplitToDedicatedSet)
   {
@@ -137,7 +139,8 @@ final class SplitLDIFRDNHashTranslator
    * {@inheritDoc}
    */
   @Override()
-  public SplitLDIFEntry translate(final Entry original,
+  @NotNull()
+  public SplitLDIFEntry translate(@NotNull final Entry original,
                                   final long firstLineNumber)
          throws LDIFException
   {

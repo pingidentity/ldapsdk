@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -78,15 +80,15 @@ public final class SearchEntryParer
   private final boolean allUserAttributes;
 
   // The list of requested attributes for use when paring entries.
-  private final List<String> requestedAttributes;
+  @NotNull private final List<String> requestedAttributes;
 
   // A map of specific attribute types to be returned.  The keys of the map will
   // be the lowercase OIDs and names of each attribute types, and the values
   // will be a list of option sets for the associated attribute type.
-  private final Map<String,List<List<String>>> attributeTypesToReturn;
+  @NotNull private final Map<String,List<List<String>>> attributeTypesToReturn;
 
   // The schema to use in processing.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
 
 
@@ -100,8 +102,8 @@ public final class SearchEntryParer
    * @param  schema               The schema to use when paring entries.  It may
    *                              be {@code null} if no schema is available.
    */
-  public SearchEntryParer(final List<String> requestedAttributes,
-                          final Schema schema)
+  public SearchEntryParer(@NotNull final List<String> requestedAttributes,
+                          @Nullable final Schema schema)
   {
     this.schema = schema;
     this.requestedAttributes =
@@ -218,8 +220,9 @@ public final class SearchEntryParer
    *          {@code null} may be returned if the provided string does not
    *          represent a valid attribute type description.
    */
+  @NotNull()
   private static ObjectPair<String,List<String>> getNameWithOptions(
-                                                      final String s)
+                                                      @NotNull final String s)
   {
     if (! Attribute.nameIsValid(s, true))
     {
@@ -267,8 +270,9 @@ public final class SearchEntryParer
    * @param  s  The schema to use when processing.
    */
   private static void addAttributeOIDAndNames(final AttributeTypeDefinition d,
-                                       final Map<String,List<List<String>>> m,
-                                       final List<String> o, final Schema s)
+                           @NotNull final Map<String,List<List<String>>> m,
+                           @NotNull final List<String> o,
+                           @Nullable final Schema s)
   {
     if (d == null)
     {
@@ -322,6 +326,7 @@ public final class SearchEntryParer
    * @return  The set of requested attributes used to create this search entry
    *          parer.
    */
+  @NotNull()
   public List<String> getRequestedAttributes()
   {
     return requestedAttributes;
@@ -338,7 +343,8 @@ public final class SearchEntryParer
    * @return  A copy of the provided entry that includes only the appropriate
    *          set of requested attributes.
    */
-  public Entry pareEntry(final Entry entry)
+  @NotNull()
+  public Entry pareEntry(@NotNull final Entry entry)
   {
     // See if we can return the entry without paring it down.
     if (allUserAttributes)

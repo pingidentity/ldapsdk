@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -77,7 +79,7 @@ public final class UnsolicitedCancelResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.7) for the unsolicited cancel response
    * control.
    */
-  public static final String UNSOLICITED_CANCEL_RESPONSE_OID =
+  @NotNull public static final String UNSOLICITED_CANCEL_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.7";
 
 
@@ -112,9 +114,9 @@ public final class UnsolicitedCancelResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         account usable response control.
    */
-  public UnsolicitedCancelResponseControl(final String oid,
+  public UnsolicitedCancelResponseControl(@NotNull final String oid,
                                           final boolean isCritical,
-                                          final ASN1OctetString value)
+                                          @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -132,9 +134,11 @@ public final class UnsolicitedCancelResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public UnsolicitedCancelResponseControl decodeControl(final String oid,
-                                               final boolean isCritical,
-                                               final ASN1OctetString value)
+  @NotNull()
+  public UnsolicitedCancelResponseControl decodeControl(
+              @NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new UnsolicitedCancelResponseControl(oid, isCritical, value);
@@ -156,7 +160,9 @@ public final class UnsolicitedCancelResponseControl
    *                         decode the unsolicited cancel response control
    *                         contained in the provided result.
    */
-  public static UnsolicitedCancelResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static UnsolicitedCancelResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c =
@@ -183,6 +189,7 @@ public final class UnsolicitedCancelResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_UNSOLICITED_CANCEL_RESPONSE.get();
@@ -194,7 +201,7 @@ public final class UnsolicitedCancelResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UnsolicitedCancelResponseControl()");
   }

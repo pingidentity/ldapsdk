@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -89,28 +91,29 @@ public final class IndexMonitorEntry
   /**
    * The structural object class used in index monitor entries.
    */
-  static final String INDEX_MONITOR_OC = "ds-index-monitor-entry";
+  @NotNull static final String INDEX_MONITOR_OC = "ds-index-monitor-entry";
 
 
 
   /**
    * The name of the attribute that contains the index name.
    */
-  private static final String ATTR_INDEX_NAME = "ds-index-name";
+  @NotNull private static final String ATTR_INDEX_NAME = "ds-index-name";
 
 
 
   /**
    * The name of the attribute that contains the backend ID.
    */
-  private static final String ATTR_BACKEND_ID = "ds-index-backend-id";
+  @NotNull private static final String ATTR_BACKEND_ID = "ds-index-backend-id";
 
 
 
   /**
    * The name of the attribute that contains the backend base DN.
    */
-  private static final String ATTR_BASE_DN = "ds-index-backend-base-dn";
+  @NotNull private static final String ATTR_BASE_DN =
+       "ds-index-backend-base-dn";
 
 
 
@@ -118,7 +121,8 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the name of the associated
    * attribute type.
    */
-  private static final String ATTR_INDEX_ATTR = "ds-index-attribute-type";
+  @NotNull private static final String ATTR_INDEX_ATTR =
+       "ds-index-attribute-type";
 
 
 
@@ -126,7 +130,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the name of the associated
    * attribute index type.
    */
-  private static final String ATTR_INDEX_TYPE = "ds-index-type";
+  @NotNull private static final String ATTR_INDEX_TYPE = "ds-index-type";
 
 
 
@@ -134,21 +138,22 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the string representation of a
    * filter used for the index.
    */
-  private static final String ATTR_INDEX_FILTER = "ds-index-filter";
+  @NotNull private static final String ATTR_INDEX_FILTER = "ds-index-filter";
 
 
 
   /**
    * The name of the attribute that indicates whether the index is trusted.
    */
-  private static final String ATTR_INDEX_TRUSTED = "ds-index-trusted";
+  @NotNull private static final String ATTR_INDEX_TRUSTED = "ds-index-trusted";
 
 
 
   /**
    * The name of the attribute that contains the index entry limit.
    */
-  private static final String ATTR_ENTRY_LIMIT = "ds-index-entry-limit";
+  @NotNull private static final String ATTR_ENTRY_LIMIT =
+       "ds-index-entry-limit";
 
 
 
@@ -156,7 +161,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of index keys for which
    * the entry count has exceeded the limit since the index DB was opened.
    */
-  private static final String ATTR_EXCEEDED_COUNT =
+  @NotNull private static final String ATTR_EXCEEDED_COUNT =
        "ds-index-exceeded-entry-limit-count-since-db-open";
 
 
@@ -166,7 +171,7 @@ public final class IndexMonitorEntry
    * accessed by search operations that are near (typically, within 80% of) the
    * index entry limit since the index DB was opened.
    */
-  private static final String ATTR_SEARCH_KEYS_NEAR_LIMIT =
+  @NotNull private static final String ATTR_SEARCH_KEYS_NEAR_LIMIT =
        "ds-index-unique-keys-near-entry-limit-accessed-by-search-since-db-open";
 
 
@@ -176,7 +181,7 @@ public final class IndexMonitorEntry
    * accessed by search operations that are over the index entry limit since the
    * index DB was opened.
    */
-  private static final String ATTR_SEARCH_KEYS_OVER_LIMIT =
+  @NotNull private static final String ATTR_SEARCH_KEYS_OVER_LIMIT =
        "ds-index-unique-keys-exceeding-entry-limit-accessed-by-search-since-" +
             "db-open";
 
@@ -187,7 +192,7 @@ public final class IndexMonitorEntry
    * accessed by write operations that are near (typically, within 80% of) the
    * index entry limit since the index DB was opened.
    */
-  private static final String ATTR_WRITE_KEYS_NEAR_LIMIT =
+  @NotNull private static final String ATTR_WRITE_KEYS_NEAR_LIMIT =
        "ds-index-unique-keys-near-entry-limit-accessed-by-write-since-db-open";
 
 
@@ -197,7 +202,7 @@ public final class IndexMonitorEntry
    * accessed by write operations that are over the index entry limit since the
    * index DB was opened.
    */
-  private static final String ATTR_WRITE_KEYS_OVER_LIMIT =
+  @NotNull private static final String ATTR_WRITE_KEYS_OVER_LIMIT =
        "ds-index-unique-keys-exceeding-entry-limit-accessed-by-write-since-" +
             "db-open";
 
@@ -207,7 +212,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that indicates whether a matching count should be
    * maintained for a key that has exceeded the entry limit.
    */
-  private static final String ATTR_MAINTAIN_COUNT =
+  @NotNull private static final String ATTR_MAINTAIN_COUNT =
        "ds-index-maintain-count";
 
 
@@ -216,7 +221,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that indicates whether the index was fully
    * primed.
    */
-  private static final String ATTR_FULLY_PRIMED =
+  @NotNull private static final String ATTR_FULLY_PRIMED =
        "ds-index-fully-primed-at-backend-open";
 
 
@@ -225,7 +230,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains a reason explaining why the prime
    * was not completed.
    */
-  private static final String ATTR_PRIME_INCOMPLETE_REASON =
+  @NotNull private static final String ATTR_PRIME_INCOMPLETE_REASON =
        "ds-index-prime-incomplete-reason";
 
 
@@ -234,7 +239,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains information about an exception that
    * was encountered while performing the prime.
    */
-  private static final String ATTR_PRIME_EXCEPTION =
+  @NotNull private static final String ATTR_PRIME_EXCEPTION =
        "ds-index-prime-exception";
 
 
@@ -243,7 +248,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of keys that were
    * primed when the backend was opened.
    */
-  private static final String ATTR_PRIMED_KEYS =
+  @NotNull private static final String ATTR_PRIMED_KEYS =
        "ds-index-num-primed-keys-at-backend-open";
 
 
@@ -252,7 +257,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of times the index has
    * been updated since the database was opened.
    */
-  private static final String ATTR_WRITE_COUNT =
+  @NotNull private static final String ATTR_WRITE_COUNT =
        "ds-index-write-count-since-db-open";
 
 
@@ -261,7 +266,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of keys deleted from the
    * index since the database was opened.
    */
-  private static final String ATTR_DELETE_COUNT =
+  @NotNull private static final String ATTR_DELETE_COUNT =
        "ds-index-remove-count-since-db-open";
 
 
@@ -270,7 +275,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of read operations
    * against the index since the database was opened.
    */
-  private static final String ATTR_READ_COUNT =
+  @NotNull private static final String ATTR_READ_COUNT =
        "ds-index-read-count-since-db-open";
 
 
@@ -279,7 +284,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of read operations
    * performed during search filter evaluation since the database was opened.
    */
-  private static final String ATTR_READ_FOR_SEARCH_COUNT =
+  @NotNull private static final String ATTR_READ_FOR_SEARCH_COUNT =
        "ds-index-read-for-search-count-since-db-open";
 
 
@@ -288,7 +293,7 @@ public final class IndexMonitorEntry
    * The name of the attribute that contains the number of cursors created for
    * the index.
    */
-  private static final String ATTR_CURSOR_COUNT =
+  @NotNull private static final String ATTR_CURSOR_COUNT =
        "ds-index-open-cursor-count-since-db-open";
 
 
@@ -301,79 +306,79 @@ public final class IndexMonitorEntry
 
 
   // Indicates whether the index was fully primed when the backend came online.
-  private final Boolean fullyPrimed;
+  @Nullable private final Boolean fullyPrimed;
 
   // Indicates whether the index should be considered trusted.
-  private final Boolean indexTrusted;
+  @Nullable private final Boolean indexTrusted;
 
   // Indicates whether to maintain a count of matching entries even when the ID
   // list is not maintained.
-  private final Boolean maintainCount;
+  @Nullable private final Boolean maintainCount;
 
   // The index entry limit for the index.
-  private final Long entryLimit;
+  @Nullable private final Long entryLimit;
 
   // The number of keys that have exceeded the entry limit since coming online.
-  private final Long exceededCount;
+  @Nullable private final Long exceededCount;
 
   // The number of cursors created in the index since coming online.
-  private final Long numCursors;
+  @Nullable private final Long numCursors;
 
   // The number of index keys deleted from the index since coming online.
-  private final Long numDeletes;
+  @Nullable private final Long numDeletes;
 
   // The number of reads from the index since coming online.
-  private final Long numReads;
+  @Nullable private final Long numReads;
 
   // The number of reads as a result of filter processing from the index since
   // coming online.
-  private final Long numReadsForSearch;
+  @Nullable private final Long numReadsForSearch;
 
   // The number of writes to the index since coming online.
-  private final Long numWrites;
+  @Nullable private final Long numWrites;
 
   // The number of keys that were primed when the backend came online.
-  private final Long primedKeys;
+  @Nullable private final Long primedKeys;
 
   // The number of keys near the index entry limit that have been accessed by
   // search operations since the index came online.
-  private final Long searchKeysNearLimit;
+  @Nullable private final Long searchKeysNearLimit;
 
   // The number of keys over the index entry limit that have been accessed by
   // search operations since the index came online.
-  private final Long searchKeysOverLimit;
+  @Nullable private final Long searchKeysOverLimit;
 
   // The number of keys near the index entry limit that have been accessed by
   // write operations since the index came online.
-  private final Long writeKeysNearLimit;
+  @Nullable private final Long writeKeysNearLimit;
 
   // The number of keys over the index entry limit that have been accessed by
   // write operations since the index came online.
-  private final Long writeKeysOverLimit;
+  @Nullable private final Long writeKeysOverLimit;
 
   // The name of the associated attribute type.
-  private final String attributeType;
+  @Nullable private final String attributeType;
 
   // The name of the associated backend ID.
-  private final String backendID;
+  @Nullable private final String backendID;
 
   // The base DN for the associated backend.
-  private final String baseDN;
+  @Nullable private final String baseDN;
 
   // The filter for the associated index.
-  private final String indexFilter;
+  @Nullable private final String indexFilter;
 
   // The index name for the associated index.
-  private final String indexName;
+  @Nullable private final String indexName;
 
   // The index name of the index type for the index.
-  private final String indexType;
+  @Nullable private final String indexType;
 
   // Information about an exception caught during prime processing.
-  private final String primeException;
+  @Nullable private final String primeException;
 
   // Information about the reason the prime was not completed.
-  private final String primeIncompleteReason;
+  @Nullable private final String primeIncompleteReason;
 
 
 
@@ -383,7 +388,7 @@ public final class IndexMonitorEntry
    * @param  entry  The entry to be parsed as an index monitor entry.  It must
    *                not be {@code null}.
    */
-  public IndexMonitorEntry(final Entry entry)
+  public IndexMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -420,6 +425,7 @@ public final class IndexMonitorEntry
    * @return  The name of the index database, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getIndexName()
   {
     return indexName;
@@ -433,6 +439,7 @@ public final class IndexMonitorEntry
    * @return  The backend ID for the associated backend, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public String getBackendID()
   {
     return backendID;
@@ -446,6 +453,7 @@ public final class IndexMonitorEntry
    * @return  The base DN for the data with which the index is associated, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getBaseDN()
   {
     return baseDN;
@@ -460,6 +468,7 @@ public final class IndexMonitorEntry
    * @return  The name of the attribute type with which the index is associated,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getAttributeType()
   {
     return attributeType;
@@ -474,6 +483,7 @@ public final class IndexMonitorEntry
    * @return  The name of the attribute index type, or {@code null} if it was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public String getAttributeIndexType()
   {
     return indexType;
@@ -488,6 +498,7 @@ public final class IndexMonitorEntry
    * @return  The filter used for the index, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getIndexFilter()
   {
     return indexFilter;
@@ -503,6 +514,7 @@ public final class IndexMonitorEntry
    *          {@code false} if it is not trusted, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Boolean isIndexTrusted()
   {
     return indexTrusted;
@@ -518,6 +530,7 @@ public final class IndexMonitorEntry
    * @return  The index entry limit, or {@code null} if was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getIndexEntryLimit()
   {
     return entryLimit;
@@ -534,6 +547,7 @@ public final class IndexMonitorEntry
    *          the index was brought online, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getEntryLimitExceededCountSinceComingOnline()
   {
     return exceededCount;
@@ -551,6 +565,7 @@ public final class IndexMonitorEntry
    *          brought online, or {@code null} if it was not included in the
    *          entry.
    */
+  @Nullable()
   public Long getUniqueKeysNearEntryLimitAccessedBySearchSinceComingOnline()
   {
     return searchKeysNearLimit;
@@ -567,6 +582,7 @@ public final class IndexMonitorEntry
    *          brought online, or {@code null} if it was not included in the
    *          entry.
    */
+  @Nullable()
   public Long getUniqueKeysOverEntryLimitAccessedBySearchSinceComingOnline()
   {
     return searchKeysOverLimit;
@@ -584,6 +600,7 @@ public final class IndexMonitorEntry
    *          brought online, or {@code null} if it was not included in the
    *          entry.
    */
+  @Nullable()
   public Long getUniqueKeysNearEntryLimitAccessedByWriteSinceComingOnline()
   {
     return writeKeysNearLimit;
@@ -601,6 +618,7 @@ public final class IndexMonitorEntry
    *          brought online, or {@code null} if it was not included in the
    *          entry.
    */
+  @Nullable()
   public Long getUniqueKeysOverEntryLimitAccessedByWriteSinceComingOnline()
   {
     return writeKeysOverLimit;
@@ -619,6 +637,7 @@ public final class IndexMonitorEntry
    *          if not, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Boolean maintainCountForExceededKeys()
   {
     return maintainCount;
@@ -633,6 +652,7 @@ public final class IndexMonitorEntry
    *          online, {@code false} if not, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Boolean fullyPrimedWhenBroughtOnline()
   {
     return fullyPrimed;
@@ -650,6 +670,7 @@ public final class IndexMonitorEntry
    *          when the backend was brought online, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getPrimeIncompleteReason()
   {
     return primeIncompleteReason;
@@ -663,6 +684,7 @@ public final class IndexMonitorEntry
    * @return  Information about any exception caught during prime processing, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getPrimeException()
   {
     return primeException;
@@ -678,6 +700,7 @@ public final class IndexMonitorEntry
    *          brought online, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getKeysPrimedWhenBroughtOnline()
   {
     return primedKeys;
@@ -693,6 +716,7 @@ public final class IndexMonitorEntry
    *          the index was brought online, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getKeysWrittenSinceComingOnline()
   {
     return numWrites;
@@ -708,6 +732,7 @@ public final class IndexMonitorEntry
    *          was brought online, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getKeysDeletedSinceComingOnline()
   {
     return numDeletes;
@@ -723,6 +748,7 @@ public final class IndexMonitorEntry
    *          brought online, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getKeysReadSinceComingOnline()
   {
     return numReads;
@@ -739,6 +765,7 @@ public final class IndexMonitorEntry
    *          filter processing, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getFilterInitiatedReadsSinceComingOnline()
   {
     return numReadsForSearch;
@@ -755,6 +782,7 @@ public final class IndexMonitorEntry
    * @return  The number of cursors created in the index for reading ranges of
    *          keys, or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCursorsCreatedSinceComingOnline()
   {
     return numCursors;
@@ -766,6 +794,7 @@ public final class IndexMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_INDEX_MONITOR_DISPNAME.get();
@@ -777,6 +806,7 @@ public final class IndexMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_INDEX_MONITOR_DESC.get();
@@ -788,6 +818,7 @@ public final class IndexMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

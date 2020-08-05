@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -117,7 +119,7 @@ public final class EndBatchedTransactionExtendedResult
 
   // A mapping of the response controls for the operations performed as part of
   // the transaction.
-  private final TreeMap<Integer,Control[]> opResponseControls;
+  @NotNull private final TreeMap<Integer,Control[]> opResponseControls;
 
 
 
@@ -134,7 +136,7 @@ public final class EndBatchedTransactionExtendedResult
    *                         transaction extended result.
    */
   public EndBatchedTransactionExtendedResult(
-              final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -229,11 +231,13 @@ public final class EndBatchedTransactionExtendedResult
    *                             available.
    */
   public EndBatchedTransactionExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final Integer failedOpMessageID,
-              final Map<Integer,Control[]> opResponseControls,
-              final Control[] responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final Integer failedOpMessageID,
+              @Nullable final Map<Integer,Control[]> opResponseControls,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, encodeValue(failedOpMessageID, opResponseControls),
@@ -272,8 +276,8 @@ public final class EndBatchedTransactionExtendedResult
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         contents of the provided ASN.1 element.
    */
-  private static void decodeOpControls(final ASN1Element element,
-                                       final Map<Integer,Control[]> controlMap)
+  private static void decodeOpControls(@NotNull final ASN1Element element,
+                           @NotNull final Map<Integer,Control[]> controlMap)
           throws LDAPException
   {
     final ASN1Sequence ctlsSequence;
@@ -361,8 +365,10 @@ public final class EndBatchedTransactionExtendedResult
    * @return  An ASN.1 octet string containing the encoded value for this
    *          control, or {@code null} if there should not be a value.
    */
-  private static ASN1OctetString encodeValue(final Integer failedOpMessageID,
-                      final Map<Integer,Control[]> opResponseControls)
+  @Nullable()
+  private static ASN1OctetString encodeValue(
+               @Nullable final Integer failedOpMessageID,
+               @Nullable final Map<Integer,Control[]> opResponseControls)
   {
     if ((failedOpMessageID == null) && (opResponseControls == null))
     {
@@ -421,6 +427,7 @@ public final class EndBatchedTransactionExtendedResult
    *          as part of the transaction.  It may be an empty map if none of the
    *          operations had any response controls.
    */
+  @NotNull()
   public Map<Integer,Control[]> getOperationResponseControls()
   {
     return opResponseControls;
@@ -439,6 +446,7 @@ public final class EndBatchedTransactionExtendedResult
    *          {@code null} if there were no controls returned for the specified
    *          operation.
    */
+  @Nullable()
   public Control[] getOperationResponseControls(final int messageID)
   {
     return opResponseControls.get(messageID);
@@ -450,6 +458,7 @@ public final class EndBatchedTransactionExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_END_BATCHED_TXN.get();
@@ -465,7 +474,7 @@ public final class EndBatchedTransactionExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EndBatchedTransactionExtendedResult(resultCode=");
     buffer.append(getResultCode());

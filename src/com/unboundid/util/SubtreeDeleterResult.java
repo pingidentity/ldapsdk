@@ -71,19 +71,19 @@ public final class SubtreeDeleterResult
 
   // An error that occurred during an attempt to make the target subtree
   // inaccessible.
-  private final LDAPResult setSubtreeAccessibilityError;
+  @Nullable private final LDAPResult setSubtreeAccessibilityError;
 
   // The number of entries that were successfully deleted.
   private final long entriesDeleted;
 
   // An error that occurred during search processing that prevented identifying
   // all of the entries in the target subtree.
-  private final SearchResult searchError;
+  @Nullable private final SearchResult searchError;
 
   // A map that contains the DNs of the entries that could not be deleted,
   // associated with a result indicating the reason for the delete failure.
   // It will be sorted in descending order
-  private final TreeMap<DN,LDAPResult> deleteErrors;
+  @NotNull private final TreeMap<DN,LDAPResult> deleteErrors;
 
 
 
@@ -120,11 +120,11 @@ public final class SubtreeDeleterResult
    *              the delete failure.  It must not be {@code null} but may be
    *              empty.
    */
-  SubtreeDeleterResult(final LDAPResult setSubtreeAccessibilityError,
+  SubtreeDeleterResult(@Nullable final LDAPResult setSubtreeAccessibilityError,
                        final boolean subtreeInaccessible,
-                       final SearchResult searchError,
+                       @Nullable final SearchResult searchError,
                        final long entriesDeleted,
-                       final TreeMap<DN,LDAPResult> deleteErrors)
+                       @NotNull final TreeMap<DN,LDAPResult> deleteErrors)
   {
     this.setSubtreeAccessibilityError = setSubtreeAccessibilityError;
     this.subtreeInaccessible = subtreeInaccessible;
@@ -171,6 +171,7 @@ public final class SubtreeDeleterResult
    *          that occurred while attempting to alter the accessibility of the
    *          target subtree, or {@code null} if no such error occurred.
    */
+  @Nullable()
   public LDAPResult getSetSubtreeAccessibilityError()
   {
     return setSubtreeAccessibilityError;
@@ -205,6 +206,7 @@ public final class SubtreeDeleterResult
    *          entries in the target subtree, or {@code null} if no error
    *          occurred during search processing.
    */
+  @Nullable()
   public SearchResult getSearchError()
   {
     return searchError;
@@ -235,6 +237,7 @@ public final class SubtreeDeleterResult
    *          not be deleted, each of which is associated with an
    *          {@code LDAPResult} indicating the reason for the delete failure.
    */
+  @NotNull()
   public SortedMap<DN,LDAPResult> getDeleteErrors()
   {
     return Collections.unmodifiableSortedMap(deleteErrors);
@@ -253,6 +256,7 @@ public final class SubtreeDeleterResult
    *          not be deleted, each of which is associated with an
    *          {@code LDAPResult} indicating the reason for the delete failure.
    */
+  @NotNull()
   public SortedMap<DN,LDAPResult> getDeleteErrorsDescendingMap()
   {
     return Collections.unmodifiableSortedMap(deleteErrors.descendingMap());
@@ -265,6 +269,7 @@ public final class SubtreeDeleterResult
    *
    * @return  Retrieves the delete errors as a {@code TreeMap}.
    */
+  @NotNull()
   TreeMap<DN,LDAPResult> getDeleteErrorsTreeMap()
   {
     return deleteErrors;
@@ -278,6 +283,7 @@ public final class SubtreeDeleterResult
    * @return  A string representation of this subtree deleter result.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -294,7 +300,7 @@ public final class SubtreeDeleterResult
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SubtreeDeleterResult=(completelySuccessful=");
     buffer.append(completelySuccessful());

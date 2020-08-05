@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             DeliverOneTimePasswordExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
@@ -98,41 +100,41 @@ public final class DeliverOneTimePassword
 
   // Indicates that the tool should interactively prompt the user for their
   // bind password.
-  private BooleanArgument promptForBindPassword;
+  @Nullable private BooleanArgument promptForBindPassword;
 
   // The DN for the user to whom the one-time password should be delivered.
-  private DNArgument bindDN;
+  @Nullable private DNArgument bindDN;
 
   // The path to a file containing the static password for the user to whom the
   // one-time password should be delivered.
-  private FileArgument bindPasswordFile;
+  @Nullable private FileArgument bindPasswordFile;
 
   // The text to include after the one-time password in the "compact" message.
-  private StringArgument compactTextAfterOTP;
+  @Nullable private StringArgument compactTextAfterOTP;
 
   // The text to include before the one-time password in the "compact" message.
-  private StringArgument compactTextBeforeOTP;
+  @Nullable private StringArgument compactTextBeforeOTP;
 
   // The name of the mechanism through which the one-time password should be
   // delivered.
-  private StringArgument deliveryMechanism;
+  @Nullable private StringArgument deliveryMechanism;
 
   // The text to include after the one-time password in the "full" message.
-  private StringArgument fullTextAfterOTP;
+  @Nullable private StringArgument fullTextAfterOTP;
 
   // The text to include before the one-time password in the "full" message.
-  private StringArgument fullTextBeforeOTP;
+  @Nullable private StringArgument fullTextBeforeOTP;
 
   // The subject to use for the message containing the delivered token.
-  private StringArgument messageSubject;
+  @Nullable private StringArgument messageSubject;
 
   // The username for the user to whom the one-time password should be
   // delivered.
-  private StringArgument userName;
+  @Nullable private StringArgument userName;
 
   // The static password for the user to whom the one-time password should be
   // delivered.
-  private StringArgument bindPassword;
+  @Nullable private StringArgument bindPassword;
 
 
 
@@ -142,7 +144,7 @@ public final class DeliverOneTimePassword
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -167,9 +169,10 @@ public final class DeliverOneTimePassword
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  @NotNull()
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final DeliverOneTimePassword tool =
          new DeliverOneTimePassword(outStream, errStream);
@@ -188,8 +191,8 @@ public final class DeliverOneTimePassword
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public DeliverOneTimePassword(final OutputStream outStream,
-                                final OutputStream errStream)
+  public DeliverOneTimePassword(@Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -212,6 +215,7 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "deliver-one-time-password";
@@ -223,6 +227,7 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_DELIVER_OTP_TOOL_DESCRIPTION.get();
@@ -234,6 +239,7 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -245,7 +251,7 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     bindDN = new DNArgument('D', "bindDN", false, 1,
@@ -459,6 +465,7 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Construct the authentication identity.
@@ -613,6 +620,7 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> exampleMap =

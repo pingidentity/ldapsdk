@@ -47,6 +47,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,22 +77,22 @@ public final class StringArgument
 
 
   // The set of values assigned to this argument.
-  private final ArrayList<String> values;
+  @NotNull private final ArrayList<String> values;
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The list of default values that will be used if no values were provided.
-  private final List<String> defaultValues;
+  @Nullable private final List<String> defaultValues;
 
   // A regular expression that may be enforced for values of this argument.
-  private volatile Pattern valueRegex;
+  @Nullable private volatile Pattern valueRegex;
 
   // The set of allowed values for this argument.
-  private final Set<String> allowedValues;
+  @Nullable private final Set<String> allowedValues;
 
   // A human-readable explanation of the regular expression pattern.
-  private volatile String valueRegexExplanation;
+  @Nullable private volatile String valueRegexExplanation;
 
 
 
@@ -112,8 +114,9 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final String description)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 1, null, description);
@@ -148,10 +151,11 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        final boolean isRequired, final int maxOccurrences,
+                        @Nullable final String valuePlaceholder,
+                        @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -188,11 +192,12 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final Set<String> allowedValues)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        final boolean isRequired, final int maxOccurrences,
+                        @Nullable final String valuePlaceholder,
+                        @NotNull final String description,
+                        @Nullable final Set<String> allowedValues)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -231,11 +236,12 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final String defaultValue)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        final boolean isRequired, final int maxOccurrences,
+                        @Nullable final String valuePlaceholder,
+                        @NotNull final String description,
+                        @Nullable final String defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -275,11 +281,12 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final List<String> defaultValues)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        final boolean isRequired, final int maxOccurrences,
+                        @Nullable final String valuePlaceholder,
+                        @NotNull final String description,
+                        @Nullable final List<String> defaultValues)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -319,12 +326,13 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final Set<String> allowedValues,
-                        final String defaultValue)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        final boolean isRequired, final int maxOccurrences,
+                        @Nullable final String valuePlaceholder,
+                        @NotNull final String description,
+                        @Nullable final Set<String> allowedValues,
+                        @Nullable final String defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -365,12 +373,13 @@ public final class StringArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public StringArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final Set<String> allowedValues,
-                        final List<String> defaultValues)
+  public StringArgument(@Nullable final Character shortIdentifier,
+                        @Nullable final String longIdentifier,
+                        final boolean isRequired, final int maxOccurrences,
+                        @Nullable final String valuePlaceholder,
+                        @NotNull final String description,
+                        @Nullable final Set<String> allowedValues,
+                        @Nullable final List<String> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -430,7 +439,7 @@ public final class StringArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private StringArgument(final StringArgument source)
+  private StringArgument(@NotNull final StringArgument source)
   {
     super(source);
 
@@ -450,6 +459,7 @@ public final class StringArgument
    * @return  The set of allowed values for this argument, or {@code null} if
    *          there is no restriction on the allowed values.
    */
+  @Nullable()
   public Set<String> getAllowedValues()
   {
     return allowedValues;
@@ -464,6 +474,7 @@ public final class StringArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
+  @Nullable()
   public List<String> getDefaultValues()
   {
     return defaultValues;
@@ -478,6 +489,7 @@ public final class StringArgument
    * @return  The regular expression that values of this argument will be
    *          required to match, or {@code null} if none is defined.
    */
+  @Nullable()
   public Pattern getValueRegex()
   {
     return valueRegex;
@@ -492,6 +504,7 @@ public final class StringArgument
    * @return  A human-readable explanation of the regular expression pattern, or
    *          {@code null} if none is available.
    */
+  @Nullable()
   public String getValueRegexExplanation()
   {
     return valueRegexExplanation;
@@ -513,8 +526,8 @@ public final class StringArgument
    *                      expression pattern should be sufficiently clear for
    *                      the target audience.
    */
-  public void setValueRegex(final Pattern valueRegex,
-                            final String explanation)
+  public void setValueRegex(@Nullable final Pattern valueRegex,
+                            @Nullable final String explanation)
   {
     this.valueRegex = valueRegex;
     valueRegexExplanation = explanation;
@@ -530,7 +543,7 @@ public final class StringArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -541,7 +554,7 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     final String lowerValue = StaticUtils.toLowerCase(valueString);
@@ -615,6 +628,7 @@ public final class StringArgument
    *          provided, or {@code null} if it does not have any values or
    *          default values.
    */
+  @Nullable()
   public String getValue()
   {
     if (values.isEmpty())
@@ -641,6 +655,7 @@ public final class StringArgument
    * @return  The set of values for this argument, or the default values if none
    *          were provided.
    */
+  @NotNull()
   public List<String> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
@@ -657,6 +672,7 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     if (! values.isEmpty())
@@ -690,6 +706,7 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_STRING_TYPE_NAME.get();
@@ -701,6 +718,7 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getValueConstraints()
   {
     StringBuilder buffer = null;
@@ -790,21 +808,18 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (values != null)
+    for (final String s : values)
     {
-      for (final String s : values)
+      argStrings.add(getIdentifierString());
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED***");
-        }
-        else
-        {
-          argStrings.add(s);
-        }
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(s);
       }
     }
   }
@@ -815,7 +830,7 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StringArgument(");
     appendBasicToStringInfo(buffer);

@@ -42,6 +42,8 @@ import java.security.SecureRandom;
 
 import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -60,14 +62,14 @@ final class SCRAMClientFirstMessage
    * The GS2 header indicating that this implementation does not support channel
    * binding.
    */
-  private static final String GS2_HEADER_NO_CHANNEL_BINDING = "n,,";
+  @NotNull private static final String GS2_HEADER_NO_CHANNEL_BINDING = "n,,";
 
 
 
   /**
    * A base64-encoded representation of the GS2 channel binding header.
    */
-  private static final String GS2_HEADER_NO_CHANNEL_BINDING_BASE64 =
+  @NotNull private static final String GS2_HEADER_NO_CHANNEL_BINDING_BASE64 =
        Base64.encode(GS2_HEADER_NO_CHANNEL_BINDING);
 
 
@@ -80,23 +82,23 @@ final class SCRAMClientFirstMessage
 
 
   // The bind request being processed.
-  private final SCRAMBindRequest bindRequest;
+  @NotNull private final SCRAMBindRequest bindRequest;
 
   // The full constructed client first message.
-  private final String clientFirstMessage;
+  @NotNull private final String clientFirstMessage;
 
   // The bare representation of the client-first message (without the GS2
   // channel binding header).
-  private final String clientFirstMessageBare;
+  @NotNull private final String clientFirstMessageBare;
 
   // The client nonce being processed.
-  private final String clientNonce;
+  @NotNull private final String clientNonce;
 
   // The base64-encoded representation of the GS2 channel binding header.
-  private final String gs2HeaderBase64;
+  @NotNull private final String gs2HeaderBase64;
 
   // The raw string representation of the GS2 channel binding header.
-  private final String gs2HeaderRaw;
+  @NotNull private final String gs2HeaderRaw;
 
 
 
@@ -107,7 +109,7 @@ final class SCRAMClientFirstMessage
    * @param  bindRequest  The SCRAM bind request being processed.  It must not
    *                      be {@code null}.
    */
-  SCRAMClientFirstMessage(final SCRAMBindRequest bindRequest)
+  SCRAMClientFirstMessage(@NotNull final SCRAMBindRequest bindRequest)
   {
     this(bindRequest, null);
   }
@@ -124,8 +126,8 @@ final class SCRAMClientFirstMessage
    *                      {@code null}, then a nonce will be dynamically
    *                      generated.
    */
-  SCRAMClientFirstMessage(final SCRAMBindRequest bindRequest,
-                          final String clientNonce)
+  SCRAMClientFirstMessage(@NotNull final SCRAMBindRequest bindRequest,
+                          @Nullable final String clientNonce)
   {
     this.bindRequest = bindRequest;
 
@@ -156,6 +158,7 @@ final class SCRAMClientFirstMessage
    *
    * @return  The SCRAM bind request being processed.
    */
+  @NotNull()
   SCRAMBindRequest getBindRequest()
   {
     return bindRequest;
@@ -170,6 +173,7 @@ final class SCRAMClientFirstMessage
    * @return  The raw string representation of the GS2 channel binding header
    *          for this client first message.
    */
+  @NotNull()
   String getGS2HeaderRaw()
   {
     return gs2HeaderRaw;
@@ -184,6 +188,7 @@ final class SCRAMClientFirstMessage
    * @return  The base64-encoded string representation of the GS2 channel
    *          binding header for this client first message.
    */
+  @NotNull()
   String getGS2HeaderBase64()
   {
     return gs2HeaderBase64;
@@ -196,6 +201,7 @@ final class SCRAMClientFirstMessage
    *
    * @return  The client nonce string for this client first message.
    */
+  @NotNull()
   String getClientNonce()
   {
     return clientNonce;
@@ -209,6 +215,7 @@ final class SCRAMClientFirstMessage
    *
    * @return  The full client first message string.
    */
+  @NotNull()
   String getClientFirstMessage()
   {
     return clientFirstMessage;
@@ -222,6 +229,7 @@ final class SCRAMClientFirstMessage
    *
    * @return  The bare client first message string.
    */
+  @NotNull()
   String getClientFirstMessageBare()
   {
     return clientFirstMessageBare;
@@ -235,6 +243,7 @@ final class SCRAMClientFirstMessage
    * @return  A string representation of this SCRAM client first message.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return clientFirstMessage;

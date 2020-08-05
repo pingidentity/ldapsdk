@@ -44,6 +44,7 @@ import java.util.Set;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -107,21 +108,21 @@ public final class NegateJSONObjectFilter
    * The value that should be used for the filterType element of the JSON object
    * that represents a "negate" filter.
    */
-  public static final String FILTER_TYPE = "negate";
+  @NotNull public static final String FILTER_TYPE = "negate";
 
 
 
   /**
    * The name of the JSON field that is used to specify the filter to negate.
    */
-  public static final String FIELD_NEGATE_FILTER = "negateFilter";
+  @NotNull public static final String FIELD_NEGATE_FILTER = "negateFilter";
 
 
 
   /**
    * The pre-allocated set of required field names.
    */
-  private static final Set<String> REQUIRED_FIELD_NAMES =
+  @NotNull private static final Set<String> REQUIRED_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_NEGATE_FILTER)));
 
@@ -130,7 +131,7 @@ public final class NegateJSONObjectFilter
   /**
    * The pre-allocated set of optional field names.
    */
-  private static final Set<String> OPTIONAL_FIELD_NAMES =
+  @NotNull private static final Set<String> OPTIONAL_FIELD_NAMES =
        Collections.emptySet();
 
 
@@ -143,7 +144,7 @@ public final class NegateJSONObjectFilter
 
 
   // The embedded filter whose result will be negated.
-  private volatile JSONObjectFilter negateFilter;
+  @NotNull private volatile JSONObjectFilter negateFilter;
 
 
 
@@ -165,7 +166,7 @@ public final class NegateJSONObjectFilter
    * @param  negateFilter  The JSON object filter whose match result should be
    *                       negated.  It must not be {@code null}.
    */
-  public NegateJSONObjectFilter(final JSONObjectFilter negateFilter)
+  public NegateJSONObjectFilter(@NotNull final JSONObjectFilter negateFilter)
   {
     Validator.ensureNotNull(negateFilter);
 
@@ -179,6 +180,7 @@ public final class NegateJSONObjectFilter
    *
    * @return  The JSON object filter whose match result will be negated.
    */
+  @NotNull()
   public JSONObjectFilter getNegateFilter()
   {
     return negateFilter;
@@ -192,7 +194,7 @@ public final class NegateJSONObjectFilter
    * @param  negateFilter  The JSON object filter whose match result should be
    *                       negated.
    */
-  public void setNegateFilter(final JSONObjectFilter negateFilter)
+  public void setNegateFilter(@NotNull final JSONObjectFilter negateFilter)
   {
     Validator.ensureNotNull(negateFilter);
 
@@ -205,6 +207,7 @@ public final class NegateJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getFilterType()
   {
     return FILTER_TYPE;
@@ -216,6 +219,7 @@ public final class NegateJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getRequiredFieldNames()
   {
     return REQUIRED_FIELD_NAMES;
@@ -227,6 +231,7 @@ public final class NegateJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getOptionalFieldNames()
   {
     return OPTIONAL_FIELD_NAMES;
@@ -238,7 +243,7 @@ public final class NegateJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesJSONObject(final JSONObject o)
+  public boolean matchesJSONObject(@NotNull final JSONObject o)
   {
     return (! negateFilter.matchesJSONObject(o));
   }
@@ -249,6 +254,7 @@ public final class NegateJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public JSONObject toJSONObject()
   {
     final LinkedHashMap<String,JSONValue> fields =
@@ -266,7 +272,9 @@ public final class NegateJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  protected NegateJSONObjectFilter decodeFilter(final JSONObject filterObject)
+  @NotNull()
+  protected NegateJSONObjectFilter decodeFilter(
+                 @NotNull final JSONObject filterObject)
             throws JSONException
   {
     final JSONValue v = filterObject.getField(FIELD_NEGATE_FILTER);

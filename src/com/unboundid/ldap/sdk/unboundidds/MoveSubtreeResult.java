@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -88,15 +90,15 @@ public final class MoveSubtreeResult
   private final int entriesReadFromSource;
 
   // The result code resulting from processing.
-  private final ResultCode resultCode;
+  @NotNull private final ResultCode resultCode;
 
   // A string providing details of any administrative processing that may be
   // required to either complete the move or restore servers to their original
   // state.
-  private final String adminActionRequired;
+  @Nullable private final String adminActionRequired;
 
   // A message with information about any error that may have occurred.
-  private final String errorMessage;
+  @Nullable private final String errorMessage;
 
 
 
@@ -123,8 +125,9 @@ public final class MoveSubtreeResult
    *                                   successfully removed from the source
    *                                   server.
    */
-  MoveSubtreeResult(final ResultCode resultCode, final String errorMessage,
-                    final String adminActionRequired,
+  MoveSubtreeResult(@NotNull final ResultCode resultCode,
+                    @Nullable final String errorMessage,
+                    @Nullable final String adminActionRequired,
                     final boolean sourceServerAltered,
                     final boolean targetServerAltered,
                     final int entriesReadFromSource,
@@ -152,6 +155,7 @@ public final class MoveSubtreeResult
    * @return  A result code which indicates the ultimate state of the move
    *          subtree processing.
    */
+  @NotNull()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -166,6 +170,7 @@ public final class MoveSubtreeResult
    * @return  An error message with information about a problem that occurred
    *          during processing, or {@code null} if no errors were encountered.
    */
+  @Nullable()
   public String getErrorMessage()
   {
     return errorMessage;
@@ -184,6 +189,7 @@ public final class MoveSubtreeResult
    *          consistent state, or {@code null} if no administrative action is
    *          necessary.
    */
+  @Nullable()
   public String getAdminActionRequired()
   {
     return adminActionRequired;
@@ -276,6 +282,7 @@ public final class MoveSubtreeResult
    * @return  A string representation of this move subtree result object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -291,7 +298,7 @@ public final class MoveSubtreeResult
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MoveSubtreeResult(resultCode=");
     buffer.append(resultCode.getName());

@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,7 +77,8 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold the DN of the authorization identity
    * for the operation.
    */
-  public static final String ATTR_AUTHORIZATION_IDENTITY_DN = "reqAuthzID";
+  @NotNull public static final String ATTR_AUTHORIZATION_IDENTITY_DN =
+       "reqAuthzID";
 
 
 
@@ -83,7 +86,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold the diagnostic message the server
    * included in the response to the client.
    */
-  public static final String ATTR_DIAGNOSTIC_MESSAGE = "reqMessage";
+  @NotNull public static final String ATTR_DIAGNOSTIC_MESSAGE = "reqMessage";
 
 
 
@@ -96,7 +99,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * the operation:  abandon, add, bind, compare, delete, modify, modrdn,
    * search, or unbind.
    */
-  public static final String ATTR_OPERATION_TYPE = "reqType";
+  @NotNull public static final String ATTR_OPERATION_TYPE = "reqType";
 
 
 
@@ -106,7 +109,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * may be of a very high precision to ensure that each log entry has a
    * unique end time.
    */
-  public static final String ATTR_PROCESSING_END_TIME = "reqEnd";
+  @NotNull public static final String ATTR_PROCESSING_END_TIME = "reqEnd";
 
 
 
@@ -116,7 +119,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * may be of a very high precision to ensure that each log entry has a
    * unique start time.
    */
-  public static final String ATTR_PROCESSING_START_TIME = "reqStart";
+  @NotNull public static final String ATTR_PROCESSING_START_TIME = "reqStart";
 
 
 
@@ -124,7 +127,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold a referral URL the server included
    * in the response to the client.
    */
-  public static final String ATTR_REFERRAL_URL = "reqReferral";
+  @NotNull public static final String ATTR_REFERRAL_URL = "reqReferral";
 
 
 
@@ -132,7 +135,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold information about a request control
    * included in the request received from the client.
    */
-  public static final String ATTR_REQUEST_CONTROL = "reqControls";
+  @NotNull public static final String ATTR_REQUEST_CONTROL = "reqControls";
 
 
 
@@ -140,7 +143,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold information about a response control
    * included in the result returned to the client.
    */
-  public static final String ATTR_RESPONSE_CONTROL = "reqRespControls";
+  @NotNull public static final String ATTR_RESPONSE_CONTROL = "reqRespControls";
 
 
 
@@ -148,7 +151,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold the integer value of the result code
    * the server included in the response to the client.
    */
-  public static final String ATTR_RESULT_CODE = "reqResult";
+  @NotNull public static final String ATTR_RESULT_CODE = "reqResult";
 
 
 
@@ -156,7 +159,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold a session identifier for a sequence
    * of operations received on the same connection.
    */
-  public static final String ATTR_SESSION_ID = "reqSession";
+  @NotNull public static final String ATTR_SESSION_ID = "reqSession";
 
 
 
@@ -164,7 +167,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * The name of the attribute used to hold the DN of the entry targeted by the
    * operation.  For a search operation, this will be the search base DN.
    */
-  public static final String ATTR_TARGET_ENTRY_DN = "reqDN";
+  @NotNull public static final String ATTR_TARGET_ENTRY_DN = "reqDN";
 
 
 
@@ -176,44 +179,44 @@ public abstract class DraftChuLDAPLogSchema00Entry
 
 
   // The parsed processing end time for the operation.
-  private final Date processingEndTimeDate;
+  @Nullable private final Date processingEndTimeDate;
 
   // The parsed processing start time for the operation.
-  private final Date processingStartTimeDate;
+  @NotNull private final Date processingStartTimeDate;
 
   // A list of controls included in the request from the client.
-  private final List<Control> requestControls;
+  @NotNull private final List<Control> requestControls;
 
   // A list of controls included in the request from the client.
-  private final List<Control> responseControls;
+  @NotNull private final List<Control> responseControls;
 
   // A list of referral URLs returned to the client.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The operation type for the log entry.
-  private final OperationType operationType;
+  @NotNull private final OperationType operationType;
 
   // The result code returned to the client.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // The DN of the account used as the authorization identity for the operation.
-  private final String authorizationIdentityDN;
+  @Nullable private final String authorizationIdentityDN;
 
   // The diagnostic message returned to the client.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The string representation of the processing end time for the operation.
-  private final String processingEndTimeString;
+  @Nullable private final String processingEndTimeString;
 
   // The string representation of the processing start time for the operation.
-  private final String processingStartTimeString;
+  @NotNull private final String processingStartTimeString;
 
   // The session ID for the sequence of operations received on the same
   // connection.
-  private final String sessionID;
+  @NotNull private final String sessionID;
 
   // The DN of the entry targeted by the client.
-  private final String targetEntryDN;
+  @Nullable private final String targetEntryDN;
 
 
 
@@ -227,8 +230,8 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *                         access log entry as per the specification contained
    *                         in draft-chu-ldap-logschema-00.
    */
-  DraftChuLDAPLogSchema00Entry(final Entry entry,
-                               final OperationType operationType)
+  DraftChuLDAPLogSchema00Entry(@NotNull final Entry entry,
+                               @NotNull final OperationType operationType)
        throws LDAPException
   {
     super(entry);
@@ -383,8 +386,9 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * @throws  LDAPException  If a problem is encountered while trying to decode
    *                         the controls.
    */
-  private static List<Control> decodeControls(final Entry entry,
-                                              final String attributeName)
+  @NotNull()
+  private static List<Control> decodeControls(@NotNull final Entry entry,
+                                    @NotNull final String attributeName)
           throws LDAPException
   {
     final byte[][] values = entry.getAttributeValueByteArrays(attributeName);
@@ -421,6 +425,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *
    * @return  The type of operation represented by this access log entry.
    */
+  @NotNull()
   public final OperationType getOperationType()
   {
     return operationType;
@@ -439,6 +444,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * @return  The DN of the entry targeted by the operation represented by this
    *          access log entry, or {@code null} if no DN is available.
    */
+  @Nullable()
   public final String getTargetEntryDN()
   {
     return targetEntryDN;
@@ -456,6 +462,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * @return  The string representation of the time that the server started
    *          processing the operation represented by this access log entry.
    */
+  @NotNull()
   public final String getProcessingStartTimeString()
   {
     return processingStartTimeString;
@@ -472,6 +479,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * @return  A parsed representation of the time that the server started
    *          processing the operation represented by this access log entry.
    */
+  @NotNull()
   public final Date getProcessingStartTimeDate()
   {
     return processingStartTimeDate;
@@ -490,6 +498,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          processing the operation represented by this access log entry, or
    *          {@code null} if no end time is available.
    */
+  @Nullable()
   public final String getProcessingEndTimeString()
   {
     return processingEndTimeString;
@@ -507,6 +516,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * @return  A parsed representation of the time that the server completed
    *          processing the operation represented by this access log entry.
    */
+  @Nullable()
   public final Date getProcessingEndTimeDate()
   {
     return processingEndTimeDate;
@@ -525,6 +535,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    * @return  The session identifier that the server assigned to the operation
    *          represented by this access log entry.
    */
+  @NotNull()
   public final String getSessionID()
   {
     return sessionID;
@@ -540,6 +551,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          this access log entry, or an empty list if there were no request
    *          controls included in the access log entry.
    */
+  @NotNull()
   public final List<Control> getRequestControls()
   {
     return requestControls;
@@ -554,6 +566,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *
    * @return  The set of request controls as an array rather than a list.
    */
+  @NotNull()
   final Control[] getRequestControlArray()
   {
     return requestControls.toArray(StaticUtils.NO_CONTROLS);
@@ -569,6 +582,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          entry, or {@code null} if no result code was included in the
    *          access log entry.
    */
+  @Nullable()
   public final ResultCode getResultCode()
   {
     return resultCode;
@@ -584,6 +598,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          access log entry, or {@code null} if no result code was included
    *          in the access log entry.
    */
+  @Nullable()
   public final String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -599,6 +614,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          access log entry, or an empty list if no referral URLs were
    *          included in the access log entry.
    */
+  @NotNull()
   public final List<String> getReferralURLs()
   {
     return referralURLs;
@@ -614,6 +630,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          this access log entry, or an empty list if there were no response
    *          controls included in the access log entry.
    */
+  @NotNull()
   public final List<Control> getResponseControls()
   {
     return responseControls;
@@ -629,6 +646,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          for the operation represented by this access log entry, or
    *          {@code null} if the authorization identity is not available.
    */
+  @Nullable()
   public final String getAuthorizationIdentityDN()
   {
     return authorizationIdentityDN;
@@ -646,6 +664,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *          described by this access log entry, or {@code null} if no response
    *          information is available.
    */
+  @Nullable()
   public final LDAPResult toLDAPResult()
   {
     if (resultCode == null)
@@ -671,7 +690,8 @@ public abstract class DraftChuLDAPLogSchema00Entry
    *                         access log entry as per the specification contained
    *                         in draft-chu-ldap-logschema-00.
    */
-  public static DraftChuLDAPLogSchema00Entry decode(final Entry entry)
+  @NotNull()
+  public static DraftChuLDAPLogSchema00Entry decode(@NotNull final Entry entry)
          throws LDAPException
   {
     final String opType = entry.getAttributeValue(ATTR_OPERATION_TYPE);

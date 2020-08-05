@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Null;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -101,6 +102,7 @@ public final class BeginningOfChangelogStartingPoint
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return ENCODED_ELEMENT;
@@ -112,7 +114,7 @@ public final class BeginningOfChangelogStartingPoint
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("BeginningOfChangelogStartingPoint()");
   }

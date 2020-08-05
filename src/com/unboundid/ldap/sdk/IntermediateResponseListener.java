@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,5 +68,6 @@ public interface IntermediateResponseListener
    * @param  intermediateResponse  The intermediate response that has been
    *                               returned by the server.
    */
-  void intermediateResponseReturned(IntermediateResponse intermediateResponse);
+  void intermediateResponseReturned(
+            @NotNull IntermediateResponse intermediateResponse);
 }

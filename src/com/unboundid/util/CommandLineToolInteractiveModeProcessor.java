@@ -112,13 +112,13 @@ final class CommandLineToolInteractiveModeProcessor
 
 
   // The argument parser for the command-line tool.
-  private final ArgumentParser parser;
+  @NotNull private final ArgumentParser parser;
 
   // The reader that may be used to read from standard input.
-  private final BufferedReader systemInReader;
+  @NotNull private final BufferedReader systemInReader;
 
   // The associated command-line tool.
-  private final CommandLineTool tool;
+  @NotNull private final CommandLineTool tool;
 
   // The maximum column length to use when wrapping long lines.
   private final int wrapColumn;
@@ -133,8 +133,8 @@ final class CommandLineToolInteractiveModeProcessor
    *                 processing.
    * @param  parser  The argument parser for the provided command-line tool.
    */
-  CommandLineToolInteractiveModeProcessor(final CommandLineTool tool,
-                                          final ArgumentParser parser)
+  CommandLineToolInteractiveModeProcessor(@NotNull final CommandLineTool tool,
+                                          @NotNull final ArgumentParser parser)
   {
     this.tool   = tool;
     this.parser = parser;
@@ -206,7 +206,7 @@ final class CommandLineToolInteractiveModeProcessor
    *
    * @param  args  The arguments to be printed.
    */
-  private void printArgs(final List<String> args)
+  private void printArgs(@NotNull final List<String> args)
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("     ");
@@ -260,6 +260,7 @@ final class CommandLineToolInteractiveModeProcessor
    * @throws  LDAPException  If a problem is encountered while determining which
    *                         subcommand to use.
    */
+  @NotNull()
   private SubCommand promptForSubCommand()
           throws LDAPException
   {
@@ -303,7 +304,7 @@ final class CommandLineToolInteractiveModeProcessor
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForLDAPArguments(final List<String> argList,
+  private void promptForLDAPArguments(@NotNull final List<String> argList,
                                       final boolean test)
           throws LDAPException
   {
@@ -1300,8 +1301,8 @@ final class CommandLineToolInteractiveModeProcessor
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForMultiServerLDAPArguments(final List<String> argList,
-                                                 final boolean test)
+  private void promptForMultiServerLDAPArguments(
+                    @NotNull final List<String> argList, final boolean test)
           throws LDAPException
   {
     // FIXME -- Implement this.
@@ -1326,7 +1327,9 @@ final class CommandLineToolInteractiveModeProcessor
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private List<String> displayInteractiveMenu(final List<String> ldapArgs)
+  @NotNull()
+  private List<String> displayInteractiveMenu(
+                            @NotNull final List<String> ldapArgs)
           throws LDAPException
   {
     final ArrayList<Argument> args =
@@ -1839,7 +1842,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForArgument(final Argument a)
+  private void promptForArgument(@NotNull final Argument a)
           throws LDAPException
   {
     tool.out();
@@ -1974,7 +1977,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForArgumentList(final ArgumentListArgument a)
+  private void promptForArgumentList(@NotNull final ArgumentListArgument a)
           throws LDAPException
   {
     final List<String> values = a.getValueStrings();
@@ -2063,7 +2066,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForBoolean(final BooleanArgument a)
+  private void promptForBoolean(@NotNull final BooleanArgument a)
           throws LDAPException
   {
     tool.out();
@@ -2090,7 +2093,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForBoolean(final BooleanValueArgument a)
+  private void promptForBoolean(@NotNull final BooleanValueArgument a)
           throws LDAPException
   {
     final Boolean value = a.getValue();
@@ -2114,7 +2117,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForControl(final ControlArgument a)
+  private void promptForControl(@NotNull final ControlArgument a)
           throws LDAPException
   {
     final List<Control> values = a.getValues();
@@ -2207,7 +2210,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForDN(final DNArgument a)
+  private void promptForDN(@NotNull final DNArgument a)
           throws LDAPException
   {
     final List<DN> values = a.getValues();
@@ -2282,7 +2285,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForDuration(final DurationArgument a)
+  private void promptForDuration(@NotNull final DurationArgument a)
           throws LDAPException
   {
     final List<String> values = a.getValueStringRepresentations(true);
@@ -2325,7 +2328,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForFile(final FileArgument a)
+  private void promptForFile(@NotNull final FileArgument a)
           throws LDAPException
   {
     final List<File> values = a.getValues();
@@ -2407,7 +2410,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForFilter(final FilterArgument a)
+  private void promptForFilter(@NotNull final FilterArgument a)
           throws LDAPException
   {
     final List<Filter> values = a.getValues();
@@ -2486,7 +2489,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForInteger(final IntegerArgument a)
+  private void promptForInteger(@NotNull final IntegerArgument a)
           throws LDAPException
   {
     final List<Integer> values = a.getValues();
@@ -2568,7 +2571,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForScope(final ScopeArgument a)
+  private void promptForScope(@NotNull final ScopeArgument a)
           throws LDAPException
   {
     final SearchScope value = a.getValue();
@@ -2615,7 +2618,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForString(final StringArgument a)
+  private void promptForString(@NotNull final StringArgument a)
           throws LDAPException
   {
     // If the argument has a relatively small set of allowed values, then
@@ -2734,7 +2737,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForStringWithMenu(final StringArgument a)
+  private void promptForStringWithMenu(@NotNull final StringArgument a)
           throws LDAPException
   {
     final List<String> values = a.getValues();
@@ -2831,7 +2834,7 @@ argsLoop:
    * @throws  LDAPException  If a problem is encountered while interacting with
    *                         the user, or if the user wants to quit.
    */
-  private void promptForTimestamp(final TimestampArgument a)
+  private void promptForTimestamp(@NotNull final TimestampArgument a)
           throws LDAPException
   {
     final List<String> stringValues = a.getValueStringRepresentations(true);
@@ -2930,10 +2933,10 @@ argsLoop:
    *                         the user has chosen, or if the user has chosen to
    *                         quit rather than select a numbered option.
    */
-  private int getNumberedMenuChoice(final String prompt,
+  private int getNumberedMenuChoice(@NotNull final String prompt,
                                     final boolean allowUndefined,
-                                    final String defaultOptionString,
-                                    final String... options)
+                                    @Nullable final String defaultOptionString,
+                                    @NotNull final String... options)
           throws LDAPException
   {
     final int maxNumberLength = String.valueOf(options.length).length();
@@ -3046,7 +3049,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private String promptForString(final String prompt, final String defaultValue,
+  @Nullable()
+  private String promptForString(@NotNull final String prompt,
+                                 @Nullable final String defaultValue,
                                  final boolean requireValue)
           throws LDAPException
   {
@@ -3114,8 +3119,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private Boolean promptForBoolean(final String prompt,
-                                   final Boolean defaultValue,
+  @Nullable()
+  private Boolean promptForBoolean(@NotNull final String prompt,
+                                   @Nullable final Boolean defaultValue,
                                    final boolean requireValue)
           throws LDAPException
   {
@@ -3164,8 +3170,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private Boolean promptForYesNo(final String prompt,
-                                 final Boolean defaultValue,
+  @Nullable()
+  private Boolean promptForYesNo(@NotNull final String prompt,
+                                 @Nullable final Boolean defaultValue,
                                  final boolean requireValue)
           throws LDAPException
   {
@@ -3228,7 +3235,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private DN promptForDN(final String prompt, final String defaultValue,
+  @NotNull()
+  private DN promptForDN(@NotNull final String prompt,
+                         @Nullable final String defaultValue,
                          final boolean nullDNAllowed)
           throws LDAPException
   {
@@ -3309,7 +3318,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private Filter promptForFilter(final String prompt, final Filter defaultValue,
+  @Nullable()
+  private Filter promptForFilter(@NotNull final String prompt,
+                                 @Nullable final Filter defaultValue,
                                  final boolean requireValue)
           throws LDAPException
   {
@@ -3390,10 +3401,11 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private Integer promptForInteger(final String prompt,
-                                   final Integer defaultValue,
-                                   final Integer lowerBound,
-                                   final Integer upperBound,
+  @Nullable()
+  private Integer promptForInteger(@NotNull final String prompt,
+                                   @Nullable final Integer defaultValue,
+                                   @Nullable final Integer lowerBound,
+                                   @Nullable final Integer upperBound,
                                    final boolean requireValue)
           throws LDAPException
   {
@@ -3512,7 +3524,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private File promptForPath(final String prompt, final String defaultValue,
+  @Nullable()
+  private File promptForPath(@NotNull final String prompt,
+                             @Nullable final String defaultValue,
                              final boolean requireValue,
                              final boolean fileMustExist,
                              final boolean parentMustExist,
@@ -3646,8 +3660,9 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private byte[] promptForPassword(final String prompt,
-                                   final String confirmPrompt,
+  @Nullable()
+  private byte[] promptForPassword(@NotNull final String prompt,
+                                   @Nullable final String confirmPrompt,
                                    final boolean requireValue)
           throws LDAPException
   {
@@ -3744,9 +3759,11 @@ argsLoop:
    * @throws  LDAPException  If an error occurs while obtaining the value from
    *                         the user.
    */
-  private ObjectPair<Date,String> promptForTimestamp(final String prompt,
-                                                     final Date defaultValue,
-                                                     final boolean requireValue)
+  @Nullable()
+  private ObjectPair<Date,String> promptForTimestamp(
+                                       @NotNull final String prompt,
+                                       @Nullable final Date defaultValue,
+                                       final boolean requireValue)
           throws LDAPException
   {
     tool.out();
@@ -3821,7 +3838,8 @@ argsLoop:
    * @return  A right-aligned representation of the provided string in the given
    *          width.
    */
-  private static String rightAlign(final String s, final int w)
+  @NotNull()
+  private static String rightAlign(@NotNull final String s, final int w)
   {
     final int l = s.length();
     if (l >= w)
@@ -3852,7 +3870,8 @@ argsLoop:
    * @return  A left-aligned representation of the provided string in the given
    *          width.
    */
-  private static String leftAlign(final String s, final int w)
+  @NotNull()
+  private static String leftAlign(@NotNull final String s, final int w)
   {
     final int l = s.length();
     if (l >= w)
@@ -3903,7 +3922,7 @@ argsLoop:
    *                             constraints are not satisfied.
    */
   private static void validateRequiredExclusiveAndDependentArgumentSets(
-                           final ArgumentParser parser)
+                           @NotNull final ArgumentParser parser)
           throws ArgumentException
   {
     // Iterate through the required argument sets and make sure that at least

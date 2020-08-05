@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -80,7 +81,7 @@ public interface CollectSupportDataIntermediateResponseListener
    *                   be processed.  It must not be {@code null}.
    */
   void handleOutputIntermediateResponse(
-            CollectSupportDataOutputIntermediateResponse response);
+            @NotNull CollectSupportDataOutputIntermediateResponse response);
 
 
 
@@ -92,7 +93,7 @@ public interface CollectSupportDataIntermediateResponseListener
    *                   response to be processed.  It must not be {@code null}.
    */
   void handleArchiveFragmentIntermediateResponse(
-            CollectSupportDataArchiveFragmentIntermediateResponse response);
+       @NotNull CollectSupportDataArchiveFragmentIntermediateResponse response);
 
 
 
@@ -104,5 +105,5 @@ public interface CollectSupportDataIntermediateResponseListener
    * @param  response  The generic intermediate response to be processed.  It
    *                   must not be {@code null}.
    */
-  void handleOtherIntermediateResponse(IntermediateResponse response);
+  void handleOtherIntermediateResponse(@NotNull IntermediateResponse response);
 }

@@ -62,6 +62,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.WakeableSleeper;
 
@@ -86,42 +88,43 @@ final class LDAPConnectionReader
 
 
   // The ASN.1 stream reader used to read LDAP messages from the server.
-  private volatile ASN1StreamReader asn1StreamReader;
+  @NotNull private volatile ASN1StreamReader asn1StreamReader;
 
   // Indicates whether a request has been made to close the associated socket.
   private volatile boolean closeRequested;
 
   // The map that will be used to associate message IDs with the corresponding
   // response acceptors.
-  private final ConcurrentHashMap<Integer,ResponseAcceptor> acceptorMap;
+  @NotNull private final ConcurrentHashMap<Integer,ResponseAcceptor>
+       acceptorMap;
 
   // The exception encountered during StartTLS processing.
-  private volatile Exception startTLSException;
+  @Nullable private volatile Exception startTLSException;
 
   // The input stream used to read data from the socket.
-  private volatile InputStream inputStream;
+  @Nullable private volatile InputStream inputStream;
 
   // The SSL-enabled output stream resulting from StartTLS negotiation.  It will
   // be non-null only immediately after StartTLS negotiation has completed and
   // this output stream is ready to be handed back to the connection.
-  private volatile OutputStream startTLSOutputStream;
+  @Nullable private volatile OutputStream startTLSOutputStream;
 
   // The LDAP connection with which this reader is associated.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // The socket with which this reader is associated.
-  private volatile Socket socket;
+  @NotNull private volatile Socket socket;
 
   // The SSL socket factory to use to convert an insecure connection to a secure
   // one when performing StartTLS processing.  It will be null unless there is
   // an outstanding StartTLS request.
-  private volatile SSLSocketFactory sslSocketFactory;
+  @Nullable private volatile SSLSocketFactory sslSocketFactory;
 
   // The thread that is used to read data from the client.
-  private volatile Thread thread;
+  @Nullable private volatile Thread thread;
 
   // The wakeable sleeper that will be used during StartTLS processing.
-  private final WakeableSleeper startTLSSleeper;
+  @NotNull private final WakeableSleeper startTLSSleeper;
 
 
 
@@ -137,8 +140,8 @@ final class LDAPConnectionReader
    * @throws  IOException  If a problem occurs while preparing to read data from
    *                       the provided socket.
    */
-  LDAPConnectionReader(final LDAPConnection connection,
-                       final LDAPConnectionInternals connectionInternals)
+  LDAPConnectionReader(@NotNull final LDAPConnection connection,
+       @NotNull final LDAPConnectionInternals connectionInternals)
        throws IOException
   {
     this.connection = connection;
@@ -174,7 +177,7 @@ final class LDAPConnectionReader
    *                         provided message ID.
    */
   void registerResponseAcceptor(final int messageID,
-                                final ResponseAcceptor acceptor)
+                                @NotNull final ResponseAcceptor acceptor)
        throws LDAPException
   {
     final ResponseAcceptor existingAcceptor =
@@ -636,6 +639,7 @@ final class LDAPConnectionReader
    *
    * @throws  LDAPException  If a problem occurs while reading the response.
    */
+  @NotNull()
   LDAPResponse readResponse(final int messageID)
                throws LDAPException
   {
@@ -817,7 +821,7 @@ final class LDAPConnectionReader
    *
    * @param  response  The response to be logged.  It must not be {@code null}.
    */
-  void logResponse(final LDAPResponse response)
+  void logResponse(@NotNull final LDAPResponse response)
   {
     final LDAPConnectionLogger logger =
          connection.getConnectionOptions().getConnectionLogger();
@@ -899,7 +903,8 @@ final class LDAPConnectionReader
    * @throws  LDAPException  If a problem occurs while attempting to convert the
    *                         connection to use TLS security.
    */
-  OutputStream doStartTLS(final SSLSocketFactory sslSocketFactory)
+  @NotNull()
+  OutputStream doStartTLS(@NotNull final SSLSocketFactory sslSocketFactory)
        throws LDAPException
   {
     final LDAPConnectionOptions connectionOptions =
@@ -1012,7 +1017,7 @@ final class LDAPConnectionReader
    * @param  saslClient  The SASL client to use to decode data read over this
    *                     connection.
    */
-  void applySASLQoP(final SaslClient saslClient)
+  void applySASLQoP(@NotNull final SaslClient saslClient)
   {
     InternalASN1Helper.setSASLClient(asn1StreamReader, saslClient);
   }
@@ -1070,7 +1075,7 @@ final class LDAPConnectionReader
     *                           reason for the closure, if available.
     */
    private void closeInternal(final boolean notifyConnection,
-                              final String message)
+                              @Nullable final String message)
    {
      final InputStream is = inputStream;
      inputStream = null;
@@ -1139,6 +1144,7 @@ final class LDAPConnectionReader
    * @return  The handle to the thread used to read data from the server, or
    *          {@code null} if it is not available.
    */
+  @Nullable()
   Thread getReaderThread()
   {
     return thread;
@@ -1180,8 +1186,9 @@ final class LDAPConnectionReader
    * @return  The name that should be used for the reader thread based on
    *          information about the associated client connection.
    */
+  @NotNull()
   private String constructThreadName(
-                      final LDAPConnectionInternals connectionInternals)
+       @Nullable final LDAPConnectionInternals connectionInternals)
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("Connection reader for connection ");

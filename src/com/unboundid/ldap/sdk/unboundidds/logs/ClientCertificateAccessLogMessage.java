@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,10 +73,10 @@ public final class ClientCertificateAccessLogMessage
 
 
   // The subject DN for the issuer certificate.
-  private final String issuerSubject;
+  @Nullable private final String issuerSubject;
 
   // The subject DN for the client certificate.
-  private final String peerSubject;
+  @Nullable private final String peerSubject;
 
 
 
@@ -88,7 +90,7 @@ public final class ClientCertificateAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ClientCertificateAccessLogMessage(final String s)
+  public ClientCertificateAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -101,7 +103,7 @@ public final class ClientCertificateAccessLogMessage
    *
    * @param  m  The log message to be parsed as a connect access log message.
    */
-  public ClientCertificateAccessLogMessage(final LogMessage m)
+  public ClientCertificateAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -117,6 +119,7 @@ public final class ClientCertificateAccessLogMessage
    * @return  The subject of the peer certificate, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public String getPeerSubject()
   {
     return peerSubject;
@@ -130,6 +133,7 @@ public final class ClientCertificateAccessLogMessage
    * @return  The subject of the issuer certificate, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public String getIssuerSubject()
   {
     return issuerSubject;
@@ -141,6 +145,7 @@ public final class ClientCertificateAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.CLIENT_CERTIFICATE;

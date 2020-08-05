@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -57,7 +58,7 @@ public final class AggregatePostConnectProcessor
        implements PostConnectProcessor
 {
   // The list of post-connect processors to be invoked.
-  private final List<PostConnectProcessor> processors;
+  @NotNull private final List<PostConnectProcessor> processors;
 
 
 
@@ -67,7 +68,8 @@ public final class AggregatePostConnectProcessor
    *
    * @param  processors  The set of post-connect processors to be invoked.
    */
-  public AggregatePostConnectProcessor(final PostConnectProcessor... processors)
+  public AggregatePostConnectProcessor(
+              @NotNull final PostConnectProcessor... processors)
   {
     this(StaticUtils.toList(processors));
   }
@@ -81,7 +83,7 @@ public final class AggregatePostConnectProcessor
    * @param  processors  The set of post-connect processors to be invoked.
    */
   public AggregatePostConnectProcessor(
-              final Collection<? extends PostConnectProcessor> processors)
+       @NotNull final Collection<? extends PostConnectProcessor> processors)
   {
     if (processors == null)
     {
@@ -100,7 +102,8 @@ public final class AggregatePostConnectProcessor
    * {@inheritDoc}
    */
   @Override()
-  public void processPreAuthenticatedConnection(final LDAPConnection connection)
+  public void processPreAuthenticatedConnection(
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     for (final PostConnectProcessor p : processors)
@@ -116,7 +119,7 @@ public final class AggregatePostConnectProcessor
    */
   @Override()
   public void processPostAuthenticatedConnection(
-                   final LDAPConnection connection)
+                   @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     for (final PostConnectProcessor p : processors)

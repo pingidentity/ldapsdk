@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,7 +99,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
   private final boolean ignoreOperationalAttributes;
 
   // The names of the attributes to ignore.
-  private final List<String> attributeNames;
+  @NotNull private final List<String> attributeNames;
 
 
 
@@ -117,7 +119,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
    */
   public IgnoreAttributesChangeSelectionCriteria(
               final boolean ignoreOperationalAttributes,
-              final String... attributeNames)
+              @Nullable final String... attributeNames)
   {
     this(ignoreOperationalAttributes, StaticUtils.toList(attributeNames));
   }
@@ -140,7 +142,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
    */
   public IgnoreAttributesChangeSelectionCriteria(
               final boolean ignoreOperationalAttributes,
-              final Collection<String> attributeNames)
+              @Nullable final Collection<String> attributeNames)
   {
     if ((attributeNames == null) || attributeNames.isEmpty())
     {
@@ -172,8 +174,9 @@ public final class IgnoreAttributesChangeSelectionCriteria
    *                         the provided element as the inner element of an all
    *                         attributes change selection criteria value.
    */
+  @NotNull()
   static IgnoreAttributesChangeSelectionCriteria decodeInnerElement(
-              final ASN1Element innerElement)
+              @NotNull final ASN1Element innerElement)
          throws LDAPException
   {
     try
@@ -227,6 +230,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
    * @return  The names of the target attributes for changes that should be
    *          retrieved.
    */
+  @NotNull()
   public List<String> getAttributeNames()
   {
     return attributeNames;
@@ -238,6 +242,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeInnerElement()
   {
     final ArrayList<ASN1Element> attrNameElements =
@@ -258,7 +263,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("IgnoreAttributesChangeSelectionCriteria(attributeNames={");
 

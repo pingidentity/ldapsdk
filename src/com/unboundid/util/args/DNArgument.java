@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,13 +73,13 @@ public final class DNArgument
 
 
   // The set of values assigned to this argument.
-  private final ArrayList<DN> values;
+  @NotNull private final ArrayList<DN> values;
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The list of default values for this argument.
-  private final List<DN> defaultValues;
+  @Nullable private final List<DN> defaultValues;
 
 
 
@@ -98,8 +100,9 @@ public final class DNArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DNArgument(final Character shortIdentifier,
-                    final String longIdentifier, final String description)
+  public DNArgument(@Nullable final Character shortIdentifier,
+                    @Nullable final String longIdentifier,
+                    @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 1, null, description);
@@ -133,10 +136,12 @@ public final class DNArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DNArgument(final Character shortIdentifier,
-                    final String longIdentifier, final boolean isRequired,
-                    final int maxOccurrences, final String valuePlaceholder,
-                    final String description)
+  public DNArgument(@Nullable final Character shortIdentifier,
+                    @Nullable final String longIdentifier,
+                    final boolean isRequired,
+                    final int maxOccurrences,
+                    @Nullable final String valuePlaceholder,
+                    @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -172,10 +177,12 @@ public final class DNArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DNArgument(final Character shortIdentifier,
-                    final String longIdentifier, final boolean isRequired,
-                    final int maxOccurrences, final String valuePlaceholder,
-                    final String description, final DN defaultValue)
+  public DNArgument(@Nullable final Character shortIdentifier,
+                    @Nullable final String longIdentifier,
+                    final boolean isRequired, final int maxOccurrences,
+                    @Nullable final String valuePlaceholder,
+                    @NotNull final String description,
+                    @Nullable final DN defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
@@ -214,10 +221,12 @@ public final class DNArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DNArgument(final Character shortIdentifier,
-                    final String longIdentifier, final boolean isRequired,
-                    final int maxOccurrences, final String valuePlaceholder,
-                    final String description, final List<DN> defaultValues)
+  public DNArgument(@Nullable final Character shortIdentifier,
+                    @Nullable final String longIdentifier,
+                    final boolean isRequired, final int maxOccurrences,
+                    @Nullable final String valuePlaceholder,
+                    @NotNull final String description,
+                    @Nullable final List<DN> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -247,7 +256,7 @@ public final class DNArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private DNArgument(final DNArgument source)
+  private DNArgument(@NotNull final DNArgument source)
   {
     super(source);
 
@@ -265,6 +274,7 @@ public final class DNArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
+  @Nullable()
   public List<DN> getDefaultValues()
   {
     return defaultValues;
@@ -280,7 +290,7 @@ public final class DNArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -291,7 +301,7 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     final DN parsedDN;
@@ -331,6 +341,7 @@ public final class DNArgument
    *          provided, or {@code null} if there is no value and no default
    *          value.
    */
+  @Nullable()
   public DN getValue()
   {
     if (values.isEmpty())
@@ -357,6 +368,7 @@ public final class DNArgument
    *
    * @return  The set of values for this argument.
    */
+  @NotNull()
   public List<DN> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
@@ -378,6 +390,7 @@ public final class DNArgument
    *          string representation of the default value if none was provided,
    *          or {@code null} if there is no value and no default value.
    */
+  @Nullable()
   public String getStringValue()
   {
     final DN valueDN = getValue();
@@ -395,6 +408,7 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     if (values.isEmpty())
@@ -442,6 +456,7 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_DN_TYPE_NAME.get();
@@ -453,6 +468,7 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     return INFO_DN_CONSTRAINTS.get();
@@ -476,6 +492,7 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DNArgument getCleanCopy()
   {
     return new DNArgument(this);
@@ -487,21 +504,18 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (values != null)
+    for (final DN dn : values)
     {
-      for (final DN dn : values)
+      argStrings.add(getIdentifierString());
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED***");
-        }
-        else
-        {
-          argStrings.add(String.valueOf(dn));
-        }
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(String.valueOf(dn));
       }
     }
   }
@@ -512,7 +526,7 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DNArgument(");
     appendBasicToStringInfo(buffer);

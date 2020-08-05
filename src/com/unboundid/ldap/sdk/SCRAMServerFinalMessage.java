@@ -42,6 +42,7 @@ import java.io.Serializable;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -62,7 +63,7 @@ final class SCRAMServerFinalMessage
   /**
    * The input bytes to provide to the MAC when generating the server key.
    */
-  private static final byte[] SERVER_KEY_INPUT_BYTES =
+  @NotNull private static final byte[] SERVER_KEY_INPUT_BYTES =
        StaticUtils.getBytes("Server Key");
 
 
@@ -75,23 +76,23 @@ final class SCRAMServerFinalMessage
 
 
   // The bind result containing the server final message.
-  private final BindResult bindResult;
+  @NotNull private final BindResult bindResult;
 
   // The bind request being processed.
-  private final SCRAMBindRequest bindRequest;
+  @NotNull private final SCRAMBindRequest bindRequest;
 
   // The client first message that was sent to the server.
-  private final SCRAMClientFirstMessage clientFirstMessage;
+  @NotNull private final SCRAMClientFirstMessage clientFirstMessage;
 
   // The client first message that was sent to the server.
-  private final SCRAMClientFinalMessage clientFinalMessage;
+  @NotNull private final SCRAMClientFinalMessage clientFinalMessage;
 
   // The string representation of the server first message included in the bind
   // result.
-  private final String serverFinalMessage;
+  @NotNull private final String serverFinalMessage;
 
   // The base64-encoded server signature included in the server final message.
-  private final String serverSignatureBase64;
+  @NotNull private final String serverSignatureBase64;
 
 
 
@@ -112,10 +113,10 @@ final class SCRAMServerFinalMessage
    *                             server final message from the provided bind
    *                             result.
    */
-  SCRAMServerFinalMessage(final SCRAMBindRequest bindRequest,
-                          final SCRAMClientFirstMessage clientFirstMessage,
-                          final SCRAMClientFinalMessage clientFinalMessage,
-                          final BindResult bindResult)
+  SCRAMServerFinalMessage(@NotNull final SCRAMBindRequest bindRequest,
+       @NotNull final SCRAMClientFirstMessage clientFirstMessage,
+       @NotNull final SCRAMClientFinalMessage clientFinalMessage,
+       @NotNull final BindResult bindResult)
        throws LDAPBindException
   {
     this.bindRequest = bindRequest;
@@ -241,6 +242,7 @@ final class SCRAMServerFinalMessage
    *
    * @return  The SCRAM bind request being processed.
    */
+  @NotNull()
   SCRAMBindRequest getBindRequest()
   {
     return bindRequest;
@@ -255,6 +257,7 @@ final class SCRAMServerFinalMessage
    * @return  The client first message with which this server final message is
    *          associated.
    */
+  @NotNull()
   SCRAMClientFirstMessage getClientFirstMessage()
   {
     return clientFirstMessage;
@@ -269,6 +272,7 @@ final class SCRAMServerFinalMessage
    * @return  The client final message with which this server final message is
    *          associated.
    */
+  @NotNull()
   SCRAMClientFinalMessage getClientFinalMessage()
   {
     return clientFinalMessage;
@@ -283,6 +287,7 @@ final class SCRAMServerFinalMessage
    * @return  A base64-encoded representation of the server signature included
    *          in the server final message.
    */
+  @NotNull()
   String getServerSignatureBase64()
   {
     return serverSignatureBase64;
@@ -295,6 +300,7 @@ final class SCRAMServerFinalMessage
    *
    * @return  A string representation of the server final message.
    */
+  @NotNull()
   String getServerFinalMessage()
   {
     return serverFinalMessage;
@@ -308,6 +314,7 @@ final class SCRAMServerFinalMessage
    * @return  A string representation of this SCRAM server final message.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return serverFinalMessage;

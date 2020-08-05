@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.schema;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -133,7 +135,8 @@ public enum SchemaElementType
    *                                     elements of this type in a subschema
    *                                     subentry.
    */
-  SchemaElementType(final String name, final String subschemaAttributeTypeName)
+  SchemaElementType(@NotNull final String name,
+                    @NotNull final String subschemaAttributeTypeName)
   {
     this.name = name;
     this.subschemaAttributeTypeName = subschemaAttributeTypeName;
@@ -146,6 +149,7 @@ public enum SchemaElementType
    *
    * @return  The name for this schema element type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -160,6 +164,7 @@ public enum SchemaElementType
    * @return  The name used to hold definitions for elements of this type in a
    *          subschema subentry.
    */
+  @NotNull()
   public String getSubschemaAttributeTypeName()
   {
     return subschemaAttributeTypeName;
@@ -176,7 +181,8 @@ public enum SchemaElementType
    * @return  The schema element type with the given name, or {@code null} if
    *          there is no schema element type with that name.
    */
-  public static SchemaElementType forName(final String name)
+  @Nullable()
+  public static SchemaElementType forName(@NotNull final String name)
   {
     final String lowerName = StaticUtils.toLowerCase(name.replace('_', '-'));
     switch (lowerName)
@@ -288,6 +294,7 @@ public enum SchemaElementType
    * @return  A string representation of this schema element type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

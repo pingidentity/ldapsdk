@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -94,13 +96,13 @@ public abstract class GenericResponseProtocolOp
   private final int resultCode;
 
   // The referral URLs for this response.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The diagnostic message for this response.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The matched DN for this response.Static
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
 
 
@@ -116,9 +118,9 @@ public abstract class GenericResponseProtocolOp
    *                            available.
    */
   protected GenericResponseProtocolOp(final byte type, final int resultCode,
-                                    final String matchedDN,
-                                    final String diagnosticMessage,
-                                    final List<String> referralURLs)
+                                      @Nullable final String matchedDN,
+                                      @Nullable final String diagnosticMessage,
+                                      @Nullable final List<String> referralURLs)
   {
     this.type              = type;
     this.resultCode        = resultCode;
@@ -145,7 +147,7 @@ public abstract class GenericResponseProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         response.
    */
-  protected GenericResponseProtocolOp(final ASN1StreamReader reader)
+  protected GenericResponseProtocolOp(@NotNull final ASN1StreamReader reader)
             throws LDAPException
   {
     try
@@ -220,6 +222,7 @@ public abstract class GenericResponseProtocolOp
    * @return  The matched DN for this response, or {@code null} if there is
    *          no matched DN.
    */
+  @Nullable()
   public final String getMatchedDN()
   {
     return matchedDN;
@@ -233,6 +236,7 @@ public abstract class GenericResponseProtocolOp
    * @return  The diagnostic message for this response, or {@code null} if there
    *          is no diagnostic message.
    */
+  @Nullable()
   public final String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -246,6 +250,7 @@ public abstract class GenericResponseProtocolOp
    * @return  The list of referral URLs for this response, or an empty list
    *          if there are no referral URLs.
    */
+  @NotNull()
   public final List<String> getReferralURLs()
   {
     return referralURLs;
@@ -268,7 +273,7 @@ public abstract class GenericResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public final void writeTo(final ASN1Buffer buffer)
+  public final void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence = buffer.beginSequence(type);
     buffer.addEnumerated(resultCode);
@@ -299,7 +304,8 @@ public abstract class GenericResponseProtocolOp
    *
    * @return  The LDAP result that was created.
    */
-  public LDAPResult toLDAPResult(final Control... controls)
+  @NotNull()
+  public LDAPResult toLDAPResult(@Nullable final Control... controls)
   {
     final String[] refs;
     if (referralURLs.isEmpty())
@@ -324,6 +330,7 @@ public abstract class GenericResponseProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -337,7 +344,7 @@ public abstract class GenericResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public final void toString(final StringBuilder buffer)
+  public final void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ResponseProtocolOp(type=");
     StaticUtils.toHex(type, buffer);

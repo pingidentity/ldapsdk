@@ -45,6 +45,8 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -71,16 +73,16 @@ public final class AttributeSyntaxDefinition
 
 
   // The set of extensions for this attribute syntax.
-  private final Map<String,String[]> extensions;
+  @NotNull private final Map<String,String[]> extensions;
 
   // The description for this attribute syntax.
-  private final String description;
+  @Nullable private final String description;
 
   // The string representation of this attribute syntax.
-  private final String attributeSyntaxString;
+  @NotNull private final String attributeSyntaxString;
 
   // The OID for this attribute syntax.
-  private final String oid;
+  @NotNull private final String oid;
 
 
 
@@ -94,7 +96,7 @@ public final class AttributeSyntaxDefinition
    * @throws  LDAPException  If the provided string cannot be decoded as an
    *                         attribute syntax definition.
    */
-  public AttributeSyntaxDefinition(final String s)
+  public AttributeSyntaxDefinition(@NotNull final String s)
          throws LDAPException
   {
     Validator.ensureNotNull(s);
@@ -221,8 +223,9 @@ public final class AttributeSyntaxDefinition
    *                      may be {@code null} or empty if there should not be
    *                      any extensions.
    */
-  public AttributeSyntaxDefinition(final String oid, final String description,
-                                   final Map<String,String[]> extensions)
+  public AttributeSyntaxDefinition(@NotNull final String oid,
+              @Nullable final String description,
+              @Nullable final Map<String,String[]> extensions)
   {
     Validator.ensureNotNull(oid);
 
@@ -252,7 +255,7 @@ public final class AttributeSyntaxDefinition
    * @param  buffer  The buffer in which to construct a string representation of
    *                 this attribute syntax definition.
    */
-  private void createDefinitionString(final StringBuilder buffer)
+  private void createDefinitionString(@NotNull final StringBuilder buffer)
   {
     buffer.append("( ");
     buffer.append(oid);
@@ -301,6 +304,7 @@ public final class AttributeSyntaxDefinition
    *
    * @return  The OID for this attribute syntax.
    */
+  @NotNull()
   public String getOID()
   {
     return oid;
@@ -314,6 +318,7 @@ public final class AttributeSyntaxDefinition
    * @return  The description for this attribute syntax, or {@code null} if
    *          there is no description defined.
    */
+  @Nullable()
   public String getDescription()
   {
     return description;
@@ -328,6 +333,7 @@ public final class AttributeSyntaxDefinition
    *
    * @return  The set of extensions for this matching rule use.
    */
+  @NotNull()
   public Map<String,String[]> getExtensions()
   {
     return extensions;
@@ -339,6 +345,7 @@ public final class AttributeSyntaxDefinition
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SchemaElementType getSchemaElementType()
   {
     return SchemaElementType.ATTRIBUTE_SYNTAX;
@@ -361,7 +368,7 @@ public final class AttributeSyntaxDefinition
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -393,6 +400,7 @@ public final class AttributeSyntaxDefinition
    * @return  A string representation of this attribute syntax definition.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return attributeSyntaxString;

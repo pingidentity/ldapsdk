@@ -56,7 +56,7 @@ public final class SynchronizedSSLSocketFactory
        extends SSLSocketFactory
 {
   // The wrapped SSL socket factory.
-  private final SSLSocketFactory factory;
+  @NotNull private final SSLSocketFactory factory;
 
 
 
@@ -66,7 +66,7 @@ public final class SynchronizedSSLSocketFactory
    *
    * @param  factory  The socket factory to be wrapped.
    */
-  public SynchronizedSSLSocketFactory(final SSLSocketFactory factory)
+  public SynchronizedSSLSocketFactory(@NotNull final SSLSocketFactory factory)
   {
     this.factory = factory;
   }
@@ -80,6 +80,7 @@ public final class SynchronizedSSLSocketFactory
    * @return  The {@code SSLSocketFactory} instance wrapped by this synchronized
    *          SSL socket factory.
    */
+  @NotNull()
   public SSLSocketFactory getWrappedSocketFactory()
   {
     return factory;
@@ -98,7 +99,8 @@ public final class SynchronizedSSLSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port)
          throws IOException
   {
     synchronized (factory)
@@ -116,18 +118,17 @@ public final class SynchronizedSSLSocketFactory
    *                       established.
    * @param  port          The port to which the connection should be
    *                       established.
-   * @param  localAddress  The local address to use for the connection.  This
-   *                       will be ignored.
-   * @param  localPort     The local port to use for the connection.  This will
-   *                       be ignored.
+   * @param  localAddress  The local address to use for the connection.
+   * @param  localPort     The local port to use for the connection.
    *
    * @return  The SSL socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {
@@ -150,7 +151,8 @@ public final class SynchronizedSSLSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port)
          throws IOException
   {
     synchronized (factory)
@@ -168,18 +170,17 @@ public final class SynchronizedSSLSocketFactory
    *                       established.
    * @param  port          The port to which the connection should be
    *                       established.
-   * @param  localAddress  The local address to use for the connection.  This
-   *                       will be ignored.
-   * @param  localPort     The local port to use for the connection.  This will
-   *                       be ignored.
+   * @param  localAddress  The local address to use for the connection.
+   * @param  localPort     The local port to use for the connection.
    *
    * @return  The SSL socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {
@@ -206,7 +207,9 @@ public final class SynchronizedSSLSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final Socket s, final String host, final int port,
+  @NotNull()
+  public Socket createSocket(@NotNull final Socket s,
+                             @NotNull final String host, final int port,
                              final boolean autoClose)
          throws IOException
   {
@@ -224,6 +227,7 @@ public final class SynchronizedSSLSocketFactory
    * @return  The set of cipher suites which are enabled by default.
    */
   @Override()
+  @NotNull()
   public String[] getDefaultCipherSuites()
   {
     synchronized (factory)
@@ -240,6 +244,7 @@ public final class SynchronizedSSLSocketFactory
    * @return  The entire set of cipher suites that could be used.
    */
   @Override()
+  @NotNull()
   public String[] getSupportedCipherSuites()
   {
     synchronized (factory)

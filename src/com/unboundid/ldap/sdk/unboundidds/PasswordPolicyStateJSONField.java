@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -735,7 +737,7 @@ public enum PasswordPolicyStateJSONField
 
 
   // The name for the JSON field.
-  private final String fieldName;
+  @NotNull private final String fieldName;
 
 
 
@@ -744,7 +746,7 @@ public enum PasswordPolicyStateJSONField
    *
    * @param  fieldName  The name for the JSON field.
    */
-  PasswordPolicyStateJSONField(final String fieldName)
+  PasswordPolicyStateJSONField(@NotNull final String fieldName)
   {
     this.fieldName = fieldName;
   }
@@ -756,6 +758,7 @@ public enum PasswordPolicyStateJSONField
    *
    * @return  The name for the JSON field.
    */
+  @NotNull()
   public String getFieldName()
   {
     return fieldName;
@@ -774,7 +777,8 @@ public enum PasswordPolicyStateJSONField
    *          name, or {@code null} if there is no value with the specified
    *          name.
    */
-  public static PasswordPolicyStateJSONField forName(final String name)
+  @Nullable()
+  public static PasswordPolicyStateJSONField forName(@NotNull final String name)
   {
     try
     {
@@ -797,6 +801,7 @@ public enum PasswordPolicyStateJSONField
    * @return  A string representation of this password policy state JSON field.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return fieldName;

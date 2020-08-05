@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public final class EntryChangeNotificationControl
    * The OID (2.16.840.1.113730.3.4.7) for the entry change notification
    * control.
    */
-  public static final String ENTRY_CHANGE_NOTIFICATION_OID =
+  @NotNull public static final String ENTRY_CHANGE_NOTIFICATION_OID =
        "2.16.840.1.113730.3.4.7";
 
 
@@ -119,10 +121,10 @@ public final class EntryChangeNotificationControl
   private final long changeNumber;
 
   // The change type for the change.
-  private final PersistentSearchChangeType changeType;
+  @NotNull private final PersistentSearchChangeType changeType;
 
   // The previous DN of the entry, if applicable.
-  private final String previousDN;
+  @Nullable private final String previousDN;
 
 
 
@@ -150,8 +152,8 @@ public final class EntryChangeNotificationControl
    *                       -1 if there should not be a change number.
    */
   public EntryChangeNotificationControl(
-              final PersistentSearchChangeType changeType,
-              final String previousDN, final long changeNumber)
+              @NotNull final PersistentSearchChangeType changeType,
+              @Nullable final String previousDN, final long changeNumber)
   {
     this(changeType, previousDN, changeNumber, false);
   }
@@ -172,8 +174,8 @@ public final class EntryChangeNotificationControl
    *                       critical.
    */
   public EntryChangeNotificationControl(
-              final PersistentSearchChangeType changeType,
-              final String previousDN, final long changeNumber,
+              @NotNull final PersistentSearchChangeType changeType,
+              @Nullable final String previousDN, final long changeNumber,
               final boolean isCritical)
   {
     super(ENTRY_CHANGE_NOTIFICATION_OID, isCritical,
@@ -199,9 +201,9 @@ public final class EntryChangeNotificationControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         entry change notification control.
    */
-  public EntryChangeNotificationControl(final String oid,
+  public EntryChangeNotificationControl(@NotNull final String oid,
                                         final boolean isCritical,
-                                        final ASN1OctetString value)
+                                        @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -295,9 +297,10 @@ public final class EntryChangeNotificationControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public EntryChangeNotificationControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+              decodeControl(@NotNull final String oid, final boolean isCritical,
+                            @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new EntryChangeNotificationControl(oid, isCritical, value);
@@ -320,8 +323,9 @@ public final class EntryChangeNotificationControl
    *                         decode the entry change notification control
    *                         contained in the provided entry.
    */
-  public static EntryChangeNotificationControl
-                     get(final SearchResultEntry entry)
+  @Nullable()
+  public static EntryChangeNotificationControl get(
+                     @NotNull final SearchResultEntry entry)
          throws LDAPException
   {
     final Control c = entry.getControl(ENTRY_CHANGE_NOTIFICATION_OID);
@@ -357,8 +361,8 @@ public final class EntryChangeNotificationControl
    *          control.
    */
   private static ASN1OctetString encodeValue(
-               final PersistentSearchChangeType changeType,
-               final String previousDN, final long changeNumber)
+               @NotNull final PersistentSearchChangeType changeType,
+               @Nullable final String previousDN, final long changeNumber)
   {
     Validator.ensureNotNull(changeType);
 
@@ -385,6 +389,7 @@ public final class EntryChangeNotificationControl
    *
    * @return  The change type for this entry change notification control.
    */
+  @NotNull()
   public PersistentSearchChangeType getChangeType()
   {
     return changeType;
@@ -397,6 +402,7 @@ public final class EntryChangeNotificationControl
    *
    * @return  The previous DN for the entry, or {@code null} if there is none.
    */
+  @Nullable()
   public String getPreviousDN()
   {
     return previousDN;
@@ -421,6 +427,7 @@ public final class EntryChangeNotificationControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ENTRY_CHANGE_NOTIFICATION.get();
@@ -432,7 +439,7 @@ public final class EntryChangeNotificationControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EntryChangeNotificationControl(changeType=");
     buffer.append(changeType.getName());

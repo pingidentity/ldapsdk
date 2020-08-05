@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,16 +72,16 @@ public abstract class AccessLogMessage
 
 
   // The connection ID for this access log message.
-  private final Long connectionID;
+  @Nullable private final Long connectionID;
 
   // The Directory Server instance name for this access log message.
-  private final String instanceName;
+  @Nullable private final String instanceName;
 
   // The server product name for this access log message.
-  private final String productName;
+  @Nullable private final String productName;
 
   // The startup ID for this access log message;
-  private final String startupID;
+  @Nullable private final String startupID;
 
 
 
@@ -110,7 +112,8 @@ public abstract class AccessLogMessage
    * @throws  LogException  If an error occurs while trying to parse the log
    *                        message.
    */
-  public static AccessLogMessage parse(final String s)
+  @NotNull()
+  public static AccessLogMessage parse(@NotNull final String s)
          throws LogException
   {
     return AccessLogReader.parse(s);
@@ -124,6 +127,7 @@ public abstract class AccessLogMessage
    * @return  The server product name for this access log message, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final String getProductName()
   {
     return productName;
@@ -137,6 +141,7 @@ public abstract class AccessLogMessage
    * @return  The Directory Server instance name for this access log message, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final String getInstanceName()
   {
     return instanceName;
@@ -150,6 +155,7 @@ public abstract class AccessLogMessage
    * @return  The Directory Server startup ID for this access log message, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final String getStartupID()
   {
     return startupID;
@@ -165,6 +171,7 @@ public abstract class AccessLogMessage
    *          message is associated, or {@code null} if it is not included in
    *          the log message.
    */
+  @Nullable
   public final Long getConnectionID()
   {
     return connectionID;
@@ -177,5 +184,6 @@ public abstract class AccessLogMessage
    *
    * @return  The message type for this access log message.
    */
+  @NotNull()
   public abstract AccessLogMessageType getMessageType();
 }

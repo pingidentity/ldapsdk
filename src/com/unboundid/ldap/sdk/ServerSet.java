@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -115,6 +117,7 @@ public abstract class ServerSet
    * @throws  LDAPException  If it is not possible to establish a connection to
    *                         any of the servers in this server set.
    */
+  @NotNull()
   public abstract LDAPConnection getConnection()
          throws LDAPException;
 
@@ -153,8 +156,9 @@ public abstract class ServerSet
    * @throws  LDAPException  If it is not possible to establish a connection to
    *                         any of the servers in this server set.
    */
+  @NotNull()
   public LDAPConnection getConnection(
-                             final LDAPConnectionPoolHealthCheck healthCheck)
+              @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     final LDAPConnection c = getConnection();
@@ -238,10 +242,10 @@ public abstract class ServerSet
    *                         will have been closed.
    */
   protected static void doBindPostConnectAndHealthCheckProcessing(
-                             final LDAPConnection connection,
-                             final BindRequest bindRequest,
-                             final PostConnectProcessor postConnectProcessor,
-                             final LDAPConnectionPoolHealthCheck healthCheck)
+                 @NotNull final LDAPConnection connection,
+                 @Nullable final BindRequest bindRequest,
+                 @Nullable final PostConnectProcessor postConnectProcessor,
+                 @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
             throws LDAPException
   {
     try
@@ -306,7 +310,7 @@ public abstract class ServerSet
    *                     by this server set.
    */
   protected final void associateConnectionWithThisServerSet(
-                            final LDAPConnection connection)
+                            @NotNull final LDAPConnection connection)
   {
     if (connection != null)
     {
@@ -337,11 +341,12 @@ public abstract class ServerSet
    *                         disconnect was not triggered by a client-side
    *                         exception or error.
    */
-  protected void handleConnectionClosed(final LDAPConnection connection,
-                                        final String host, final int port,
-                                        final DisconnectType disconnectType,
-                                        final String message,
-                                        final Throwable cause)
+  protected void handleConnectionClosed(
+                      @NotNull final LDAPConnection connection,
+                      @NotNull final String host, final int port,
+                      @NotNull final DisconnectType disconnectType,
+                      @Nullable final String message,
+                      @Nullable final Throwable cause)
   {
     // No action is taken by default.
   }
@@ -354,6 +359,7 @@ public abstract class ServerSet
    * @return  A string representation of this server set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -369,7 +375,7 @@ public abstract class ServerSet
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ServerSet(className=");
     buffer.append(getClass().getName());

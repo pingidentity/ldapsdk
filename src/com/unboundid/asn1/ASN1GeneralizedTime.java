@@ -45,6 +45,7 @@ import java.util.TimeZone;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.StaticUtils;
@@ -99,7 +100,7 @@ public final class ASN1GeneralizedTime
    * The thread-local date formatters used to encode generalized time values
    * that do not include milliseconds.
    */
-  private static final ThreadLocal<SimpleDateFormat>
+  @NotNull private static final ThreadLocal<SimpleDateFormat>
        DATE_FORMATTERS_WITHOUT_MILLIS = new ThreadLocal<>();
 
 
@@ -115,7 +116,7 @@ public final class ASN1GeneralizedTime
   private final long time;
 
   // The string representation of the generalized time value.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -150,7 +151,7 @@ public final class ASN1GeneralizedTime
    * @param  date  The date value that specifies the time to represent.  This
    *               must not be {@code null}.
    */
-  public ASN1GeneralizedTime(final Date date)
+  public ASN1GeneralizedTime(@NotNull final Date date)
   {
     this(ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE, date);
   }
@@ -165,7 +166,7 @@ public final class ASN1GeneralizedTime
    * @param  date  The date value that specifies the time to represent.  This
    *               must not be {@code null}.
    */
-  public ASN1GeneralizedTime(final byte type, final Date date)
+  public ASN1GeneralizedTime(final byte type, @NotNull final Date date)
   {
     this(type, date.getTime());
   }
@@ -215,7 +216,7 @@ public final class ASN1GeneralizedTime
    * @throws  ASN1Exception  If the provided timestamp does not represent a
    *                         valid ASN.1 generalized time string representation.
    */
-  public ASN1GeneralizedTime(final String timestamp)
+  public ASN1GeneralizedTime(@NotNull final String timestamp)
          throws ASN1Exception
   {
     this(ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE, timestamp);
@@ -234,7 +235,7 @@ public final class ASN1GeneralizedTime
    * @throws  ASN1Exception  If the provided timestamp does not represent a
    *                         valid ASN.1 generalized time string representation.
    */
-  public ASN1GeneralizedTime(final byte type, final String timestamp)
+  public ASN1GeneralizedTime(final byte type, @NotNull final String timestamp)
          throws ASN1Exception
   {
     this(type, decodeTimestamp(timestamp), timestamp);
@@ -255,7 +256,7 @@ public final class ASN1GeneralizedTime
    *                               represent.  This must not be {@code null}.
    */
   private ASN1GeneralizedTime(final byte type, final long time,
-                              final String stringRepresentation)
+                              @NotNull final String stringRepresentation)
   {
     super(type, StaticUtils.getBytes(stringRepresentation));
 
@@ -287,7 +288,8 @@ public final class ASN1GeneralizedTime
    *
    * @return  The encoded timestamp.
    */
-  public static String encodeTimestamp(final Date date,
+  @NotNull()
+  public static String encodeTimestamp(@NotNull final Date date,
                                        final boolean includeMilliseconds)
   {
     if (includeMilliseconds)
@@ -351,6 +353,7 @@ public final class ASN1GeneralizedTime
    *
    * @return  The encoded timestamp.
    */
+  @NotNull()
   public static String encodeTimestamp(final long time,
                                        final boolean includeMilliseconds)
   {
@@ -373,7 +376,7 @@ public final class ASN1GeneralizedTime
    *                         valid string representation of an ASN.1 generalized
    *                         time value.
    */
-  public static long decodeTimestamp(final String timestamp)
+  public static long decodeTimestamp(@NotNull final String timestamp)
          throws ASN1Exception
   {
     if (timestamp.length() < 15)
@@ -537,6 +540,7 @@ public final class ASN1GeneralizedTime
    * @return  A {@code Date} object that is set ot the time represented by this
    *          generalized time element.
    */
+  @NotNull()
   public Date getDate()
   {
     return new Date(time);
@@ -551,6 +555,7 @@ public final class ASN1GeneralizedTime
    * @return  The string representation of the generalized time value contained
    *          in this element.
    */
+  @NotNull()
   public String getStringRepresentation()
   {
     return stringRepresentation;
@@ -570,8 +575,9 @@ public final class ASN1GeneralizedTime
    * @throws  ASN1Exception  If the provided array cannot be decoded as a
    *                         generalized time element.
    */
+  @NotNull()
   public static ASN1GeneralizedTime decodeAsGeneralizedTime(
-                                         final byte[] elementBytes)
+                                         @NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -626,8 +632,9 @@ public final class ASN1GeneralizedTime
    * @throws  ASN1Exception  If the provided element cannot be decoded as a
    *                         generalized time element.
    */
+  @NotNull()
   public static ASN1GeneralizedTime decodeAsGeneralizedTime(
-                                         final ASN1Element element)
+                                         @NotNull final ASN1Element element)
          throws ASN1Exception
   {
     return new ASN1GeneralizedTime(element.getType(),
@@ -640,7 +647,7 @@ public final class ASN1GeneralizedTime
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringRepresentation);
   }

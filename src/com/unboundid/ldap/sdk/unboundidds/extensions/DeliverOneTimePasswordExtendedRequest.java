@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -139,7 +141,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.24) for the deliver one-time password
    * extended request.
    */
-  public static final String DELIVER_OTP_REQUEST_OID =
+  @NotNull public static final String DELIVER_OTP_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.24";
 
 
@@ -221,28 +223,29 @@ public final class DeliverOneTimePasswordExtendedRequest
 
 
   // The static password to include in the request.
-  private final ASN1OctetString staticPassword;
+  @Nullable private final ASN1OctetString staticPassword;
 
   // The list of preferred delivery mechanisms to include in the request.
-  private final List<ObjectPair<String, String>> preferredDeliveryMechanisms;
+  @NotNull private final List<ObjectPair<String, String>>
+       preferredDeliveryMechanisms;
 
   // The authentication ID to include in the request.
-  private final String authenticationID;
+  @NotNull private final String authenticationID;
 
   // The text to include after the OTP in a compact message.
-  private final String compactTextAfterOTP;
+  @Nullable private final String compactTextAfterOTP;
 
   // The text to include before the OTP in a compact message.
-  private final String compactTextBeforeOTP;
+  @Nullable private final String compactTextBeforeOTP;
 
   // The text to include after the OTP in a message without size constraints.
-  private final String fullTextAfterOTP;
+  @Nullable private final String fullTextAfterOTP;
 
   // The text to include before the OTP in a message without size constraints.
-  private final String fullTextBeforeOTP;
+  @Nullable private final String fullTextBeforeOTP;
 
   // The text to use as the message subject.
-  private final String messageSubject;
+  @Nullable private final String messageSubject;
 
 
 
@@ -274,9 +277,10 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      supports alternate mechanisms not
    *                                      included in this list.
    */
-  public DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-              final String staticPassword,
-              final String... preferredDeliveryMechanisms)
+  public DeliverOneTimePasswordExtendedRequest(
+              @NotNull final String authenticationID,
+              @Nullable final String staticPassword,
+              @Nullable final String... preferredDeliveryMechanisms)
   {
     this(authenticationID, staticPassword,
          StaticUtils.toList(preferredDeliveryMechanisms));
@@ -312,9 +316,10 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      supports alternate mechanisms not
    *                                      included in this list.
    */
-  public DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-              final byte[] staticPassword,
-              final String... preferredDeliveryMechanisms)
+  public DeliverOneTimePasswordExtendedRequest(
+              @NotNull final String authenticationID,
+              @Nullable final byte[] staticPassword,
+              @Nullable final String... preferredDeliveryMechanisms)
   {
     this(authenticationID, staticPassword,
          StaticUtils.toList(preferredDeliveryMechanisms));
@@ -354,10 +359,11 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      empty if no controls should be
    *                                      included.
    */
-  public DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-              final String staticPassword,
-              final List<String> preferredDeliveryMechanisms,
-              final Control... controls)
+  public DeliverOneTimePasswordExtendedRequest(
+              @NotNull final String authenticationID,
+              @Nullable final String staticPassword,
+              @Nullable final List<String> preferredDeliveryMechanisms,
+              @Nullable final Control... controls)
   {
     this(authenticationID,
          (staticPassword == null
@@ -400,10 +406,11 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      empty if no controls should be
    *                                      included.
    */
-  public DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-              final byte[] staticPassword,
-              final List<String> preferredDeliveryMechanisms,
-              final Control... controls)
+  public DeliverOneTimePasswordExtendedRequest(
+              @NotNull final String authenticationID,
+              @Nullable final byte[] staticPassword,
+              @Nullable final List<String> preferredDeliveryMechanisms,
+              @Nullable final Control... controls)
   {
     this(authenticationID,
          (staticPassword == null
@@ -446,10 +453,11 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      empty if no controls should be
    *                                      included.
    */
-  private DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-               final ASN1OctetString staticPassword,
-               final List<String> preferredDeliveryMechanisms,
-               final Control... controls)
+  private DeliverOneTimePasswordExtendedRequest(
+               @NotNull final String authenticationID,
+               @Nullable final ASN1OctetString staticPassword,
+               @Nullable final List<String> preferredDeliveryMechanisms,
+               @Nullable final Control... controls)
   {
     super(DELIVER_OTP_REQUEST_OID,
          encodeValue(authenticationID, staticPassword,
@@ -569,12 +577,17 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      empty if no controls should be
    *                                      included.
    */
-  public DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-       final String staticPassword, final String messageSubject,
-       final String fullTextBeforeOTP, final String fullTextAfterOTP,
-       final String compactTextBeforeOTP, final String compactTextAfterOTP,
-       final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
-       final Control... controls)
+  public DeliverOneTimePasswordExtendedRequest(
+       @NotNull final String authenticationID,
+       @Nullable final String staticPassword,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeOTP,
+       @Nullable final String fullTextAfterOTP,
+       @Nullable final String compactTextBeforeOTP,
+       @Nullable final String compactTextAfterOTP,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
+       @Nullable final Control... controls)
   {
     this(authenticationID,
          (staticPassword == null
@@ -672,12 +685,17 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      empty if no controls should be
    *                                      included.
    */
-  public DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-       final byte[] staticPassword, final String messageSubject,
-       final String fullTextBeforeOTP, final String fullTextAfterOTP,
-       final String compactTextBeforeOTP, final String compactTextAfterOTP,
-       final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
-       final Control... controls)
+  public DeliverOneTimePasswordExtendedRequest(
+       @NotNull final String authenticationID,
+       @Nullable final byte[] staticPassword,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeOTP,
+       @Nullable final String fullTextAfterOTP,
+       @Nullable final String compactTextBeforeOTP,
+       @Nullable final String compactTextAfterOTP,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
+       @Nullable final Control... controls)
   {
     this(authenticationID,
          (staticPassword == null
@@ -775,12 +793,17 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                                      empty if no controls should be
    *                                      included.
    */
-  private DeliverOneTimePasswordExtendedRequest(final String authenticationID,
-       final ASN1OctetString staticPassword, final String messageSubject,
-       final String fullTextBeforeOTP, final String fullTextAfterOTP,
-       final String compactTextBeforeOTP, final String compactTextAfterOTP,
-       final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
-       final Control... controls)
+  private DeliverOneTimePasswordExtendedRequest(
+       @NotNull final String authenticationID,
+       @Nullable final ASN1OctetString staticPassword,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeOTP,
+       @Nullable final String fullTextAfterOTP,
+       @Nullable final String compactTextBeforeOTP,
+       @Nullable final String compactTextAfterOTP,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
+       @Nullable final Control... controls)
   {
     super(DELIVER_OTP_REQUEST_OID,
          encodeValue(authenticationID, staticPassword, messageSubject,
@@ -821,7 +844,8 @@ public final class DeliverOneTimePasswordExtendedRequest
    *                         decode the provided generic extended request as a
    *                         deliver one-time password extended request.
    */
-  public DeliverOneTimePasswordExtendedRequest(final ExtendedRequest request)
+  public DeliverOneTimePasswordExtendedRequest(
+              @NotNull final ExtendedRequest request)
          throws LDAPException
   {
     super(request);
@@ -997,9 +1021,11 @@ public final class DeliverOneTimePasswordExtendedRequest
    * @return  An ASN.1 octet string suitable for use as the value of this
    *          extended request.
    */
-  private static ASN1OctetString encodeValue(final String authenticationID,
-                      final ASN1OctetString staticPassword,
-                      final List<String> preferredDeliveryMechanisms)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @NotNull final String authenticationID,
+               @Nullable final ASN1OctetString staticPassword,
+               @Nullable final List<String> preferredDeliveryMechanisms)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
@@ -1112,11 +1138,16 @@ public final class DeliverOneTimePasswordExtendedRequest
    * @return  An ASN.1 octet string suitable for use as the value of this
    *          extended request.
    */
-  private static ASN1OctetString encodeValue(final String authenticationID,
-       final ASN1OctetString staticPassword, final String messageSubject,
-       final String fullTextBeforeOTP, final String fullTextAfterOTP,
-       final String compactTextBeforeOTP, final String compactTextAfterOTP,
-       final List<ObjectPair<String,String>> preferredDeliveryMechanisms)
+  private static ASN1OctetString encodeValue(
+       @NotNull final String authenticationID,
+       @Nullable final ASN1OctetString staticPassword,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeOTP,
+       @Nullable final String fullTextAfterOTP,
+       @Nullable final String compactTextBeforeOTP,
+       @Nullable final String compactTextAfterOTP,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(8);
 
@@ -1193,6 +1224,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * @return  The authentication ID for the user to whom the one-time password
    *          should be delivered.
    */
+  @NotNull()
   public String getAuthenticationID()
   {
     return authenticationID;
@@ -1209,6 +1241,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          should be delivered, or {@code null} if no static password should
    *          be included in the request.
    */
+  @Nullable()
   public ASN1OctetString getStaticPassword()
   {
     return staticPassword;
@@ -1224,6 +1257,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          for the one-time password, or {@code null} if this was not
    *          provided.
    */
+  @Nullable()
   public List<String> getPreferredDeliveryMechanisms()
   {
     if (preferredDeliveryMechanisms.isEmpty())
@@ -1260,6 +1294,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * @return  An ordered list of the preferred delivery mechanisms for the
    *          one-time password, or an empty list if none were provided.
    */
+  @NotNull()
   public List<ObjectPair<String,String>>
               getPreferredDeliveryMechanismNamesAndIDs()
   {
@@ -1277,6 +1312,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          subject should be used, or if the delivery mechanism should
    *          attempt to automatically determine a subject.
    */
+  @Nullable()
   public String getMessageSubject()
   {
     return messageSubject;
@@ -1294,6 +1330,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text before the one-time password.
    */
+  @Nullable()
   public String getFullTextBeforeOTP()
   {
     return fullTextBeforeOTP;
@@ -1311,6 +1348,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text after the one-time password.
    */
+  @Nullable()
   public String getFullTextAfterOTP()
   {
     return fullTextAfterOTP;
@@ -1328,6 +1366,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text before the one-time password.
    */
+  @Nullable()
   public String getCompactTextBeforeOTP()
   {
     return compactTextBeforeOTP;
@@ -1345,6 +1384,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text after the one-time password.
    */
+  @Nullable()
   public String getCompactTextAfterOTP()
   {
     return compactTextAfterOTP;
@@ -1356,8 +1396,9 @@ public final class DeliverOneTimePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DeliverOneTimePasswordExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -1370,6 +1411,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public DeliverOneTimePasswordExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -1381,8 +1423,9 @@ public final class DeliverOneTimePasswordExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public DeliverOneTimePasswordExtendedRequest duplicate(
-                                                    final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final DeliverOneTimePasswordExtendedRequest r =
          new DeliverOneTimePasswordExtendedRequest(authenticationID,
@@ -1399,6 +1442,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_DELIVER_OTP_REQ_NAME.get();
@@ -1410,7 +1454,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeliverOneTimePasswordExtendedRequest(authenticationID=");
     buffer.append(authenticationID);

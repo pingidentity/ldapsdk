@@ -74,6 +74,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
@@ -126,42 +128,42 @@ public final class LDIFSearch
 
 
   // The argument parser for this tool.
-  private volatile ArgumentParser parser;
+  @Nullable private volatile ArgumentParser parser;
 
   // The completion message for this tool.
-  private final AtomicReference<String> completionMessage;
+  @NotNull private final AtomicReference<String> completionMessage;
 
   // Indicates whether the LDIF encryption passphrase file has been read.
   private volatile boolean ldifEncryptionPassphraseFileRead;
 
   // Encryption passphrases used thus far.
-  private final List<char[]> inputEncryptionPassphrases;
+  @NotNull private final List<char[]> inputEncryptionPassphrases;
 
   // The list of LDAP URLs to use when processing searches, mapped to the
   // corresponding search entry parers.
-  private final List<LDAPURL> searchURLs;
+  @NotNull private final List<LDAPURL> searchURLs;
 
   // The command-line arguments supported by this tool.
-  private BooleanArgument checkSchema;
-  private BooleanArgument compressOutput;
-  private BooleanArgument doNotWrap;
-  private BooleanArgument encryptOutput;
-  private BooleanArgument isCompressed;
-  private BooleanArgument overwriteExistingOutputFile;
-  private BooleanArgument separateOutputFilePerSearch;
-  private BooleanArgument stripTrailingSpaces;
-  private DNArgument baseDN;
-  private FileArgument filterFile;
-  private FileArgument ldapURLFile;
-  private FileArgument ldifEncryptionPassphraseFile;
-  private FileArgument ldifFile;
-  private FileArgument outputFile;
-  private FileArgument outputEncryptionPassphraseFile;
-  private FileArgument schemaPath;
-  private IntegerArgument sizeLimit;
-  private IntegerArgument timeLimitSeconds;
-  private IntegerArgument wrapColumn;
-  private ScopeArgument scope;
+  @Nullable private BooleanArgument checkSchema;
+  @Nullable private BooleanArgument compressOutput;
+  @Nullable private BooleanArgument doNotWrap;
+  @Nullable private BooleanArgument encryptOutput;
+  @Nullable private BooleanArgument isCompressed;
+  @Nullable private BooleanArgument overwriteExistingOutputFile;
+  @Nullable private BooleanArgument separateOutputFilePerSearch;
+  @Nullable private BooleanArgument stripTrailingSpaces;
+  @Nullable private DNArgument baseDN;
+  @Nullable private FileArgument filterFile;
+  @Nullable private FileArgument ldapURLFile;
+  @Nullable private FileArgument ldifEncryptionPassphraseFile;
+  @Nullable private FileArgument ldifFile;
+  @Nullable private FileArgument outputFile;
+  @Nullable private FileArgument outputEncryptionPassphraseFile;
+  @Nullable private FileArgument schemaPath;
+  @Nullable private IntegerArgument sizeLimit;
+  @Nullable private IntegerArgument timeLimitSeconds;
+  @Nullable private IntegerArgument wrapColumn;
+  @Nullable private ScopeArgument scope;
 
 
 
@@ -171,7 +173,7 @@ public final class LDIFSearch
    * @param  args  The set of arguments provided to this tool.  It may be
    *               empty but must not be {@code null}.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -197,8 +199,9 @@ public final class LDIFSearch
    *          code other than {@link ResultCode#SUCCESS} should be considered
    *          an error.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDIFSearch tool = new LDIFSearch(out, err);
     return tool.runTool(args);
@@ -215,7 +218,8 @@ public final class LDIFSearch
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public LDIFSearch(final OutputStream out, final OutputStream err)
+  public LDIFSearch(@Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -253,6 +257,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldifsearch";
@@ -264,6 +269,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_LDIFSEARCH_TOOL_DESCRIPTION.get();
@@ -275,6 +281,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -308,6 +315,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return INFO_LDIFSEARCH_TRAILING_ARGS_PLACEHOLDER.get();
@@ -352,6 +360,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return completionMessage.get();
@@ -363,7 +372,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -972,6 +981,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Get the schema to use when performing LDIF processing.
@@ -1318,6 +1328,7 @@ public final class LDIFSearch
    *
    * @throws  Exception  If a problem is encountered while loading the schema.
    */
+  @NotNull()
   private static Schema getSchema(final List<File> paths)
           throws Exception
   {
@@ -1361,7 +1372,8 @@ public final class LDIFSearch
    *
    * @throws  LDAPException  If a problem is encountered while opening the file.
    */
-  private InputStream openInputStream(final File f)
+  @NotNull()
+  private InputStream openInputStream(@NotNull final File f)
           throws LDAPException
   {
     if (ldifEncryptionPassphraseFile.isPresent() &&
@@ -1426,7 +1438,7 @@ public final class LDIFSearch
    * @throws  LDAPException  If a problem is encountered while trying to read
    *                         the passphrase from the provided file.
    */
-  private void readPassphraseFile(final File f)
+  private void readPassphraseFile(@NotNull final File f)
           throws LDAPException
   {
     try
@@ -1452,7 +1464,7 @@ public final class LDIFSearch
    * @param  passphrase  The passphrase to be added.  It may optionally be
    *                     {@code null} (in which case no action will be taken).
    */
-  private void addPassphrase(final char[] passphrase)
+  private void addPassphrase(@Nullable final char[] passphrase)
   {
     if (passphrase == null)
     {
@@ -1484,7 +1496,9 @@ public final class LDIFSearch
    *
    * @throws  LDAPException  If a problem occurs while creating the LDIF writer.
    */
-  private LDIFWriter createLDIFWriter(final File f, final LDAPURL ldapURL)
+  @NotNull()
+  private LDIFWriter createLDIFWriter(@NotNull final File f,
+                                      @Nullable final LDAPURL ldapURL)
           throws LDAPException
   {
     OutputStream outputStream = null;
@@ -1612,7 +1626,8 @@ public final class LDIFSearch
    * @return  {@code true} if the entry matches the criteria in the LDAP URL, or
    *          {@code false} if not.
    */
-  private boolean urlMatchesEntry(final LDAPURL url, final Entry entry)
+  private boolean urlMatchesEntry(@NotNull final LDAPURL url,
+                                  @NotNull final Entry entry)
   {
     try
     {
@@ -1634,7 +1649,7 @@ public final class LDIFSearch
    *
    * @param  message  The message to be written.
    */
-  private void commentToOut(final String message)
+  private void commentToOut(@NotNull final String message)
   {
     getOut().flush();
     for (final String line : StaticUtils.wrapLine(message, (WRAP_COLUMN - 2)))
@@ -1652,7 +1667,7 @@ public final class LDIFSearch
    *
    * @param  message  The message to be written.
    */
-  private void commentToErr(final String message)
+  private void commentToErr(@NotNull final String message)
   {
     getErr().flush();
     for (final String line : StaticUtils.wrapLine(message, (WRAP_COLUMN - 2)))
@@ -1671,7 +1686,8 @@ public final class LDIFSearch
    *                  standard error rather than standard output.
    * @param  message  The message to be written.
    */
-  private void logCompletionMessage(final boolean isError, final String message)
+  private void logCompletionMessage(final boolean isError,
+                                    @NotNull final String message)
   {
     completionMessage.compareAndSet(null, message);
 
@@ -1691,6 +1707,7 @@ public final class LDIFSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();

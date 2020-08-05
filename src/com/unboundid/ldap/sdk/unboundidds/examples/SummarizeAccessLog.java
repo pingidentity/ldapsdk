@@ -88,6 +88,8 @@ import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ReverseComparator;
 import com.unboundid.util.StaticUtils;
@@ -168,24 +170,24 @@ public final class SummarizeAccessLog
 
 
   // Variables used for accessing argument information.
-  private ArgumentParser argumentParser;
+  @Nullable private ArgumentParser argumentParser;
 
   // An argument that may be used to indicate that the summarized output should
   // not be anonymized, and should include attribute values.
-  private BooleanArgument doNotAnonymize;
+  @Nullable private BooleanArgument doNotAnonymize;
 
   // An argument that may be used to indicate that the log files are compressed.
-  private BooleanArgument isCompressed;
+  @Nullable private BooleanArgument isCompressed;
 
   // An argument used to specify the encryption passphrase.
-  private FileArgument encryptionPassphraseFile;
+  @Nullable private FileArgument encryptionPassphraseFile;
 
   // An argument used to specify the maximum number of values to report for each
   // item.
-  private IntegerArgument reportCount;
+  @Nullable private IntegerArgument reportCount;
 
   // The decimal format that will be used for this class.
-  private final DecimalFormat decimalFormat;
+  @NotNull private final DecimalFormat decimalFormat;
 
   // The total duration for log content, in milliseconds.
   private long logDurationMillis;
@@ -230,43 +232,43 @@ public final class SummarizeAccessLog
   private long numUnindexedSuccessful;
 
   // Variables used for maintaining counts for common types of information.
-  private final HashMap<Long,AtomicLong> searchEntryCounts;
-  private final HashMap<ResultCode,AtomicLong> addResultCodes;
-  private final HashMap<ResultCode,AtomicLong> bindResultCodes;
-  private final HashMap<ResultCode,AtomicLong> compareResultCodes;
-  private final HashMap<ResultCode,AtomicLong> deleteResultCodes;
-  private final HashMap<ResultCode,AtomicLong> extendedResultCodes;
-  private final HashMap<ResultCode,AtomicLong> modifyResultCodes;
-  private final HashMap<ResultCode,AtomicLong> modifyDNResultCodes;
-  private final HashMap<ResultCode,AtomicLong> searchResultCodes;
-  private final HashMap<SearchScope,AtomicLong> searchScopes;
-  private final HashMap<String,AtomicLong> authenticationTypes;
-  private final HashMap<String,AtomicLong> authzDNs;
-  private final HashMap<String,AtomicLong> failedBindDNs;
-  private final HashMap<String,AtomicLong> successfulBindDNs;
-  private final HashMap<String,AtomicLong> clientAddresses;
-  private final HashMap<String,AtomicLong> clientConnectionPolicies;
-  private final HashMap<String,AtomicLong> disconnectReasons;
-  private final HashMap<String,AtomicLong> extendedOperations;
-  private final HashMap<String,AtomicLong> filterTypes;
-  private final HashMap<String,AtomicLong> mostExpensiveFilters;
-  private final HashMap<String,AtomicLong> multiEntryFilters;
-  private final HashMap<String,AtomicLong> noEntryFilters;
-  private final HashMap<String,AtomicLong> oneEntryFilters;
-  private final HashMap<String,AtomicLong> searchBaseDNs;
-  private final HashMap<String,AtomicLong> tlsCipherSuites;
-  private final HashMap<String,AtomicLong> tlsProtocols;
-  private final HashMap<String,AtomicLong> unindexedFilters;
-  private final HashMap<String,String> extendedOperationOIDsToNames;
-  private final HashSet<String> processedRequests;
-  private final LinkedHashMap<Long,AtomicLong> addProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> bindProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> compareProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> deleteProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> extendedProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> modifyProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> modifyDNProcessingTimes;
-  private final LinkedHashMap<Long,AtomicLong> searchProcessingTimes;
+  @NotNull private final HashMap<Long,AtomicLong> searchEntryCounts;
+  @NotNull private final HashMap<ResultCode,AtomicLong> addResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> bindResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> compareResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> deleteResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> extendedResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> modifyResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> modifyDNResultCodes;
+  @NotNull private final HashMap<ResultCode,AtomicLong> searchResultCodes;
+  @NotNull private final HashMap<SearchScope,AtomicLong> searchScopes;
+  @NotNull private final HashMap<String,AtomicLong> authenticationTypes;
+  @NotNull private final HashMap<String,AtomicLong> authzDNs;
+  @NotNull private final HashMap<String,AtomicLong> failedBindDNs;
+  @NotNull private final HashMap<String,AtomicLong> successfulBindDNs;
+  @NotNull private final HashMap<String,AtomicLong> clientAddresses;
+  @NotNull private final HashMap<String,AtomicLong> clientConnectionPolicies;
+  @NotNull private final HashMap<String,AtomicLong> disconnectReasons;
+  @NotNull private final HashMap<String,AtomicLong> extendedOperations;
+  @NotNull private final HashMap<String,AtomicLong> filterTypes;
+  @NotNull private final HashMap<String,AtomicLong> mostExpensiveFilters;
+  @NotNull private final HashMap<String,AtomicLong> multiEntryFilters;
+  @NotNull private final HashMap<String,AtomicLong> noEntryFilters;
+  @NotNull private final HashMap<String,AtomicLong> oneEntryFilters;
+  @NotNull private final HashMap<String,AtomicLong> searchBaseDNs;
+  @NotNull private final HashMap<String,AtomicLong> tlsCipherSuites;
+  @NotNull private final HashMap<String,AtomicLong> tlsProtocols;
+  @NotNull private final HashMap<String,AtomicLong> unindexedFilters;
+  @NotNull private final HashMap<String,String> extendedOperationOIDsToNames;
+  @NotNull private final HashSet<String> processedRequests;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> addProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> bindProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> compareProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> deleteProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> extendedProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> modifyProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> modifyDNProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> searchProcessingTimes;
 
 
 
@@ -276,7 +278,7 @@ public final class SummarizeAccessLog
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -301,9 +303,10 @@ public final class SummarizeAccessLog
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  @NotNull()
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final SummarizeAccessLog summarizer =
          new SummarizeAccessLog(outStream, errStream);
@@ -322,8 +325,8 @@ public final class SummarizeAccessLog
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public SummarizeAccessLog(final OutputStream outStream,
-                            final OutputStream errStream)
+  public SummarizeAccessLog(@Nullable final OutputStream outStream,
+                            @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -438,6 +441,7 @@ public final class SummarizeAccessLog
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "summarize-access-log";
@@ -451,6 +455,7 @@ public final class SummarizeAccessLog
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Examine one or more access log files from Ping Identity, " +
@@ -466,6 +471,7 @@ public final class SummarizeAccessLog
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -606,7 +612,7 @@ public final class SummarizeAccessLog
    *                             argument parser.
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     // We need to save a reference to the argument parser so that we can get
@@ -707,6 +713,7 @@ public final class SummarizeAccessLog
    *          successfully.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     int displayCount = reportCount.getValue();
@@ -1407,6 +1414,7 @@ public final class SummarizeAccessLog
    *          information is available.
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =
@@ -1431,7 +1439,7 @@ public final class SummarizeAccessLog
    * @param  m  The processing time map to be populated.
    */
   private static void populateProcessingTimeMap(
-                           final HashMap<Long,AtomicLong> m)
+                           @NotNull final HashMap<Long,AtomicLong> m)
   {
     m.put(1L, new AtomicLong(0L));
     m.put(2L, new AtomicLong(0L));
@@ -1460,7 +1468,7 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processConnect(final ConnectAccessLogMessage m)
+  private void processConnect(@NotNull final ConnectAccessLogMessage m)
   {
     numConnects++;
 
@@ -1497,7 +1505,7 @@ public final class SummarizeAccessLog
    * @param  m  The log message to be processed.
    */
   private void processSecurityNegotiation(
-                    final SecurityNegotiationAccessLogMessage m)
+                    @NotNull final SecurityNegotiationAccessLogMessage m)
   {
     final String protocol = m.getProtocol();
     if (protocol != null)
@@ -1531,7 +1539,7 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processDisconnect(final DisconnectAccessLogMessage m)
+  private void processDisconnect(@NotNull final DisconnectAccessLogMessage m)
   {
     numDisconnects++;
 
@@ -1555,7 +1563,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processAbandonRequest(final AbandonRequestAccessLogMessage m)
+  private void processAbandonRequest(
+                    @NotNull final AbandonRequestAccessLogMessage m)
   {
     numAbandons++;
   }
@@ -1567,7 +1576,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processExtendedRequest(final ExtendedRequestAccessLogMessage m)
+  private void processExtendedRequest(
+                    @NotNull final ExtendedRequestAccessLogMessage m)
   {
     processedRequests.add(m.getConnectionID() + "-" + m.getOperationID());
     processExtendedRequestInternal(m);
@@ -1581,7 +1591,7 @@ public final class SummarizeAccessLog
    * @param  m  The log message to be processed.
    */
   private void processExtendedRequestInternal(
-                    final ExtendedRequestAccessLogMessage m)
+                    @NotNull final ExtendedRequestAccessLogMessage m)
   {
     final String oid = m.getRequestOID();
     if (oid != null)
@@ -1610,7 +1620,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processSearchRequest(final SearchRequestAccessLogMessage m)
+  private void processSearchRequest(
+                    @NotNull final SearchRequestAccessLogMessage m)
   {
     processedRequests.add(m.getConnectionID() + "-" + m.getOperationID());
     processSearchRequestInternal(m);
@@ -1624,7 +1635,7 @@ public final class SummarizeAccessLog
    * @param  m  The log message to be processed.
    */
   private void processSearchRequestInternal(
-                    final SearchRequestAccessLogMessage m)
+                    @NotNull final SearchRequestAccessLogMessage m)
   {
     final SearchScope scope = m.getScope();
     if (scope != null)
@@ -1674,7 +1685,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processUnbindRequest(final UnbindRequestAccessLogMessage m)
+  private void processUnbindRequest(
+                    @NotNull final UnbindRequestAccessLogMessage m)
   {
     numUnbinds++;
   }
@@ -1686,7 +1698,7 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processAddResult(final AddResultAccessLogMessage m)
+  private void processAddResult(@NotNull final AddResultAccessLogMessage m)
   {
     numAdds++;
 
@@ -1710,7 +1722,7 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processBindResult(final BindResultAccessLogMessage m)
+  private void processBindResult(@NotNull final BindResultAccessLogMessage m)
   {
     numBinds++;
 
@@ -1819,7 +1831,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processCompareResult(final CompareResultAccessLogMessage m)
+  private void processCompareResult(
+                    @NotNull final CompareResultAccessLogMessage m)
   {
     numCompares++;
 
@@ -1843,7 +1856,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processDeleteResult(final DeleteResultAccessLogMessage m)
+  private void processDeleteResult(
+                    @NotNull final DeleteResultAccessLogMessage m)
   {
     numDeletes++;
 
@@ -1867,7 +1881,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processExtendedResult(final ExtendedResultAccessLogMessage m)
+  private void processExtendedResult(
+                    @NotNull final ExtendedResultAccessLogMessage m)
   {
     numExtended++;
 
@@ -1907,7 +1922,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processModifyResult(final ModifyResultAccessLogMessage m)
+  private void processModifyResult(
+                    @NotNull final ModifyResultAccessLogMessage m)
   {
     numModifies++;
 
@@ -1931,7 +1947,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processModifyDNResult(final ModifyDNResultAccessLogMessage m)
+  private void processModifyDNResult(
+                    @NotNull final ModifyDNResultAccessLogMessage m)
   {
     numModifyDNs++;
 
@@ -1955,7 +1972,8 @@ public final class SummarizeAccessLog
    *
    * @param  m  The log message to be processed.
    */
-  private void processSearchResult(final SearchResultAccessLogMessage m)
+  private void processSearchResult(
+                    @NotNull final SearchResultAccessLogMessage m)
   {
     numSearches++;
 
@@ -2073,8 +2091,8 @@ public final class SummarizeAccessLog
    * @param  rc  The result code for which to update the count.
    * @param  m   The map used to hold counts by result code.
    */
-  private static void updateResultCodeCount(final ResultCode rc,
-                           final HashMap<ResultCode,AtomicLong> m)
+  private static void updateResultCodeCount(@Nullable final ResultCode rc,
+                           @NotNull final HashMap<ResultCode,AtomicLong> m)
   {
     if (rc == null)
     {
@@ -2101,8 +2119,8 @@ public final class SummarizeAccessLog
    * @return  The double value of the provided {@code Double} object if it was
    *          non-{@code null}, or 0.0 if it was {@code null}.
    */
-  private static double doubleValue(final Double d,
-                                    final HashMap<Long,AtomicLong> m)
+  private static double doubleValue(@Nullable final Double d,
+                                    @NotNull final HashMap<Long,AtomicLong> m)
   {
     if (d == null)
     {
@@ -2154,12 +2172,13 @@ public final class SummarizeAccessLog
    * @return  A list of the most frequently-occurring elements in the provided
    *          map.
    */
+  @NotNull()
   private static <K> List<ObjectPair<K,Long>> getMostCommonElements(
-                          final Map<K,AtomicLong> countMap,
-                          final List<ObjectPair<K,Long>> mostCommonElementList,
-                          final int maxListSize,
-                          final AtomicLong skippedWithSameCount,
-                          final AtomicLong skippedWithLowerCount)
+               @NotNull final Map<K,AtomicLong> countMap,
+               @NotNull final List<ObjectPair<K,Long>> mostCommonElementList,
+               final int maxListSize,
+               @NotNull final AtomicLong skippedWithSameCount,
+               @NotNull final AtomicLong skippedWithLowerCount)
   {
     final TreeMap<Long,List<K>> reverseMap =
          new TreeMap<>(new ReverseComparator<Long>());
@@ -2213,7 +2232,7 @@ public final class SummarizeAccessLog
    *                  used.  It may be {@code null} if no alternate
    *                  authorization identity was used.
    */
-  private void updateAuthzCount(final String authzDN)
+  private void updateAuthzCount(@Nullable final String authzDN)
   {
     if (authzDN == null)
     {
@@ -2242,7 +2261,8 @@ public final class SummarizeAccessLog
    * @return  A string representation of the provided DN, or {@code null} if the
    *          given DN was {@code null}.
    */
-  private String getDNString(final String dn)
+  @Nullable()
+  private String getDNString(@Nullable final String dn)
   {
     if (dn == null)
     {
@@ -2307,7 +2327,8 @@ public final class SummarizeAccessLog
    *          not be anonymized), or {@code null} if the provided filter is
    *          {@code null}.
    */
-  private String getFilterString(final Filter filter)
+  @Nullable()
+  private String getFilterString(@Nullable final Filter filter)
   {
     if (filter == null)
     {
@@ -2333,8 +2354,9 @@ public final class SummarizeAccessLog
    *            processed by the server.
    * @param  m  The map of operation counts by processing time bucket.
    */
-  private void printProcessingTimeHistogram(final String t, final long n,
-                    final LinkedHashMap<Long,AtomicLong> m)
+  private void printProcessingTimeHistogram(@NotNull final String t,
+                    final long n,
+                    @NotNull final LinkedHashMap<Long,AtomicLong> m)
   {
     if (n <= 0)
     {
@@ -2405,7 +2427,8 @@ public final class SummarizeAccessLog
    * @param  numTotal       The total number of operations of the specified
    *                        type.
    */
-  private void printUncached(final String operationType, final long numUncached,
+  private void printUncached(@NotNull final String operationType,
+                             final long numUncached,
                              final long numTotal)
   {
     if (numUncached == 0)
@@ -2430,9 +2453,10 @@ public final class SummarizeAccessLog
    * @param  pluralItem    The name to use for zero or multiple items
    *                       represented by the key of the given map.
    */
-  private void printCounts(final Map<String,AtomicLong> countMap,
-                           final String heading, final String singularItem,
-                           final String pluralItem)
+  private void printCounts(@Nullable final Map<String,AtomicLong> countMap,
+                           @NotNull final String heading,
+                           @NotNull final String singularItem,
+                           @NotNull final String pluralItem)
   {
     if ((countMap == null) || countMap.isEmpty())
     {
@@ -2503,8 +2527,9 @@ public final class SummarizeAccessLog
    * @param  operationType  The type of operation represented by the keys of
    *                        the map.
    */
-  private void printResultCodeCounts(final Map<ResultCode,AtomicLong> countMap,
-                                     final String operationType)
+  private void printResultCodeCounts(
+                    @Nullable final Map<ResultCode,AtomicLong> countMap,
+                    @NotNull final String operationType)
   {
     if ((countMap == null) || countMap.isEmpty())
     {
@@ -2578,8 +2603,9 @@ public final class SummarizeAccessLog
    * @return  The singular form if the count is 1, or the plural form if the
    *          count is any other value.
    */
-  private String getSingularOrPlural(final long count, final String singular,
-                                     final String plural)
+  private String getSingularOrPlural(final long count,
+                                     @NotNull final String singular,
+                                     @NotNull final String plural)
   {
     if (count == 1L)
     {

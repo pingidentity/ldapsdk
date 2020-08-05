@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -107,6 +109,7 @@ public enum ContentSyncRequestMode
    *          or {@code null} if the given value does not correspond with any
    *          defined mode.
    */
+  @Nullable()
   public static ContentSyncRequestMode valueOf(final int intValue)
   {
     if (intValue == REFRESH_ONLY.intValue())
@@ -134,7 +137,8 @@ public enum ContentSyncRequestMode
    * @return  The requested content sync request mode, or {@code null} if no
    *          such mode is defined.
    */
-  public static ContentSyncRequestMode forName(final String name)
+  @Nullable()
+  public static ContentSyncRequestMode forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

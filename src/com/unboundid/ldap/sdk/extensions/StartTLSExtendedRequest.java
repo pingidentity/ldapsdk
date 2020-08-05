@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPExtendedOperationException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ssl.SSLUtil;
@@ -149,7 +151,7 @@ public final class StartTLSExtendedRequest
    * @throws  LDAPException  If a problem occurs while trying to initialize a
    *                         default SSL context.
    */
-  public StartTLSExtendedRequest(final Control[] controls)
+  public StartTLSExtendedRequest(@Nullable final Control[] controls)
          throws LDAPException
   {
     this((SSLSocketFactory) null, controls);
@@ -168,7 +170,7 @@ public final class StartTLSExtendedRequest
    * @throws  LDAPException  If a problem occurs while trying to initialize a
    *                         default SSL context.
    */
-  public StartTLSExtendedRequest(final SSLContext sslContext)
+  public StartTLSExtendedRequest(@Nullable final SSLContext sslContext)
          throws LDAPException
   {
     this(sslContext, null);
@@ -188,7 +190,8 @@ public final class StartTLSExtendedRequest
    * @throws  LDAPException  If a problem occurs while trying to initialize a
    *                         default SSL socket factory.
    */
-  public StartTLSExtendedRequest(final SSLSocketFactory sslSocketFactory)
+  public StartTLSExtendedRequest(
+              @Nullable final SSLSocketFactory sslSocketFactory)
          throws LDAPException
   {
     this(sslSocketFactory, null);
@@ -208,8 +211,8 @@ public final class StartTLSExtendedRequest
    * @throws  LDAPException  If a problem occurs while trying to initialize a
    *                         default SSL context.
    */
-  public StartTLSExtendedRequest(final SSLContext sslContext,
-                                 final Control[] controls)
+  public StartTLSExtendedRequest(@Nullable final SSLContext sslContext,
+                                 @Nullable final Control[] controls)
          throws LDAPException
   {
     super(STARTTLS_REQUEST_OID, controls);
@@ -250,8 +253,9 @@ public final class StartTLSExtendedRequest
    * @throws  LDAPException  If a problem occurs while trying to initialize a
    *                         default SSL context.
    */
-  public StartTLSExtendedRequest(final SSLSocketFactory sslSocketFactory,
-                                 final Control[] controls)
+  public StartTLSExtendedRequest(
+              @Nullable final SSLSocketFactory sslSocketFactory,
+              @Nullable final Control[] controls)
          throws LDAPException
   {
     super(STARTTLS_REQUEST_OID, controls);
@@ -289,7 +293,7 @@ public final class StartTLSExtendedRequest
    *
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
-  public StartTLSExtendedRequest(final ExtendedRequest extendedRequest)
+  public StartTLSExtendedRequest(@NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     this(extendedRequest.getControls());
@@ -323,7 +327,8 @@ public final class StartTLSExtendedRequest
    *                         client-side security processing.
    */
   @Override()
-  public ExtendedResult process(final LDAPConnection connection,
+  @NotNull()
+  public ExtendedResult process(@NotNull final LDAPConnection connection,
                                 final int depth)
          throws LDAPException
   {
@@ -350,6 +355,7 @@ public final class StartTLSExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartTLSExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -361,7 +367,8 @@ public final class StartTLSExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public StartTLSExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public StartTLSExtendedRequest duplicate(@Nullable final Control[] controls)
   {
     try
     {
@@ -375,7 +382,7 @@ public final class StartTLSExtendedRequest
       // This should never happen, since an exception should only be thrown if
       // there is no SSL context, but this instance already has a context.
       Debug.debugException(e);
-      return null;
+      throw new RuntimeException(e);
     }
   }
 
@@ -385,6 +392,7 @@ public final class StartTLSExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_START_TLS.get();
@@ -396,7 +404,7 @@ public final class StartTLSExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StartTLSExtendedRequest(");
 

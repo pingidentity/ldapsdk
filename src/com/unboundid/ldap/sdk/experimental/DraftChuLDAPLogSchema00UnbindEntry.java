@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,7 +74,7 @@ public final class DraftChuLDAPLogSchema00UnbindEntry
    *                         unbind access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00UnbindEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00UnbindEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.UNBIND);

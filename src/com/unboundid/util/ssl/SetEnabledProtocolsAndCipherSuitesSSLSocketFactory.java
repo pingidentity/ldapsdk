@@ -48,6 +48,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,14 +69,14 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
 {
   // The set of cipher suites that should be enabled for sockets created by this
   // socket factory.
-  private final Set<String> cipherSuites;
+  @NotNull private final Set<String> cipherSuites;
 
   // The set of protocols that should be enabled for sockets created by this
   // socket factory.
-  private final Set<String> protocols;
+  @NotNull private final Set<String> protocols;
 
   // The SSL socket factory to which most of the work will be delegated.
-  private final SSLSocketFactory delegateFactory;
+  @NotNull private final SSLSocketFactory delegateFactory;
 
 
 
@@ -90,8 +91,9 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    *                          by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
-       final SSLSocketFactory delegateFactory,
-       final String defaultProtocol, final Set<String> cipherSuites)
+       @NotNull final SSLSocketFactory delegateFactory,
+       @NotNull final String defaultProtocol,
+       @NotNull final Set<String> cipherSuites)
   {
     this.delegateFactory = delegateFactory;
     this.cipherSuites = cipherSuites;
@@ -130,8 +132,9 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    *                          by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
-       final SSLSocketFactory delegateFactory, final Set<String> protocols,
-       final Set<String> cipherSuites)
+       @NotNull final SSLSocketFactory delegateFactory,
+       @NotNull final Set<String> protocols,
+       @NotNull final Set<String> cipherSuites)
   {
     this.delegateFactory = delegateFactory;
     this.protocols       = protocols;
@@ -148,6 +151,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @throws  IOException  If the socket cannot be created.
    */
   @Override()
+  @NotNull()
   public Socket createSocket()
          throws IOException
   {
@@ -168,7 +172,8 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @throws  IOException  If the socket cannot be created.
    */
   @Override()
-  public Socket createSocket(final String host, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port)
          throws IOException
   {
     final Socket createdSocket =
@@ -196,8 +201,10 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @throws  IOException  If the socket cannot be created.
    */
   @Override()
-  public Socket createSocket(final String host, final int port,
-                             final InetAddress localHost, final int localPort)
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port,
+                             @NotNull final InetAddress localHost,
+                             final int localPort)
          throws IOException
   {
     final Socket createdSocket =
@@ -220,7 +227,8 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @throws  IOException  If the socket cannot be created.
    */
   @Override()
-  public Socket createSocket(final InetAddress host, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress host, final int port)
          throws IOException
   {
     final Socket createdSocket =
@@ -248,8 +256,10 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @throws  IOException  If the socket cannot be created.
    */
   @Override()
-  public Socket createSocket(final InetAddress host, final int port,
-                             final InetAddress localHost, final int localPort)
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress host, final int port,
+                             @NotNull final InetAddress localHost,
+                             final int localPort)
          throws IOException
   {
     final Socket createdSocket =
@@ -276,7 +286,9 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    *                       socket.
    */
   @Override()
-  public Socket createSocket(final Socket s, final String host, final int port,
+  @NotNull()
+  public Socket createSocket(@NotNull final Socket s,
+                             @NotNull final String host, final int port,
                              final boolean autoClose)
          throws IOException
   {
@@ -295,6 +307,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @return  The set of cipher suites that are enabled by default.
    */
   @Override()
+  @NotNull()
   public String[] getDefaultCipherSuites()
   {
     return delegateFactory.getDefaultCipherSuites();
@@ -308,6 +321,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLSocketFactory
    * @return  The set of cipher suites that could be enabled.
    */
   @Override()
+  @NotNull()
   public String[] getSupportedCipherSuites()
   {
     return delegateFactory.getSupportedCipherSuites();

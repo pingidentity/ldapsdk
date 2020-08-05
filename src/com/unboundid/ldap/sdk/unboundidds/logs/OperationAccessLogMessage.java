@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,20 +73,20 @@ public abstract class OperationAccessLogMessage
 
 
   // The message ID for this access log message.
-  private final Integer messageID;
+  @Nullable private final Integer messageID;
 
   // The operation ID for this access log message.
-  private final Long operationID;
+  @Nullable private final Long operationID;
 
   // The connection ID for the operation that triggered the associated
   // operation.
-  private final Long triggeredByConnectionID;
+  @Nullable private final Long triggeredByConnectionID;
 
   // The operation ID for the operation that triggered the associated operation.
-  private final Long triggeredByOperationID;
+  @Nullable private final Long triggeredByOperationID;
 
   // The message origin for this access log message.
-  private final String origin;
+  @Nullable private final String origin;
 
 
 
@@ -93,7 +95,7 @@ public abstract class OperationAccessLogMessage
    *
    * @param  m  The log message to be parsed as an operation access log message.
    */
-  protected OperationAccessLogMessage(final LogMessage m)
+  protected OperationAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -112,6 +114,7 @@ public abstract class OperationAccessLogMessage
    * @return  The operation ID for the associated operation, or {@code null} if
    *          it is not included in the log message.
    */
+  @Nullable()
   public final Long getOperationID()
   {
     return operationID;
@@ -128,6 +131,7 @@ public abstract class OperationAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public final Long getTriggeredByConnectionID()
   {
     return triggeredByConnectionID;
@@ -144,6 +148,7 @@ public abstract class OperationAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public final Long getTriggeredByOperationID()
   {
     return triggeredByOperationID;
@@ -157,6 +162,7 @@ public abstract class OperationAccessLogMessage
    * @return  The message ID for the associated operation, or {@code null} if
    *          it is not included in the log message.
    */
+  @Nullable()
   public final Integer getMessageID()
   {
     return messageID;
@@ -172,6 +178,7 @@ public abstract class OperationAccessLogMessage
    * @return  The origin for the associated operation, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public final String getOrigin()
   {
     return origin;
@@ -184,5 +191,6 @@ public abstract class OperationAccessLogMessage
    *
    * @return  The operation type for this access log message.
    */
+  @NotNull()
   public abstract AccessLogOperationType getOperationType();
 }

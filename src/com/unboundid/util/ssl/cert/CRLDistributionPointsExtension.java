@@ -46,6 +46,7 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -97,7 +98,8 @@ public final class CRLDistributionPointsExtension
   /**
    * The OID (2.5.29.31) for CRL distribution points extensions.
    */
-  public static final OID CRL_DISTRIBUTION_POINTS_OID = new OID("2.5.29.31");
+  @NotNull public static final OID CRL_DISTRIBUTION_POINTS_OID =
+       new OID("2.5.29.31");
 
 
 
@@ -109,7 +111,7 @@ public final class CRLDistributionPointsExtension
 
 
   // The list of CRL distribution points included in this extension.
-  private final List<CRLDistributionPoint> crlDistributionPoints;
+  @NotNull private final List<CRLDistributionPoint> crlDistributionPoints;
 
 
 
@@ -127,7 +129,7 @@ public final class CRLDistributionPointsExtension
    *                         the value for this extension.
    */
   CRLDistributionPointsExtension(final boolean isCritical,
-       final List<CRLDistributionPoint> crlDistributionPoints)
+       @NotNull final List<CRLDistributionPoint> crlDistributionPoints)
        throws CertException
   {
     super(CRL_DISTRIBUTION_POINTS_OID, isCritical,
@@ -148,7 +150,8 @@ public final class CRLDistributionPointsExtension
    * @throws  CertException  If the provided extension cannot be decoded as a
    *                         CRL distribution points extension.
    */
-  CRLDistributionPointsExtension(final X509CertificateExtension extension)
+  CRLDistributionPointsExtension(
+       @NotNull final X509CertificateExtension extension)
        throws CertException
   {
     super(extension);
@@ -192,7 +195,7 @@ public final class CRLDistributionPointsExtension
    *                         this extension.
    */
   private static byte[] encodeValue(
-               final List<CRLDistributionPoint> crlDistributionPoints)
+               @NotNull final List<CRLDistributionPoint> crlDistributionPoints)
           throws CertException
   {
     final ArrayList<ASN1Element> elements =
@@ -212,6 +215,7 @@ public final class CRLDistributionPointsExtension
    *
    * @return  The list of CRL distribution points included in this extension.
    */
+  @NotNull()
   public List<CRLDistributionPoint> getCRLDistributionPoints()
   {
     return crlDistributionPoints;
@@ -223,6 +227,7 @@ public final class CRLDistributionPointsExtension
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtensionName()
   {
     return INFO_CRL_DP_EXTENSION_NAME.get();
@@ -234,7 +239,7 @@ public final class CRLDistributionPointsExtension
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CRLDistributionPointsExtension(oid='");
     buffer.append(getOID());

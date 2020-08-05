@@ -60,6 +60,8 @@ import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -117,7 +119,7 @@ public final class MultiUpdateExtendedResult
   /**
    * The OID (1.3.6.1.4.1.30221.2.6.18) for the multi-update extended result.
    */
-  public static final String MULTI_UPDATE_RESULT_OID =
+  @NotNull public static final String MULTI_UPDATE_RESULT_OID =
        "1.3.6.1.4.1.30221.2.6.18";
 
 
@@ -130,10 +132,10 @@ public final class MultiUpdateExtendedResult
 
 
   // The set of results for the operations that were processed.
-  private final List<ObjectPair<OperationType,LDAPResult>> results;
+  @NotNull private final List<ObjectPair<OperationType,LDAPResult>> results;
 
   // The changes applied value for this result.
-  private final MultiUpdateChangesApplied changesApplied;
+  @Nullable private final MultiUpdateChangesApplied changesApplied;
 
 
 
@@ -148,7 +150,7 @@ public final class MultiUpdateExtendedResult
    *                         decode the provided extended result as a
    *                         multi-update result.
    */
-  public MultiUpdateExtendedResult(final ExtendedResult extendedResult)
+  public MultiUpdateExtendedResult(@NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -278,12 +280,14 @@ public final class MultiUpdateExtendedResult
    *                         operation type.
    */
   public MultiUpdateExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final MultiUpdateChangesApplied changesApplied,
-              final List<ObjectPair<OperationType,LDAPResult>> results,
-              final Control... controls)
-         throws LDAPException
+       @NotNull final ResultCode resultCode,
+       @Nullable final String diagnosticMessage,
+       @Nullable final String matchedDN,
+       @Nullable final String[] referralURLs,
+       @Nullable final MultiUpdateChangesApplied changesApplied,
+       @Nullable final List<ObjectPair<OperationType,LDAPResult>> results,
+       @Nullable final Control... controls)
+       throws LDAPException
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          MULTI_UPDATE_RESULT_OID, encodeValue(changesApplied, results),
@@ -319,10 +323,11 @@ public final class MultiUpdateExtendedResult
    * @throws  LDAPException  If any of the results are for an inappropriate
    *                         operation type.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(
-                      final MultiUpdateChangesApplied changesApplied,
-                      final List<ObjectPair<OperationType,LDAPResult>> results)
-          throws LDAPException
+       @Nullable final MultiUpdateChangesApplied changesApplied,
+       @Nullable final List<ObjectPair<OperationType,LDAPResult>> results)
+       throws LDAPException
   {
     if ((results == null) || results.isEmpty())
     {
@@ -391,6 +396,7 @@ public final class MultiUpdateExtendedResult
    * @return  The value that indicates whether any or all changes from the
    *          multi-update request were successfully applied.
    */
+  @Nullable()
   public MultiUpdateChangesApplied getChangesApplied()
   {
     return changesApplied;
@@ -407,6 +413,7 @@ public final class MultiUpdateExtendedResult
    *          multi-update operation.  The returned list may be empty if no
    *          operation results were available.
    */
+  @NotNull()
   public List<ObjectPair<OperationType,LDAPResult>> getResults()
   {
     return results;
@@ -418,6 +425,7 @@ public final class MultiUpdateExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_MULTI_UPDATE.get();
@@ -433,7 +441,7 @@ public final class MultiUpdateExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MultiUpdateExtendedResult(resultCode=");
     buffer.append(getResultCode());

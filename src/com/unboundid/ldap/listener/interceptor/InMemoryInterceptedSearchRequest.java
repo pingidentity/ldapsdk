@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,6 +63,7 @@ public interface InMemoryInterceptedSearchRequest
    *
    * @return  The search request to be processed.
    */
+  @NotNull()
   ReadOnlySearchRequest getRequest();
 
 
@@ -73,7 +75,7 @@ public interface InMemoryInterceptedSearchRequest
    *                        instead of the one that was originally received
    *                        from the client.  It must not be {@code null}.
    */
-  void setRequest(SearchRequest searchRequest);
+  void setRequest(@NotNull SearchRequest searchRequest);
 
 
 
@@ -92,7 +94,7 @@ public interface InMemoryInterceptedSearchRequest
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result entry.
    */
-  void sendSearchEntry(Entry entry)
+  void sendSearchEntry(@NotNull Entry entry)
        throws LDAPException;
 
 
@@ -109,6 +111,6 @@ public interface InMemoryInterceptedSearchRequest
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result reference.
    */
-  void sendSearchReference(SearchResultReference reference)
+  void sendSearchReference(@NotNull SearchResultReference reference)
        throws LDAPException;
 }

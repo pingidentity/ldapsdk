@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,7 +77,7 @@ public enum X509CertificateVersion
   private final int intValue;
 
   // The name for this X.509 certificate version.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -91,7 +93,7 @@ public enum X509CertificateVersion
    * @param  name      The name for this certificate version.  It must not be
    *                   {@code null}.
    */
-  X509CertificateVersion(final int intValue, final String name)
+  X509CertificateVersion(final int intValue, @NotNull final String name)
   {
     this.intValue = intValue;
     this.name = name;
@@ -119,6 +121,7 @@ public enum X509CertificateVersion
    *
    * @return  The name for this certificate version.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -140,6 +143,7 @@ public enum X509CertificateVersion
    *          {@code null} if the provided version does not correspond to any
    *          known certificate value.
    */
+  @Nullable()
   static X509CertificateVersion valueOf(final int intValue)
   {
     for (final X509CertificateVersion v : values())
@@ -164,7 +168,8 @@ public enum X509CertificateVersion
    * @return  The requested X.509 certificate version, or {@code null} if no
    *          such version is defined.
    */
-  public static X509CertificateVersion forName(final String name)
+  @Nullable()
+  public static X509CertificateVersion forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

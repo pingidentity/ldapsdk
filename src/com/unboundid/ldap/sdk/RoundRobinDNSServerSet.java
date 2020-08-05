@@ -58,6 +58,8 @@ import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadLocalRandom;
@@ -123,7 +125,7 @@ public final class RoundRobinDNSServerSet
    * list of IP addresses to use if resolution fails.  This is intended
    * primarily for testing purposes.
    */
-  static final String PROPERTY_DEFAULT_ADDRESSES =
+  @NotNull static final String PROPERTY_DEFAULT_ADDRESSES =
        RoundRobinDNSServerSet.class.getName() + ".defaultAddresses";
 
 
@@ -167,7 +169,8 @@ public final class RoundRobinDNSServerSet
      * @return  The requested address selection mode, or {@code null} if no such
      *          change mode is defined.
      */
-    public static AddressSelectionMode forName(final String name)
+    @Nullable()
+    public static AddressSelectionMode forName(@NotNull final String name)
     {
       switch (StaticUtils.toLowerCase(name))
       {
@@ -189,48 +192,48 @@ public final class RoundRobinDNSServerSet
 
   // The address selection mode that should be used if the provided hostname
   // resolves to multiple addresses.
-  private final AddressSelectionMode selectionMode;
+  @NotNull private final AddressSelectionMode selectionMode;
 
   // A counter that will be used to handle round-robin ordering.
-  private final AtomicLong roundRobinCounter;
+  @NotNull private final AtomicLong roundRobinCounter;
 
   // A reference to an object that combines the resolved addresses with a
   // timestamp indicating when the value should no longer be trusted.
-  private final AtomicReference<ObjectPair<InetAddress[],Long>>
+  @NotNull private final AtomicReference<ObjectPair<InetAddress[],Long>>
        resolvedAddressesWithTimeout;
 
   // The bind request to use to authenticate connections created by this
   // server set.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
   // The properties that will be used to initialize the JNDI context, if any.
-  private final Hashtable<String,String> jndiProperties;
+  @Nullable private final Hashtable<String,String> jndiProperties;
 
   // The port number for the target server.
   private final int port;
 
   // The set of connection options to use for new connections.
-  private final LDAPConnectionOptions connectionOptions;
+  @NotNull private final LDAPConnectionOptions connectionOptions;
 
   // The maximum length of time, in milliseconds, to cache resolved addresses.
   private final long cacheTimeoutMillis;
 
   // The post-connect processor to invoke against connections created by this
   // server set.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
   // The hostname to be resolved.
-  private final String hostname;
+  @NotNull private final String hostname;
 
   // The provider URL to use to resolve names, if any.
-  private final String providerURL;
+  @Nullable private final String providerURL;
 
   // The DNS record types that will be used to obtain the IP addresses for the
   // specified hostname.
-  private final String[] dnsRecordTypes;
+  @NotNull private final String[] dnsRecordTypes;
 
 
 
@@ -271,12 +274,12 @@ public final class RoundRobinDNSServerSet
    *                             {@code null} if a default set of connection
    *                             options should be used.
    */
-  public RoundRobinDNSServerSet(final String hostname, final int port,
-                                final AddressSelectionMode selectionMode,
-                                final long cacheTimeoutMillis,
-                                final String providerURL,
-                                final SocketFactory socketFactory,
-                                final LDAPConnectionOptions connectionOptions)
+  public RoundRobinDNSServerSet(@NotNull final String hostname, final int port,
+              @NotNull final AddressSelectionMode selectionMode,
+              final long cacheTimeoutMillis,
+              @Nullable final String providerURL,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(hostname, port, selectionMode, cacheTimeoutMillis, providerURL,
          null, null, socketFactory, connectionOptions);
@@ -346,14 +349,14 @@ public final class RoundRobinDNSServerSet
    *                             {@code null} if a default set of connection
    *                             options should be used.
    */
-  public RoundRobinDNSServerSet(final String hostname, final int port,
-                                final AddressSelectionMode selectionMode,
-                                final long cacheTimeoutMillis,
-                                final String providerURL,
-                                final Properties jndiProperties,
-                                final String[] dnsRecordTypes,
-                                final SocketFactory socketFactory,
-                                final LDAPConnectionOptions connectionOptions)
+  public RoundRobinDNSServerSet(@NotNull final String hostname, final int port,
+              @NotNull final AddressSelectionMode selectionMode,
+              final long cacheTimeoutMillis,
+              @Nullable final String providerURL,
+              @Nullable final Properties jndiProperties,
+              @Nullable final String[] dnsRecordTypes,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(hostname, port, selectionMode, cacheTimeoutMillis, providerURL,
          jndiProperties, dnsRecordTypes, socketFactory, connectionOptions, null,
@@ -433,16 +436,16 @@ public final class RoundRobinDNSServerSet
    *                               may be {@code null} if this server set should
    *                               not perform any post-connect processing.
    */
-  public RoundRobinDNSServerSet(final String hostname, final int port,
-                                final AddressSelectionMode selectionMode,
-                                final long cacheTimeoutMillis,
-                                final String providerURL,
-                                final Properties jndiProperties,
-                                final String[] dnsRecordTypes,
-                                final SocketFactory socketFactory,
-                                final LDAPConnectionOptions connectionOptions,
-                                final BindRequest bindRequest,
-                                final PostConnectProcessor postConnectProcessor)
+  public RoundRobinDNSServerSet(@NotNull final String hostname, final int port,
+              @NotNull final AddressSelectionMode selectionMode,
+              final long cacheTimeoutMillis,
+              @Nullable final String providerURL,
+              @Nullable final Properties jndiProperties,
+              @Nullable final String[] dnsRecordTypes,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions,
+              @Nullable final BindRequest bindRequest,
+              @Nullable final PostConnectProcessor postConnectProcessor)
   {
     Validator.ensureNotNull(hostname);
     Validator.ensureTrue((port >= 1) && (port <= 65_535));
@@ -538,6 +541,7 @@ public final class RoundRobinDNSServerSet
    *
    * @return  The hostname to be resolved.
    */
+  @NotNull()
   public String getHostname()
   {
     return hostname;
@@ -563,6 +567,7 @@ public final class RoundRobinDNSServerSet
    *
    * @return  The address selection
    */
+  @NotNull()
   public AddressSelectionMode getAddressSelectionMode()
   {
     return selectionMode;
@@ -593,6 +598,7 @@ public final class RoundRobinDNSServerSet
    *          {@code null} if the system's configured naming service should be
    *          used.
    */
+  @Nullable()
   public String getProviderURL()
   {
     return providerURL;
@@ -610,6 +616,7 @@ public final class RoundRobinDNSServerSet
    *          the JNDI context used to interact with DNS, or {@code null} if
    *          JNDI will nto be used to interact with DNS.
    */
+  @Nullable()
   public Map<String,String> getJNDIProperties()
   {
     if (jndiProperties == null)
@@ -631,6 +638,7 @@ public final class RoundRobinDNSServerSet
    * @return  An array of record types that will be requested if JNDI will be
    *          used to interact with DNS.
    */
+  @NotNull()
   public String[] getDNSRecordTypes()
   {
     return dnsRecordTypes;
@@ -645,6 +653,7 @@ public final class RoundRobinDNSServerSet
    *
    * @return  The socket factory that will be used to establish connections.
    */
+  @NotNull()
   public SocketFactory getSocketFactory()
   {
     return socketFactory;
@@ -660,6 +669,7 @@ public final class RoundRobinDNSServerSet
    * @return  The set of connection options that will be used for underlying
    *          connections.
    */
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     return connectionOptions;
@@ -693,6 +703,7 @@ public final class RoundRobinDNSServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -705,8 +716,9 @@ public final class RoundRobinDNSServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public synchronized LDAPConnection getConnection(
-                           final LDAPConnectionPoolHealthCheck healthCheck)
+              @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     LDAPException firstException = null;
@@ -755,6 +767,7 @@ public final class RoundRobinDNSServerSet
    *
    * @throws  LDAPException  If
    */
+  @NotNull()
   InetAddress[] resolveHostname()
           throws LDAPException
   {
@@ -865,7 +878,8 @@ public final class RoundRobinDNSServerSet
    *
    * @return  A list containing the ordered addresses.
    */
-  List<InetAddress> orderAddresses(final InetAddress[] addresses)
+  @NotNull()
+  List<InetAddress> orderAddresses(@NotNull final InetAddress[] addresses)
   {
     final ArrayList<InetAddress> l = new ArrayList<>(addresses.length);
 
@@ -906,6 +920,7 @@ public final class RoundRobinDNSServerSet
    *
    * @return  A default set of addresses that may be used for testing.
    */
+  @NotNull()
   InetAddress[] getDefaultAddresses()
   {
     final String defaultAddrsStr =
@@ -948,7 +963,8 @@ public final class RoundRobinDNSServerSet
    * @throws  UnknownHostException  If the provided string does not represent a
    *                                valid IPv4 or IPv6 address.
    */
-  private InetAddress getInetAddressForIP(final String ipAddress)
+  @NotNull()
+  private InetAddress getInetAddressForIP(@NotNull final String ipAddress)
           throws UnknownHostException
   {
     // We want to create an InetAddress that has the provided hostname and the
@@ -967,7 +983,7 @@ public final class RoundRobinDNSServerSet
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RoundRobinDNSServerSet(hostname='");
     buffer.append(hostname);

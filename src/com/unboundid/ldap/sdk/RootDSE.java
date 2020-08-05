@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -83,7 +85,7 @@ public class RootDSE
    * of LDAP URLs) of other servers that may be contacted if the target server
    * is unavailable, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_ALT_SERVER = "altServer";
+  @NotNull public static final String ATTR_ALT_SERVER = "altServer";
 
 
 
@@ -91,7 +93,7 @@ public class RootDSE
    * The name of the attribute that specifies the DN that is the base of the
    * LDAP changelog data, if available, as defined in draft-good-ldap-changelog.
    */
-  public static final String ATTR_CHANGELOG_DN = "changelog";
+  @NotNull public static final String ATTR_CHANGELOG_DN = "changelog";
 
 
 
@@ -101,7 +103,8 @@ public class RootDSE
    * specification, but is provided by a number of servers which implement
    * draft-good-ldap-changelog.
    */
-  public static final String ATTR_FIRST_CHANGE_NUMBER = "firstChangeNumber";
+  @NotNull public static final String ATTR_FIRST_CHANGE_NUMBER =
+       "firstChangeNumber";
 
 
 
@@ -111,7 +114,8 @@ public class RootDSE
    * public specification, but is provided by a number of servers which
    * implement draft-good-ldap-changelog.
    */
-  public static final String ATTR_LAST_CHANGE_NUMBER = "lastChangeNumber";
+  @NotNull public static final String ATTR_LAST_CHANGE_NUMBER =
+       "lastChangeNumber";
 
 
 
@@ -121,7 +125,7 @@ public class RootDSE
    * any public specification, but is provided by a number of servers which
    * implement draft-good-ldap-changelog.
    */
-  public static final String ATTR_LAST_PURGED_CHANGE_NUMBER =
+  @NotNull public static final String ATTR_LAST_PURGED_CHANGE_NUMBER =
        "lastPurgedChangeNumber";
 
 
@@ -130,7 +134,7 @@ public class RootDSE
    * The name of the attribute that includes the DNs of the public naming
    * contexts defined in the server, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_NAMING_CONTEXT = "namingContexts";
+  @NotNull public static final String ATTR_NAMING_CONTEXT = "namingContexts";
 
 
 
@@ -138,7 +142,8 @@ public class RootDSE
    * The name of the attribute that specifies the DN of the subschema subentry
    * that serves the server root DSE, as defined in RFC 4512 section 4.2.
    */
-  public static final String ATTR_SUBSCHEMA_SUBENTRY = "subschemaSubentry";
+  @NotNull public static final String ATTR_SUBSCHEMA_SUBENTRY =
+       "subschemaSubentry";
 
 
 
@@ -146,8 +151,9 @@ public class RootDSE
    * The name of the attribute that includes the names of the supported
    * authentication password storage schemes, as defined in RFC 3112.
    */
-  public static final String ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME =
-       "supportedAuthPasswordSchemes";
+  @NotNull public static final String
+       ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME =
+            "supportedAuthPasswordSchemes";
 
 
 
@@ -155,7 +161,8 @@ public class RootDSE
    * The name of the attribute that includes the OIDs of the request controls
    * supported by the server, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_SUPPORTED_CONTROL = "supportedControl";
+  @NotNull public static final String ATTR_SUPPORTED_CONTROL =
+       "supportedControl";
 
 
 
@@ -163,7 +170,7 @@ public class RootDSE
    * The name of the attribute that includes the OIDs of the extended operations
    * supported by the server, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_SUPPORTED_EXTENDED_OPERATION =
+  @NotNull public static final String ATTR_SUPPORTED_EXTENDED_OPERATION =
        "supportedExtension";
 
 
@@ -172,7 +179,7 @@ public class RootDSE
    * The name of the attribute that includes the OIDs of the features supported
    * by the server, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_SUPPORTED_FEATURE =
+  @NotNull public static final String ATTR_SUPPORTED_FEATURE =
        "supportedFeatures";
 
 
@@ -181,7 +188,7 @@ public class RootDSE
    * The name of the attribute that includes the OIDs of the LDAP protocol
    * versions supported by the server, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_SUPPORTED_LDAP_VERSION =
+  @NotNull public static final String ATTR_SUPPORTED_LDAP_VERSION =
        "supportedLDAPVersion";
 
 
@@ -190,7 +197,7 @@ public class RootDSE
    * The name of the attribute that includes the names of the SASL mechanisms
    * supported by the server, as defined in RFC 4512 section 5.1.
    */
-  public static final String ATTR_SUPPORTED_SASL_MECHANISM =
+  @NotNull public static final String ATTR_SUPPORTED_SASL_MECHANISM =
        "supportedSASLMechanisms";
 
 
@@ -199,7 +206,7 @@ public class RootDSE
    * The name of the attribute that includes the name of the server vendor,
    * as defined in RFC 3045.
    */
-  public static final String ATTR_VENDOR_NAME = "vendorName";
+  @NotNull public static final String ATTR_VENDOR_NAME = "vendorName";
 
 
 
@@ -207,7 +214,7 @@ public class RootDSE
    * The name of the attribute that includes the server version, as defined in
    * RFC 3045.
    */
-  public static final String ATTR_VENDOR_VERSION = "vendorVersion";
+  @NotNull public static final String ATTR_VENDOR_VERSION = "vendorVersion";
 
 
 
@@ -217,7 +224,7 @@ public class RootDSE
    * server supports that capability, but will also attempt to retrieve specific
    * attributes by name in case it does not.
    */
-  protected static final String[] REQUEST_ATTRS =
+  @NotNull protected static final String[] REQUEST_ATTRS =
   {
     "*",
     "+",
@@ -253,7 +260,7 @@ public class RootDSE
    * @param  rootDSEEntry  The entry to use to create this root DSE object.  It
    *                       must not be {@code null}.
    */
-  public RootDSE(final Entry rootDSEEntry)
+  public RootDSE(@NotNull final Entry rootDSEEntry)
   {
     super(rootDSEEntry);
   }
@@ -272,7 +279,8 @@ public class RootDSE
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server root DSE.
    */
-  public static RootDSE getRootDSE(final LDAPInterface connection)
+  @Nullable()
+  public static RootDSE getRootDSE(@NotNull final LDAPInterface connection)
          throws LDAPException
   {
     final Entry rootDSEEntry = connection.getEntry("", REQUEST_ATTRS);
@@ -294,6 +302,7 @@ public class RootDSE
    *          current server becomes available, or {@code null} if the server
    *          does not publish that information.
    */
+  @Nullable()
   public final String[] getAltServerURIs()
   {
     return getAttributeValues(ATTR_ALT_SERVER);
@@ -309,6 +318,7 @@ public class RootDSE
    *          information, or {@code null} if the server does not publish that
    *          information or no changelog is available.
    */
+  @Nullable()
   public final String getChangelogDN()
   {
     return getAttributeValue(ATTR_CHANGELOG_DN);
@@ -323,6 +333,7 @@ public class RootDSE
    * @return  The change number for the first entry contained in the LDAP
    *          changelog, if available.
    */
+  @Nullable()
   public final Long getFirstChangeNumber()
   {
     return getAttributeValueAsLong(ATTR_FIRST_CHANGE_NUMBER);
@@ -337,6 +348,7 @@ public class RootDSE
    * @return  The change number for the last entry contained in the LDAP
    *          changelog, if available.
    */
+  @Nullable()
   public final Long getLastChangeNumber()
   {
     return getAttributeValueAsLong(ATTR_LAST_CHANGE_NUMBER);
@@ -351,6 +363,7 @@ public class RootDSE
    * @return  The change number for the last entry purged from the LDAP
    *          changelog, if available.
    */
+  @Nullable()
   public final Long getLastPurgedChangeNumber()
   {
     return getAttributeValueAsLong(ATTR_LAST_PURGED_CHANGE_NUMBER);
@@ -364,6 +377,7 @@ public class RootDSE
    * @return  The DNs of the naming contexts provided by the directory server,
    *          or {@code null} if the server does not publish that information.
    */
+  @Nullable()
   public final String[] getNamingContextDNs()
   {
     return getAttributeValues(ATTR_NAMING_CONTEXT);
@@ -379,6 +393,7 @@ public class RootDSE
    *          root DSE, or {@code null} if the server does not publish that
    *          information.
    */
+  @Nullable()
   public final String getSubschemaSubentryDN()
   {
     return getAttributeValue(ATTR_SUBSCHEMA_SUBENTRY);
@@ -394,6 +409,7 @@ public class RootDSE
    *          by the server, or {@code null} if the server does not publish
    *          that information.
    */
+  @Nullable()
   public final String[] getSupportedAuthPasswordSchemeNames()
   {
     return getAttributeValues(ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME);
@@ -413,7 +429,7 @@ public class RootDSE
    *          the specified authentication password storage scheme, or
    *          {@code false} if it does not.
    */
-  public final boolean supportsAuthPasswordScheme(final String scheme)
+  public final boolean supportsAuthPasswordScheme(@NotNull final String scheme)
   {
     return hasAttributeValue(ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME,
                              scheme);
@@ -429,6 +445,7 @@ public class RootDSE
    *          server root DSE, or {@code null} if the server does not publish
    *          that information.
    */
+  @Nullable()
   public final String[] getSupportedControlOIDs()
   {
     return getAttributeValues(ATTR_SUPPORTED_CONTROL);
@@ -446,7 +463,7 @@ public class RootDSE
    * @return  {@code true} if the server indicates that it supports the request
    *          control with the specified OID, or {@code false} if it does not.
    */
-  public final boolean supportsControl(final String controlOID)
+  public final boolean supportsControl(@NotNull final String controlOID)
   {
     return hasAttributeValue(ATTR_SUPPORTED_CONTROL, controlOID);
   }
@@ -461,6 +478,7 @@ public class RootDSE
    *          server root DSE, or {@code null} if the server does not publish
    *          that information.
    */
+  @Nullable()
   public final String[] getSupportedExtendedOperationOIDs()
   {
     return getAttributeValues(ATTR_SUPPORTED_EXTENDED_OPERATION);
@@ -480,7 +498,7 @@ public class RootDSE
    *          operation with the specified OID, or {@code false} if it does not.
    */
   public final boolean supportsExtendedOperation(
-                            final String extendedOperationOID)
+                            @NotNull final String extendedOperationOID)
   {
     return hasAttributeValue(ATTR_SUPPORTED_EXTENDED_OPERATION,
                              extendedOperationOID);
@@ -496,6 +514,7 @@ public class RootDSE
    *          DSE, or {@code null} if the server does not publish that
    *          information.
    */
+  @Nullable()
   public final String[] getSupportedFeatureOIDs()
   {
     return getAttributeValues(ATTR_SUPPORTED_FEATURE);
@@ -513,7 +532,7 @@ public class RootDSE
    * @return  {@code true} if the server indicates that it supports the feature
    *          with the specified OID, or {@code false} if it does not.
    */
-  public final boolean supportsFeature(final String featureOID)
+  public final boolean supportsFeature(@NotNull final String featureOID)
   {
     return hasAttributeValue(ATTR_SUPPORTED_FEATURE, featureOID);
   }
@@ -528,6 +547,7 @@ public class RootDSE
    *          root DSE, or {@code null} if the server does not publish that
    *          information.
    */
+  @Nullable()
   public final int[] getSupportedLDAPVersions()
   {
     final String[] versionStrs =
@@ -583,6 +603,7 @@ public class RootDSE
    *          server root DSE, or {@code null} if the server does not publish
    *          that information.
    */
+  @Nullable()
   public final String[] getSupportedSASLMechanismNames()
   {
     return getAttributeValues(ATTR_SUPPORTED_SASL_MECHANISM);
@@ -600,7 +621,8 @@ public class RootDSE
    * @return  {@code true} if the server indicates that it supports the
    *          specified SASL mechanism, or {@code false} if it does not.
    */
-  public final boolean supportsSASLMechanism(final String mechanismName)
+  public final boolean supportsSASLMechanism(
+                            @NotNull final String mechanismName)
   {
     return hasAttributeValue(ATTR_SUPPORTED_SASL_MECHANISM, mechanismName);
   }
@@ -613,6 +635,7 @@ public class RootDSE
    * @return  The name of the directory server vendor, or {@code null} if the
    *          server does not publish that information.
    */
+  @Nullable()
   public final String getVendorName()
   {
     return getAttributeValue(ATTR_VENDOR_NAME);
@@ -626,6 +649,7 @@ public class RootDSE
    * @return  The directory server version string, or {@code null} if the server
    *          does not publish that information.
    */
+  @Nullable()
   public final String getVendorVersion()
   {
     return getAttributeValue(ATTR_VENDOR_VERSION);

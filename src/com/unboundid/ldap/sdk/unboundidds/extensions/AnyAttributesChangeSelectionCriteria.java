@@ -50,6 +50,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,7 +91,7 @@ public final class AnyAttributesChangeSelectionCriteria
 
 
   // The names of the target attributes.
-  private final List<String> attributeNames;
+  @NotNull private final List<String> attributeNames;
 
 
 
@@ -102,7 +103,8 @@ public final class AnyAttributesChangeSelectionCriteria
    *                         should be retrieved.  It must not be {@code null}
    *                         or empty.
    */
-  public AnyAttributesChangeSelectionCriteria(final String... attributeNames)
+  public AnyAttributesChangeSelectionCriteria(
+              @NotNull final String... attributeNames)
   {
     this(StaticUtils.toList(attributeNames));
   }
@@ -118,7 +120,7 @@ public final class AnyAttributesChangeSelectionCriteria
    *                         or empty.
    */
   public AnyAttributesChangeSelectionCriteria(
-              final Collection<String> attributeNames)
+              @NotNull final Collection<String> attributeNames)
   {
     Validator.ensureNotNull(attributeNames);
     Validator.ensureFalse(attributeNames.isEmpty());
@@ -143,8 +145,9 @@ public final class AnyAttributesChangeSelectionCriteria
    *                         the provided element as the inner element of an any
    *                         attributes change selection criteria value.
    */
+  @NotNull()
   static AnyAttributesChangeSelectionCriteria decodeInnerElement(
-              final ASN1Element innerElement)
+              @NotNull final ASN1Element innerElement)
          throws LDAPException
   {
     try
@@ -178,6 +181,7 @@ public final class AnyAttributesChangeSelectionCriteria
    * @return  The names of the target attributes for changes that should be
    *          retrieved.
    */
+  @NotNull()
   public List<String> getAttributeNames()
   {
     return attributeNames;
@@ -189,6 +193,7 @@ public final class AnyAttributesChangeSelectionCriteria
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeInnerElement()
   {
     final ArrayList<ASN1Element> elements =
@@ -207,7 +212,7 @@ public final class AnyAttributesChangeSelectionCriteria
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AnyAttributesChangeSelectionCriteria(attributeNames={");
 

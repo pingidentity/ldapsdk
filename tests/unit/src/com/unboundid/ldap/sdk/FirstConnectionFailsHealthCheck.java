@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.unboundid.util.NotNull;
+
 
 
 /**
@@ -50,7 +52,7 @@ public final class FirstConnectionFailsHealthCheck
        extends LDAPConnectionPoolHealthCheck
 {
   // Indicates whether a failure has already been generated.
-  private final AtomicBoolean failureGenerated;
+  @NotNull private final AtomicBoolean failureGenerated;
 
 
 
@@ -69,7 +71,7 @@ public final class FirstConnectionFailsHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void ensureNewConnectionValid(final LDAPConnection connection)
+  public void ensureNewConnectionValid(@NotNull final LDAPConnection connection)
          throws LDAPException
   {
     if (failureGenerated.compareAndSet(false, true))

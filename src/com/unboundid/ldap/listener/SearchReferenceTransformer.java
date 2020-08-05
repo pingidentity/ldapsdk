@@ -40,6 +40,8 @@ package com.unboundid.ldap.listener;
 import com.unboundid.ldap.protocol.SearchResultReferenceProtocolOp;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ObjectPair;
@@ -71,7 +73,8 @@ public interface SearchReferenceTransformer
    *          set of controls, or {@code null} to indicate that the reference
    *          should not be returned to the client.
    */
+  @Nullable
   ObjectPair<SearchResultReferenceProtocolOp,Control[]> transformReference(
-       int messageID, SearchResultReferenceProtocolOp reference,
-       Control[] controls);
+       int messageID, @NotNull SearchResultReferenceProtocolOp reference,
+       @NotNull Control[] controls);
 }

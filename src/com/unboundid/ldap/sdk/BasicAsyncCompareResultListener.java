@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,7 +70,7 @@ public final class BasicAsyncCompareResultListener
 
   // The compare result that has been received for the associated compare
   // operation.
-  private volatile CompareResult compareResult;
+  @Nullable private volatile CompareResult compareResult;
 
 
 
@@ -89,8 +91,8 @@ public final class BasicAsyncCompareResultListener
    */
   @InternalUseOnly()
   @Override()
-  public void compareResultReceived(final AsyncRequestID requestID,
-                                    final CompareResult compareResult)
+  public void compareResultReceived(@NotNull final AsyncRequestID requestID,
+                                    @NotNull final CompareResult compareResult)
   {
     this.compareResult = compareResult;
   }
@@ -105,6 +107,7 @@ public final class BasicAsyncCompareResultListener
    *          compare operation, or {@code null} if no response has been
    *          received yet.
    */
+  @Nullable()
   public CompareResult getCompareResult()
   {
     return compareResult;

@@ -62,7 +62,7 @@ public abstract class LDAPSDKException
    *
    * @param  message  The message to use for this exception.
    */
-  protected LDAPSDKException(final String message)
+  protected LDAPSDKException(@NotNull final String message)
   {
     super(message);
   }
@@ -77,7 +77,8 @@ public abstract class LDAPSDKException
    * @param  cause    The underlying cause for this exception.  It may be
    *                  {@code null} if no cause is available.
    */
-  protected LDAPSDKException(final String message, final Throwable cause)
+  protected LDAPSDKException(@NotNull final String message,
+                             @Nullable final Throwable cause)
   {
     super(message, cause);
   }
@@ -90,6 +91,7 @@ public abstract class LDAPSDKException
    * @return  A string representation of this exception.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -105,7 +107,7 @@ public abstract class LDAPSDKException
    * @param  buffer  The buffer to which the string representation of this
    *                 exception is to be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(super.toString());
   }
@@ -119,6 +121,7 @@ public abstract class LDAPSDKException
    * @return  A string representation of this exception suitable for use in
    *          messages.
    */
+  @NotNull()
   public String getExceptionMessage()
   {
     final boolean includeCause =
@@ -144,6 +147,7 @@ public abstract class LDAPSDKException
    * @return  A string representation of this exception suitable for use in
    *          messages.
    */
+  @NotNull()
   public String getExceptionMessage(final boolean includeCause,
                                     final boolean includeStackTrace)
   {

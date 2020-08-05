@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class RecentLoginHistoryAttempt
   /**
    * The name of the JSON field used to hold the additional attempt count.
    */
-  private static final String JSON_FIELD_ADDITIONAL_ATTEMPT_COUNT =
+  @NotNull private static final String JSON_FIELD_ADDITIONAL_ATTEMPT_COUNT =
        "additional-attempt-count";
 
 
@@ -95,7 +97,7 @@ public final class RecentLoginHistoryAttempt
   /**
    * The name of the JSON field used to hold the authentication method.
    */
-  private static final String JSON_FIELD_AUTHENTICATION_METHOD =
+  @NotNull private static final String JSON_FIELD_AUTHENTICATION_METHOD =
        "authentication-method";
 
 
@@ -103,7 +105,7 @@ public final class RecentLoginHistoryAttempt
   /**
    * The name of the JSON field used to hold the client IP address.
    */
-  private static final String JSON_FIELD_CLIENT_IP_ADDRESS =
+  @NotNull private static final String JSON_FIELD_CLIENT_IP_ADDRESS =
        "client-ip-address";
 
 
@@ -112,7 +114,8 @@ public final class RecentLoginHistoryAttempt
    * The name of the JSON field used to provide a general reason that the
    * attempt was not successful.
    */
-  private static final String JSON_FIELD_FAILURE_REASON = "failure-reason";
+  @NotNull private static final String JSON_FIELD_FAILURE_REASON =
+       "failure-reason";
 
 
 
@@ -120,14 +123,14 @@ public final class RecentLoginHistoryAttempt
    * The name of the JSON field used to indicate whether the attempt was
    * successful.
    */
-  private static final String JSON_FIELD_SUCCESSFUL = "successful";
+  @NotNull private static final String JSON_FIELD_SUCCESSFUL = "successful";
 
 
 
   /**
    * The name of the JSON field used to hold the timestamp.
    */
-  private static final String JSON_FIELD_TIMESTAMP = "timestamp";
+  @NotNull private static final String JSON_FIELD_TIMESTAMP = "timestamp";
 
 
 
@@ -142,24 +145,24 @@ public final class RecentLoginHistoryAttempt
   private final boolean successful;
 
   // The JSON object providing an encoded representation of this attempt.
-  private final JSONObject jsonObject;
+  @NotNull private final JSONObject jsonObject;
 
   // The number of additional authentication attempts on the same date (in the
   // UTC time zone) as this attempt with the same values for the successful,
   // authentication method, client IP address, and failure reason fields.
-  private final Long additionalAttemptCount;
+  @Nullable private final Long additionalAttemptCount;
 
   // The time that the authentication attempt occurred.
   private final long timestamp;
 
   // The name of the authentication method attempted by the client.
-  private final String authenticationMethod;
+  @NotNull  private final String authenticationMethod;
 
   // The IP address of the client, if available.
-  private final String clientIPAddress;
+  @Nullable private final String clientIPAddress;
 
   // A general reason that the authentication attempt failed, if available.
-  private final String failureReason;
+  @Nullable private final String failureReason;
 
 
 
@@ -195,11 +198,11 @@ public final class RecentLoginHistoryAttempt
    *                                 similar attempts should not be collapsed).
    */
   public RecentLoginHistoryAttempt(final boolean successful,
-                                   final long timestamp,
-                                   final String authenticationMethod,
-                                   final String clientIPAddress,
-                                   final String failureReason,
-                                   final Long additionalAttemptCount)
+              final long timestamp,
+              @NotNull final String authenticationMethod,
+              @Nullable final String clientIPAddress,
+              @Nullable final String failureReason,
+              @Nullable final Long additionalAttemptCount)
   {
     Validator.ensureNotNullOrEmpty(authenticationMethod,
          "RecentLoginHistoryAttempt.<init>.authenticationMethod must not be " +
@@ -242,7 +245,7 @@ public final class RecentLoginHistoryAttempt
    *                         provided JSON object as a recent login history
    *                         attempt.
    */
-  public RecentLoginHistoryAttempt(final JSONObject jsonObject)
+  public RecentLoginHistoryAttempt(@NotNull final JSONObject jsonObject)
          throws LDAPException
   {
     Validator.ensureNotNull(jsonObject,
@@ -354,12 +357,13 @@ public final class RecentLoginHistoryAttempt
    *
    * @return  A JSON object containing the provided information.
    */
+  @NotNull()
   private static JSONObject encodeToJSON(final boolean successful,
-                                         final long timestamp,
-                                         final String authenticationMethod,
-                                         final String clientIPAddress,
-                                         final String failureReason,
-                                         final Long additionalAttemptCount)
+               final long timestamp,
+               @NotNull final String authenticationMethod,
+               @Nullable final String clientIPAddress,
+               @Nullable final String failureReason,
+               @Nullable final Long additionalAttemptCount)
   {
     final Map<String,JSONValue> fields = new LinkedHashMap<>(
          StaticUtils.computeMapCapacity(6));
@@ -410,6 +414,7 @@ public final class RecentLoginHistoryAttempt
    *
    * @return  The time that the authentication attempt occurred.
    */
+  @NotNull()
   public Date getTimestamp()
   {
     return new Date(timestamp);
@@ -426,6 +431,7 @@ public final class RecentLoginHistoryAttempt
    *
    * @return  The name of the authentication method that the client used.
    */
+  @NotNull()
   public String getAuthenticationMethod()
   {
     return authenticationMethod;
@@ -441,6 +447,7 @@ public final class RecentLoginHistoryAttempt
    *          or {@code null} if no client IP address is available (e.g.,
    *          because the client authenticated through some internal mechanism).
    */
+  @Nullable()
   public String getClientIPAddress()
   {
     return clientIPAddress;
@@ -455,6 +462,7 @@ public final class RecentLoginHistoryAttempt
    * @return  A general reason that the authentication attempt failed, or
    *          {@code null} if the attempt was successful.
    */
+  @Nullable()
   public String getFailureReason()
   {
     return failureReason;
@@ -474,6 +482,7 @@ public final class RecentLoginHistoryAttempt
    *          collapse information about multiple similar attempts into a
    *          single record).
    */
+  @Nullable()
   public Long getAdditionalAttemptCount()
   {
     return additionalAttemptCount;
@@ -488,6 +497,7 @@ public final class RecentLoginHistoryAttempt
    * @return  A JSON object with an encoded representation of this recent long
    *          history attempt.
    */
+  @NotNull()
   public JSONObject asJSONObject()
   {
     return jsonObject;
@@ -505,7 +515,7 @@ public final class RecentLoginHistoryAttempt
    *          this recent login history attempt object, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -603,7 +613,7 @@ public final class RecentLoginHistoryAttempt
    *          they are logically equivalent.
    */
   @Override()
-  public int compareTo(final RecentLoginHistoryAttempt a)
+  public int compareTo(@NotNull final RecentLoginHistoryAttempt a)
   {
     // Order first by timestamp, with newer timestamps coming before older.
     if (timestamp > a.timestamp)
@@ -698,6 +708,7 @@ public final class RecentLoginHistoryAttempt
    * @return  A string representation of this recent login history attempt.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return jsonObject.toSingleLineString();

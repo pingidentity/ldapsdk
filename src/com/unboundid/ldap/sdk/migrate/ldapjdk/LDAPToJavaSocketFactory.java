@@ -43,6 +43,7 @@ import java.net.Socket;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 
 
 
@@ -54,7 +55,7 @@ final class LDAPToJavaSocketFactory
       extends SocketFactory
 {
   // The LDAP socket factory that will be used.
-  private final LDAPSocketFactory f;
+  @NotNull private final LDAPSocketFactory f;
 
 
 
@@ -64,7 +65,7 @@ final class LDAPToJavaSocketFactory
    *
    * @param  f  The {@code LDAPSocketFactory} object.
    */
-  LDAPToJavaSocketFactory(final LDAPSocketFactory f)
+  LDAPToJavaSocketFactory(@NotNull final LDAPSocketFactory f)
   {
     this.f = f;
   }
@@ -82,7 +83,8 @@ final class LDAPToJavaSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port)
          throws IOException
   {
     if (f instanceof SocketFactory)
@@ -126,8 +128,9 @@ final class LDAPToJavaSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {
@@ -156,7 +159,8 @@ final class LDAPToJavaSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port)
          throws IOException
   {
     if (f instanceof SocketFactory)
@@ -189,8 +193,9 @@ final class LDAPToJavaSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {

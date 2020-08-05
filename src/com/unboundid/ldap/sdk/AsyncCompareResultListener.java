@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,6 +62,6 @@ public interface AsyncCompareResultListener
    *                        response was received.
    * @param  compareResult  The compare result that has been received.
    */
-  void compareResultReceived(AsyncRequestID requestID,
-                             CompareResult compareResult);
+  void compareResultReceived(@NotNull AsyncRequestID requestID,
+                             @NotNull CompareResult compareResult);
 }

@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -118,7 +120,7 @@ public final class ExportTask
    * The fully-qualified name of the Java class that is used for the export
    * task.
    */
-  static final String EXPORT_TASK_CLASS =
+  @NotNull static final String EXPORT_TASK_CLASS =
        "com.unboundid.directory.server.tasks.ExportTask";
 
 
@@ -127,7 +129,7 @@ public final class ExportTask
    * The name of the attribute used to indicate whether to append to an existing
    * file.
    */
-  private static final String ATTR_APPEND_TO_LDIF =
+  @NotNull private static final String ATTR_APPEND_TO_LDIF =
        "ds-task-export-append-to-ldif";
 
 
@@ -136,7 +138,8 @@ public final class ExportTask
    * The name of the attribute used to specify the backend ID of the backend to
    * export.
    */
-  private static final String ATTR_BACKEND_ID = "ds-task-export-backend-id";
+  @NotNull private static final String ATTR_BACKEND_ID =
+       "ds-task-export-backend-id";
 
 
 
@@ -144,7 +147,8 @@ public final class ExportTask
    * The name of the attribute used to indicate whether the exported LDIF should
    * be compressed as it is written.
    */
-  private static final String ATTR_COMPRESS = "ds-task-export-compress-ldif";
+  @NotNull private static final String ATTR_COMPRESS =
+       "ds-task-export-compress-ldif";
 
 
 
@@ -152,7 +156,8 @@ public final class ExportTask
    * The name of the attribute used to indicate whether the exported LDIF should
    * be encrypted as it is written.
    */
-  private static final String ATTR_ENCRYPT = "ds-task-export-encrypt-ldif";
+  @NotNull private static final String ATTR_ENCRYPT =
+       "ds-task-export-encrypt-ldif";
 
 
 
@@ -160,7 +165,7 @@ public final class ExportTask
    * The name of the attribute used to specify the path to a file that contains
    * the passphrase to use to generate the encryption key.
    */
-  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+  @NotNull private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
        "ds-task-export-encryption-passphrase-file";
 
 
@@ -170,7 +175,7 @@ public final class ExportTask
    * the ID of the encryption settings definition to use to generate the
    * encryption key.
    */
-  private static final String ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID =
+  @NotNull private static final String ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID =
        "ds-task-export-encryption-settings-definition-id";
 
 
@@ -179,7 +184,7 @@ public final class ExportTask
    * The name of the attribute used to specify the attributes to exclude from
    * the export.
    */
-  private static final String ATTR_EXCLUDE_ATTRIBUTE =
+  @NotNull private static final String ATTR_EXCLUDE_ATTRIBUTE =
        "ds-task-export-exclude-attribute";
 
 
@@ -188,7 +193,7 @@ public final class ExportTask
    * The name of the attribute used to specify the base DNs to exclude from the
    * export.
    */
-  private static final String ATTR_EXCLUDE_BRANCH =
+  @NotNull private static final String ATTR_EXCLUDE_BRANCH =
        "ds-task-export-exclude-branch";
 
 
@@ -197,7 +202,7 @@ public final class ExportTask
    * The name of the attribute used to specify the filters to use to identify
    * entries to exclude from the export.
    */
-  private static final String ATTR_EXCLUDE_FILTER =
+  @NotNull private static final String ATTR_EXCLUDE_FILTER =
        "ds-task-export-exclude-filter";
 
 
@@ -206,7 +211,7 @@ public final class ExportTask
    * The name of the attribute used to specify the attributes to include in the
    * export.
    */
-  private static final String ATTR_INCLUDE_ATTRIBUTE =
+  @NotNull private static final String ATTR_INCLUDE_ATTRIBUTE =
        "ds-task-export-include-attribute";
 
 
@@ -215,7 +220,7 @@ public final class ExportTask
    * The name of the attribute used to specify the base DNs to include in the
    * export.
    */
-  private static final String ATTR_INCLUDE_BRANCH =
+  @NotNull private static final String ATTR_INCLUDE_BRANCH =
        "ds-task-export-include-branch";
 
 
@@ -224,7 +229,7 @@ public final class ExportTask
    * The name of the attribute used to specify the filters to use to identify
    * entries to include in the export.
    */
-  private static final String ATTR_INCLUDE_FILTER =
+  @NotNull private static final String ATTR_INCLUDE_FILTER =
        "ds-task-export-include-filter";
 
 
@@ -233,7 +238,8 @@ public final class ExportTask
    * The name of the attribute used to specify the path to the LDIF file to be
    * written.
    */
-  private static final String ATTR_LDIF_FILE = "ds-task-export-ldif-file";
+  @NotNull private static final String ATTR_LDIF_FILE =
+       "ds-task-export-ldif-file";
 
 
 
@@ -241,7 +247,7 @@ public final class ExportTask
    * The name of the attribute used to specify the maximum LDIF write rate in
    * megabytes per second.
    */
-  private static final String ATTR_MAX_MEGABYTES_PER_SECOND =
+  @NotNull private static final String ATTR_MAX_MEGABYTES_PER_SECOND =
        "ds-task-export-max-megabytes-per-second";
 
 
@@ -250,7 +256,7 @@ public final class ExportTask
    * The name of the attribute used to indicate whether the exported LDIF should
    * include a signed hash of the contents.
    */
-  private static final String ATTR_SIGN = "ds-task-export-sign-hash";
+  @NotNull private static final String ATTR_SIGN = "ds-task-export-sign-hash";
 
 
 
@@ -258,21 +264,22 @@ public final class ExportTask
    * The name of the attribute used to specify the column at which to wrap long
    * lines in the export.
    */
-  private static final String ATTR_WRAP_COLUMN = "ds-task-export-wrap-column";
+  @NotNull private static final String ATTR_WRAP_COLUMN =
+       "ds-task-export-wrap-column";
 
 
 
   /**
    * The name of the object class used in export task entries.
    */
-  private static final String OC_EXPORT_TASK = "ds-task-export";
+  @NotNull private static final String OC_EXPORT_TASK = "ds-task-export";
 
 
 
   /**
    * The task property for the backend ID.
    */
-  private static final TaskProperty PROPERTY_BACKEND_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
        new TaskProperty(ATTR_BACKEND_ID, INFO_DISPLAY_NAME_BACKEND_ID.get(),
                         INFO_DESCRIPTION_BACKEND_ID_EXPORT.get(), String.class,
                         true, false, false);
@@ -282,7 +289,7 @@ public final class ExportTask
   /**
    * The task property for the LDIF file.
    */
-  private static final TaskProperty PROPERTY_LDIF_FILE =
+  @NotNull private static final TaskProperty PROPERTY_LDIF_FILE =
        new TaskProperty(ATTR_LDIF_FILE, INFO_DISPLAY_NAME_LDIF_FILE.get(),
                         INFO_DESCRIPTION_LDIF_FILE_EXPORT.get(), String.class,
                         true, false, false);
@@ -292,7 +299,7 @@ public final class ExportTask
   /**
    * The task property for the append to LDIF flag.
    */
-  private static final TaskProperty PROPERTY_APPEND_TO_LDIF =
+  @NotNull private static final TaskProperty PROPERTY_APPEND_TO_LDIF =
        new TaskProperty(ATTR_APPEND_TO_LDIF,
                         INFO_DISPLAY_NAME_APPEND_TO_LDIF.get(),
                         INFO_DESCRIPTION_APPEND_TO_LDIF.get(), Boolean.class,
@@ -303,7 +310,7 @@ public final class ExportTask
   /**
    * The task property for the include branches.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
        new TaskProperty(ATTR_INCLUDE_BRANCH,
                         INFO_DISPLAY_NAME_INCLUDE_BRANCH.get(),
                         INFO_DESCRIPTION_INCLUDE_BRANCH_EXPORT.get(),
@@ -314,7 +321,7 @@ public final class ExportTask
   /**
    * The task property for the exclude branches.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
        new TaskProperty(ATTR_EXCLUDE_BRANCH,
                         INFO_DISPLAY_NAME_EXCLUDE_BRANCH.get(),
                         INFO_DESCRIPTION_EXCLUDE_BRANCH_EXPORT.get(),
@@ -325,7 +332,7 @@ public final class ExportTask
   /**
    * The task property for the include filters.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_FILTER =
        new TaskProperty(ATTR_INCLUDE_FILTER,
                         INFO_DISPLAY_NAME_INCLUDE_FILTER.get(),
                         INFO_DESCRIPTION_INCLUDE_FILTER_EXPORT.get(),
@@ -336,7 +343,7 @@ public final class ExportTask
   /**
    * The task property for the exclude filters.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
        new TaskProperty(ATTR_EXCLUDE_FILTER,
                         INFO_DISPLAY_NAME_EXCLUDE_FILTER.get(),
                         INFO_DESCRIPTION_EXCLUDE_FILTER_EXPORT.get(),
@@ -347,7 +354,7 @@ public final class ExportTask
   /**
    * The task property for the include attributes.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_ATTRIBUTE =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_ATTRIBUTE =
        new TaskProperty(ATTR_INCLUDE_ATTRIBUTE,
                         INFO_DISPLAY_NAME_INCLUDE_ATTRIBUTE.get(),
                         INFO_DESCRIPTION_INCLUDE_ATTRIBUTE_EXPORT.get(),
@@ -358,7 +365,7 @@ public final class ExportTask
   /**
    * The task property for the exclude attributes.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_ATTRIBUTE =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_ATTRIBUTE =
        new TaskProperty(ATTR_EXCLUDE_ATTRIBUTE,
                         INFO_DISPLAY_NAME_EXCLUDE_ATTRIBUTE.get(),
                         INFO_DESCRIPTION_EXCLUDE_ATTRIBUTE_EXPORT.get(),
@@ -369,7 +376,7 @@ public final class ExportTask
   /**
    * The task property for the wrap column.
    */
-  private static final TaskProperty PROPERTY_WRAP_COLUMN =
+  @NotNull private static final TaskProperty PROPERTY_WRAP_COLUMN =
        new TaskProperty(ATTR_WRAP_COLUMN, INFO_DISPLAY_NAME_WRAP_COLUMN.get(),
                         INFO_DESCRIPTION_WRAP_COLUMN.get(), Long.class, false,
                         false, true);
@@ -379,7 +386,7 @@ public final class ExportTask
   /**
    * The task property for the compress flag.
    */
-  private static final TaskProperty PROPERTY_COMPRESS =
+  @NotNull private static final TaskProperty PROPERTY_COMPRESS =
        new TaskProperty(ATTR_COMPRESS, INFO_DISPLAY_NAME_COMPRESS.get(),
                         INFO_DESCRIPTION_COMPRESS_EXPORT.get(), Boolean.class,
                         false, false, false);
@@ -389,7 +396,7 @@ public final class ExportTask
   /**
    * The task property for the encrypt flag.
    */
-  private static final TaskProperty PROPERTY_ENCRYPT =
+  @NotNull private static final TaskProperty PROPERTY_ENCRYPT =
        new TaskProperty(ATTR_ENCRYPT, INFO_DISPLAY_NAME_ENCRYPT.get(),
                         INFO_DESCRIPTION_ENCRYPT_EXPORT.get(), Boolean.class,
                         false, false, false);
@@ -399,8 +406,9 @@ public final class ExportTask
   /**
    * The task property that will be used for the encryption passphrase file.
    */
-  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
-       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+  @NotNull private static final TaskProperty
+       PROPERTY_ENCRYPTION_PASSPHRASE_FILE = new TaskProperty(
+            ATTR_ENCRYPTION_PASSPHRASE_FILE,
             INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
             INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
             String.class, false, false, true);
@@ -411,8 +419,9 @@ public final class ExportTask
    * The task property that will be used for the encryption settings definition
    * ID.
    */
-  private static final TaskProperty PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID =
-       new TaskProperty(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
+  @NotNull private static final TaskProperty
+       PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID = new TaskProperty(
+            ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
             INFO_DISPLAY_NAME_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
             INFO_DESCRIPTION_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
             String.class, false, false, true);
@@ -422,7 +431,7 @@ public final class ExportTask
   /**
    * The task property for the sign flag.
    */
-  private static final TaskProperty PROPERTY_SIGN =
+  @NotNull private static final TaskProperty PROPERTY_SIGN =
        new TaskProperty(ATTR_SIGN, INFO_DISPLAY_NAME_SIGN.get(),
                         INFO_DESCRIPTION_SIGN_EXPORT.get(), Boolean.class,
                         false, false, false);
@@ -433,7 +442,7 @@ public final class ExportTask
    * The task property that will be used for the maximum write rate in megabytes
    * per second.
    */
-  private static final TaskProperty PROPERTY_MAX_MEGABYTES_PER_SECOND =
+  @NotNull private static final TaskProperty PROPERTY_MAX_MEGABYTES_PER_SECOND =
        new TaskProperty(ATTR_MAX_MEGABYTES_PER_SECOND,
             INFO_DISPLAY_NAME_EXPORT_MAX_MEGABYTES_PER_SECOND.get(),
             INFO_DESCRIPTION_EXPORT_MAX_MEGABYTES_PER_SECOND.get(),
@@ -464,39 +473,39 @@ public final class ExportTask
   private final int wrapColumn;
 
   // The maximum write rate in megabytes per second.
-  private final Integer maxMegabytesPerSecond;
+  @Nullable private final Integer maxMegabytesPerSecond;
 
   // The set of attributes to exclude from the export.
-  private final List<String> excludeAttributes;
+  @NotNull private final List<String> excludeAttributes;
 
   // The set of base DNs to exclude from the export.
-  private final List<String> excludeBranches;
+  @NotNull private final List<String> excludeBranches;
 
   // The set of filters to use to identify entries to exclude.
-  private final List<String> excludeFilters;
+  @NotNull private final List<String> excludeFilters;
 
   // The set of attributes to include in the export.
-  private final List<String> includeAttributes;
+  @NotNull private final List<String> includeAttributes;
 
   // The set of base DNs to include in the export.
-  private final List<String> includeBranches;
+  @NotNull private final List<String> includeBranches;
 
   // The set of filters to use to identify entries to include.
-  private final List<String> includeFilters;
+  @NotNull private final List<String> includeFilters;
 
   // The backend ID of the backend to export.
-  private final String backendID;
+  @NotNull private final String backendID;
 
   // The path to a file containing the passphrase to use to generate the
   // encryption key.
-  private final String encryptionPassphraseFile;
+  @Nullable private final String encryptionPassphraseFile;
 
   // The identifier for the encryption settings definition to use to generate
   // the encryption key.
-  private final String encryptionSettingsDefinitionID;
+  @Nullable private final String encryptionSettingsDefinitionID;
 
   // The path to the LDIF file to generate.
-  private final String ldifFile;
+  @NotNull private final String ldifFile;
 
 
 
@@ -539,8 +548,9 @@ public final class ExportTask
    *                    absolute path or a path relative to the server install
    *                    root.  It must not be {@code null}.
    */
-  public ExportTask(final String taskID, final String backendID,
-                    final String ldifFile)
+  public ExportTask(@Nullable final String taskID,
+                    @NotNull final String backendID,
+                    @NotNull final String ldifFile)
   {
     this(taskID, backendID, ldifFile, false, null, null, null, null, null, null,
          -1, false, false, false, null, null, null, null, null);
@@ -612,20 +622,25 @@ public final class ExportTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public ExportTask(final String taskID, final String backendID,
-                    final String ldifFile, final boolean appendToLDIF,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes, final int wrapColumn,
-                    final boolean compress, final boolean encrypt,
-                    final boolean sign, final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public ExportTask(@Nullable final String taskID,
+              @NotNull final String backendID,
+              @NotNull final String ldifFile,
+              final boolean appendToLDIF,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final int wrapColumn,
+              final boolean compress,
+              final boolean encrypt,
+              final boolean sign,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backendID, ldifFile, appendToLDIF, includeBranches,
          excludeBranches, includeFilters, excludeFilters, includeAttributes,
@@ -731,23 +746,27 @@ public final class ExportTask
    *                                         if this task does not complete
    *                                         successfully.
    */
-  public ExportTask(final String taskID, final String backendID,
-                    final String ldifFile, final boolean appendToLDIF,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes, final int wrapColumn,
-                    final boolean compress, final boolean encrypt,
-                    final String encryptionPassphraseFile,
-                    final String encryptionSettingsDefinitionID,
-                    final boolean sign, final Integer maxMegabytesPerSecond,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public ExportTask(@Nullable final String taskID,
+              @NotNull final String backendID,
+              @NotNull final String ldifFile,
+              final boolean appendToLDIF,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final int wrapColumn,
+              final boolean compress, final boolean encrypt,
+              @Nullable final String encryptionPassphraseFile,
+              @Nullable final String encryptionSettingsDefinitionID,
+              final boolean sign,
+              @Nullable final Integer maxMegabytesPerSecond,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backendID, ldifFile, appendToLDIF, includeBranches,
          excludeBranches, includeFilters, excludeFilters, includeAttributes,
@@ -872,27 +891,32 @@ public final class ExportTask
    *                                         task fails to complete
    *                                         successfully.
    */
-  public ExportTask(final String taskID, final String backendID,
-                    final String ldifFile, final boolean appendToLDIF,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes, final int wrapColumn,
-                    final boolean compress, final boolean encrypt,
-                    final String encryptionPassphraseFile,
-                    final String encryptionSettingsDefinitionID,
-                    final boolean sign, final Integer maxMegabytesPerSecond,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnStart,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnSuccess,
-                    final List<String> notifyOnError,
-                    final Boolean alertOnStart, final Boolean alertOnSuccess,
-                    final Boolean alertOnError)
+  public ExportTask(@Nullable final String taskID,
+              @NotNull final String backendID,
+              @NotNull final String ldifFile,
+              final boolean appendToLDIF,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final int wrapColumn,
+              final boolean compress, final boolean encrypt,
+              @Nullable final String encryptionPassphraseFile,
+              @Nullable final String encryptionSettingsDefinitionID,
+              final boolean sign,
+              @Nullable final Integer maxMegabytesPerSecond,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, EXPORT_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -977,7 +1001,7 @@ public final class ExportTask
    * @throws  TaskException  If the provided entry cannot be parsed as an export
    *                         task entry.
    */
-  public ExportTask(final Entry entry)
+  public ExportTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -1089,7 +1113,7 @@ public final class ExportTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid export task.
    */
-  public ExportTask(final Map<TaskProperty,List<Object>> properties)
+  public ExportTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(EXPORT_TASK_CLASS, properties);
@@ -1229,6 +1253,7 @@ public final class ExportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_EXPORT.get();
@@ -1240,6 +1265,7 @@ public final class ExportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_EXPORT.get();
@@ -1254,6 +1280,7 @@ public final class ExportTask
    * @return  The backend ID of the backend from which the data is to be
    *          exported.
    */
+  @NotNull()
   public String getBackendID()
   {
     return backendID;
@@ -1269,6 +1296,7 @@ public final class ExportTask
    * @return  The path to the LDIF file to which the exported data should be
    *          written.
    */
+  @NotNull()
   public String getLDIFFile()
   {
     return ldifFile;
@@ -1298,6 +1326,7 @@ public final class ExportTask
    *          export, or an empty list if no entries should be excluded based on
    *          their location.
    */
+  @NotNull()
   public List<String> getIncludeBranches()
   {
     return includeBranches;
@@ -1313,6 +1342,7 @@ public final class ExportTask
    *          export, or an empty list if no entries should be excluded based on
    *          their location.
    */
+  @NotNull()
   public List<String> getExcludeBranches()
   {
     return excludeBranches;
@@ -1328,6 +1358,7 @@ public final class ExportTask
    *          entries should be included in the export, or an empty list if no
    *          entries should be excluded based on their content.
    */
+  @NotNull()
   public List<String> getIncludeFilters()
   {
     return includeFilters;
@@ -1343,6 +1374,7 @@ public final class ExportTask
    *          entries should be excluded from the export, or an empty list if no
    *          entries should be excluded based on their content.
    */
+  @NotNull()
   public List<String> getExcludeFilters()
   {
     return excludeFilters;
@@ -1357,6 +1389,7 @@ public final class ExportTask
    * @return  A list of the attributes that should be included in exported
    *          entries, or an empty list if no attributes should be excluded.
    */
+  @NotNull()
   public List<String> getIncludeAttributes()
   {
     return includeAttributes;
@@ -1371,6 +1404,7 @@ public final class ExportTask
    * @return  A list of the attributes that should be excluded from exported
    *          entries, or an empty list if no attributes should be excluded.
    */
+  @NotNull()
   public List<String> getExcludeAttributes()
   {
     return excludeAttributes;
@@ -1427,6 +1461,7 @@ public final class ExportTask
    *          should not be encrypted or if the encryption key should be
    *          obtained through some other means.
    */
+  @Nullable()
   public String getEncryptionPassphraseFile()
   {
     return encryptionPassphraseFile;
@@ -1443,6 +1478,7 @@ public final class ExportTask
    *          should not be encrypted or if the encryption key should be
    *          obtained through some other means.
    */
+  @Nullable()
   public String getEncryptionSettingsDefinitionID()
   {
     return encryptionSettingsDefinitionID;
@@ -1471,6 +1507,7 @@ public final class ExportTask
    *          should be written, or {@code null} if the writing should not be
    *          rate limited.
    */
+  @Nullable()
   public Integer getMaxMegabytesPerSecond()
   {
     return maxMegabytesPerSecond;
@@ -1482,6 +1519,7 @@ public final class ExportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_EXPORT_TASK);
@@ -1493,6 +1531,7 @@ public final class ExportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(20);
@@ -1566,6 +1605,7 @@ public final class ExportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final List<TaskProperty> propList = Arrays.asList(
@@ -1595,6 +1635,7 @@ public final class ExportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

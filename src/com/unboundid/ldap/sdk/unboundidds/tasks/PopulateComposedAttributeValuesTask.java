@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -89,7 +91,7 @@ public final class PopulateComposedAttributeValuesTask
    * The fully-qualified name of the Java class that is used for the populate
    * composed attribute values task.
    */
-  static final String POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK_CLASS =
+  @NotNull static final String POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK_CLASS =
        "com.unboundid.directory.server.tasks." +
             "PopulateComposedAttributeValuesTask";
 
@@ -99,7 +101,7 @@ public final class PopulateComposedAttributeValuesTask
    * The name of the attribute used to specify the backned IDs of the backends
    * in which composed values are to be generated.
    */
-  private static final String ATTR_BACKEND_ID =
+  @NotNull private static final String ATTR_BACKEND_ID =
        "ds-task-populate-composed-attribute-backend-id";
 
 
@@ -108,7 +110,7 @@ public final class PopulateComposedAttributeValuesTask
    * The name of the attribute used to specify the maximum number of entries to
    * update per second.
    */
-  private static final String ATTR_MAX_RATE_PER_SECOND =
+  @NotNull private static final String ATTR_MAX_RATE_PER_SECOND =
        "ds-task-populate-composed-attribute-max-rate-per-second";
 
 
@@ -118,7 +120,7 @@ public final class PopulateComposedAttributeValuesTask
    * configuration entries for the composed attribute plugin instances for which
    * to generate values.
    */
-  private static final String ATTR_PLUGIN_CONFIG =
+  @NotNull private static final String ATTR_PLUGIN_CONFIG =
        "ds-task-populate-composed-attribute-plugin-config";
 
 
@@ -127,8 +129,9 @@ public final class PopulateComposedAttributeValuesTask
    * The name of the object class used in populate composed attribute value task
    * entries.
    */
-  private static final String OC_POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK =
-       "ds-task-populate-composed-attribute";
+  @NotNull private static final String
+       OC_POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK =
+            "ds-task-populate-composed-attribute";
 
 
 
@@ -136,7 +139,7 @@ public final class PopulateComposedAttributeValuesTask
    * The task property that will be used for the backend IDs for the backends in
    * which to generate values.
    */
-  private static final TaskProperty PROPERTY_BACKEND_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
      new TaskProperty(ATTR_BACKEND_ID,
           INFO_POPULATE_COMPOSED_ATTR_DISPLAY_NAME_BACKEND_ID.get(),
           INFO_POPULATE_COMPOSED_ATTR_DESCRIPTION_BACKEND_ID.get(),
@@ -147,7 +150,7 @@ public final class PopulateComposedAttributeValuesTask
   /**
    * The task property that will be used for the max rate per second.
    */
-  private static final TaskProperty PROPERTY_MAX_RATE_PER_SECOND =
+  @NotNull private static final TaskProperty PROPERTY_MAX_RATE_PER_SECOND =
      new TaskProperty(ATTR_MAX_RATE_PER_SECOND,
           INFO_POPULATE_COMPOSED_ATTR_DISPLAY_NAME_MAX_RATE.get(),
           INFO_POPULATE_COMPOSED_ATTR_DESCRIPTION_MAX_RATE.get(), Long.class,
@@ -159,7 +162,7 @@ public final class PopulateComposedAttributeValuesTask
    * The task property that will be used for the names or DNs for the composed
    * attribute plugins for which to generate values.
    */
-  private static final TaskProperty PROPERTY_PLUGIN_CONFIG =
+  @NotNull private static final TaskProperty PROPERTY_PLUGIN_CONFIG =
      new TaskProperty(ATTR_PLUGIN_CONFIG,
           INFO_POPULATE_COMPOSED_ATTR_DISPLAY_NAME_PLUGIN_CONFIG.get(),
           INFO_POPULATE_COMPOSED_ATTR_DESCRIPTION_PLUGIN_CONFIG.get(),
@@ -175,14 +178,14 @@ public final class PopulateComposedAttributeValuesTask
 
 
   // The maximum number of entries to update per second.
-  private final Integer maxRatePerSecond;
+  @Nullable private final Integer maxRatePerSecond;
 
   // The names of the backend IDs for the backends in which to generate values.
-  private final List<String> backendIDs;
+  @NotNull private final List<String> backendIDs;
 
   // The names or DNs of the configuration entries for the composed attribute
   // plugins for which to generate values.
-  private final List<String> pluginConfigs;
+  @NotNull private final List<String> pluginConfigs;
 
 
 
@@ -226,10 +229,10 @@ public final class PopulateComposedAttributeValuesTask
    *                           second.  If this is not specified, then no rate
    *                           limit will be imposed.
    */
-  public PopulateComposedAttributeValuesTask(final String taskID,
-                                             final List<String> pluginConfigs,
-                                             final List<String> backendIDs,
-                                             final Integer maxRatePerSecond)
+  public PopulateComposedAttributeValuesTask(@Nullable final String taskID,
+              @Nullable final List<String> pluginConfigs,
+              @Nullable final List<String> backendIDs,
+              @Nullable final Integer maxRatePerSecond)
   {
     this(taskID, pluginConfigs, backendIDs, maxRatePerSecond, null, null, null,
          null, null, null, null, null, null, null);
@@ -289,20 +292,20 @@ public final class PopulateComposedAttributeValuesTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public PopulateComposedAttributeValuesTask(final String taskID,
-                           final List<String> pluginConfigs,
-                           final List<String> backendIDs,
-                           final Integer maxRatePerSecond,
-                           final Date scheduledStartTime,
-                           final List<String> dependencyIDs,
-                           final FailedDependencyAction failedDependencyAction,
-                           final List<String> notifyOnStart,
-                           final List<String> notifyOnCompletion,
-                           final List<String> notifyOnSuccess,
-                           final List<String> notifyOnError,
-                           final Boolean alertOnStart,
-                           final Boolean alertOnSuccess,
-                           final Boolean alertOnError)
+  public PopulateComposedAttributeValuesTask(@Nullable final String taskID,
+              @Nullable final List<String> pluginConfigs,
+              @Nullable final List<String> backendIDs,
+              @Nullable final Integer maxRatePerSecond,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK_CLASS,
          scheduledStartTime, dependencyIDs, failedDependencyAction,
@@ -344,7 +347,7 @@ public final class PopulateComposedAttributeValuesTask
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         populate composed attribute values task entry.
    */
-  public PopulateComposedAttributeValuesTask(final Entry entry)
+  public PopulateComposedAttributeValuesTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -394,7 +397,7 @@ public final class PopulateComposedAttributeValuesTask
    *                         task.
    */
   public PopulateComposedAttributeValuesTask(
-              final Map<TaskProperty,List<Object>> properties)
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK_CLASS, properties);
@@ -448,6 +451,7 @@ public final class PopulateComposedAttributeValuesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_POPULATE_COMPOSED_ATTR_VALUES.get();
@@ -459,6 +463,7 @@ public final class PopulateComposedAttributeValuesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_POPULATE_COMPOSED_ATTR_VALUES.get();
@@ -476,6 +481,7 @@ public final class PopulateComposedAttributeValuesTask
    *          all enabled composed attribute plugin instances defined in the
    *          configuration.
    */
+  @NotNull()
   public List<String> getPluginConfigs()
   {
     return pluginConfigs;
@@ -492,6 +498,7 @@ public final class PopulateComposedAttributeValuesTask
    *          an appropriate set of backends from the configurations of the
    *          selected plugin instances.
    */
+  @NotNull()
   public List<String> getBackendIDs()
   {
     return backendIDs;
@@ -507,6 +514,7 @@ public final class PopulateComposedAttributeValuesTask
    *          should be generated, or {@code null} if no rate limit should be
    *          imposed.
    */
+  @Nullable()
   public Integer getMaxRatePerSecond()
   {
     return maxRatePerSecond;
@@ -518,6 +526,7 @@ public final class PopulateComposedAttributeValuesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(
@@ -530,6 +539,7 @@ public final class PopulateComposedAttributeValuesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final List<Attribute> attrList = new ArrayList<>(3);
@@ -559,6 +569,7 @@ public final class PopulateComposedAttributeValuesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -573,6 +584,7 @@ public final class PopulateComposedAttributeValuesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

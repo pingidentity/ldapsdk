@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -84,7 +85,7 @@ public final class ResumeWithCSNStartingPoint
 
   // The replication CSN which may be used to define the starting point for the
   // changelog batch request.
-  private final String csn;
+  @NotNull private final String csn;
 
 
 
@@ -96,7 +97,7 @@ public final class ResumeWithCSNStartingPoint
    *              point for the get changelog batch request.  It must not be
    *              {@code null}.
    */
-  public ResumeWithCSNStartingPoint(final String csn)
+  public ResumeWithCSNStartingPoint(@NotNull final String csn)
   {
     Validator.ensureNotNull(csn);
 
@@ -112,6 +113,7 @@ public final class ResumeWithCSNStartingPoint
    * @return  The replication CSN which may be used to define the starting point
    *          for the get changelog batch request.
    */
+  @NotNull()
   public String getCSN()
   {
     return csn;
@@ -123,6 +125,7 @@ public final class ResumeWithCSNStartingPoint
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return new ASN1OctetString(TYPE, csn);
@@ -134,7 +137,7 @@ public final class ResumeWithCSNStartingPoint
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ResumeWithCSNStartingPoint(csn='");
     buffer.append(csn);

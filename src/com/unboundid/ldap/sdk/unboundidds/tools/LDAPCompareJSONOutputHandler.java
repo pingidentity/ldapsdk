@@ -42,6 +42,7 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONArray;
@@ -73,14 +74,15 @@ final class LDAPCompareJSONOutputHandler
   /**
    * The name of the JSON field that holds the assertion value.
    */
-  private static final String FIELD_NAME_ASSERTION_VALUE = "assertion-value";
+  @NotNull private static final String FIELD_NAME_ASSERTION_VALUE =
+       "assertion-value";
 
 
 
   /**
    * The name of the JSON field that holds the name of the target attribute.
    */
-  private static final String FIELD_NAME_ATTRIBUTE = "attribute-name";
+  @NotNull private static final String FIELD_NAME_ATTRIBUTE = "attribute-name";
 
 
 
@@ -88,7 +90,7 @@ final class LDAPCompareJSONOutputHandler
    * The name of the JSON field that holds the diagnostic message from the
    * response.
    */
-  private static final String FIELD_NAME_DIAGNOSTIC_MESSAGE =
+  @NotNull private static final String FIELD_NAME_DIAGNOSTIC_MESSAGE =
        "diagnostic-message";
 
 
@@ -96,35 +98,37 @@ final class LDAPCompareJSONOutputHandler
   /**
    * The name of the JSON field that holds the DN of the target entry.
    */
-  private static final String FIELD_NAME_DN = "entry-dn";
+  @NotNull private static final String FIELD_NAME_DN = "entry-dn";
 
 
 
   /**
    * The name of the JSON field that holds the matched DN from the response.
    */
-  private static final String FIELD_NAME_MATCHED_DN = "matched-dn";
+  @NotNull private static final String FIELD_NAME_MATCHED_DN = "matched-dn";
 
 
 
   /**
    * The name of the JSON field that holds the referral URLs from the response.
    */
-  private static final String FIELD_NAME_REFERRAL_URLS = "referral-urls";
+  @NotNull private static final String FIELD_NAME_REFERRAL_URLS =
+       "referral-urls";
 
 
 
   /**
    * The name of the JSON field that holds the name of the result code.
    */
-  private static final String FIELD_NAME_RESULT_CODE_NAME = "result-code-name";
+  @NotNull private static final String FIELD_NAME_RESULT_CODE_NAME =
+       "result-code-name";
 
 
 
   /**
    * The name of the JSON field that holds the integer value of the result code.
    */
-  private static final String FIELD_NAME_RESULT_CODE_VALUE =
+  @NotNull private static final String FIELD_NAME_RESULT_CODE_VALUE =
        "result-code-value";
 
 
@@ -143,7 +147,9 @@ final class LDAPCompareJSONOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  String formatResult(final CompareRequest request, final LDAPResult result)
+  @NotNull()
+  String formatResult(@NotNull final CompareRequest request,
+                      @NotNull final LDAPResult result)
   {
     final Map<String,JSONValue> fields = new LinkedHashMap<>();
     fields.put(FIELD_NAME_DN, new JSONString(request.getDN()));

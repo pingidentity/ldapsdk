@@ -45,6 +45,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -70,16 +72,16 @@ class LDIFAttribute
 
 
   // The set of normalized values for this attribute.
-  private LinkedHashSet<ASN1OctetString> normalizedValues;
+  @Nullable private LinkedHashSet<ASN1OctetString> normalizedValues;
 
   // The list of values for this attribute.
-  private final ArrayList<ASN1OctetString> values;
+  @NotNull private final ArrayList<ASN1OctetString> values;
 
   // The matching rule to use when comparing values.
-  private final MatchingRule matchingRule;
+  @NotNull private final MatchingRule matchingRule;
 
   // The name for this attribute.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -90,8 +92,9 @@ class LDIFAttribute
    * @param  matchingRule  The matching rule for this attribute.
    * @param  value         The first value for this attribute.
    */
-  LDIFAttribute(final String name, final MatchingRule matchingRule,
-                final ASN1OctetString value)
+  LDIFAttribute(@NotNull final String name,
+                @NotNull final MatchingRule matchingRule,
+                @NotNull final ASN1OctetString value)
   {
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -118,8 +121,8 @@ class LDIFAttribute
    * @throws  LDAPException  If the provided value is invalid according to the
    *                         associated syntax.
    */
-  boolean addValue(final ASN1OctetString value,
-                   final DuplicateValueBehavior duplicateValueBehavior)
+  boolean addValue(@NotNull final ASN1OctetString value,
+                   @NotNull final DuplicateValueBehavior duplicateValueBehavior)
           throws LDAPException
   {
     if (normalizedValues == null)
@@ -160,6 +163,7 @@ class LDIFAttribute
    *
    * @return  An SDK attribute with the name and values of this LDIF attribute.
    */
+  @NotNull()
   Attribute toAttribute()
   {
     final ASN1OctetString[] valueArray = new ASN1OctetString[values.size()];

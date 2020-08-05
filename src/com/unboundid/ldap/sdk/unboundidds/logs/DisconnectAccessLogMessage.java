@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,10 +73,10 @@ public final class DisconnectAccessLogMessage
 
 
   // The message providing additional information about the disconnect.
-  private final String message;
+  @Nullable private final String message;
 
   // The reason for the disconnect.
-  private final String reason;
+  @Nullable private final String reason;
 
 
 
@@ -87,7 +89,7 @@ public final class DisconnectAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public DisconnectAccessLogMessage(final String s)
+  public DisconnectAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -100,7 +102,7 @@ public final class DisconnectAccessLogMessage
    *
    * @param  m  The log message to be parsed as a disconnect access log message.
    */
-  public DisconnectAccessLogMessage(final LogMessage m)
+  public DisconnectAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -116,6 +118,7 @@ public final class DisconnectAccessLogMessage
    * @return  The disconnect reason for the log message, or {@code null} if it
    *          is not included in the log message.
    */
+  @Nullable()
   public String getDisconnectReason()
   {
     return reason;
@@ -129,6 +132,7 @@ public final class DisconnectAccessLogMessage
    * @return  A message with additional information about the disconnect, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getMessage()
   {
     return message;
@@ -140,6 +144,7 @@ public final class DisconnectAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.DISCONNECT;

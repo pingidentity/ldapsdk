@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -99,7 +101,8 @@ public final class GetConnectionIDExtendedResult
    *                         provided extended result as a get connection ID
    *                         result.
    */
-  public GetConnectionIDExtendedResult(final ExtendedResult extendedResult)
+  public GetConnectionIDExtendedResult(
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -142,12 +145,12 @@ public final class GetConnectionIDExtendedResult
    *                            available.
    */
   public GetConnectionIDExtendedResult(final int messageID,
-                                       final ResultCode resultCode,
-                                       final String diagnosticMessage,
-                                       final String matchedDN,
-                                       final String[] referralURLs,
-                                       final Long connectionID,
-                                       final Control[] responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final Long connectionID,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, encodeValue(connectionID), responseControls);
@@ -172,7 +175,8 @@ public final class GetConnectionIDExtendedResult
    * @return  An ASN.1 octet string containing the properly-encoded value, or
    *          {@code null} if there should be no value.
    */
-  private static ASN1OctetString encodeValue(final Long connectionID)
+  @Nullable()
+  private static ASN1OctetString encodeValue(@Nullable final Long connectionID)
   {
     if ((connectionID == null) || (connectionID < 0))
     {
@@ -204,6 +208,7 @@ public final class GetConnectionIDExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_GET_CONNECTION_ID.get();
@@ -215,7 +220,7 @@ public final class GetConnectionIDExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetConnectionIDExtendedResult(connectionID=");
     buffer.append(connectionID);

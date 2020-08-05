@@ -40,6 +40,7 @@ package com.unboundid.ldap.listener.interceptor;
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.ReadOnlyCompareRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -59,6 +60,7 @@ public interface InMemoryInterceptedCompareRequest
    *
    * @return  The compare request to be processed.
    */
+  @NotNull()
   ReadOnlyCompareRequest getRequest();
 
 
@@ -70,5 +72,5 @@ public interface InMemoryInterceptedCompareRequest
    *                         instead of the one that was originally received
    *                         from the client.  It must not be {@code null}.
    */
-  void setRequest(CompareRequest compareRequest);
+  void setRequest(@NotNull CompareRequest compareRequest);
 }

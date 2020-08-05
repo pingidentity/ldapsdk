@@ -41,6 +41,7 @@ import java.math.BigInteger;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,7 +69,7 @@ public final class ASN1BigInteger
 
 
   // The BigInteger value for this element.
-  private final BigInteger value;
+  @NotNull private final BigInteger value;
 
 
 
@@ -79,7 +80,7 @@ public final class ASN1BigInteger
    * @param  value  The value to use for this element.  It must not be
    *                {@code null}.
    */
-  public ASN1BigInteger(final BigInteger value)
+  public ASN1BigInteger(@NotNull final BigInteger value)
   {
     this(ASN1Constants.UNIVERSAL_INTEGER_TYPE, value);
   }
@@ -94,7 +95,7 @@ public final class ASN1BigInteger
    * @param  value  The value to use for this element.  It must not be
    *                {@code null}.
    */
-  public ASN1BigInteger(final byte type, final BigInteger value)
+  public ASN1BigInteger(final byte type, @NotNull final BigInteger value)
   {
     super(type, value.toByteArray());
 
@@ -113,8 +114,9 @@ public final class ASN1BigInteger
    * @param  berValue         The encoded BER value for this element.  It must
    *                          not be {@code null} or empty.
    */
-  private ASN1BigInteger(final byte type, final BigInteger bigIntegerValue,
-                         final byte[] berValue)
+  private ASN1BigInteger(final byte type,
+                         @NotNull final BigInteger bigIntegerValue,
+                         @NotNull final byte[] berValue)
   {
     super(type, berValue);
     value = bigIntegerValue;
@@ -154,6 +156,7 @@ public final class ASN1BigInteger
    *
    * @return  The value for this element as a Java {@code BigInteger}.
    */
+  @NotNull()
   public BigInteger getBigIntegerValue()
   {
     return value;
@@ -172,7 +175,9 @@ public final class ASN1BigInteger
    * @throws  ASN1Exception  If the provided array cannot be decoded as a big
    *                         integer element.
    */
-  public static ASN1BigInteger decodeAsBigInteger(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1BigInteger decodeAsBigInteger(
+                                    @NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -232,7 +237,9 @@ public final class ASN1BigInteger
    * @throws  ASN1Exception  If the provided element cannot be decoded as a big
    *                         integer element.
    */
-  public static ASN1BigInteger decodeAsBigInteger(final ASN1Element element)
+  @NotNull()
+  public static ASN1BigInteger decodeAsBigInteger(
+                                    @NotNull final ASN1Element element)
          throws ASN1Exception
   {
     final byte[] value = element.getValue();
@@ -250,7 +257,7 @@ public final class ASN1BigInteger
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(value);
   }

@@ -39,6 +39,8 @@ package com.unboundid.ldap.listener.interceptor;
 
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,6 +63,7 @@ public interface InMemoryInterceptedIntermediateResponse
    *
    * @return  The request associated with the operation that is being processed.
    */
+  @NotNull()
   InMemoryInterceptedRequest getRequest();
 
 
@@ -70,6 +73,7 @@ public interface InMemoryInterceptedIntermediateResponse
    *
    * @return  The intermediate response to be returned to the client.
    */
+  @Nullable()
   IntermediateResponse getIntermediateResponse();
 
 
@@ -83,5 +87,5 @@ public interface InMemoryInterceptedIntermediateResponse
    *                   It may be {@code null} if the response should be
    *                   suppressed rather than being returned to the client.
    */
-  void setIntermediateResponse(IntermediateResponse response);
+  void setIntermediateResponse(@Nullable IntermediateResponse response);
 }

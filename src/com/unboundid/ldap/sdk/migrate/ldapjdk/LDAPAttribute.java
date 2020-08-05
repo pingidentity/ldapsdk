@@ -45,6 +45,8 @@ import java.util.Set;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -76,7 +78,7 @@ public class LDAPAttribute
 
 
   // The Attribute object wrapped by this LDAPAttribute.
-  private Attribute attribute;
+  @NotNull private Attribute attribute;
 
 
 
@@ -85,7 +87,7 @@ public class LDAPAttribute
    *
    * @param  attr  The LDAP attribute to use to create this attribute.
    */
-  public LDAPAttribute(final Attribute attr)
+  public LDAPAttribute(@NotNull final Attribute attr)
   {
     attribute = attr;
   }
@@ -97,7 +99,7 @@ public class LDAPAttribute
    *
    * @param  attr  The LDAP attribute to use to create this attribute.
    */
-  public LDAPAttribute(final LDAPAttribute attr)
+  public LDAPAttribute(@NotNull final LDAPAttribute attr)
   {
     attribute = attr.attribute;
   }
@@ -109,7 +111,7 @@ public class LDAPAttribute
    *
    * @param  attrName  The name for this attribute.
    */
-  public LDAPAttribute(final String attrName)
+  public LDAPAttribute(@NotNull final String attrName)
   {
     attribute = new Attribute(attrName);
   }
@@ -122,7 +124,8 @@ public class LDAPAttribute
    * @param  attrName   The name for this attribute.
    * @param  attrBytes  The value for this attribute.
    */
-  public LDAPAttribute(final String attrName, final byte[] attrBytes)
+  public LDAPAttribute(@NotNull final String attrName,
+                       @NotNull final byte[] attrBytes)
   {
     attribute = new Attribute(attrName, attrBytes);
   }
@@ -135,7 +138,8 @@ public class LDAPAttribute
    * @param  attrName    The name for this attribute.
    * @param  attrString  The value for this attribute.
    */
-  public LDAPAttribute(final String attrName, final String attrString)
+  public LDAPAttribute(@NotNull final String attrName,
+                       @NotNull final String attrString)
   {
     attribute = new Attribute(attrName, attrString);
   }
@@ -148,7 +152,8 @@ public class LDAPAttribute
    * @param  attrName     The name for this attribute.
    * @param  attrStrings  The values for this attribute.
    */
-  public LDAPAttribute(final String attrName, final String[] attrStrings)
+  public LDAPAttribute(@NotNull final String attrName,
+                       @NotNull final String[] attrStrings)
   {
     attribute = new Attribute(attrName, attrStrings);
   }
@@ -160,6 +165,7 @@ public class LDAPAttribute
    *
    * @return  The name for this attribute.
    */
+  @NotNull()
   public String getName()
   {
     return attribute.getName();
@@ -172,6 +178,7 @@ public class LDAPAttribute
    *
    * @return  The base name for this attribute.
    */
+  @NotNull()
   public String getBaseName()
   {
     return attribute.getBaseName();
@@ -186,7 +193,8 @@ public class LDAPAttribute
    *
    * @return  The base name for the attribute with the provided name.
    */
-  public static String getBaseName(final String attrName)
+  @NotNull()
+  public static String getBaseName(@NotNull final String attrName)
   {
     return Attribute.getBaseName(attrName);
   }
@@ -200,6 +208,7 @@ public class LDAPAttribute
    * @return  The subtypes contained in the name for this attribute, or
    *          {@code null} if there are none.
    */
+  @Nullable()
   public String[] getSubtypes()
   {
     final Set<String> optionSet = attribute.getOptions();
@@ -223,7 +232,8 @@ public class LDAPAttribute
    * @return  The subtypes contained in the provided attribute name, or
    *          {@code null} if there are none.
    */
-  public static String[] getSubtypes(final String attrName)
+  @Nullable()
+  public static String[] getSubtypes(@NotNull final String attrName)
   {
     return new LDAPAttribute(attrName).getSubtypes();
   }
@@ -237,6 +247,7 @@ public class LDAPAttribute
    * @return  The language subtype for this attribute, or {@code null} if there
    *          is none.
    */
+  @Nullable()
   public String getLangSubtype()
   {
     for (final String s : attribute.getOptions())
@@ -261,7 +272,7 @@ public class LDAPAttribute
    * @return  {@code true} if this option has the specified subtype, or
    *          {@code false} if not.
    */
-  public boolean hasSubtype(final String subtype)
+  public boolean hasSubtype(@NotNull final String subtype)
   {
     return attribute.hasOption(subtype);
   }
@@ -276,7 +287,7 @@ public class LDAPAttribute
    * @return  {@code true} if this option has all of the specified subtypes, or
    *          {@code false} if not.
    */
-  public boolean hasSubtypes(final String[] subtypes)
+  public boolean hasSubtypes(@NotNull final String[] subtypes)
   {
     for (final String s : subtypes)
     {
@@ -296,6 +307,7 @@ public class LDAPAttribute
    *
    * @return  An enumeration over the string values for this attribute.
    */
+  @NotNull()
   public Enumeration<String> getStringValues()
   {
     return new IterableEnumeration<>(Arrays.asList(attribute.getValues()));
@@ -308,6 +320,7 @@ public class LDAPAttribute
    *
    * @return  An array of the values for this attribute.
    */
+  @NotNull()
   public String[] getStringValueArray()
   {
     return attribute.getValues();
@@ -320,6 +333,7 @@ public class LDAPAttribute
    *
    * @return  An enumeration over the binary values for this attribute.
    */
+  @NotNull()
   public Enumeration<byte[]> getByteValues()
   {
     return new IterableEnumeration<>(
@@ -333,6 +347,7 @@ public class LDAPAttribute
    *
    * @return  An array of the values for this attribute.
    */
+  @NotNull()
   public byte[][] getByteValueArray()
   {
     return attribute.getValueByteArrays();
@@ -345,7 +360,7 @@ public class LDAPAttribute
    *
    * @param  attrString  The value to add to this attribute.
    */
-  public void addValue(final String attrString)
+  public void addValue(@NotNull final String attrString)
   {
     attribute = Attribute.mergeAttributes(attribute,
          new Attribute(attribute.getName(), attrString));
@@ -358,7 +373,7 @@ public class LDAPAttribute
    *
    * @param  attrBytes  The value to add to this attribute.
    */
-  public void addValue(final byte[] attrBytes)
+  public void addValue(@NotNull final byte[] attrBytes)
   {
     attribute = Attribute.mergeAttributes(attribute,
          new Attribute(attribute.getName(), attrBytes));
@@ -371,7 +386,7 @@ public class LDAPAttribute
    *
    * @param  attrValue  The value to remove.
    */
-  public void removeValue(final String attrValue)
+  public void removeValue(@NotNull final String attrValue)
   {
     attribute = Attribute.removeValues(attribute,
          new Attribute(attribute.getName(), attrValue));
@@ -384,7 +399,7 @@ public class LDAPAttribute
    *
    * @param  attrValue  The value to remove.
    */
-  public void removeValue(final byte[] attrValue)
+  public void removeValue(@NotNull final byte[] attrValue)
   {
     attribute = Attribute.removeValues(attribute,
          new Attribute(attribute.getName(), attrValue));
@@ -410,6 +425,7 @@ public class LDAPAttribute
    * @return  The {@code Attribute} object which corresponds to this LDAP
    *          attribute.
    */
+  @NotNull()
   public final Attribute toAttribute()
   {
     return attribute;
@@ -423,6 +439,7 @@ public class LDAPAttribute
    * @return  A string representation of this LDAP attribute.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return attribute.toString();

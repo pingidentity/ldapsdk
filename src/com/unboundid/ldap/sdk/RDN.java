@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,23 +85,23 @@ public final class RDN
 
 
   // The set of attribute values for this RDN.
-  private final ASN1OctetString[] attributeValues;
+  @NotNull private final ASN1OctetString[] attributeValues;
 
   // The schema to use to generate the normalized string representation of this
   // RDN, if any.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The name-value pairs that comprise this RDN.
-  private volatile SortedSet<RDNNameValuePair> nameValuePairs;
+  @Nullable private volatile SortedSet<RDNNameValuePair> nameValuePairs;
 
   // The normalized string representation for this RDN.
-  private volatile String normalizedString;
+  @Nullable private volatile String normalizedString;
 
   // The user-defined string representation for this RDN.
-  private volatile String rdnString;
+  @Nullable private volatile String rdnString;
 
   // The set of attribute names for this RDN.
-  private final String[] attributeNames;
+  @NotNull private final String[] attributeNames;
 
 
 
@@ -111,7 +113,8 @@ public final class RDN
    * @param  attributeValue  The attribute value for this RDN.  It must not be
    *                         {@code null}.
    */
-  public RDN(final String attributeName, final String attributeValue)
+  public RDN(@NotNull final String attributeName,
+             @NotNull final String attributeValue)
   {
     this(attributeName, attributeValue, null);
   }
@@ -129,8 +132,9 @@ public final class RDN
    *                         representation of this RDN.  It may be {@code null}
    *                         if no schema is available.
    */
-  public RDN(final String attributeName, final String attributeValue,
-             final Schema schema)
+  public RDN(@NotNull final String attributeName,
+             @NotNull final String attributeValue,
+             @Nullable final Schema schema)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -155,7 +159,8 @@ public final class RDN
    * @param  attributeValue  The attribute value for this RDN.  It must not be
    *                         {@code null}.
    */
-  public RDN(final String attributeName, final byte[] attributeValue)
+  public RDN(@NotNull final String attributeName,
+             @NotNull final byte[] attributeValue)
   {
     this(attributeName, attributeValue, null);
   }
@@ -173,8 +178,9 @@ public final class RDN
    *                         representation of this RDN.  It may be {@code null}
    *                         if no schema is available.
    */
-  public RDN(final String attributeName, final byte[] attributeValue,
-             final Schema schema)
+  public RDN(@NotNull final String attributeName,
+             @NotNull final byte[] attributeValue,
+             @Nullable final Schema schema)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -201,7 +207,8 @@ public final class RDN
    * @param  attributeValues  The set of attribute values for this RDN.  It must
    *                          not be {@code null} or empty.
    */
-  public RDN(final String[] attributeNames, final String[] attributeValues)
+  public RDN(@NotNull final String[] attributeNames,
+             @NotNull final String[] attributeValues)
   {
     this(attributeNames, attributeValues, null);
   }
@@ -221,8 +228,9 @@ public final class RDN
    *                          string representation of this RDN.  It may be
    *                          {@code null} if no schema is available.
    */
-  public RDN(final String[] attributeNames, final String[] attributeValues,
-             final Schema schema)
+  public RDN(@NotNull final String[] attributeNames,
+             @NotNull final String[] attributeValues,
+             @Nullable final Schema schema)
   {
     Validator.ensureNotNull(attributeNames, attributeValues);
     Validator.ensureTrue(attributeNames.length == attributeValues.length,
@@ -256,7 +264,8 @@ public final class RDN
    * @param  attributeValues  The set of attribute values for this RDN.  It must
    *                          not be {@code null} or empty.
    */
-  public RDN(final String[] attributeNames, final byte[][] attributeValues)
+  public RDN(@NotNull final String[] attributeNames,
+             @NotNull final byte[][] attributeValues)
   {
     this(attributeNames, attributeValues, null);
   }
@@ -276,8 +285,9 @@ public final class RDN
    *                          string representation of this RDN.  It may be
    *                          {@code null} if no schema is available.
    */
-  public RDN(final String[] attributeNames, final byte[][] attributeValues,
-             final Schema schema)
+  public RDN(@NotNull final String[] attributeNames,
+             @NotNull final byte[][] attributeValues,
+             @Nullable final Schema schema)
   {
     Validator.ensureNotNull(attributeNames, attributeValues);
     Validator.ensureTrue(attributeNames.length == attributeValues.length,
@@ -311,8 +321,9 @@ public final class RDN
    *                         if no schema is available.
    * @param  rdnString       The string representation for this RDN.
    */
-  RDN(final String attributeName, final ASN1OctetString attributeValue,
-      final Schema schema, final String rdnString)
+  RDN(@NotNull final String attributeName,
+      @NotNull final ASN1OctetString attributeValue,
+      @Nullable final Schema schema, @NotNull final String rdnString)
   {
     this.rdnString = rdnString;
     this.schema    = schema;
@@ -336,8 +347,9 @@ public final class RDN
    *                          string representation of this RDN.  It may be
    *                          {@code null} if no schema is available.
    */
-  RDN(final String[] attributeNames, final ASN1OctetString[] attributeValues,
-      final Schema schema, final String rdnString)
+  RDN(@NotNull final String[] attributeNames,
+      @NotNull final ASN1OctetString[] attributeValues,
+      @Nullable final Schema schema, @NotNull final String rdnString)
   {
     this.rdnString = rdnString;
     this.schema    = schema;
@@ -360,7 +372,7 @@ public final class RDN
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         RDN.
    */
-  public RDN(final String rdnString)
+  public RDN(@NotNull final String rdnString)
          throws LDAPException
   {
     this(rdnString, (Schema) null, false);
@@ -380,7 +392,7 @@ public final class RDN
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         RDN.
    */
-  public RDN(final String rdnString, final Schema schema)
+  public RDN(@NotNull final String rdnString, @Nullable final Schema schema)
          throws LDAPException
   {
     this(rdnString, schema, false);
@@ -406,7 +418,7 @@ public final class RDN
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         RDN.
    */
-  public RDN(final String rdnString, final Schema schema,
+  public RDN(@NotNull final String rdnString, @Nullable final Schema schema,
              final boolean strictNameChecking)
          throws LDAPException
   {
@@ -719,7 +731,9 @@ public final class RDN
    *                         if it contains non-hex characters, or has an odd
    *                         number of characters.
    */
-  static byte[] readHexString(final String rdnString, final int startPos)
+  @NotNull()
+  static byte[] readHexString(@NotNull final String rdnString,
+                              final int startPos)
          throws LDAPException
   {
     final int length = rdnString.length();
@@ -891,8 +905,9 @@ hexLoop:
    *
    * @throws  LDAPException  If a problem occurs while reading the value.
    */
-  static int readValueString(final String rdnString, final int startPos,
-                             final StringBuilder buffer)
+  static int readValueString(@NotNull final String rdnString,
+                             final int startPos,
+                             @NotNull final StringBuilder buffer)
           throws LDAPException
   {
     final int length = rdnString.length();
@@ -1041,9 +1056,9 @@ valueLoop:
    * @throws  LDAPException  If a problem occurs while reading hex-encoded
    *                         bytes.
    */
-  private static int readEscapedHexString(final String rdnString,
+  private static int readEscapedHexString(@NotNull final String rdnString,
                                           final int startPos,
-                                          final StringBuilder buffer)
+                                          @NotNull final StringBuilder buffer)
           throws LDAPException
   {
     final int length = rdnString.length();
@@ -1215,7 +1230,7 @@ valueLoop:
    * @return  {@code true} if the provided string represents a valid RDN, or
    *          {@code false} if not.
    */
-  public static boolean isValidRDN(final String s)
+  public static boolean isValidRDN(@NotNull final String s)
   {
     return isValidRDN(s, false);
   }
@@ -1237,7 +1252,7 @@ valueLoop:
    * @return  {@code true} if the provided string represents a valid RDN, or
    *          {@code false} if not.
    */
-  public static boolean isValidRDN(final String s,
+  public static boolean isValidRDN(@NotNull final String s,
                                    final boolean strictNameChecking)
   {
     try
@@ -1284,6 +1299,7 @@ valueLoop:
    *
    * @return  An array of the attributes that comprise this RDN.
    */
+  @NotNull()
   public Attribute[] getAttributes()
   {
     final Attribute[] attrs = new Attribute[attributeNames.length];
@@ -1303,6 +1319,7 @@ valueLoop:
    *
    * @return  The set of attribute names for this RDN.
    */
+  @NotNull()
   public String[] getAttributeNames()
   {
     return attributeNames;
@@ -1315,6 +1332,7 @@ valueLoop:
    *
    * @return  The set of attribute values for this RDN.
    */
+  @NotNull()
   public String[] getAttributeValues()
   {
     final String[] stringValues = new String[attributeValues.length];
@@ -1333,6 +1351,7 @@ valueLoop:
    *
    * @return  The set of attribute values for this RDN.
    */
+  @NotNull()
   public byte[][] getByteArrayAttributeValues()
   {
     final byte[][] byteValues = new byte[attributeValues.length][];
@@ -1351,6 +1370,7 @@ valueLoop:
    *
    * @return  A sorted set of the name-value pairs that comprise this RDN.
    */
+  @NotNull()
   public SortedSet<RDNNameValuePair> getNameValuePairs()
   {
     if (nameValuePairs == null)
@@ -1376,6 +1396,7 @@ valueLoop:
    * @return  The schema that will be used for this RDN, or {@code null} if none
    *          has been provided.
    */
+  @Nullable()
   Schema getSchema()
   {
     return schema;
@@ -1392,7 +1413,7 @@ valueLoop:
    * @return  {@code true} if RDN contains the specified attribute, or
    *          {@code false} if not.
    */
-  public boolean hasAttribute(final String attributeName)
+  public boolean hasAttribute(@NotNull final String attributeName)
   {
     for (final RDNNameValuePair nameValuePair : getNameValuePairs())
     {
@@ -1418,8 +1439,8 @@ valueLoop:
    * @return  {@code true} if RDN contains the specified attribute, or
    *          {@code false} if not.
    */
-  public boolean hasAttributeValue(final String attributeName,
-                                   final String attributeValue)
+  public boolean hasAttributeValue(@NotNull final String attributeName,
+                                   @NotNull final String attributeValue)
   {
     for (final RDNNameValuePair nameValuePair : getNameValuePairs())
     {
@@ -1446,8 +1467,8 @@ valueLoop:
    * @return  {@code true} if RDN contains the specified attribute, or
    *          {@code false} if not.
    */
-  public boolean hasAttributeValue(final String attributeName,
-                                   final byte[] attributeValue)
+  public boolean hasAttributeValue(@NotNull final String attributeName,
+                                   @NotNull final byte[] attributeValue)
   {
     for (final RDNNameValuePair nameValuePair : getNameValuePairs())
     {
@@ -1469,6 +1490,7 @@ valueLoop:
    * @return  A string representation of this RDN.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     if (rdnString == null)
@@ -1492,6 +1514,7 @@ valueLoop:
    * @return  A string representation of this RDN with minimal encoding for
    *          special characters.
    */
+  @NotNull()
   public String toMinimallyEncodedString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1507,7 +1530,7 @@ valueLoop:
    * @param  buffer  The buffer to which the string representation is to be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     toString(buffer, false);
   }
@@ -1527,7 +1550,7 @@ valueLoop:
    *                           semicolons, greater-than, less-than, and
    *                           backslash characters will be encoded.
    */
-  public void toString(final StringBuilder buffer,
+  public void toString(@NotNull final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
     if ((rdnString != null) && (! minimizeEncoding))
@@ -1567,8 +1590,8 @@ valueLoop:
    *                           semicolons, greater-than, less-than, and
    *                           backslash characters will be encoded.
    */
-  static void appendValue(final StringBuilder buffer,
-                          final ASN1OctetString value,
+  static void appendValue(@NotNull final StringBuilder buffer,
+                          @NotNull final ASN1OctetString value,
                           final boolean minimizeEncoding)
   {
     final String valueString = value.stringValue();
@@ -1642,6 +1665,7 @@ valueLoop:
    *
    * @return  A normalized string representation of this RDN.
    */
+  @NotNull()
   public String toNormalizedString()
   {
     if (normalizedString == null)
@@ -1663,7 +1687,7 @@ valueLoop:
    * @param  buffer  The buffer to which the normalized string representation is
    *                 to be appended.
    */
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     if (attributeNames.length == 1)
     {
@@ -1699,7 +1723,8 @@ valueLoop:
    *
    * @return  A normalized representation of the provided attribute name.
    */
-  private String normalizeAttrName(final String name)
+  @NotNull()
+  private String normalizeAttrName(@NotNull final String name)
   {
     String n = name;
     if (schema != null)
@@ -1727,7 +1752,8 @@ valueLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as an RDN.
    */
-  public static String normalize(final String s)
+  @NotNull()
+  public static String normalize(@NotNull final String s)
          throws LDAPException
   {
     return normalize(s, null);
@@ -1750,7 +1776,9 @@ valueLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as an RDN.
    */
-  public static String normalize(final String s, final Schema schema)
+  @NotNull()
+  public static String normalize(@NotNull final String s,
+                                 @Nullable final Schema schema)
          throws LDAPException
   {
     return new RDN(s, schema).toNormalizedString();
@@ -1772,10 +1800,10 @@ valueLoop:
    *                        representation of the value.  It may be {@code null}
    *                        if no schema is available.
    */
-  static void appendNormalizedValue(final StringBuilder buffer,
-                                    final String attributeName,
-                                    final ASN1OctetString value,
-                                    final Schema schema)
+  static void appendNormalizedValue(@NotNull final StringBuilder buffer,
+                                    @NotNull final String attributeName,
+                                    @NotNull final ASN1OctetString value,
+                                    @Nullable final Schema schema)
   {
     final MatchingRule matchingRule =
          MatchingRule.selectEqualityMatchingRule(attributeName, schema);
@@ -1896,7 +1924,7 @@ valueLoop:
    *          this RDN, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -1930,7 +1958,7 @@ valueLoop:
    *
    * @throws  LDAPException  If the provided string cannot be parsed as an RDN.
    */
-  public boolean equals(final String s)
+  public boolean equals(@Nullable final String s)
          throws LDAPException
   {
     if (s == null)
@@ -1957,7 +1985,8 @@ valueLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as an RDN.
    */
-  public static boolean equals(final String s1, final String s2)
+  public static boolean equals(@NotNull final String s1,
+                               @NotNull final String s2)
          throws LDAPException
   {
     return new RDN(s1).equals(new RDN(s2));
@@ -1978,7 +2007,7 @@ valueLoop:
    *          can be considered equal to this RDN.
    */
   @Override()
-  public int compareTo(final RDN rdn)
+  public int compareTo(@NotNull final RDN rdn)
   {
     return compare(this, rdn);
   }
@@ -1998,7 +2027,7 @@ valueLoop:
    *          values can be considered equal.
    */
   @Override()
-  public int compare(final RDN rdn1, final RDN rdn2)
+  public int compare(@NotNull final RDN rdn1, @NotNull final RDN rdn2)
   {
     Validator.ensureNotNull(rdn1, rdn2);
 
@@ -2054,7 +2083,8 @@ valueLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as an RDN.
    */
-  public static int compare(final String s1, final String s2)
+  public static int compare(@NotNull final String s1,
+                            @NotNull final String s2)
          throws LDAPException
   {
     return compare(s1, s2, null);
@@ -2082,8 +2112,8 @@ valueLoop:
    * @throws  LDAPException  If either of the provided strings cannot be parsed
    *                         as an RDN.
    */
-  public static int compare(final String s1, final String s2,
-                            final Schema schema)
+  public static int compare(@NotNull final String s1, @NotNull final String s2,
+                            @Nullable final Schema schema)
          throws LDAPException
   {
     return new RDN(s1, schema).compareTo(new RDN(s2, schema));

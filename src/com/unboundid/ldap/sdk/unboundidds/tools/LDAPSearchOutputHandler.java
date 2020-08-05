@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -80,7 +81,7 @@ abstract class LDAPSearchOutputHandler
    *
    * @param  entry  The search result entry to be processed.
    */
-  abstract void formatSearchResultEntry(SearchResultEntry entry);
+  abstract void formatSearchResultEntry(@NotNull SearchResultEntry entry);
 
 
 
@@ -90,7 +91,7 @@ abstract class LDAPSearchOutputHandler
    *
    * @param  ref  The search result reference to be processed.
    */
-  abstract void formatSearchResultReference(SearchResultReference ref);
+  abstract void formatSearchResultReference(@NotNull SearchResultReference ref);
 
 
 
@@ -101,7 +102,7 @@ abstract class LDAPSearchOutputHandler
    * @param  result  The LDAP result to be processed.  It may or may not be a
    *                 search result.
    */
-  abstract void formatResult(LDAPResult result);
+  abstract void formatResult(@NotNull LDAPResult result);
 
 
 
@@ -113,6 +114,7 @@ abstract class LDAPSearchOutputHandler
    *                       was received.
    * @param  notification  The unsolicited notification that was received.
    */
-  abstract void formatUnsolicitedNotification(LDAPConnection connection,
-                                              ExtendedResult notification);
+  abstract void formatUnsolicitedNotification(
+                     @NotNull LDAPConnection connection,
+                     @NotNull ExtendedResult notification);
 }

@@ -60,6 +60,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,14 +81,14 @@ public final class StartTLSRequestHandler
        extends LDAPListenerRequestHandler
 {
   // The client connection with which this request handler is associated.
-  private final LDAPListenerClientConnection connection;
+  @Nullable private final LDAPListenerClientConnection connection;
 
   // The request handler that will be used to process all operations except the
   // StartTLS extended operation.
-  private final LDAPListenerRequestHandler requestHandler;
+  @NotNull private final LDAPListenerRequestHandler requestHandler;
 
   // The SSL socket factory that will be used to SSL-enable the existing socket.
-  private final SSLSocketFactory sslSocketFactory;
+  @NotNull private final SSLSocketFactory sslSocketFactory;
 
 
 
@@ -100,8 +102,9 @@ public final class StartTLSRequestHandler
    *                           all operations except StartTLS extended
    *                           operations.
    */
-  public StartTLSRequestHandler(final SSLSocketFactory sslSocketFactory,
-                                final LDAPListenerRequestHandler requestHandler)
+  public StartTLSRequestHandler(
+              @NotNull final SSLSocketFactory sslSocketFactory,
+              @NotNull final LDAPListenerRequestHandler requestHandler)
   {
     this.sslSocketFactory = sslSocketFactory;
     this.requestHandler   = requestHandler;
@@ -122,9 +125,10 @@ public final class StartTLSRequestHandler
    *                           operations.
    * @param  connection        The connection to the associated client.
    */
-  private StartTLSRequestHandler(final SSLSocketFactory sslSocketFactory,
-               final LDAPListenerRequestHandler requestHandler,
-               final LDAPListenerClientConnection connection)
+  private StartTLSRequestHandler(
+               @NotNull final SSLSocketFactory sslSocketFactory,
+               @NotNull final LDAPListenerRequestHandler requestHandler,
+               @NotNull final LDAPListenerClientConnection connection)
   {
     this.sslSocketFactory = sslSocketFactory;
     this.requestHandler   = requestHandler;
@@ -137,8 +141,9 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
-  public StartTLSRequestHandler
-              newInstance(final LDAPListenerClientConnection connection)
+  @NotNull()
+  public StartTLSRequestHandler newInstance(
+              @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException
   {
     return new StartTLSRequestHandler(sslSocketFactory,
@@ -163,8 +168,8 @@ public final class StartTLSRequestHandler
    */
   @Override()
   public void processAbandonRequest(final int messageID,
-                                    final AbandonRequestProtocolOp request,
-                                    final List<Control> controls)
+                   @NotNull final AbandonRequestProtocolOp request,
+                   @NotNull final List<Control> controls)
   {
     requestHandler.processAbandonRequest(messageID, request, controls);
   }
@@ -175,9 +180,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processAddRequest(final int messageID,
-                                       final AddRequestProtocolOp request,
-                                       final List<Control> controls)
+                          @NotNull final AddRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processAddRequest(messageID, request, controls);
   }
@@ -188,9 +194,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processBindRequest(final int messageID,
-                                        final BindRequestProtocolOp request,
-                                        final List<Control> controls)
+                          @NotNull final BindRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processBindRequest(messageID, request, controls);
   }
@@ -201,9 +208,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processCompareRequest(final int messageID,
-                          final CompareRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final CompareRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processCompareRequest(messageID, request, controls);
   }
@@ -214,9 +222,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processDeleteRequest(final int messageID,
-                                          final DeleteRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final DeleteRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processDeleteRequest(messageID, request, controls);
   }
@@ -227,9 +236,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ExtendedRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     if (request.getOID().equals(StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
     {
@@ -291,9 +301,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyRequest(final int messageID,
-                                          final ModifyRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final ModifyRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processModifyRequest(messageID, request, controls);
   }
@@ -304,9 +315,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyDNRequest(final int messageID,
-                          final ModifyDNRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ModifyDNRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processModifyDNRequest(messageID, request, controls);
   }
@@ -317,9 +329,10 @@ public final class StartTLSRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processSearchRequest(final int messageID,
-                                          final SearchRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final SearchRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return requestHandler.processSearchRequest(messageID, request, controls);
   }
@@ -331,8 +344,8 @@ public final class StartTLSRequestHandler
    */
   @Override()
   public void processUnbindRequest(final int messageID,
-                                   final UnbindRequestProtocolOp request,
-                                   final List<Control> controls)
+                   @NotNull final UnbindRequestProtocolOp request,
+                   @NotNull final List<Control> controls)
   {
     requestHandler.processUnbindRequest(messageID, request, controls);
   }

@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -92,10 +94,10 @@ public final class ExtendedRequestProtocolOp
 
 
   // The value for this extended request.
-  private final ASN1OctetString value;
+  @Nullable private final ASN1OctetString value;
 
   // The OID for this extended request.
-  private final String oid;
+  @NotNull private final String oid;
 
 
 
@@ -106,8 +108,8 @@ public final class ExtendedRequestProtocolOp
    * @param  value  The value for this extended request, or {@code null} if
    *                there should not be a value.
    */
-  public ExtendedRequestProtocolOp(final String oid,
-                                   final ASN1OctetString value)
+  public ExtendedRequestProtocolOp(@NotNull final String oid,
+                                   @Nullable final ASN1OctetString value)
   {
     this.oid = oid;
 
@@ -130,7 +132,7 @@ public final class ExtendedRequestProtocolOp
    * @param  request  The extended request object to use to create this protocol
    *                  op.
    */
-  public ExtendedRequestProtocolOp(final ExtendedRequest request)
+  public ExtendedRequestProtocolOp(@NotNull final ExtendedRequest request)
   {
     oid   = request.getOID();
     value = request.getValue();
@@ -148,7 +150,7 @@ public final class ExtendedRequestProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         extended request.
    */
-  ExtendedRequestProtocolOp(final ASN1StreamReader reader)
+  ExtendedRequestProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -184,6 +186,7 @@ public final class ExtendedRequestProtocolOp
    *
    * @return  The OID for this extended request.
    */
+  @NotNull()
   public String getOID()
   {
     return oid;
@@ -197,6 +200,7 @@ public final class ExtendedRequestProtocolOp
    * @return  The value for this extended request, or {@code null} if there is
    *          no value.
    */
+  @Nullable()
   public ASN1OctetString getValue()
   {
     return value;
@@ -219,6 +223,7 @@ public final class ExtendedRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     if (value ==  null)
@@ -246,8 +251,9 @@ public final class ExtendedRequestProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         an extended request protocol op.
    */
+  @NotNull()
   public static ExtendedRequestProtocolOp decodeProtocolOp(
-                                               final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -285,7 +291,7 @@ public final class ExtendedRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST);
@@ -309,7 +315,8 @@ public final class ExtendedRequestProtocolOp
    *
    * @return  The extended request that was created.
    */
-  public ExtendedRequest toExtendedRequest(final Control... controls)
+  @NotNull()
+  public ExtendedRequest toExtendedRequest(@Nullable final Control... controls)
   {
     return new ExtendedRequest(oid, value, controls);
   }
@@ -322,6 +329,7 @@ public final class ExtendedRequestProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -335,7 +343,7 @@ public final class ExtendedRequestProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ExtendedRequestProtocolOp(oid='");
     buffer.append(oid);

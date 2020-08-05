@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -114,7 +116,7 @@ public final class IntermediateClientRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.2) for the intermediate client request
    * control.
    */
-  public static final String INTERMEDIATE_CLIENT_REQUEST_OID =
+  @NotNull public static final String INTERMEDIATE_CLIENT_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.2";
 
 
@@ -127,7 +129,7 @@ public final class IntermediateClientRequestControl
 
 
   // The value for this intermediate client request control.
-  private final IntermediateClientRequestValue value;
+  @NotNull private final IntermediateClientRequestValue value;
 
 
 
@@ -166,11 +168,13 @@ public final class IntermediateClientRequestControl
    *                                  request identifier.
    */
   public IntermediateClientRequestControl(
-              final IntermediateClientRequestValue downstreamRequest,
-              final String downstreamClientAddress,
-              final Boolean downstreamClientSecure, final String clientIdentity,
-              final String clientName, final String clientSessionID,
-              final String clientRequestID)
+              @Nullable final IntermediateClientRequestValue downstreamRequest,
+              @Nullable final String downstreamClientAddress,
+              @Nullable final Boolean downstreamClientSecure,
+              @Nullable final String clientIdentity,
+              @Nullable final String clientName,
+              @Nullable final String clientSessionID,
+              @Nullable final String clientRequestID)
   {
     this(true,
          new IntermediateClientRequestValue(downstreamRequest,
@@ -189,7 +193,7 @@ public final class IntermediateClientRequestControl
    *                control.  It must not be {@code null}.
    */
   public IntermediateClientRequestControl(
-              final IntermediateClientRequestValue value)
+              @NotNull final IntermediateClientRequestValue value)
   {
     this(true, value);
   }
@@ -205,7 +209,7 @@ public final class IntermediateClientRequestControl
    *                     control.  It must not be {@code null}.
    */
   public IntermediateClientRequestControl(final boolean isCritical,
-              final IntermediateClientRequestValue value)
+              @NotNull final IntermediateClientRequestValue value)
   {
     super(INTERMEDIATE_CLIENT_REQUEST_OID, isCritical,
           new ASN1OctetString(value.encode().encode()));
@@ -225,7 +229,7 @@ public final class IntermediateClientRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         intermediate client request control.
    */
-  public IntermediateClientRequestControl(final Control control)
+  public IntermediateClientRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -260,6 +264,7 @@ public final class IntermediateClientRequestControl
    *
    * @return  The value for this intermediate client request.
    */
+  @NotNull()
   public IntermediateClientRequestValue getRequestValue()
   {
     return value;
@@ -273,6 +278,7 @@ public final class IntermediateClientRequestControl
    * @return  The wrapped request from a downstream client, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public IntermediateClientRequestValue getDownstreamRequest()
   {
     return value.getDownstreamRequest();
@@ -286,6 +292,7 @@ public final class IntermediateClientRequestControl
    * @return  The requested client authorization identity, or {@code null} if
    *          there is none.
    */
+  @Nullable()
   public String getClientIdentity()
   {
     return value.getClientIdentity();
@@ -301,6 +308,7 @@ public final class IntermediateClientRequestControl
    *          or {@code null} if there is no downstream client or its address is
    *          not available.
    */
+  @Nullable()
   public String getDownstreamClientAddress()
   {
     return value.getDownstreamClientAddress();
@@ -320,6 +328,7 @@ public final class IntermediateClientRequestControl
    *          {@code null} if there is no downstream client or it is not known
    *          whether the communication is secure.
    */
+  @Nullable()
   public Boolean downstreamClientSecure()
   {
     return value.downstreamClientSecure();
@@ -334,6 +343,7 @@ public final class IntermediateClientRequestControl
    * @return  A string that may be used to identify the client application that
    *          created this intermediate client request value.
    */
+  @Nullable()
   public String getClientName()
   {
     return value.getClientName();
@@ -348,6 +358,7 @@ public final class IntermediateClientRequestControl
    * @return  A string that may be used to identify the session in the client
    *          application, or {@code null} if there is none.
    */
+  @Nullable()
   public String getClientSessionID()
   {
     return value.getClientSessionID();
@@ -362,6 +373,7 @@ public final class IntermediateClientRequestControl
    * @return  A string that may be used to identify the request in the client
    *          application, or {@code null} if there is none.
    */
+  @Nullable()
   public String getClientRequestID()
   {
     return value.getClientRequestID();
@@ -373,6 +385,7 @@ public final class IntermediateClientRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_INTERMEDIATE_CLIENT_REQUEST.get();
@@ -384,7 +397,7 @@ public final class IntermediateClientRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("IntermediateClientRequestControl(isCritical=");
     buffer.append(isCritical());

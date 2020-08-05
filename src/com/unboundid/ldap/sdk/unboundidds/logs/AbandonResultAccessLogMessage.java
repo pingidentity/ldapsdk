@@ -44,6 +44,8 @@ import java.util.StringTokenizer;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,57 +81,57 @@ public final class AbandonResultAccessLogMessage
 
   // Indicates whether the any uncached data was accessed in the course of
   // processing this operation.
-  private final Boolean uncachedDataAccessed;
+  @Nullable private final Boolean uncachedDataAccessed;
 
   // The processing time for the operation.
-  private final Double processingTime;
+  @Nullable private final Double processingTime;
 
   // The queue time for the operation.
-  private final Double queueTime;
+  @Nullable private final Double queueTime;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
-  private final List<String> missingPrivileges;
+  @NotNull private final List<String> missingPrivileges;
 
   // The list of privileges used during the course of processing the operation
   // before an alternate authorization identity was assigned.
-  private final List<String> preAuthZUsedPrivileges;
+  @NotNull private final List<String> preAuthZUsedPrivileges;
 
   // The list of referral URLs for the operation.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // The list of servers accessed while processing the operation.
-  private final List<String> serversAccessed;
+  @NotNull private final List<String> serversAccessed;
 
   // The list of privileges used during the course of processing the operation.
-  private final List<String> usedPrivileges;
+  @NotNull private final List<String> usedPrivileges;
 
   // The result code for the operation.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // Additional information about the operation result.
-  private final String additionalInformation;
+  @Nullable private final String additionalInformation;
 
   // The diagnostic message for the operation.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The intermediate client result for the operation.
-  private final String intermediateClientResult;
+  @Nullable private final String intermediateClientResult;
 
   // The matched DN for the operation.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
 
 
@@ -142,7 +144,7 @@ public final class AbandonResultAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public AbandonResultAccessLogMessage(final String s)
+  public AbandonResultAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -157,7 +159,7 @@ public final class AbandonResultAccessLogMessage
    * @param  m  The log message to be parsed as an abandon result access log
    *            message.
    */
-  public AbandonResultAccessLogMessage(final LogMessage m)
+  public AbandonResultAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -305,6 +307,7 @@ public final class AbandonResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -319,6 +322,7 @@ public final class AbandonResultAccessLogMessage
    *          not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -335,6 +339,7 @@ public final class AbandonResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public String getAdditionalInformation()
   {
     return additionalInformation;
@@ -349,6 +354,7 @@ public final class AbandonResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -363,6 +369,7 @@ public final class AbandonResultAccessLogMessage
    *          it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -379,6 +386,7 @@ public final class AbandonResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public Double getProcessingTimeMillis()
   {
     return processingTime;
@@ -395,6 +403,7 @@ public final class AbandonResultAccessLogMessage
    *          the log message.
    */
   @Override()
+  @Nullable()
   public Double getQueueTimeMillis()
   {
     return queueTime;
@@ -408,6 +417,7 @@ public final class AbandonResultAccessLogMessage
    * @return  The OIDs of any response controls contained in the log message, or
    *          an empty list if it is not included in the log message.
    */
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -425,6 +435,7 @@ public final class AbandonResultAccessLogMessage
    *          of processing the operation, or an empty list if it is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getServersAccessed()
   {
     return serversAccessed;
@@ -442,6 +453,7 @@ public final class AbandonResultAccessLogMessage
    *          it is not included in the log message (and the server likely did
    *          not access uncached data).
    */
+  @Nullable()
   public Boolean getUncachedDataAccessed()
   {
     return uncachedDataAccessed;
@@ -456,6 +468,7 @@ public final class AbandonResultAccessLogMessage
    * @return  The content of the intermediate client result for the operation,
    *          or {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getIntermediateClientResult()
   {
     return intermediateClientResult;
@@ -471,6 +484,7 @@ public final class AbandonResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -486,6 +500,7 @@ public final class AbandonResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -499,6 +514,7 @@ public final class AbandonResultAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -514,6 +530,7 @@ public final class AbandonResultAccessLogMessage
    *          the operation, or an empty list if no privileges were used or this
    *          is not included in the log message.
    */
+  @NotNull()
   public List<String> getUsedPrivileges()
   {
     return usedPrivileges;
@@ -530,6 +547,7 @@ public final class AbandonResultAccessLogMessage
    *          assigned, or an empty list if no privileges were used or this is
    *          not included in the log message.
    */
+  @NotNull()
   public List<String> getPreAuthorizationUsedPrivileges()
   {
     return preAuthZUsedPrivileges;
@@ -546,6 +564,7 @@ public final class AbandonResultAccessLogMessage
    *          an empty list if there were no missing privileges or this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
@@ -557,6 +576,7 @@ public final class AbandonResultAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.RESULT;

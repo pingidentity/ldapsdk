@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -94,8 +96,9 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * The structural object class used in processing time histogram monitor
    * entries.
    */
-  static final String PER_APPLICATION_PROCESSING_TIME_HISTOGRAM_MONITOR_OC =
-       "ds-per-application-processing-time-histogram-monitor-entry";
+  @NotNull static final String
+       PER_APPLICATION_PROCESSING_TIME_HISTOGRAM_MONITOR_OC =
+            "ds-per-application-processing-time-histogram-monitor-entry";
 
 
 
@@ -103,12 +106,13 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * The name of the attribute that contains the name of the application to
    * which this monitor entry applies.
    */
-  private static final String ATTR_APPLICATION_NAME = "applicationName";
+  @NotNull private static final String ATTR_APPLICATION_NAME =
+       "applicationName";
 
 
 
   // The name of the application to which this monitor entry applies.
-  private final String applicationName;
+  @Nullable private final String applicationName;
 
 
   /**
@@ -118,7 +122,8 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * @param  entry  The entry to be parsed as a processing time histogram
    *                monitor entry.  It must not be {@code null}.
    */
-  public PerApplicationProcessingTimeHistogramMonitorEntry(final Entry entry)
+  public PerApplicationProcessingTimeHistogramMonitorEntry(
+              @NotNull final Entry entry)
   {
     super(entry);
 
@@ -133,6 +138,7 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * @return  The name of the application to which this monitor entry applies,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getApplicationName()
   {
     return applicationName;
@@ -144,6 +150,7 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_PER_APP_PROCESSING_TIME_MONITOR_DISPNAME.get();
@@ -155,6 +162,7 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_PER_APP_PROCESSING_TIME_MONITOR_DESC.get();
@@ -166,6 +174,7 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final Map<String,MonitorAttribute> superAttrs =

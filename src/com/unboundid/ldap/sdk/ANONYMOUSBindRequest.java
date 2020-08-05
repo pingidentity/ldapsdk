@@ -42,6 +42,8 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,7 +88,7 @@ public final class ANONYMOUSBindRequest
   /**
    * The name for the ANONYMOUS SASL mechanism.
    */
-  public static final String ANONYMOUS_MECHANISM_NAME = "ANONYMOUS";
+  @NotNull public static final String ANONYMOUS_MECHANISM_NAME = "ANONYMOUS";
 
 
 
@@ -98,7 +100,7 @@ public final class ANONYMOUSBindRequest
 
 
   // The trace string that should be included in the bind request, if available.
-  private final String traceString;
+  @Nullable private final String traceString;
 
 
 
@@ -120,7 +122,7 @@ public final class ANONYMOUSBindRequest
    * @param  traceString  The trace string to include in the bind request, or
    *                      {@code null} if no trace string is to be provided.
    */
-  public ANONYMOUSBindRequest(final String traceString)
+  public ANONYMOUSBindRequest(@Nullable final String traceString)
   {
     this(traceString, NO_CONTROLS);
   }
@@ -133,7 +135,7 @@ public final class ANONYMOUSBindRequest
    *
    * @param  controls     The set of controls to include in the request.
    */
-  public ANONYMOUSBindRequest(final Control... controls)
+  public ANONYMOUSBindRequest(@Nullable final Control... controls)
   {
     this(null, controls);
   }
@@ -148,8 +150,8 @@ public final class ANONYMOUSBindRequest
    *                      {@code null} if no trace string is to be provided.
    * @param  controls     The set of controls to include in the request.
    */
-  public ANONYMOUSBindRequest(final String traceString,
-                              final Control... controls)
+  public ANONYMOUSBindRequest(@Nullable final String traceString,
+                              @Nullable final Control... controls)
   {
     super(controls);
 
@@ -162,6 +164,7 @@ public final class ANONYMOUSBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return ANONYMOUS_MECHANISM_NAME;
@@ -175,6 +178,7 @@ public final class ANONYMOUSBindRequest
    * @return  The trace string that will be included with the bind request, or
    *          {@code null} if there is to be no trace string.
    */
+  @Nullable()
   public String getTraceString()
   {
     return traceString;
@@ -198,7 +202,9 @@ public final class ANONYMOUSBindRequest
    *                         reading the response.
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     ASN1OctetString credentials = null;
@@ -217,7 +223,8 @@ public final class ANONYMOUSBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public ANONYMOUSBindRequest getRebindRequest(final String host,
+  @NotNull()
+  public ANONYMOUSBindRequest getRebindRequest(@NotNull final String host,
                                                final int port)
   {
     return new ANONYMOUSBindRequest(traceString, getControls());
@@ -229,6 +236,7 @@ public final class ANONYMOUSBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ANONYMOUSBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -240,7 +248,8 @@ public final class ANONYMOUSBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public ANONYMOUSBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public ANONYMOUSBindRequest duplicate(@Nullable final Control[] controls)
   {
     final ANONYMOUSBindRequest bindRequest =
          new ANONYMOUSBindRequest(traceString, controls);
@@ -254,7 +263,7 @@ public final class ANONYMOUSBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ANONYMOUSBindRequest(");
     if (traceString != null)
@@ -289,7 +298,8 @@ public final class ANONYMOUSBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

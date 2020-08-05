@@ -44,6 +44,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -108,7 +109,7 @@ public final class RFC3672SubentriesRequestControl
   /**
    * The OID (1.3.6.1.4.1.4203.1.10.1) for the LDAP subentries request control.
    */
-  public static final String SUBENTRIES_REQUEST_OID =
+  @NotNull public static final String SUBENTRIES_REQUEST_OID =
        "1.3.6.1.4.1.4203.1.10.1";
 
 
@@ -176,7 +177,7 @@ public final class RFC3672SubentriesRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         subentries request control.
    */
-  public RFC3672SubentriesRequestControl(final Control control)
+  public RFC3672SubentriesRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -224,6 +225,7 @@ public final class RFC3672SubentriesRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SUBENTRIES_REQUEST.get();
@@ -235,7 +237,7 @@ public final class RFC3672SubentriesRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RFC3672SubentriesRequestControl(returnOnlySubEntries=");
     buffer.append(returnOnlySubEntries);

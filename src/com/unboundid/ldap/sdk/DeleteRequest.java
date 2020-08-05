@@ -53,6 +53,8 @@ import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -111,11 +113,11 @@ public final class DeleteRequest
   private int messageID = -1;
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>();
 
   // The DN of the entry to delete.
-  private String dn;
+  @NotNull private String dn;
 
 
 
@@ -124,7 +126,7 @@ public final class DeleteRequest
    *
    * @param  dn  The DN of the entry to delete.  It must not be {@code null}.
    */
-  public DeleteRequest(final String dn)
+  public DeleteRequest(@NotNull final String dn)
   {
     super(null);
 
@@ -142,7 +144,8 @@ public final class DeleteRequest
    *                   {@code null}.
    * @param  controls  The set of controls to include in the request.
    */
-  public DeleteRequest(final String dn, final Control[] controls)
+  public DeleteRequest(@NotNull final String dn,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -158,7 +161,7 @@ public final class DeleteRequest
    *
    * @param  dn  The DN of the entry to delete.  It must not be {@code null}.
    */
-  public DeleteRequest(final DN dn)
+  public DeleteRequest(@NotNull final DN dn)
   {
     super(null);
 
@@ -176,7 +179,8 @@ public final class DeleteRequest
    *                   {@code null}.
    * @param  controls  The set of controls to include in the request.
    */
-  public DeleteRequest(final DN dn, final Control[] controls)
+  public DeleteRequest(@NotNull final DN dn,
+                       @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -191,6 +195,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -203,7 +208,7 @@ public final class DeleteRequest
    *
    * @param  dn  The DN of the entry to delete.  It must not be {@code null}.
    */
-  public void setDN(final String dn)
+  public void setDN(@NotNull final String dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -217,7 +222,7 @@ public final class DeleteRequest
    *
    * @param  dn  The DN of the entry to delete.  It must not be {@code null}.
    */
-  public void setDN(final DN dn)
+  public void setDN(@NotNull final DN dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -241,7 +246,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     buffer.addOctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
   }
@@ -254,6 +259,7 @@ public final class DeleteRequest
    * @return  The ASN.1 element with the encoded delete request protocol op.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
@@ -278,7 +284,9 @@ public final class DeleteRequest
    *                         reading the response.
    */
   @Override()
-  protected LDAPResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected LDAPResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     if (connection.synchronousMode())
@@ -343,8 +351,9 @@ public final class DeleteRequest
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncResultListener resultListener)
+  @Nullable()
+  AsyncRequestID processAsync(@NotNull final LDAPConnection connection,
+                      @Nullable final AsyncResultListener resultListener)
                  throws LDAPException
   {
     // Create the LDAP message.
@@ -428,7 +437,8 @@ public final class DeleteRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private LDAPResult processSync(final LDAPConnection connection,
+  @NotNull()
+  private LDAPResult processSync(@NotNull final LDAPConnection connection,
                                  final int depth, final boolean allowRetry)
           throws LDAPException
   {
@@ -539,8 +549,9 @@ public final class DeleteRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private LDAPResult handleResponse(final LDAPConnection connection,
-                                    final LDAPResponse response,
+  @NotNull()
+  private LDAPResult handleResponse(@NotNull final LDAPConnection connection,
+                                    @Nullable final LDAPResponse response,
                                     final long requestTime, final int depth,
                                     final boolean allowRetry)
           throws LDAPException
@@ -635,9 +646,10 @@ public final class DeleteRequest
    * @return  The result from re-trying the add, or {@code null} if it could not
    *          be re-tried.
    */
-  private LDAPResult reconnectAndRetry(final LDAPConnection connection,
+  @Nullable()
+  private LDAPResult reconnectAndRetry(@NotNull final LDAPConnection connection,
                                        final int depth,
-                                       final ResultCode resultCode)
+                                       @NotNull final ResultCode resultCode)
   {
     try
     {
@@ -679,8 +691,9 @@ public final class DeleteRequest
    *                         the referral connection, sending the request, or
    *                         reading the result.
    */
-  private LDAPResult followReferral(final LDAPResult referralResult,
-                                    final LDAPConnection connection,
+  @NotNull()
+  private LDAPResult followReferral(@NotNull final LDAPResult referralResult,
+                                    @NotNull final LDAPConnection connection,
                                     final int depth)
           throws LDAPException
   {
@@ -738,7 +751,7 @@ public final class DeleteRequest
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -778,6 +791,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OperationType getOperationType()
   {
     return OperationType.DELETE;
@@ -789,6 +803,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DeleteRequest duplicate()
   {
     return duplicate(getControls());
@@ -800,7 +815,8 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
-  public DeleteRequest duplicate(final Control[] controls)
+  @NotNull()
+  public DeleteRequest duplicate(@Nullable final Control[] controls)
   {
     final DeleteRequest r = new DeleteRequest(dn, controls);
 
@@ -825,6 +841,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDIFDeleteChangeRecord toLDIFChangeRecord()
   {
     return new LDIFDeleteChangeRecord(this);
@@ -836,6 +853,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -847,6 +865,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -858,7 +877,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeleteRequest(dn='");
     buffer.append(dn);
@@ -889,7 +908,8 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

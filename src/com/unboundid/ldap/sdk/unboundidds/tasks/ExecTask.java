@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -99,7 +101,7 @@ public final class ExecTask
   /**
    * The fully-qualified name of the Java class that is used for the exec task.
    */
-  static final String EXEC_TASK_CLASS =
+  @NotNull static final String EXEC_TASK_CLASS =
        "com.unboundid.directory.server.tasks.ExecTask";
 
 
@@ -108,7 +110,8 @@ public final class ExecTask
    * The name of the attribute used to specify the absolute path for the command
    * to be executed.
    */
-  private static final String ATTR_COMMAND_PATH = "ds-task-exec-command-path";
+  @NotNull private static final String ATTR_COMMAND_PATH =
+       "ds-task-exec-command-path";
 
 
 
@@ -116,7 +119,7 @@ public final class ExecTask
    * The name of the attribute used to specify the argument string to provide
    * when running the command.
    */
-  private static final String ATTR_COMMAND_ARGUMENTS =
+  @NotNull private static final String ATTR_COMMAND_ARGUMENTS =
        "ds-task-exec-command-arguments";
 
 
@@ -125,7 +128,7 @@ public final class ExecTask
    * The name of the attribute used to specify the path to a file in which the
    * command's output should be recorded.
    */
-  private static final String ATTR_COMMAND_OUTPUT_FILE =
+  @NotNull private static final String ATTR_COMMAND_OUTPUT_FILE =
        "ds-task-exec-command-output-file";
 
 
@@ -134,7 +137,7 @@ public final class ExecTask
    * The name of the attribute used to indicate whether to record the command's
    * output in the server error log.
    */
-  private static final String ATTR_LOG_COMMAND_OUTPUT =
+  @NotNull private static final String ATTR_LOG_COMMAND_OUTPUT =
        "ds-task-exec-log-command-output";
 
 
@@ -143,7 +146,7 @@ public final class ExecTask
    * The name of the attribute used to specify the task state for commands that
    * complete with a nonzero exit code.
    */
-  private static final String ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE =
+  @NotNull private static final String ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE =
        "ds-task-exec-task-completion-state-for-nonzero-exit-code";
 
 
@@ -152,7 +155,7 @@ public final class ExecTask
    * The name of the attribute used to specify the path to the working directory
    * to use when executing the command.
    */
-  private static final String ATTR_WORKING_DIRECTORY =
+  @NotNull private static final String ATTR_WORKING_DIRECTORY =
        "ds-task-exec-working-directory";
 
 
@@ -160,14 +163,14 @@ public final class ExecTask
   /**
    * The name of the object class used in EXEC task entries.
    */
-  private static final String OC_EXEC_TASK = "ds-task-exec";
+  @NotNull private static final String OC_EXEC_TASK = "ds-task-exec";
 
 
 
   /**
    * The task property that will be used for the command path.
    */
-  private static final TaskProperty PROPERTY_COMMAND_PATH =
+  @NotNull private static final TaskProperty PROPERTY_COMMAND_PATH =
      new TaskProperty(ATTR_COMMAND_PATH,
           INFO_EXEC_DISPLAY_NAME_COMMAND_PATH.get(),
           INFO_EXEC_DESCRIPTION_COMMAND_PATH.get(), String.class, true, false,
@@ -178,7 +181,7 @@ public final class ExecTask
   /**
    * The task property that will be used for the command arguments.
    */
-  private static final TaskProperty PROPERTY_COMMAND_ARGUMENTS =
+  @NotNull private static final TaskProperty PROPERTY_COMMAND_ARGUMENTS =
      new TaskProperty(ATTR_COMMAND_ARGUMENTS,
           INFO_EXEC_DISPLAY_NAME_COMMAND_ARGUMENTS.get(),
           INFO_EXEC_DESCRIPTION_COMMAND_ARGUMENTS.get(), String.class, false,
@@ -189,7 +192,7 @@ public final class ExecTask
   /**
    * The task property that will be used for the command output file.
    */
-  private static final TaskProperty PROPERTY_COMMAND_OUTPUT_FILE =
+  @NotNull private static final TaskProperty PROPERTY_COMMAND_OUTPUT_FILE =
      new TaskProperty(ATTR_COMMAND_OUTPUT_FILE,
           INFO_EXEC_DISPLAY_NAME_COMMAND_OUTPUT_FILE.get(),
           INFO_EXEC_DESCRIPTION_COMMAND_OUTPUT_FILE.get(), String.class, false,
@@ -200,7 +203,7 @@ public final class ExecTask
   /**
    * The task property that will be used for the log command output flag.
    */
-  private static final TaskProperty PROPERTY_LOG_COMMAND_OUTPUT =
+  @NotNull private static final TaskProperty PROPERTY_LOG_COMMAND_OUTPUT =
      new TaskProperty(ATTR_LOG_COMMAND_OUTPUT,
           INFO_EXEC_DISPLAY_NAME_LOG_COMMAND_OUTPUT.get(),
           INFO_EXEC_DESCRIPTION_LOG_COMMAND_OUTPUT.get(), Boolean.class, false,
@@ -212,20 +215,21 @@ public final class ExecTask
    * The task property that will be used for the task state for commands that
    * complete with a nonzero exit code.
    */
-  private static final TaskProperty PROPERTY_TASK_STATE_FOR_NONZERO_EXIT_CODE =
-     new TaskProperty(ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE,
-          INFO_EXEC_DISPLAY_NAME_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
-          INFO_EXEC_DESCRIPTION_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
-          String.class, false, false, false,
-          new String[]
-          {
-            "STOPPED_BY_ERROR",
-            "STOPPED-BY-ERROR",
-            "COMPLETED_WITH_ERRORS",
-            "COMPLETED-WITH-ERRORS",
-            "COMPLETED_SUCCESSFULLY",
-            "COMPLETED-SUCCESSFULLY"
-          });
+  @NotNull private static final TaskProperty
+       PROPERTY_TASK_STATE_FOR_NONZERO_EXIT_CODE = new TaskProperty(
+            ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE,
+            INFO_EXEC_DISPLAY_NAME_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
+            INFO_EXEC_DESCRIPTION_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
+            String.class, false, false, false,
+            new String[]
+            {
+              "STOPPED_BY_ERROR",
+              "STOPPED-BY-ERROR",
+              "COMPLETED_WITH_ERRORS",
+              "COMPLETED-WITH-ERRORS",
+              "COMPLETED_SUCCESSFULLY",
+              "COMPLETED-SUCCESSFULLY"
+            });
 
 
 
@@ -233,7 +237,7 @@ public final class ExecTask
    * The task property that will be used for path to use as the the path to the
    * working directory to use when executing the command.
    */
-  private static final TaskProperty PROPERTY_WORKING_DIRECTORY =
+  @NotNull private static final TaskProperty PROPERTY_WORKING_DIRECTORY =
      new TaskProperty(ATTR_WORKING_DIRECTORY,
           INFO_EXEC_DISPLAY_NAME_WORKING_DIRECTORY.get(),
           INFO_EXEC_DESCRIPTION_WORKING_DIRECTORY.get(),
@@ -249,23 +253,23 @@ public final class ExecTask
 
 
   // Indicates whether command output is to be logged.
-  private final Boolean logCommandOutput;
+  @Nullable private final Boolean logCommandOutput;
 
   // The arguments to provide when executing the command.
-  private final String commandArguments;
+  @Nullable private final String commandArguments;
 
   // The path to the file to which command output should be written.
-  private final String commandOutputFile;
+  @Nullable private final String commandOutputFile;
 
   // The path to the command to be executed.
-  private final String commandPath;
+  @NotNull private final String commandPath;
 
   // The name of the task state that should be used if the command completes
   // with a nonzero exit code.
-  private final String taskStateForNonZeroExitCode;
+  @Nullable private final String taskStateForNonZeroExitCode;
 
   // The path to the working directory to use when executing the command.
-  private final String workingDirectory;
+  @Nullable private final String workingDirectory;
 
 
 
@@ -326,10 +330,11 @@ public final class ExecTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public ExecTask(final String commandPath, final String commandArguments,
-                  final String commandOutputFile,
-                  final Boolean logCommandOutput,
-                  final TaskState taskStateForNonZeroExitCode)
+  public ExecTask(@NotNull final String commandPath,
+                  @Nullable final String commandArguments,
+                  @Nullable final String commandOutputFile,
+                  @Nullable final Boolean logCommandOutput,
+                  @Nullable final TaskState taskStateForNonZeroExitCode)
          throws TaskException
   {
     this(null, commandPath, commandArguments, commandOutputFile,
@@ -381,11 +386,12 @@ public final class ExecTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public ExecTask(final String commandPath, final String commandArguments,
-                  final String commandOutputFile,
-                  final Boolean logCommandOutput,
-                  final TaskState taskStateForNonZeroExitCode,
-                  final String workingDirectory)
+  public ExecTask(@NotNull final String commandPath,
+                  @Nullable final String commandArguments,
+                  @Nullable final String commandOutputFile,
+                  @Nullable final Boolean logCommandOutput,
+                  @Nullable final TaskState taskStateForNonZeroExitCode,
+                  @Nullable final String workingDirectory)
          throws TaskException
   {
     this(null, commandPath, commandArguments, commandOutputFile,
@@ -451,15 +457,17 @@ public final class ExecTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public ExecTask(final String taskID, final String commandPath,
-                  final String commandArguments, final String commandOutputFile,
-                  final Boolean logCommandOutput,
-                  final TaskState taskStateForNonZeroExitCode,
-                  final Date scheduledStartTime,
-                  final List<String> dependencyIDs,
-                  final FailedDependencyAction failedDependencyAction,
-                  final List<String> notifyOnCompletion,
-                  final List<String> notifyOnError)
+  public ExecTask(@Nullable final String taskID,
+                  @NotNull final String commandPath,
+                  @Nullable final String commandArguments,
+                  @Nullable final String commandOutputFile,
+                  @Nullable final Boolean logCommandOutput,
+                  @Nullable final TaskState taskStateForNonZeroExitCode,
+                  @Nullable final Date scheduledStartTime,
+                  @Nullable final List<String> dependencyIDs,
+                  @Nullable final FailedDependencyAction failedDependencyAction,
+                  @Nullable final List<String> notifyOnCompletion,
+                  @Nullable final List<String> notifyOnError)
          throws TaskException
   {
     this(taskID, commandPath, commandArguments, commandOutputFile,
@@ -541,18 +549,22 @@ public final class ExecTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public ExecTask(final String taskID, final String commandPath,
-                  final String commandArguments, final String commandOutputFile,
-                  final Boolean logCommandOutput,
-                  final TaskState taskStateForNonZeroExitCode,
-                  final Date scheduledStartTime,
-                  final List<String> dependencyIDs,
-                  final FailedDependencyAction failedDependencyAction,
-                  final List<String> notifyOnStart,
-                  final List<String> notifyOnCompletion,
-                  final List<String> notifyOnSuccess,
-                  final List<String> notifyOnError, final Boolean alertOnStart,
-                  final Boolean alertOnSuccess, final Boolean alertOnError)
+  public ExecTask(@Nullable final String taskID,
+                  @NotNull final String commandPath,
+                  @Nullable final String commandArguments,
+                  @Nullable final String commandOutputFile,
+                  @Nullable final Boolean logCommandOutput,
+                  @Nullable final TaskState taskStateForNonZeroExitCode,
+                  @Nullable final Date scheduledStartTime,
+                  @Nullable final List<String> dependencyIDs,
+                  @Nullable final FailedDependencyAction failedDependencyAction,
+                  @Nullable final List<String> notifyOnStart,
+                  @Nullable final List<String> notifyOnCompletion,
+                  @Nullable final List<String> notifyOnSuccess,
+                  @Nullable final List<String> notifyOnError,
+                  @Nullable final Boolean alertOnStart,
+                  @Nullable final Boolean alertOnSuccess,
+                  @Nullable final Boolean alertOnError)
          throws TaskException
   {
     this(taskID, commandPath, commandArguments, commandOutputFile,
@@ -638,18 +650,23 @@ public final class ExecTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public ExecTask(final String taskID, final String commandPath,
-                  final String commandArguments, final String commandOutputFile,
-                  final Boolean logCommandOutput,
-                  final TaskState taskStateForNonZeroExitCode,
-                  final String workingDirectory, final Date scheduledStartTime,
-                  final List<String> dependencyIDs,
-                  final FailedDependencyAction failedDependencyAction,
-                  final List<String> notifyOnStart,
-                  final List<String> notifyOnCompletion,
-                  final List<String> notifyOnSuccess,
-                  final List<String> notifyOnError, final Boolean alertOnStart,
-                  final Boolean alertOnSuccess, final Boolean alertOnError)
+  public ExecTask(@Nullable final String taskID,
+                  @NotNull final String commandPath,
+                  @Nullable final String commandArguments,
+                  @Nullable final String commandOutputFile,
+                  @Nullable final Boolean logCommandOutput,
+                  @Nullable final TaskState taskStateForNonZeroExitCode,
+                  @Nullable final String workingDirectory,
+                  @Nullable final Date scheduledStartTime,
+                  @Nullable final List<String> dependencyIDs,
+                  @Nullable final FailedDependencyAction failedDependencyAction,
+                  @Nullable final List<String> notifyOnStart,
+                  @Nullable final List<String> notifyOnCompletion,
+                  @Nullable final List<String> notifyOnSuccess,
+                  @Nullable final List<String> notifyOnError,
+                  @Nullable final Boolean alertOnStart,
+                  @Nullable final Boolean alertOnSuccess,
+                  @Nullable final Boolean alertOnError)
          throws TaskException
   {
     super(taskID, EXEC_TASK_CLASS, scheduledStartTime, dependencyIDs,
@@ -701,7 +718,7 @@ public final class ExecTask
    * @throws  TaskException  If the provided entry cannot be parsed as an exec
    *                         task entry.
    */
-  public ExecTask(final Entry entry)
+  public ExecTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -736,7 +753,7 @@ public final class ExecTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid exec task.
    */
-  public ExecTask(final Map<TaskProperty,List<Object>> properties)
+  public ExecTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(EXEC_TASK_CLASS, properties);
@@ -799,6 +816,7 @@ public final class ExecTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_EXEC.get();
@@ -810,6 +828,7 @@ public final class ExecTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_EXEC.get();
@@ -822,6 +841,7 @@ public final class ExecTask
    *
    * @return  The path to the command to be executed.
    */
+  @NotNull()
   public String getCommandPath()
   {
     return commandPath;
@@ -837,6 +857,7 @@ public final class ExecTask
    *          when running the command, or {@code null} if the command should be
    *          run without any arguments.
    */
+  @Nullable()
   public String getCommandArguments()
   {
     return commandArguments;
@@ -852,6 +873,7 @@ public final class ExecTask
    *          written, or {@code null} if the output should not be written to a
    *          file.
    */
+  @Nullable()
   public String getCommandOutputFile()
   {
     return commandOutputFile;
@@ -868,6 +890,7 @@ public final class ExecTask
    *          logged, or {@code null} if the task should not specify the
    *          behavior.
    */
+  @Nullable()
   public Boolean logCommandOutput()
   {
     return logCommandOutput;
@@ -883,6 +906,7 @@ public final class ExecTask
    *          if the command completes with a nonzero exit state, or
    *          {@code null} if the task should not specify the return state.
    */
+  @Nullable()
   public String getTaskStateForNonZeroExitCode()
   {
     return taskStateForNonZeroExitCode;
@@ -899,6 +923,7 @@ public final class ExecTask
    *          working directory and the server root directory should be used by
    *          default.
    */
+  @Nullable()
   public String getWorkingDirectory()
   {
     return workingDirectory;
@@ -910,6 +935,7 @@ public final class ExecTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_EXEC_TASK);
@@ -921,6 +947,7 @@ public final class ExecTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final LinkedList<Attribute> attrList = new LinkedList<>();
@@ -962,6 +989,7 @@ public final class ExecTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -977,6 +1005,7 @@ public final class ExecTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty, List<Object>> props =

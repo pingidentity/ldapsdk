@@ -40,6 +40,7 @@ package com.unboundid.ldap.listener;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -61,8 +62,8 @@ public final class HexPasswordEncoderOutputFormatter
    * The singleton instance of this hex password encoder output formatter that
    * uses lowercase versions of the hexadecimal digits 'a' through 'f'.
    */
-  private static final HexPasswordEncoderOutputFormatter LOWERCASE_INSTANCE =
-       new HexPasswordEncoderOutputFormatter(true);
+  @NotNull private static final HexPasswordEncoderOutputFormatter
+       LOWERCASE_INSTANCE = new HexPasswordEncoderOutputFormatter(true);
 
 
 
@@ -70,8 +71,8 @@ public final class HexPasswordEncoderOutputFormatter
    * The singleton instance of this hex password encoder output formatter that
    * uses uppercase versions of the hexadecimal digits 'A' through 'F'.
    */
-  private static final HexPasswordEncoderOutputFormatter UPPERCASE_INSTANCE =
-       new HexPasswordEncoderOutputFormatter(false);
+  @NotNull private static final HexPasswordEncoderOutputFormatter
+       UPPERCASE_INSTANCE = new HexPasswordEncoderOutputFormatter(false);
 
 
 
@@ -103,6 +104,7 @@ public final class HexPasswordEncoderOutputFormatter
    *
    * @return  The hex password encoder instance.
    */
+  @NotNull()
   public static HexPasswordEncoderOutputFormatter getLowercaseInstance()
   {
     return LOWERCASE_INSTANCE;
@@ -116,6 +118,7 @@ public final class HexPasswordEncoderOutputFormatter
    *
    * @return  The hex password encoder instance.
    */
+  @NotNull()
   public static HexPasswordEncoderOutputFormatter getUppercaseInstance()
   {
     return UPPERCASE_INSTANCE;
@@ -144,7 +147,8 @@ public final class HexPasswordEncoderOutputFormatter
    * {@inheritDoc}
    */
   @Override()
-  public byte[] format(final byte[] unformattedData)
+  @NotNull()
+  public byte[] format(@NotNull final byte[] unformattedData)
          throws LDAPException
   {
     String hexString = StaticUtils.toHex(unformattedData);
@@ -162,7 +166,8 @@ public final class HexPasswordEncoderOutputFormatter
    * {@inheritDoc}
    */
   @Override()
-  public byte[] unFormat(final byte[] formattedData)
+  @NotNull()
+  public byte[] unFormat(@NotNull final byte[] formattedData)
          throws LDAPException
   {
     try
@@ -183,7 +188,7 @@ public final class HexPasswordEncoderOutputFormatter
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("HexPasswordEncoderOutputFormatter(useLowercaseLetters=");
     buffer.append(useLowercaseLetters);

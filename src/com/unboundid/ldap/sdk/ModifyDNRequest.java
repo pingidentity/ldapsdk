@@ -57,6 +57,8 @@ import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -132,7 +134,7 @@ public final class ModifyDNRequest
 
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>();
 
   // Indicates whether to delete the current RDN value from the entry.
@@ -142,13 +144,13 @@ public final class ModifyDNRequest
   private int messageID = -1;
 
   // The current DN of the entry to rename.
-  private String dn;
+  @NotNull private String dn;
 
   // The new RDN to use for the entry.
-  private String newRDN;
+  @NotNull private String newRDN;
 
   // The new superior DN for the entry.
-  private String newSuperiorDN;
+  @Nullable private String newSuperiorDN;
 
 
 
@@ -163,7 +165,7 @@ public final class ModifyDNRequest
    * @param  deleteOldRDN  Indicates whether to delete the current RDN value
    *                       from the target entry.
    */
-  public ModifyDNRequest(final String dn, final String newRDN,
+  public ModifyDNRequest(@NotNull final String dn, @NotNull final String newRDN,
                          final boolean deleteOldRDN)
   {
     super(null);
@@ -190,7 +192,7 @@ public final class ModifyDNRequest
    * @param  deleteOldRDN  Indicates whether to delete the current RDN value
    *                       from the target entry.
    */
-  public ModifyDNRequest(final DN dn, final RDN newRDN,
+  public ModifyDNRequest(@NotNull final DN dn, @NotNull final RDN newRDN,
                          final boolean deleteOldRDN)
   {
     super(null);
@@ -220,8 +222,9 @@ public final class ModifyDNRequest
    *                        {@code null} if the entry is not to be moved below a
    *                        new parent.
    */
-  public ModifyDNRequest(final String dn, final String newRDN,
-                         final boolean deleteOldRDN, final String newSuperiorDN)
+  public ModifyDNRequest(@NotNull final String dn, @NotNull final String newRDN,
+                         final boolean deleteOldRDN,
+                         @Nullable final String newSuperiorDN)
   {
     super(null);
 
@@ -249,8 +252,9 @@ public final class ModifyDNRequest
    *                        {@code null} if the entry is not to be moved below a
    *                        new parent.
    */
-  public ModifyDNRequest(final DN dn, final RDN newRDN,
-                         final boolean deleteOldRDN, final DN newSuperiorDN)
+  public ModifyDNRequest(@NotNull final DN dn, @NotNull final RDN newRDN,
+                         final boolean deleteOldRDN,
+                         @Nullable final DN newSuperiorDN)
   {
     super(null);
 
@@ -284,8 +288,9 @@ public final class ModifyDNRequest
    *                       from the target entry.
    * @param  controls      The set of controls to include in the request.
    */
-  public ModifyDNRequest(final String dn, final String newRDN,
-                         final boolean deleteOldRDN, final Control[] controls)
+  public ModifyDNRequest(@NotNull final String dn, @NotNull final String newRDN,
+                         final boolean deleteOldRDN,
+                         @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -312,8 +317,9 @@ public final class ModifyDNRequest
    *                       from the target entry.
    * @param  controls      The set of controls to include in the request.
    */
-  public ModifyDNRequest(final DN dn, final RDN newRDN,
-                         final boolean deleteOldRDN, final Control[] controls)
+  public ModifyDNRequest(@NotNull final DN dn, @NotNull final RDN newRDN,
+                         final boolean deleteOldRDN,
+                         @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -343,9 +349,10 @@ public final class ModifyDNRequest
    *                        new parent.
    * @param  controls      The set of controls to include in the request.
    */
-  public ModifyDNRequest(final String dn, final String newRDN,
-                         final boolean deleteOldRDN, final String newSuperiorDN,
-                         final Control[] controls)
+  public ModifyDNRequest(@NotNull final String dn, @NotNull final String newRDN,
+                         final boolean deleteOldRDN,
+                         @Nullable final String newSuperiorDN,
+                         @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -374,9 +381,10 @@ public final class ModifyDNRequest
    *                        new parent.
    * @param  controls      The set of controls to include in the request.
    */
-  public ModifyDNRequest(final DN dn, final RDN newRDN,
-                         final boolean deleteOldRDN, final DN newSuperiorDN,
-                         final Control[] controls)
+  public ModifyDNRequest(@NotNull final DN dn, @NotNull final RDN newRDN,
+                         final boolean deleteOldRDN,
+                         @Nullable final DN newSuperiorDN,
+                         @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -402,6 +410,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -415,7 +424,7 @@ public final class ModifyDNRequest
    * @param  dn  The current DN of the entry to move/rename.  It must not be
    *             {@code null}.
    */
-  public void setDN(final String dn)
+  public void setDN(@NotNull final String dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -430,7 +439,7 @@ public final class ModifyDNRequest
    * @param  dn  The current DN of the entry to move/rename.  It must not be
    *             {@code null}.
    */
-  public void setDN(final DN dn)
+  public void setDN(@NotNull final DN dn)
   {
     Validator.ensureNotNull(dn);
 
@@ -443,6 +452,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getNewRDN()
   {
     return newRDN;
@@ -455,7 +465,7 @@ public final class ModifyDNRequest
    *
    * @param  newRDN  The new RDN for the entry.  It must not be {@code null}.
    */
-  public void setNewRDN(final String newRDN)
+  public void setNewRDN(@NotNull final String newRDN)
   {
     Validator.ensureNotNull(newRDN);
 
@@ -469,7 +479,7 @@ public final class ModifyDNRequest
    *
    * @param  newRDN  The new RDN for the entry.  It must not be {@code null}.
    */
-  public void setNewRDN(final RDN newRDN)
+  public void setNewRDN(@NotNull final RDN newRDN)
   {
     Validator.ensureNotNull(newRDN);
 
@@ -506,6 +516,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getNewSuperiorDN()
   {
     return newSuperiorDN;
@@ -520,7 +531,7 @@ public final class ModifyDNRequest
    *                        {@code null} if the entry is not to be removed below
    *                        a new parent.
    */
-  public void setNewSuperiorDN(final String newSuperiorDN)
+  public void setNewSuperiorDN(@Nullable final String newSuperiorDN)
   {
     this.newSuperiorDN = newSuperiorDN;
   }
@@ -534,7 +545,7 @@ public final class ModifyDNRequest
    *                        {@code null} if the entry is not to be removed below
    *                        a new parent.
    */
-  public void setNewSuperiorDN(final DN newSuperiorDN)
+  public void setNewSuperiorDN(@Nullable final DN newSuperiorDN)
   {
     if (newSuperiorDN == null)
     {
@@ -563,7 +574,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer writer)
+  public void writeTo(@NotNull final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
          writer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST);
@@ -586,6 +597,7 @@ public final class ModifyDNRequest
    * @return  The ASN.1 element with the encoded modify DN request protocol op.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] protocolOpElements;
@@ -632,7 +644,9 @@ public final class ModifyDNRequest
    *                         reading the response.
    */
   @Override()
-  protected LDAPResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected LDAPResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     if (connection.synchronousMode())
@@ -697,8 +711,9 @@ public final class ModifyDNRequest
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncResultListener resultListener)
+  @Nullable()
+  AsyncRequestID processAsync(@NotNull final LDAPConnection connection,
+                      @Nullable final AsyncResultListener resultListener)
                  throws LDAPException
   {
     // Create the LDAP message.
@@ -782,7 +797,8 @@ public final class ModifyDNRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private LDAPResult processSync(final LDAPConnection connection,
+  @NotNull()
+  private LDAPResult processSync(@NotNull final LDAPConnection connection,
                                  final int depth,
                                  final boolean allowRetry)
           throws LDAPException
@@ -894,8 +910,9 @@ public final class ModifyDNRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private LDAPResult handleResponse(final LDAPConnection connection,
-                                    final LDAPResponse response,
+  @NotNull()
+  private LDAPResult handleResponse(@NotNull final LDAPConnection connection,
+                                    @Nullable final LDAPResponse response,
                                     final long requestTime, final int depth,
                                     final boolean allowRetry)
           throws LDAPException
@@ -990,7 +1007,8 @@ public final class ModifyDNRequest
    * @return  The result from re-trying the add, or {@code null} if it could not
    *          be re-tried.
    */
-  private LDAPResult reconnectAndRetry(final LDAPConnection connection,
+  @Nullable()
+  private LDAPResult reconnectAndRetry(@NotNull final LDAPConnection connection,
                                        final int depth,
                                        final ResultCode resultCode)
   {
@@ -1034,8 +1052,9 @@ public final class ModifyDNRequest
    *                         the referral connection, sending the request, or
    *                         reading the result.
    */
-  private LDAPResult followReferral(final LDAPResult referralResult,
-                                    final LDAPConnection connection,
+  @NotNull()
+  private LDAPResult followReferral(@NotNull final LDAPResult referralResult,
+                                    @NotNull final LDAPConnection connection,
                                     final int depth)
           throws LDAPException
   {
@@ -1095,7 +1114,7 @@ public final class ModifyDNRequest
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -1134,6 +1153,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OperationType getOperationType()
   {
     return OperationType.MODIFY_DN;
@@ -1145,6 +1165,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ModifyDNRequest duplicate()
   {
     return duplicate(getControls());
@@ -1156,7 +1177,8 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
-  public ModifyDNRequest duplicate(final Control[] controls)
+  @NotNull()
+  public ModifyDNRequest duplicate(@NotNull final Control[] controls)
   {
     final ModifyDNRequest r = new ModifyDNRequest(dn, newRDN, deleteOldRDN,
          newSuperiorDN, controls);
@@ -1182,6 +1204,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDIFModifyDNChangeRecord toLDIFChangeRecord()
   {
     return new LDIFModifyDNChangeRecord(this);
@@ -1193,6 +1216,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -1204,6 +1228,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -1215,7 +1240,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ModifyDNRequest(dn='");
     buffer.append(dn);
@@ -1256,7 +1281,8 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

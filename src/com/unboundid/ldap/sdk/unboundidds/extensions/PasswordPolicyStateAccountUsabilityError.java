@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -85,7 +87,8 @@ public final class PasswordPolicyStateAccountUsabilityError
   /**
    * The name for the error type that indicates the user's account is disabled.
    */
-  public static final String ERROR_NAME_ACCOUNT_DISABLED = "account-disabled";
+  @NotNull public static final String ERROR_NAME_ACCOUNT_DISABLED =
+       "account-disabled";
 
 
 
@@ -101,7 +104,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * The name for the error type that indicates the user's account is not yet
    * valid.
    */
-  public static final String ERROR_NAME_ACCOUNT_NOT_YET_ACTIVE =
+  @NotNull public static final String ERROR_NAME_ACCOUNT_NOT_YET_ACTIVE =
        "account-not-yet-active";
 
 
@@ -117,7 +120,8 @@ public final class PasswordPolicyStateAccountUsabilityError
   /**
    * The name for the error type that indicates the user's account is expired.
    */
-  public static final String ERROR_NAME_ACCOUNT_EXPIRED = "account-expired";
+  @NotNull public static final String ERROR_NAME_ACCOUNT_EXPIRED =
+       "account-expired";
 
 
 
@@ -136,7 +140,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * permanently locked (until the password is reset by an administrator) as a
    * result of too many failed authentication attempts.
    */
-  public static final String
+  @NotNull public static final String
        ERROR_NAME_ACCOUNT_PERMANENTLY_LOCKED_DUE_TO_BIND_FAILURES =
        "account-permanently-locked-due-to-bind-failures";
 
@@ -159,7 +163,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * reset by an administrator) as a result of too many failed authentication
    * attempts.
    */
-  public static final String
+  @NotNull public static final String
        ERROR_NAME_ACCOUNT_TEMPORARILY_LOCKED_DUE_TO_BIND_FAILURES =
        "account-temporarily-locked-due-to-bind-failures";
 
@@ -181,7 +185,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * idle for too long (i.e., it has been too long since the user last
    * authenticated).
    */
-  public static final String ERROR_NAME_ACCOUNT_IDLE_LOCKED =
+  @NotNull public static final String ERROR_NAME_ACCOUNT_IDLE_LOCKED =
        "account-idle-locked";
 
 
@@ -202,7 +206,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * change the password in a timely manner after it was reset by an
    * administrator.
    */
-  public static final String ERROR_NAME_ACCOUNT_RESET_LOCKED =
+  @NotNull public static final String ERROR_NAME_ACCOUNT_RESET_LOCKED =
        "account-reset-locked";
 
 
@@ -218,7 +222,8 @@ public final class PasswordPolicyStateAccountUsabilityError
   /**
    * The name for the error type that indicates the user's password is expired.
    */
-  public static final String ERROR_NAME_PASSWORD_EXPIRED = "password-expired";
+  @NotNull public static final String ERROR_NAME_PASSWORD_EXPIRED =
+       "password-expired";
 
 
 
@@ -236,8 +241,9 @@ public final class PasswordPolicyStateAccountUsabilityError
    * (until the password is reset by an administrator) as a result of failing to
    * change the password by a required time.
    */
-  public static final  String ERROR_NAME_PASSWORD_NOT_CHANGED_BY_REQUIRED_TIME =
-       "password-not-changed-by-required-time";
+  @NotNull public static final String
+       ERROR_NAME_PASSWORD_NOT_CHANGED_BY_REQUIRED_TIME =
+            "password-not-changed-by-required-time";
 
 
 
@@ -257,8 +263,9 @@ public final class PasswordPolicyStateAccountUsabilityError
    * still authenticate with a grace login, but will not be permitted to submit
    * any other requests until changing the password.
    */
-  public static final String ERROR_NAME_PASSWORD_EXPIRED_WITH_GRACE_LOGINS =
-       "password-expired-with-grace-logins";
+  @NotNull public static final String
+       ERROR_NAME_PASSWORD_EXPIRED_WITH_GRACE_LOGINS =
+            "password-expired-with-grace-logins";
 
 
 
@@ -278,7 +285,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * before they will be submit any requests.  The user's account may be locked
    * if they do not change their password in a timely manner.
    */
-  public static final String ERROR_NAME_MUST_CHANGE_PASSWORD =
+  @NotNull public static final String ERROR_NAME_MUST_CHANGE_PASSWORD =
        "must-change-password";
 
 
@@ -297,7 +304,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * because it contains a password that does not satisfy all of the configured
    * password validators.
    */
-  public static final String ERROR_NAME_ACCOUNT_VALIDATION_LOCKED =
+  @NotNull public static final String ERROR_NAME_ACCOUNT_VALIDATION_LOCKED =
        "account-validation-locked";
 
 
@@ -314,13 +321,13 @@ public final class PasswordPolicyStateAccountUsabilityError
 
   // A human-readable message that provides specific details about this account
   // usability error.
-  private final String message;
+  @Nullable private final String message;
 
   // The name for this account usability error.
-  private final String name;
+  @NotNull private final String name;
 
   // The encoded string representation for this account usability error.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -335,8 +342,8 @@ public final class PasswordPolicyStateAccountUsabilityError
    *                   {@code null} if no message is available.
    */
   public PasswordPolicyStateAccountUsabilityError(final int intValue,
-                                                  final String name,
-                                                  final String message)
+              @NotNull final String name,
+              @Nullable final String message)
   {
     Validator.ensureNotNull(name);
 
@@ -373,7 +380,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    *                         account usability error.
    */
   public PasswordPolicyStateAccountUsabilityError(
-              final String stringRepresentation)
+              @NotNull final String stringRepresentation)
          throws LDAPException
   {
     this.stringRepresentation = stringRepresentation;
@@ -462,6 +469,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    *
    * @return  The name for this account usability error.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -477,6 +485,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    *          account usability error, or {@code null} if no message is
    *          available.
    */
+  @Nullable()
   public String getMessage()
   {
     return message;
@@ -490,6 +499,7 @@ public final class PasswordPolicyStateAccountUsabilityError
    * @return  A string representation of this account usability error.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;

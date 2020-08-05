@@ -41,6 +41,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,8 +75,9 @@ public final class InteractiveTransactionAbortedExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.5) for the interactive transaction aborted
    * extended result.
    */
-  public static final String INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID =
-       "1.3.6.1.4.1.30221.2.6.5";
+  @NotNull public static final String
+       INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID =
+            "1.3.6.1.4.1.30221.2.6.5";
 
 
 
@@ -93,7 +96,7 @@ public final class InteractiveTransactionAbortedExtendedResult
    *                         interactive transaction aborted extended result.
    */
   public InteractiveTransactionAbortedExtendedResult(
-              final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
   {
     super(extendedResult);
   }
@@ -116,9 +119,11 @@ public final class InteractiveTransactionAbortedExtendedResult
    *                            available.
    */
   public InteractiveTransactionAbortedExtendedResult(
-              final int messageID, final ResultCode resultCode,
-              final String diagnosticMessage, final String matchedDN,
-              final String[] referralURLs, final Control[] responseControls)
+              final int messageID, @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID, null, responseControls);
@@ -130,6 +135,7 @@ public final class InteractiveTransactionAbortedExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_INTERACTIVE_TXN_ABORTED.get();
@@ -145,7 +151,7 @@ public final class InteractiveTransactionAbortedExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InteractiveTransactionAbortedExtendedResult(resultCode=");
     buffer.append(getResultCode());

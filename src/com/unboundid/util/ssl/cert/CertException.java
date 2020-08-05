@@ -39,6 +39,8 @@ package com.unboundid.util.ssl.cert;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -65,7 +67,7 @@ public final class CertException
    *
    * @param  message  The message to use for this exception.
    */
-  public CertException(final String message)
+  public CertException(@NotNull final String message)
   {
     super(message);
   }
@@ -78,7 +80,8 @@ public final class CertException
    * @param  message  The message to use for this exception.
    * @param  cause    The exception that triggered this exception.
    */
-  public CertException(final String message, final Throwable cause)
+  public CertException(@NotNull final String message,
+                       @Nullable final Throwable cause)
   {
     super(message, cause);
   }

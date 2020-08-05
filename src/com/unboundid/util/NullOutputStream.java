@@ -55,7 +55,8 @@ public final class NullOutputStream
    * The singleton instance of this null output stream that may be reused
    * instead of creating a new instance.
    */
-  private static final NullOutputStream INSTANCE = new NullOutputStream();
+  @NotNull private static final NullOutputStream INSTANCE =
+       new NullOutputStream();
 
 
 
@@ -63,7 +64,8 @@ public final class NullOutputStream
    * The singleton instance of a print stream based on this null output stream
    * that may be reused instead of creating a new instance.
    */
-  private static final PrintStream PRINT_STREAM = new PrintStream(INSTANCE);
+  @NotNull private static final PrintStream PRINT_STREAM =
+       new PrintStream(INSTANCE);
 
 
 
@@ -82,6 +84,7 @@ public final class NullOutputStream
    *
    * @return  An instance of this null output stream.
    */
+  @NotNull()
   public static NullOutputStream getInstance()
   {
     return INSTANCE;
@@ -94,6 +97,7 @@ public final class NullOutputStream
    *
    * @return  A print stream based on this null output stream.
    */
+  @NotNull()
   public static PrintStream getPrintStream()
   {
     return PRINT_STREAM;
@@ -130,7 +134,7 @@ public final class NullOutputStream
    * @param  b  The byte array containing the data to be written.
    */
   @Override()
-  public void write(final byte[] b)
+  public void write(@NotNull final byte[] b)
   {
     // No implementation is required.
   }
@@ -146,7 +150,7 @@ public final class NullOutputStream
    * @param  len  The number of bytes to be written.
    */
   @Override()
-  public void write(final byte[] b, final int off, final int len)
+  public void write(@NotNull final byte[] b, final int off, final int len)
   {
     // No implementation is required.
   }

@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -93,7 +95,7 @@ public final class ReloadGlobalIndexTask
    * The fully-qualified name of the Java class that is used for the re-encode
    * entries task.
    */
-  static final String RELOAD_GLOBAL_INDEX_TASK_CLASS =
+  @NotNull static final String RELOAD_GLOBAL_INDEX_TASK_CLASS =
        "com.unboundid.directory.proxy.tasks.ReloadTask";
 
 
@@ -102,7 +104,7 @@ public final class ReloadGlobalIndexTask
    * The name of the attribute used to indicate whether the reload should be
    * done in the background.
    */
-  private static final String ATTR_BACKGROUND_RELOAD =
+  @NotNull private static final String ATTR_BACKGROUND_RELOAD =
        "ds-task-reload-background";
 
 
@@ -111,7 +113,7 @@ public final class ReloadGlobalIndexTask
    * The name of the attribute used to specify the base DN for the
    * entry-balancing request processor.
    */
-  private static final String ATTR_BASE_DN = "ds-task-reload-base-dn";
+  @NotNull private static final String ATTR_BASE_DN = "ds-task-reload-base-dn";
 
 
 
@@ -119,7 +121,8 @@ public final class ReloadGlobalIndexTask
    * The name of the attribute used to specify the names of the attributes for
    * which to reload the indexes.
    */
-  private static final String ATTR_INDEX_NAME = "ds-task-reload-index-name";
+  @NotNull private static final String ATTR_INDEX_NAME =
+       "ds-task-reload-index-name";
 
 
 
@@ -127,7 +130,7 @@ public final class ReloadGlobalIndexTask
    * The name of the attribute used to specify a target rate limit for the
    * maximum number of entries per second.
    */
-  private static final String ATTR_MAX_ENTRIES_PER_SECOND =
+  @NotNull private static final String ATTR_MAX_ENTRIES_PER_SECOND =
        "ds-task-search-entry-per-second";
 
 
@@ -137,14 +140,15 @@ public final class ReloadGlobalIndexTask
    * loaded from backend Directory Server instances rather than a peer Directory
    * Proxy Server instance.
    */
-  private static final String ATTR_RELOAD_FROM_DS = "ds-task-reload-from-ds";
+  @NotNull private static final String ATTR_RELOAD_FROM_DS =
+       "ds-task-reload-from-ds";
 
 
 
   /**
    * The name of the object class used in reload global index task entries.
    */
-  private static final String OC_RELOAD_GLOBAL_INDEX_TASK =
+  @NotNull private static final String OC_RELOAD_GLOBAL_INDEX_TASK =
        "ds-task-reload-index";
 
 
@@ -152,7 +156,7 @@ public final class ReloadGlobalIndexTask
   /**
    * The task property that will be used for the request processor base DN.
    */
-  private static final TaskProperty PROPERTY_BACKGROUND_RELOAD =
+  @NotNull private static final TaskProperty PROPERTY_BACKGROUND_RELOAD =
        new TaskProperty(ATTR_BACKGROUND_RELOAD,
             INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_BACKGROUND.get(),
             INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_BACKGROUND.get(),
@@ -163,27 +167,29 @@ public final class ReloadGlobalIndexTask
   /**
    * The task property that will be used for the request processor base DN.
    */
-  private static final TaskProperty PROPERTY_BASE_DN = new TaskProperty(
-       ATTR_BASE_DN, INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_BASE_DN.get(),
-       INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_BASE_DN.get(), String.class, true,
-       false, false);
+  @NotNull private static final TaskProperty PROPERTY_BASE_DN =
+       new TaskProperty(ATTR_BASE_DN,
+            INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_BASE_DN.get(),
+            INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_BASE_DN.get(), String.class,
+            true, false, false);
 
 
 
   /**
    * The task property that will be used for the request processor base DN.
    */
-  private static final TaskProperty PROPERTY_INDEX_NAME = new TaskProperty(
-       ATTR_INDEX_NAME, INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_ATTR_NAME.get(),
-       INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_ATTR_NAME.get(), String.class,
-       false, true, false);
+  @NotNull private static final TaskProperty PROPERTY_INDEX_NAME =
+       new TaskProperty(ATTR_INDEX_NAME,
+            INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_ATTR_NAME.get(),
+            INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_ATTR_NAME.get(), String.class,
+            false, true, false);
 
 
 
   /**
    * The task property that will be used for the request processor base DN.
    */
-  private static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
+  @NotNull private static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
        new TaskProperty(ATTR_MAX_ENTRIES_PER_SECOND,
             INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_MAX_ENTRIES_PER_SECOND.get(),
             INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_MAX_ENTRIES_PER_SECOND.get(),
@@ -194,7 +200,7 @@ public final class ReloadGlobalIndexTask
   /**
    * The task property that will be used for the request processor base DN.
    */
-  static final TaskProperty PROPERTY_RELOAD_FROM_DS = new TaskProperty(
+  @NotNull static final TaskProperty PROPERTY_RELOAD_FROM_DS = new TaskProperty(
        ATTR_RELOAD_FROM_DS,
        INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_RELOAD_FROM_DS.get(),
        INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_RELOAD_FROM_DS.get(), Boolean.class,
@@ -210,19 +216,19 @@ public final class ReloadGlobalIndexTask
 
 
   // Indicates whether to reload from backend Directory Server instances.
-  private final Boolean reloadFromDS;
+  @Nullable private final Boolean reloadFromDS;
 
   // Indicates whether to reload in the background.
-  private final Boolean reloadInBackground;
+  @Nullable private final Boolean reloadInBackground;
 
   // The names of the indexes to reload.
-  private final List<String> indexNames;
+  @NotNull private final List<String> indexNames;
 
   // The target maximum rate limit to use when loading entry data.
-  private final Long maxEntriesPerSecond;
+  @Nullable private final Long maxEntriesPerSecond;
 
   // The base DN for the entry-balancing request processor.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
 
 
@@ -273,11 +279,12 @@ public final class ReloadGlobalIndexTask
    *                              Proxy Server should attempt to determine the
    *                              limit based on its configuration.
    */
-  public ReloadGlobalIndexTask(final String taskID, final String baseDN,
-                               final List<String> indexNames,
-                               final Boolean reloadFromDS,
-                               final Boolean reloadInBackground,
-                               final Long maxEntriesPerSecond)
+  public ReloadGlobalIndexTask(@Nullable final String taskID,
+                               @NotNull final String baseDN,
+                               @Nullable final List<String> indexNames,
+                               @Nullable final Boolean reloadFromDS,
+                               @Nullable final Boolean reloadInBackground,
+                               @Nullable final Long maxEntriesPerSecond)
   {
     this(taskID, baseDN, indexNames, reloadFromDS, reloadInBackground,
          maxEntriesPerSecond, null, null, null, null, null);
@@ -330,14 +337,17 @@ public final class ReloadGlobalIndexTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public ReloadGlobalIndexTask(final String taskID, final String baseDN,
-              final List<String> indexNames, final Boolean reloadFromDS,
-              final Boolean reloadInBackground, final Long maxEntriesPerSecond,
-              final Date scheduledStartTime,
-              final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnError)
+  public ReloadGlobalIndexTask(@Nullable final String taskID,
+              @NotNull final String baseDN,
+              @Nullable final List<String> indexNames,
+              @Nullable final Boolean reloadFromDS,
+              @Nullable final Boolean reloadInBackground,
+              @Nullable final Long maxEntriesPerSecond,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, baseDN, indexNames, reloadFromDS, reloadInBackground,
          maxEntriesPerSecond, scheduledStartTime, dependencyIDs,
@@ -406,17 +416,22 @@ public final class ReloadGlobalIndexTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public ReloadGlobalIndexTask(final String taskID, final String baseDN,
-              final List<String> indexNames, final Boolean reloadFromDS,
-              final Boolean reloadInBackground, final Long maxEntriesPerSecond,
-              final Date scheduledStartTime,
-              final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnStart,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnSuccess,
-              final List<String> notifyOnError, final Boolean alertOnStart,
-              final Boolean alertOnSuccess, final Boolean alertOnError)
+  public ReloadGlobalIndexTask(@Nullable final String taskID,
+              @NotNull final String baseDN,
+              @Nullable final List<String> indexNames,
+              @Nullable final Boolean reloadFromDS,
+              @Nullable final Boolean reloadInBackground,
+              @Nullable final Long maxEntriesPerSecond,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, RELOAD_GLOBAL_INDEX_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -451,7 +466,7 @@ public final class ReloadGlobalIndexTask
    * @throws  TaskException  If the provided entry cannot be parsed as a reload
    *                         global index task entry.
    */
-  public ReloadGlobalIndexTask(final Entry entry)
+  public ReloadGlobalIndexTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -501,7 +516,8 @@ public final class ReloadGlobalIndexTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid reload global index task.
    */
-  public ReloadGlobalIndexTask(final Map<TaskProperty,List<Object>> properties)
+  public ReloadGlobalIndexTask(
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(RELOAD_GLOBAL_INDEX_TASK_CLASS, properties);
@@ -563,6 +579,7 @@ public final class ReloadGlobalIndexTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_RELOAD_GLOBAL_INDEX.get();
@@ -574,6 +591,7 @@ public final class ReloadGlobalIndexTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_RELOAD_GLOBAL_INDEX.get();
@@ -588,6 +606,7 @@ public final class ReloadGlobalIndexTask
    * @return  The base DN of the entry-balancing request processor for which to
    *          reload index data.
    */
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -601,6 +620,7 @@ public final class ReloadGlobalIndexTask
    * @return  The names of the indexes to be reloaded, or an empty list if the
    *          Directory Proxy Server should reload all indexes.
    */
+  @NotNull()
   public List<String> getIndexNames()
   {
     return indexNames;
@@ -618,6 +638,7 @@ public final class ReloadGlobalIndexTask
    *          {@code null} if the Directory Proxy Server should automatically
    *          determine the reload data source.
    */
+  @Nullable()
   public Boolean reloadFromDS()
   {
     return reloadFromDS;
@@ -634,6 +655,7 @@ public final class ReloadGlobalIndexTask
    *          Server should determine whether to perform the reload in the
    *          background.
    */
+  @Nullable()
   public Boolean reloadInBackground()
   {
     return reloadInBackground;
@@ -648,6 +670,7 @@ public final class ReloadGlobalIndexTask
    *          second, zero if no limit should be imposed, or {@code null} if the
    *          Directory Proxy Server should determine the maximum reload rate.
    */
+  @Nullable()
   public Long getMaxEntriesPerSecond()
   {
     return maxEntriesPerSecond;
@@ -659,6 +682,7 @@ public final class ReloadGlobalIndexTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_RELOAD_GLOBAL_INDEX_TASK);
@@ -670,6 +694,7 @@ public final class ReloadGlobalIndexTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrList = new ArrayList<>(5);
@@ -708,6 +733,7 @@ public final class ReloadGlobalIndexTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -724,6 +750,7 @@ public final class ReloadGlobalIndexTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

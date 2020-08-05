@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -105,7 +107,7 @@ public final class ListConfigurationsExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.26) for the list configurations extended
    * request.
    */
-  public static final  String LIST_CONFIGS_REQUEST_OID =
+  @NotNull public static final  String LIST_CONFIGS_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.26";
 
 
@@ -125,7 +127,7 @@ public final class ListConfigurationsExtendedRequest
    *                   This may be {@code null} or empty if no controls should
    *                   be included in the request.
    */
-  public ListConfigurationsExtendedRequest(final Control... controls)
+  public ListConfigurationsExtendedRequest(@Nullable final Control... controls)
   {
     super(LIST_CONFIGS_REQUEST_OID, controls);
   }
@@ -142,7 +144,7 @@ public final class ListConfigurationsExtendedRequest
    * @throws LDAPException  If the provided request cannot be decoded as a
    *                         valid list configurations extended request.
    */
-  public ListConfigurationsExtendedRequest(final ExtendedRequest r)
+  public ListConfigurationsExtendedRequest(@NotNull final ExtendedRequest r)
          throws LDAPException
   {
     super(r);
@@ -160,8 +162,9 @@ public final class ListConfigurationsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ListConfigurationsExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -174,6 +177,7 @@ public final class ListConfigurationsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ListConfigurationsExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -185,8 +189,9 @@ public final class ListConfigurationsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ListConfigurationsExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final ListConfigurationsExtendedRequest r =
          new ListConfigurationsExtendedRequest(controls);
@@ -200,6 +205,7 @@ public final class ListConfigurationsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_LIST_CONFIGS.get();
@@ -211,7 +217,7 @@ public final class ListConfigurationsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ListConfigurationsExtendedRequest(");
 

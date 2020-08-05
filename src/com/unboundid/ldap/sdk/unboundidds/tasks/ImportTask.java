@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -122,7 +124,7 @@ public final class ImportTask
    * The fully-qualified name of the Java class that is used for the import
    * task.
    */
-  static final String IMPORT_TASK_CLASS =
+  @NotNull static final String IMPORT_TASK_CLASS =
        "com.unboundid.directory.server.tasks.ImportTask";
 
 
@@ -131,7 +133,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether to append to an existing
    * database rather than overwriting its content.
    */
-  private static final String ATTR_APPEND =
+  @NotNull private static final String ATTR_APPEND =
        "ds-task-import-append";
 
 
@@ -140,7 +142,8 @@ public final class ImportTask
    * The name of the attribute used to specify the backend ID for the backend
    * into which to import the data.
    */
-  private static final String ATTR_BACKEND_ID = "ds-task-import-backend-id";
+  @NotNull private static final String ATTR_BACKEND_ID =
+       "ds-task-import-backend-id";
 
 
 
@@ -148,7 +151,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether to clear the entire
    * backend when importing based on base DN.
    */
-  private static final String ATTR_CLEAR_BACKEND =
+  @NotNull private static final String ATTR_CLEAR_BACKEND =
        "ds-task-import-clear-backend";
 
 
@@ -157,7 +160,7 @@ public final class ImportTask
    * The name of the attribute used to specify the path to a file that contains
    * the passphrase to use to generate the encryption key.
    */
-  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+  @NotNull private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
        "ds-task-import-encryption-passphrase-file";
 
 
@@ -166,7 +169,7 @@ public final class ImportTask
    * The name of the attribute used to specify the attributes to exclude from
    * entries being imported.
    */
-  private static final String ATTR_EXCLUDE_ATTRIBUTE =
+  @NotNull private static final String ATTR_EXCLUDE_ATTRIBUTE =
        "ds-task-import-exclude-attribute";
 
 
@@ -175,7 +178,7 @@ public final class ImportTask
    * The name of the attribute used to specify the base DNs of branches to
    * exclude from the import.
    */
-  private static final String ATTR_EXCLUDE_BRANCH =
+  @NotNull private static final String ATTR_EXCLUDE_BRANCH =
        "ds-task-import-exclude-branch";
 
 
@@ -184,7 +187,7 @@ public final class ImportTask
    * The name of the attribute used to specify the filters used to determine
    * whether to exclude an entry from the import.
    */
-  private static final String ATTR_EXCLUDE_FILTER =
+  @NotNull private static final String ATTR_EXCLUDE_FILTER =
        "ds-task-import-exclude-filter";
 
 
@@ -193,7 +196,7 @@ public final class ImportTask
    * The name of the attribute used to specify the attributes to include in
    * entries being imported.
    */
-  private static final String ATTR_INCLUDE_ATTRIBUTE =
+  @NotNull private static final String ATTR_INCLUDE_ATTRIBUTE =
        "ds-task-import-include-attribute";
 
 
@@ -202,7 +205,7 @@ public final class ImportTask
    * The name of the attribute used to specify the base DNs of branches to
    * include in the import.
    */
-  private static final String ATTR_INCLUDE_BRANCH =
+  @NotNull private static final String ATTR_INCLUDE_BRANCH =
        "ds-task-import-include-branch";
 
 
@@ -211,7 +214,7 @@ public final class ImportTask
    * The name of the attribute used to specify the filters used to determine
    * whether to include an entry in the import.
    */
-  private static final String ATTR_INCLUDE_FILTER =
+  @NotNull private static final String ATTR_INCLUDE_FILTER =
        "ds-task-import-include-filter";
 
 
@@ -220,7 +223,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether the LDIF data is
    * compressed.
    */
-  private static final String ATTR_IS_COMPRESSED =
+  @NotNull private static final String ATTR_IS_COMPRESSED =
        "ds-task-import-is-compressed";
 
 
@@ -229,7 +232,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether the LDIF data is
    * encrypted.
    */
-  private static final String ATTR_IS_ENCRYPTED =
+  @NotNull private static final String ATTR_IS_ENCRYPTED =
        "ds-task-import-is-encrypted";
 
 
@@ -238,7 +241,8 @@ public final class ImportTask
    * The name of the attribute used to specify the paths to the LDIF files to be
    * imported.
    */
-  private static final String ATTR_LDIF_FILE = "ds-task-import-ldif-file";
+  @NotNull private static final String ATTR_LDIF_FILE =
+       "ds-task-import-ldif-file";
 
 
 
@@ -246,7 +250,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether to overwrite an existing
    * reject file.
    */
-  private static final String ATTR_OVERWRITE_REJECTS =
+  @NotNull private static final String ATTR_OVERWRITE_REJECTS =
        "ds-task-import-overwrite-rejects";
 
 
@@ -254,7 +258,8 @@ public final class ImportTask
   /**
    * The name of the attribute used to specify the path to the reject file.
    */
-  private static final String ATTR_REJECT_FILE = "ds-task-import-reject-file";
+  @NotNull private static final String ATTR_REJECT_FILE =
+       "ds-task-import-reject-file";
 
 
 
@@ -262,7 +267,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether to replace existing
    * entries when appending to a database rather than overwriting it.
    */
-  private static final String ATTR_REPLACE_EXISTING =
+  @NotNull private static final String ATTR_REPLACE_EXISTING =
        "ds-task-import-replace-existing";
 
 
@@ -271,7 +276,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether to skip schema
    * validation for the import.
    */
-  private static final String ATTR_SKIP_SCHEMA_VALIDATION =
+  @NotNull private static final String ATTR_SKIP_SCHEMA_VALIDATION =
        "ds-task-import-skip-schema-validation";
 
 
@@ -280,7 +285,7 @@ public final class ImportTask
    * The name of the attribute used to indicate whether to strip illegal
    * trailing spaces from LDIF records rather than rejecting those records.
    */
-  private static final String ATTR_STRIP_TRAILING_SPACES =
+  @NotNull private static final String ATTR_STRIP_TRAILING_SPACES =
        "ds-task-import-strip-trailing-spaces";
 
 
@@ -288,7 +293,7 @@ public final class ImportTask
   /**
    * The task property for the backend ID.
    */
-  private static final TaskProperty PROPERTY_BACKEND_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
        new TaskProperty(ATTR_BACKEND_ID, INFO_DISPLAY_NAME_BACKEND_ID.get(),
                         INFO_DESCRIPTION_BACKEND_ID_IMPORT.get(), String.class,
                         false, false, false);
@@ -298,7 +303,7 @@ public final class ImportTask
   /**
    * The task property for the LDIF files.
    */
-  private static final TaskProperty PROPERTY_LDIF_FILE =
+  @NotNull private static final TaskProperty PROPERTY_LDIF_FILE =
        new TaskProperty(ATTR_LDIF_FILE, INFO_DISPLAY_NAME_LDIF_FILE.get(),
                         INFO_DESCRIPTION_LDIF_FILE_IMPORT.get(), String.class,
                         true, true, false);
@@ -308,7 +313,7 @@ public final class ImportTask
   /**
    * The task property for the append flag.
    */
-  private static final TaskProperty PROPERTY_APPEND =
+  @NotNull private static final TaskProperty PROPERTY_APPEND =
        new TaskProperty(ATTR_APPEND, INFO_DISPLAY_NAME_APPEND_TO_DB.get(),
                         INFO_DESCRIPTION_APPEND_TO_DB.get(), Boolean.class,
                         false, false, true);
@@ -318,7 +323,7 @@ public final class ImportTask
   /**
    * The task property for the replace existing flag.
    */
-  private static final TaskProperty PROPERTY_REPLACE_EXISTING =
+  @NotNull private static final TaskProperty PROPERTY_REPLACE_EXISTING =
        new TaskProperty(ATTR_REPLACE_EXISTING,
                         INFO_DISPLAY_NAME_REPLACE_EXISTING.get(),
                         INFO_DESCRIPTION_REPLACE_EXISTING.get(), Boolean.class,
@@ -329,7 +334,7 @@ public final class ImportTask
   /**
    * The task property for the reject file.
    */
-  private static final TaskProperty PROPERTY_REJECT_FILE =
+  @NotNull private static final TaskProperty PROPERTY_REJECT_FILE =
        new TaskProperty(ATTR_REJECT_FILE,
                         INFO_DISPLAY_NAME_REJECT_FILE.get(),
                         INFO_DESCRIPTION_REJECT_FILE.get(), String.class,
@@ -340,7 +345,7 @@ public final class ImportTask
   /**
    * The task property for the overwrite rejects flag.
    */
-  private static final TaskProperty PROPERTY_OVERWRITE_REJECTS =
+  @NotNull private static final TaskProperty PROPERTY_OVERWRITE_REJECTS =
        new TaskProperty(ATTR_OVERWRITE_REJECTS,
                         INFO_DISPLAY_NAME_OVERWRITE_REJECTS.get(),
                         INFO_DESCRIPTION_OVERWRITE_REJECTS.get(), Boolean.class,
@@ -351,7 +356,7 @@ public final class ImportTask
   /**
    * The task property for the clear backend flag.
    */
-  private static final TaskProperty PROPERTY_CLEAR_BACKEND =
+  @NotNull private static final TaskProperty PROPERTY_CLEAR_BACKEND =
        new TaskProperty(ATTR_CLEAR_BACKEND,
                         INFO_DISPLAY_NAME_CLEAR_BACKEND.get(),
                         INFO_DESCRIPTION_CLEAR_BACKEND.get(), Boolean.class,
@@ -362,7 +367,7 @@ public final class ImportTask
   /**
    * The task property for the include branches.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
        new TaskProperty(ATTR_INCLUDE_BRANCH,
                         INFO_DISPLAY_NAME_INCLUDE_BRANCH.get(),
                         INFO_DESCRIPTION_INCLUDE_BRANCH_IMPORT.get(),
@@ -373,7 +378,7 @@ public final class ImportTask
   /**
    * The task property for the exclude branches.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
        new TaskProperty(ATTR_EXCLUDE_BRANCH,
                         INFO_DISPLAY_NAME_EXCLUDE_BRANCH.get(),
                         INFO_DESCRIPTION_EXCLUDE_BRANCH_IMPORT.get(),
@@ -384,7 +389,7 @@ public final class ImportTask
   /**
    * The task property for the include filters.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_FILTER =
        new TaskProperty(ATTR_INCLUDE_FILTER,
                         INFO_DISPLAY_NAME_INCLUDE_FILTER.get(),
                         INFO_DESCRIPTION_INCLUDE_FILTER_IMPORT.get(),
@@ -395,7 +400,7 @@ public final class ImportTask
   /**
    * The task property for the exclude filters.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
        new TaskProperty(ATTR_EXCLUDE_FILTER,
                         INFO_DISPLAY_NAME_EXCLUDE_FILTER.get(),
                         INFO_DESCRIPTION_EXCLUDE_FILTER_IMPORT.get(),
@@ -406,7 +411,7 @@ public final class ImportTask
   /**
    * The task property for the include attributes.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_ATTRIBUTE =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_ATTRIBUTE =
        new TaskProperty(ATTR_INCLUDE_ATTRIBUTE,
                         INFO_DISPLAY_NAME_INCLUDE_ATTRIBUTE.get(),
                         INFO_DESCRIPTION_INCLUDE_ATTRIBUTE_IMPORT.get(),
@@ -417,7 +422,7 @@ public final class ImportTask
   /**
    * The task property for the exclude attributes.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_ATTRIBUTE =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_ATTRIBUTE =
        new TaskProperty(ATTR_EXCLUDE_ATTRIBUTE,
                         INFO_DISPLAY_NAME_EXCLUDE_ATTRIBUTE.get(),
                         INFO_DESCRIPTION_EXCLUDE_ATTRIBUTE_IMPORT.get(),
@@ -428,7 +433,7 @@ public final class ImportTask
   /**
    * The task property for the is compressed flag.
    */
-  private static final TaskProperty PROPERTY_IS_COMPRESSED =
+  @NotNull private static final TaskProperty PROPERTY_IS_COMPRESSED =
        new TaskProperty(ATTR_IS_COMPRESSED,
                         INFO_DISPLAY_NAME_IS_COMPRESSED_IMPORT.get(),
                         INFO_DESCRIPTION_IS_COMPRESSED_IMPORT.get(),
@@ -439,7 +444,7 @@ public final class ImportTask
   /**
    * The task property for the is encrypted flag.
    */
-  private static final TaskProperty PROPERTY_IS_ENCRYPTED =
+  @NotNull private static final TaskProperty PROPERTY_IS_ENCRYPTED =
        new TaskProperty(ATTR_IS_ENCRYPTED,
                         INFO_DISPLAY_NAME_IS_ENCRYPTED_IMPORT.get(),
                         INFO_DESCRIPTION_IS_ENCRYPTED_IMPORT.get(),
@@ -450,8 +455,9 @@ public final class ImportTask
   /**
    * The task property that will be used for the encryption passphrase file.
    */
-  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
-       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+  @NotNull private static final TaskProperty
+       PROPERTY_ENCRYPTION_PASSPHRASE_FILE = new TaskProperty(
+            ATTR_ENCRYPTION_PASSPHRASE_FILE,
             INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
             INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
             String.class, false, false, true);
@@ -461,7 +467,7 @@ public final class ImportTask
   /**
    * The task property for the skip schema validation flag.
    */
-  private static final TaskProperty PROPERTY_SKIP_SCHEMA_VALIDATION =
+  @NotNull private static final TaskProperty PROPERTY_SKIP_SCHEMA_VALIDATION =
        new TaskProperty(ATTR_SKIP_SCHEMA_VALIDATION,
                         INFO_DISPLAY_NAME_SKIP_SCHEMA_VALIDATION.get(),
                         INFO_DESCRIPTION_SKIP_SCHEMA_VALIDATION.get(),
@@ -472,7 +478,7 @@ public final class ImportTask
   /**
    * The task property for the strip trailing spaces flag.
    */
-  private static final TaskProperty PROPERTY_STRIP_TRAILING_SPACES =
+  @NotNull private static final TaskProperty PROPERTY_STRIP_TRAILING_SPACES =
        new TaskProperty(ATTR_STRIP_TRAILING_SPACES,
                         INFO_DISPLAY_NAME_STRIP_TRAILING_SPACES.get(),
                         INFO_DESCRIPTION_STRIP_TRAILING_SPACES.get(),
@@ -483,7 +489,7 @@ public final class ImportTask
   /**
    * The name of the object class used in import task entries.
    */
-  private static final String OC_IMPORT_TASK = "ds-task-import";
+  @NotNull private static final String OC_IMPORT_TASK = "ds-task-import";
 
 
 
@@ -520,35 +526,35 @@ public final class ImportTask
   private final boolean stripTrailingSpaces;
 
   // The set of exclude attributes for the import.
-  private final List<String> excludeAttributes;
+  @NotNull private final List<String> excludeAttributes;
 
   // The set of exclude branches for the import.
-  private final List<String> excludeBranches;
+  @NotNull private final List<String> excludeBranches;
 
   // The set of exclude filters for the import.
-  private final List<String> excludeFilters;
+  @NotNull private final List<String> excludeFilters;
 
   // The set of include attributes for the import.
-  private final List<String> includeAttributes;
+  @NotNull private final List<String> includeAttributes;
 
   // The set of include branches for the import.
-  private final List<String> includeBranches;
+  @NotNull private final List<String> includeBranches;
 
   // The set of include filters for the import.
-  private final List<String> includeFilters;
+  @NotNull private final List<String> includeFilters;
 
   // The paths to the LDIF files to be imported.
-  private final List<String> ldifFiles;
+  @NotNull private final List<String> ldifFiles;
 
   // The backend ID of the backend to import.
-  private final String backendID;
+  @Nullable private final String backendID;
 
   // The path to a file containing the passphrase to use to generate the
   // encryption key.
-  private final String encryptionPassphraseFile;
+  @Nullable private final String encryptionPassphraseFile;
 
   // The path to the reject file to write.
-  private final String rejectFile;
+  @Nullable private final String rejectFile;
 
 
 
@@ -595,8 +601,9 @@ public final class ImportTask
    *                    to the server install root.  It must not be
    *                    {@code null}.
    */
-  public ImportTask(final String taskID, final String backendID,
-                    final String ldifFile)
+  public ImportTask(@Nullable final String taskID,
+                    @NotNull final String backendID,
+                    @NotNull final String ldifFile)
   {
     this(taskID, Collections.singletonList(ldifFile), backendID, false, false,
          null, false, true, null, null, null, null, null, null, false, false,
@@ -694,23 +701,26 @@ public final class ImportTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public ImportTask(final String taskID, final List<String> ldifFiles,
-                    final String backendID, final boolean append,
-                    final boolean replaceExisting, final String rejectFile,
-                    final boolean overwriteRejects, final boolean clearBackend,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes,
-                    final boolean isCompressed, final boolean isEncrypted,
-                    final boolean skipSchemaValidation,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public ImportTask(@Nullable final String taskID,
+              @NotNull final List<String> ldifFiles,
+              @Nullable final String backendID,
+              final boolean append,
+              final boolean replaceExisting,
+              @Nullable final String rejectFile,
+              final boolean overwriteRejects, final boolean clearBackend,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final boolean isCompressed, final boolean isEncrypted,
+              final boolean skipSchemaValidation,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, ldifFiles, backendID, append, replaceExisting, rejectFile,
          overwriteRejects, clearBackend, includeBranches, excludeBranches,
@@ -812,24 +822,27 @@ public final class ImportTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public ImportTask(final String taskID, final List<String> ldifFiles,
-                    final String backendID, final boolean append,
-                    final boolean replaceExisting, final String rejectFile,
-                    final boolean overwriteRejects, final boolean clearBackend,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes,
-                    final boolean isCompressed, final boolean isEncrypted,
-                    final boolean skipSchemaValidation,
-                    final boolean stripTrailingSpaces,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public ImportTask(@Nullable final String taskID,
+              @NotNull final List<String> ldifFiles,
+              @Nullable final String backendID,
+              final boolean append,
+              final boolean replaceExisting,
+              @Nullable final String rejectFile,
+              final boolean overwriteRejects, final boolean clearBackend,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final boolean isCompressed, final boolean isEncrypted,
+              final boolean skipSchemaValidation,
+              final boolean stripTrailingSpaces,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, ldifFiles, backendID, append, replaceExisting, rejectFile,
          overwriteRejects, clearBackend, includeBranches, excludeBranches,
@@ -939,25 +952,28 @@ public final class ImportTask
    *                                   individuals that should be notified if
    *                                   this task does not complete successfully.
    */
-  public ImportTask(final String taskID, final List<String> ldifFiles,
-                    final String backendID, final boolean append,
-                    final boolean replaceExisting, final String rejectFile,
-                    final boolean overwriteRejects, final boolean clearBackend,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes,
-                    final boolean isCompressed, final boolean isEncrypted,
-                    final String encryptionPassphraseFile,
-                    final boolean skipSchemaValidation,
-                    final boolean stripTrailingSpaces,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnError)
+  public ImportTask(@Nullable final String taskID,
+              @NotNull final List<String> ldifFiles,
+              @Nullable final String backendID,
+              final boolean append,
+              final boolean replaceExisting,
+              @Nullable final String rejectFile,
+              final boolean overwriteRejects, final boolean clearBackend,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final boolean isCompressed, final boolean isEncrypted,
+              @Nullable final String encryptionPassphraseFile,
+              final boolean skipSchemaValidation,
+              final boolean stripTrailingSpaces,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, ldifFiles, backendID, append, replaceExisting, rejectFile,
          overwriteRejects, clearBackend, includeBranches, excludeBranches,
@@ -1083,29 +1099,32 @@ public final class ImportTask
    *                                   an alert notification if this task fails
    *                                   to complete successfully.
    */
-  public ImportTask(final String taskID, final List<String> ldifFiles,
-                    final String backendID, final boolean append,
-                    final boolean replaceExisting, final String rejectFile,
-                    final boolean overwriteRejects, final boolean clearBackend,
-                    final List<String> includeBranches,
-                    final List<String> excludeBranches,
-                    final List<String> includeFilters,
-                    final List<String> excludeFilters,
-                    final List<String> includeAttributes,
-                    final List<String> excludeAttributes,
-                    final boolean isCompressed, final boolean isEncrypted,
-                    final String encryptionPassphraseFile,
-                    final boolean skipSchemaValidation,
-                    final boolean stripTrailingSpaces,
-                    final Date scheduledStartTime,
-                    final List<String> dependencyIDs,
-                    final FailedDependencyAction failedDependencyAction,
-                    final List<String> notifyOnStart,
-                    final List<String> notifyOnCompletion,
-                    final List<String> notifyOnSuccess,
-                    final List<String> notifyOnError,
-                    final Boolean alertOnStart, final Boolean alertOnSuccess,
-                    final Boolean alertOnError)
+  public ImportTask(@Nullable final String taskID,
+              @NotNull final List<String> ldifFiles,
+              @Nullable final String backendID, final boolean append,
+              final boolean replaceExisting,
+              @Nullable final String rejectFile,
+              final boolean overwriteRejects, final boolean clearBackend,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final List<String> includeAttributes,
+              @Nullable final List<String> excludeAttributes,
+              final boolean isCompressed, final boolean isEncrypted,
+              @Nullable final String encryptionPassphraseFile,
+              final boolean skipSchemaValidation,
+              final boolean stripTrailingSpaces,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, IMPORT_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -1198,7 +1217,7 @@ public final class ImportTask
    * @throws  TaskException  If the provided entry cannot be parsed as an import
    *                         task entry.
    */
-  public ImportTask(final Entry entry)
+  public ImportTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -1299,7 +1318,7 @@ public final class ImportTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid import task.
    */
-  public ImportTask(final Map<TaskProperty,List<Object>> properties)
+  public ImportTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(IMPORT_TASK_CLASS, properties);
@@ -1443,6 +1462,7 @@ public final class ImportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_IMPORT.get();
@@ -1454,6 +1474,7 @@ public final class ImportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_IMPORT.get();
@@ -1467,6 +1488,7 @@ public final class ImportTask
    *
    * @return  The paths to the LDIF files containing the data to be imported.
    */
+  @NotNull()
   public List<String> getLDIFFiles()
   {
     return ldifFiles;
@@ -1482,6 +1504,7 @@ public final class ImportTask
    *          imported, or {@code null} if no backend ID was specified and the
    *          backend will be identified from the include branches.
    */
+  @Nullable()
   public String getBackendID()
   {
     return backendID;
@@ -1527,6 +1550,7 @@ public final class ImportTask
    * @return  The path to a file to which rejected entries should be written, or
    *          {@code null} if a rejected entries file should not be maintained.
    */
+  @Nullable()
   public String getRejectFile()
   {
     return rejectFile;
@@ -1572,6 +1596,7 @@ public final class ImportTask
    *          import, or an empty list if data should be imported from all base
    *          DNs in the associated backend.
    */
+  @NotNull()
   public List<String> getIncludeBranches()
   {
     return includeBranches;
@@ -1587,6 +1612,7 @@ public final class ImportTask
    *          import, or an empty list if no entries should be excluded from the
    *          import based on their location.
    */
+  @NotNull()
   public List<String> getExcludeBranches()
   {
     return excludeBranches;
@@ -1602,6 +1628,7 @@ public final class ImportTask
    *          entries should be included in the import, or an empty list if no
    *          entries should be excluded from the import based on their content.
    */
+  @NotNull()
   public List<String> getIncludeFilters()
   {
     return includeFilters;
@@ -1617,6 +1644,7 @@ public final class ImportTask
    *          entries should be excluded from the import, or an empty list if no
    *          entries should be excluded from the import based on their content.
    */
+  @NotNull()
   public List<String> getExcludeFilters()
   {
     return excludeFilters;
@@ -1631,6 +1659,7 @@ public final class ImportTask
    * @return  The list of attributes that should be included in the imported
    *          entries, or an empty list if no attributes should be excluded.
    */
+  @NotNull()
   public List<String> getIncludeAttributes()
   {
     return includeAttributes;
@@ -1645,6 +1674,7 @@ public final class ImportTask
    * @return  The list of attributes that should be excluded from the imported
    *          entries, or an empty list if no attributes should be excluded.
    */
+  @NotNull()
   public List<String> getExcludeAttributes()
   {
     return excludeAttributes;
@@ -1687,6 +1717,7 @@ public final class ImportTask
    *          not encrypted or if the encryption key should be obtained through
    *          some other means.
    */
+  @NotNull()
   public String getEncryptionPassphraseFile()
   {
     return encryptionPassphraseFile;
@@ -1727,6 +1758,7 @@ public final class ImportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_IMPORT_TASK);
@@ -1738,6 +1770,7 @@ public final class ImportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(20);
@@ -1815,6 +1848,7 @@ public final class ImportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final List<TaskProperty> propList = Arrays.asList(
@@ -1846,6 +1880,7 @@ public final class ImportTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

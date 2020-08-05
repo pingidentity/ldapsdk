@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,7 +71,7 @@ public final class NoticeOfDisconnectionExtendedResult
    * The OID (1.3.6.1.4.1.1466.20036) for the notice of disconnection extended
    * result.
    */
-  public static final String NOTICE_OF_DISCONNECTION_RESULT_OID =
+  @NotNull public static final String NOTICE_OF_DISCONNECTION_RESULT_OID =
        "1.3.6.1.4.1.1466.20036";
 
 
@@ -93,9 +95,10 @@ public final class NoticeOfDisconnectionExtendedResult
    *                            disconnection.  It may be {@code null} or empty
    *                            if no response controls are needed.
    */
-  public NoticeOfDisconnectionExtendedResult(final ResultCode resultCode,
-                                             final String diagnosticMessage,
-                                             final Control... responseControls)
+  public NoticeOfDisconnectionExtendedResult(
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final Control... responseControls)
   {
     this(0, resultCode, diagnosticMessage, null, null, responseControls);
   }
@@ -110,7 +113,7 @@ public final class NoticeOfDisconnectionExtendedResult
    *                         disconnection extended result.
    */
   public NoticeOfDisconnectionExtendedResult(
-              final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
   {
     super(extendedResult);
   }
@@ -124,7 +127,8 @@ public final class NoticeOfDisconnectionExtendedResult
    * @param  ldapException  The LDAP exception to use to create this notice of
    *                        disconnection extended result.
    */
-  public NoticeOfDisconnectionExtendedResult(final LDAPException ldapException)
+  public NoticeOfDisconnectionExtendedResult(
+              @NotNull final LDAPException ldapException)
   {
     this(0, ldapException.getResultCode(), ldapException.getDiagnosticMessage(),
          ldapException.getMatchedDN(), ldapException.getReferralURLs(),
@@ -149,9 +153,11 @@ public final class NoticeOfDisconnectionExtendedResult
    *                            available.
    */
   public NoticeOfDisconnectionExtendedResult(
-              final int messageID, final ResultCode resultCode,
-              final String diagnosticMessage, final String matchedDN,
-              final String[] referralURLs, final Control[] responseControls)
+              final int messageID, @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           NOTICE_OF_DISCONNECTION_RESULT_OID, null, responseControls);
@@ -163,6 +169,7 @@ public final class NoticeOfDisconnectionExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_NOTICE_OF_DISCONNECT.get();
@@ -178,7 +185,7 @@ public final class NoticeOfDisconnectionExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("NoticeOfDisconnectionExtendedResult(resultCode=");
     buffer.append(getResultCode());

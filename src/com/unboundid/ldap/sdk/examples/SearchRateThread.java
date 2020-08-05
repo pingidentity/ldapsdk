@@ -63,6 +63,8 @@ import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
 
@@ -83,86 +85,86 @@ final class SearchRateThread
 
 
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of searchrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The counter used to track the number of entries returned.
-  private final AtomicLong entryCounter;
+  @NotNull private final AtomicLong entryCounter;
 
   // The counter used to track the number of errors encountered while searching.
-  private final AtomicLong errorCounter;
+  @NotNull private final AtomicLong errorCounter;
 
   // The counter used to track the number of iterations remaining on the
   // current connection.
-  private final AtomicLong remainingIterationsBeforeReconnect;
+  @Nullable private final AtomicLong remainingIterationsBeforeReconnect;
 
   // The counter used to track the number of searches performed.
-  private final AtomicLong searchCounter;
+  @NotNull private final AtomicLong searchCounter;
 
   // The value that will be updated with total duration of the searches.
-  private final AtomicLong searchDurations;
+  @NotNull private final AtomicLong searchDurations;
 
   // The thread that is actually performing the searches.
-  private final AtomicReference<Thread> searchThread;
+  @NotNull private final AtomicReference<Thread> searchThread;
 
   // Indicates whether to operate in asynchronous mode.
   private final boolean async;
 
   // The connection to use for the searches.
-  private LDAPConnection connection;
+  @Nullable private LDAPConnection connection;
 
   // The result code for this thread.
-  private final AtomicReference<ResultCode> resultCode;
+  @NotNull private final AtomicReference<ResultCode> resultCode;
 
   // The barrier that will be used to coordinate starting among all the threads.
-  private final CyclicBarrier startBarrier;
+  @NotNull private final CyclicBarrier startBarrier;
 
   // The barrier to use for controlling the rate of searches.  null if no
   // rate-limiting should be used.
-  private final FixedRateBarrier fixedRateBarrier;
+  @Nullable private final FixedRateBarrier fixedRateBarrier;
 
   // The page size to use for the simple paged results control, if any.
-  private final Integer simplePageSize;
+  @Nullable private final Integer simplePageSize;
 
   // The list of controls that should be included in each request.
-  private final List<Control> requestControls;
+  @NotNull private final List<Control> requestControls;
 
   // The number of iterations to request on a connection before closing and
   // re-establishing it.
   private final long iterationsBeforeReconnect;
 
   // The result code counter to use for failed operations.
-  private final ResultCodeCounter rcCounter;
+  @NotNull private final ResultCodeCounter rcCounter;
 
   // A reference to the searchrate tool.
-  private final SearchRate searchRate;
+  @NotNull private final SearchRate searchRate;
 
   // The search request to generate.
-  private final SearchRequest searchRequest;
+  @NotNull private final SearchRequest searchRequest;
 
   // The scope to use for search requests.
-  private final SearchScope scope;
+  @NotNull private final SearchScope scope;
 
   // The semaphore used to limit total number of outstanding asynchronous
   // requests.
-  private final Semaphore asyncSemaphore;
+  @Nullable private final Semaphore asyncSemaphore;
 
   // The set of requested attributes for search requests.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
   // The value pattern to use for proxied authorization.
-  private final ValuePattern authzID;
+  @Nullable private final ValuePattern authzID;
 
   // The value pattern to use for the base DNs.
-  private final ValuePattern baseDN;
+  @NotNull private final ValuePattern baseDN;
 
   // The value pattern to use for the filters.
-  private final ValuePattern filter;
+  @NotNull private final ValuePattern filter;
 
   // The value pattern to use for the LDAP URLs.
-  private final ValuePattern ldapURL;
+  @Nullable private final ValuePattern ldapURL;
 
 
 
@@ -232,25 +234,31 @@ final class SearchRateThread
    *                                    number of outstanding asynchronous
    *                                    requests.
    */
-  SearchRateThread(final SearchRate searchRate, final int threadNumber,
-                   final LDAPConnection connection, final boolean async,
-                   final ValuePattern baseDN, final SearchScope scope,
-                   final DereferencePolicy dereferencePolicy,
+  SearchRateThread(@NotNull final SearchRate searchRate,
+                   final int threadNumber,
+                   @NotNull final LDAPConnection connection,
+                   final boolean async,
+                   @NotNull final ValuePattern baseDN,
+                   @NotNull final SearchScope scope,
+                   @NotNull final DereferencePolicy dereferencePolicy,
                    final int sizeLimit, final int timeLimitSeconds,
-                   final boolean typesOnly, final ValuePattern filter,
-                   final String[] attributes, final ValuePattern ldapURL,
-                   final ValuePattern authzID, final Integer simplePageSize,
-                   final List<Control> requestControls,
+                   final boolean typesOnly,
+                   @NotNull final ValuePattern filter,
+                   @NotNull final String[] attributes,
+                   @Nullable final ValuePattern ldapURL,
+                   @Nullable final ValuePattern authzID,
+                   @Nullable final Integer simplePageSize,
+                   @NotNull final List<Control> requestControls,
                    final long iterationsBeforeReconnect,
-                   final AtomicInteger runningThreads,
-                   final CyclicBarrier startBarrier,
-                   final AtomicLong searchCounter,
-                   final AtomicLong entryCounter,
-                   final AtomicLong searchDurations,
-                   final AtomicLong errorCounter,
-                   final ResultCodeCounter rcCounter,
-                   final FixedRateBarrier rateBarrier,
-                   final Semaphore asyncSemaphore)
+                   @NotNull final AtomicInteger runningThreads,
+                   @NotNull final CyclicBarrier startBarrier,
+                   @NotNull final AtomicLong searchCounter,
+                   @NotNull final AtomicLong entryCounter,
+                   @NotNull final AtomicLong searchDurations,
+                   @NotNull final AtomicLong errorCounter,
+                   @NotNull final ResultCodeCounter rcCounter,
+                   @Nullable final FixedRateBarrier rateBarrier,
+                   @Nullable final Semaphore asyncSemaphore)
   {
     setName("SearchRate Thread " + threadNumber);
     setDaemon(true);
@@ -616,6 +624,7 @@ final class SearchRateThread
    * @return  A result code that provides information about whether any errors
    *          were encountered during processing.
    */
+  @NotNull()
   ResultCode waitForShutdown()
   {
     final Thread t = searchThread.get();
@@ -646,7 +655,7 @@ final class SearchRateThread
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     // No implementation required.
   }
@@ -658,7 +667,7 @@ final class SearchRateThread
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     // No implementation required.
   }

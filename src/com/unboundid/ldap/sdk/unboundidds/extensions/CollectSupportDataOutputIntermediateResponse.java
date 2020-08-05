@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +97,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    * The OID (1.3.6.1.4.1.30221.2.6.65) for the collect support data output
    * intermediate response.
    */
-  public static final String
+  @NotNull public static final String
        COLLECT_SUPPORT_DATA_OUTPUT_INTERMEDIATE_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.6.65";
 
@@ -124,10 +125,10 @@ public final class CollectSupportDataOutputIntermediateResponse
 
 
   // The output stream to which the message was written.
-  private final CollectSupportDataOutputStream outputStream;
+  @NotNull private final CollectSupportDataOutputStream outputStream;
 
   // The output message that was written.
-  private final String outputMessage;
+  @NotNull private final String outputMessage;
 
 
 
@@ -144,8 +145,8 @@ public final class CollectSupportDataOutputIntermediateResponse
    *                        controls are needed.
    */
   public CollectSupportDataOutputIntermediateResponse(
-              final CollectSupportDataOutputStream outputStream,
-              final String outputMessage, final Control... controls)
+              @NotNull final CollectSupportDataOutputStream outputStream,
+              @NotNull final String outputMessage, final Control... controls)
   {
     super(COLLECT_SUPPORT_DATA_OUTPUT_INTERMEDIATE_RESPONSE_OID,
          encodeValue(outputStream, outputMessage), controls);
@@ -168,8 +169,8 @@ public final class CollectSupportDataOutputIntermediateResponse
    * @return  The ASN.1 octet string containing the encoded value.
    */
   private static ASN1OctetString encodeValue(
-                      final CollectSupportDataOutputStream outputStream,
-                      final String outputMessage)
+               @NotNull final CollectSupportDataOutputStream outputStream,
+               @NotNull final String outputMessage)
   {
     final ASN1Sequence valueSequence = new ASN1Sequence(
          new ASN1Enumerated(TYPE_OUTPUT_STREAM, outputStream.getIntValue()),
@@ -194,7 +195,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    *                         intermediate response.
    */
   public CollectSupportDataOutputIntermediateResponse(
-              final IntermediateResponse intermediateResponse)
+              @NotNull final IntermediateResponse intermediateResponse)
          throws LDAPException
   {
     super(intermediateResponse);
@@ -248,6 +249,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    *
    * @return  The output stream to which the output was written.
    */
+  @NotNull()
   public CollectSupportDataOutputStream getOutputStream()
   {
     return outputStream;
@@ -260,6 +262,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    *
    * @return  The output message that was written.
    */
+  @NotNull()
   public String getOutputMessage()
   {
     return outputMessage;
@@ -271,6 +274,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getIntermediateResponseName()
   {
     return INFO_COLLECT_SUPPORT_DATA_OUTPUT_IR_NAME.get();
@@ -282,6 +286,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String valueToString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -301,7 +306,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CollectSupportDataOutputIntermediateResponse(oid='");
     buffer.append(getOID());

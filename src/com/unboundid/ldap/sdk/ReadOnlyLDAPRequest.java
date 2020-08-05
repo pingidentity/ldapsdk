@@ -41,6 +41,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,6 +72,7 @@ public interface ReadOnlyLDAPRequest
    *
    * @return  The set of controls for this request.
    */
+  @NotNull()
   Control[] getControls();
 
 
@@ -79,6 +82,7 @@ public interface ReadOnlyLDAPRequest
    *
    * @return  A list containing the set of controls for this request.
    */
+  @NotNull()
   List<Control> getControlList();
 
 
@@ -103,7 +107,7 @@ public interface ReadOnlyLDAPRequest
    * @return  {@code true} if this request contains at least one control with
    *          the specified OID, or {@code false} if not.
    */
-  boolean hasControl(String oid);
+  boolean hasControl(@NotNull String oid);
 
 
 
@@ -118,7 +122,8 @@ public interface ReadOnlyLDAPRequest
    * @return  The first control found with the specified OID, or {@code null} if
    *          no control with that OID is included in this request.
    */
-  Control getControl(String oid);
+  @Nullable()
+  Control getControl(@NotNull String oid);
 
 
 
@@ -136,7 +141,7 @@ public interface ReadOnlyLDAPRequest
    *          operation should be allowed to block while waiting for a response
    *          from the server, or zero if no timeout should be enforced.
    */
-  long getResponseTimeoutMillis(LDAPConnection connection);
+  long getResponseTimeoutMillis(@Nullable LDAPConnection connection);
 
 
 
@@ -153,7 +158,7 @@ public interface ReadOnlyLDAPRequest
    * @return  {@code true} if any referrals encountered during processing should
    *          be automatically followed, or {@code false} if not.
    */
-  boolean followReferrals(LDAPConnection connection);
+  boolean followReferrals(@NotNull LDAPConnection connection);
 
 
 
@@ -168,7 +173,8 @@ public interface ReadOnlyLDAPRequest
    * @return  The referral connector that should be used for the purpose of
    *          automatically following a referral.  It will not be {@code null}.
    */
-  ReferralConnector getReferralConnector(LDAPConnection connection);
+  @NotNull()
+  ReferralConnector getReferralConnector(@NotNull LDAPConnection connection);
 
 
 
@@ -179,6 +185,7 @@ public interface ReadOnlyLDAPRequest
    * @return  A new instance of this LDAP request that may be modified without
    *          impacting this request.
    */
+  @NotNull()
   LDAPRequest duplicate();
 
 
@@ -193,7 +200,8 @@ public interface ReadOnlyLDAPRequest
    * @return  A new instance of this LDAP request that may be modified without
    *          impacting this request.
    */
-  LDAPRequest duplicate(Control[] controls);
+  @NotNull()
+  LDAPRequest duplicate(@Nullable Control[] controls);
 
 
 
@@ -203,6 +211,7 @@ public interface ReadOnlyLDAPRequest
    * @return  A string representation of this request.
    */
   @Override()
+  @NotNull()
   String toString();
 
 
@@ -213,7 +222,7 @@ public interface ReadOnlyLDAPRequest
    * @param  buffer  The buffer to which to append a string representation of
    *                 this request.
    */
-  void toString(StringBuilder buffer);
+  void toString(@NotNull StringBuilder buffer);
 
 
 
@@ -235,6 +244,6 @@ public interface ReadOnlyLDAPRequest
    *                            or just to generate the request (if
    *                            {@code false}).
    */
-  void toCode(List<String> lineList, String requestID,
+  void toCode(@NotNull List<String> lineList, @NotNull String requestID,
               int indentSpaces, boolean includeProcessing);
 }

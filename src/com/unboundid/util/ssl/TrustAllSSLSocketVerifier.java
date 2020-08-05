@@ -41,6 +41,7 @@ import javax.net.ssl.SSLSocket;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -100,8 +101,8 @@ public final class TrustAllSSLSocketVerifier
    *                         established.
    */
   @Override()
-  public void verifySSLSocket(final String host, final int port,
-                              final SSLSocket sslSocket)
+  public void verifySSLSocket(@NotNull final String host, final int port,
+                              @NotNull final SSLSocket sslSocket)
        throws LDAPException
   {
     // No implementation is required.  The SSLSocket will be considered

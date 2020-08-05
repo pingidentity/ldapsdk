@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartInteractiveTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -102,9 +104,9 @@ public final class InteractiveTransactionSpecificationResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.4) for the interactive transaction
    * specification response control.
    */
-  public static final String
+  @NotNull public static final String
        INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID =
-       "1.3.6.1.4.1.30221.2.5.4";
+            "1.3.6.1.4.1.30221.2.5.4";
 
 
 
@@ -133,7 +135,7 @@ public final class InteractiveTransactionSpecificationResponseControl
   private final boolean transactionValid;
 
   // The set of base DNs that may be targeted by this transaction.
-  private final List<String> baseDNs;
+  @Nullable private final List<String> baseDNs;
 
 
 
@@ -162,7 +164,8 @@ public final class InteractiveTransactionSpecificationResponseControl
    *                           last response.
    */
   public InteractiveTransactionSpecificationResponseControl(
-              final boolean transactionValid, final List<String> baseDNs)
+              final boolean transactionValid,
+              @Nullable final List<String> baseDNs)
   {
     super(INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID, false,
           encodeValue(transactionValid, baseDNs));
@@ -196,8 +199,10 @@ public final class InteractiveTransactionSpecificationResponseControl
    *                         interactive transaction specification response
    *                         control.
    */
-  public InteractiveTransactionSpecificationResponseControl(final String oid,
-              final boolean isCritical, final ASN1OctetString value)
+  public InteractiveTransactionSpecificationResponseControl(
+              @NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -299,8 +304,9 @@ public final class InteractiveTransactionSpecificationResponseControl
    *
    * @return  The ASN1 octet string that may be used as the control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(final boolean transactionValid,
-                                             final List<String> baseDNs)
+                      @Nullable final List<String> baseDNs)
   {
     final ASN1Element[] elements;
     if (baseDNs == null)
@@ -334,9 +340,10 @@ public final class InteractiveTransactionSpecificationResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public InteractiveTransactionSpecificationResponseControl decodeControl(
-              final String oid, final boolean isCritical,
-              final ASN1OctetString value)
+              @NotNull final String oid, final boolean isCritical,
+              @Nullable final ASN1OctetString value)
           throws LDAPException
   {
     return new InteractiveTransactionSpecificationResponseControl(oid,
@@ -361,8 +368,9 @@ public final class InteractiveTransactionSpecificationResponseControl
    *                         decode the interactive transaction specification
    *                         response control contained in the provided result.
    */
-  public static InteractiveTransactionSpecificationResponseControl
-                     get(final LDAPResult result)
+  @Nullable()
+  public static InteractiveTransactionSpecificationResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(
@@ -408,6 +416,7 @@ public final class InteractiveTransactionSpecificationResponseControl
    *          restrictions or if the set of restrictions has not changed since
    *          the last response.
    */
+  @Nullable()
   public List<String> getBaseDNs()
   {
     return baseDNs;
@@ -419,6 +428,7 @@ public final class InteractiveTransactionSpecificationResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_INTERACTIVE_TXN_RESPONSE.get();
@@ -430,7 +440,7 @@ public final class InteractiveTransactionSpecificationResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InteractiveTransactionSpecificationResponseControl(");
     buffer.append("transactionValid=");

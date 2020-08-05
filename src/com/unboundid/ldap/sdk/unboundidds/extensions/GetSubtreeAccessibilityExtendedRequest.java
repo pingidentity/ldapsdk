@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -82,7 +84,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * The OID (1.3.6.1.4.1.30221.1.6.20) for the get subtree accessibility
    * extended request.
    */
-  public static final String GET_SUBTREE_ACCESSIBILITY_REQUEST_OID =
+  @NotNull public static final String GET_SUBTREE_ACCESSIBILITY_REQUEST_OID =
        "1.3.6.1.4.1.30221.1.6.20";
 
 
@@ -100,7 +102,8 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * @param  controls  The set of controls to include in the request.  It may be
    *                   {@code null} or empty if no controls are needed.
    */
-  public GetSubtreeAccessibilityExtendedRequest(final Control... controls)
+  public GetSubtreeAccessibilityExtendedRequest(
+              @Nullable final Control... controls)
   {
     super(GET_SUBTREE_ACCESSIBILITY_REQUEST_OID, null, controls);
   }
@@ -117,7 +120,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public GetSubtreeAccessibilityExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -136,7 +139,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    */
   @Override()
   public GetSubtreeAccessibilityExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -149,6 +152,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetSubtreeAccessibilityExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -160,8 +164,9 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetSubtreeAccessibilityExtendedRequest duplicate(
-                                                     final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final GetSubtreeAccessibilityExtendedRequest r =
          new GetSubtreeAccessibilityExtendedRequest(controls);
@@ -175,6 +180,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_GET_SUBTREE_ACCESSIBILITY.get();
@@ -186,7 +192,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetSubtreeAccessibilityExtendedRequest(");
 

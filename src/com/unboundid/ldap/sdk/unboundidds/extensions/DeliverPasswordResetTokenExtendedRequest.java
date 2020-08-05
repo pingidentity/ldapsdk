@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -128,7 +130,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.45) for the deliver password reset token
    * extended request.
    */
-  public static final String DELIVER_PW_RESET_TOKEN_REQUEST_OID =
+  @NotNull public static final String DELIVER_PW_RESET_TOKEN_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.45";
 
 
@@ -189,25 +191,26 @@ public final class DeliverPasswordResetTokenExtendedRequest
 
   // An ordered list of the preferred delivery mechanisms for the token,
   // paired with an optional recipient ID for each mechanism.
-  private final List<ObjectPair<String, String>> preferredDeliveryMechanisms;
+  @NotNull private final List<ObjectPair<String, String>>
+       preferredDeliveryMechanisms;
 
   // The text to include after the token in a compact message.
-  private final String compactTextAfterToken;
+  @Nullable private final String compactTextAfterToken;
 
   // The text to include before the token in a compact message.
-  private final String compactTextBeforeToken;
+  @Nullable private final String compactTextBeforeToken;
 
   // The text to include after the token in a message without size constraints.
-  private final String fullTextAfterToken;
+  @Nullable private final String fullTextAfterToken;
 
   // The text to include before the token in a message without size constraints.
-  private final String fullTextBeforeToken;
+  @Nullable private final String fullTextBeforeToken;
 
   // The text to use as the message subject.
-  private final String messageSubject;
+  @Nullable private final String messageSubject;
 
   // The DN of the user to whom the password reset token should be delivered.
-  private final String userDN;
+  @NotNull private final String userDN;
 
 
 
@@ -230,8 +233,8 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *                                      server supports alternate mechanisms
    *                                      not included in this list.
    */
-  public DeliverPasswordResetTokenExtendedRequest(final String userDN,
-              final String... preferredDeliveryMechanisms)
+  public DeliverPasswordResetTokenExtendedRequest(@NotNull final String userDN,
+              @Nullable final String... preferredDeliveryMechanisms)
   {
     this(userDN, preferredMechanismsToList(preferredDeliveryMechanisms));
   }
@@ -275,9 +278,10 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *                                      {@code null} or empty if no controls
    *                                      should be included in the request.
    */
-  public DeliverPasswordResetTokenExtendedRequest(final String userDN,
-              final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
-              final Control... controls)
+  public DeliverPasswordResetTokenExtendedRequest(@NotNull final String userDN,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
+       @Nullable final Control... controls)
   {
     this(userDN, null, null, null, null, null, preferredDeliveryMechanisms,
          controls);
@@ -360,13 +364,15 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *                                      {@code null} or empty if no controls
    *                                      should be included in the request.
    */
-  public DeliverPasswordResetTokenExtendedRequest(final String userDN,
-              final String messageSubject, final String fullTextBeforeToken,
-              final String fullTextAfterToken,
-              final String compactTextBeforeToken,
-              final String compactTextAfterToken,
-              final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
-              final Control... controls)
+  public DeliverPasswordResetTokenExtendedRequest(@NotNull final String userDN,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeToken,
+       @Nullable final String fullTextAfterToken,
+       @Nullable final String compactTextBeforeToken,
+       @Nullable final String compactTextAfterToken,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
+       @Nullable final Control... controls)
   {
     super(DELIVER_PW_RESET_TOKEN_REQUEST_OID,
          encodeValue(userDN, messageSubject, fullTextBeforeToken,
@@ -403,7 +409,8 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *
    * @throws  LDAPException  If an unexpected problem occurs.
    */
-  public DeliverPasswordResetTokenExtendedRequest(final ExtendedRequest request)
+  public DeliverPasswordResetTokenExtendedRequest(
+              @NotNull final ExtendedRequest request)
          throws LDAPException
   {
     super(request);
@@ -532,8 +539,9 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * @return  The resulting list of preferred delivery mechanisms with
    *          {@code null} recipient IDs.
    */
+  @Nullable()
   private static List<ObjectPair<String,String>> preferredMechanismsToList(
-                      final String... preferredDeliveryMechanisms)
+                      @Nullable final String... preferredDeliveryMechanisms)
   {
     if (preferredDeliveryMechanisms == null)
     {
@@ -624,11 +632,15 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded request value.
    */
-  private static ASN1OctetString encodeValue(final String userDN,
-       final String messageSubject, final String fullTextBeforeToken,
-       final String fullTextAfterToken, final String compactTextBeforeToken,
-       final String compactTextAfterToken,
-       final List<ObjectPair<String,String>> preferredDeliveryMechanisms)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String userDN,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeToken,
+       @Nullable final String fullTextAfterToken,
+       @Nullable final String compactTextBeforeToken,
+       @Nullable final String compactTextAfterToken,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms)
   {
     Validator.ensureNotNull(userDN);
 
@@ -701,6 +713,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * @return  The DN of the user to whom the password reset token should be
    *          delivered.
    */
+  @NotNull()
   public String getUserDN()
   {
     return userDN;
@@ -717,6 +730,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *          subject should be used, or if the delivery mechanism should
    *          attempt to automatically determine a subject.
    */
+  @Nullable()
   public String getMessageSubject()
   {
     return messageSubject;
@@ -734,6 +748,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text before the token.
    */
+  @Nullable()
   public String getFullTextBeforeToken()
   {
     return fullTextBeforeToken;
@@ -751,6 +766,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text after the token.
    */
+  @Nullable()
   public String getFullTextAfterToken()
   {
     return fullTextAfterToken;
@@ -768,6 +784,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text before the token.
    */
+  @Nullable()
   public String getCompactTextBeforeToken()
   {
     return compactTextBeforeToken;
@@ -785,6 +802,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text after the token.
    */
+  @Nullable()
   public String getCompactTextAfterToken()
   {
     return compactTextAfterToken;
@@ -807,6 +825,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * @return  An ordered list of the preferred delivery mechanisms for the
    *          password reset token, or an empty list if none were provided.
    */
+  @NotNull()
   public List<ObjectPair<String,String>> getPreferredDeliveryMechanisms()
   {
     return preferredDeliveryMechanisms;
@@ -818,8 +837,9 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DeliverPasswordResetTokenExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -832,6 +852,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public DeliverPasswordResetTokenExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -843,8 +864,9 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public DeliverPasswordResetTokenExtendedRequest duplicate(
-                                                       final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final DeliverPasswordResetTokenExtendedRequest r =
          new DeliverPasswordResetTokenExtendedRequest(userDN,
@@ -861,6 +883,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_DELIVER_PW_RESET_TOKEN.get();
@@ -872,7 +895,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeliverPasswordResetTokenExtendedRequest(userDN='");
     buffer.append(userDN);

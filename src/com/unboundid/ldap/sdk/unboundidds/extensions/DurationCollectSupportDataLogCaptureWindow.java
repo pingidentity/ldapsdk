@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -84,7 +85,7 @@ public final class DurationCollectSupportDataLogCaptureWindow
 
   // An ASN.1 element that provides an encoded representation of this duration
   // collect support data log capture window.
-  private final ASN1Element encodedWindow;
+  @NotNull private final ASN1Element encodedWindow;
 
   // The log duration, in milliseconds.
   private final long durationMillis;
@@ -139,8 +140,9 @@ public final class DurationCollectSupportDataLogCaptureWindow
    *                         a valid duration collect support data log capture
    *                         window object.
    */
-  static DurationCollectSupportDataLogCaptureWindow
-              decodeInternal(final ASN1Element e)
+  @NotNull()
+  static DurationCollectSupportDataLogCaptureWindow decodeInternal(
+              @NotNull final ASN1Element e)
          throws LDAPException
   {
     try
@@ -164,6 +166,7 @@ public final class DurationCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return encodedWindow;
@@ -175,7 +178,7 @@ public final class DurationCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DurationCollectSupportDataLogCaptureWindow(durationMillis=");
     buffer.append(durationMillis);

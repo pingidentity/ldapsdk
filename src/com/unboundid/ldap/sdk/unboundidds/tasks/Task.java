@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -141,7 +143,7 @@ public class Task
    * The name of the attribute used to hold the actual start time for scheduled
    * tasks.
    */
-  private static final String ATTR_ACTUAL_START_TIME =
+  @NotNull private static final String ATTR_ACTUAL_START_TIME =
        "ds-task-actual-start-time";
 
 
@@ -151,7 +153,7 @@ public class Task
    * generate an administrative alert when the task fails to complete
    * successfully.
    */
-  private static final String ATTR_ALERT_ON_ERROR =
+  @NotNull private static final String ATTR_ALERT_ON_ERROR =
        "ds-task-alert-on-error";
 
 
@@ -160,7 +162,8 @@ public class Task
    * The name of the attribute used to indicate whether the server should
    * generate an administrative alert when the task starts running.
    */
-  private static final String ATTR_ALERT_ON_START = "ds-task-alert-on-start";
+  @NotNull private static final String ATTR_ALERT_ON_START =
+       "ds-task-alert-on-start";
 
 
 
@@ -168,7 +171,7 @@ public class Task
    * The name of the attribute used to indicate whether the server should
    * generate an administrative alert when the task completes successfully.
    */
-  private static final String ATTR_ALERT_ON_SUCCESS =
+  @NotNull private static final String ATTR_ALERT_ON_SUCCESS =
        "ds-task-alert-on-success";
 
 
@@ -177,7 +180,8 @@ public class Task
    * The name of the attribute used to hold the completion time for scheduled
    * tasks.
    */
-  private static final String ATTR_COMPLETION_TIME = "ds-task-completion-time";
+  @NotNull private static final String ATTR_COMPLETION_TIME =
+       "ds-task-completion-time";
 
 
 
@@ -185,7 +189,8 @@ public class Task
    * The name of the attribute used to hold the task IDs for tasks on which a
    * scheduled task is dependent.
    */
-  private static final String ATTR_DEPENDENCY_ID = "ds-task-dependency-id";
+  @NotNull private static final String ATTR_DEPENDENCY_ID =
+       "ds-task-dependency-id";
 
 
 
@@ -193,7 +198,7 @@ public class Task
    * The name of the attribute used to indicate what action to take if one of
    * the dependencies for a task failed to complete successfully.
    */
-  private static final String ATTR_FAILED_DEPENDENCY_ACTION =
+  @NotNull private static final String ATTR_FAILED_DEPENDENCY_ACTION =
        "ds-task-failed-dependency-action";
 
 
@@ -202,7 +207,7 @@ public class Task
    * The name of the attribute used to hold the log messages for scheduled
    * tasks.
    */
-  private static final String ATTR_LOG_MESSAGE = "ds-task-log-message";
+  @NotNull private static final String ATTR_LOG_MESSAGE = "ds-task-log-message";
 
 
 
@@ -211,7 +216,7 @@ public class Task
    * that should be notified whenever a scheduled task completes, regardless of
    * success or failure.
    */
-  private static final String ATTR_NOTIFY_ON_COMPLETION =
+  @NotNull private static final String ATTR_NOTIFY_ON_COMPLETION =
        "ds-task-notify-on-completion";
 
 
@@ -220,7 +225,8 @@ public class Task
    * The name of the attribute used to hold the e-mail addresses of the users
    * that should be notified if a scheduled task fails to complete successfully.
    */
-  private static final String ATTR_NOTIFY_ON_ERROR = "ds-task-notify-on-error";
+  @NotNull private static final String ATTR_NOTIFY_ON_ERROR =
+       "ds-task-notify-on-error";
 
 
 
@@ -228,7 +234,8 @@ public class Task
    * The name of the attribute used to hold the e-mail addresses of the users
    * that should be notified when a scheduled task starts running.
    */
-  private static final String ATTR_NOTIFY_ON_START = "ds-task-notify-on-start";
+  @NotNull private static final String ATTR_NOTIFY_ON_START =
+       "ds-task-notify-on-start";
 
 
 
@@ -236,7 +243,7 @@ public class Task
    * The name of the attribute used to hold the e-mail addresses of the users
    * that should be notified when a scheduled task completes successfully.
    */
-  private static final String ATTR_NOTIFY_ON_SUCCESS =
+  @NotNull private static final String ATTR_NOTIFY_ON_SUCCESS =
        "ds-task-notify-on-success";
 
 
@@ -245,7 +252,7 @@ public class Task
    * The name of the attribute used to hold the scheduled start time for
    * scheduled tasks.
    */
-  private static final String ATTR_SCHEDULED_START_TIME =
+  @NotNull private static final String ATTR_SCHEDULED_START_TIME =
        "ds-task-scheduled-start-time";
 
 
@@ -254,14 +261,14 @@ public class Task
    * The name of the attribute used to hold the name of the class that provides
    * the logic for scheduled tasks.
    */
-  private static final String ATTR_TASK_CLASS = "ds-task-class-name";
+  @NotNull private static final String ATTR_TASK_CLASS = "ds-task-class-name";
 
 
 
   /**
    * The name of the attribute used to hold the task ID for scheduled tasks.
    */
-  static final String ATTR_TASK_ID = "ds-task-id";
+  @NotNull static final String ATTR_TASK_ID = "ds-task-id";
 
 
 
@@ -269,21 +276,21 @@ public class Task
    * The name of the attribute used to hold the current state for scheduled
    * tasks.
    */
-  static final String ATTR_TASK_STATE = "ds-task-state";
+  @NotNull static final String ATTR_TASK_STATE = "ds-task-state";
 
 
 
   /**
    * The name of the base object class for scheduled tasks.
    */
-  static final String OC_TASK = "ds-task";
+  @NotNull static final String OC_TASK = "ds-task";
 
 
 
   /**
    * The DN of the entry below which scheduled tasks reside.
    */
-  static final String SCHEDULED_TASKS_BASE_DN =
+  @NotNull static final String SCHEDULED_TASKS_BASE_DN =
        "cn=Scheduled Tasks,cn=tasks";
 
 
@@ -291,7 +298,7 @@ public class Task
   /**
    * The task property that will be used for the task ID.
    */
-  private static final TaskProperty PROPERTY_TASK_ID =
+  @NotNull private static final TaskProperty PROPERTY_TASK_ID =
        new TaskProperty(ATTR_TASK_ID, INFO_DISPLAY_NAME_TASK_ID.get(),
                         INFO_DESCRIPTION_TASK_ID.get(), String.class, false,
                         false, true);
@@ -301,7 +308,7 @@ public class Task
   /**
    * The task property that will be used for the scheduled start time.
    */
-  private static final TaskProperty PROPERTY_SCHEDULED_START_TIME =
+  @NotNull private static final TaskProperty PROPERTY_SCHEDULED_START_TIME =
        new TaskProperty(ATTR_SCHEDULED_START_TIME,
                         INFO_DISPLAY_NAME_SCHEDULED_START_TIME.get(),
                         INFO_DESCRIPTION_SCHEDULED_START_TIME.get(), Date.class,
@@ -312,7 +319,7 @@ public class Task
   /**
    * The task property that will be used for the set of dependency IDs.
    */
-  private static final TaskProperty PROPERTY_DEPENDENCY_ID =
+  @NotNull private static final TaskProperty PROPERTY_DEPENDENCY_ID =
        new TaskProperty(ATTR_DEPENDENCY_ID,
                         INFO_DISPLAY_NAME_DEPENDENCY_ID.get(),
                         INFO_DESCRIPTION_DEPENDENCY_ID.get(), String.class,
@@ -323,7 +330,7 @@ public class Task
   /**
    * The task property that will be used for the failed dependency action.
    */
-  private static final TaskProperty PROPERTY_FAILED_DEPENDENCY_ACTION =
+  @NotNull private static final TaskProperty PROPERTY_FAILED_DEPENDENCY_ACTION =
        new TaskProperty(ATTR_FAILED_DEPENDENCY_ACTION,
                         INFO_DISPLAY_NAME_FAILED_DEPENDENCY_ACTION.get(),
                         INFO_DESCRIPTION_FAILED_DEPENDENCY_ACTION.get(),
@@ -340,7 +347,7 @@ public class Task
   /**
    * The task property that will be used for the notify on completion addresses.
    */
-  private static final TaskProperty PROPERTY_NOTIFY_ON_COMPLETION =
+  @NotNull private static final TaskProperty PROPERTY_NOTIFY_ON_COMPLETION =
        new TaskProperty(ATTR_NOTIFY_ON_COMPLETION,
                         INFO_DISPLAY_NAME_NOTIFY_ON_COMPLETION.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_COMPLETION.get(),
@@ -351,7 +358,7 @@ public class Task
   /**
    * The task property that will be used for the notify on error addresses.
    */
-  private static final TaskProperty PROPERTY_NOTIFY_ON_ERROR =
+  @NotNull private static final TaskProperty PROPERTY_NOTIFY_ON_ERROR =
        new TaskProperty(ATTR_NOTIFY_ON_ERROR,
                         INFO_DISPLAY_NAME_NOTIFY_ON_ERROR.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_ERROR.get(),
@@ -362,7 +369,7 @@ public class Task
   /**
    * The task property that will be used for the notify on success addresses.
    */
-  private static final TaskProperty PROPERTY_NOTIFY_ON_SUCCESS =
+  @NotNull private static final TaskProperty PROPERTY_NOTIFY_ON_SUCCESS =
        new TaskProperty(ATTR_NOTIFY_ON_SUCCESS,
                         INFO_DISPLAY_NAME_NOTIFY_ON_SUCCESS.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_SUCCESS.get(),
@@ -373,7 +380,7 @@ public class Task
   /**
    * The task property that will be used for the notify on start addresses.
    */
-  private static final TaskProperty PROPERTY_NOTIFY_ON_START =
+  @NotNull private static final TaskProperty PROPERTY_NOTIFY_ON_START =
        new TaskProperty(ATTR_NOTIFY_ON_START,
                         INFO_DISPLAY_NAME_NOTIFY_ON_START.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_START.get(),
@@ -384,7 +391,7 @@ public class Task
   /**
    * The task property that will be used for the alert on error flag.
    */
-  private static final TaskProperty PROPERTY_ALERT_ON_ERROR =
+  @NotNull private static final TaskProperty PROPERTY_ALERT_ON_ERROR =
        new TaskProperty(ATTR_ALERT_ON_ERROR,
                         INFO_DISPLAY_NAME_ALERT_ON_ERROR.get(),
                         INFO_DESCRIPTION_ALERT_ON_ERROR.get(),
@@ -395,7 +402,7 @@ public class Task
   /**
    * The task property that will be used for the alert on start flag.
    */
-  private static final TaskProperty PROPERTY_ALERT_ON_START =
+  @NotNull private static final TaskProperty PROPERTY_ALERT_ON_START =
        new TaskProperty(ATTR_ALERT_ON_START,
                         INFO_DISPLAY_NAME_ALERT_ON_START.get(),
                         INFO_DESCRIPTION_ALERT_ON_START.get(),
@@ -406,7 +413,7 @@ public class Task
   /**
    * The task property that will be used for the alert on success flag.
    */
-  private static final TaskProperty PROPERTY_ALERT_ON_SUCCESS =
+  @NotNull private static final TaskProperty PROPERTY_ALERT_ON_SUCCESS =
        new TaskProperty(ATTR_ALERT_ON_SUCCESS,
                         INFO_DISPLAY_NAME_ALERT_ON_SUCCESS.get(),
                         INFO_DESCRIPTION_ALERT_ON_SUCCESS.get(),
@@ -423,63 +430,63 @@ public class Task
 
   // Indicates whether to generate an administrative alert when the task fails
   // to complete successfully.
-  private final Boolean alertOnError;
+  @Nullable private final Boolean alertOnError;
 
   // Indicates whether to generate an administrative alert when the task starts.
-  private final Boolean alertOnStart;
+  @Nullable private final Boolean alertOnStart;
 
   // Indicates whether to generate an administrative alert when the task
   // completes successfully.
-  private final Boolean alertOnSuccess;
+  @Nullable private final Boolean alertOnSuccess;
 
   // The time that this task actually started.
-  private final Date actualStartTime;
+  @Nullable private final Date actualStartTime;
 
   // The time that this task completed.
-  private final Date completionTime;
+  @Nullable private final Date completionTime;
 
   // The time that this task was scheduled to start.
-  private final Date scheduledStartTime;
+  @Nullable private final Date scheduledStartTime;
 
   // The entry from which this task was decoded.
-  private final Entry taskEntry;
+  @Nullable private final Entry taskEntry;
 
   // The failed dependency action for this task.
-  private final FailedDependencyAction failedDependencyAction;
+  @Nullable private final FailedDependencyAction failedDependencyAction;
 
   // The set of task IDs of the tasks on which this task is dependent.
-  private final List<String> dependencyIDs;
+  @NotNull private final List<String> dependencyIDs;
 
   // The set of log messages for this task.
-  private final List<String> logMessages;
+  @NotNull private final List<String> logMessages;
 
   // The set of e-mail addresses of users that should be notified when the task
   // processing is complete.
-  private final List<String> notifyOnCompletion;
+  @NotNull private final List<String> notifyOnCompletion;
 
   // The set of e-mail addresses of users that should be notified if task
   // processing completes with an error.
-  private final List<String> notifyOnError;
+  @NotNull private final List<String> notifyOnError;
 
   // The set of e-mail addresses of users that should be notified if task
   // processing starts.
-  private final List<String> notifyOnStart;
+  @NotNull private final List<String> notifyOnStart;
 
   // The set of e-mail addresses of users that should be notified if task
   // processing completes successfully.
-  private final List<String> notifyOnSuccess;
+  @NotNull private final List<String> notifyOnSuccess;
 
   // The fully-qualified name of the task class.
-  private final String taskClassName;
+  @NotNull private final String taskClassName;
 
   // The DN of the entry for this task.
-  private final String taskEntryDN;
+  @NotNull private final String taskEntryDN;
 
   // The task ID for this task.
-  private final String taskID;
+  @NotNull private final String taskID;
 
   // The current state for this task.
-  private final TaskState taskState;
+  @NotNull private final TaskState taskState;
 
 
 
@@ -523,7 +530,8 @@ public class Task
    *                        provides the logic for the task.  It must not be
    *                        {@code null}.
    */
-  public Task(final String taskID, final String taskClassName)
+  public Task(@Nullable final String taskID,
+              @NotNull final String taskClassName)
   {
     this(taskID, taskClassName, null, null, null, null, null);
   }
@@ -552,11 +560,13 @@ public class Task
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public Task(final String taskID, final String taskClassName,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnError)
+  public Task(@Nullable final String taskID,
+              @NotNull final String taskClassName,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, taskClassName, scheduledStartTime, dependencyIDs,
          failedDependencyAction, null, notifyOnCompletion, null,
@@ -601,14 +611,18 @@ public class Task
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public Task(final String taskID, final String taskClassName,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnStart,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnSuccess,
-              final List<String> notifyOnError, final Boolean alertOnStart,
-              final Boolean alertOnSuccess, final Boolean alertOnError)
+  public Task(@Nullable final String taskID,
+              @NotNull final String taskClassName,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     Validator.ensureNotNull(taskClassName);
 
@@ -694,7 +708,7 @@ public class Task
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         scheduled task.
    */
-  public Task(final Entry entry)
+  public Task(@NotNull final Entry entry)
          throws TaskException
   {
     taskEntry   = entry;
@@ -870,8 +884,8 @@ public class Task
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid scheduled task.
    */
-  public Task(final String taskClassName,
-              final Map<TaskProperty,List<Object>> properties)
+  public Task(@NotNull final String taskClassName,
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     Validator.ensureNotNull(taskClassName, properties);
@@ -973,6 +987,7 @@ public class Task
    *
    * @return  A list containing instances of the available task types.
    */
+  @NotNull()
   public static List<Task> getAvailableTaskTypes()
   {
     final List<Task> taskList = Arrays.asList(
@@ -1015,6 +1030,7 @@ public class Task
    *
    * @return  A human-readable name for this task.
    */
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_GENERIC.get();
@@ -1027,6 +1043,7 @@ public class Task
    *
    * @return  A human-readable description for this task.
    */
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_GENERIC.get();
@@ -1042,6 +1059,7 @@ public class Task
    * @return  The entry from which this task was decoded, or {@code null} if
    *          this task was not created from an existing entry.
    */
+  @Nullable()
   protected final Entry getTaskEntry()
   {
     return taskEntry;
@@ -1054,6 +1072,7 @@ public class Task
    *
    * @return  The DN of the entry in which this scheduled task is defined.
    */
+  @NotNull()
   public final String getTaskEntryDN()
   {
     return taskEntryDN;
@@ -1066,6 +1085,7 @@ public class Task
    *
    * @return  The task ID for this task.
    */
+  @NotNull()
   public final String getTaskID()
   {
     return taskID;
@@ -1080,6 +1100,7 @@ public class Task
    * @return  The fully-qualified name of the Java class that provides the logic
    *          for this task.
    */
+  @NotNull()
   public final String getTaskClassName()
   {
     return taskClassName;
@@ -1092,6 +1113,7 @@ public class Task
    *
    * @return  The current state for this task.
    */
+  @NotNull()
   public final TaskState getState()
   {
     return taskState;
@@ -1145,6 +1167,7 @@ public class Task
    *          {@code null} if that is not available and therefore the task
    *          should start running as soon as all dependencies have been met.
    */
+  @Nullable()
   public final Date getScheduledStartTime()
   {
     return scheduledStartTime;
@@ -1159,6 +1182,7 @@ public class Task
    *          if that is not available (e.g., because the task has not yet
    *          started).
    */
+  @Nullable()
   public final Date getActualStartTime()
   {
     return actualStartTime;
@@ -1172,6 +1196,7 @@ public class Task
    * @return  The time that this task completed, or {@code null} if it has not
    *          yet completed.
    */
+  @Nullable()
   public final Date getCompletionTime()
   {
     return completionTime;
@@ -1187,6 +1212,7 @@ public class Task
    *          task will be eligible to start, or an empty list if this task does
    *          not have any dependencies.
    */
+  @NotNull()
   public final List<String> getDependencyIDs()
   {
     return dependencyIDs;
@@ -1202,6 +1228,7 @@ public class Task
    * @return  The failed dependency action for this task, or {@code null} if it
    *          is not available.
    */
+  @Nullable()
   public final FailedDependencyAction getFailedDependencyAction()
   {
     return failedDependencyAction;
@@ -1217,6 +1244,7 @@ public class Task
    * @return  The log messages for this task, or an empty list if this task does
    *          not have any log messages.
    */
+  @NotNull()
   public final List<String> getLogMessages()
   {
     return logMessages;
@@ -1232,6 +1260,7 @@ public class Task
    *          notified whenever this task starts running, or an empty list if
    *          there are none.
    */
+  @NotNull()
   public final List<String> getNotifyOnStartAddresses()
   {
     return notifyOnStart;
@@ -1248,6 +1277,7 @@ public class Task
    *          notified whenever this task completes processing, or an empty list
    *          if there are none.
    */
+  @NotNull()
   public final List<String> getNotifyOnCompletionAddresses()
   {
     return notifyOnCompletion;
@@ -1263,6 +1293,7 @@ public class Task
    *          notified if this task completes successfully, or an empty list
    *          if there are none.
    */
+  @NotNull()
   public final List<String> getNotifyOnSuccessAddresses()
   {
     return notifyOnSuccess;
@@ -1279,6 +1310,7 @@ public class Task
    *          notified if this task stops processing prematurely, or an empty
    *          list if there are none.
    */
+  @NotNull()
   public final List<String> getNotifyOnErrorAddresses()
   {
     return notifyOnError;
@@ -1294,6 +1326,7 @@ public class Task
    *          starts running, {@code false} if the server should not send an
    *          alert, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Boolean getAlertOnStart()
   {
     return alertOnStart;
@@ -1309,6 +1342,7 @@ public class Task
    *          completes successfully, {@code false} if the server should not
    *          send an alert, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Boolean getAlertOnSuccess()
   {
     return alertOnSuccess;
@@ -1324,6 +1358,7 @@ public class Task
    *          to complete successfully, {@code false} if the server should not
    *          send an alert, or {@code null} if it is not available.
    */
+  @Nullable()
   public final Boolean getAlertOnError()
   {
     return alertOnError;
@@ -1338,6 +1373,7 @@ public class Task
    * @return  An entry that may be added to the Directory Server to create a new
    *          instance of this task.
    */
+  @NotNull()
   public final Entry createTaskEntry()
   {
     final ArrayList<Attribute> attributes = new ArrayList<>(20);
@@ -1434,9 +1470,9 @@ public class Task
    * @throws  TaskException  If the provided value string cannot be parsed as a
    *                         {@code boolean} value.
    */
-  protected static boolean parseBooleanValue(final Entry taskEntry,
-                                             final String attributeName,
-                                             final boolean defaultValue)
+  protected static boolean parseBooleanValue(@NotNull final Entry taskEntry,
+                 @NotNull final String attributeName,
+                 final boolean defaultValue)
             throws TaskException
   {
     final String valueString = taskEntry.getAttributeValue(attributeName);
@@ -1474,8 +1510,9 @@ public class Task
    *          exist in the target entry.  The returned list will be
    *          unmodifiable.
    */
-  protected static List<String> parseStringList(final Entry taskEntry,
-                                                final String attributeName)
+  @NotNull()
+  protected static List<String> parseStringList(@NotNull final Entry taskEntry,
+                 @NotNull final String attributeName)
   {
     final String[] valueStrings = taskEntry.getAttributeValues(attributeName);
     if (valueStrings == null)
@@ -1504,9 +1541,10 @@ public class Task
    *
    * @throws  TaskException  If there is a problem with the provided values.
    */
-  protected static Boolean parseBoolean(final TaskProperty p,
-                                        final List<Object> values,
-                                        final Boolean defaultValue)
+  @Nullable()
+  protected static Boolean parseBoolean(@NotNull final TaskProperty p,
+                                        @NotNull final List<Object> values,
+                                        @Nullable final Boolean defaultValue)
             throws TaskException
   {
     // Check to see if any values were provided.  If not, then it may or may not
@@ -1580,9 +1618,10 @@ public class Task
    *
    * @throws  TaskException  If there is a problem with the provided values.
    */
-  protected static Date parseDate(final TaskProperty p,
-                                  final List<Object> values,
-                                  final Date defaultValue)
+  @Nullable()
+  protected static Date parseDate(@NotNull final TaskProperty p,
+                                  @NotNull final List<Object> values,
+                                  @Nullable final Date defaultValue)
             throws TaskException
   {
     // Check to see if any values were provided.  If not, then it may or may not
@@ -1673,9 +1712,10 @@ public class Task
    *
    * @throws  TaskException  If there is a problem with the provided values.
    */
-  protected static Long parseLong(final TaskProperty p,
-                                  final List<Object> values,
-                                  final Long defaultValue)
+  @Nullable()
+  protected static Long parseLong(@NotNull final TaskProperty p,
+                                  @NotNull final List<Object> values,
+                                  @Nullable final Long defaultValue)
             throws TaskException
   {
     // Check to see if any values were provided.  If not, then it may or may not
@@ -1770,9 +1810,10 @@ public class Task
    *
    * @throws  TaskException  If there is a problem with the provided values.
    */
-  protected static String parseString(final TaskProperty p,
-                                      final List<Object> values,
-                                      final String defaultValue)
+  @Nullable()
+  protected static String parseString(@NotNull final TaskProperty p,
+                                      @NotNull final List<Object> values,
+                                      @Nullable final String defaultValue)
             throws TaskException
   {
     // Check to see if any values were provided.  If not, then it may or may not
@@ -1856,9 +1897,10 @@ public class Task
    *
    * @throws  TaskException  If there is a problem with the provided values.
    */
-  protected static String[] parseStrings(final TaskProperty p,
-                                         final List<Object> values,
-                                         final String[] defaultValues)
+  @Nullable()
+  protected static String[] parseStrings(@NotNull final TaskProperty p,
+                                         @NotNull final List<Object> values,
+                                         @Nullable final String[] defaultValues)
             throws TaskException
   {
     // Check to see if any values were provided.  If not, then it may or may not
@@ -1940,6 +1982,7 @@ public class Task
    *          new task entries of this type, or an empty list if there do not
    *          need to be any additional classes.
    */
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.emptyList();
@@ -1956,6 +1999,7 @@ public class Task
    *          task entries of this type, or an empty list if there do not need
    *          to be any additional attributes.
    */
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     return Collections.emptyList();
@@ -1976,7 +2020,8 @@ public class Task
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         scheduled task.
    */
-  public static Task decodeTask(final Entry entry)
+  @NotNull()
+  public static Task decodeTask(@NotNull final Entry entry)
          throws TaskException
   {
     final String taskClass = entry.getAttributeValue(ATTR_TASK_CLASS);
@@ -2147,6 +2192,7 @@ public class Task
    * @return  A list of task properties that may be provided when scheduling any
    *          type of task.
    */
+  @NotNull()
   public static List<TaskProperty> getCommonTaskProperties()
   {
     final List<TaskProperty> taskList = Arrays.asList(
@@ -2175,6 +2221,7 @@ public class Task
    * @return  A list of task-specific properties that may be provided when
    *          scheduling a task of this type.
    */
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.emptyList();
@@ -2196,6 +2243,7 @@ public class Task
    *
    * @return  A map of the task property values for this task.
    */
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
@@ -2268,6 +2316,7 @@ public class Task
    * @return  A string representation of this task.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -2283,7 +2332,7 @@ public class Task
    * @param  buffer  The buffer to which the string representation should be
    *                 provided.
    */
-  public final void toString(final StringBuilder buffer)
+  public final void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("Task(name='");
     buffer.append(getTaskName());

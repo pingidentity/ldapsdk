@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -75,7 +76,8 @@ public final class SearchResultReferenceEntrySourceException
   public SearchResultReferenceEntrySourceException(
               final SearchResultReference searchReference)
   {
-    super(true, new LDAPException(ResultCode.REFERRAL, null, null,
+    super(true, new LDAPException(ResultCode.REFERRAL,
+         ResultCode.REFERRAL.getName(), null,
          searchReference.getReferralURLs(), searchReference.getControls(),
          null));
 
@@ -100,7 +102,7 @@ public final class SearchResultReferenceEntrySourceException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SearchResultReferenceEntrySourceException(searchReference=");
     searchReference.toString(buffer);

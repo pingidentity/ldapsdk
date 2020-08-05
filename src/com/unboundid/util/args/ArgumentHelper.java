@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,7 +72,7 @@ public final class ArgumentHelper
    * @param  parser  The argument parser to be reset.
    */
   @InternalUseOnly()
-  public static void reset(final ArgumentParser parser)
+  public static void reset(@NotNull final ArgumentParser parser)
   {
     parser.reset();
   }
@@ -89,7 +90,7 @@ public final class ArgumentHelper
    *                             exceed the maximum allowed number.
    */
   @InternalUseOnly()
-  public static void incrementOccurrences(final Argument argument)
+  public static void incrementOccurrences(@NotNull final Argument argument)
          throws ArgumentException
   {
     argument.incrementOccurrences();
@@ -107,7 +108,7 @@ public final class ArgumentHelper
    */
   @InternalUseOnly()
   public static void incrementOccurrencesSuppressException(
-                          final Argument argument)
+                          @NotNull final Argument argument)
   {
     try
     {
@@ -129,8 +130,8 @@ public final class ArgumentHelper
    * @param  subcommand  The subcommand that has been selected.
    */
   @InternalUseOnly()
-  public static void setSelectedSubCommand(final ArgumentParser parser,
-                                           final SubCommand subcommand)
+  public static void setSelectedSubCommand(@NotNull final ArgumentParser parser,
+                                           @NotNull final SubCommand subcommand)
   {
     parser.setSelectedSubCommand(subcommand);
   }
@@ -150,7 +151,8 @@ public final class ArgumentHelper
    *                             number of values.
    */
   @InternalUseOnly()
-  public static void addValue(final Argument argument, final String valueString)
+  public static void addValue(@NotNull final Argument argument,
+                              @NotNull final String valueString)
             throws ArgumentException
   {
     argument.addValue(valueString);
@@ -168,8 +170,8 @@ public final class ArgumentHelper
    * @param  valueString  The string representation of the value.
    */
   @InternalUseOnly()
-  public static void addValueSuppressException(final Argument argument,
-                                               final String valueString)
+  public static void addValueSuppressException(@NotNull final Argument argument,
+                          @NotNull final String valueString)
   {
     try
     {
@@ -194,7 +196,7 @@ public final class ArgumentHelper
    *          {@code false} if not.
    */
   @InternalUseOnly()
-  public static boolean hasDefaultValue(final Argument argument)
+  public static boolean hasDefaultValue(@NotNull final Argument argument)
   {
     return argument.hasDefaultValue();
   }
@@ -210,7 +212,7 @@ public final class ArgumentHelper
    * @param  argument  The argument to reset.
    */
   @InternalUseOnly()
-  public static void reset(final Argument argument)
+  public static void reset(@NotNull final Argument argument)
   {
     argument.reset();
   }
@@ -226,8 +228,8 @@ public final class ArgumentHelper
    *                     the command-line arguments.
    */
   @InternalUseOnly()
-  public static void addToCommandLine(final Argument argument,
-                                      final List<String> argStrings)
+  public static void addToCommandLine(@NotNull final Argument argument,
+                                      @NotNull final List<String> argStrings)
   {
     argument.addToCommandLine(argStrings);
   }
@@ -241,7 +243,8 @@ public final class ArgumentHelper
    *                 cleared.
    */
   @InternalUseOnly()
-  public static void resetTrailingArguments(final ArgumentParser parser)
+  public static void resetTrailingArguments(
+                          @NotNull final ArgumentParser parser)
   {
     parser.resetTrailingArguments();
   }
@@ -260,8 +263,8 @@ public final class ArgumentHelper
    *                             number of trailing arguments.
    */
   @InternalUseOnly()
-  public static void addTrailingArgument(final ArgumentParser parser,
-                                         final String value)
+  public static void addTrailingArgument(@NotNull final ArgumentParser parser,
+                                         @NotNull final String value)
          throws ArgumentException
   {
     parser.addTrailingArgument(value);

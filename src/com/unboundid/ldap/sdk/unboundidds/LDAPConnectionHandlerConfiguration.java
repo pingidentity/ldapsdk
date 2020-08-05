@@ -59,6 +59,8 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +98,7 @@ public final class LDAPConnectionHandlerConfiguration
    * The name of the LDAP object class that will be used in LDAP connection
    * handler configuration entries.
    */
-  private static final String OC_LDAP_CONN_HANDLER =
+  @NotNull private static final String OC_LDAP_CONN_HANDLER =
        "ds-cfg-ldap-connection-handler";
 
 
@@ -105,7 +107,8 @@ public final class LDAPConnectionHandlerConfiguration
    * The name for the LDAP attribute that indicates whether the connection
    * handler allows StartTLS.
    */
-  private static final String ATTR_ALLOW_START_TLS = "ds-cfg-allow-start-tls";
+  @NotNull private static final String ATTR_ALLOW_START_TLS =
+       "ds-cfg-allow-start-tls";
 
 
 
@@ -113,7 +116,7 @@ public final class LDAPConnectionHandlerConfiguration
    * The name fo the LDAP attribute that indicates whether the connection
    * handler is enabled.
    */
-  private static final String ATTR_ENABLED = "ds-cfg-enabled";
+  @NotNull private static final String ATTR_ENABLED = "ds-cfg-enabled";
 
 
 
@@ -121,7 +124,8 @@ public final class LDAPConnectionHandlerConfiguration
    * The name for the LDAP attribute that specifies the set of addresses on
    * which the connection handler will listen.
    */
-  private static final String ATTR_LISTEN_ADDRESS = "ds-cfg-listen-address";
+  @NotNull private static final String ATTR_LISTEN_ADDRESS =
+       "ds-cfg-listen-address";
 
 
 
@@ -129,7 +133,7 @@ public final class LDAPConnectionHandlerConfiguration
    * The name for the LDAP attribute that specifies the port on which the
    * connection handler will listen.
    */
-  private static final String ATTR_LISTEN_PORT = "ds-cfg-listen-port";
+  @NotNull private static final String ATTR_LISTEN_PORT = "ds-cfg-listen-port";
 
 
 
@@ -137,7 +141,7 @@ public final class LDAPConnectionHandlerConfiguration
    * The name for the LDAP attribute that specifies the name of the connection
    * handler.
    */
-  private static final String ATTR_NAME = "cn";
+  @NotNull private static final String ATTR_NAME = "cn";
 
 
 
@@ -145,7 +149,7 @@ public final class LDAPConnectionHandlerConfiguration
    * The name for the LDAP attribute that indicates whether the connection
    * handler uses SSL.
    */
-  private static final String ATTR_USE_SSL = "ds-cfg-use-ssl";
+  @NotNull private static final String ATTR_USE_SSL = "ds-cfg-use-ssl";
 
 
 
@@ -171,10 +175,10 @@ public final class LDAPConnectionHandlerConfiguration
 
   // The set of addresses on which the connection handler accepts client
   // connections.
-  private final List<String> listenAddresses;
+  @NotNull private final List<String> listenAddresses;
 
   // The name for the connection handler.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -195,10 +199,9 @@ public final class LDAPConnectionHandlerConfiguration
    * @param  supportsStartTLS  Indicates whether the connection handler supports
    *                           StartTLS for encrypting communication.
    */
-  LDAPConnectionHandlerConfiguration(final String name, final boolean isEnabled,
-                                     final List<String> listenAddresses,
-                                     final int port, final boolean usesSSL,
-                                     final boolean supportsStartTLS)
+  LDAPConnectionHandlerConfiguration(@NotNull final String name,
+       final boolean isEnabled, @NotNull final List<String> listenAddresses,
+       final int port, final boolean usesSSL, final boolean supportsStartTLS)
   {
     this.name = name;
     this.isEnabled = isEnabled;
@@ -215,6 +218,7 @@ public final class LDAPConnectionHandlerConfiguration
    *
    * @return  The name for the connection handler.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -243,6 +247,7 @@ public final class LDAPConnectionHandlerConfiguration
    *          client connections, or an empty set if the connection handler
    *          listens on all addresses on all interfaces.
    */
+  @NotNull()
   public List<String> getListenAddresses()
   {
     return listenAddresses;
@@ -305,14 +310,15 @@ public final class LDAPConnectionHandlerConfiguration
    * @return  A list of the LDAP connection handler configuration objects read
    *          from the specified configuration file, or an empty set if no LDAP
    *          connection handler configuration entries were found in the
-   *          .
+   *          configuration.
    *
    * @throws  LDAPException  If a problem interferes with reading the
    *                         connection handler configuration objects from the
    *                         configuration file.
    */
+  @NotNull()
   public static List<LDAPConnectionHandlerConfiguration> readConfiguration(
-                     final File configFile, final boolean onlyEnabled)
+                     @NotNull final File configFile, final boolean onlyEnabled)
          throws LDAPException
   {
     try (LDIFReader ldifReader = new LDIFReader(configFile))
@@ -464,7 +470,7 @@ public final class LDAPConnectionHandlerConfiguration
    *            not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -526,7 +532,8 @@ public final class LDAPConnectionHandlerConfiguration
    *          zero if the configurations are considered logically equivalent.
    */
   @Override()
-  public int compareTo(final LDAPConnectionHandlerConfiguration config)
+  public int compareTo(
+       @Nullable final LDAPConnectionHandlerConfiguration config)
   {
     if (config == null)
     {
@@ -641,8 +648,8 @@ public final class LDAPConnectionHandlerConfiguration
    *          zero if the configurations are considered logically equivalent.
    */
   @Override()
-  public int compare(final LDAPConnectionHandlerConfiguration c1,
-                     final LDAPConnectionHandlerConfiguration c2)
+  public int compare(@NotNull final LDAPConnectionHandlerConfiguration c1,
+                     @NotNull final LDAPConnectionHandlerConfiguration c2)
   {
     return c1.compareTo(c2);
   }
@@ -657,6 +664,7 @@ public final class LDAPConnectionHandlerConfiguration
    *          configuration.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -672,7 +680,7 @@ public final class LDAPConnectionHandlerConfiguration
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPConnectionHandlerConfiguration(name='");
     buffer.append(name);

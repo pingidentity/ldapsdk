@@ -65,7 +65,7 @@ public final class WeakHashSet<T>
        implements Set<T>
 {
   // The map that will be used to provide the set implementation.
-  private final WeakHashMap<T,WeakReference<T>> m;
+  @NotNull private final WeakHashMap<T,WeakReference<T>> m;
 
 
 
@@ -138,7 +138,7 @@ public final class WeakHashSet<T>
    *          {@code false} if not.
    */
   @Override()
-  public boolean contains(final Object e)
+  public boolean contains(@NotNull final Object e)
   {
     return m.containsKey(e);
   }
@@ -155,7 +155,7 @@ public final class WeakHashSet<T>
    *          the provided collection, or {@code false} if not.
    */
   @Override()
-  public boolean containsAll(final Collection<?> c)
+  public boolean containsAll(@NotNull final Collection<?> c)
   {
     return m.keySet().containsAll(c);
   }
@@ -170,7 +170,8 @@ public final class WeakHashSet<T>
    * @return  The existing instance of the provided element, or {@code null} if
    *          the provided element is not contained in this set.
    */
-  public T get(final T e)
+  @Nullable()
+  public T get(@NotNull final T e)
   {
     final WeakReference<T> r = m.get(e);
     if (r == null)
@@ -195,7 +196,7 @@ public final class WeakHashSet<T>
    *          added (because it was already in the set).
    */
   @Override()
-  public boolean add(final T e)
+  public boolean add(@NotNull final T e)
   {
     if (m.containsKey(e))
     {
@@ -221,7 +222,7 @@ public final class WeakHashSet<T>
    *          because they were already all present.
    */
   @Override()
-  public boolean addAll(final Collection<? extends T> c)
+  public boolean addAll(@NotNull final Collection<? extends T> c)
   {
     boolean changed = false;
     for (final T e : c)
@@ -247,7 +248,8 @@ public final class WeakHashSet<T>
    * @return  An existing version of the provided element if it was already in
    *          the set, or the provided object if it was just added.
    */
-  public T addAndGet(final T e)
+  @Nullable()
+  public T addAndGet(@NotNull final T e)
   {
     final WeakReference<T> r = m.get(e);
     if (r != null)
@@ -274,7 +276,7 @@ public final class WeakHashSet<T>
    *          {@code false} if not.
    */
   @Override()
-  public boolean remove(final Object e)
+  public boolean remove(@NotNull final Object e)
   {
     return (m.remove(e) != null);
   }
@@ -292,7 +294,7 @@ public final class WeakHashSet<T>
    *          were contained in this set.
    */
   @Override()
-  public boolean removeAll(final Collection<?> c)
+  public boolean removeAll(@NotNull final Collection<?> c)
   {
     boolean changed = false;
     for (final Object o : c)
@@ -321,7 +323,7 @@ public final class WeakHashSet<T>
    *          provided collection.
    */
   @Override()
-  public boolean retainAll(final Collection<?> c)
+  public boolean retainAll(@NotNull final Collection<?> c)
   {
     boolean changed = false;
     final Iterator<Map.Entry<T,WeakReference<T>>> iterator =
@@ -347,6 +349,7 @@ public final class WeakHashSet<T>
    * @return  An iterator across all elements in this set.
    */
   @Override()
+  @NotNull()
   public Iterator<T> iterator()
   {
     return m.keySet().iterator();
@@ -362,6 +365,7 @@ public final class WeakHashSet<T>
    *          set.
    */
   @Override()
+  @NotNull()
   public Object[] toArray()
   {
     return m.keySet().toArray();
@@ -384,7 +388,8 @@ public final class WeakHashSet<T>
    *          large enough.
    */
   @Override()
-  public <E> E[] toArray(final E[] a)
+  @NotNull()
+  public <E> E[] toArray(@NotNull final E[] a)
   {
     return m.keySet().toArray(a);
   }
@@ -413,7 +418,7 @@ public final class WeakHashSet<T>
    *          the same elements as this set, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     return ((o != null) && (o instanceof Set) && m.keySet().equals(o));
   }
@@ -426,6 +431,7 @@ public final class WeakHashSet<T>
    * @return  A string representation of this set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return m.keySet().toString();

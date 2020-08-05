@@ -70,7 +70,8 @@ public final class ResultCodeCounter
 
 
   // The reference to the current map used to hold result code counts.
-  private final AtomicReference<ConcurrentHashMap<ResultCode,AtomicLong>> rcMap;
+  @NotNull private final
+       AtomicReference<ConcurrentHashMap<ResultCode,AtomicLong>> rcMap;
 
 
 
@@ -91,7 +92,7 @@ public final class ResultCodeCounter
    *
    * @param  resultCode  The result code for which to increment the count.
    */
-  public void increment(final ResultCode resultCode)
+  public void increment(@NotNull final ResultCode resultCode)
   {
     increment(resultCode, 1);
   }
@@ -104,7 +105,7 @@ public final class ResultCodeCounter
    * @param  resultCode  The result code for which to increment the count.
    * @param  amount      The amount by which to increment the count.
    */
-  public void increment(final ResultCode resultCode, final int amount)
+  public void increment(@NotNull final ResultCode resultCode, final int amount)
   {
     final ConcurrentHashMap<ResultCode,AtomicLong> m = rcMap.get();
 
@@ -147,6 +148,7 @@ public final class ResultCodeCounter
    * @return  A list of the result codes of each type along with their
    *          respective counts.
    */
+  @NotNull()
   public List<ObjectPair<ResultCode,Long>> getCounts(final boolean reset)
   {
     final ConcurrentHashMap<ResultCode,AtomicLong> m;

@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +98,7 @@ public final class UnboundIDWorkQueueMonitorEntry
   /**
    * The structural object class used in LDAP statistics monitor entries.
    */
-  static final String UNBOUNDID_WORK_QUEUE_MONITOR_OC =
+  @NotNull static final String UNBOUNDID_WORK_QUEUE_MONITOR_OC =
        "ds-unboundid-work-queue-monitor-entry";
 
 
@@ -105,7 +107,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the average worker thread percent
    * busy.
    */
-  private static final String ATTR_AVERAGE_QUEUE_TIME_MILLIS =
+  @NotNull private static final String ATTR_AVERAGE_QUEUE_TIME_MILLIS =
        "average-operation-queue-time-millis";
 
 
@@ -114,7 +116,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the average worker thread percent
    * busy.
    */
-  private static final String ATTR_AVERAGE_PCT_BUSY =
+  @NotNull private static final String ATTR_AVERAGE_PCT_BUSY =
        "average-worker-thread-percent-busy";
 
 
@@ -123,14 +125,14 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the average observed work queue
    * size.
    */
-  private static final String ATTR_AVERAGE_SIZE = "average-queue-size";
+  @NotNull private static final String ATTR_AVERAGE_SIZE = "average-queue-size";
 
 
 
   /**
    * The name of the attribute that contains the current work queue size.
    */
-  private static final String ATTR_CURRENT_PCT_BUSY =
+  @NotNull private static final String ATTR_CURRENT_PCT_BUSY =
        "current-worker-thread-percent-busy";
 
 
@@ -138,7 +140,7 @@ public final class UnboundIDWorkQueueMonitorEntry
   /**
    * The name of the attribute that contains the current work queue size.
    */
-  private static final String ATTR_CURRENT_SIZE = "current-queue-size";
+  @NotNull private static final String ATTR_CURRENT_SIZE = "current-queue-size";
 
 
 
@@ -146,7 +148,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the maximum observed work queue
    * size.
    */
-  private static final String ATTR_MAX_SIZE = "max-queue-size";
+  @NotNull private static final String ATTR_MAX_SIZE = "max-queue-size";
 
 
 
@@ -154,7 +156,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the maximum worker thread percent
    * busy.
    */
-  private static final String ATTR_MAX_PCT_BUSY =
+  @NotNull private static final String ATTR_MAX_PCT_BUSY =
        "max-worker-thread-percent-busy";
 
 
@@ -162,7 +164,7 @@ public final class UnboundIDWorkQueueMonitorEntry
   /**
    * The name of the attribute that contains the number of busy worker threads.
    */
-  private static final String ATTR_NUM_BUSY_WORKER_THREADS =
+  @NotNull private static final String ATTR_NUM_BUSY_WORKER_THREADS =
        "num-busy-worker-threads";
 
 
@@ -170,7 +172,8 @@ public final class UnboundIDWorkQueueMonitorEntry
   /**
    * The name of the attribute that contains the number of worker threads.
    */
-  private static final String ATTR_NUM_WORKER_THREADS = "num-worker-threads";
+  @NotNull private static final String ATTR_NUM_WORKER_THREADS =
+       "num-worker-threads";
 
 
 
@@ -178,7 +181,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the average worker thread percent
    * busy.
    */
-  private static final String ATTR_RECENT_AVERAGE_SIZE =
+  @NotNull private static final String ATTR_RECENT_AVERAGE_SIZE =
        "recent-average-queue-size";
 
 
@@ -187,7 +190,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the average worker thread percent
    * busy.
    */
-  private static final String ATTR_RECENT_QUEUE_TIME_MILLIS =
+  @NotNull private static final String ATTR_RECENT_QUEUE_TIME_MILLIS =
        "recent-operation-queue-time-millis";
 
 
@@ -196,7 +199,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the recent worker thread percent
    * busy.
    */
-  private static final String ATTR_RECENT_PCT_BUSY =
+  @NotNull private static final String ATTR_RECENT_PCT_BUSY =
        "recent-worker-thread-percent-busy";
 
 
@@ -205,7 +208,8 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the total number of requests that
    * have been rejected because the work queue was full.
    */
-  private static final String ATTR_REQUESTS_REJECTED = "rejected-count";
+  @NotNull private static final String ATTR_REQUESTS_REJECTED =
+       "rejected-count";
 
 
 
@@ -214,7 +218,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * have were stolen from their primary queue by a worker thread associated
    * with a different queue.
    */
-  private static final String ATTR_REQUESTS_STOLEN = "stolen-count";
+  @NotNull private static final String ATTR_REQUESTS_STOLEN = "stolen-count";
 
 
 
@@ -222,7 +226,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * The name of the attribute that contains the current size of the work queue
    * reserved for operations processed as part of administrative sessions.
    */
-  private static final String ATTR_CURRENT_ADMIN_QUEUE_SIZE =
+  @NotNull private static final String ATTR_CURRENT_ADMIN_QUEUE_SIZE =
        "current-administrative-session-queue-size";
 
 
@@ -232,7 +236,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * are currently busy processing operations as part of an administrative
    * session.
    */
-  private static final String ATTR_MAX_ADMIN_SESSION_QUEUE_SIZE =
+  @NotNull private static final String ATTR_MAX_ADMIN_SESSION_QUEUE_SIZE =
        "max-administrative-session-queue-size";
 
 
@@ -242,7 +246,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * reserved for processing operations that are part of an administrative
    * session.
    */
-  private static final String ATTR_NUM_ADMIN_WORKER_THREADS =
+  @NotNull private static final String ATTR_NUM_ADMIN_WORKER_THREADS =
        "num-administrative-session-worker-threads";
 
 
@@ -252,7 +256,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * are currently busy processing operations as part of an administrative
    * session.
    */
-  private static final String ATTR_NUM_BUSY_ADMIN_WORKER_THREADS =
+  @NotNull private static final String ATTR_NUM_BUSY_ADMIN_WORKER_THREADS =
        "num-busy-administrative-session-worker-threads";
 
 
@@ -265,58 +269,58 @@ public final class UnboundIDWorkQueueMonitorEntry
 
 
   // The average queue time in milliseconds.
-  private final Long averageQueueTimeMillis;
+  @Nullable private final Long averageQueueTimeMillis;
 
   // The average worker thread percent busy.
-  private final Long averagePercentBusy;
+  @Nullable private final Long averagePercentBusy;
 
   // The average work queue size.
-  private final Long averageSize;
+  @Nullable private final Long averageSize;
 
   // The current administrative session work queue size.
-  private final Long currentAdminSize;
+  @Nullable private final Long currentAdminSize;
 
   // The current work queue size.
-  private final Long currentSize;
+  @Nullable private final Long currentSize;
 
   // The current worker thread percent busy.
-  private final Long currentPercentBusy;
+  @Nullable private final Long currentPercentBusy;
 
   // The maximum administrative session work queue size.
-  private final Long maxAdminSize;
+  @Nullable private final Long maxAdminSize;
 
   // The maximum worker thread percent busy.
-  private final Long maxPercentBusy;
+  @Nullable private final Long maxPercentBusy;
 
   // The maximum work queue size.
-  private final Long maxSize;
+  @Nullable private final Long maxSize;
 
   // The number of administrative session worker threads.
-  private final Long numAdminWorkerThreads;
+  @Nullable private final Long numAdminWorkerThreads;
 
   // The number of busy worker threads.
-  private final Long numBusyWorkerThreads;
+  @Nullable private final Long numBusyWorkerThreads;
 
   // The number of busy administrative session worker threads.
-  private final Long numBusyAdminWorkerThreads;
+  @Nullable private final Long numBusyAdminWorkerThreads;
 
   // The number of worker threads.
-  private final Long numWorkerThreads;
+  @Nullable private final Long numWorkerThreads;
 
   // The recent average work queue size.
-  private final Long recentAverageSize;
+  @Nullable private final Long recentAverageSize;
 
   // The recent queue time in milliseconds.
-  private final Long recentQueueTimeMillis;
+  @Nullable private final Long recentQueueTimeMillis;
 
   // The recent worker thread percent busy.
-  private final Long recentPercentBusy;
+  @Nullable private final Long recentPercentBusy;
 
   // The total number of requests rejected due to a full work queue.
-  private final Long requestsRejected;
+  @Nullable private final Long requestsRejected;
 
   // The total number of requests rejected due to a full work queue.
-  private final Long requestsStolen;
+  @Nullable private final Long requestsStolen;
 
 
 
@@ -326,7 +330,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * @param  entry  The entry to be parsed as a traditional work queue monitor
    *                entry.  It must not be {@code null}.
    */
-  public UnboundIDWorkQueueMonitorEntry(final Entry entry)
+  public UnboundIDWorkQueueMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -359,6 +363,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          {@code null} if that information was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getAverageSize()
   {
     return averageSize;
@@ -374,6 +379,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          recent interval, or {@code null} if that information was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getRecentAverageSize()
   {
     return recentAverageSize;
@@ -389,6 +395,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          waiting to be processed, or {@code null} if that information was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentSize()
   {
     return currentSize;
@@ -404,6 +411,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          given time, or {@code null} if that information was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public Long getMaxSize()
   {
     return maxSize;
@@ -419,6 +427,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          queue was at its maximum capacity, or {@code null} if that
    *          information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getRequestsRejectedDueToQueueFull()
   {
     return requestsRejected;
@@ -435,6 +444,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          queue, or {@code null} if that information was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getRequestsStolen()
   {
     return requestsStolen;
@@ -449,6 +459,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          {@code null} if that information was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getNumWorkerThreads()
   {
     return numWorkerThreads;
@@ -464,6 +475,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          operation, or {@code null} if that information was not included in
    *          the monitor entry.
    */
+  @Nullable()
   public Long getNumBusyWorkerThreads()
   {
     return numBusyWorkerThreads;
@@ -479,6 +491,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          processing an operation, or {@code null} if that information was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentWorkerThreadPercentBusy()
   {
     return currentPercentBusy;
@@ -494,6 +507,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          threads have spent busy processing operations, or {@code null} if
    *          that information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getAverageWorkerThreadPercentBusy()
   {
     return averagePercentBusy;
@@ -509,6 +523,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          threads have spent busy processing operations, or {@code null} if
    *          that information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getRecentWorkerThreadPercentBusy()
   {
     return recentPercentBusy;
@@ -524,6 +539,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          threads have spent busy processing operations, or {@code null} if
    *          that information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMaxWorkerThreadPercentBusy()
   {
     return maxPercentBusy;
@@ -540,6 +556,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          been required to wait on the work queue, or {@code null} if that
    *          information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getAverageOperationQueueTimeMillis()
   {
     return averageQueueTimeMillis;
@@ -557,6 +574,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          {@code null} if that information was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getRecentOperationQueueTimeMillis()
   {
     return recentQueueTimeMillis;
@@ -574,6 +592,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          that are part of an administrative session, or {@code null} if
    *          that information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentAdministrativeSessionQueueSize()
   {
     return currentAdminSize;
@@ -589,6 +608,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          administrative session queue at any given time, or {@code null} if
    *          that information was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMaxAdministrativeSessionQueueSize()
   {
     return maxAdminSize;
@@ -605,6 +625,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          or {@code null} if that information was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getNumAdministrativeSessionWorkerThreads()
   {
     return numAdminWorkerThreads;
@@ -621,6 +642,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    *          {@code null} if that information was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getNumBusyAdministrativeSessionWorkerThreads()
   {
     return numBusyAdminWorkerThreads;
@@ -632,6 +654,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_UNBOUNDID_WORK_QUEUE_MONITOR_DISPNAME.get();
@@ -643,6 +666,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_UNBOUNDID_WORK_QUEUE_MONITOR_DESC.get();
@@ -654,6 +678,7 @@ public final class UnboundIDWorkQueueMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

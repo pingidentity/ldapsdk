@@ -70,6 +70,8 @@ import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,96 +99,96 @@ public final class LDAPObjectHandler<T>
 
 
   // The object class attribute to include in entries that are created.
-  private final Attribute objectClassAttribute;
+  @NotNull private final Attribute objectClassAttribute;
 
   // The type of object handled by this class.
-  private final Class<T> type;
+  @NotNull private final Class<T> type;
 
   // The constructor to use to create a new instance of the class.
-  private final Constructor<T> constructor;
+  @NotNull private final Constructor<T> constructor;
 
   // The default parent DN for entries created from objects of the associated
   //  type.
-  private final DN defaultParentDN;
+  @NotNull private final DN defaultParentDN;
 
   // The field that will be used to hold the DN of the entry.
-  private final Field dnField;
+  @Nullable private final Field dnField;
 
   // The field that will be used to hold the entry contents.
-  private final Field entryField;
+  @Nullable private final Field entryField;
 
   // The LDAPObject annotation for the associated object.
-  private final LDAPObject ldapObject;
+  @NotNull private final LDAPObject ldapObject;
 
   // The LDAP object handler for the superclass, if applicable.
-  private final LDAPObjectHandler<? super T> superclassHandler;
+  @Nullable private final LDAPObjectHandler<? super T> superclassHandler;
 
   // The list of fields for with a filter usage of ALWAYS_ALLOWED.
-  private final List<FieldInfo> alwaysAllowedFilterFields;
+  @NotNull private final List<FieldInfo> alwaysAllowedFilterFields;
 
   // The list of fields for with a filter usage of CONDITIONALLY_ALLOWED.
-  private final List<FieldInfo> conditionallyAllowedFilterFields;
+  @NotNull private final List<FieldInfo> conditionallyAllowedFilterFields;
 
   // The list of fields for with a filter usage of REQUIRED.
-  private final List<FieldInfo> requiredFilterFields;
+  @NotNull private final List<FieldInfo> requiredFilterFields;
 
   // The list of fields for this class that should be used to construct the RDN.
-  private final List<FieldInfo> rdnFields;
+  @NotNull private final List<FieldInfo> rdnFields;
 
   // The list of getter methods for with a filter usage of ALWAYS_ALLOWED.
-  private final List<GetterInfo> alwaysAllowedFilterGetters;
+  @NotNull private final List<GetterInfo> alwaysAllowedFilterGetters;
 
   // The list of getter methods for with a filter usage of
   // CONDITIONALLY_ALLOWED.
-  private final List<GetterInfo> conditionallyAllowedFilterGetters;
+  @NotNull private final List<GetterInfo> conditionallyAllowedFilterGetters;
 
   // The list of getter methods for with a filter usage of REQUIRED.
-  private final List<GetterInfo> requiredFilterGetters;
+  @NotNull private final List<GetterInfo> requiredFilterGetters;
 
   // The list of getters for this class that should be used to construct the
   // RDN.
-  private final List<GetterInfo> rdnGetters;
+  @NotNull private final List<GetterInfo> rdnGetters;
 
   // The map of attribute names to their corresponding fields.
-  private final Map<String,FieldInfo> fieldMap;
+  @NotNull private final Map<String,FieldInfo> fieldMap;
 
   // The map of attribute names to their corresponding getter methods.
-  private final Map<String,GetterInfo> getterMap;
+  @NotNull private final Map<String,GetterInfo> getterMap;
 
   // The map of attribute names to their corresponding setter methods.
-  private final Map<String,SetterInfo> setterMap;
+  @NotNull private final Map<String,SetterInfo> setterMap;
 
   // The method that should be invoked on an object after all other decode
   // processing has been performed.
-  private final Method postDecodeMethod;
+  @Nullable private final Method postDecodeMethod;
 
   // The method that should be invoked on an object after all other encode
   // processing has been performed.
-  private final Method postEncodeMethod;
+  @Nullable private final Method postEncodeMethod;
 
   // The structural object class that should be used for entries created from
   // objects of the associated type.
-  private final String structuralClass;
+  @NotNull private final String structuralClass;
 
   // The set of attributes that should be requested when performing a search.
   // It will not include lazily-loaded attributes.
-  private final String[] attributesToRequest;
+  @NotNull private final String[] attributesToRequest;
 
   // The auxiliary object classes that should should used for entries created
   // from objects of the associated type.
-  private final String[] auxiliaryClasses;
+  @NotNull private final String[] auxiliaryClasses;
 
   // The set of attributes that will be requested if @LDAPObject has
   // requestAllAttributes is false.  Even if requestAllAttributes is true, this
   // may be used if a subclass has requestAllAttributes set to false.
-  private final String[] explicitAttributesToRequest;
+  @NotNull private final String[] explicitAttributesToRequest;
 
   // The set of attributes that should be lazily loaded.
-  private final String[] lazilyLoadedAttributes;
+  @NotNull private final String[] lazilyLoadedAttributes;
 
   // The superior object classes that should should used for entries created
   // from objects of the associated type.
-  private final String[] superiorClasses;
+  @NotNull private final String[] superiorClasses;
 
 
 
@@ -201,7 +203,7 @@ public final class LDAPObjectHandler<T>
    *                                the persistence framework.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  LDAPObjectHandler(final Class<T> type)
+  LDAPObjectHandler(@NotNull final Class<T> type)
        throws LDAPPersistException
   {
     this.type = type;
@@ -677,6 +679,7 @@ public final class LDAPObjectHandler<T>
    *
    * @return  The type of object handled by this class.
    */
+  @NotNull()
   public Class<T> getType()
   {
     return type;
@@ -692,6 +695,7 @@ public final class LDAPObjectHandler<T>
    *          associated type, or {@code null} if the superclass is not marked
    *          with the {@code LDAPObject} annotation.
    */
+  @Nullable()
   public LDAPObjectHandler<?> getSuperclassHandler()
   {
     return superclassHandler;
@@ -704,6 +708,7 @@ public final class LDAPObjectHandler<T>
    *
    * @return  The {@code LDAPObject} annotation for the associated class.
    */
+  @NotNull()
   public LDAPObject getLDAPObjectAnnotation()
   {
     return ldapObject;
@@ -718,6 +723,7 @@ public final class LDAPObjectHandler<T>
    * @return  The constructor used to create a new instance of the appropriate
    *          type.
    */
+  @NotNull()
   public Constructor<T> getConstructor()
   {
     return constructor;
@@ -733,6 +739,7 @@ public final class LDAPObjectHandler<T>
    *          entry, or {@code null} if no DN field is defined in the associated
    *          object type.
    */
+  @Nullable()
   public Field getDNField()
   {
     return dnField;
@@ -748,6 +755,7 @@ public final class LDAPObjectHandler<T>
    *          used to create the object instance, or {@code null} if no entry
    *          field is defined in the associated object type.
    */
+  @Nullable()
   public Field getEntryField()
   {
     return entryField;
@@ -760,6 +768,7 @@ public final class LDAPObjectHandler<T>
    *
    * @return  The default parent DN for objects of the associated type.
    */
+  @NotNull()
   public DN getDefaultParentDN()
   {
     return defaultParentDN;
@@ -774,6 +783,7 @@ public final class LDAPObjectHandler<T>
    * @return  The name of the structural object class for objects of the
    *          associated type.
    */
+  @NotNull()
   public String getStructuralClass()
   {
     return structuralClass;
@@ -789,6 +799,7 @@ public final class LDAPObjectHandler<T>
    *          associated type.  It may be empty if no auxiliary classes are
    *          defined.
    */
+  @NotNull()
   public String[] getAuxiliaryClasses()
   {
     return auxiliaryClasses;
@@ -804,6 +815,7 @@ public final class LDAPObjectHandler<T>
    *          associated type.  It may be empty if no superior classes are
    *          defined.
    */
+  @NotNull()
   public String[] getSuperiorClasses()
   {
     return superiorClasses;
@@ -836,6 +848,7 @@ public final class LDAPObjectHandler<T>
    * @return  The names of the attributes that should be requested when
    *          performing a search.
    */
+  @NotNull()
   public String[] getAttributesToRequest()
   {
     return attributesToRequest;
@@ -851,6 +864,7 @@ public final class LDAPObjectHandler<T>
    *          objects of this type.  It may be empty if no attributes should be
    *          lazily-loaded.
    */
+  @NotNull()
   public String[] getLazilyLoadedAttributes()
   {
     return lazilyLoadedAttributes;
@@ -873,7 +887,8 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurred while attempting to
    *                                obtain the entry DN.
    */
-  public String getEntryDN(final T o)
+  @Nullable()
+  public String getEntryDN(@NotNull final T o)
          throws LDAPPersistException
   {
     final String dnFieldValue = getDNFieldValue(o);
@@ -905,7 +920,8 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem is encountered while attempting
    *                                to access the value of the DN field.
    */
-  private String getDNFieldValue(final T o)
+  @Nullable()
+  private String getDNFieldValue(@NotNull final T o)
           throws LDAPPersistException
   {
     if (dnField != null)
@@ -957,7 +973,8 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurred while attempting to
    *                                obtain the entry DN.
    */
-  public ReadOnlyEntry getEntry(final T o)
+  @Nullable()
+  public ReadOnlyEntry getEntry(@NotNull final T o)
          throws LDAPPersistException
   {
     if (entryField != null)
@@ -1004,6 +1021,7 @@ public final class LDAPObjectHandler<T>
    * @return  A map of all fields in the class that should be persisted as LDAP
    *          attributes.
    */
+  @NotNull()
   public Map<String,FieldInfo> getFields()
   {
     return fieldMap;
@@ -1021,6 +1039,7 @@ public final class LDAPObjectHandler<T>
    * @return  A map of all getter methods in the class whose values should be
    *          persisted as LDAP attributes.
    */
+  @NotNull()
   public Map<String,GetterInfo> getGetters()
   {
     return getterMap;
@@ -1038,6 +1057,7 @@ public final class LDAPObjectHandler<T>
    * @return  A map of all setter methods in the class that should be invoked
    *          with information read from LDAP attributes.
    */
+  @NotNull()
   public Map<String,SetterInfo> getSetters()
   {
     return setterMap;
@@ -1061,7 +1081,9 @@ public final class LDAPObjectHandler<T>
    *                                generate the list of object class
    *                                definitions.
    */
-  List<ObjectClassDefinition> constructObjectClasses(final OIDAllocator a)
+  @NotNull()
+  List<ObjectClassDefinition> constructObjectClasses(
+                                   @NotNull final OIDAllocator a)
          throws LDAPPersistException
   {
     final LinkedHashMap<String,ObjectClassDefinition> ocMap =
@@ -1125,10 +1147,11 @@ public final class LDAPObjectHandler<T>
    *
    * @return  The constructed object class definition.
    */
-  private ObjectClassDefinition constructObjectClass(final String name,
-                                                     final String sup,
-                                                     final ObjectClassType type,
-                                                     final OIDAllocator a)
+  @NotNull()
+  private ObjectClassDefinition constructObjectClass(@NotNull final String name,
+                                     @NotNull final String sup,
+                                     @NotNull final ObjectClassType type,
+                                     @NotNull final OIDAllocator a)
   {
     final TreeMap<String,String> requiredAttrs = new TreeMap<>();
     final TreeMap<String,String> optionalAttrs = new TreeMap<>();
@@ -1239,7 +1262,8 @@ public final class LDAPObjectHandler<T>
    *                                initializing the object from the information
    *                                in the provided entry.
    */
-  T decode(final Entry e)
+  @NotNull()
+  T decode(@NotNull final Entry e)
     throws LDAPPersistException
   {
     final T o;
@@ -1286,7 +1310,7 @@ public final class LDAPObjectHandler<T>
    *                                object from the information in the provided
    *                                entry.
    */
-  void decode(final T o, final Entry e)
+  void decode(@NotNull final T o, @NotNull final Entry e)
        throws LDAPPersistException
   {
     if (superclassHandler != null)
@@ -1368,7 +1392,8 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurs while encoding the
    *                                provided object.
    */
-  Entry encode(final T o, final String parentDN)
+  @NotNull()
+  Entry encode(@NotNull final T o, @Nullable final String parentDN)
         throws LDAPPersistException
   {
     // Get the attributes that should be included in the entry.
@@ -1466,7 +1491,7 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurs while setting the value
    *                                of the DN or entry field.
    */
-  private void setDNAndEntryFields(final T o, final Entry e)
+  private void setDNAndEntryFields(@NotNull final T o, @NotNull final Entry e)
           throws LDAPPersistException
   {
     if (dnField != null)
@@ -1541,7 +1566,8 @@ public final class LDAPObjectHandler<T>
    *                                entry DN, or if the provided parent DN
    *                                represents an invalid DN.
    */
-  public String constructDN(final T o, final String parentDN)
+  @NotNull()
+  public String constructDN(@NotNull final T o, @Nullable final String parentDN)
          throws LDAPPersistException
   {
     final String existingDN = getEntryDN(o);
@@ -1618,8 +1644,9 @@ public final class LDAPObjectHandler<T>
    *                                entry DN, or if the provided parent DN
    *                                represents an invalid DN.
    */
-  String constructDN(final T o, final String parentDN,
-                     final Map<String,Attribute> attrMap)
+  @NotNull()
+  String constructDN(@NotNull final T o, @Nullable final String parentDN,
+                     @NotNull final Map<String,Attribute> attrMap)
          throws LDAPPersistException
   {
     final String existingDN = getEntryDN(o);
@@ -1733,9 +1760,11 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  List<Modification> getModifications(final T o, final boolean deleteNullValues,
+  @NotNull()
+  List<Modification> getModifications(@NotNull final T o,
+                                      final boolean deleteNullValues,
                                       final boolean byteForByte,
-                                      final String... attributes)
+                                      @Nullable final String... attributes)
          throws LDAPPersistException
   {
     final ReadOnlyEntry originalEntry;
@@ -1972,6 +2001,7 @@ public final class LDAPObjectHandler<T>
    * @return  A filter that will match any entry containing the structural and
    *          auxiliary classes for this object type.
    */
+  @NotNull()
   public Filter createBaseFilter()
   {
     if (auxiliaryClasses.length == 0)
@@ -2013,7 +2043,8 @@ public final class LDAPObjectHandler<T>
    *                                non-{@code null} fields or getters that are
    *                                marked for inclusion in filters).
    */
-  public Filter createFilter(final T o)
+  @NotNull()
+  public Filter createFilter(@NotNull final T o)
          throws LDAPPersistException
   {
     final AtomicBoolean addedRequiredOrAllowed = new AtomicBoolean(false);
@@ -2054,8 +2085,9 @@ public final class LDAPObjectHandler<T>
    *                                non-{@code null} fields or getters that are
    *                                marked for inclusion in filters).
    */
-  private Filter createFilter(final T o,
-                              final AtomicBoolean addedRequiredOrAllowed)
+  @NotNull()
+  private Filter createFilter(@NotNull final T o,
+                      @NotNull final AtomicBoolean addedRequiredOrAllowed)
           throws LDAPPersistException
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(5);

@@ -41,6 +41,7 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -66,7 +67,7 @@ final class CompactAttribute
   /**
    * A set of cached attribute names to conserve space.
    */
-  private static final ConcurrentHashMap<String,String> cachedNames =
+  @NotNull private static final ConcurrentHashMap<String,String> cachedNames =
        new ConcurrentHashMap<>(
             StaticUtils.computeMapCapacity(MAX_CACHED_NAMES));
 
@@ -80,10 +81,10 @@ final class CompactAttribute
 
 
   // The set of values for this attribute.
-  private final byte[][] values;
+  @NotNull private final byte[][] values;
 
   // The name for this attribute.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -92,7 +93,7 @@ final class CompactAttribute
    *
    * @param  attribute  The attribute to use to create this compact attribute.
    */
-  CompactAttribute(final Attribute attribute)
+  CompactAttribute(@NotNull final Attribute attribute)
   {
     name = internName(attribute.getName());
     values = attribute.getValueByteArrays();
@@ -109,7 +110,8 @@ final class CompactAttribute
    *
    * @return  The internalized representation of the provided name.
    */
-  private static String internName(final String name)
+  @NotNull()
+  private static String internName(@NotNull final String name)
   {
     String s = cachedNames.get(name);
     if (s == null)
@@ -133,6 +135,7 @@ final class CompactAttribute
    *
    * @return  The name for this attribute.
    */
+  @NotNull()
   String getName()
   {
     return name;
@@ -145,6 +148,7 @@ final class CompactAttribute
    *
    * @return  The set of values for this attribute as byte arrays.
    */
+  @NotNull()
   byte[][] getByteValues()
   {
     return values;
@@ -157,6 +161,7 @@ final class CompactAttribute
    *
    * @return  The set of values for this attribute as strings.
    */
+  @NotNull()
   String[] getStringValues()
   {
     final String[] stringValues = new String[values.length];
@@ -175,6 +180,7 @@ final class CompactAttribute
    *
    * @return  An attribute that is equivalent to this compact attribute.
    */
+  @NotNull()
   Attribute toAttribute()
   {
     return new Attribute(name, values);

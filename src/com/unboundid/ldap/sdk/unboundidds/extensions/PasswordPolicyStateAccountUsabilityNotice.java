@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,7 +90,7 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * The name for the notice type that indicates the user user has a valid
    * outstanding retired password.
    */
-  public static final String NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD =
+  @NotNull public static final String NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD =
        "outstanding-retired-password";
 
 
@@ -105,8 +107,9 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * The name for the notice type that indicates the user has a valid
    * outstanding one-time password.
    */
-  public static final String NOTICE_NAME_OUTSTANDING_ONE_TIME_PASSWORD =
-       "outstanding-one-time-password";
+  @NotNull public static final String
+       NOTICE_NAME_OUTSTANDING_ONE_TIME_PASSWORD =
+            "outstanding-one-time-password";
 
 
 
@@ -122,8 +125,9 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * The name for the notice type that indicates the user has a valid
    * outstanding password reset token that will expire in the near future.
    */
-  public static final String NOTICE_NAME_OUTSTANDING_PASSWORD_RESET_TOKEN =
-       "outstanding-password-reset-token";
+  @NotNull public static final String
+       NOTICE_NAME_OUTSTANDING_PASSWORD_RESET_TOKEN =
+            "outstanding-password-reset-token";
 
 
 
@@ -141,7 +145,7 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * allowed to change his/her password because they are within the minimum
    * password age.
    */
-  public static final  String NOTICE_NAME_IN_MINIMUM_PASSWORD_AGE =
+  @NotNull public static final String NOTICE_NAME_IN_MINIMUM_PASSWORD_AGE =
        "in-minimum-password-age";
 
 
@@ -158,7 +162,7 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * The name for the notice type that indicates that the user does not have a
    * static password.
    */
-  public static final  String NOTICE_NAME_NO_STATIC_PASSWORD =
+  @NotNull public static final  String NOTICE_NAME_NO_STATIC_PASSWORD =
        "no-static-password";
 
 
@@ -181,8 +185,9 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * lockout action that will not prevent them from authenticating, and should
    * not otherwise have an effect on the usability of their account.
    */
-  public static final String NOTICE_NAME_TOO_MANY_OUTSTANDING_BIND_FAILURES =
-       "too-many-outstanding-bind-failures";
+  @NotNull public static final String
+       NOTICE_NAME_TOO_MANY_OUTSTANDING_BIND_FAILURES =
+            "too-many-outstanding-bind-failures";
 
 
 
@@ -198,13 +203,13 @@ public final class PasswordPolicyStateAccountUsabilityNotice
 
   // A human-readable message that provides specific details about this account
   // usability notice.
-  private final String message;
+  @Nullable private final String message;
 
   // The name for this account usability notice.
-  private final String name;
+  @NotNull private final String name;
 
   // The encoded string representation for this account usability notice.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -219,8 +224,8 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    *                   {@code null} if no message is available.
    */
   public PasswordPolicyStateAccountUsabilityNotice(final int intValue,
-                                                   final String name,
-                                                   final String message)
+              @NotNull final String name,
+              @Nullable final String message)
   {
     Validator.ensureNotNull(name);
 
@@ -257,8 +262,8 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    *                         account usability notice.
    */
   public PasswordPolicyStateAccountUsabilityNotice(
-       final String stringRepresentation)
-       throws LDAPException
+              @NotNull final String stringRepresentation)
+         throws LDAPException
   {
     this.stringRepresentation = stringRepresentation;
 
@@ -346,6 +351,7 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    *
    * @return  The name for this account usability notice.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -361,6 +367,7 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    *          account usability notice, or {@code null} if no message is
    *          available.
    */
+  @Nullable()
   public String getMessage()
   {
     return message;
@@ -374,6 +381,7 @@ public final class PasswordPolicyStateAccountUsabilityNotice
    * @return  A string representation of this account usability notice.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;

@@ -46,6 +46,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -78,7 +80,8 @@ public final class AuthorityKeyIdentifierExtension
   /**
    * The OID (2.5.29.35) for authority key identifier extensions.
    */
-  public static final OID AUTHORITY_KEY_IDENTIFIER_OID = new OID("2.5.29.35");
+  @NotNull public static final OID AUTHORITY_KEY_IDENTIFIER_OID =
+       new OID("2.5.29.35");
 
 
 
@@ -112,13 +115,13 @@ public final class AuthorityKeyIdentifierExtension
 
 
   // The key identifier for this extension.
-  private final ASN1OctetString keyIdentifier;
+  @Nullable private final ASN1OctetString keyIdentifier;
 
   // The serial number for the authority certificate.
-  private final BigInteger authorityCertSerialNumber;
+  @Nullable private final BigInteger authorityCertSerialNumber;
 
   // General names for the authority certificate.
-  private final GeneralNames authorityCertIssuer;
+  @Nullable private final GeneralNames authorityCertIssuer;
 
 
 
@@ -142,9 +145,9 @@ public final class AuthorityKeyIdentifierExtension
    *                         value.
    */
   AuthorityKeyIdentifierExtension(final boolean isCritical,
-                                  final ASN1OctetString keyIdentifier,
-                                  final GeneralNames authorityCertIssuer,
-                                  final BigInteger authorityCertSerialNumber)
+       @Nullable final ASN1OctetString keyIdentifier,
+       @Nullable final GeneralNames authorityCertIssuer,
+       @Nullable final BigInteger authorityCertSerialNumber)
        throws CertException
   {
     super(AUTHORITY_KEY_IDENTIFIER_OID, isCritical,
@@ -168,7 +171,8 @@ public final class AuthorityKeyIdentifierExtension
    * @throws  CertException  If the provided extension cannot be decoded as a
    *                         subject alternative name extension.
    */
-  AuthorityKeyIdentifierExtension(final X509CertificateExtension extension)
+  AuthorityKeyIdentifierExtension(
+       @NotNull final X509CertificateExtension extension)
        throws CertException
   {
     super(extension);
@@ -232,9 +236,11 @@ public final class AuthorityKeyIdentifierExtension
    * @throws  CertException  If a problem is encountered while encoding the
    *                         value.
    */
-  private static byte[] encodeValue(final ASN1OctetString keyIdentifier,
-                                    final GeneralNames authorityCertIssuer,
-                                    final BigInteger authorityCertSerialNumber)
+  @NotNull()
+  private static byte[] encodeValue(
+               @Nullable final ASN1OctetString keyIdentifier,
+               @Nullable final GeneralNames authorityCertIssuer,
+               @Nullable final BigInteger authorityCertSerialNumber)
           throws CertException
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
@@ -267,6 +273,7 @@ public final class AuthorityKeyIdentifierExtension
    * @return  The key identifier for this extension, or {@code null} if it
    *          was not included in the extension.
    */
+  @Nullable()
   public ASN1OctetString getKeyIdentifier()
   {
     return keyIdentifier;
@@ -280,6 +287,7 @@ public final class AuthorityKeyIdentifierExtension
    * @return  The general names for the authority certificate, or {@code null}
    *          if it was not included in the extension.
    */
+  @Nullable()
   public GeneralNames getAuthorityCertIssuer()
   {
     return authorityCertIssuer;
@@ -293,6 +301,7 @@ public final class AuthorityKeyIdentifierExtension
    * @return  The serial number for the authority certificate, or {@code null}
    *          if it was not included in the extension.
    */
+  @Nullable()
   public BigInteger getAuthorityCertSerialNumber()
   {
     return authorityCertSerialNumber;
@@ -304,6 +313,7 @@ public final class AuthorityKeyIdentifierExtension
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtensionName()
   {
     return INFO_AUTHORITY_KEY_ID_EXTENSION_NAME.get();
@@ -315,7 +325,7 @@ public final class AuthorityKeyIdentifierExtension
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AuthorityKeyIdentifierExtension(oid='");
     buffer.append(getOID());

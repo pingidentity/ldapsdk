@@ -51,6 +51,7 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -73,7 +74,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
    * The name of the attribute used to hold the attribute changes contained in
    * the modify operation.
    */
-  public static final String ATTR_ATTRIBUTE_CHANGES = "reqMod";
+  @NotNull public static final String ATTR_ATTRIBUTE_CHANGES = "reqMod";
 
 
 
@@ -81,7 +82,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
    * The name of the attribute used to hold the former values of entries changed
    * by the modify operation.
    */
-  public static final String ATTR_FORMER_ATTRIBUTE = "reqOld";
+  @NotNull public static final String ATTR_FORMER_ATTRIBUTE = "reqOld";
 
 
 
@@ -93,10 +94,10 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
 
 
   // A list of the former versions of modified attributes.
-  private final List<Attribute> formerAttributes;
+  @NotNull private final List<Attribute> formerAttributes;
 
   // A list of the modifications contained in the request.
-  private final List<Modification> modifications;
+  @NotNull private final List<Modification> modifications;
 
 
 
@@ -110,7 +111,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
    *                         modify access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00ModifyEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00ModifyEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.MODIFY);
@@ -350,6 +351,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
    * @return  The modifications for the modify request described by this modify
    *          access log entry.
    */
+  @NotNull()
    public List<Modification> getModifications()
    {
      return modifications;
@@ -365,6 +367,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
    *          if no former attribute information was included in the access log
    *          entry.
    */
+  @NotNull()
   public List<Attribute> getFormerAttributes()
   {
     return formerAttributes;
@@ -379,6 +382,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
    * @return  The {@code ModifyRequest} created from this modify access log
    *          entry.
    */
+  @NotNull()
   public ModifyRequest toModifyRequest()
   {
     return new ModifyRequest(getTargetEntryDN(), modifications,

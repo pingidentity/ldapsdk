@@ -136,40 +136,41 @@ public abstract class MultiServerLDAPCommandLineTool
 {
   // The set of prefixes and suffixes that will be used for server names.
   private final int numServers;
-  private final String[] serverNamePrefixes;
-  private final String[] serverNameSuffixes;
+  @Nullable private final String[] serverNamePrefixes;
+  @Nullable private final String[] serverNameSuffixes;
 
   // The set of arguments used to hold information about connection properties.
-  private final BooleanArgument[] trustAll;
-  private final BooleanArgument[] useSSL;
-  private final BooleanArgument[] useStartTLS;
-  private final DNArgument[]      bindDN;
-  private final FileArgument[]    bindPasswordFile;
-  private final FileArgument[]    keyStorePasswordFile;
-  private final FileArgument[]    trustStorePasswordFile;
-  private final IntegerArgument[] port;
-  private final StringArgument[]  bindPassword;
-  private final StringArgument[]  certificateNickname;
-  private final StringArgument[]  host;
-  private final StringArgument[]  keyStoreFormat;
-  private final StringArgument[]  keyStorePath;
-  private final StringArgument[]  keyStorePassword;
-  private final StringArgument[]  saslOption;
-  private final StringArgument[]  trustStoreFormat;
-  private final StringArgument[]  trustStorePath;
-  private final StringArgument[]  trustStorePassword;
+  @NotNull private final BooleanArgument[] trustAll;
+  @NotNull private final BooleanArgument[] useSSL;
+  @NotNull private final BooleanArgument[] useStartTLS;
+  @NotNull private final DNArgument[]      bindDN;
+  @NotNull private final FileArgument[]    bindPasswordFile;
+  @NotNull private final FileArgument[]    keyStorePasswordFile;
+  @NotNull private final FileArgument[]    trustStorePasswordFile;
+  @NotNull private final IntegerArgument[] port;
+  @NotNull private final StringArgument[]  bindPassword;
+  @NotNull private final StringArgument[]  certificateNickname;
+  @NotNull private final StringArgument[]  host;
+  @NotNull private final StringArgument[]  keyStoreFormat;
+  @NotNull private final StringArgument[]  keyStorePath;
+  @NotNull private final StringArgument[]  keyStorePassword;
+  @NotNull private final StringArgument[]  saslOption;
+  @NotNull private final StringArgument[]  trustStoreFormat;
+  @NotNull private final StringArgument[]  trustStorePath;
+  @NotNull private final StringArgument[]  trustStorePassword;
 
   // Variables used when creating and authenticating connections.
-  private final BindRequest[]      bindRequest;
-  private final ServerSet[]        serverSet;
-  private final SSLSocketFactory[] startTLSSocketFactory;
+  @NotNull private final BindRequest[]      bindRequest;
+  @NotNull private final ServerSet[]        serverSet;
+  @NotNull private final SSLSocketFactory[] startTLSSocketFactory;
 
   // An atomic reference to an aggregate trust manager that will check a
   // JVM-default set of trusted issuers, and then its own cache, before
   // prompting the user about whether to trust the presented certificate chain.
   // Re-using this trust manager will allow the tool to benefit from a common
   // cache if multiple connections are needed.
-  private final AtomicReference<AggregateTrustManager> promptTrustManager;
+  @NotNull private final AtomicReference<AggregateTrustManager>
+       promptTrustManager;
 
 
 
@@ -205,10 +206,10 @@ public abstract class MultiServerLDAPCommandLineTool
    *                                 if both sets are non-{@code null} but have
    *                                 different numbers of elements.
    */
-  public MultiServerLDAPCommandLineTool(final OutputStream outStream,
-                                        final OutputStream errStream,
-                                        final String[] serverNamePrefixes,
-                                        final String[] serverNameSuffixes)
+  public MultiServerLDAPCommandLineTool(@Nullable final OutputStream outStream,
+              @Nullable final OutputStream errStream,
+              @Nullable final String[] serverNamePrefixes,
+              @Nullable final String[] serverNameSuffixes)
          throws LDAPSDKUsageException
   {
     super(outStream, errStream);
@@ -278,7 +279,7 @@ public abstract class MultiServerLDAPCommandLineTool
    * {@inheritDoc}
    */
   @Override()
-  public final void addToolArguments(final ArgumentParser parser)
+  public final void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     for (int i=0; i < numServers; i++)
@@ -452,7 +453,8 @@ public abstract class MultiServerLDAPCommandLineTool
    *
    * @return  The constructed argument name.
    */
-  private String genArgName(final int index, final String base)
+  @NotNull()
+  private String genArgName(final int index, @NotNull final String base)
   {
     final StringBuilder buffer = new StringBuilder();
 
@@ -493,7 +495,7 @@ public abstract class MultiServerLDAPCommandLineTool
    *
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
-  public abstract void addNonLDAPArguments(ArgumentParser parser)
+  public abstract void addNonLDAPArguments(@NotNull ArgumentParser parser)
          throws ArgumentException;
 
 
@@ -536,6 +538,7 @@ public abstract class MultiServerLDAPCommandLineTool
    * @return  The connection options that should be used for connections that
    *          are created with this command line tool.
    */
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     return new LDAPConnectionOptions();
@@ -560,6 +563,7 @@ public abstract class MultiServerLDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the connection.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnection getConnection(final int serverIndex)
          throws LDAPException
   {
@@ -601,6 +605,7 @@ public abstract class MultiServerLDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the connection.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnection getUnauthenticatedConnection(
                                    final int serverIndex)
          throws LDAPException
@@ -662,6 +667,7 @@ public abstract class MultiServerLDAPCommandLineTool
    *                         pool.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnectionPool getConnectionPool(
                                        final int serverIndex,
                                        final int initialConnections,
@@ -700,6 +706,7 @@ public abstract class MultiServerLDAPCommandLineTool
    *
    * @throws  LDAPException  If a problem occurs while creating the server set.
    */
+  @NotNull()
   public final ServerSet createServerSet(final int serverIndex)
          throws LDAPException
   {
@@ -753,6 +760,7 @@ public abstract class MultiServerLDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the SSLUtil
    *                         instance.
    */
+  @Nullable()
   public final SSLUtil createSSLUtil(final int serverIndex)
          throws LDAPException
   {
@@ -870,6 +878,7 @@ public abstract class MultiServerLDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the bind
    *                         request.
    */
+  @Nullable()
   public final BindRequest createBindRequest(final int serverIndex)
          throws LDAPException
   {

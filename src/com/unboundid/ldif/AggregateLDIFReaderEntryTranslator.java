@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -60,7 +62,7 @@ public final class AggregateLDIFReaderEntryTranslator
 {
   // The set of LDIF reader entry translators to be invoked for each entry to
   // process.
-  private final List<LDIFReaderEntryTranslator> translators;
+  @NotNull private final List<LDIFReaderEntryTranslator> translators;
 
 
 
@@ -72,7 +74,7 @@ public final class AggregateLDIFReaderEntryTranslator
    *                      for each entry to be processed.
    */
   public AggregateLDIFReaderEntryTranslator(
-              final LDIFReaderEntryTranslator... translators)
+              @Nullable final LDIFReaderEntryTranslator... translators)
   {
     this(StaticUtils.toList(translators));
   }
@@ -87,7 +89,8 @@ public final class AggregateLDIFReaderEntryTranslator
    *                      for each entry to be processed.
    */
   public AggregateLDIFReaderEntryTranslator(
-              final Collection<? extends LDIFReaderEntryTranslator> translators)
+       @Nullable final Collection<? extends LDIFReaderEntryTranslator>
+            translators)
   {
     if (translators == null)
     {
@@ -106,7 +109,9 @@ public final class AggregateLDIFReaderEntryTranslator
    * {@inheritDoc}
    */
   @Override()
-  public Entry translate(final Entry original, final long firstLineNumber)
+  @Nullable()
+  public Entry translate(@Nullable final Entry original,
+                         final long firstLineNumber)
          throws LDIFException
   {
     if (original == null)

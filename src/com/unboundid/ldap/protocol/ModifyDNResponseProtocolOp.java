@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -87,9 +89,9 @@ public final class ModifyDNResponseProtocolOp
    *                            any.
    */
   public ModifyDNResponseProtocolOp(final int resultCode,
-                                    final String matchedDN,
-                                    final String diagnosticMessage,
-                                    final List<String> referralURLs)
+                                    @Nullable final String matchedDN,
+                                    @Nullable final String diagnosticMessage,
+                                    @Nullable final List<String> referralURLs)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE, resultCode,
           matchedDN, diagnosticMessage, referralURLs);
@@ -103,7 +105,7 @@ public final class ModifyDNResponseProtocolOp
    *
    * @param  result  The LDAP result object to use to create this protocol op.
    */
-  public ModifyDNResponseProtocolOp(final LDAPResult result)
+  public ModifyDNResponseProtocolOp(@NotNull final LDAPResult result)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE,
          result.getResultCode().intValue(), result.getMatchedDN(),
@@ -123,7 +125,7 @@ public final class ModifyDNResponseProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         modify DN response.
    */
-  ModifyDNResponseProtocolOp(final ASN1StreamReader reader)
+  ModifyDNResponseProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     super(reader);
@@ -135,6 +137,7 @@ public final class ModifyDNResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
@@ -188,8 +191,9 @@ public final class ModifyDNResponseProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a modify DN response protocol op.
    */
+  @NotNull()
   public static ModifyDNResponseProtocolOp decodeProtocolOp(
-                                                final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try

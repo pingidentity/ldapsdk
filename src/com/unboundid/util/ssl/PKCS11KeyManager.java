@@ -44,6 +44,8 @@ import javax.net.ssl.KeyManagerFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -82,8 +84,8 @@ public final class PKCS11KeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  public PKCS11KeyManager(final char[] keyStorePIN,
-                          final String certificateAlias)
+  public PKCS11KeyManager(@Nullable final char[] keyStorePIN,
+                          @Nullable final String certificateAlias)
          throws KeyStoreException
   {
     super(getKeyManagers(keyStorePIN), certificateAlias);
@@ -102,7 +104,8 @@ public final class PKCS11KeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  private static KeyManager[] getKeyManagers(final char[] keyStorePIN)
+  @NotNull()
+  private static KeyManager[] getKeyManagers(@Nullable final char[] keyStorePIN)
           throws KeyStoreException
   {
     final KeyStore ks = KeyStore.getInstance(PKCS11_KEY_STORE_TYPE);

@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -119,7 +121,8 @@ public final class TaskManager
    *
    * @return  The constructed task entry DN.
    */
-  private static String getTaskDN(final String taskID)
+  @NotNull()
+  private static String getTaskDN(@NotNull final String taskID)
   {
     // In general, constructing DNs is bad, but we'll do it here because we know
     // we're dealing specifically with the Ping Identity, UnboundID, or
@@ -149,8 +152,9 @@ public final class TaskManager
    *
    * @throws  TaskException  If the retrieved entry cannot be parsed as a task.
    */
-  public static Task getTask(final String taskID,
-                            final LDAPConnection connection)
+  @Nullable()
+  public static Task getTask(@NotNull final String taskID,
+                             @NotNull final LDAPConnection connection)
          throws LDAPException, TaskException
   {
     try
@@ -189,7 +193,8 @@ public final class TaskManager
    * @throws  LDAPException  If a problem occurs while communicating with the
    *                         Directory Server over the provided connection.
    */
-  public static List<Task> getTasks(final LDAPConnection connection)
+  @NotNull()
+  public static List<Task> getTasks(@NotNull final LDAPConnection connection)
          throws LDAPException
   {
     final Filter filter =
@@ -236,8 +241,9 @@ public final class TaskManager
    * @throws  TaskException  If the entry read back from the server after the
    *                         task was created could not be parsed as a task.
    */
-  public static Task scheduleTask(final Task task,
-                                  final LDAPConnection connection)
+  @NotNull()
+  public static Task scheduleTask(@NotNull final Task task,
+                                  @NotNull final LDAPConnection connection)
          throws LDAPException, TaskException
   {
     final Entry taskEntry = task.createTaskEntry();
@@ -268,8 +274,8 @@ public final class TaskManager
    * @throws  LDAPException  If a problem occurs while communicating with the
    *                         Directory Server.
    */
-  public static void cancelTask(final String taskID,
-                                final LDAPConnection connection)
+  public static void cancelTask(@NotNull final String taskID,
+                                @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     // Note:  we should use the CANCELED_BEFORE_STARTING state when we want to
@@ -293,8 +299,8 @@ public final class TaskManager
    * @throws  LDAPException  If a problem occurs while communicating with the
    *                         Directory Server.
    */
-  public static void deleteTask(final String taskID,
-                                final LDAPConnection connection)
+  public static void deleteTask(@NotNull final String taskID,
+                                @NotNull final LDAPConnection connection)
          throws LDAPException
   {
     connection.delete(getTaskDN(taskID));
@@ -328,8 +334,9 @@ public final class TaskManager
    *                         task entry as a task, or if the specified task
    *                         entry could not be found.
    */
-  public static Task waitForTask(final String taskID,
-                                 final LDAPConnection connection,
+  @NotNull()
+  public static Task waitForTask(@NotNull final String taskID,
+                                 @NotNull final LDAPConnection connection,
                                  final long pollFrequency,
                                  final long maxWaitTime)
          throws LDAPException, TaskException

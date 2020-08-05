@@ -50,7 +50,8 @@ public final class ByteStringFactory
   /**
    * A pre-allocated ASN.1 octet string with no value.
    */
-  private static final ASN1OctetString EMPTY_VALUE = new ASN1OctetString();
+  @NotNull private static final ASN1OctetString EMPTY_VALUE =
+       new ASN1OctetString();
 
 
 
@@ -69,6 +70,7 @@ public final class ByteStringFactory
    *
    * @return  The created byte string.
    */
+  @NotNull()
   public static ByteString create()
   {
     return EMPTY_VALUE;
@@ -83,7 +85,8 @@ public final class ByteStringFactory
    *
    * @return  The created byte string.
    */
-  public static ByteString create(final byte[] value)
+  @NotNull()
+  public static ByteString create(@Nullable final byte[] value)
   {
     return new ASN1OctetString(value);
   }
@@ -105,7 +108,8 @@ public final class ByteStringFactory
    *
    * @return  The created byte string.
    */
-  public static ByteString create(final byte[] value, final int offset,
+  @NotNull()
+  public static ByteString create(@NotNull final byte[] value, final int offset,
                                   final int length)
   {
     return new ASN1OctetString(value, offset, length);
@@ -120,7 +124,8 @@ public final class ByteStringFactory
    *
    * @return  The created byte string.
    */
-  public static ByteString create(final String value)
+  @NotNull()
+  public static ByteString create(@Nullable final String value)
   {
     return new ASN1OctetString(value);
   }

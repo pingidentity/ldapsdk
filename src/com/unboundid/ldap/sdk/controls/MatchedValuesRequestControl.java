@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -120,7 +121,7 @@ public final class MatchedValuesRequestControl
   /**
    * The OID (1.2.826.0.1.3344810.2.3) for the matched values request control.
    */
-  public static final String MATCHED_VALUES_REQUEST_OID =
+  @NotNull public static final String MATCHED_VALUES_REQUEST_OID =
        "1.2.826.0.1.3344810.2.3";
 
 
@@ -133,7 +134,7 @@ public final class MatchedValuesRequestControl
 
 
   // The set of matched values filters for this control.
-  private final MatchedValuesFilter[] filters;
+  @NotNull private final MatchedValuesFilter[] filters;
 
 
 
@@ -144,7 +145,8 @@ public final class MatchedValuesRequestControl
    * @param  filters  The set of filters to use for this control.  At least one
    *                  filter must be provided.
    */
-  public MatchedValuesRequestControl(final MatchedValuesFilter... filters)
+  public MatchedValuesRequestControl(
+              @NotNull final MatchedValuesFilter... filters)
   {
     this(false, filters);
   }
@@ -158,7 +160,8 @@ public final class MatchedValuesRequestControl
    * @param  filters  The set of filters to use for this control.  At least one
    *                  filter must be provided.
    */
-  public MatchedValuesRequestControl(final List<MatchedValuesFilter> filters)
+  public MatchedValuesRequestControl(
+              @NotNull final List<MatchedValuesFilter> filters)
   {
     this(false, filters);
   }
@@ -175,7 +178,7 @@ public final class MatchedValuesRequestControl
    *                     one filter must be provided.
    */
   public MatchedValuesRequestControl(final boolean isCritical,
-                                     final MatchedValuesFilter... filters)
+              @NotNull final MatchedValuesFilter... filters)
   {
     super(MATCHED_VALUES_REQUEST_OID, isCritical,  encodeValue(filters));
 
@@ -194,7 +197,7 @@ public final class MatchedValuesRequestControl
    *                     one filter must be provided.
    */
   public MatchedValuesRequestControl(final boolean isCritical,
-                                     final List<MatchedValuesFilter> filters)
+              @NotNull final List<MatchedValuesFilter> filters)
   {
     this(isCritical, filters.toArray(new MatchedValuesFilter[filters.size()]));
   }
@@ -211,7 +214,7 @@ public final class MatchedValuesRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         matched values request control.
    */
-  public MatchedValuesRequestControl(final Control control)
+  public MatchedValuesRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -253,8 +256,9 @@ public final class MatchedValuesRequestControl
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                                      final MatchedValuesFilter[] filters)
+                      @NotNull final MatchedValuesFilter[] filters)
   {
     Validator.ensureNotNull(filters);
     Validator.ensureTrue(filters.length > 0,
@@ -276,6 +280,7 @@ public final class MatchedValuesRequestControl
    *
    * @return  The set of filters for this matched values request control.
    */
+  @NotNull()
   public MatchedValuesFilter[] getFilters()
   {
     return filters;
@@ -287,6 +292,7 @@ public final class MatchedValuesRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MATCHED_VALUES_REQUEST.get();
@@ -298,7 +304,7 @@ public final class MatchedValuesRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MatchedValuesRequestControl(filters={");
 

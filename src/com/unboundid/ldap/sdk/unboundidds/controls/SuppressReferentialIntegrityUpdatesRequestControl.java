@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -82,7 +83,7 @@ public final class SuppressReferentialIntegrityUpdatesRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.30) for the suppress referential integrity
    * updates request control.
    */
-  public static final  String SUPPRESS_REFINT_REQUEST_OID =
+  @NotNull public static final String SUPPRESS_REFINT_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.30";
 
 
@@ -131,7 +132,7 @@ public final class SuppressReferentialIntegrityUpdatesRequestControl
    *                         control.
    */
   public SuppressReferentialIntegrityUpdatesRequestControl(
-              final Control control)
+              @NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -149,6 +150,7 @@ public final class SuppressReferentialIntegrityUpdatesRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SUPPRESS_REFINT_REQUEST.get();
@@ -160,7 +162,7 @@ public final class SuppressReferentialIntegrityUpdatesRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SuppressReferentialIntegrityUpdatesRequestControl(" +
          "isCritical=");

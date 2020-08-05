@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -141,8 +143,9 @@ public enum PasswordValidationDetailsResponseType
    *          BER type, or {@code null} if there is no response type with the
    *          specified BER type.
    */
-  public static PasswordValidationDetailsResponseType
-                     forBERType(final byte berType)
+  @Nullable()
+  public static PasswordValidationDetailsResponseType forBERType(
+                     final byte berType)
   {
     for (final PasswordValidationDetailsResponseType t : values())
     {
@@ -167,7 +170,9 @@ public enum PasswordValidationDetailsResponseType
    * @return  The requested password validation details response type, or
    *          {@code null} if no such type is defined.
    */
-  public static PasswordValidationDetailsResponseType forName(final String name)
+  @Nullable()
+  public static PasswordValidationDetailsResponseType forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

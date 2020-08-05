@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -142,7 +143,7 @@ public final class EqualsJSONObjectFilter
    * The value that should be used for the filterType element of the JSON object
    * that represents an "equals" filter.
    */
-  public static final String FILTER_TYPE = "equals";
+  @NotNull public static final String FILTER_TYPE = "equals";
 
 
 
@@ -150,7 +151,7 @@ public final class EqualsJSONObjectFilter
    * The name of the JSON field that is used to specify the field in the target
    * JSON object for which to make the determination.
    */
-  public static final String FIELD_FIELD_PATH = "field";
+  @NotNull public static final String FIELD_FIELD_PATH = "field";
 
 
 
@@ -158,7 +159,7 @@ public final class EqualsJSONObjectFilter
    * The name of the JSON field that is used to specify the value to use for
    * the matching.
    */
-  public static final String FIELD_VALUE = "value";
+  @NotNull public static final String FIELD_VALUE = "value";
 
 
 
@@ -166,14 +167,14 @@ public final class EqualsJSONObjectFilter
    * The name of the JSON field that is used to indicate whether string matching
    * should be case-sensitive.
    */
-  public static final String FIELD_CASE_SENSITIVE = "caseSensitive";
+  @NotNull public static final String FIELD_CASE_SENSITIVE = "caseSensitive";
 
 
 
   /**
    * The pre-allocated set of required field names.
    */
-  private static final Set<String> REQUIRED_FIELD_NAMES =
+  @NotNull private static final Set<String> REQUIRED_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_FIELD_PATH, FIELD_VALUE)));
 
@@ -182,7 +183,7 @@ public final class EqualsJSONObjectFilter
   /**
    * The pre-allocated set of optional field names.
    */
-  private static final Set<String> OPTIONAL_FIELD_NAMES =
+  @NotNull private static final Set<String> OPTIONAL_FIELD_NAMES =
        Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_CASE_SENSITIVE)));
 
@@ -199,10 +200,10 @@ public final class EqualsJSONObjectFilter
   private volatile boolean caseSensitive;
 
   // The expected value for the target field.
-  private volatile JSONValue value;
+  @NotNull private volatile JSONValue value;
 
   // The path name specifier for the target field.
-  private volatile List<String> field;
+  @NotNull private volatile List<String> field;
 
 
 
@@ -228,8 +229,8 @@ public final class EqualsJSONObjectFilter
    * @param  caseSensitive  Indicates whether string matching should be
    *                        case sensitive.
    */
-  private EqualsJSONObjectFilter(final List<String> field,
-                                 final JSONValue value,
+  private EqualsJSONObjectFilter(@NotNull final List<String> field,
+                                 @NotNull final JSONValue value,
                                  final boolean caseSensitive)
   {
     this.field = field;
@@ -249,7 +250,8 @@ public final class EqualsJSONObjectFilter
    * @param  value  The target string value for this filter.  It must not be
    *                {@code null}.
    */
-  public EqualsJSONObjectFilter(final String field, final String value)
+  public EqualsJSONObjectFilter(@NotNull final String field,
+                                @NotNull final String value)
   {
     this(Collections.singletonList(field), new JSONString(value));
   }
@@ -265,7 +267,8 @@ public final class EqualsJSONObjectFilter
    *                information about field path specifiers.
    * @param  value  The target boolean value for this filter.
    */
-  public EqualsJSONObjectFilter(final String field, final boolean value)
+  public EqualsJSONObjectFilter(@NotNull final String field,
+                                final boolean value)
   {
     this(Collections.singletonList(field),
          (value ? JSONBoolean.TRUE : JSONBoolean.FALSE));
@@ -282,7 +285,7 @@ public final class EqualsJSONObjectFilter
    *                information about field path specifiers.
    * @param  value  The target numeric value for this filter.
    */
-  public EqualsJSONObjectFilter(final String field, final long value)
+  public EqualsJSONObjectFilter(@NotNull final String field, final long value)
   {
     this(Collections.singletonList(field), new JSONNumber(value));
   }
@@ -299,7 +302,8 @@ public final class EqualsJSONObjectFilter
    * @param  value  The target numeric value for this filter.  It must not be
    *                {@code null}.
    */
-  public EqualsJSONObjectFilter(final String field, final double value)
+  public EqualsJSONObjectFilter(@NotNull final String field,
+                                final double value)
   {
     this(Collections.singletonList(field), new JSONNumber(value));
   }
@@ -316,7 +320,8 @@ public final class EqualsJSONObjectFilter
    * @param  value  The target value for this filter.  It must not be
    *                {@code null}.
    */
-  public EqualsJSONObjectFilter(final String field, final JSONValue value)
+  public EqualsJSONObjectFilter(@NotNull final String field,
+                                @NotNull final JSONValue value)
   {
     this(Collections.singletonList(field), value);
   }
@@ -333,7 +338,8 @@ public final class EqualsJSONObjectFilter
    * @param  value  The target value for this filter.  It must not be
    *                {@code null} (although it may be a {@code JSONNull}).
    */
-  public EqualsJSONObjectFilter(final List<String> field, final JSONValue value)
+  public EqualsJSONObjectFilter(@NotNull final List<String> field,
+                                @NotNull final JSONValue value)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -353,6 +359,7 @@ public final class EqualsJSONObjectFilter
    *
    * @return  The field path specifier for this filter.
    */
+  @NotNull()
   public List<String> getField()
   {
     return field;
@@ -368,7 +375,7 @@ public final class EqualsJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final String... field)
+  public void setField(@NotNull final String... field)
   {
     setField(StaticUtils.toList(field));
   }
@@ -383,7 +390,7 @@ public final class EqualsJSONObjectFilter
    *                for the {@link JSONObjectFilter} class for information about
    *                field path specifiers.
    */
-  public void setField(final List<String> field)
+  public void setField(@NotNull final List<String> field)
   {
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
@@ -398,6 +405,7 @@ public final class EqualsJSONObjectFilter
    *
    * @return  The target value for this filter.
    */
+  @NotNull()
   public JSONValue getValue()
   {
     return value;
@@ -411,7 +419,7 @@ public final class EqualsJSONObjectFilter
    * @param  value  The target string value for this filter.  It must not be
    *                {@code null}.
    */
-  public void setValue(final String value)
+  public void setValue(@NotNull final String value)
   {
     Validator.ensureNotNull(value);
 
@@ -462,7 +470,7 @@ public final class EqualsJSONObjectFilter
    * @param  value  The target value for this filter.  It must not be
    *                {@code null} (although it may be a {@code JSONNull}).
    */
-  public void setValue(final JSONValue value)
+  public void setValue(@NotNull final JSONValue value)
   {
     Validator.ensureNotNull(value);
 
@@ -503,6 +511,7 @@ public final class EqualsJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getFilterType()
   {
     return FILTER_TYPE;
@@ -514,6 +523,7 @@ public final class EqualsJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getRequiredFieldNames()
   {
     return REQUIRED_FIELD_NAMES;
@@ -525,6 +535,7 @@ public final class EqualsJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<String> getOptionalFieldNames()
   {
     return OPTIONAL_FIELD_NAMES;
@@ -536,7 +547,7 @@ public final class EqualsJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesJSONObject(final JSONObject o)
+  public boolean matchesJSONObject(@NotNull final JSONObject o)
   {
     final List<JSONValue> candidates = getValues(o, field);
     if (candidates.isEmpty())
@@ -570,6 +581,7 @@ public final class EqualsJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public JSONObject toJSONObject()
   {
     final LinkedHashMap<String,JSONValue> fields =
@@ -608,7 +620,9 @@ public final class EqualsJSONObjectFilter
    * {@inheritDoc}
    */
   @Override()
-  protected EqualsJSONObjectFilter decodeFilter(final JSONObject filterObject)
+  @NotNull()
+  protected EqualsJSONObjectFilter decodeFilter(
+                 @NotNull final JSONObject filterObject)
             throws JSONException
   {
     final List<String> fieldPath =

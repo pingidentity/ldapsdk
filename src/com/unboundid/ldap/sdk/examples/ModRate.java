@@ -66,6 +66,8 @@ import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.RateAdjustor;
@@ -186,102 +188,102 @@ public final class ModRate
 
 
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of modrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The argument used to indicate whether to generate output in CSV format.
-  private BooleanArgument csvFormat;
+  @Nullable private BooleanArgument csvFormat;
 
   // Indicates that the tool should use the increment modification type instead
   // of replace.
-  private BooleanArgument increment;
+  @Nullable private BooleanArgument increment;
 
   // Indicates that modify requests should include the permissive modify request
   // control.
-  private BooleanArgument permissiveModify;
+  @Nullable private BooleanArgument permissiveModify;
 
   // The argument used to indicate whether to suppress information about error
   // result codes.
-  private BooleanArgument suppressErrorsArgument;
+  @Nullable private BooleanArgument suppressErrorsArgument;
 
   // The argument used to indicate that a generic control should be included in
   // the request.
-  private ControlArgument control;
+  @Nullable private ControlArgument control;
 
   // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
+  @Nullable private FileArgument sampleRateFile;
 
   // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
+  @Nullable private FileArgument variableRateData;
 
   // Indicates that modify requests should include the assertion request control
   // with the specified filter.
-  private FilterArgument assertionFilter;
+  @Nullable private FilterArgument assertionFilter;
 
   // The argument used to specify the collection interval.
-  private IntegerArgument collectionInterval;
+  @Nullable private IntegerArgument collectionInterval;
 
   // The increment amount to use when performing an increment instead of a
   // replace.
-  private IntegerArgument incrementAmount;
+  @Nullable private IntegerArgument incrementAmount;
 
   // The argument used to specify the number of modify iterations on a
   // connection before it is closed and re-established.
-  private IntegerArgument iterationsBeforeReconnect;
+  @Nullable private IntegerArgument iterationsBeforeReconnect;
 
   // The argument used to specify the number of intervals.
-  private IntegerArgument numIntervals;
+  @Nullable private IntegerArgument numIntervals;
 
   // The argument used to specify the number of threads.
-  private IntegerArgument numThreads;
+  @Nullable private IntegerArgument numThreads;
 
   // The argument used to specify the seed to use for the random number
   // generator.
-  private IntegerArgument randomSeed;
+  @Nullable private IntegerArgument randomSeed;
 
   // The target rate of modifies per second.
-  private IntegerArgument ratePerSecond;
+  @Nullable private IntegerArgument ratePerSecond;
 
   // The number of values to include in the replace modification.
-  private IntegerArgument valueCount;
+  @Nullable private IntegerArgument valueCount;
 
   // The argument used to specify the length of the values to generate.
-  private IntegerArgument valueLength;
+  @Nullable private IntegerArgument valueLength;
 
   // The number of warm-up intervals to perform.
-  private IntegerArgument warmUpIntervals;
+  @Nullable private IntegerArgument warmUpIntervals;
 
   // The argument used to specify the name of the attribute to modify.
-  private StringArgument attribute;
+  @Nullable private StringArgument attribute;
 
   // The argument used to specify the set of characters to use when generating
   // values.
-  private StringArgument characterSet;
+  @Nullable private StringArgument characterSet;
 
   // The argument used to specify the DNs of the entries to modify.
-  private StringArgument entryDN;
+  @Nullable private StringArgument entryDN;
 
   // Indicates that modify requests should include the post-read request control
   // to request the specified attribute.
-  private StringArgument postReadAttribute;
+  @Nullable private StringArgument postReadAttribute;
 
   // Indicates that modify requests should include the pre-read request control
   // to request the specified attribute.
-  private StringArgument preReadAttribute;
+  @Nullable private StringArgument preReadAttribute;
 
   // The argument used to specify the proxied authorization identity.
-  private StringArgument proxyAs;
+  @Nullable private StringArgument proxyAs;
 
   // The argument used to specify the timestamp format.
-  private StringArgument timestampFormat;
+  @Nullable private StringArgument timestampFormat;
 
   // The argument used to specify the pattern to use to generate values.
-  private StringArgument valuePattern;
+  @Nullable private StringArgument valuePattern;
 
   // A wakeable sleeper that will be used to sleep between reporting intervals.
-  private final WakeableSleeper sleeper;
+  @NotNull private final WakeableSleeper sleeper;
 
 
 
@@ -291,7 +293,7 @@ public final class ModRate
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -316,9 +318,9 @@ public final class ModRate
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final ModRate modRate = new ModRate(outStream, errStream);
     return modRate.runTool(args);
@@ -336,7 +338,8 @@ public final class ModRate
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public ModRate(final OutputStream outStream, final OutputStream errStream)
+  public ModRate(@Nullable final OutputStream outStream,
+                 @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -353,6 +356,7 @@ public final class ModRate
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "modrate";
@@ -366,6 +370,7 @@ public final class ModRate
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Perform repeated modifications against " +
@@ -380,6 +385,7 @@ public final class ModRate
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -515,7 +521,7 @@ public final class ModRate
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     String description = "The DN of the entry to modify.  It may be a simple " +
@@ -834,6 +840,7 @@ public final class ModRate
    *          for use with this tool.
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -851,6 +858,7 @@ public final class ModRate
    * @return  The result code for the processing that was performed.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // If the sample rate file argument was specified, then generate the sample
@@ -1351,6 +1359,7 @@ public final class ModRate
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

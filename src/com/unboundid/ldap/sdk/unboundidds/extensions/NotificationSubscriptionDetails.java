@@ -45,6 +45,7 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -79,10 +80,10 @@ public final class NotificationSubscriptionDetails
 
 
   // The encoded details for this notification subscription.
-  private final List<ASN1OctetString> details;
+  @NotNull private final List<ASN1OctetString> details;
 
   // The unique ID for this notification subscription.
-  private final String id;
+  @NotNull private final String id;
 
 
 
@@ -95,8 +96,8 @@ public final class NotificationSubscriptionDetails
    * @param  details  The encoded details for this notification subscription.
    *                  It must not be {@code null} or empty.
    */
-  public NotificationSubscriptionDetails(final String id,
-              final Collection<ASN1OctetString> details)
+  public NotificationSubscriptionDetails(@NotNull final String id,
+              @NotNull final Collection<ASN1OctetString> details)
   {
     Validator.ensureNotNull(id);
     Validator.ensureNotNull(details);
@@ -114,6 +115,7 @@ public final class NotificationSubscriptionDetails
    *
    * @return The unique ID for this subscription details object.
    */
+  @NotNull()
   public String getID()
   {
     return id;
@@ -126,6 +128,7 @@ public final class NotificationSubscriptionDetails
    *
    * @return  The encoded details for this subscription details object.
    */
+  @NotNull()
   public List<ASN1OctetString> getDetails()
   {
     return details;
@@ -141,6 +144,7 @@ public final class NotificationSubscriptionDetails
    *          object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -156,7 +160,7 @@ public final class NotificationSubscriptionDetails
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("NotificationSubscription(id='");
     buffer.append(id);

@@ -41,6 +41,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -95,44 +96,44 @@ public final class LDAPConnectionPoolStatistics
 
 
   // The number of connections that have been closed as defunct.
-  private final AtomicLong numConnectionsClosedDefunct;
+  @NotNull private final AtomicLong numConnectionsClosedDefunct;
 
   // The number of connections that have been closed because they were expired.
-  private final AtomicLong numConnectionsClosedExpired;
+  @NotNull private final AtomicLong numConnectionsClosedExpired;
 
   // The number of connections that have been closed because they were no longer
   // needed.
-  private final AtomicLong numConnectionsClosedUnneeded;
+  @NotNull private final AtomicLong numConnectionsClosedUnneeded;
 
   // The number of failed attempts to check out a connection from the pool.
-  private final AtomicLong numFailedCheckouts;
+  @NotNull private final AtomicLong numFailedCheckouts;
 
   // The number of failed attempts to create a connection for use in the pool.
-  private final AtomicLong numFailedConnectionAttempts;
+  @NotNull private final AtomicLong numFailedConnectionAttempts;
 
   // The number of valid connections released back to the pool.
-  private final AtomicLong numReleasedValid;
+  @NotNull private final AtomicLong numReleasedValid;
 
   // The number of successful attempts to check out a connection from the pool.
-  private final AtomicLong numSuccessfulCheckouts;
+  @NotNull private final AtomicLong numSuccessfulCheckouts;
 
   // The number of successful checkout attempts that retrieved a connection from
   // the pool after waiting for it to become available.
-  private final AtomicLong numSuccessfulCheckoutsAfterWait;
+  @NotNull private final AtomicLong numSuccessfulCheckoutsAfterWait;
 
   // The number of successful checkout attempts that had to create a new
   // connection because none were available.
-  private final AtomicLong numSuccessfulCheckoutsNewConnection;
+  @NotNull private final AtomicLong numSuccessfulCheckoutsNewConnection;
 
   // The number of successful checkout attempts that were able to take an
   // existing connection without waiting.
-  private final AtomicLong numSuccessfulCheckoutsWithoutWait;
+  @NotNull private final AtomicLong numSuccessfulCheckoutsWithoutWait;
 
   // The number successful attempts to create a connection for use in the pool.
-  private final AtomicLong numSuccessfulConnectionAttempts;
+  @NotNull private final AtomicLong numSuccessfulConnectionAttempts;
 
   // The connection pool with which these statistics are associated.
-  private final AbstractConnectionPool pool;
+  @NotNull private final AbstractConnectionPool pool;
 
 
 
@@ -489,6 +490,7 @@ public final class LDAPConnectionPoolStatistics
    *          object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -505,7 +507,7 @@ public final class LDAPConnectionPoolStatistics
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     final long availableConns      = pool.getCurrentAvailableConnections();
     final long maxConns            = pool.getMaximumAvailableConnections();

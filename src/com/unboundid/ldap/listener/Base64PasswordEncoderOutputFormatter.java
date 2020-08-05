@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -61,7 +62,7 @@ public final class Base64PasswordEncoderOutputFormatter
   /**
    * The singleton instance of this base64 password encoder output formatter.
    */
-  private static final Base64PasswordEncoderOutputFormatter INSTANCE =
+  @NotNull private static final Base64PasswordEncoderOutputFormatter INSTANCE =
        new Base64PasswordEncoderOutputFormatter();
 
 
@@ -83,6 +84,7 @@ public final class Base64PasswordEncoderOutputFormatter
    * @return  The singleton instance of this base64 password encoder output
    *          formatter.
    */
+  @NotNull()
   public static Base64PasswordEncoderOutputFormatter getInstance()
   {
     return INSTANCE;
@@ -94,7 +96,8 @@ public final class Base64PasswordEncoderOutputFormatter
    * {@inheritDoc}
    */
   @Override()
-  public byte[] format(final byte[] unformattedData)
+  @NotNull()
+  public byte[] format(@NotNull final byte[] unformattedData)
          throws LDAPException
   {
     return StaticUtils.getBytes(Base64.encode(unformattedData));
@@ -106,7 +109,8 @@ public final class Base64PasswordEncoderOutputFormatter
    * {@inheritDoc}
    */
   @Override()
-  public byte[] unFormat(final byte[] formattedData)
+  @NotNull()
+  public byte[] unFormat(@NotNull final byte[] formattedData)
          throws LDAPException
   {
     try
@@ -127,7 +131,7 @@ public final class Base64PasswordEncoderOutputFormatter
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("Base64PasswordEncoderOutputFormatter()");
   }

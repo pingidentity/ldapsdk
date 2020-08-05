@@ -43,6 +43,7 @@ import java.util.NoSuchElementException;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,7 +62,7 @@ final class IterableEnumeration<T>
       implements Enumeration<T>
 {
   // The iteration over which this enumeration operates.
-  private final Iterator<T> iterator;
+  @NotNull private final Iterator<T> iterator;
 
 
 
@@ -70,7 +71,7 @@ final class IterableEnumeration<T>
    *
    * @param  i  The {@code Iterable} object to use to create this enumeration.
    */
-  IterableEnumeration(final Iterable<T> i)
+  IterableEnumeration(@NotNull final Iterable<T> i)
   {
     iterator = i.iterator();
   }
@@ -99,6 +100,7 @@ final class IterableEnumeration<T>
    * @throws  NoSuchElementException  If there are no more elements to retrieve.
    */
   @Override()
+  @NotNull()
   public T nextElement()
          throws NoSuchElementException
   {

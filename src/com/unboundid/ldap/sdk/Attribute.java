@@ -64,6 +64,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -122,14 +124,15 @@ public final class Attribute
   /**
    * The array to use as the set of values when there are no values.
    */
-  private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
+  @NotNull private static final ASN1OctetString[] NO_VALUES =
+       new ASN1OctetString[0];
 
 
 
   /**
    * The array to use as the set of byte array values when there are no values.
    */
-  private static final byte[][] NO_BYTE_VALUES = new byte[0][];
+  @NotNull private static final byte[][] NO_BYTE_VALUES = new byte[0][];
 
 
 
@@ -141,16 +144,16 @@ public final class Attribute
 
 
   // The set of values for this attribute.
-  private final ASN1OctetString[] values;
+  @NotNull private final ASN1OctetString[] values;
 
   // The hash code for this attribute.
   private int hashCode = -1;
 
   // The matching rule that should be used for equality determinations.
-  private final MatchingRule matchingRule;
+  @NotNull private final MatchingRule matchingRule;
 
   // The attribute description for this attribute.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -159,7 +162,7 @@ public final class Attribute
    *
    * @param  name  The name for this attribute.  It must not be {@code null}.
    */
-  public Attribute(final String name)
+  public Attribute(@NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -177,7 +180,7 @@ public final class Attribute
    * @param  name   The name for this attribute.  It must not be {@code null}.
    * @param  value  The value for this attribute.  It must not be {@code null}.
    */
-  public Attribute(final String name, final String value)
+  public Attribute(@NotNull final String name, @NotNull final String value)
   {
     Validator.ensureNotNull(name, value);
 
@@ -195,7 +198,7 @@ public final class Attribute
    * @param  name   The name for this attribute.  It must not be {@code null}.
    * @param  value  The value for this attribute.  It must not be {@code null}.
    */
-  public Attribute(final String name, final byte[] value)
+  public Attribute(@NotNull final String name, @NotNull final byte[] value)
   {
     Validator.ensureNotNull(name, value);
 
@@ -213,7 +216,7 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final String... values)
+  public Attribute(@NotNull final String name, @NotNull final String... values)
   {
     Validator.ensureNotNull(name, values);
 
@@ -236,7 +239,7 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final byte[]... values)
+  public Attribute(@NotNull final String name, @NotNull final byte[]... values)
   {
     Validator.ensureNotNull(name, values);
 
@@ -259,7 +262,8 @@ public final class Attribute
    * @param  values  The set of raw values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final ASN1OctetString... values)
+  public Attribute(@NotNull final String name,
+                   @NotNull final ASN1OctetString... values)
   {
     Validator.ensureNotNull(name, values);
 
@@ -278,7 +282,8 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final Collection<String> values)
+  public Attribute(@NotNull final String name,
+                   @NotNull final Collection<String> values)
   {
     Validator.ensureNotNull(name, values);
 
@@ -304,7 +309,8 @@ public final class Attribute
    * @param  matchingRule  The matching rule to use when comparing values.  It
    *                       must not be {@code null}.
    */
-  public Attribute(final String name, final MatchingRule matchingRule)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(name, matchingRule);
 
@@ -326,8 +332,9 @@ public final class Attribute
    * @param  value         The value for this attribute.  It must not be
    *                       {@code null}.
    */
-  public Attribute(final String name, final MatchingRule matchingRule,
-                   final String value)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule,
+                   @NotNull final String value)
   {
     Validator.ensureNotNull(name, matchingRule, value);
 
@@ -349,8 +356,9 @@ public final class Attribute
    * @param  value         The value for this attribute.  It must not be
    *                       {@code null}.
    */
-  public Attribute(final String name, final MatchingRule matchingRule,
-                   final byte[] value)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule,
+                   @NotNull final byte[] value)
   {
     Validator.ensureNotNull(name, matchingRule, value);
 
@@ -372,8 +380,9 @@ public final class Attribute
    * @param  values        The set of values for this attribute.  It must not be
    *                       {@code null}.
    */
-  public Attribute(final String name, final MatchingRule matchingRule,
-                   final String... values)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule,
+                   @NotNull final String... values)
   {
     Validator.ensureNotNull(name, matchingRule, values);
 
@@ -399,8 +408,9 @@ public final class Attribute
    * @param  values        The set of values for this attribute.  It must not be
    *                       {@code null}.
    */
-  public Attribute(final String name, final MatchingRule matchingRule,
-                   final byte[]... values)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule,
+                   @NotNull final byte[]... values)
   {
     Validator.ensureNotNull(name, matchingRule, values);
 
@@ -426,8 +436,9 @@ public final class Attribute
    * @param  values        The set of values for this attribute.  It must not be
    *                       {@code null}.
    */
-  public Attribute(final String name, final MatchingRule matchingRule,
-                   final Collection<String> values)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule,
+                   @NotNull final Collection<String> values)
   {
     Validator.ensureNotNull(name, matchingRule, values);
 
@@ -452,8 +463,9 @@ public final class Attribute
    * @param  matchingRule  The matching rule for this attribute.
    * @param  values        The set of values for this attribute.
    */
-  public Attribute(final String name, final MatchingRule matchingRule,
-                   final ASN1OctetString[] values)
+  public Attribute(@NotNull final String name,
+                   @NotNull final MatchingRule matchingRule,
+                   @NotNull final ASN1OctetString[] values)
   {
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -472,8 +484,8 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final Schema schema,
-                   final String... values)
+  public Attribute(@NotNull final String name, @Nullable final Schema schema,
+                   @NotNull final String... values)
   {
     this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
   }
@@ -490,8 +502,8 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final Schema schema,
-                   final byte[]... values)
+  public Attribute(@NotNull final String name, @Nullable final Schema schema,
+                   @NotNull final byte[]... values)
   {
     this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
   }
@@ -508,8 +520,8 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final Schema schema,
-                   final Collection<String> values)
+  public Attribute(@NotNull final String name, @Nullable final Schema schema,
+                   @NotNull final Collection<String> values)
   {
     this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
   }
@@ -526,8 +538,8 @@ public final class Attribute
    * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
-  public Attribute(final String name, final Schema schema,
-                   final ASN1OctetString[] values)
+  public Attribute(@NotNull final String name, @Nullable final Schema schema,
+                   @NotNull final ASN1OctetString[] values)
   {
     this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
   }
@@ -548,8 +560,9 @@ public final class Attribute
    * @return  The new attribute containing the values of both of the
    *          provided attributes.
    */
-  public static Attribute mergeAttributes(final Attribute attr1,
-                                          final Attribute attr2)
+  @NotNull()
+  public static Attribute mergeAttributes(@NotNull final Attribute attr1,
+                                          @NotNull final Attribute attr2)
   {
     return mergeAttributes(attr1, attr2, attr1.matchingRule);
   }
@@ -573,9 +586,10 @@ public final class Attribute
    * @return  The new attribute containing the values of both of the
    *          provided attributes.
    */
-  public static Attribute mergeAttributes(final Attribute attr1,
-                                          final Attribute attr2,
-                                          final MatchingRule matchingRule)
+  @NotNull()
+  public static Attribute mergeAttributes(@NotNull final Attribute attr1,
+                               @NotNull final Attribute attr2,
+                               @Nullable final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(attr1, attr2);
 
@@ -634,8 +648,9 @@ public final class Attribute
    *          if all the values of the first attribute were also contained in
    *          the second.
    */
-  public static Attribute removeValues(final Attribute attr1,
-                                       final Attribute attr2)
+  @NotNull()
+  public static Attribute removeValues(@NotNull final Attribute attr1,
+                                       @NotNull final Attribute attr2)
   {
     return removeValues(attr1, attr2, attr1.matchingRule);
   }
@@ -661,9 +676,10 @@ public final class Attribute
    *          if all the values of the first attribute were also contained in
    *          the second.
    */
-  public static Attribute removeValues(final Attribute attr1,
-                                       final Attribute attr2,
-                                       final MatchingRule matchingRule)
+  @NotNull()
+  public static Attribute removeValues(@NotNull final Attribute attr1,
+                               @NotNull final Attribute attr2,
+                               @Nullable final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(attr1, attr2);
 
@@ -707,6 +723,7 @@ public final class Attribute
    *
    * @return  The name for this attribute.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -722,6 +739,7 @@ public final class Attribute
    *
    * @return  The base name for this attribute.
    */
+  @NotNull()
   public String getBaseName()
   {
     return getBaseName(name);
@@ -740,7 +758,8 @@ public final class Attribute
    *
    * @return  The base name determined from the provided attribute name.
    */
-  public static String getBaseName(final String name)
+  @NotNull()
+  public static String getBaseName(@NotNull final String name)
   {
     final int semicolonPos = name.indexOf(';');
     if (semicolonPos > 0)
@@ -789,7 +808,7 @@ public final class Attribute
    * @return  {@code true} if this attribute has a valid name, or {@code false}
    *          if not.
    */
-  public static boolean nameIsValid(final String s)
+  public static boolean nameIsValid(@NotNull final String s)
   {
     return nameIsValid(s, true);
   }
@@ -813,7 +832,8 @@ public final class Attribute
    * @return  {@code true} if this attribute has a valid name, or {@code false}
    *          if not.
    */
-  public static boolean nameIsValid(final String s, final boolean allowOptions)
+  public static boolean nameIsValid(@NotNull final String s,
+                                    final boolean allowOptions)
   {
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -893,7 +913,7 @@ public final class Attribute
    * @return  {@code true} if the provided attribute name has at least one
    *          attribute option, or {@code false} if not.
    */
-  public static boolean hasOptions(final String name)
+  public static boolean hasOptions(@NotNull final String name)
   {
     return (name.indexOf(';') > 0);
   }
@@ -908,7 +928,7 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified attribute option,
    *          or {@code false} if not.
    */
-  public boolean hasOption(final String option)
+  public boolean hasOption(@NotNull final String option)
   {
     return hasOption(name, option);
   }
@@ -925,7 +945,8 @@ public final class Attribute
    * @return  {@code true} if the provided attribute name has the specified
    *          attribute option, or {@code false} if not.
    */
-  public static boolean hasOption(final String name, final String option)
+  public static boolean hasOption(@NotNull final String name,
+                                  @NotNull final String option)
   {
     final Set<String> options = getOptions(name);
     for (final String s : options)
@@ -947,6 +968,7 @@ public final class Attribute
    * @return  The set of options for this attribute, or an empty set if there
    *          are none.
    */
+  @NotNull()
   public Set<String> getOptions()
   {
     return getOptions(name);
@@ -962,7 +984,8 @@ public final class Attribute
    * @return  The set of options for the provided attribute name, or an empty
    *          set if there are none.
    */
-  public static Set<String> getOptions(final String name)
+  @NotNull()
+  public static Set<String> getOptions(@NotNull final String name)
   {
     int semicolonPos = name.indexOf(';');
     if (semicolonPos > 0)
@@ -999,6 +1022,7 @@ public final class Attribute
    *
    * @return  The matching rule instance used by this attribute.
    */
+  @NotNull()
   public MatchingRule getMatchingRule()
   {
     return matchingRule;
@@ -1013,6 +1037,7 @@ public final class Attribute
    * @return  The value for this attribute, or {@code null} if this attribute
    *          does not have any values.
    */
+  @Nullable()
   public String getValue()
   {
     if (values.length == 0)
@@ -1033,6 +1058,7 @@ public final class Attribute
    * @return  The value for this attribute, or {@code null} if this attribute
    *          does not have any values.
    */
+  @Nullable()
   public byte[] getValueByteArray()
   {
     if (values.length == 0)
@@ -1056,6 +1082,7 @@ public final class Attribute
    *          attribute does not have any values or the value cannot be parsed
    *          as a Boolean.
    */
+  @Nullable()
   public Boolean getValueAsBoolean()
   {
     if (values.length == 0)
@@ -1093,6 +1120,7 @@ public final class Attribute
    *          attribute does not have any values or the value cannot be parsed
    *          as a Date.
    */
+  @Nullable()
   public Date getValueAsDate()
   {
     if (values.length == 0)
@@ -1120,6 +1148,7 @@ public final class Attribute
    * @return  The DN value for this attribute, or {@code null} if this attribute
    *          does not have any values or the value cannot be parsed as a DN.
    */
+  @Nullable()
   public DN getValueAsDN()
   {
     if (values.length == 0)
@@ -1148,6 +1177,7 @@ public final class Attribute
    *          attribute does not have any values or the value cannot be parsed
    *          as an Integer.
    */
+  @Nullable()
   public Integer getValueAsInteger()
   {
     if (values.length == 0)
@@ -1176,6 +1206,7 @@ public final class Attribute
    *          attribute does not have any values or the value cannot be parsed
    *          as a Long.
    */
+  @Nullable()
   public Long getValueAsLong()
   {
     if (values.length == 0)
@@ -1203,6 +1234,7 @@ public final class Attribute
    * @return  The set of values for this attribute, or an empty array if it does
    *          not have any values.
    */
+  @NotNull()
   public String[] getValues()
   {
     if (values.length == 0)
@@ -1228,6 +1260,7 @@ public final class Attribute
    * @return  The set of values for this attribute, or an empty array if it does
    *          not have any values.
    */
+  @NotNull()
   public byte[][] getValueByteArrays()
   {
     if (values.length == 0)
@@ -1253,6 +1286,7 @@ public final class Attribute
    * @return  The set of values for this attribute as an array of ASN.1 octet
    *          strings.
    */
+  @NotNull()
   public ASN1OctetString[] getRawValues()
   {
     return values;
@@ -1282,7 +1316,7 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified value, or
    *          {@code false} if not.
    */
-  public boolean hasValue(final String value)
+  public boolean hasValue(@NotNull final String value)
   {
     Validator.ensureNotNull(value);
 
@@ -1302,7 +1336,8 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified value, or
    *          {@code false} if not.
    */
-  public boolean hasValue(final String value, final MatchingRule matchingRule)
+  public boolean hasValue(@NotNull final String value,
+                          @NotNull final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(value);
 
@@ -1320,7 +1355,7 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified value, or
    *          {@code false} if not.
    */
-  public boolean hasValue(final byte[] value)
+  public boolean hasValue(@NotNull final byte[] value)
   {
     Validator.ensureNotNull(value);
 
@@ -1340,7 +1375,8 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified value, or
    *          {@code false} if not.
    */
-  public boolean hasValue(final byte[] value, final MatchingRule matchingRule)
+  public boolean hasValue(@NotNull final byte[] value,
+                          @NotNull final MatchingRule matchingRule)
   {
     Validator.ensureNotNull(value);
 
@@ -1357,7 +1393,7 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified value, or
    *          {@code false} if not.
    */
-  boolean hasValue(final ASN1OctetString value)
+  boolean hasValue(@NotNull final ASN1OctetString value)
   {
     return hasValue(value, matchingRule);
   }
@@ -1375,7 +1411,8 @@ public final class Attribute
    * @return  {@code true} if this attribute has the specified value, or
    *          {@code false} if not.
    */
-  boolean hasValue(final ASN1OctetString value, final MatchingRule matchingRule)
+  boolean hasValue(@NotNull final ASN1OctetString value,
+                   @NotNull final MatchingRule matchingRule)
   {
     try
     {
@@ -1420,7 +1457,7 @@ public final class Attribute
    * @param  buffer  The ASN.1 buffer to which the encoded representation should
    *                 be written.
    */
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence attrSequence = buffer.beginSequence();
     buffer.addOctetString(name);
@@ -1443,6 +1480,7 @@ public final class Attribute
    *
    * @return  An ASN.1 sequence containing the encoded attribute.
    */
+  @NotNull()
   public ASN1Sequence encode()
   {
     final ASN1Element[] elements =
@@ -1466,7 +1504,8 @@ public final class Attribute
    * @throws  LDAPException  If a problem occurs while trying to read or decode
    *                         the attribute.
    */
-  public static Attribute readFrom(final ASN1StreamReader reader)
+  @NotNull()
+  public static Attribute readFrom(@NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     return readFrom(reader, null);
@@ -1487,8 +1526,9 @@ public final class Attribute
    * @throws  LDAPException  If a problem occurs while trying to read or decode
    *                         the attribute.
    */
-  public static Attribute readFrom(final ASN1StreamReader reader,
-                                   final Schema schema)
+  @NotNull()
+  public static Attribute readFrom(@NotNull final ASN1StreamReader reader,
+                                   @Nullable final Schema schema)
          throws LDAPException
   {
     try
@@ -1533,7 +1573,8 @@ public final class Attribute
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided ASN.1 sequence as an LDAP attribute.
    */
-  public static Attribute decode(final ASN1Sequence encodedAttribute)
+  @NotNull()
+  public static Attribute decode(@NotNull final ASN1Sequence encodedAttribute)
          throws LDAPException
   {
     Validator.ensureNotNull(encodedAttribute);
@@ -1606,7 +1647,7 @@ public final class Attribute
    * @return  {@code true} if the provided value needs to be base64-encoded when
    *          represented as LDIF, or {@code false} if not.
    */
-  public static boolean needsBase64Encoding(final String v)
+  public static boolean needsBase64Encoding(@NotNull final String v)
   {
     return needsBase64Encoding(StaticUtils.getBytes(v));
   }
@@ -1623,7 +1664,7 @@ public final class Attribute
    * @return  {@code true} if the provided value needs to be base64-encoded when
    *          represented as LDIF, or {@code false} if not.
    */
-  public static boolean needsBase64Encoding(final byte[] v)
+  public static boolean needsBase64Encoding(@NotNull final byte[] v)
   {
     if (v.length == 0)
     {
@@ -1711,7 +1752,7 @@ public final class Attribute
    *          this LDAP attribute, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -1825,6 +1866,7 @@ public final class Attribute
    * @return  A string representation of this LDAP attribute.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1841,7 +1883,7 @@ public final class Attribute
    * @param  buffer  The buffer to which the string representation of this LDAP
    *                 attribute should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("Attribute(name=");
     buffer.append(name);

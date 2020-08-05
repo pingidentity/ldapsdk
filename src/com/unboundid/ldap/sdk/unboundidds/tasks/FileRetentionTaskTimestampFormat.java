@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -256,11 +258,11 @@ public enum FileRetentionTaskTimestampFormat
 
   // A format string that can be used to create a SimpleDateFormat object
   // capable of parsing timestamps in this format.
-  private final String simpleDateFormatString;
+  @NotNull private final String simpleDateFormatString;
 
   // A regular expression string that can be used to match timestamps in this
   // format.
-  private final String regexString;
+  @NotNull private final String regexString;
 
 
 
@@ -279,8 +281,8 @@ public enum FileRetentionTaskTimestampFormat
    *                                 It must not be {@code null}.
    */
   FileRetentionTaskTimestampFormat(final boolean isInUTCTimeZone,
-                                   final String simpleDateFormatString,
-                                   final String regexString)
+                                   @NotNull final String simpleDateFormatString,
+                                   @NotNull final String regexString)
   {
     this.isInUTCTimeZone = isInUTCTimeZone;
     this.simpleDateFormatString = simpleDateFormatString;
@@ -313,6 +315,7 @@ public enum FileRetentionTaskTimestampFormat
    *          {@code SimpleDateFormat} object capable of parsing timestamps in
    *          this format.
    */
+  @NotNull()
   public String getSimpleDateFormatString()
   {
     return simpleDateFormatString;
@@ -328,6 +331,7 @@ public enum FileRetentionTaskTimestampFormat
    * @return  A regular expression string that can be used to match timestamps
    *          in this format.
    */
+  @NotNull()
   public String getRegexString()
   {
     return regexString;
@@ -343,7 +347,9 @@ public enum FileRetentionTaskTimestampFormat
    * @return  The timestamp format value with the specified name, or
    *          {@code null} if there is no value with that name.
    */
-  public static FileRetentionTaskTimestampFormat forName(final String name)
+  @Nullable()
+  public static FileRetentionTaskTimestampFormat forName(
+                     @NotNull final String name)
   {
     final String upperName = StaticUtils.toUpperCase(name).replace('-', '_');
     for (final FileRetentionTaskTimestampFormat f : values())

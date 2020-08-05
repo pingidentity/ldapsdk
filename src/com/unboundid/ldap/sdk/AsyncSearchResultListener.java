@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,6 +63,6 @@ public interface AsyncSearchResultListener
    *                       response was received.
    * @param  searchResult  The search result that has been received.
    */
-  void searchResultReceived(AsyncRequestID requestID,
-                            SearchResult searchResult);
+  void searchResultReceived(@NotNull AsyncRequestID requestID,
+                            @NotNull SearchResult searchResult);
 }

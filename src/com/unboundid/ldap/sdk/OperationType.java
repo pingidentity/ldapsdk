@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -128,7 +130,8 @@ public enum OperationType
    * @return  The requested operation type, or {@code null} if no such operation
    *          type is defined.
    */
-  public static OperationType forName(final String name)
+  @Nullable()
+  public static OperationType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

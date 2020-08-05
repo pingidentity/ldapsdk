@@ -45,6 +45,8 @@ import java.util.List;
 
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateOperation;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
@@ -984,16 +986,16 @@ public enum ManageAccountSubCommandType
 
   // A list containing the primary name and all alternate names for this
   // subcommand.
-  private final List<String> allNames;
+  @NotNull private final List<String> allNames;
 
   // A list of alternate names for this subcommand.
-  private final List<String> alternateNames;
+  @NotNull private final List<String> alternateNames;
 
   // The description for this subcommand.
-  private final String description;
+  @NotNull private final String description;
 
   // The primary name for this subcommand.
-  private final String primaryName;
+  @NotNull private final String primaryName;
 
 
 
@@ -1011,9 +1013,10 @@ public enum ManageAccountSubCommandType
    *                         invoke this subcommand.  It may be empty but not
    *                         {@code null}.
    */
-  ManageAccountSubCommandType(final String primaryName,
-                              final String description, final int operationType,
-                              final String... alternateNames)
+  ManageAccountSubCommandType(@NotNull final String primaryName,
+                              @NotNull final String description,
+                              final int operationType,
+                              @NotNull final String... alternateNames)
   {
     this.primaryName    = primaryName;
     this.description    = description;
@@ -1037,6 +1040,7 @@ public enum ManageAccountSubCommandType
    *
    * @return  The primary name for the subcommand.
    */
+  @NotNull()
   public String getPrimaryName()
   {
     return primaryName;
@@ -1050,6 +1054,7 @@ public enum ManageAccountSubCommandType
    * @return  The alternate names for this subcommand, or an empty list if
    *          there are no alternate names.
    */
+  @NotNull()
   public List<String> getAlternateNames()
   {
     return alternateNames;
@@ -1063,6 +1068,7 @@ public enum ManageAccountSubCommandType
    *
    * @return  A list containing all names for ths subcommand.
    */
+  @NotNull()
   public List<String> getAllNames()
   {
     return allNames;
@@ -1075,6 +1081,7 @@ public enum ManageAccountSubCommandType
    *
    * @return  The description for the subcommand.
    */
+  @NotNull()
   public String getDescription()
   {
     return description;
@@ -1105,7 +1112,8 @@ public enum ManageAccountSubCommandType
    * @return  The subcommand type with the specified name, or {@code null} if
    *          there is no subcommand type for the given name.
    */
-  public static ManageAccountSubCommandType forName(final String name)
+  @Nullable()
+  public static ManageAccountSubCommandType forName(@NotNull final String name)
   {
     ensureMapsPopulated();
 
@@ -1125,6 +1133,7 @@ public enum ManageAccountSubCommandType
    *          operation type, or {@code null} if there is no subcommand type for
    *          the given operation type.
    */
+  @Nullable()
   public static ManageAccountSubCommandType forOperationType(final int opType)
   {
     ensureMapsPopulated();

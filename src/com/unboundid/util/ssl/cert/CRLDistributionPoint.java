@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -140,17 +142,18 @@ public final class CRLDistributionPoint
 
 
   // The full set of names for the entity that signs the CRL.
-  private final GeneralNames crlIssuer;
+  @Nullable private final GeneralNames crlIssuer;
 
   // The full set of names for this CRL distribution point.
-  private final GeneralNames fullName;
+  @Nullable private final GeneralNames fullName;
 
   // The name of the distribution point relative to the CRL issuer.
-  private final RDN nameRelativeToCRLIssuer;
+  @Nullable private final RDN nameRelativeToCRLIssuer;
 
   // The set of reasons that the CRL distribution point may revoke a
   // certificate.
-  private final Set<CRLDistributionPointRevocationReason> revocationReasons;
+  @NotNull private final Set<CRLDistributionPointRevocationReason>
+       revocationReasons;
 
 
 
@@ -166,9 +169,10 @@ public final class CRLDistributionPoint
    *                            should be considered valid.
    * @param  crlIssuer          The full name for the entity that signs the CRL.
    */
-  CRLDistributionPoint(final GeneralNames fullName,
-       final Set<CRLDistributionPointRevocationReason> revocationReasons,
-       final GeneralNames crlIssuer)
+  CRLDistributionPoint(@Nullable final GeneralNames fullName,
+       @Nullable final Set<CRLDistributionPointRevocationReason>
+            revocationReasons,
+       @Nullable final GeneralNames crlIssuer)
   {
     this.fullName = fullName;
     this.crlIssuer = crlIssuer;
@@ -203,9 +207,10 @@ public final class CRLDistributionPoint
    * @param  crlIssuer                The full name for the entity that signs
    *                                  the CRL.
    */
-  CRLDistributionPoint(final RDN nameRelativeToCRLIssuer,
-       final Set<CRLDistributionPointRevocationReason> revocationReasons,
-       final GeneralNames crlIssuer)
+  CRLDistributionPoint(@Nullable final RDN nameRelativeToCRLIssuer,
+       @Nullable final Set<CRLDistributionPointRevocationReason>
+            revocationReasons,
+       @Nullable final GeneralNames crlIssuer)
   {
     this.nameRelativeToCRLIssuer = nameRelativeToCRLIssuer;
     this.crlIssuer = crlIssuer;
@@ -234,7 +239,7 @@ public final class CRLDistributionPoint
    * @throws  CertException  If the provided element cannot be decoded as a CRL
    *                         distribution point.
    */
-  CRLDistributionPoint(final ASN1Element element)
+  CRLDistributionPoint(@NotNull final ASN1Element element)
        throws CertException
   {
     try
@@ -336,6 +341,7 @@ public final class CRLDistributionPoint
    * @throws  CertException  If a problem is encountered while encoding this
    *                         CRL distribution point.
    */
+  @NotNull()
   ASN1Element encode()
        throws CertException
   {
@@ -428,6 +434,7 @@ public final class CRLDistributionPoint
    * @return  The full set of names for this CRL distribution point, or
    *          {@code null} if it was not included in the extension.
    */
+  @Nullable()
   public GeneralNames getFullName()
   {
     return fullName;
@@ -442,6 +449,7 @@ public final class CRLDistributionPoint
    * @return  The name relative to the CRL issuer for this CRL distribution
    *          point, or {@code null} if it was not included in the extension.
    */
+  @Nullable()
   public RDN getNameRelativeToCRLIssuer()
   {
     return nameRelativeToCRLIssuer;
@@ -456,6 +464,7 @@ public final class CRLDistributionPoint
    * @return  A set of potential reasons that the CRL distribution point may
    *          list a certificate as revoked.
    */
+  @NotNull()
   public Set<CRLDistributionPointRevocationReason>
               getPotentialRevocationReasons()
   {
@@ -470,6 +479,7 @@ public final class CRLDistributionPoint
    * @return  The full set of names for the CRL issuer, or {@code null} if it
    *          was not included in the extension.
    */
+  @Nullable()
   public GeneralNames getCRLIssuer()
   {
     return crlIssuer;
@@ -483,6 +493,7 @@ public final class CRLDistributionPoint
    * @return  A string representation of this CRL distribution point.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -498,7 +509,7 @@ public final class CRLDistributionPoint
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CRLDistributionPoint(");
 

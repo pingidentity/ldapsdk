@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,30 +74,30 @@ public final class EntryRebalancingResultAccessLogMessage
 
 
   // Indicates whether any changes were made to data in the source backend set.
-  private final Boolean sourceAltered;
+  @Nullable private final Boolean sourceAltered;
 
   // Indicates whether any changes were made to data in the target backend set.
-  private final Boolean targetAltered;
+  @Nullable private final Boolean targetAltered;
 
   // The number of entries added to the target server.
-  private final Integer entriesAddedToTarget;
+  @Nullable private final Integer entriesAddedToTarget;
 
   // The number of entries deleted from the source server.
-  private final Integer entriesDeletedFromSource;
+  @Nullable private final Integer entriesDeletedFromSource;
 
   // The number of entries read from the source server.
-  private final Integer entriesReadFromSource;
+  @Nullable private final Integer entriesReadFromSource;
 
   // The result code for the entry rebalancing operation.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // A message with information about any administrative action that may be
   // required to complete the entry rebalancing processing.
-  private final String adminActionRequired;
+  @Nullable private final String adminActionRequired;
 
   // A message with additional information about any errors that occurred during
   // entry rebalancing processing.
-  private final String errorMessage;
+  @Nullable private final String errorMessage;
 
 
 
@@ -109,7 +111,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public EntryRebalancingResultAccessLogMessage(final String s)
+  public EntryRebalancingResultAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -124,7 +126,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * @param  m  The log message to be parsed as an entry rebalancing result
    *            access log message.
    */
-  public EntryRebalancingResultAccessLogMessage(final LogMessage m)
+  public EntryRebalancingResultAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -156,6 +158,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * @return  The result code for the entry-rebalancing operation, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -171,6 +174,7 @@ public final class EntryRebalancingResultAccessLogMessage
    *          during processing, or {@code null} if no errors were encountered
    *          or it is not included in the log message.
    */
+  @Nullable()
   public String getErrorMessage()
   {
     return errorMessage;
@@ -189,6 +193,7 @@ public final class EntryRebalancingResultAccessLogMessage
    *          {@code null} if no administrative action is required or it is not
    *          included in the log message.
    */
+  @Nullable()
   public String getAdminActionRequired()
   {
     return adminActionRequired;
@@ -206,6 +211,7 @@ public final class EntryRebalancingResultAccessLogMessage
    *          entry-rebalancing processing, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public Boolean sourceAltered()
   {
     return sourceAltered;
@@ -223,6 +229,7 @@ public final class EntryRebalancingResultAccessLogMessage
    *          entry-rebalancing processing, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public Boolean targetAltered()
   {
     return targetAltered;
@@ -236,6 +243,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * @return  The number of entries that were read from the source server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public Integer getEntriesReadFromSource()
   {
     return entriesReadFromSource;
@@ -249,6 +257,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * @return  The number of entries that were added to the target server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public Integer getEntriesAddedToTarget()
   {
     return entriesAddedToTarget;
@@ -262,6 +271,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * @return  The number of entries that were deleted from the source server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public Integer getEntriesDeletedFromSource()
   {
     return entriesDeletedFromSource;
@@ -273,6 +283,7 @@ public final class EntryRebalancingResultAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.ENTRY_REBALANCING_RESULT;

@@ -56,6 +56,8 @@ import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -85,7 +87,8 @@ public final class Modification
    * The value array that will be used when the modification should not have any
    * values.
    */
-  private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
+  @NotNull private static final ASN1OctetString[] NO_VALUES =
+       new ASN1OctetString[0];
 
 
 
@@ -93,7 +96,7 @@ public final class Modification
    * The byte array value array that will be used when the modification does not
    * have any values.
    */
-  private static final byte[][] NO_BYTE_VALUES = new byte[0][];
+  @NotNull private static final byte[][] NO_BYTE_VALUES = new byte[0][];
 
 
 
@@ -105,13 +108,13 @@ public final class Modification
 
 
   // The set of values for this modification.
-  private final ASN1OctetString[] values;
+  @NotNull private final ASN1OctetString[] values;
 
   // The modification type for this modification.
-  private final ModificationType modificationType;
+  @NotNull private final ModificationType modificationType;
 
   // The name of the attribute to target with this modification.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
 
 
@@ -123,8 +126,8 @@ public final class Modification
    * @param  attributeName     The name of the attribute to target with this
    *                           modification.  It must not be {@code null}.
    */
-  public Modification(final ModificationType modificationType,
-                      final String attributeName)
+  public Modification(@NotNull final ModificationType modificationType,
+                      @NotNull final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
 
@@ -145,8 +148,9 @@ public final class Modification
    * @param  attributeValue    The attribute value for this modification.  It
    *                           must not be {@code null}.
    */
-  public Modification(final ModificationType modificationType,
-                      final String attributeName, final String attributeValue)
+  public Modification(@NotNull final ModificationType modificationType,
+                      @NotNull final String attributeName,
+                      @NotNull final String attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -167,8 +171,9 @@ public final class Modification
    * @param  attributeValue    The attribute value for this modification.  It
    *                           must not be {@code null}.
    */
-  public Modification(final ModificationType modificationType,
-                      final String attributeName, final byte[] attributeValue)
+  public Modification(@NotNull final ModificationType modificationType,
+                      @NotNull final String attributeName,
+                      @NotNull final byte[] attributeValue)
   {
     Validator.ensureNotNull(attributeName, attributeValue);
 
@@ -189,9 +194,9 @@ public final class Modification
    * @param  attributeValues   The set of attribute value for this modification.
    *                           It must not be {@code null}.
    */
-  public Modification(final ModificationType modificationType,
-                      final String attributeName,
-                      final String... attributeValues)
+  public Modification(@NotNull final ModificationType modificationType,
+                      @NotNull final String attributeName,
+                      @NotNull final String... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
 
@@ -216,9 +221,9 @@ public final class Modification
    * @param  attributeValues   The set of attribute value for this modification.
    *                           It must not be {@code null}.
    */
-  public Modification(final ModificationType modificationType,
-                      final String attributeName,
-                      final byte[]... attributeValues)
+  public Modification(@NotNull final ModificationType modificationType,
+                      @NotNull final String attributeName,
+                      @NotNull final byte[]... attributeValues)
   {
     Validator.ensureNotNull(attributeName, attributeValues);
 
@@ -243,9 +248,9 @@ public final class Modification
    * @param  attributeValues   The set of attribute value for this modification.
    *                           It must not be {@code null}.
    */
-  public Modification(final ModificationType modificationType,
-                      final String attributeName,
-                      final ASN1OctetString[] attributeValues)
+  public Modification(@NotNull final ModificationType modificationType,
+                      @NotNull final String attributeName,
+                      @NotNull final ASN1OctetString[] attributeValues)
   {
     this.modificationType = modificationType;
     this.attributeName    = attributeName;
@@ -259,6 +264,7 @@ public final class Modification
    *
    * @return  The modification type for this modification.
    */
+  @NotNull()
   public ModificationType getModificationType()
   {
     return modificationType;
@@ -271,6 +277,7 @@ public final class Modification
    *
    * @return  The attribute for this modification.
    */
+  @NotNull()
   public Attribute getAttribute()
   {
     return new Attribute(attributeName,
@@ -284,6 +291,7 @@ public final class Modification
    *
    * @return  The name of the attribute to target with this modification.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -309,6 +317,7 @@ public final class Modification
    *
    * @return  The set of values for this modification as an array of strings.
    */
+  @NotNull()
   public String[] getValues()
   {
     if (values.length == 0)
@@ -336,6 +345,7 @@ public final class Modification
    * @return  The set of values for this modification as an array of byte
    *          arrays.
    */
+  @NotNull()
   public byte[][] getValueByteArrays()
   {
     if (values.length == 0)
@@ -363,6 +373,7 @@ public final class Modification
    * @return  The set of values for this modification as an array of ASN.1 octet
    *          strings.
    */
+  @NotNull()
   public ASN1OctetString[] getRawValues()
   {
     return values;
@@ -377,7 +388,7 @@ public final class Modification
    * @param  buffer  The ASN.1 buffer to which the encoded representation should
    *                 be written.
    */
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence modSequence = buffer.beginSequence();
     buffer.addEnumerated(modificationType.intValue());
@@ -403,6 +414,7 @@ public final class Modification
    *
    * @return  An ASN.1 sequence containing the encoded value.
    */
+  @NotNull()
   public ASN1Sequence encode()
   {
     final ASN1Element[] attrElements =
@@ -434,7 +446,8 @@ public final class Modification
    * @throws  LDAPException  If a problem occurs while trying to read or decode
    *                         the modification.
    */
-  public static Modification readFrom(final ASN1StreamReader reader)
+  @NotNull()
+  public static Modification readFrom(@NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     try
@@ -479,7 +492,9 @@ public final class Modification
    * @throws  LDAPException  If a problem occurs while trying to decode the
    *                         provided ASN.1 sequence as an LDAP modification.
    */
-  public static Modification decode(final ASN1Sequence modificationSequence)
+  @NotNull()
+  public static Modification decode(
+                     @NotNull final ASN1Sequence modificationSequence)
          throws LDAPException
   {
     Validator.ensureNotNull(modificationSequence);
@@ -591,7 +606,7 @@ public final class Modification
    *          or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -656,6 +671,7 @@ public final class Modification
    * @return  A string representation of this LDAP modification.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -672,7 +688,7 @@ public final class Modification
    * @param  buffer  The buffer to which to append the string representation of
    *                 this LDAP modification.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPModification(type=");
 
@@ -786,8 +802,10 @@ public final class Modification
    *                          element in an array).  It may be {@code null} or
    *                          empty if there should be no last line suffix.
    */
-  public void toCode(final List<String> lineList, final int indentSpaces,
-                     final String firstLinePrefix, final String lastLineSuffix)
+  public void toCode(@NotNull final List<String> lineList,
+                     final int indentSpaces,
+                     @Nullable final String firstLinePrefix,
+                     @Nullable final String lastLineSuffix)
   {
     // Generate a string with the appropriate indent.
     final StringBuilder buffer = new StringBuilder();

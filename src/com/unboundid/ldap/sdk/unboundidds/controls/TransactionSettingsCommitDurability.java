@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -142,6 +144,7 @@ public enum TransactionSettingsCommitDurability
    * @return  The commit durability value with the specified integer value, or
    *          {@code null} if there is no such commit durability value.
    */
+  @Nullable()
   public static TransactionSettingsCommitDurability valueOf(final int intValue)
   {
     for (final TransactionSettingsCommitDurability v : values())
@@ -167,7 +170,9 @@ public enum TransactionSettingsCommitDurability
    * @return  The requested transaction settings commit durability, or
    *          {@code null} if no such durability is defined.
    */
-  public static TransactionSettingsCommitDurability forName(final String name)
+  @Nullable()
+  public static TransactionSettingsCommitDurability forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

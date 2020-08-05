@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,5 +71,6 @@ public interface LDAPRebind
    * @return  Information that should be used when authenticating to the
    *          specified server.
    */
-  LDAPRebindAuth getRebindAuthentication(String host, int port);
+  @NotNull()
+  LDAPRebindAuth getRebindAuthentication(@NotNull String host, int port);
 }

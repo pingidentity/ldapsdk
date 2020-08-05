@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -76,7 +77,7 @@ final class ValuesOnlyLDAPSearchOutputHandler
       extends LDAPSearchOutputHandler
 {
   // The associated LDAPSearch tool instance.
-  private final LDAPSearch ldapSearch;
+  @NotNull private final LDAPSearch ldapSearch;
 
 
 
@@ -85,7 +86,7 @@ final class ValuesOnlyLDAPSearchOutputHandler
    *
    * @param  ldapSearch  The {@link LDAPSearch} tool instance.
    */
-  ValuesOnlyLDAPSearchOutputHandler(final LDAPSearch ldapSearch)
+  ValuesOnlyLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch)
   {
     this.ldapSearch = ldapSearch;
   }
@@ -107,7 +108,7 @@ final class ValuesOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(final SearchResultEntry entry)
+  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     try
     {
@@ -136,7 +137,8 @@ final class ValuesOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(final SearchResultReference ref)
+  public void formatSearchResultReference(
+                   @NotNull final SearchResultReference ref)
   {
     // No output is needed for search result reference messages.
   }
@@ -147,7 +149,7 @@ final class ValuesOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(final LDAPResult result)
+  public void formatResult(@NotNull final LDAPResult result)
   {
     ldapSearch.getOutStream().flush();
   }
@@ -158,8 +160,9 @@ final class ValuesOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void formatUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     ldapSearch.getOutStream().flush();
   }

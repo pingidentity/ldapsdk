@@ -54,6 +54,8 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -112,7 +114,7 @@ public class Control
   // The registered set of decodeable controls, mapped from their OID to the
   // class implementing the DecodeableControl interface that should be used to
   // decode controls with that OID.
-  private static final ConcurrentHashMap<String,DecodeableControl>
+  @NotNull private static final ConcurrentHashMap<String,DecodeableControl>
        decodeableControlMap =
             new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
 
@@ -126,13 +128,13 @@ public class Control
 
 
   // The encoded value for this control, if there is one.
-  private final ASN1OctetString value;
+  @Nullable private final ASN1OctetString value;
 
   // Indicates whether this control should be considered critical.
   private final boolean isCritical;
 
   // The OID for this control
-  private final String oid;
+  @NotNull private final String oid;
 
 
 
@@ -171,7 +173,7 @@ public class Control
    * @param  control  The control whose information should be used to create
    *                  this new control.
    */
-  protected Control(final Control control)
+  protected Control(@NotNull final Control control)
   {
     oid        = control.oid;
     isCritical = control.isCritical;
@@ -186,7 +188,7 @@ public class Control
    *
    * @param  oid  The OID for this control.  It must not be {@code null}.
    */
-  public Control(final String oid)
+  public Control(@NotNull final String oid)
   {
     Validator.ensureNotNull(oid);
 
@@ -205,7 +207,7 @@ public class Control
    * @param  isCritical  Indicates whether this control should be considered
    *                     critical.
    */
-  public Control(final String oid, final boolean isCritical)
+  public Control(@NotNull final String oid, final boolean isCritical)
   {
     Validator.ensureNotNull(oid);
 
@@ -225,8 +227,8 @@ public class Control
    * @param  value       The value for this control.  It may be {@code null} if
    *                     there is no value.
    */
-  public Control(final String oid, final boolean isCritical,
-                 final ASN1OctetString value)
+  public Control(@NotNull final String oid, final boolean isCritical,
+                 @Nullable final ASN1OctetString value)
   {
     Validator.ensureNotNull(oid);
 
@@ -242,6 +244,7 @@ public class Control
    *
    * @return  The OID for this control.
    */
+  @NotNull()
   public final String getOID()
   {
     return oid;
@@ -280,6 +283,7 @@ public class Control
    * @return  The encoded value for this control, or {@code null} if there is no
    *          value.
    */
+  @Nullable()
   public final ASN1OctetString getValue()
   {
     return value;
@@ -294,7 +298,7 @@ public class Control
    * @param  writer  The ASN.1 stream writer to which the encoded representation
    *                 should be written.
    */
-  public final void writeTo(final ASN1Buffer writer)
+  public final void writeTo(@NotNull final ASN1Buffer writer)
   {
     final ASN1BufferSequence controlSequence = writer.beginSequence();
     writer.addOctetString(oid);
@@ -320,6 +324,7 @@ public class Control
    *
    * @return  The encoded representation of this control.
    */
+  @NotNull()
   public final ASN1Sequence encode()
   {
     final ArrayList<ASN1Element> elementList = new ArrayList<>(3);
@@ -350,7 +355,8 @@ public class Control
    * @throws  LDAPException  If a problem occurs while attempting to read or
    *                         parse the control.
    */
-  public static Control readFrom(final ASN1StreamReader reader)
+  @NotNull()
+  public static Control readFrom(@NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     try
@@ -405,7 +411,8 @@ public class Control
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided ASN.1 sequence as an LDAP control.
    */
-  public static Control decode(final ASN1Sequence controlSequence)
+  @NotNull()
+  public static Control decode(@NotNull final ASN1Sequence controlSequence)
          throws LDAPException
   {
     final ASN1Element[] elements = controlSequence.elements();
@@ -494,8 +501,10 @@ public class Control
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided ASN.1 sequence as an LDAP control.
    */
-  public static Control decode(final String oid, final boolean isCritical,
-                               final ASN1OctetString value)
+  @NotNull()
+  public static Control decode(@NotNull final String oid,
+                               final boolean isCritical,
+                               @Nullable final ASN1OctetString value)
          throws LDAPException
   {
      final DecodeableControl decodeableControl = decodeableControlMap.get(oid);
@@ -527,7 +536,8 @@ public class Control
    *
    * @return  An ASN.1 sequence containing the encoded set of controls.
    */
-  public static ASN1Sequence encodeControls(final Control[] controls)
+  @NotNull()
+  public static ASN1Sequence encodeControls(@NotNull final Control[] controls)
   {
     final ASN1Sequence[] controlElements = new ASN1Sequence[controls.length];
     for (int i=0; i < controls.length; i++)
@@ -551,7 +561,9 @@ public class Control
    * @throws  LDAPException  If a problem occurs while attempting to decode any
    *                         of the controls.
    */
-  public static Control[] decodeControls(final ASN1Sequence controlSequence)
+  @NotNull()
+  public static Control[] decodeControls(
+                               @NotNull final ASN1Sequence controlSequence)
          throws LDAPException
   {
     final ASN1Element[] controlElements = controlSequence.elements();
@@ -587,8 +599,8 @@ public class Control
    * @param  controlInstance  The control instance that should be used to decode
    *                          controls with the provided OID.
    */
-  public static void registerDecodeableControl(final String oid,
-                          final DecodeableControl controlInstance)
+  public static void registerDecodeableControl(@NotNull final String oid,
+                          @NotNull final DecodeableControl controlInstance)
   {
     decodeableControlMap.put(oid, controlInstance);
   }
@@ -601,7 +613,7 @@ public class Control
    * @param  oid  The response control OID for which to deregister the
    *              decodeable control class.
    */
-  public static void deregisterDecodeableControl(final String oid)
+  public static void deregisterDecodeableControl(@NotNull final String oid)
   {
     decodeableControlMap.remove(oid);
   }
@@ -643,7 +655,7 @@ public class Control
    *          this control, or {@code false} if not.
    */
   @Override()
-  public final boolean equals(final Object o)
+  public final boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -704,6 +716,7 @@ public class Control
    * @return  The user-friendly name for this control, or the OID if no
    *          user-friendly name is available.
    */
+  @NotNull()
   public String getControlName()
   {
     // By default, we will return the OID.  Subclasses should override this to
@@ -719,6 +732,7 @@ public class Control
    * @return  A string representation of this LDAP control.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -735,7 +749,7 @@ public class Control
    * @param  buffer  The buffer to which to append the string representation of
    *                 this buffer.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("Control(oid=");
     buffer.append(oid);

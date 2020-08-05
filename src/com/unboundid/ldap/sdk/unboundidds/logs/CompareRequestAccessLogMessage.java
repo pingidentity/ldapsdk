@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,10 +75,10 @@ public class CompareRequestAccessLogMessage
 
 
   // The name of the attribute for which the compare is to be performed.
-  private final String attributeName;
+  @Nullable private final String attributeName;
 
   // The DN of the entry for which the compare is to be performed.
-  private final String dn;
+  @Nullable private final String dn;
 
 
 
@@ -89,7 +91,7 @@ public class CompareRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public CompareRequestAccessLogMessage(final String s)
+  public CompareRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -104,7 +106,7 @@ public class CompareRequestAccessLogMessage
    * @param  m  The log message to be parsed as a compare request access log
    *            message.
    */
-  public CompareRequestAccessLogMessage(final LogMessage m)
+  public CompareRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -120,6 +122,7 @@ public class CompareRequestAccessLogMessage
    * @return  The DN of the entry for which the compare is to be performed, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final String getDN()
   {
     return dn;
@@ -135,6 +138,7 @@ public class CompareRequestAccessLogMessage
    *          performed, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public final String getAttributeName()
   {
     return attributeName;
@@ -146,6 +150,7 @@ public class CompareRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.COMPARE;

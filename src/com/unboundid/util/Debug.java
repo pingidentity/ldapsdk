@@ -102,7 +102,7 @@ public final class Debug
    * property is "{@code com.unboundid.ldap.sdk.debug.enabled}".  If it is set,
    * then it should have a value of either "true" or "false".
    */
-  public static final String PROPERTY_DEBUG_ENABLED =
+  @NotNull public static final String PROPERTY_DEBUG_ENABLED =
        "com.unboundid.ldap.sdk.debug.enabled";
 
 
@@ -114,7 +114,7 @@ public final class Debug
    * is "{@code com.unboundid.ldap.sdk.debug.includeStackTrace}".  If it is set,
    * then it should have a value of either "true" or "false".
    */
-  public static final String PROPERTY_INCLUDE_STACK_TRACE =
+  @NotNull public static final String PROPERTY_INCLUDE_STACK_TRACE =
        "com.unboundid.ldap.sdk.debug.includeStackTrace";
 
 
@@ -126,7 +126,7 @@ public final class Debug
    * be one of the strings "{@code SEVERE}", "{@code WARNING}", "{@code INFO}",
    * "{@code CONFIG}", "{@code FINE}", "{@code FINER}", or "{@code FINEST}".
    */
-  public static final String PROPERTY_DEBUG_LEVEL =
+  @NotNull public static final String PROPERTY_DEBUG_LEVEL =
        "com.unboundid.ldap.sdk.debug.level";
 
 
@@ -139,7 +139,7 @@ public final class Debug
    * be a comma-delimited list of the names of the desired debug types.  See the
    * {@link DebugType} enum for the available debug types.
    */
-  public static final String PROPERTY_DEBUG_TYPE =
+  @NotNull public static final String PROPERTY_DEBUG_TYPE =
        "com.unboundid.ldap.sdk.debug.type";
 
 
@@ -151,8 +151,9 @@ public final class Debug
    * {@link StaticUtils#getExceptionMessage(Throwable)} method.  By default,
    * the cause will not be included in most messages.
    */
-  public static final String PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES =
-       "com.unboundid.ldap.sdk.debug.includeCauseInExceptionMessages";
+  @NotNull public static final String
+       PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES =
+            "com.unboundid.ldap.sdk.debug.includeCauseInExceptionMessages";
 
 
 
@@ -163,7 +164,7 @@ public final class Debug
    * {@link StaticUtils#getExceptionMessage(Throwable)} method.  By default,
    * stack traces will not be included in most messages.
    */
-  public static final String
+  @NotNull public static final String
        PROPERTY_INCLUDE_STACK_TRACE_IN_EXCEPTION_MESSAGES =
             "com.unboundid.ldap.sdk.debug.includeStackTraceInExceptionMessages";
 
@@ -173,7 +174,7 @@ public final class Debug
    * The name that will be used for the Java logger that will actually handle
    * the debug messages if debugging is enabled.
    */
-  public static final String LOGGER_NAME = "com.unboundid.ldap.sdk";
+  @NotNull public static final String LOGGER_NAME = "com.unboundid.ldap.sdk";
 
 
 
@@ -181,15 +182,15 @@ public final class Debug
    * The logger that will be used to handle the debug messages if debugging is
    * enabled.
    */
-  private static final Logger logger = Logger.getLogger(LOGGER_NAME);
+  @NotNull private static final Logger logger = Logger.getLogger(LOGGER_NAME);
 
 
 
   /**
    * A set of thread-local formatters that may be used to generate timestamps.
    */
-  private static final ThreadLocal<SimpleDateFormat> TIMESTAMP_FORMATTERS =
-       new ThreadLocal<>();
+  @NotNull private static final ThreadLocal<SimpleDateFormat>
+       TIMESTAMP_FORMATTERS = new ThreadLocal<>();
 
 
 
@@ -208,7 +209,8 @@ public final class Debug
   private static boolean includeStackTrace;
 
   // The set of debug types for which debugging is enabled.
-  private static EnumSet<DebugType> debugTypes;
+  @NotNull private static EnumSet<DebugType> debugTypes=
+       EnumSet.allOf(DebugType.class);
 
 
 
@@ -255,7 +257,7 @@ public final class Debug
    * @param  properties  The set of properties to use to initialize this
    *                     debugger.
    */
-  public static void initialize(final Properties properties)
+  public static void initialize(@Nullable final Properties properties)
   {
     // First, apply the default values for the properties.
     initialize();
@@ -347,6 +349,7 @@ public final class Debug
    *
    * @return  The logger that will be used to write the debug messages.
    */
+  @NotNull()
   public static Logger getLogger()
   {
     return logger;
@@ -375,7 +378,7 @@ public final class Debug
    * @return  {@code true} if debugging is enabled for messages of the specified
    *          debug type, or {@code false} if not.
    */
-  public static boolean debugEnabled(final DebugType debugType)
+  public static boolean debugEnabled(@NotNull final DebugType debugType)
   {
     return (debugEnabled && debugTypes.contains(debugType));
   }
@@ -406,7 +409,7 @@ public final class Debug
    *                  all debug types.
    */
   public static void setEnabled(final boolean enabled,
-                                final Set<DebugType> types)
+                                @Nullable final Set<DebugType> types)
   {
     if ((types == null) || types.isEmpty())
     {
@@ -456,6 +459,7 @@ public final class Debug
    *
    * @return  The set of debug types that will be used if debugging is enabled.
    */
+  @NotNull()
   public static EnumSet<DebugType> getDebugTypes()
   {
     return debugTypes;
@@ -470,7 +474,7 @@ public final class Debug
    *
    * @param  t  The exception for which debug information should be written.
    */
-  public static void debugException(final Throwable t)
+  public static void debugException(@NotNull final Throwable t)
   {
     if (debugEnabled && debugTypes.contains(DebugType.EXCEPTION))
     {
@@ -486,7 +490,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  t  The exception for which debug information should be written.
    */
-  public static void debugException(final Level l, final Throwable t)
+  public static void debugException(@NotNull final Level l,
+                                    @NotNull final Throwable t)
   {
     if (debugEnabled && debugTypes.contains(DebugType.EXCEPTION))
     {
@@ -510,7 +515,7 @@ public final class Debug
    *            established.
    * @param  p  The port of the server to which the connection was established.
    */
-  public static void debugConnect(final String h, final int p)
+  public static void debugConnect(@NotNull final String h, final int p)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -529,7 +534,8 @@ public final class Debug
    *            established.
    * @param  p  The port of the server to which the connection was established.
    */
-  public static void debugConnect(final Level l, final String h, final int p)
+  public static void debugConnect(@NotNull final Level l,
+                                  @NotNull final String h, final int p)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -551,8 +557,8 @@ public final class Debug
    *            established.  It may be {@code null} for historic reasons, but
    *            should be non-{@code null} in new uses.
    */
-  public static void debugConnect(final String h, final int p,
-                                  final LDAPConnection c)
+  public static void debugConnect(@NotNull final String h, final int p,
+                                  @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -574,8 +580,9 @@ public final class Debug
    *            established.  It may be {@code null} for historic reasons, but
    *            should be non-{@code null} in new uses.
    */
-  public static void debugConnect(final Level l, final String h, final int p,
-                                  final LDAPConnection c)
+  public static void debugConnect(@NotNull final Level l,
+                                  @NotNull final String h, final int p,
+                                  @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -620,9 +627,11 @@ public final class Debug
    * @param  m  The disconnect message, if available.
    * @param  e  The disconnect cause, if available.
    */
-  public static void debugDisconnect(final String h, final int p,
-                                     final DisconnectType t, final String m,
-                                     final Throwable e)
+  public static void debugDisconnect(@NotNull final String h,
+                                     final int p,
+                                     @NotNull final DisconnectType t,
+                                     @Nullable final String m,
+                                     @Nullable final Throwable e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -644,9 +653,11 @@ public final class Debug
    * @param  m  The disconnect message, if available.
    * @param  e  The disconnect cause, if available.
    */
-  public static void debugDisconnect(final Level l, final String h, final int p,
-                                     final DisconnectType t, final String m,
-                                     final Throwable e)
+  public static void debugDisconnect(@NotNull final Level l,
+                                     @NotNull final String h, final int p,
+                                     @NotNull final DisconnectType t,
+                                     @Nullable final String m,
+                                     @Nullable final Throwable e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -671,10 +682,11 @@ public final class Debug
    * @param  m  The disconnect message, if available.
    * @param  e  The disconnect cause, if available.
    */
-  public static void debugDisconnect(final String h, final int p,
-                                     final LDAPConnection c,
-                                     final DisconnectType t, final String m,
-                                     final Throwable e)
+  public static void debugDisconnect(@NotNull final String h, final int p,
+                                     @Nullable final LDAPConnection c,
+                                     @NotNull final DisconnectType t,
+                                     @Nullable final String m,
+                                     @Nullable final Throwable e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -699,10 +711,12 @@ public final class Debug
    * @param  m  The disconnect message, if available.
    * @param  e  The disconnect cause, if available.
    */
-  public static void debugDisconnect(final Level l, final String h, final int p,
-                                     final LDAPConnection c,
-                                     final DisconnectType t, final String m,
-                                     final Throwable e)
+  public static void debugDisconnect(@NotNull final Level l,
+                                     @NotNull final String h, final int p,
+                                     @Nullable final LDAPConnection c,
+                                     @NotNull final DisconnectType t,
+                                     @Nullable final String m,
+                                     @Nullable final Throwable e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
@@ -755,7 +769,7 @@ public final class Debug
    *
    * @param  r  The LDAP request for which debug information should be written.
    */
-  public static void debugLDAPRequest(final LDAPRequest r)
+  public static void debugLDAPRequest(@NotNull final LDAPRequest r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -771,7 +785,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  r  The LDAP request for which debug information should be written.
    */
-  public static void debugLDAPRequest(final Level l, final LDAPRequest r)
+  public static void debugLDAPRequest(@NotNull final Level l,
+                                      @NotNull final LDAPRequest r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -793,8 +808,8 @@ public final class Debug
    *            {@code null} for historic reasons, but should be
    *            non-{@code null} in new uses.
    */
-  public static void debugLDAPRequest(final LDAPRequest r, final int i,
-                                      final LDAPConnection c)
+  public static void debugLDAPRequest(@NotNull final LDAPRequest r, final int i,
+                                      @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -815,12 +830,14 @@ public final class Debug
    *            {@code null} for historic reasons, but should be
    *            non-{@code null} in new uses.
    */
-  public static void debugLDAPRequest(final Level l, final LDAPRequest r,
-                                      final int i, final LDAPConnection c)
+  public static void debugLDAPRequest(@NotNull final Level l,
+                                      @NotNull final LDAPRequest r,
+                                      final int i,
+                                      @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      debugLDAPRequest(Level.INFO, String.valueOf(r), i, c);
+      debugLDAPRequest(l, String.valueOf(r), i, c);
     }
   }
 
@@ -838,8 +855,10 @@ public final class Debug
    *            {@code null} for historic reasons, but should be
    *            non-{@code null} in new uses.
    */
-  public static void debugLDAPRequest(final Level l, final String s,
-                                      final int i, final LDAPConnection c)
+  public static void debugLDAPRequest(@NotNull final Level l,
+                                      @NotNull final String s,
+                                      final int i,
+                                      @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -897,7 +916,7 @@ public final class Debug
    *
    * @param  r  The result for which debug information should be written.
    */
-  public static void debugLDAPResult(final LDAPResponse r)
+  public static void debugLDAPResult(@NotNull final LDAPResponse r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -913,7 +932,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  r  The result for which debug information should be written.
    */
-  public static void debugLDAPResult(final Level l, final LDAPResponse r)
+  public static void debugLDAPResult(@NotNull final Level l,
+                                     @NotNull final LDAPResponse r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -933,8 +953,8 @@ public final class Debug
    *            {@code null} for historic reasons, but should be
    *            non-{@code null} in new uses.
    */
-  public static void debugLDAPResult(final LDAPResponse r,
-                                     final LDAPConnection c)
+  public static void debugLDAPResult(@NotNull final LDAPResponse r,
+                                     @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -953,8 +973,9 @@ public final class Debug
    *            {@code null} for historic reasons, but should be
    *            non-{@code null} in new uses.
    */
-  public static void debugLDAPResult(final Level l, final LDAPResponse r,
-                                     final LDAPConnection c)
+  public static void debugLDAPResult(@NotNull final Level l,
+                                     @NotNull final LDAPResponse r,
+                                     @Nullable final LDAPConnection c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
@@ -1001,7 +1022,7 @@ public final class Debug
    *
    * @param  e  The ASN.1 element for which debug information should be written.
    */
-  public static void debugASN1Write(final ASN1Element e)
+  public static void debugASN1Write(@NotNull final ASN1Element e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1018,7 +1039,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  e  The ASN.1 element for which debug information should be written.
    */
-  public static void debugASN1Write(final Level l, final ASN1Element e)
+  public static void debugASN1Write(@NotNull final Level l,
+                                    @NotNull final ASN1Element e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1040,7 +1062,7 @@ public final class Debug
    *
    * @param  b  The ASN.1 buffer with the information to be written.
    */
-  public static void debugASN1Write(final ASN1Buffer b)
+  public static void debugASN1Write(@NotNull final ASN1Buffer b)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1057,7 +1079,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  b  The ASN1Buffer with the information to be written.
    */
-  public static void debugASN1Write(final Level l, final ASN1Buffer b)
+  public static void debugASN1Write(@NotNull final Level l,
+                                    @NotNull final ASN1Buffer b)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1080,7 +1103,7 @@ public final class Debug
    *
    * @param  e  The ASN.1 element for which debug information should be written.
    */
-  public static void debugASN1Read(final ASN1Element e)
+  public static void debugASN1Read(@NotNull final ASN1Element e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1097,7 +1120,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  e  The ASN.1 element for which debug information should be written.
    */
-  public static void debugASN1Read(final Level l, final ASN1Element e)
+  public static void debugASN1Read(@NotNull final Level l,
+                                   @NotNull final ASN1Element e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1129,9 +1153,10 @@ public final class Debug
    *                   be a hex representation of the bytes that it contains.
    *                   It may be {@code null} for an ASN.1 null element.
    */
-  public static void debugASN1Read(final Level l, final String dataType,
+  public static void debugASN1Read(@NotNull final Level l,
+                                   @NotNull final String dataType,
                                    final int berType, final int length,
-                                   final Object value)
+                                   @Nullable final Object value)
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
@@ -1175,10 +1200,10 @@ public final class Debug
    * @param  m  A message with information about the pool interaction.
    * @param  e  An exception to include with the log message, if appropriate.
    */
-  public static void debugConnectionPool(final Level l,
-                                         final AbstractConnectionPool p,
-                                         final LDAPConnection c, final String m,
-                                         final Throwable e)
+  public static void debugConnectionPool(@NotNull final Level l,
+                          @NotNull final AbstractConnectionPool p,
+                          @Nullable final LDAPConnection c,
+                          @Nullable final String m, @Nullable final Throwable e)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECTION_POOL))
     {
@@ -1243,7 +1268,7 @@ public final class Debug
    *
    * @param  r  The LDIF record for which debug information should be written.
    */
-  public static void debugLDIFWrite(final LDIFRecord r)
+  public static void debugLDIFWrite(@NotNull final LDIFRecord r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
@@ -1260,7 +1285,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  r  The LDIF record for which debug information should be written.
    */
-  public static void debugLDIFWrite(final Level l, final LDIFRecord r)
+  public static void debugLDIFWrite(@NotNull final Level l,
+                                    @NotNull final LDIFRecord r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
@@ -1282,7 +1308,7 @@ public final class Debug
    *
    * @param  r  The LDIF record for which debug information should be written.
    */
-  public static void debugLDIFRead(final LDIFRecord r)
+  public static void debugLDIFRead(@NotNull final LDIFRecord r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
@@ -1299,7 +1325,8 @@ public final class Debug
    * @param  l  The log level that should be used for the debug information.
    * @param  r  The LDIF record for which debug information should be written.
    */
-  public static void debugLDIFRead(final Level l, final LDIFRecord r)
+  public static void debugLDIFRead(@NotNull final Level l,
+                                   @NotNull final LDIFRecord r)
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
@@ -1322,7 +1349,8 @@ public final class Debug
    * @param  e  The entry containing the monitor information being parsed.
    * @param  m  The message to be written to the debug logger.
    */
-  public static void debugMonitor(final Entry e, final String m)
+  public static void debugMonitor(@Nullable final Entry e,
+                                  @Nullable final String m)
   {
     if (debugEnabled && debugTypes.contains(DebugType.MONITOR))
     {
@@ -1339,7 +1367,9 @@ public final class Debug
    * @param  e  The entry containing the monitor information being parsed.
    * @param  m  The message to be written to the debug logger.
    */
-  public static void debugMonitor(final Level l, final Entry e, final String m)
+  public static void debugMonitor(@NotNull final Level l,
+                                  @Nullable final Entry e,
+                                  @Nullable final String m)
   {
     if (debugEnabled && debugTypes.contains(DebugType.MONITOR))
     {
@@ -1371,7 +1401,7 @@ public final class Debug
    * @param  t  The {@code Throwable} object that was created and will be thrown
    *            as a result of the coding error.
    */
-  public static void debugCodingError(final Throwable t)
+  public static void debugCodingError(@NotNull final Throwable t)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CODING_ERROR))
     {
@@ -1393,7 +1423,8 @@ public final class Debug
    * @param  t  The debug type to use to determine whether to write the message.
    * @param  m  The message to be written.
    */
-  public static void debug(final Level l, final DebugType t, final String m)
+  public static void debug(@NotNull final Level l,
+                           @NotNull final DebugType t, @Nullable final String m)
   {
     if (debugEnabled && debugTypes.contains(t))
     {
@@ -1420,8 +1451,9 @@ public final class Debug
    * @param  m  The message to be written.
    * @param  e  An exception to include with the log message.
    */
-  public static void debug(final Level l, final DebugType t, final String m,
-                           final Throwable e)
+  public static void debug(@NotNull final Level l, @NotNull final DebugType t,
+                           @Nullable final String m,
+                           @Nullable final Throwable e)
   {
     if (debugEnabled && debugTypes.contains(t))
     {
@@ -1454,8 +1486,9 @@ public final class Debug
    * @param  level   The log level for the message that will be written.
    * @param  type    The debug type for the message that will be written.
    */
-  private static void addCommonHeader(final JSONBuffer buffer,
-                                      final Level level, final DebugType type)
+  private static void addCommonHeader(@NotNull final JSONBuffer buffer,
+                                      @NotNull final Level level,
+                                      @NotNull final DebugType type)
   {
     buffer.beginObject();
     buffer.appendString("timestamp", getTimestamp());
@@ -1474,6 +1507,7 @@ public final class Debug
    *
    * @return  A timestamp that represents the current time.
    */
+  @NotNull()
   private static String getTimestamp()
   {
     SimpleDateFormat timestampFormatter = TIMESTAMP_FORMATTERS.get();
@@ -1499,7 +1533,9 @@ public final class Debug
    * @return  The formatted string representation of the provided stack trace
    *          frame.
    */
-  private static String formatStackTraceFrame(final StackTraceElement e)
+  @NotNull()
+  private static String formatStackTraceFrame(
+                             @NotNull final StackTraceElement e)
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append(e.getMethodName());
@@ -1532,9 +1568,9 @@ public final class Debug
    *                    exception information.
    * @param  t          The exception to be included.
    */
-  private static void addCaughtException(final JSONBuffer buffer,
-                                         final String fieldName,
-                                         final Throwable t)
+  private static void addCaughtException(@NotNull final JSONBuffer buffer,
+                                         @NotNull final String fieldName,
+                                         @Nullable final Throwable t)
   {
     if (t == null)
     {
@@ -1546,7 +1582,7 @@ public final class Debug
     final String message = t.getMessage();
     if (message != null)
     {
-      buffer.appendString("message", t.getMessage());
+      buffer.appendString("message", message);
     }
 
     buffer.beginArray("stack-trace");
@@ -1575,7 +1611,7 @@ public final class Debug
    *
    * @param  buffer  The JSON buffer to which the content should be added.
    */
-  private static void addCommonFooter(final JSONBuffer buffer)
+  private static void addCommonFooter(@NotNull final JSONBuffer buffer)
   {
     if (includeStackTrace)
     {
@@ -1611,7 +1647,8 @@ public final class Debug
    * @param  level   The log level to use for the message.
    * @param  buffer  The JSON buffer containing the message to be written.
    */
-  private static void log(final Level level, final JSONBuffer buffer)
+  private static void log(@NotNull final Level level,
+                          @NotNull final JSONBuffer buffer)
   {
     logger.log(level, buffer.toString());
   }
@@ -1625,8 +1662,9 @@ public final class Debug
    * @param  buffer  The JSON buffer containing the message to be written.
    * @param  thrown  An exception to be included with the debug message.
    */
-  private static void log(final Level level, final JSONBuffer buffer,
-                          final Throwable thrown)
+  private static void log(@NotNull final Level level,
+                          @NotNull final JSONBuffer buffer,
+                          @Nullable final Throwable thrown)
   {
     logger.log(level, buffer.toString(), thrown);
   }

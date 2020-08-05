@@ -65,6 +65,7 @@ import com.unboundid.ldap.sdk.experimental.
             DraftZeilengaLDAPNoOp12RequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
@@ -106,8 +107,9 @@ final class RequestControlPreProcessor
    * @throws  LDAPException  If a problem is encountered while processing the
    *                         provided set of controls.
    */
+  @NotNull()
   static Map<String,Control> processControls(final byte requestOpType,
-                                             final List<Control> controls)
+                                  @NotNull final List<Control> controls)
          throws LDAPException
   {
     final Map<String,Control> m =

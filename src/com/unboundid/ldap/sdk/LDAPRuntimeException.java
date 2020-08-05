@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.util.LDAPSDKRuntimeException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,7 +64,7 @@ public final class LDAPRuntimeException
 
 
   // The LDAPException object wrapped by this runtime exception.
-  private final LDAPException ldapException;
+  @NotNull private final LDAPException ldapException;
 
 
 
@@ -73,7 +75,7 @@ public final class LDAPRuntimeException
    * @param  ldapException  The {@code LDAPException} object wrapped by this
    *                        runtime exception.
    */
-  public LDAPRuntimeException(final LDAPException ldapException)
+  public LDAPRuntimeException(@NotNull final LDAPException ldapException)
   {
     super(ldapException.getMessage(), ldapException.getCause());
 
@@ -89,6 +91,7 @@ public final class LDAPRuntimeException
    * @return  The {@code LDAPException} object wrapped by this runtime
    *          exception.
    */
+  @NotNull()
   public LDAPException getLDAPException()
   {
     return ldapException;
@@ -114,6 +117,7 @@ public final class LDAPRuntimeException
    *
    * @return  The result code for this LDAP exception.
    */
+  @NotNull()
   public ResultCode getResultCode()
   {
     return ldapException.getResultCode();
@@ -127,6 +131,7 @@ public final class LDAPRuntimeException
    * @return  The matched DN for this LDAP exception, or {@code null} if there
    *          is none.
    */
+  @Nullable()
   public String getMatchedDN()
   {
     return ldapException.getMatchedDN();
@@ -140,6 +145,7 @@ public final class LDAPRuntimeException
    * @return  The diagnostic message returned by the directory server, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return ldapException.getDiagnosticMessage();
@@ -153,6 +159,7 @@ public final class LDAPRuntimeException
    * @return  The set of referral URLs for this LDAP exception, or an empty
    *          array if there are none.
    */
+  @NotNull()
   public String[] getReferralURLs()
   {
     return ldapException.getReferralURLs();
@@ -183,7 +190,7 @@ public final class LDAPRuntimeException
    * @return  {@code true} if this result contains at least one control with
    *          the specified OID, or {@code false} if not.
    */
-  public boolean hasResponseControl(final String oid)
+  public boolean hasResponseControl(@NotNull final String oid)
   {
     return ldapException.hasResponseControl(oid);
   }
@@ -196,6 +203,7 @@ public final class LDAPRuntimeException
    * @return  The set of response controls for this LDAP exception, or an empty
    *          array if there are none.
    */
+  @NotNull()
   public Control[] getResponseControls()
   {
     return ldapException.getResponseControls();
@@ -211,7 +219,8 @@ public final class LDAPRuntimeException
    * @return  The response control with the specified OID, or {@code null} if
    *          there is no such control.
    */
-  public Control getResponseControl(final String oid)
+  @Nullable()
+  public Control getResponseControl(@NotNull final String oid)
   {
     return ldapException.getResponseControl(oid);
   }
@@ -223,6 +232,7 @@ public final class LDAPRuntimeException
    *
    * @return  The {@code LDAPResult} object created from this exception.
    */
+  @NotNull()
   public LDAPResult toLDAPResult()
   {
     return ldapException.toLDAPResult();
@@ -234,7 +244,7 @@ public final class LDAPRuntimeException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     ldapException.toString(buffer);
   }
@@ -245,6 +255,7 @@ public final class LDAPRuntimeException
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExceptionMessage()
   {
     return ldapException.getExceptionMessage();
@@ -256,6 +267,7 @@ public final class LDAPRuntimeException
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExceptionMessage(final boolean includeStackTrace,
                                     final boolean includeCause)
   {

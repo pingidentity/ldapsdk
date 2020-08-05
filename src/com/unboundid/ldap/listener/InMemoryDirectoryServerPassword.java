@@ -43,6 +43,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -58,17 +60,17 @@ public final class InMemoryDirectoryServerPassword
 {
   // The password as it is (or has the potential to be) stored in the in-memory
   // directory server.
-  private final ASN1OctetString storedPassword;
+  @NotNull private final ASN1OctetString storedPassword;
 
   // The password encoder that should be used when interacting with the stored
   // password.
-  private final InMemoryPasswordEncoder passwordEncoder;
+  @Nullable private final InMemoryPasswordEncoder passwordEncoder;
 
   // The user entry with which the stored password is associated.
-  private final ReadOnlyEntry userEntry;
+  @NotNull private final ReadOnlyEntry userEntry;
 
   // The name of the attribute with which the stored password is associated.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
 
 
@@ -88,9 +90,10 @@ public final class InMemoryDirectoryServerPassword
    *                           in-memory directory server.  It must not be
    *                           {@code null} but may be empty.
    */
-  InMemoryDirectoryServerPassword(final ASN1OctetString storedPassword,
-       final ReadOnlyEntry userEntry, final String attributeName,
-       final List<InMemoryPasswordEncoder> passwordEncoders)
+  InMemoryDirectoryServerPassword(@NotNull final ASN1OctetString storedPassword,
+       @NotNull final ReadOnlyEntry userEntry,
+       @NotNull final String attributeName,
+       @NotNull final List<InMemoryPasswordEncoder> passwordEncoders)
   {
     this.storedPassword = storedPassword;
     this.userEntry = userEntry;
@@ -121,6 +124,7 @@ public final class InMemoryDirectoryServerPassword
    * @return  The password as it is (or has the potential to be) stored in the
    *          in-memory directory server.
    */
+  @NotNull()
   public ASN1OctetString getStoredPassword()
   {
     return storedPassword;
@@ -135,6 +139,7 @@ public final class InMemoryDirectoryServerPassword
    * @return  The name of the attribute with which the stored password is
    *          associated.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -162,6 +167,7 @@ public final class InMemoryDirectoryServerPassword
    * @return  The password encoder that should be used to interact with the
    *          stored password, or {@code null} if the password is not encoded.
    */
+  @Nullable()
   public InMemoryPasswordEncoder getPasswordEncoder()
   {
     return passwordEncoder;
@@ -182,6 +188,7 @@ public final class InMemoryDirectoryServerPassword
    *                         that does not permit extracting the clear-text
    *                         password.
    */
+  @NotNull()
   public ASN1OctetString getClearPassword()
          throws LDAPException
   {
@@ -210,7 +217,8 @@ public final class InMemoryDirectoryServerPassword
    * @throws  LDAPException  If a problem is encountered while trying to make
    *                         the determination.
    */
-  public boolean matchesClearPassword(final ASN1OctetString clearPassword)
+  public boolean matchesClearPassword(
+                      @NotNull final ASN1OctetString clearPassword)
          throws LDAPException
   {
     if (passwordEncoder == null)

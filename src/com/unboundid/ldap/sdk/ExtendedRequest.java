@@ -56,6 +56,8 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,17 +105,17 @@ public class ExtendedRequest
 
 
   // The encoded value for this extended request, if available.
-  private final ASN1OctetString value;
+  @Nullable private final ASN1OctetString value;
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>();
 
   // The OID for this extended request.
-  private final String oid;
+  @NotNull private final String oid;
 
 
 
@@ -123,7 +125,7 @@ public class ExtendedRequest
    * @param  oid  The OID for this extended request.  It must not be
    *              {@code null}.
    */
-  public ExtendedRequest(final String oid)
+  public ExtendedRequest(@NotNull final String oid)
   {
     super(null);
 
@@ -143,7 +145,8 @@ public class ExtendedRequest
    *                   {@code null}.
    * @param  controls  The set of controls for this extended request.
    */
-  public ExtendedRequest(final String oid, final Control[] controls)
+  public ExtendedRequest(@NotNull final String oid,
+                         @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -164,7 +167,8 @@ public class ExtendedRequest
    * @param  value  The encoded value for this extended request.  It may be
    *                {@code null} if this request should not have a value.
    */
-  public ExtendedRequest(final String oid, final ASN1OctetString value)
+  public ExtendedRequest(@NotNull final String oid,
+                         @Nullable final ASN1OctetString value)
   {
     super(null);
 
@@ -185,8 +189,9 @@ public class ExtendedRequest
    *                   {@code null} if this request should not have a value.
    * @param  controls  The set of controls for this extended request.
    */
-  public ExtendedRequest(final String oid, final ASN1OctetString value,
-                         final Control[] controls)
+  public ExtendedRequest(@NotNull final String oid,
+                         @Nullable final ASN1OctetString value,
+                         @Nullable final Control[] controls)
   {
     super(controls);
 
@@ -205,7 +210,7 @@ public class ExtendedRequest
    * @param  extendedRequest  The extended request that should be used to create
    *                          this new extended request.
    */
-  protected ExtendedRequest(final ExtendedRequest extendedRequest)
+  protected ExtendedRequest(@NotNull final ExtendedRequest extendedRequest)
   {
     super(extendedRequest.getControls());
 
@@ -221,6 +226,7 @@ public class ExtendedRequest
    *
    * @return  The OID for this extended request.
    */
+  @NotNull()
   public final String getOID()
   {
     return oid;
@@ -247,6 +253,7 @@ public class ExtendedRequest
    * @return  The encoded value for this extended request, or {@code null} if
    *          this request does not have a value.
    */
+  @Nullable()
   public final ASN1OctetString getValue()
   {
     return value;
@@ -269,7 +276,7 @@ public class ExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public final void writeTo(final ASN1Buffer writer)
+  public final void writeTo(@NotNull final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
          writer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST);
@@ -290,6 +297,7 @@ public class ExtendedRequest
    * @return  The ASN.1 element with the encoded extended request protocol op.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     // Create the extended request protocol op.
@@ -333,7 +341,8 @@ public class ExtendedRequest
    *                         reading the response.
    */
   @Override()
-  protected ExtendedResult process(final LDAPConnection connection,
+  @NotNull()
+  protected ExtendedResult process(@NotNull final LDAPConnection connection,
                                    final int depth)
             throws LDAPException
   {
@@ -420,7 +429,8 @@ public class ExtendedRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private ExtendedResult processSync(final LDAPConnection connection)
+  @NotNull()
+  private ExtendedResult processSync(@NotNull final LDAPConnection connection)
           throws LDAPException
   {
     // Create the LDAP message.
@@ -493,9 +503,11 @@ public class ExtendedRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private ExtendedResult handleResponse(final LDAPConnection connection,
-                                        final LDAPResponse response,
-                                        final long requestTime)
+  @NotNull()
+  private ExtendedResult handleResponse(
+                              @NotNull final LDAPConnection connection,
+                              @Nullable final LDAPResponse response,
+                              final long requestTime)
           throws LDAPException
   {
     if (response == null)
@@ -544,7 +556,7 @@ public class ExtendedRequest
    */
   @InternalUseOnly()
   @Override()
-  public final void responseReceived(final LDAPResponse response)
+  public final void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -584,6 +596,7 @@ public class ExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final OperationType getOperationType()
   {
     return OperationType.EXTENDED;
@@ -596,6 +609,7 @@ public class ExtendedRequest
    * duplicate of the appropriate type.
    */
   @Override()
+  @NotNull()
   public ExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -608,7 +622,8 @@ public class ExtendedRequest
    * duplicate of the appropriate type.
    */
   @Override()
-  public ExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public ExtendedRequest duplicate(@Nullable final Control[] controls)
   {
     final ExtendedRequest r = new ExtendedRequest(oid, value, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
@@ -624,6 +639,7 @@ public class ExtendedRequest
    * @return  The user-friendly name for this extended request, or the OID if no
    *          user-friendly name is available.
    */
+  @NotNull()
   public String getExtendedRequestName()
   {
     // By default, we will return the OID.  Subclasses should override this to
@@ -637,7 +653,7 @@ public class ExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ExtendedRequest(oid='");
     buffer.append(oid);
@@ -668,7 +684,9 @@ public class ExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  @NotNull()
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

@@ -61,6 +61,8 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -127,35 +129,35 @@ public final class LDAPDebugger
 
 
   // The argument parser for this tool.
-  private ArgumentParser parser;
+  @Nullable private ArgumentParser parser;
 
   // The argument used to specify the output file for the decoded content.
-  private BooleanArgument listenUsingSSL;
+  @Nullable private BooleanArgument listenUsingSSL;
 
   // The argument used to indicate that the listener should generate a
   // self-signed certificate instead of using an existing keystore.
-  private BooleanArgument generateSelfSignedCertificate;
+  @Nullable private BooleanArgument generateSelfSignedCertificate;
 
   // The argument used to specify the code log file to use, if any.
-  private FileArgument codeLogFile;
+  @Nullable private FileArgument codeLogFile;
 
   // The argument used to specify the output file for the decoded content.
-  private FileArgument outputFile;
+  @Nullable private FileArgument outputFile;
 
   // The argument used to specify the port on which to listen for client
   // connections.
-  private IntegerArgument listenPort;
+  @Nullable private IntegerArgument listenPort;
 
   // The shutdown hook that will be used to stop the listener when the JVM
   // exits.
-  private LDAPDebuggerShutdownListener shutdownListener;
+  @Nullable private LDAPDebuggerShutdownListener shutdownListener;
 
   // The listener used to intercept and decode the client communication.
-  private LDAPListener listener;
+  @Nullable private LDAPListener listener;
 
   // The argument used to specify the address on which to listen for client
   // connections.
-  private StringArgument listenAddress;
+  @Nullable private StringArgument listenAddress;
 
 
 
@@ -165,7 +167,7 @@ public final class LDAPDebugger
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -190,9 +192,9 @@ public final class LDAPDebugger
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final LDAPDebugger ldapDebugger = new LDAPDebugger(outStream, errStream);
     return ldapDebugger.runTool(args);
@@ -210,8 +212,8 @@ public final class LDAPDebugger
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public LDAPDebugger(final OutputStream outStream,
-                      final OutputStream errStream)
+  public LDAPDebugger(@Nullable final OutputStream outStream,
+                      @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
   }
@@ -224,6 +226,7 @@ public final class LDAPDebugger
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldap-debugger";
@@ -237,6 +240,7 @@ public final class LDAPDebugger
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Intercept and decode LDAP communication.";
@@ -250,6 +254,7 @@ public final class LDAPDebugger
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -372,7 +377,7 @@ public final class LDAPDebugger
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -470,6 +475,7 @@ public final class LDAPDebugger
    * @return  The result code for the processing that was performed.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Create the proxy request handler that will be used to forward requests to
@@ -647,6 +653,7 @@ public final class LDAPDebugger
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =
@@ -677,6 +684,7 @@ public final class LDAPDebugger
    * @return  The LDAP listener used to decode the communication, or
    *          {@code null} if the tool is not running.
    */
+  @Nullable()
   public LDAPListener getListener()
   {
     return listener;

@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,7 +68,7 @@ public final class BasicAsyncResultListener
 
 
   // The result that has been received for the associated operation.
-  private volatile LDAPResult ldapResult;
+  @Nullable private volatile LDAPResult ldapResult;
 
 
 
@@ -87,8 +89,8 @@ public final class BasicAsyncResultListener
    */
   @InternalUseOnly()
   @Override()
-  public void ldapResultReceived(final AsyncRequestID requestID,
-                                 final LDAPResult ldapResult)
+  public void ldapResultReceived(@NotNull final AsyncRequestID requestID,
+                                 @NotNull final LDAPResult ldapResult)
   {
     this.ldapResult = ldapResult;
   }
@@ -102,6 +104,7 @@ public final class BasicAsyncResultListener
    * @return  The result that has been received for the associated asynchronous
    *          operation, or {@code null} if no response has been received yet.
    */
+  @Nullable()
   public LDAPResult getLDAPResult()
   {
     return ldapResult;

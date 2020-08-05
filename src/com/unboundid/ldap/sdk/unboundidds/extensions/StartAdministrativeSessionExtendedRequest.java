@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -136,7 +138,7 @@ public final class StartAdministrativeSessionExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.13) for the start administrative session
    * extended request.
    */
-  public static final String START_ADMIN_SESSION_REQUEST_OID =
+  @NotNull public static final String START_ADMIN_SESSION_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.13";
 
 
@@ -168,7 +170,7 @@ public final class StartAdministrativeSessionExtendedRequest
   private final boolean useDedicatedThreadPool;
 
   // The name of the client application issuing this request.
-  private final String clientName;
+  @Nullable private final String clientName;
 
 
 
@@ -187,8 +189,10 @@ public final class StartAdministrativeSessionExtendedRequest
    * @param  controls                The set of controls to include in the
    *                                 request.
    */
-  public StartAdministrativeSessionExtendedRequest(final String clientName,
-              final boolean useDedicatedThreadPool, final Control... controls)
+  public StartAdministrativeSessionExtendedRequest(
+              @Nullable final String clientName,
+              final boolean useDedicatedThreadPool,
+              @Nullable final Control... controls)
   {
     super(START_ADMIN_SESSION_REQUEST_OID,
          encodeValue(clientName, useDedicatedThreadPool),
@@ -210,7 +214,7 @@ public final class StartAdministrativeSessionExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public StartAdministrativeSessionExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -282,8 +286,10 @@ public final class StartAdministrativeSessionExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String clientName,
-                                      final boolean useDedicatedThreadPool)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @Nullable final String clientName,
+               final boolean useDedicatedThreadPool)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(2);
 
@@ -309,6 +315,7 @@ public final class StartAdministrativeSessionExtendedRequest
    * @return  The name of the client application issuing this request, or
    *          {@code null} if it was not included in the request.
    */
+  @Nullable()
   public String getClientName()
   {
     return clientName;
@@ -335,6 +342,7 @@ public final class StartAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartAdministrativeSessionExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -346,8 +354,9 @@ public final class StartAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StartAdministrativeSessionExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     return new StartAdministrativeSessionExtendedRequest(clientName,
          useDedicatedThreadPool, controls);
@@ -359,6 +368,7 @@ public final class StartAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_START_ADMIN_SESSION.get();
@@ -370,7 +380,7 @@ public final class StartAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StartAdministrativeSessionExtendedRequest(");
 

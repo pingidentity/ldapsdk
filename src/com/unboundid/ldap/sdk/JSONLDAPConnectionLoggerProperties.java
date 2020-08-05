@@ -48,6 +48,8 @@ import java.util.Set;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -142,13 +144,13 @@ public final class JSONLDAPConnectionLoggerProperties
   private boolean logSearchReferences;
 
   // The schema to use for identifying alternate attribute type names.
-  private Schema schema;
+  @Nullable private Schema schema;
 
   // The types of operations for which requests should be logged.
-  private final Set<OperationType> operationTypes;
+  @NotNull private final Set<OperationType> operationTypes;
 
   // The names or OIDs of the attributes whose values should be redacted.
-  private final Set<String> attributesToRedact;
+  @NotNull private final Set<String> attributesToRedact;
 
 
 
@@ -206,7 +208,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *                     {@code null}.
    */
   public JSONLDAPConnectionLoggerProperties(
-       final JSONLDAPConnectionLoggerProperties properties)
+              @NotNull final JSONLDAPConnectionLoggerProperties properties)
   {
     flushAfterConnectMessages = properties.flushAfterConnectMessages;
     flushAfterDisconnectMessages = properties.flushAfterDisconnectMessages;
@@ -248,7 +250,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *                 be used to create the set of properties.
    */
   public JSONLDAPConnectionLoggerProperties(
-       final JSONLDAPConnectionLogger logger)
+              @NotNull final JSONLDAPConnectionLogger logger)
   {
     flushAfterConnectMessages = logger.flushAfterConnectMessages();
     flushAfterDisconnectMessages = logger.flushAfterDisconnectMessages();
@@ -498,6 +500,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *
    * @return  The set of operation types for which to log requests and results.
    */
+  @NotNull()
   public Set<OperationType> getOperationTypes()
   {
     return operationTypes;
@@ -512,7 +515,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *                         requests and results.  It may be {@code null} or
    *                         empty if no operation types should be logged.
    */
-  public void setOperationTypes(final OperationType... operationTypes)
+  public void setOperationTypes(@Nullable final OperationType... operationTypes)
   {
     this.operationTypes.clear();
     if (operationTypes != null)
@@ -530,7 +533,8 @@ public final class JSONLDAPConnectionLoggerProperties
    *                         requests and results.  It may be {@code null} or
    *                         empty if no operation types should be logged.
    */
-  public void setOperationTypes(final Collection<OperationType> operationTypes)
+  public void setOperationTypes(
+                   @Nullable final Collection<OperationType> operationTypes)
   {
     this.operationTypes.clear();
     if (operationTypes != null)
@@ -757,6 +761,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *          should be redacted from log messages, or an empty set if no
    *          attribute values should be redacted.
    */
+  @NotNull()
   public Set<String> getAttributesToRedact()
   {
     return attributesToRedact;
@@ -773,7 +778,8 @@ public final class JSONLDAPConnectionLoggerProperties
    *                             {@code null} or empty if no attribute values
    *                             should be redacted.
    */
-  public void setAttributesToRedact(final String... attributesToRedact)
+  public void setAttributesToRedact(
+                   @Nullable final String... attributesToRedact)
   {
     this.attributesToRedact.clear();
     if (attributesToRedact != null)
@@ -793,7 +799,8 @@ public final class JSONLDAPConnectionLoggerProperties
    *                             {@code null} or empty if no attribute values
    *                             should be redacted.
    */
-  public void setAttributesToRedact(final Collection<String> attributesToRedact)
+  public void setAttributesToRedact(
+                   @Nullable final Collection<String> attributesToRedact)
   {
     this.attributesToRedact.clear();
     if (attributesToRedact != null)
@@ -1001,6 +1008,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *          for attributes whose values should be redacted, or {@code null}
    *          if no schema should be used.
    */
+  @Nullable()
   public Schema getSchema()
   {
     return schema;
@@ -1016,7 +1024,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *                 and OIDs for attributes whose values should be redacted.
    *                 It may be {@code null} if no schema should be used.
    */
-  public void setSchema(final Schema schema)
+  public void setSchema(@Nullable final Schema schema)
   {
     this.schema = schema;
   }
@@ -1031,6 +1039,7 @@ public final class JSONLDAPConnectionLoggerProperties
    *          {@code JSONLDAPConnectionLoggerProperties} object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1047,7 +1056,7 @@ public final class JSONLDAPConnectionLoggerProperties
    * @param  buffer  The buffer to which the information should be appended.  It
    *                 must not be {@code null}.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("JSONLDAPConnectionLoggerProperties(logConnects=");
     buffer.append(logConnects);

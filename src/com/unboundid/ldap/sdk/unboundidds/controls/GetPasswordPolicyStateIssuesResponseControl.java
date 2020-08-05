@@ -59,6 +59,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -115,8 +117,9 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.47) for the get password policy state issues
    * response control.
    */
-  public static final String GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID =
-       "1.3.6.1.4.1.30221.2.5.47";
+  @NotNull public static final String
+       GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID =
+            "1.3.6.1.4.1.30221.2.5.47";
 
 
 
@@ -160,16 +163,18 @@ public final class GetPasswordPolicyStateIssuesResponseControl
 
 
   // The authentication failure reason for the bind operation.
-  private final AuthenticationFailureReason authFailureReason;
+  @Nullable private final AuthenticationFailureReason authFailureReason;
 
   // The set of account usability errors.
-  private final List<PasswordPolicyStateAccountUsabilityError> errors;
+  @NotNull private final List<PasswordPolicyStateAccountUsabilityError> errors;
 
   // The set of account usability notices.
-  private final List<PasswordPolicyStateAccountUsabilityNotice> notices;
+  @NotNull private final List<PasswordPolicyStateAccountUsabilityNotice>
+       notices;
 
   // The set of account usability warnings.
-  private final List<PasswordPolicyStateAccountUsabilityWarning> warnings;
+  @NotNull private final List<PasswordPolicyStateAccountUsabilityWarning>
+       warnings;
 
 
 
@@ -201,9 +206,10 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    *                   no errors.
    */
   public GetPasswordPolicyStateIssuesResponseControl(
-       final List<PasswordPolicyStateAccountUsabilityNotice> notices,
-       final List<PasswordPolicyStateAccountUsabilityWarning> warnings,
-       final List<PasswordPolicyStateAccountUsabilityError> errors)
+       @Nullable final List<PasswordPolicyStateAccountUsabilityNotice> notices,
+       @Nullable final List<PasswordPolicyStateAccountUsabilityWarning>
+            warnings,
+       @Nullable final List<PasswordPolicyStateAccountUsabilityError> errors)
   {
     this(notices, warnings, errors, null);
   }
@@ -227,10 +233,11 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    *                            no authentication failure reason.
    */
   public GetPasswordPolicyStateIssuesResponseControl(
-       final List<PasswordPolicyStateAccountUsabilityNotice> notices,
-       final List<PasswordPolicyStateAccountUsabilityWarning> warnings,
-       final List<PasswordPolicyStateAccountUsabilityError> errors,
-       final AuthenticationFailureReason authFailureReason)
+       @Nullable final List<PasswordPolicyStateAccountUsabilityNotice> notices,
+       @Nullable final List<PasswordPolicyStateAccountUsabilityWarning>
+            warnings,
+       @Nullable final List<PasswordPolicyStateAccountUsabilityError> errors,
+       @Nullable final AuthenticationFailureReason authFailureReason)
   {
     super(GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID, false,
          encodeValue(notices, warnings, errors, authFailureReason));
@@ -280,8 +287,8 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    *                         decode the provided control as a get password
    *                         policy state issues response control.
    */
-  public GetPasswordPolicyStateIssuesResponseControl(final String oid,
-              final boolean isCritical, final ASN1OctetString value)
+  public GetPasswordPolicyStateIssuesResponseControl(@NotNull final String oid,
+              final boolean isCritical, @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -466,11 +473,13 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-              final List<PasswordPolicyStateAccountUsabilityNotice> notices,
-              final List<PasswordPolicyStateAccountUsabilityWarning> warnings,
-              final List<PasswordPolicyStateAccountUsabilityError> errors,
-              final AuthenticationFailureReason authFailureReason)
+       @Nullable final List<PasswordPolicyStateAccountUsabilityNotice> notices,
+       @Nullable final List<PasswordPolicyStateAccountUsabilityWarning>
+            warnings,
+       @Nullable final List<PasswordPolicyStateAccountUsabilityError> errors,
+       @Nullable final AuthenticationFailureReason authFailureReason)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     if ((notices != null) && (! notices.isEmpty()))
@@ -571,9 +580,10 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetPasswordPolicyStateIssuesResponseControl decodeControl(
-              final String oid, final boolean isCritical,
-              final ASN1OctetString value)
+              @NotNull final String oid, final boolean isCritical,
+              @Nullable final ASN1OctetString value)
           throws LDAPException
   {
     return new GetPasswordPolicyStateIssuesResponseControl(oid, isCritical,
@@ -588,6 +598,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * @return  The set of account usability notices for the user, or an empty
    *          list if there are no notices.
    */
+  @NotNull()
   public List<PasswordPolicyStateAccountUsabilityNotice> getNotices()
   {
     return notices;
@@ -601,6 +612,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * @return  The set of account usability warnings for the user, or an empty
    *          list if there are no warnings.
    */
+  @NotNull()
   public List<PasswordPolicyStateAccountUsabilityWarning> getWarnings()
   {
     return warnings;
@@ -614,6 +626,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * @return  The set of account usability errors for the user, or an empty
    *          list if there are no errors.
    */
+  @NotNull()
   public List<PasswordPolicyStateAccountUsabilityError> getErrors()
   {
     return errors;
@@ -628,6 +641,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * @return  The authentication failure reason for the bind operation, or
    *          {@code null} if none was provided.
    */
+  @Nullable()
   public AuthenticationFailureReason getAuthenticationFailureReason()
   {
     return authFailureReason;
@@ -651,8 +665,9 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    *                         response control contained in the provided bind
    *                         result.
    */
+  @Nullable()
   public static GetPasswordPolicyStateIssuesResponseControl get(
-                     final BindResult bindResult)
+                     @NotNull final BindResult bindResult)
          throws LDAPException
   {
     final Control c = bindResult.getResponseControl(
@@ -691,8 +706,9 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    *                         response control contained in the provided LDAP
    *                         exception.
    */
+  @Nullable()
   public static GetPasswordPolicyStateIssuesResponseControl get(
-                     final LDAPException ldapException)
+                     @NotNull final LDAPException ldapException)
          throws LDAPException
   {
     final Control c = ldapException.getResponseControl(
@@ -719,6 +735,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_PWP_STATE_ISSUES_RESPONSE.get();
@@ -730,7 +747,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetPasswordPolicyStateIssuesResponseControl(notices={ ");
 

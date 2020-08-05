@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -67,7 +69,7 @@ public enum RSAPrivateKeyVersion
   private final int intValue;
 
   // The name for this RSA private key version.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -78,7 +80,7 @@ public enum RSAPrivateKeyVersion
    * @param  name      The name for this private key version.  It must not be
    *                   {@code null}.
    */
-  RSAPrivateKeyVersion(final int intValue, final String name)
+  RSAPrivateKeyVersion(final int intValue, @NotNull final String name)
   {
     this.intValue = intValue;
     this.name = name;
@@ -103,6 +105,7 @@ public enum RSAPrivateKeyVersion
    *
    * @return  The name for this private key version.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -120,6 +123,7 @@ public enum RSAPrivateKeyVersion
    *          {@code null} if the provided version does not correspond to any
    *          known private key version value.
    */
+  @Nullable()
   static RSAPrivateKeyVersion valueOf(final int intValue)
   {
     for (final RSAPrivateKeyVersion v : values())
@@ -144,7 +148,8 @@ public enum RSAPrivateKeyVersion
    * @return  The requested RSA private key version, or {@code null} if no such
    *          version is defined.
    */
-  public static RSAPrivateKeyVersion forName(final String name)
+  @Nullable()
+  public static RSAPrivateKeyVersion forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

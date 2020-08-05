@@ -162,6 +162,8 @@ import com.unboundid.util.DNFileReader;
 import com.unboundid.util.FilterFileReader;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.SubtreeDeleter;
 import com.unboundid.util.SubtreeDeleterResult;
@@ -216,7 +218,7 @@ public final class LDAPModify
    * The name of the attribute type used to specify a password in the
    * authentication password syntax as described in RFC 3112.
    */
-  private static final String ATTR_AUTH_PASSWORD = "authPassword";
+  @NotNull private static final String ATTR_AUTH_PASSWORD = "authPassword";
 
 
 
@@ -224,7 +226,8 @@ public final class LDAPModify
    * The name of the attribute type used to specify the DN of the soft-deleted
    * entry to be restored via an undelete operation.
    */
-  private static final String ATTR_UNDELETE_FROM_DN = "ds-undelete-from-dn";
+  @NotNull private static final String ATTR_UNDELETE_FROM_DN =
+       "ds-undelete-from-dn";
 
 
 
@@ -232,7 +235,7 @@ public final class LDAPModify
    * The name of the attribute type used to specify a password in the
    * userPassword syntax.
    */
-  private static final String ATTR_USER_PASSWORD = "userPassword";
+  @NotNull private static final String ATTR_USER_PASSWORD = "userPassword";
 
 
 
@@ -240,7 +243,7 @@ public final class LDAPModify
    * The long identifier for the argument used to specify the desired assured
    * replication local level.
    */
-  private static final String ARG_ASSURED_REPLICATION_LOCAL_LEVEL =
+  @NotNull private static final String ARG_ASSURED_REPLICATION_LOCAL_LEVEL =
        "assuredReplicationLocalLevel";
 
 
@@ -249,7 +252,7 @@ public final class LDAPModify
    * The long identifier for the argument used to specify the desired assured
    * replication remote level.
    */
-  private static final String ARG_ASSURED_REPLICATION_REMOTE_LEVEL =
+  @NotNull private static final String ARG_ASSURED_REPLICATION_REMOTE_LEVEL =
        "assuredReplicationRemoteLevel";
 
 
@@ -258,7 +261,7 @@ public final class LDAPModify
    * The long identifier for the argument used to specify the desired assured
    * timeout.
    */
-  private static final String ARG_ASSURED_REPLICATION_TIMEOUT =
+  @NotNull private static final String ARG_ASSURED_REPLICATION_TIMEOUT =
        "assuredReplicationTimeout";
 
 
@@ -267,7 +270,7 @@ public final class LDAPModify
    * The long identifier for the argument used to specify the path to an LDIF
    * file containing changes to apply.
    */
-  private static final String ARG_LDIF_FILE = "ldifFile";
+  @NotNull private static final String ARG_LDIF_FILE = "ldifFile";
 
 
 
@@ -276,89 +279,89 @@ public final class LDAPModify
    * results page size to use when modifying entries that match a provided
    * filter.
    */
-  private static final String ARG_SEARCH_PAGE_SIZE = "searchPageSize";
+  @NotNull private static final String ARG_SEARCH_PAGE_SIZE = "searchPageSize";
 
 
 
   // The set of arguments supported by this program.
-  private BooleanArgument allowUndelete = null;
-  private BooleanArgument assuredReplication = null;
-  private BooleanArgument authorizationIdentity = null;
-  private BooleanArgument clientSideSubtreeDelete = null;
-  private BooleanArgument continueOnError = null;
-  private BooleanArgument defaultAdd = null;
-  private BooleanArgument dryRun = null;
-  private BooleanArgument followReferrals = null;
-  private BooleanArgument generatePassword = null;
-  private BooleanArgument getBackendSetID = null;
-  private BooleanArgument getRecentLoginHistory = null;
-  private BooleanArgument getServerID = null;
-  private BooleanArgument getUserResourceLimits = null;
-  private BooleanArgument hardDelete = null;
-  private BooleanArgument ignoreNoUserModification = null;
-  private BooleanArgument manageDsaIT = null;
-  private BooleanArgument nameWithEntryUUID = null;
-  private BooleanArgument noOperation = null;
-  private BooleanArgument passwordValidationDetails = null;
-  private BooleanArgument permissiveModify = null;
-  private BooleanArgument purgeCurrentPassword = null;
-  private BooleanArgument replicationRepair = null;
-  private BooleanArgument retireCurrentPassword = null;
-  private BooleanArgument retryFailedOperations = null;
-  private BooleanArgument softDelete = null;
-  private BooleanArgument stripTrailingSpaces = null;
-  private BooleanArgument serverSideSubtreeDelete = null;
-  private BooleanArgument suppressReferentialIntegrityUpdates = null;
-  private BooleanArgument useAdministrativeSession = null;
-  private BooleanArgument usePasswordPolicyControl = null;
-  private BooleanArgument useTransaction = null;
-  private BooleanArgument verbose = null;
-  private ControlArgument addControl = null;
-  private ControlArgument bindControl = null;
-  private ControlArgument deleteControl = null;
-  private ControlArgument modifyControl = null;
-  private ControlArgument modifyDNControl = null;
-  private ControlArgument operationControl = null;
-  private DNArgument modifyEntryWithDN = null;
-  private DNArgument proxyV1As = null;
-  private DNArgument uniquenessBaseDN = null;
-  private DurationArgument assuredReplicationTimeout = null;
-  private FileArgument encryptionPassphraseFile = null;
-  private FileArgument ldifFile = null;
-  private FileArgument modifyEntriesMatchingFiltersFromFile = null;
-  private FileArgument modifyEntriesWithDNsFromFile = null;
-  private FileArgument rejectFile = null;
-  private FilterArgument assertionFilter = null;
-  private FilterArgument modifyEntriesMatchingFilter = null;
-  private FilterArgument uniquenessFilter = null;
-  private IntegerArgument ratePerSecond = null;
-  private IntegerArgument searchPageSize = null;
-  private StringArgument assuredReplicationLocalLevel = null;
-  private StringArgument assuredReplicationRemoteLevel = null;
-  private StringArgument characterSet = null;
-  private StringArgument getAuthorizationEntryAttribute = null;
-  private StringArgument multiUpdateErrorBehavior = null;
-  private StringArgument operationPurpose = null;
-  private StringArgument passwordUpdateBehavior = null;
-  private StringArgument postReadAttribute = null;
-  private StringArgument preReadAttribute = null;
-  private StringArgument proxyAs = null;
-  private StringArgument routeToBackendSet = null;
-  private StringArgument routeToServer = null;
-  private StringArgument suppressOperationalAttributeUpdates = null;
-  private StringArgument uniquenessAttribute = null;
-  private StringArgument uniquenessMultipleAttributeBehavior = null;
-  private StringArgument uniquenessPostCommitValidationLevel = null;
-  private StringArgument uniquenessPreCommitValidationLevel = null;
+  @Nullable private BooleanArgument allowUndelete = null;
+  @Nullable private BooleanArgument assuredReplication = null;
+  @Nullable private BooleanArgument authorizationIdentity = null;
+  @Nullable private BooleanArgument clientSideSubtreeDelete = null;
+  @Nullable private BooleanArgument continueOnError = null;
+  @Nullable private BooleanArgument defaultAdd = null;
+  @Nullable private BooleanArgument dryRun = null;
+  @Nullable private BooleanArgument followReferrals = null;
+  @Nullable private BooleanArgument generatePassword = null;
+  @Nullable private BooleanArgument getBackendSetID = null;
+  @Nullable private BooleanArgument getRecentLoginHistory = null;
+  @Nullable private BooleanArgument getServerID = null;
+  @Nullable private BooleanArgument getUserResourceLimits = null;
+  @Nullable private BooleanArgument hardDelete = null;
+  @Nullable private BooleanArgument ignoreNoUserModification = null;
+  @Nullable private BooleanArgument manageDsaIT = null;
+  @Nullable private BooleanArgument nameWithEntryUUID = null;
+  @Nullable private BooleanArgument noOperation = null;
+  @Nullable private BooleanArgument passwordValidationDetails = null;
+  @Nullable private BooleanArgument permissiveModify = null;
+  @Nullable private BooleanArgument purgeCurrentPassword = null;
+  @Nullable private BooleanArgument replicationRepair = null;
+  @Nullable private BooleanArgument retireCurrentPassword = null;
+  @Nullable private BooleanArgument retryFailedOperations = null;
+  @Nullable private BooleanArgument softDelete = null;
+  @Nullable private BooleanArgument stripTrailingSpaces = null;
+  @Nullable private BooleanArgument serverSideSubtreeDelete = null;
+  @Nullable private BooleanArgument suppressReferentialIntegrityUpdates = null;
+  @Nullable private BooleanArgument useAdministrativeSession = null;
+  @Nullable private BooleanArgument usePasswordPolicyControl = null;
+  @Nullable private BooleanArgument useTransaction = null;
+  @Nullable private BooleanArgument verbose = null;
+  @Nullable private ControlArgument addControl = null;
+  @Nullable private ControlArgument bindControl = null;
+  @Nullable private ControlArgument deleteControl = null;
+  @Nullable private ControlArgument modifyControl = null;
+  @Nullable private ControlArgument modifyDNControl = null;
+  @Nullable private ControlArgument operationControl = null;
+  @Nullable private DNArgument modifyEntryWithDN = null;
+  @Nullable private DNArgument proxyV1As = null;
+  @Nullable private DNArgument uniquenessBaseDN = null;
+  @Nullable private DurationArgument assuredReplicationTimeout = null;
+  @Nullable private FileArgument encryptionPassphraseFile = null;
+  @Nullable private FileArgument ldifFile = null;
+  @Nullable private FileArgument modifyEntriesMatchingFiltersFromFile = null;
+  @Nullable private FileArgument modifyEntriesWithDNsFromFile = null;
+  @Nullable private FileArgument rejectFile = null;
+  @Nullable private FilterArgument assertionFilter = null;
+  @Nullable private FilterArgument modifyEntriesMatchingFilter = null;
+  @Nullable private FilterArgument uniquenessFilter = null;
+  @Nullable private IntegerArgument ratePerSecond = null;
+  @Nullable private IntegerArgument searchPageSize = null;
+  @Nullable private StringArgument assuredReplicationLocalLevel = null;
+  @Nullable private StringArgument assuredReplicationRemoteLevel = null;
+  @Nullable private StringArgument characterSet = null;
+  @Nullable private StringArgument getAuthorizationEntryAttribute = null;
+  @Nullable private StringArgument multiUpdateErrorBehavior = null;
+  @Nullable private StringArgument operationPurpose = null;
+  @Nullable private StringArgument passwordUpdateBehavior = null;
+  @Nullable private StringArgument postReadAttribute = null;
+  @Nullable private StringArgument preReadAttribute = null;
+  @Nullable private StringArgument proxyAs = null;
+  @Nullable private StringArgument routeToBackendSet = null;
+  @Nullable private StringArgument routeToServer = null;
+  @Nullable private StringArgument suppressOperationalAttributeUpdates = null;
+  @Nullable private StringArgument uniquenessAttribute = null;
+  @Nullable private StringArgument uniquenessMultipleAttributeBehavior = null;
+  @Nullable private StringArgument uniquenessPostCommitValidationLevel = null;
+  @Nullable private StringArgument uniquenessPreCommitValidationLevel = null;
 
   // Indicates whether we've written anything to the reject writer yet.
-  private final AtomicBoolean rejectWritten;
+  @NotNull private final AtomicBoolean rejectWritten;
 
   // The input stream from to use for standard input.
-  private final InputStream in;
+  @NotNull private final InputStream in;
 
   // The route to backend set request controls to include in write requests.
-  private final List<RouteToBackendSetRequestControl>
+  @NotNull private final List<RouteToBackendSetRequestControl>
        routeToBackendSetRequestControls = new ArrayList<>(10);
 
 
@@ -369,7 +372,7 @@ public final class LDAPModify
    *
    * @param  args  The command-line arguments to provide to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.in, System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -394,8 +397,10 @@ public final class LDAPModify
    * @return  The result code obtained when running the tool.  Any result code
    *          other than {@link ResultCode#SUCCESS} indicates an error.
    */
-  public static ResultCode main(final InputStream in, final OutputStream out,
-                                final OutputStream err, final String... args)
+  public static ResultCode main(@Nullable final InputStream in,
+                                @Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDAPModify tool = new LDAPModify(in, out, err);
     return tool.runTool(args);
@@ -412,7 +417,8 @@ public final class LDAPModify
    * @param  err  The output stream to use for standard error.  If this is
    *              {@code null}, then standard error will be suppressed.
    */
-  public LDAPModify(final OutputStream out, final OutputStream err)
+  public LDAPModify(@Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     this(null, out, err);
   }
@@ -429,8 +435,9 @@ public final class LDAPModify
    * @param  err  The output stream to use for standard error.  If this is
    *              {@code null}, then standard error will be suppressed.
    */
-  public LDAPModify(final InputStream in, final OutputStream out,
-                    final OutputStream err)
+  public LDAPModify(@Nullable final InputStream in,
+                    @Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -453,6 +460,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldapmodify";
@@ -464,6 +472,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_LDAPMODIFY_TOOL_DESCRIPTION.get(ARG_LDIF_FILE);
@@ -475,6 +484,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -574,7 +584,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     ldifFile = new FileArgument('f', ARG_LDIF_FILE, false, -1, null,
@@ -1509,6 +1519,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Control> getBindControls()
   {
     final ArrayList<Control> bindControls = new ArrayList<>(10);
@@ -1594,6 +1605,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -1612,6 +1624,7 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Examine the arguments to determine the sets of controls to use for each
@@ -2422,14 +2435,16 @@ readChangeRecordLoop:
    *
    * @return  A result code obtained from processing.
    */
+  @NotNull()
   private ResultCode handleModifyMatchingFilter(
-                          final LDAPConnectionPool connectionPool,
-                          final LDIFChangeRecord changeRecord,
-                          final String argIdentifierString, final Filter filter,
-                          final List<Control> searchControls,
-                          final List<Control> modifyControls,
-                          final FixedRateBarrier rateLimiter,
-                          final LDIFWriter rejectWriter)
+               @NotNull final LDAPConnectionPool connectionPool,
+               @NotNull final LDIFChangeRecord changeRecord,
+               @NotNull final String argIdentifierString,
+               @NotNull final Filter filter,
+               @NotNull final List<Control> searchControls,
+               @NotNull final List<Control> modifyControls,
+               @Nullable final FixedRateBarrier rateLimiter,
+               @Nullable final LDIFWriter rejectWriter)
   {
     // If the provided change record isn't a modify change record, then that's
     // an error.  Reject it.
@@ -2700,13 +2715,15 @@ readChangeRecordLoop:
    *
    * @return  A result code obtained from processing.
    */
+  @NotNull()
   private ResultCode handleModifyWithDN(
-                          final LDAPConnectionPool connectionPool,
-                          final LDIFChangeRecord changeRecord,
-                          final String argIdentifierString, final DN dn,
-                          final List<Control> modifyControls,
-                          final FixedRateBarrier rateLimiter,
-                          final LDIFWriter rejectWriter)
+               @NotNull final LDAPConnectionPool connectionPool,
+               @NotNull final LDIFChangeRecord changeRecord,
+               @NotNull final String argIdentifierString,
+               @NotNull final DN dn,
+               @NotNull final List<Control> modifyControls,
+               @Nullable final FixedRateBarrier rateLimiter,
+               @Nullable final LDIFWriter rejectWriter)
   {
     // If the provided change record isn't a modify change record, then that's
     // an error.  Reject it.
@@ -2764,11 +2781,12 @@ readChangeRecordLoop:
    * @throws  LDAPException  If a problem is encountered while creating any of
    *                         the requested controls.
    */
-  private void createRequestControls(final List<Control> addControls,
-                                     final List<Control> deleteControls,
-                                     final List<Control> modifyControls,
-                                     final List<Control> modifyDNControls,
-                                     final List<Control> searchControls)
+  private void createRequestControls(
+                    @NotNull final List<Control> addControls,
+                    @NotNull final List<Control> deleteControls,
+                    @NotNull final List<Control> modifyControls,
+                    @NotNull final List<Control> modifyDNControls,
+                    @NotNull final List<Control> searchControls)
           throws LDAPException
   {
     if (addControl.isPresent())
@@ -3231,9 +3249,11 @@ readChangeRecordLoop:
    * @throws  LDAPException  If a problem is encountered while creating the
    *                         control.
    */
+  @NotNull()
   static PasswordUpdateBehaviorRequestControl
               createPasswordUpdateBehaviorRequestControl(
-                   final String argIdentifier, final List<String> argValues)
+                   @NotNull final String argIdentifier,
+                   @NotNull final List<String> argValues)
        throws LDAPException
   {
     final PasswordUpdateBehaviorRequestControlProperties properties =
@@ -3344,8 +3364,8 @@ readChangeRecordLoop:
    * @throws  LDAPException  If the provided value cannot be parsed as a
    *                         Boolean value.
    */
-  private static boolean parseBooleanValue(final String name,
-                                           final String value)
+  private static boolean parseBooleanValue(@NotNull final String name,
+                                           @NotNull final String value)
           throws LDAPException
   {
     if (value.equalsIgnoreCase("true") ||
@@ -3395,11 +3415,12 @@ readChangeRecordLoop:
    * @throws  LDAPException  If the operation did not complete successfully
    *                         and processing should not continue.
    */
-  private ResultCode doAdd(final LDIFAddChangeRecord changeRecord,
-                           final List<Control> controls,
-                           final LDAPConnectionPool pool,
-                           final List<LDAPRequest> multiUpdateRequests,
-                           final LDIFWriter rejectWriter)
+  @NotNull()
+  private ResultCode doAdd(@NotNull final LDIFAddChangeRecord changeRecord,
+               @NotNull final List<Control> controls,
+               @NotNull final LDAPConnectionPool pool,
+               @Nullable final List<LDAPRequest> multiUpdateRequests,
+               @Nullable final LDIFWriter rejectWriter)
           throws LDAPException
   {
     // Create the add request to process.
@@ -3535,11 +3556,13 @@ readChangeRecordLoop:
    * @throws  LDAPException  If the operation did not complete successfully
    *                         and processing should not continue.
    */
-  private ResultCode doDelete(final LDIFDeleteChangeRecord changeRecord,
-                              final List<Control> controls,
-                              final LDAPConnectionPool pool,
-                              final List<LDAPRequest> multiUpdateRequests,
-                              final LDIFWriter rejectWriter)
+  @NotNull()
+  private ResultCode doDelete(
+               @NotNull final LDIFDeleteChangeRecord changeRecord,
+               @NotNull final List<Control> controls,
+               @NotNull final LDAPConnectionPool pool,
+               @Nullable final List<LDAPRequest> multiUpdateRequests,
+               @Nullable final LDIFWriter rejectWriter)
           throws LDAPException
   {
     // If we should perform a client-side subtree delete, then do that
@@ -3654,11 +3677,12 @@ readChangeRecordLoop:
    * @throws  LDAPException  If the operation did not complete successfully
    *                         and processing should not continue.
    */
+  @NotNull()
   private ResultCode doClientSideSubtreeDelete(
-                          final LDIFChangeRecord changeRecord,
-                          final List<Control> controls,
-                          final LDAPConnectionPool pool,
-                          final LDIFWriter rejectWriter)
+                          @NotNull final LDIFChangeRecord changeRecord,
+                          @NotNull final List<Control> controls,
+                          @NotNull final LDAPConnectionPool pool,
+                          @Nullable final LDIFWriter rejectWriter)
           throws LDAPException
   {
     // Create the subtree deleter with the provided set of controls.  Make sure
@@ -3838,11 +3862,12 @@ readChangeRecordLoop:
    * @throws  LDAPException  If the operation did not complete successfully
    *                         and processing should not continue.
    */
-  ResultCode doModify(final LDIFModifyChangeRecord changeRecord,
-                      final List<Control> controls,
-                      final LDAPConnectionPool pool,
-                      final List<LDAPRequest> multiUpdateRequests,
-                      final LDIFWriter rejectWriter)
+  @NotNull()
+  ResultCode doModify(@NotNull final LDIFModifyChangeRecord changeRecord,
+                      @NotNull final List<Control> controls,
+                      @NotNull final LDAPConnectionPool pool,
+                      @Nullable final List<LDAPRequest> multiUpdateRequests,
+                      @Nullable final LDIFWriter rejectWriter)
              throws LDAPException
   {
     // Create the modify request to process.
@@ -3986,11 +4011,13 @@ readChangeRecordLoop:
    * @throws  LDAPException  If the operation did not complete successfully
    *                         and processing should not continue.
    */
-  private ResultCode doModifyDN(final LDIFModifyDNChangeRecord changeRecord,
-                                final List<Control> controls,
-                                final LDAPConnectionPool pool,
-                                final List<LDAPRequest> multiUpdateRequests,
-                                final LDIFWriter rejectWriter)
+  @NotNull()
+  private ResultCode doModifyDN(
+               @NotNull final LDIFModifyDNChangeRecord changeRecord,
+               @NotNull final List<Control> controls,
+               @NotNull final LDAPConnectionPool pool,
+               @Nullable final List<LDAPRequest> multiUpdateRequests,
+               @Nullable final LDIFWriter rejectWriter)
           throws LDAPException
   {
     // Create the modify DN request to process.
@@ -4157,7 +4184,7 @@ readChangeRecordLoop:
    * @param  inTransaction  Indicates whether the operation is part of a
    *                        transaction.
    */
-  private void displayResult(final LDAPResult result,
+  private void displayResult(@NotNull final LDAPResult result,
                              final boolean inTransaction)
   {
     final ArrayList<String> resultLines = new ArrayList<>(10);
@@ -4190,7 +4217,7 @@ readChangeRecordLoop:
    *
    * @param  message  The message to be written.
    */
-  private void commentToOut(final String message)
+  private void commentToOut(@NotNull final String message)
   {
     for (final String line : StaticUtils.wrapLine(message, WRAP_COLUMN - 2))
     {
@@ -4206,7 +4233,7 @@ readChangeRecordLoop:
    *
    * @param  message  The message to be written.
    */
-  private void commentToErr(final String message)
+  private void commentToErr(@NotNull final String message)
   {
     for (final String line : StaticUtils.wrapLine(message, WRAP_COLUMN - 2))
     {
@@ -4231,10 +4258,10 @@ readChangeRecordLoop:
    * @param  ldapResult    The LDAP result for the failed operation.  It must
    *                       not be {@code null}.
    */
-  private void writeRejectedChange(final LDIFWriter writer,
-                                   final String comment,
-                                   final LDIFChangeRecord changeRecord,
-                                   final LDAPResult ldapResult)
+  private void writeRejectedChange(@Nullable final LDIFWriter writer,
+                                   @Nullable final String comment,
+                                   @NotNull final LDIFChangeRecord changeRecord,
+                                   @NotNull final LDAPResult ldapResult)
   {
     if (writer == null)
     {
@@ -4274,8 +4301,9 @@ readChangeRecordLoop:
    * @param  changeRecord  The LDIF change record to be written.  It may be
    *                       {@code null} if only a comment should be written.
    */
-  void writeRejectedChange(final LDIFWriter writer, final String comment,
-                           final LDIFChangeRecord changeRecord)
+  void writeRejectedChange(@Nullable final LDIFWriter writer,
+                           @Nullable final String comment,
+                           @Nullable final LDIFChangeRecord changeRecord)
   {
     if (writer == null)
     {
@@ -4322,8 +4350,9 @@ readChangeRecordLoop:
    * {@inheritDoc}
    */
   @Override()
-  public void handleUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void handleUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     final ArrayList<String> lines = new ArrayList<>(10);
     ResultUtils.formatUnsolicitedNotification(lines, notification, true, 0,
@@ -4341,6 +4370,7 @@ readChangeRecordLoop:
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

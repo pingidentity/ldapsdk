@@ -100,6 +100,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionPostConnectProcessor;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -154,7 +156,8 @@ public final class LDAPPasswordModify
    * The assured replication local level value that indicates no assurance is
    * needed.
    */
-  private static final String ASSURED_REPLICATION_LOCAL_LEVEL_NONE = "none";
+  @NotNull private static final String ASSURED_REPLICATION_LOCAL_LEVEL_NONE =
+       "none";
 
 
 
@@ -162,7 +165,7 @@ public final class LDAPPasswordModify
    * The assured replication local level value that indicates the change should
    * be received by at least one other local server.
    */
-  private static final String
+  @NotNull private static final String
        ASSURED_REPLICATION_LOCAL_LEVEL_RECEIVED_ANY_SERVER =
             "received-any-server";
 
@@ -172,7 +175,7 @@ public final class LDAPPasswordModify
    * The assured replication local level value that indicates the change should
    * be processed by all available local servers.
    */
-  private static final String
+  @NotNull private static final String
        ASSURED_REPLICATION_LOCAL_LEVEL_PROCESSED_ALL_SERVERS =
             "processed-all-servers";
 
@@ -182,7 +185,8 @@ public final class LDAPPasswordModify
    * The assured replication remote level value that indicates no assurance is
    * needed.
    */
-  private static final String ASSURED_REPLICATION_REMOTE_LEVEL_NONE = "none";
+  @NotNull private static final String ASSURED_REPLICATION_REMOTE_LEVEL_NONE =
+       "none";
 
 
 
@@ -191,7 +195,7 @@ public final class LDAPPasswordModify
    * be received by at least one other remote server in at least one remote
    * location.
    */
-  private static final String
+  @NotNull private static final String
        ASSURED_REPLICATION_REMOTE_LEVEL_RECEIVED_ANY_REMOTE_LOCATION =
             "received-any-remote-location";
 
@@ -202,7 +206,7 @@ public final class LDAPPasswordModify
    * be received by at least one other remote server in every remote
    * location.
    */
-  private static final String
+  @NotNull private static final String
        ASSURED_REPLICATION_REMOTE_LEVEL_RECEIVED_ALL_REMOTE_LOCATIONS =
             "received-all-remote-locations";
 
@@ -212,7 +216,7 @@ public final class LDAPPasswordModify
    * The assured replication remote level value that indicates the change should
    * be processed by all available remote servers in all locations.
    */
-  private static final String
+  @NotNull private static final String
        ASSURED_REPLICATION_REMOTE_LEVEL_PROCESSED_ALL_REMOTE_SERVERS =
             "processed-all-remote-servers";
 
@@ -222,7 +226,7 @@ public final class LDAPPasswordModify
    * The password change method that will be used to indicate that the password
    * modify extended operation should be used.
    */
-  private static final String PASSWORD_CHANGE_METHOD_PW_MOD_EXTOP =
+  @NotNull private static final String PASSWORD_CHANGE_METHOD_PW_MOD_EXTOP =
        "password-modify-extended-operation";
 
 
@@ -231,7 +235,8 @@ public final class LDAPPasswordModify
    * The password change method that will be used to indicate that a regular
    * LDAP modify operation should be used.
    */
-  private static final String PASSWORD_CHANGE_METHOD_LDAP_MOD = "ldap-modify";
+  @NotNull private static final String PASSWORD_CHANGE_METHOD_LDAP_MOD =
+       "ldap-modify";
 
 
 
@@ -239,7 +244,8 @@ public final class LDAPPasswordModify
    * The password change method that will be used to indicate that an
    * Active Directory-specific operation should be used.
    */
-  private static final String PASSWORD_CHANGE_METHOD_AD = "active-directory";
+  @NotNull private static final String PASSWORD_CHANGE_METHOD_AD =
+       "active-directory";
 
 
 
@@ -247,7 +253,8 @@ public final class LDAPPasswordModify
    * The long identifier for the {@link LDAPCommandLineTool} argument used to
    * specify the bind DN to use when authenticating to the directory server.
    */
-  private static final String BIND_DN_ARGUMENT_LONG_IDENTIFIER = "bindDN";
+  @NotNull private static final String BIND_DN_ARGUMENT_LONG_IDENTIFIER =
+       "bindDN";
 
 
 
@@ -255,14 +262,15 @@ public final class LDAPPasswordModify
    * The name of the default attribute that will be assumed to hold the password
    * in most directory servers.
    */
-  private static final String DEFAULT_PASSWORD_ATTRIBUTE = "userPassword";
+  @NotNull private static final String DEFAULT_PASSWORD_ATTRIBUTE =
+       "userPassword";
 
 
 
   /**
    * The name of the attribute that Active Directory uses to hold the password.
    */
-  private static final String AD_PASSWORD_ATTRIBUTE = "unicodePwd";
+  @NotNull private static final String AD_PASSWORD_ATTRIBUTE = "unicodePwd";
 
 
 
@@ -270,7 +278,7 @@ public final class LDAPPasswordModify
    * The names of the attributes that will be used when searching for an entry
    * from its username in most directory servers.
    */
-  private static final List<String> DEFAULT_USERNAME_ATTRIBUTES =
+  @NotNull private static final List<String> DEFAULT_USERNAME_ATTRIBUTES =
        Collections.singletonList("uid");
 
 
@@ -279,7 +287,7 @@ public final class LDAPPasswordModify
    * The names of the attributes that will be used when searching for an entry
    * from its username in an Active Directory server.
    */
-  private static final List<String> AD_USERNAME_ATTRIBUTES =
+  @NotNull private static final List<String> AD_USERNAME_ATTRIBUTES =
        Collections.unmodifiableList(Arrays.asList("samAccountName",
             "userPrincipalName"));
 
@@ -288,53 +296,53 @@ public final class LDAPPasswordModify
   /**
    * The OID base that has been assigned to Microsoft.
    */
-  private static final String MICROSOFT_BASE_OID = "1.2.840.113556";
+  @NotNull private static final String MICROSOFT_BASE_OID = "1.2.840.113556";
 
 
 
   // A reference to the completion message to return for this tool.
-  private final AtomicReference<String> completionMessage;
+  @NotNull private final AtomicReference<String> completionMessage;
 
   // A reference to the argument parser for this tool.
-  private ArgumentParser argumentParser;
+  @Nullable private ArgumentParser argumentParser;
 
   // The supported command-line arguments.
-  private BooleanArgument followReferrals;
-  private BooleanArgument generateClientSideNewPassword;
-  private BooleanArgument getPasswordValidationDetails;
-  private BooleanArgument getUserResourceLimits;
-  private BooleanArgument noOperation;
-  private BooleanArgument promptForCurrentPassword;
-  private BooleanArgument promptForNewPassword;
-  private BooleanArgument provideBindDNAsUserIdentity;
-  private BooleanArgument purgeCurrentPassword;
-  private BooleanArgument retireCurrentPassword;
-  private BooleanArgument scriptFriendly;
-  private BooleanArgument useAdministrativeSession;
-  private BooleanArgument useAssuredReplication;
-  private BooleanArgument useAuthorizationIdentityControl;
-  private BooleanArgument usePasswordPolicyControlOnBind;
-  private BooleanArgument usePasswordPolicyControlOnUpdate;
-  private BooleanArgument verbose;
-  private ControlArgument bindControl;
-  private ControlArgument updateControl;
-  private DNArgument searchBaseDN;
-  private DurationArgument assuredReplicationTimeout;
-  private FileArgument currentPasswordFile;
-  private FileArgument newPasswordFile;
-  private IntegerArgument generatedPasswordLength;
-  private StringArgument assuredReplicationLocalLevel;
-  private StringArgument assuredReplicationRemoteLevel;
-  private StringArgument currentPassword;
-  private StringArgument generatedPasswordCharacterSet;
-  private StringArgument getAuthorizationEntryAttribute;
-  private StringArgument newPassword;
-  private StringArgument operationPurpose;
-  private StringArgument passwordAttribute;
-  private StringArgument passwordChangeMethod;
-  private StringArgument passwordUpdateBehavior;
-  private StringArgument userIdentity;
-  private StringArgument usernameAttribute;
+  @Nullable private BooleanArgument followReferrals;
+  @Nullable private BooleanArgument generateClientSideNewPassword;
+  @Nullable private BooleanArgument getPasswordValidationDetails;
+  @Nullable private BooleanArgument getUserResourceLimits;
+  @Nullable private BooleanArgument noOperation;
+  @Nullable private BooleanArgument promptForCurrentPassword;
+  @Nullable private BooleanArgument promptForNewPassword;
+  @Nullable private BooleanArgument provideBindDNAsUserIdentity;
+  @Nullable private BooleanArgument purgeCurrentPassword;
+  @Nullable private BooleanArgument retireCurrentPassword;
+  @Nullable private BooleanArgument scriptFriendly;
+  @Nullable private BooleanArgument useAdministrativeSession;
+  @Nullable private BooleanArgument useAssuredReplication;
+  @Nullable private BooleanArgument useAuthorizationIdentityControl;
+  @Nullable private BooleanArgument usePasswordPolicyControlOnBind;
+  @Nullable private BooleanArgument usePasswordPolicyControlOnUpdate;
+  @Nullable private BooleanArgument verbose;
+  @Nullable private ControlArgument bindControl;
+  @Nullable private ControlArgument updateControl;
+  @Nullable private DNArgument searchBaseDN;
+  @Nullable private DurationArgument assuredReplicationTimeout;
+  @Nullable private FileArgument currentPasswordFile;
+  @Nullable private FileArgument newPasswordFile;
+  @Nullable private IntegerArgument generatedPasswordLength;
+  @Nullable private StringArgument assuredReplicationLocalLevel;
+  @Nullable private StringArgument assuredReplicationRemoteLevel;
+  @Nullable private StringArgument currentPassword;
+  @Nullable private StringArgument generatedPasswordCharacterSet;
+  @Nullable private StringArgument getAuthorizationEntryAttribute;
+  @Nullable private StringArgument newPassword;
+  @Nullable private StringArgument operationPurpose;
+  @Nullable private StringArgument passwordAttribute;
+  @Nullable private StringArgument passwordChangeMethod;
+  @Nullable private StringArgument passwordUpdateBehavior;
+  @Nullable private StringArgument userIdentity;
+  @Nullable private StringArgument usernameAttribute;
 
 
 
@@ -345,7 +353,7 @@ public final class LDAPPasswordModify
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -369,8 +377,9 @@ public final class LDAPPasswordModify
    * @return  The result code obtained when running the tool.  Any result code
    *          other than {@link ResultCode#SUCCESS} indicates an error.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDAPPasswordModify tool = new LDAPPasswordModify(out, err);
     return tool.runTool(args);
@@ -387,7 +396,8 @@ public final class LDAPPasswordModify
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public LDAPPasswordModify(final OutputStream out, final OutputStream err)
+  public LDAPPasswordModify(@Nullable final OutputStream out,
+                            @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -439,6 +449,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldappasswordmodify";
@@ -450,6 +461,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_PWMOD_TOOL_DESCRIPTION_1.get();
@@ -461,6 +473,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getAdditionalDescriptionParagraphs()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -475,6 +488,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -574,6 +588,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Control> getBindControls()
   {
     final List<Control> bindControls = new ArrayList<>(10);
@@ -635,6 +650,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -664,6 +680,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return completionMessage.get();
@@ -675,7 +692,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     argumentParser = parser;
@@ -1281,6 +1298,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected Set<Character> getSuppressedShortIdentifiers()
   {
     return StaticUtils.setOf('N');
@@ -1316,6 +1334,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     LDAPConnectionPool pool = null;
@@ -1417,7 +1436,8 @@ public final class LDAPPasswordModify
    * @throws  LDAPException  If a problem occurs while attempting to make the
    *                         determination.
    */
-  private String getPasswordUpdateMethod(final LDAPConnectionPool pool)
+  @NotNull()
+  private String getPasswordUpdateMethod(@NotNull final LDAPConnectionPool pool)
           throws LDAPException
   {
     if (passwordChangeMethod.isPresent())
@@ -1520,8 +1540,9 @@ public final class LDAPPasswordModify
    * @return  A result code that indicates whether the password update was
    *          successful.
    */
+  @NotNull()
   private ResultCode doPasswordModifyExtendedOperation(
-                          final LDAPConnectionPool pool)
+                          @NotNull final LDAPConnectionPool pool)
   {
     // Create the password modify extended request to be processed.
     final String identity;
@@ -1661,10 +1682,11 @@ public final class LDAPPasswordModify
    * @return  A result code that indicates whether the password update was
    *          successful.
    */
+  @NotNull()
   private ResultCode followPasswordModifyReferral(
-                          final PasswordModifyExtendedRequest request,
-                          final PasswordModifyExtendedResult result,
-                          final LDAPConnection receivedOnConnection,
+                          @NotNull final PasswordModifyExtendedRequest request,
+                          @NotNull final PasswordModifyExtendedResult result,
+                          @NotNull final LDAPConnection receivedOnConnection,
                           final int referralCount)
   {
     final List<LDAPURL> referralURLs = new ArrayList<>();
@@ -1802,8 +1824,10 @@ public final class LDAPPasswordModify
    * @return  A result code that indicates whether the password update was
    *          successful.
    */
-  private ResultCode doLDAPModifyPasswordUpdate(final LDAPConnectionPool pool,
-                                                final boolean isActiveDirectory)
+  @NotNull()
+  private ResultCode doLDAPModifyPasswordUpdate(
+               @NotNull final LDAPConnectionPool pool,
+               final boolean isActiveDirectory)
   {
     // Get the information to include in the password modify extended request.
     byte[] currentPW;
@@ -1921,7 +1945,8 @@ public final class LDAPPasswordModify
    *
    * @return  The encoded password.
    */
-  static byte[] encodePasswordForActiveDirectory(final byte[] pw)
+  @Nullable()
+  static byte[] encodePasswordForActiveDirectory(@Nullable final byte[] pw)
   {
     if (pw == null)
     {
@@ -1952,7 +1977,8 @@ public final class LDAPPasswordModify
    * @throws  LDAPException  If a problem occurs while attempting to obtain the
    *                         user identity.
    */
-  private String getUserIdentity(final LDAPConnectionPool pool,
+  @NotNull()
+  private String getUserIdentity(@NotNull final LDAPConnectionPool pool,
                                  final boolean isActiveDirectory)
           throws LDAPException
   {
@@ -2093,8 +2119,9 @@ public final class LDAPPasswordModify
    * @throws  LDAPException  If a problem occurs while searching for the user,
    *                         or if the search does not match exactly one user.
    */
-  private String searchForUser(final LDAPConnectionPool pool,
-                               final String username,
+  @NotNull()
+  private String searchForUser(@NotNull final LDAPConnectionPool pool,
+                               @NotNull final String username,
                                final boolean isActiveDirectory)
           throws LDAPException
   {
@@ -2212,6 +2239,7 @@ public final class LDAPPasswordModify
    * @throws  LDAPException  If a problem occurs while trying to obtain the
    *                         current password.
    */
+  @Nullable()
   private byte[] getCurrentPassword()
           throws LDAPException
   {
@@ -2291,6 +2319,7 @@ public final class LDAPPasswordModify
    * @throws  LDAPException  If a problem occurs while trying to obtain the new
    *                         password.
    */
+  @Nullable()
   private byte[] getNewPassword()
           throws LDAPException
   {
@@ -2385,6 +2414,7 @@ public final class LDAPPasswordModify
    *
    * @return  The new password that was generated.
    */
+  @NotNull()
   private byte[] generatePassword()
   {
     final int length = generatedPasswordLength.getValue();
@@ -2450,6 +2480,7 @@ public final class LDAPPasswordModify
    * @throws  LDAPException  If a problem occurs while trying to create any of
    *                         the controls.
    */
+  @NotNull()
   private Control[] getUpdateControls()
           throws LDAPException
   {
@@ -2574,7 +2605,8 @@ public final class LDAPPasswordModify
    *                  standard error rather than standard output.
    * @param  message  The message to be written.
    */
-  private void logCompletionMessage(final boolean isError, final String message)
+  private void logCompletionMessage(final boolean isError,
+                                    @NotNull final String message)
   {
     completionMessage.compareAndSet(null, message);
 
@@ -2594,8 +2626,9 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
-  public void handleUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void handleUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     final ArrayList<String> lines = new ArrayList<>(10);
     ResultUtils.formatUnsolicitedNotification(lines, notification, true, 0,
@@ -2613,6 +2646,7 @@ public final class LDAPPasswordModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();

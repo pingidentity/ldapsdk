@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,7 +74,7 @@ public class LDAPResponse
 
 
   // The LDAP result for this LDAP response.
-  private final LDAPResult ldapResult;
+  @NotNull private final LDAPResult ldapResult;
 
 
 
@@ -82,7 +84,7 @@ public class LDAPResponse
    * @param  ldapResult  The {@code LDAPResult} object to use to create this
    *                     LDAP response.
    */
-  public LDAPResponse(final LDAPResult ldapResult)
+  public LDAPResponse(@NotNull final LDAPResult ldapResult)
   {
     this.ldapResult = ldapResult;
   }
@@ -119,6 +121,7 @@ public class LDAPResponse
    * @return  The error message for this LDAP response, or {@code null} if there
    *          is none.
    */
+  @Nullable()
   public String getErrorMessage()
   {
     return ldapResult.getDiagnosticMessage();
@@ -132,6 +135,7 @@ public class LDAPResponse
    * @return  The matched DN for this LDAP response, or {@code null} if there
    *          is none.
    */
+  @Nullable()
   public String getMatchedDN()
   {
     return ldapResult.getMatchedDN();
@@ -145,6 +149,7 @@ public class LDAPResponse
    * @return  The set of referrals for this LDAP response, or {@code null} if
    *          there are none.
    */
+  @Nullable()
   public String[] getReferrals()
   {
     final String[] referrals = ldapResult.getReferralURLs();
@@ -166,6 +171,7 @@ public class LDAPResponse
    * @return  The list of controls for this LDAP response, or {@code null} if
    *          there are none.
    */
+  @Nullable()
   public LDAPControl[] getControls()
   {
     final Control[] controls = ldapResult.getResponseControls();
@@ -186,6 +192,7 @@ public class LDAPResponse
    * @return  An {@code LDAPResult} object that is the equivalent of this LDAP
    *          response.
    */
+  @NotNull()
   public final LDAPResult toLDAPResult()
   {
     return ldapResult;
@@ -199,6 +206,7 @@ public class LDAPResponse
    * @return  A string representation of this LDAP response.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return ldapResult.toString();

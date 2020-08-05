@@ -41,6 +41,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,7 +81,7 @@ public final class DereferencePolicy
    * A predefined dereference policy value which indicates that the server
    * should not dereference any aliases that it encounters.
    */
-  public static final DereferencePolicy NEVER =
+  @NotNull public static final DereferencePolicy NEVER =
        new DereferencePolicy("NEVER", 0);
 
 
@@ -90,7 +92,7 @@ public final class DereferencePolicy
    * candidate entries, but it should not dereference the base entry if it
    * happens to be an alias entry.
    */
-  public static final DereferencePolicy SEARCHING =
+  @NotNull public static final DereferencePolicy SEARCHING =
        new DereferencePolicy("SEARCHING", 1);
 
 
@@ -101,7 +103,7 @@ public final class DereferencePolicy
    * it should not dereference any alias entries that may be encountered while
    * examining candidate entries.
    */
-  public static final DereferencePolicy FINDING =
+  @NotNull public static final DereferencePolicy FINDING =
        new DereferencePolicy("FINDING", 2);
 
 
@@ -112,7 +114,7 @@ public final class DereferencePolicy
    * should also dereference any entries that may be encountered while examining
    * candidates.
    */
-  public static final DereferencePolicy ALWAYS =
+  @NotNull public static final DereferencePolicy ALWAYS =
        new DereferencePolicy("ALWAYS", 3);
 
 
@@ -120,8 +122,8 @@ public final class DereferencePolicy
   /**
    * The set of dereference policy objects created with undefined int values.
    */
-  private static final HashMap<Integer,DereferencePolicy> UNDEFINED_POLICIES =
-       new HashMap<>(StaticUtils.computeMapCapacity(10));
+  @NotNull private static final HashMap<Integer,DereferencePolicy>
+       UNDEFINED_POLICIES = new HashMap<>(StaticUtils.computeMapCapacity(10));
 
 
 
@@ -136,7 +138,7 @@ public final class DereferencePolicy
   private final int intValue;
 
   // The name to use for this dereference policy.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -160,7 +162,7 @@ public final class DereferencePolicy
    * @param  name      The name to use for this dereference policy.
    * @param  intValue  The integer value to use for this dereference policy.
    */
-  private DereferencePolicy(final String name, final int intValue)
+  private DereferencePolicy(@NotNull final String name, final int intValue)
   {
     this.name     = name;
     this.intValue = intValue;
@@ -173,6 +175,7 @@ public final class DereferencePolicy
    *
    * @return  The name for this dereference policy.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -202,6 +205,7 @@ public final class DereferencePolicy
    *          dereference policy if the provided value does not match any of the
    *          predefined policies.
    */
+  @NotNull()
   public static DereferencePolicy valueOf(final int intValue)
   {
     switch (intValue)
@@ -242,6 +246,7 @@ public final class DereferencePolicy
    *          {@code null} if the provided value does not match any of the
    *          predefined policies.
    */
+  @Nullable()
   public static DereferencePolicy definedValueOf(final int intValue)
   {
     switch (intValue)
@@ -266,6 +271,7 @@ public final class DereferencePolicy
    *
    * @return  An array of all dereference policies defined in the LDAP SDK.
    */
+  @NotNull()
   public static DereferencePolicy[] values()
   {
     return new DereferencePolicy[]
@@ -301,7 +307,7 @@ public final class DereferencePolicy
    *          is equal to this dereference policy, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -329,6 +335,7 @@ public final class DereferencePolicy
    * @return  A string representation of this dereference policy.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

@@ -93,28 +93,28 @@ public final class StaticUtils
   /**
    * A pre-allocated byte array containing zero bytes.
    */
-  public static final byte[] NO_BYTES = new byte[0];
+  @NotNull public static final byte[] NO_BYTES = new byte[0];
 
 
 
   /**
    * A pre-allocated empty character array.
    */
-  public static final char[] NO_CHARS = new char[0];
+  @NotNull public static final char[] NO_CHARS = new char[0];
 
 
 
   /**
    * A pre-allocated empty control array.
    */
-  public static final Control[] NO_CONTROLS = new Control[0];
+  @NotNull public static final Control[] NO_CONTROLS = new Control[0];
 
 
 
   /**
    * A pre-allocated empty string array.
    */
-  public static final String[] NO_STRINGS = new String[0];
+  @NotNull public static final String[] NO_STRINGS = new String[0];
 
 
 
@@ -122,7 +122,8 @@ public final class StaticUtils
    * The end-of-line marker for the platform on which the LDAP SDK is
    * currently running.
    */
-  public static final String EOL = getSystemProperty("line.separator", "\n");
+  @NotNull public static final String EOL =
+       getSystemProperty("line.separator", "\n");
 
 
 
@@ -130,7 +131,7 @@ public final class StaticUtils
    * The end-of-line marker that consists of a carriage return character
    * followed by a line feed character, as used on Windows systems.
    */
-  public static final String EOL_CR_LF = "\r\n";
+  @NotNull public static final String EOL_CR_LF = "\r\n";
 
 
 
@@ -138,7 +139,7 @@ public final class StaticUtils
    * The end-of-line marker that consists of just the line feed character, as
    * used on UNIX-based systems.
    */
-  public static final String EOL_LF = "\n";
+  @NotNull public static final String EOL_LF = "\n";
 
 
 
@@ -146,7 +147,7 @@ public final class StaticUtils
    * A byte array containing the end-of-line marker for the platform on which
    * the LDAP SDK is currently running.
    */
-  public static final byte[] EOL_BYTES = getBytes(EOL);
+  @NotNull public static final byte[] EOL_BYTES = getBytes(EOL);
 
 
 
@@ -155,7 +156,7 @@ public final class StaticUtils
    * return character followed by a line feed character, as used on Windows
    * systems.
    */
-  public static final byte[] EOL_BYTES_CR_LF = getBytes(EOL_CR_LF);
+  @NotNull public static final byte[] EOL_BYTES_CR_LF = getBytes(EOL_CR_LF);
 
 
 
@@ -163,7 +164,7 @@ public final class StaticUtils
    * A byte array containing the end-of-line marker that consists of just the
    * line feed character, as used on UNIX-based systems.
    */
-  public static final byte[] EOL_BYTES_LF = getBytes(EOL_LF);
+  @NotNull public static final byte[] EOL_BYTES_LF = getBytes(EOL_LF);
 
 
 
@@ -179,7 +180,7 @@ public final class StaticUtils
   /**
    * The thread-local date formatter used to encode generalized time values.
    */
-  private static final ThreadLocal<SimpleDateFormat>
+  @NotNull private static final ThreadLocal<SimpleDateFormat>
        GENERALIZED_TIME_FORMATTERS = new ThreadLocal<>();
 
 
@@ -187,7 +188,7 @@ public final class StaticUtils
   /**
    * The thread-local date formatter used to encode RFC 3339 time values.
    */
-  private static final ThreadLocal<SimpleDateFormat>
+  @NotNull private static final ThreadLocal<SimpleDateFormat>
        RFC_3339_TIME_FORMATTERS = new ThreadLocal<>();
 
 
@@ -196,7 +197,8 @@ public final class StaticUtils
    * The {@code TimeZone} object that represents the UTC (universal coordinated
    * time) time zone.
    */
-  private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+  @NotNull private static final TimeZone UTC_TIME_ZONE =
+       TimeZone.getTimeZone("UTC");
 
 
 
@@ -204,8 +206,8 @@ public final class StaticUtils
    * A set containing the names of attributes that will be considered sensitive
    * by the {@code toCode} methods of various request and data structure types.
    */
-  private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES =
-       setOf("userpassword", "2.5.4.35",
+  @NotNull private static volatile Set<String>
+       TO_CODE_SENSITIVE_ATTRIBUTE_NAMES = setOf("userpassword", "2.5.4.35",
             "authpassword", "1.3.6.1.4.1.4203.1.3.4");
 
 
@@ -270,7 +272,9 @@ public final class StaticUtils
    *          the values of a specified set of system properties) if it is not
    *          possible to get a mutable set of the system properties.
    */
-  public static Properties getSystemProperties(final String... propertyNames)
+  @NotNull()
+  public static Properties getSystemProperties(
+                                @Nullable final String... propertyNames)
   {
     try
     {
@@ -328,7 +332,8 @@ public final class StaticUtils
    *          that variable was not set or its value could not be retrieved
    *          (for example, because a security manager prevents it).
    */
-  public static String getSystemProperty(final String name)
+  @Nullable()
+  public static String getSystemProperty(@NotNull final String name)
   {
     try
     {
@@ -360,8 +365,9 @@ public final class StaticUtils
    *          could not be retrieved (for example, because a security manager
    *          prevents it).
    */
-  public static String getSystemProperty(final String name,
-                                         final String defaultValue)
+  @Nullable()
+  public static String getSystemProperty(@NotNull final String name,
+                                         @Nullable final String defaultValue)
   {
     try
     {
@@ -393,7 +399,9 @@ public final class StaticUtils
    *          did not have a value or if it could not be set (for example,
    *          because a security manager prevents it).
    */
-  public static String setSystemProperty(final String name, final String value)
+  @Nullable()
+  public static String setSystemProperty(@NotNull final String name,
+                                         @Nullable final String value)
   {
     try
     {
@@ -431,7 +439,8 @@ public final class StaticUtils
    *          did not have a value or if it could not be set (for example,
    *          because a security manager prevents it).
    */
-  public static String clearSystemProperty(final String name)
+  @Nullable()
+  public static String clearSystemProperty(@NotNull final String name)
   {
     try
     {
@@ -457,6 +466,7 @@ public final class StaticUtils
    *          set could not be retrieved (for example, because a security
    *          manager prevents it).
    */
+  @NotNull()
   public static Map<String,String> getEnvironmentVariables()
   {
     try
@@ -485,7 +495,8 @@ public final class StaticUtils
    *          if that variable was not set or its value could not be retrieved
    *          (for example, because a security manager prevents it).
    */
-  public static String getEnvironmentVariable(final String name)
+  @Nullable()
+  public static String getEnvironmentVariable(@NotNull final String name)
   {
     try
     {
@@ -517,8 +528,9 @@ public final class StaticUtils
    *          (for example, because a security manager prevents it) and there
    *          is no default value.
    */
-  public static String getEnvironmentVariable(final String name,
-                                              final String defaultValue)
+  @Nullable()
+  public static String getEnvironmentVariable(@NotNull final String name,
+                            @Nullable final String defaultValue)
   {
     final String value = getEnvironmentVariable(name);
     if (value == null)
@@ -541,7 +553,8 @@ public final class StaticUtils
    * @param  logger    The logger whose level should be updated.
    * @param  logLevel  The log level to set for the logger.
    */
-  public static void setLoggerLevel(final Logger logger, final Level logLevel)
+  public static void setLoggerLevel(@NotNull final Logger logger,
+                                    @NotNull final Level logLevel)
   {
     try
     {
@@ -563,8 +576,8 @@ public final class StaticUtils
    * @param  logHandler  The log handler whose level should be updated.
    * @param  logLevel    The log level to set for the log handler.
    */
-  public static void setLogHandlerLevel(final Handler logHandler,
-                                        final Level logLevel)
+  public static void setLogHandlerLevel(@NotNull final Handler logHandler,
+                                        @NotNull final Level logLevel)
   {
     try
     {
@@ -585,7 +598,8 @@ public final class StaticUtils
    *
    * @return  The UTF-8 byte representation for the provided string.
    */
-  public static byte[] getBytes(final String s)
+  @NotNull()
+  public static byte[] getBytes(@Nullable final String s)
   {
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -624,7 +638,7 @@ public final class StaticUtils
    * @return  {@code true} if the contents of the provided array represent an
    *          ASCII string, or {@code false} if not.
    */
-  public static boolean isASCIIString(final byte[] b)
+  public static boolean isASCIIString(@NotNull final byte[] b)
   {
     for (final byte by : b)
     {
@@ -651,7 +665,7 @@ public final class StaticUtils
    * @return  {@code true} if the contents of the provided string represent an
    *          ASCII string, or {@code false} if not.
    */
-  public static boolean isASCIIString(final String s)
+  public static boolean isASCIIString(@NotNull final String s)
   {
     return isASCIIString(getBytes(s));
   }
@@ -728,7 +742,7 @@ public final class StaticUtils
    * @return  {@code true} if the contents of the provided byte array represent
    *          a printable LDAP string, or {@code false} if not.
    */
-  public static boolean isPrintableString(final byte[] b)
+  public static boolean isPrintableString(@NotNull final byte[] b)
   {
     for (final byte by : b)
     {
@@ -792,7 +806,7 @@ public final class StaticUtils
    * @return  {@code true} if the provided string represents a printable LDAP
    *          string, or {@code false} if not.
    */
-  public static boolean isPrintableString(final String s)
+  public static boolean isPrintableString(@NotNull final String s)
   {
     final int length = s.length();
     for (int i=0; i < length; i++)
@@ -843,7 +857,7 @@ public final class StaticUtils
    * @return  {@code true} if the byte array can be parsed as a valid UTF-8
    *          string, or {@code false} if not.
    */
-  public static boolean isValidUTF8(final byte[] b)
+  public static boolean isValidUTF8(@NotNull final byte[] b)
   {
     int i = 0;
     while (i < b.length)
@@ -945,7 +959,7 @@ public final class StaticUtils
    * @return  {@code true} if the provided byte array has the expected number of
    *          bytes that start with 0b10, or {@code false} if not.
    */
-  private static boolean hasExpectedSubsequentUTF8Bytes(final byte[] b,
+  private static boolean hasExpectedSubsequentUTF8Bytes(@NotNull final byte[] b,
                                                         final int p,
                                                         final int n)
   {
@@ -976,7 +990,8 @@ public final class StaticUtils
    * @return  The string generated from the provided byte array using the UTF-8
    *          encoding.
    */
-  public static String toUTF8String(final byte[] b)
+  @NotNull()
+  public static String toUTF8String(@NotNull final byte[] b)
   {
     try
     {
@@ -1003,7 +1018,8 @@ public final class StaticUtils
    * @return  The string generated from the specified portion of the provided
    *          byte array using the UTF-8 encoding.
    */
-  public static String toUTF8String(final byte[] b, final int offset,
+  @NotNull()
+  public static String toUTF8String(@NotNull final byte[] b, final int offset,
                                     final int length)
   {
     try
@@ -1029,9 +1045,11 @@ public final class StaticUtils
    *
    * @return  A version of the provided string with the first character
    *          converted to lowercase but all other characters retaining their
-   *          original capitalization.
+   *          original capitalization.  It may be {@code null} if the provided
+   *          string is {@code null}.
    */
-  public static String toInitialLowerCase(final String s)
+  @Nullable()
+  public static String toInitialLowerCase(@Nullable final String s)
   {
     if ((s == null) || s.isEmpty())
     {
@@ -1064,9 +1082,11 @@ public final class StaticUtils
    *
    * @param  s  The string for which to retrieve the lowercase version.
    *
-   * @return  An all-lowercase version of the provided string.
+   * @return  An all-lowercase version of the provided string, or {@code null}
+   *          if the provided string was {@code null}.
    */
-  public static String toLowerCase(final String s)
+  @Nullable()
+  public static String toLowerCase(@Nullable final String s)
   {
     if (s == null)
     {
@@ -1176,9 +1196,11 @@ public final class StaticUtils
    *
    * @param  s  The string for which to retrieve the uppercase version.
    *
-   * @return  An all-uppercase version of the provided string.
+   * @return  An all-uppercase version of the provided string, or {@code null}
+   *          if the provided string was {@code null}.
    */
-  public static String toUpperCase(final String s)
+  @Nullable()
+  public static String toUpperCase(@Nullable final String s)
   {
     if (s == null)
     {
@@ -1351,7 +1373,7 @@ public final class StaticUtils
    * @param  buffer  The buffer to which the hexadecimal representation is to be
    *                 appended.
    */
-  public static void toHex(final byte b, final StringBuilder buffer)
+  public static void toHex(final byte b, @NotNull final StringBuilder buffer)
   {
     switch (b & 0xF0)
     {
@@ -1471,7 +1493,8 @@ public final class StaticUtils
    * @return  A string containing a hexadecimal representation of the contents
    *          of the provided byte array.
    */
-  public static String toHex(final byte[] b)
+  @NotNull()
+  public static String toHex(@NotNull final byte[] b)
   {
     Validator.ensureNotNull(b);
 
@@ -1492,7 +1515,8 @@ public final class StaticUtils
    * @param  buffer  A buffer to which the hexadecimal representation of the
    *                 contents of the provided byte array should be appended.
    */
-  public static void toHex(final byte[] b, final StringBuilder buffer)
+  public static void toHex(@NotNull final byte[] b,
+                           @NotNull final StringBuilder buffer)
   {
     toHex(b, null, buffer);
   }
@@ -1511,8 +1535,9 @@ public final class StaticUtils
    * @param  buffer     A buffer to which the hexadecimal representation of the
    *                    contents of the provided byte array should be appended.
    */
-  public static void toHex(final byte[] b, final String delimiter,
-                           final StringBuilder buffer)
+  public static void toHex(@NotNull final byte[] b,
+                           @Nullable final String delimiter,
+                           @NotNull final StringBuilder buffer)
   {
     boolean first = true;
     for (final byte bt : b)
@@ -1549,7 +1574,9 @@ public final class StaticUtils
    *          array, along with an ASCII representation of its contents next to
    *          it.
    */
-  public static String toHexPlusASCII(final byte[] array, final int indent)
+  @NotNull()
+  public static String toHexPlusASCII(@NotNull final byte[] array,
+                                      final int indent)
   {
     final StringBuilder buffer = new StringBuilder();
     toHexPlusASCII(array, indent, buffer);
@@ -1572,8 +1599,9 @@ public final class StaticUtils
    *                 first hex byte.
    * @param  buffer  The buffer to which the encoded data should be appended.
    */
-  public static void toHexPlusASCII(final byte[] array, final int indent,
-                                    final StringBuilder buffer)
+  public static void toHexPlusASCII(@Nullable final byte[] array,
+                                    final int indent,
+                                    @NotNull final StringBuilder buffer)
   {
     if ((array == null) || (array.length == 0))
     {
@@ -1623,26 +1651,23 @@ public final class StaticUtils
     if ((array.length % 16) != 0)
     {
       final int missingBytes = (16 - (array.length % 16));
-      if (missingBytes > 0)
+      for (int i=0; i < missingBytes; i++)
       {
-        for (int i=0; i < missingBytes; i++)
-        {
-          buffer.append("   ");
-        }
-        buffer.append("  ");
-        for (int i=startPos; i < array.length; i++)
-        {
-          if ((array[i] < ' ') || (array[i] > '~'))
-          {
-            buffer.append(' ');
-          }
-          else
-          {
-            buffer.append((char) array[i]);
-          }
-        }
-        buffer.append(EOL);
+        buffer.append("   ");
       }
+      buffer.append("  ");
+      for (int i=startPos; i < array.length; i++)
+      {
+        if ((array[i] < ' ') || (array[i] > '~'))
+        {
+          buffer.append(' ');
+        }
+        else
+        {
+          buffer.append((char) array[i]);
+        }
+      }
+      buffer.append(EOL);
     }
   }
 
@@ -1661,7 +1686,8 @@ public final class StaticUtils
    *                          hexadecimal data, or if the provided string does
    *                          not contain an even number of characters.
    */
-  public static byte[] fromHex(final String hexString)
+  @NotNull()
+  public static byte[] fromHex(@NotNull final String hexString)
          throws ParseException
   {
     if ((hexString.length() % 2) != 0)
@@ -1810,7 +1836,8 @@ public final class StaticUtils
    * @param  buffer  The buffer to which the hex-encoded representation should
    *                 be appended.
    */
-  public static void hexEncode(final char c, final StringBuilder buffer)
+  public static void hexEncode(final char c,
+                               @NotNull final StringBuilder buffer)
   {
     final byte[] charBytes;
     if (c <= 0x7F)
@@ -1840,7 +1867,8 @@ public final class StaticUtils
    * @param  buffer     The buffer to which the hex-encoded representation
    *                    should be appended.
    */
-  public static void hexEncode(final int codePoint, final StringBuilder buffer)
+  public static void hexEncode(final int codePoint,
+                               @NotNull final StringBuilder buffer)
   {
     final byte[] charBytes =
          getBytes(new String(new int[] { codePoint }, 0, 1));
@@ -1862,8 +1890,8 @@ public final class StaticUtils
    *                 not be {@code null}.
    * @param  buffer  The buffer to which the code should be appended.
    */
-  public static void byteArrayToCode(final byte[] array,
-                                     final StringBuilder buffer)
+  public static void byteArrayToCode(@NotNull final byte[] array,
+                                     @NotNull final StringBuilder buffer)
   {
     buffer.append("new byte[] {");
     for (int i=0; i < array.length; i++)
@@ -1893,7 +1921,8 @@ public final class StaticUtils
    * @return  A single-line string representation of the stack trace for the
    *          provided {@code Throwable}.
    */
-  public static String getStackTrace(final Throwable t)
+  @NotNull()
+  public static String getStackTrace(@NotNull final Throwable t)
   {
     final StringBuilder buffer = new StringBuilder();
     getStackTrace(t, buffer);
@@ -1913,8 +1942,8 @@ public final class StaticUtils
    *                 trace.
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public static void getStackTrace(final Throwable t,
-                                   final StringBuilder buffer)
+  public static void getStackTrace(@NotNull final Throwable t,
+                                   @NotNull final StringBuilder buffer)
   {
     buffer.append(getUnqualifiedClassName(t.getClass()));
     buffer.append('(');
@@ -1959,7 +1988,9 @@ public final class StaticUtils
    *
    * @return  A single-line string representation of the stack trace.
    */
-  public static String getStackTrace(final StackTraceElement[] elements)
+  @NotNull()
+  public static String getStackTrace(
+                            @NotNull final StackTraceElement[] elements)
   {
     final StringBuilder buffer = new StringBuilder();
     getStackTrace(elements, buffer);
@@ -1976,8 +2007,8 @@ public final class StaticUtils
    * @param  elements  The stack trace.
    * @param  buffer    The buffer to which the information should be appended.
    */
-  public static void getStackTrace(final StackTraceElement[] elements,
-                                   final StringBuilder buffer)
+  public static void getStackTrace(@NotNull final StackTraceElement[] elements,
+                                   @NotNull final StringBuilder buffer)
   {
     getStackTrace(elements, buffer, -1);
   }
@@ -1999,8 +2030,8 @@ public final class StaticUtils
    *                          things that it calls) will be included.  A
    *                          negative value indicates that
    */
-  public static void getStackTrace(final StackTraceElement[] elements,
-                                   final StringBuilder buffer,
+  public static void getStackTrace(@NotNull final StackTraceElement[] elements,
+                                   @NotNull final StringBuilder buffer,
                                    final int maxPreSDKFrames)
   {
     boolean sdkElementFound = false;
@@ -2069,7 +2100,8 @@ public final class StaticUtils
    * @return  A string representation of the provided {@code Throwable} object
    *          suitable for use in a message.
    */
-  public static String getExceptionMessage(final Throwable t)
+  @NotNull()
+  public static String getExceptionMessage(@NotNull final Throwable t)
   {
     final boolean includeCause =
          Boolean.getBoolean(Debug.PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES);
@@ -2103,7 +2135,8 @@ public final class StaticUtils
    * @return  A string representation of the provided {@code Throwable} object
    *          suitable for use in a message.
    */
-  public static String getExceptionMessage(final Throwable t,
+  @NotNull()
+  public static String getExceptionMessage(@Nullable final Throwable t,
                                            final boolean includeCause,
                                            final boolean includeStackTrace)
   {
@@ -2178,7 +2211,8 @@ public final class StaticUtils
    *
    * @return  The unqualified name for the provided class.
    */
-  public static String getUnqualifiedClassName(final Class<?> c)
+  @NotNull()
+  public static String getUnqualifiedClassName(@NotNull final Class<?> c)
   {
     final String className     = c.getName();
     final int    lastPeriodPos = className.lastIndexOf('.');
@@ -2201,6 +2235,7 @@ public final class StaticUtils
    *
    * @return  A {@code TimeZone} object that represents the UTC time zone.
    */
+  @NotNull()
   public static TimeZone getUTCTimeZone()
   {
     return UTC_TIME_ZONE;
@@ -2219,6 +2254,7 @@ public final class StaticUtils
    *
    * @return  The generalized time representation of the provided date.
    */
+  @NotNull()
   public static String encodeGeneralizedTime(final long timestamp)
   {
     return encodeGeneralizedTime(new Date(timestamp));
@@ -2233,7 +2269,8 @@ public final class StaticUtils
    *
    * @return  The generalized time representation of the provided date.
    */
-  public static String encodeGeneralizedTime(final Date d)
+  @NotNull()
+  public static String encodeGeneralizedTime(@NotNull final Date d)
   {
     SimpleDateFormat dateFormat = GENERALIZED_TIME_FORMATTERS.get();
     if (dateFormat == null)
@@ -2258,7 +2295,8 @@ public final class StaticUtils
    * @throws  ParseException  If the provided string could not be decoded as a
    *                          timestamp in generalized time format.
    */
-  public static Date decodeGeneralizedTime(final String t)
+  @NotNull()
+  public static Date decodeGeneralizedTime(@NotNull final String t)
          throws ParseException
   {
     Validator.ensureNotNull(t);
@@ -2380,6 +2418,7 @@ public final class StaticUtils
    *
    * @return  The RFC 3339 representation of the provided date.
    */
+  @NotNull()
   public static String encodeRFC3339Time(final long timestamp)
   {
     return encodeRFC3339Time(new Date(timestamp));
@@ -2395,7 +2434,8 @@ public final class StaticUtils
    *
    * @return  The RFC 3339 representation of the provided date.
    */
-  public static String encodeRFC3339Time(final Date d)
+  @NotNull()
+  public static String encodeRFC3339Time(@NotNull final Date d)
   {
     SimpleDateFormat dateFormat = RFC_3339_TIME_FORMATTERS.get();
     if (dateFormat == null)
@@ -2421,7 +2461,8 @@ public final class StaticUtils
    * @throws  ParseException  If the provided string could not be decoded as a
    *                          timestamp in the RFC 3339 time format.
    */
-  public static Date decodeRFC3339Time(final String timestamp)
+  @NotNull()
+  public static Date decodeRFC3339Time(@NotNull final String timestamp)
          throws ParseException
   {
     // Make sure that the string representation has the minimum acceptable
@@ -2703,7 +2744,7 @@ public final class StaticUtils
    * expected
    */
   private static void validateRFC3339TimestampSeparatorCharacter(
-                           final String timestamp, final int pos,
+                           @NotNull final String timestamp, final int pos,
                            final char expectedChar)
           throws ParseException
   {
@@ -2730,8 +2771,8 @@ public final class StaticUtils
    * @throws  ParseException  If a problem is encountered while trying to parse
    *                          the number from the timestamp.
    */
-  private static int parseRFC3339Number(final String timestamp, final int pos,
-                                        final int numDigits)
+  private static int parseRFC3339Number(@NotNull final String timestamp,
+                                        final int pos, final int numDigits)
           throws ParseException
   {
     int value = 0;
@@ -2793,7 +2834,8 @@ public final class StaticUtils
    *          may be an empty string if the provided string was an empty string
    *          or contained only spaces.
    */
-  public static String trimLeading(final String s)
+  @NotNull()
+  public static String trimLeading(@NotNull final String s)
   {
     Validator.ensureNotNull(s);
 
@@ -2834,7 +2876,8 @@ public final class StaticUtils
    *          It may be an empty string if the provided string was an empty
    *          string or contained only spaces.
    */
-  public static String trimTrailing(final String s)
+  @NotNull()
+  public static String trimTrailing(@NotNull final String s)
   {
     Validator.ensureNotNull(s);
 
@@ -2878,7 +2921,9 @@ public final class StaticUtils
    * @return  A list of the wrapped lines.  It may be empty if the provided line
    *          contained only spaces.
    */
-  public static List<String> wrapLine(final String line, final int maxWidth)
+  @NotNull()
+  public static List<String> wrapLine(@NotNull final String line,
+                                      final int maxWidth)
   {
     return wrapLine(line, maxWidth, maxWidth);
   }
@@ -2905,7 +2950,8 @@ public final class StaticUtils
    * @return  A list of the wrapped lines.  It may be empty if the provided line
    *          contained only spaces.
    */
-  public static List<String> wrapLine(final String line,
+  @NotNull()
+  public static List<String> wrapLine(@NotNull final String line,
                                       final int maxFirstLineWidth,
                                       final int maxSubsequentLineWidth)
   {
@@ -2983,10 +3029,7 @@ public final class StaticUtils
         else
         {
           final String s = line.substring(lastWrapPos);
-          if (! s.isEmpty())
-          {
-            lineList.add(s);
-          }
+          lineList.add(s);
           break;
         }
       }
@@ -3016,7 +3059,8 @@ public final class StaticUtils
    * @return  A cleaned version of the provided string in a form that will allow
    *          it to be displayed as the value of a command-line argument on.
    */
-  public static String cleanExampleCommandLineArgument(final String s)
+  @NotNull()
+  public static String cleanExampleCommandLineArgument(@NotNull final String s)
   {
     return ExampleCommandLineArgument.getCleanArgument(s).getLocalForm();
   }
@@ -3028,12 +3072,13 @@ public final class StaticUtils
    * strings.
    *
    * @param  a  The array of strings to concatenate.  It must not be
-   *            {@code null}.
+   *            {@code null} but may be empty.
    *
    * @return  A string containing a concatenation of all of the strings in the
    *          provided array.
    */
-  public static String concatenateStrings(final String... a)
+  @NotNull()
+  public static String concatenateStrings(@NotNull final String... a)
   {
     return concatenateStrings(null, null, "  ", null, null, a);
   }
@@ -3045,12 +3090,13 @@ public final class StaticUtils
    * strings.
    *
    * @param  l  The list of strings to concatenate.  It must not be
-   *            {@code null}.
+   *            {@code null} but may be empty.
    *
    * @return  A string containing a concatenation of all of the strings in the
    *          provided list.
    */
-  public static String concatenateStrings(final List<String> l)
+  @NotNull()
+  public static String concatenateStrings(@NotNull final List<String> l)
   {
     return concatenateStrings(null, null, "  ", null, null, l);
   }
@@ -3079,17 +3125,18 @@ public final class StaticUtils
    *                          list.  It may be {@code null} or empty if nothing
    *                          should be placed at the end of the list.
    * @param  a                The array of strings to concatenate.  It must not
-   *                          be {@code null}.
+   *                          be {@code null} but may be empty.
    *
    * @return  A string containing a concatenation of all of the strings in the
    *          provided list.
    */
-  public static String concatenateStrings(final String beforeList,
-                                          final String beforeElement,
-                                          final String betweenElements,
-                                          final String afterElement,
-                                          final String afterList,
-                                          final String... a)
+  @NotNull()
+  public static String concatenateStrings(@Nullable final String beforeList,
+                            @Nullable final String beforeElement,
+                            @Nullable final String betweenElements,
+                            @Nullable final String afterElement,
+                            @Nullable final String afterList,
+                            @NotNull final String... a)
   {
     return concatenateStrings(beforeList, beforeElement, betweenElements,
          afterElement, afterList, Arrays.asList(a));
@@ -3119,17 +3166,18 @@ public final class StaticUtils
    *                          list.  It may be {@code null} or empty if nothing
    *                          should be placed at the end of the list.
    * @param  l                The list of strings to concatenate.  It must not
-   *                          be {@code null}.
+   *                          be {@code null} but may be empty.
    *
    * @return  A string containing a concatenation of all of the strings in the
    *          provided list.
    */
-  public static String concatenateStrings(final String beforeList,
-                                          final String beforeElement,
-                                          final String betweenElements,
-                                          final String afterElement,
-                                          final String afterList,
-                                          final List<String> l)
+  @NotNull()
+  public static String concatenateStrings(@Nullable final String beforeList,
+                            @Nullable final String beforeElement,
+                            @Nullable final String betweenElements,
+                            @Nullable final String afterElement,
+                            @Nullable final String afterList,
+                            @NotNull final List<String> l)
   {
     Validator.ensureNotNull(l);
 
@@ -3181,6 +3229,7 @@ public final class StaticUtils
    * @return  A string containing a human-readable representation of the
    *          provided time.
    */
+  @NotNull()
   public static String secondsToHumanReadableDuration(final long s)
   {
     return millisToHumanReadableDuration(s * 1000L);
@@ -3198,6 +3247,7 @@ public final class StaticUtils
    * @return  A string containing a human-readable representation of the
    *          provided time.
    */
+  @NotNull()
   public static String millisToHumanReadableDuration(final long m)
   {
     final StringBuilder buffer = new StringBuilder();
@@ -3331,7 +3381,7 @@ public final class StaticUtils
    * @return  {@code true} if the provided string is a valid numeric OID, or
    *          {@code false} if not.
    */
-  public static boolean isNumericOID(final String s)
+  public static boolean isNumericOID(@NotNull final String s)
   {
     boolean digitRequired = true;
     boolean periodFound   = false;
@@ -3381,9 +3431,11 @@ public final class StaticUtils
    *
    * @param  s  The string to be capitalized.
    *
-   * @return  A capitalized version of the provided string.
+   * @return  A capitalized version of the provided string, or {@code null} if
+   *          the provided string was {@code null}.
    */
-  public static String capitalize(final String s)
+  @Nullable()
+  public static String capitalize(@Nullable final String s)
   {
     return capitalize(s, false);
   }
@@ -3398,9 +3450,12 @@ public final class StaticUtils
    * @param  allWords  Indicates whether to capitalize all words in the string,
    *                   or only the first word.
    *
-   * @return  A capitalized version of the provided string.
+   * @return  A capitalized version of the provided string, or {@code null} if
+   *          the provided string was {@code null}.
    */
-  public static String capitalize(final String s, final boolean allWords)
+  @Nullable()
+  public static String capitalize(@Nullable final String s,
+                                  final boolean allWords)
   {
     if (s == null)
     {
@@ -3455,7 +3510,8 @@ public final class StaticUtils
    *
    * @return  The byte array containing the 128-bit encoded UUID.
    */
-  public static byte[] encodeUUID(final UUID uuid)
+  @NotNull()
+  public static byte[] encodeUUID(@NotNull final UUID uuid)
   {
     final byte[] b = new byte[16];
 
@@ -3495,7 +3551,8 @@ public final class StaticUtils
    * @throws  ParseException  If the provided byte array cannot be parsed as a
    *                         UUID.
    */
-  public static UUID decodeUUID(final byte[] b)
+  @NotNull()
+  public static UUID decodeUUID(@NotNull final byte[] b)
          throws ParseException
   {
     if (b.length != 16)
@@ -3553,6 +3610,7 @@ public final class StaticUtils
    *          all but the last line of a multi-line command to indicate that the
    *          command continues onto the next line.
    */
+  @NotNull()
   public static String getCommandLineContinuationString()
   {
     if (isWindows())
@@ -3579,7 +3637,8 @@ public final class StaticUtils
    * @throws  ParseException  If a problem is encountered while attempting to
    *                          parse the given string to an argument list.
    */
-  public static List<String> toArgumentList(final String s)
+  @NotNull()
+  public static List<String> toArgumentList(@Nullable final String s)
          throws ParseException
   {
     if ((s == null) || s.isEmpty())
@@ -3664,10 +3723,12 @@ public final class StaticUtils
    * @param  collection  The collection to convert to an array.
    * @param  type        The type of element contained in the collection.
    *
-   * @return  An array containing the elements of the provided list.
+   * @return  An array containing the elements of the provided list, or
+   *          {@code null} if the provided list is {@code null}.
    */
-  public static <T> T[] toArray(final Collection<T> collection,
-                                final Class<T> type)
+  @Nullable()
+  public static <T> T[] toArray(@Nullable final Collection<T> collection,
+                                @NotNull final Class<T> type)
   {
     if (collection == null)
     {
@@ -3695,7 +3756,8 @@ public final class StaticUtils
    * @return  The list that was created, or {@code null} if the provided array
    *          was {@code null}.
    */
-  public static <T> List<T> toList(final T[] array)
+  @Nullable()
+  public static <T> List<T> toList(@Nullable final T[] array)
   {
     if (array == null)
     {
@@ -3722,7 +3784,8 @@ public final class StaticUtils
    * @return  The list that was created, or an empty list if the provided array
    *          was {@code null}.
    */
-  public static <T> List<T> toNonNullList(final T[] array)
+  @NotNull()
+  public static <T> List<T> toNonNullList(@Nullable final T[] array)
   {
     if (array == null)
     {
@@ -3747,7 +3810,8 @@ public final class StaticUtils
    *          logically equal, or {@code false} if only one of the objects is
    *          {@code null} or they are not logically equal.
    */
-  public static boolean bothNullOrEqual(final Object o1, final Object o2)
+  public static boolean bothNullOrEqual(@Nullable final Object o1,
+                                        @Nullable final Object o2)
   {
     if (o1 == null)
     {
@@ -3776,8 +3840,8 @@ public final class StaticUtils
    *          {@code false} if only one of the objects is {@code null} or they
    *          are not logically equal ignoring capitalization.
    */
-  public static boolean bothNullOrEqualIgnoreCase(final String s1,
-                                                  final String s2)
+  public static boolean bothNullOrEqualIgnoreCase(@Nullable final String s1,
+                                                  @Nullable final String s2)
   {
     if (s1 == null)
     {
@@ -3806,7 +3870,8 @@ public final class StaticUtils
    *          {@code false} if not.
    */
   public static boolean stringsEqualIgnoreCaseOrderIndependent(
-                             final String[] a1, final String[] a2)
+                             @Nullable final String[] a1,
+                             @Nullable final String[] a2)
   {
     if (a1 == null)
     {
@@ -3858,8 +3923,8 @@ public final class StaticUtils
    * @return  {@code true} if both arrays have the same set of elements, or
    *          {@code false} if not.
    */
-  public static <T> boolean arraysEqualOrderIndependent(final T[] a1,
-                                                        final T[] a2)
+  public static <T> boolean arraysEqualOrderIndependent(@Nullable final T[] a1,
+                                                        @Nullable final T[] a2)
   {
     if (a1 == null)
     {
@@ -3935,7 +4000,7 @@ public final class StaticUtils
    * @return  {@code true} if the specified attribute is one that should be
    *          considered sensitive for the
    */
-  public static boolean isSensitiveToCodeAttribute(final String name)
+  public static boolean isSensitiveToCodeAttribute(@NotNull final String name)
   {
     final String lowerBaseName = Attribute.getBaseName(name).toLowerCase();
     return TO_CODE_SENSITIVE_ATTRIBUTE_NAMES.contains(lowerBaseName);
@@ -3953,6 +4018,7 @@ public final class StaticUtils
    *          any attributes that should be considered sensitive for the
    *          purposes of the {@code toCode} methods.
    */
+  @NotNull()
   public static Set<String> getSensitiveToCodeAttributeBaseNames()
   {
     return TO_CODE_SENSITIVE_ATTRIBUTE_NAMES;
@@ -3969,7 +4035,8 @@ public final class StaticUtils
    *                It may be {@code null} or empty if no attributes should be
    *                considered sensitive.
    */
-  public static void setSensitiveToCodeAttributes(final String... names)
+  public static void setSensitiveToCodeAttributes(
+                          @Nullable final String... names)
   {
     setSensitiveToCodeAttributes(toList(names));
   }
@@ -3986,7 +4053,7 @@ public final class StaticUtils
    *                considered sensitive.
    */
   public static void setSensitiveToCodeAttributes(
-                          final Collection<String> names)
+                          @Nullable final Collection<String> names)
   {
     if ((names == null) || names.isEmpty())
     {
@@ -4020,8 +4087,10 @@ public final class StaticUtils
    *
    * @return  The {@code IOException} object that was created.
    */
-  public static IOException createIOExceptionWithCause(final String message,
-                                                       final Throwable cause)
+  @NotNull()
+  public static IOException createIOExceptionWithCause(
+                                 @Nullable final String message,
+                                 @Nullable final Throwable cause)
   {
     if (cause == null)
     {
@@ -4047,7 +4116,8 @@ public final class StaticUtils
    *
    * @return  A list containing the lines that comprise the given string.
    */
-  public static List<String> stringToLines(final String s)
+  @NotNull()
+  public static List<String> stringToLines(@Nullable final String s)
   {
     final ArrayList<String> l = new ArrayList<>(10);
 
@@ -4114,7 +4184,8 @@ public final class StaticUtils
    * @return  The string resulting from concatenating the provided lines with
    *          line breaks.
    */
-  public static String linesToString(final CharSequence... lines)
+  @NotNull()
+  public static String linesToString(@Nullable final CharSequence... lines)
   {
     if (lines == null)
     {
@@ -4136,7 +4207,9 @@ public final class StaticUtils
    * @return  The string resulting from concatenating the provided lines with
    *          line breaks.
    */
-  public static String linesToString(final List<? extends CharSequence> lines)
+  @NotNull()
+  public static String linesToString(
+                            @Nullable final List<? extends CharSequence> lines)
   {
     if (lines == null)
     {
@@ -4172,8 +4245,9 @@ public final class StaticUtils
    *
    * @return  The constructed {@code File} object.
    */
-  public static File constructPath(final File baseDirectory,
-                                   final String... pathElements)
+  @NotNull()
+  public static File constructPath(@NotNull final File baseDirectory,
+                                   @Nullable final String... pathElements)
   {
     Validator.ensureNotNull(baseDirectory);
 
@@ -4200,7 +4274,8 @@ public final class StaticUtils
    *
    * @return  A byte array with the provided set of values.
    */
-  public static byte[] byteArray(final int... bytes)
+  @NotNull()
+  public static byte[] byteArray(@Nullable final int... bytes)
   {
     if ((bytes == null) || (bytes.length == 0))
     {
@@ -4250,7 +4325,8 @@ public final class StaticUtils
    *                            exception and that checked exception will be
    *                            re-thrown as a {@code RuntimeException}.
    */
-  public static void throwErrorOrRuntimeException(final Throwable throwable)
+  public static void throwErrorOrRuntimeException(
+                          @NotNull final Throwable throwable)
          throws Error, RuntimeException
   {
     Validator.ensureNotNull(throwable);
@@ -4288,7 +4364,8 @@ public final class StaticUtils
    *                            {@code RuntimeException} instance will be
    *                            re-thrown.
    */
-  public static void rethrowIfErrorOrRuntimeException(final Throwable throwable)
+  public static void rethrowIfErrorOrRuntimeException(
+                          @NotNull final Throwable throwable)
          throws Error, RuntimeException
   {
     if (throwable instanceof Error)
@@ -4315,7 +4392,7 @@ public final class StaticUtils
    *                 {@code Error} instance, then that {@code Error} instance
    *                 will be re-thrown.
    */
-  public static void rethrowIfError(final Throwable throwable)
+  public static void rethrowIfError(@NotNull final Throwable throwable)
          throws Error
   {
     if (throwable instanceof Error)
@@ -4467,7 +4544,8 @@ public final class StaticUtils
    */
   @SafeVarargs()
   @SuppressWarnings("varargs")
-  public static <T> Set<T> setOf(final T... items)
+  @NotNull()
+  public static <T> Set<T> setOf(@NotNull final T... items)
   {
     return Collections.unmodifiableSet(
          new LinkedHashSet<>(Arrays.asList(items)));
@@ -4486,7 +4564,8 @@ public final class StaticUtils
    */
   @SafeVarargs()
   @SuppressWarnings("varargs")
-  public static <T> HashSet<T> hashSetOf(final T... items)
+  @NotNull()
+  public static <T> HashSet<T> hashSetOf(@NotNull final T... items)
   {
     return new HashSet<>(Arrays.asList(items));
   }
@@ -4504,7 +4583,8 @@ public final class StaticUtils
    */
   @SafeVarargs()
   @SuppressWarnings("varargs")
-  public static <T> LinkedHashSet<T> linkedHashSetOf(final T... items)
+  @NotNull()
+  public static <T> LinkedHashSet<T> linkedHashSetOf(@NotNull final T... items)
   {
     return new LinkedHashSet<>(Arrays.asList(items));
   }
@@ -4522,7 +4602,8 @@ public final class StaticUtils
    */
   @SafeVarargs()
   @SuppressWarnings("varargs")
-  public static <T> TreeSet<T> treeSetOf(final T... items)
+  @NotNull()
+  public static <T> TreeSet<T> treeSetOf(@NotNull final T... items)
   {
     return new TreeSet<>(Arrays.asList(items));
   }
@@ -4539,7 +4620,9 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key, final V value)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key,
+                                     @NotNull final V value)
   {
     return Collections.singletonMap(key, value);
   }
@@ -4558,8 +4641,11 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(2));
 
@@ -4585,9 +4671,13 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(3));
 
@@ -4616,10 +4706,15 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(4));
 
@@ -4651,11 +4746,17 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4,
-                                     final K key5, final V value5)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4,
+                                     @NotNull final K key5,
+                                     @NotNull final V value5)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(5));
 
@@ -4690,12 +4791,19 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4,
-                                     final K key5, final V value5,
-                                     final K key6, final V value6)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4,
+                                     @NotNull final K key5,
+                                     @NotNull final V value5,
+                                     @NotNull final K key6,
+                                     @NotNull final V value6)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(6));
 
@@ -4733,13 +4841,21 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4,
-                                     final K key5, final V value5,
-                                     final K key6, final V value6,
-                                     final K key7, final V value7)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4,
+                                     @NotNull final K key5,
+                                     @NotNull final V value5,
+                                     @NotNull final K key6,
+                                     @NotNull final V value6,
+                                     @NotNull final K key7,
+                                     @NotNull final V value7)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(7));
 
@@ -4780,14 +4896,23 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4,
-                                     final K key5, final V value5,
-                                     final K key6, final V value6,
-                                     final K key7, final V value7,
-                                     final K key8, final V value8)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4,
+                                     @NotNull final K key5,
+                                     @NotNull final V value5,
+                                     @NotNull final K key6,
+                                     @NotNull final V value6,
+                                     @NotNull final K key7,
+                                     @NotNull final V value7,
+                                     @NotNull final K key8,
+                                     @NotNull final V value8)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(8));
 
@@ -4831,15 +4956,25 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4,
-                                     final K key5, final V value5,
-                                     final K key6, final V value6,
-                                     final K key7, final V value7,
-                                     final K key8, final V value8,
-                                     final K key9, final V value9)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4,
+                                     @NotNull final K key5,
+                                     @NotNull final V value5,
+                                     @NotNull final K key6,
+                                     @NotNull final V value6,
+                                     @NotNull final K key7,
+                                     @NotNull final V value7,
+                                     @NotNull final K key8,
+                                     @NotNull final V value8,
+                                     @NotNull final K key9,
+                                     @NotNull final V value9)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(9));
 
@@ -4886,16 +5021,27 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
-  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
-                                     final K key2, final V value2,
-                                     final K key3, final V value3,
-                                     final K key4, final V value4,
-                                     final K key5, final V value5,
-                                     final K key6, final V value6,
-                                     final K key7, final V value7,
-                                     final K key8, final V value8,
-                                     final K key9, final V value9,
-                                     final K key10, final V value10)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOf(@NotNull final K key1,
+                                     @NotNull final V value1,
+                                     @NotNull final K key2,
+                                     @NotNull final V value2,
+                                     @NotNull final K key3,
+                                     @NotNull final V value3,
+                                     @NotNull final K key4,
+                                     @NotNull final V value4,
+                                     @NotNull final K key5,
+                                     @NotNull final V value5,
+                                     @NotNull final K key6,
+                                     @NotNull final V value6,
+                                     @NotNull final K key7,
+                                     @NotNull final V value7,
+                                     @NotNull final K key8,
+                                     @NotNull final V value8,
+                                     @NotNull final K key9,
+                                     @NotNull final V value9,
+                                     @NotNull final K key10,
+                                     @NotNull final V value10)
   {
     final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(10));
 
@@ -4930,7 +5076,8 @@ public final class StaticUtils
    * @return  The unmodifiable map that was created.
    */
   @SafeVarargs()
-  public static <T> Map<T,T> mapOf(final T... items)
+  @NotNull()
+  public static <T> Map<T,T> mapOf(@Nullable final T... items)
   {
     if ((items == null) || (items.length == 0))
     {
@@ -4963,7 +5110,9 @@ public final class StaticUtils
    * @return  The unmodifiable map that was created.
    */
   @SafeVarargs()
-  public static <K,V> Map<K,V> mapOfObjectPairs(final ObjectPair<K,V>... items)
+  @NotNull()
+  public static <K,V> Map<K,V> mapOfObjectPairs(
+                                    @Nullable final ObjectPair<K,V>... items)
   {
     if ((items == null) || (items.length == 0))
     {
@@ -4992,8 +5141,9 @@ public final class StaticUtils
    *
    * @return  A set of the local addresses that were identified.
    */
+  @NotNull()
   public static Set<InetAddress> getAllLocalAddresses(
-                                      final NameResolver nameResolver)
+                                      @Nullable final NameResolver nameResolver)
   {
     final NameResolver resolver;
     if (nameResolver == null)
@@ -5067,9 +5217,10 @@ public final class StaticUtils
    *          {@code null}, which shouldn't happen, or because it matches the
    *          IP address).
    */
+  @Nullable()
   public static String getCanonicalHostNameIfAvailable(
-                            final NameResolver nameResolver,
-                            final InetAddress address)
+                            @Nullable final NameResolver nameResolver,
+                            @NotNull final InetAddress address)
   {
     final NameResolver resolver;
     if (nameResolver == null)
@@ -5114,9 +5265,10 @@ public final class StaticUtils
    * @return  A set of the canonical host names that could be obtained from the
    *          provided addresses.
    */
+  @NotNull()
   public static Set<String> getAvailableCanonicalHostNames(
-                                 final NameResolver nameResolver,
-                                 final Collection<InetAddress> addresses)
+                     @Nullable final NameResolver nameResolver,
+                     @NotNull final Collection<InetAddress> addresses)
   {
     final NameResolver resolver;
     if (nameResolver == null)
@@ -5157,8 +5309,9 @@ public final class StaticUtils
    *
    * @return  The provided host address without the interface name.
    */
+  @NotNull()
   public static String trimInterfaceNameFromHostAddress(
-                            final String hostAddress)
+                            @NotNull final String hostAddress)
   {
     final int percentPos = hostAddress.indexOf('%');
     if (percentPos > 0)
@@ -5182,7 +5335,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem occurs while trying to read the file.
    */
-  public static byte[] readFileBytes(final String path)
+  @NotNull()
+  public static byte[] readFileBytes(@NotNull final String path)
          throws IOException
   {
     return readFileBytes(new File(path));
@@ -5199,7 +5353,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem occurs while trying to read the file.
    */
-  public static byte[] readFileBytes(final File file)
+  @NotNull()
+  public static byte[] readFileBytes(@NotNull final File file)
          throws IOException
   {
     final ByteStringBuffer buffer = new ByteStringBuffer((int) file.length());
@@ -5222,7 +5377,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem occurs while trying to read the file.
    */
-  public static String readFileAsString(final String path,
+  @NotNull()
+  public static String readFileAsString(@NotNull final String path,
                                         final boolean includeFinalLineBreak)
          throws IOException
   {
@@ -5244,7 +5400,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem occurs while trying to read the file.
    */
-  public static String readFileAsString(final File file,
+  @NotNull()
+  public static String readFileAsString(@NotNull final File file,
                                         final boolean includeFinalLineBreak)
          throws IOException
   {
@@ -5277,7 +5434,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem occurs while trying to read the file.
    */
-  public static List<String> readFileLines(final String path)
+  @NotNull()
+  public static List<String> readFileLines(@NotNull final String path)
          throws IOException
   {
     return readFileLines(new File(path));
@@ -5294,7 +5452,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem occurs while trying to read the file.
    */
-  public static List<String> readFileLines(final File file)
+  @NotNull()
+  public static List<String> readFileLines(@NotNull final File file)
          throws IOException
   {
     try (FileReader fileReader = new FileReader(file);
@@ -5325,7 +5484,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem is encountered while writing the file.
    */
-  public static void writeFile(final String path, final byte[] bytes)
+  public static void writeFile(@NotNull final String path,
+                               @NotNull final byte[] bytes)
          throws IOException
   {
     writeFile(new File(path), bytes);
@@ -5342,7 +5502,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem is encountered while writing the file.
    */
-  public static void writeFile(final File file, final byte[] bytes)
+  public static void writeFile(@NotNull final File file,
+                               @NotNull final byte[] bytes)
          throws IOException
   {
     try (FileOutputStream outputStream = new FileOutputStream(file))
@@ -5363,7 +5524,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem is encountered while writing the file.
    */
-  public static void writeFile(final String path, final CharSequence... lines)
+  public static void writeFile(@NotNull final String path,
+                               @NotNull final CharSequence... lines)
          throws IOException
   {
     writeFile(new File(path), lines);
@@ -5381,7 +5543,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem is encountered while writing the file.
    */
-  public static void writeFile(final File file, final CharSequence... lines)
+  public static void writeFile(@NotNull final File file,
+                               @NotNull final CharSequence... lines)
          throws IOException
   {
     writeFile(file, toList(lines));
@@ -5399,8 +5562,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem is encountered while writing the file.
    */
-  public static void writeFile(final String path,
-                               final List<? extends CharSequence> lines)
+  public static void writeFile(@NotNull final String path,
+                          @Nullable final List<? extends CharSequence> lines)
          throws IOException
   {
     writeFile(new File(path), lines);
@@ -5418,8 +5581,8 @@ public final class StaticUtils
    *
    * @throws  IOException  If a problem is encountered while writing the file.
    */
-  public static void writeFile(final File file,
-                               final List<? extends CharSequence> lines)
+  public static void writeFile(@NotNull final File file,
+                          @Nullable final List<? extends CharSequence> lines)
          throws IOException
   {
     try (PrintWriter writer = new PrintWriter(file))

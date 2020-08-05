@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,21 +83,21 @@ public final class OperationResultCodeInfo
 
 
   // The percentage of operations of the associated type that failed.
-  private final Double failedPercent;
+  @Nullable private final Double failedPercent;
 
   // The total number of operations of the associated type that failed.
-  private final Long failedCount;
+  @Nullable private final Long failedCount;
 
   // The total number of operations of the associated type.
-  private final Long totalCount;
+  @Nullable private final Long totalCount;
 
   // Information about each result code returned for the associated operation
   // type, indexed by the result code's integer value.
-  private final Map<Integer,ResultCodeInfo> resultCodeInfoMap;
+  @NotNull private final Map<Integer,ResultCodeInfo> resultCodeInfoMap;
 
   // The associated operation type.  It may be null if this structure provides
   // information about all operation types.
-  private final OperationType operationType;
+  @Nullable private final OperationType operationType;
 
 
 
@@ -111,9 +113,9 @@ public final class OperationResultCodeInfo
    * @param  opTypeAttrPrefix  The prefix that will be used for information
    *                           about
    */
-  OperationResultCodeInfo(final MonitorEntry entry,
-                          final OperationType operationType,
-                          final String opTypeAttrPrefix)
+  OperationResultCodeInfo(@NotNull final MonitorEntry entry,
+                          @Nullable final OperationType operationType,
+                          @NotNull final String opTypeAttrPrefix)
   {
     this.operationType = operationType;
 
@@ -165,6 +167,7 @@ public final class OperationResultCodeInfo
    *          associated, or {@code null} if this information applies to all
    *          types of operations.
    */
+  @Nullable()
   public OperationType getOperationType()
   {
     return operationType;
@@ -180,6 +183,7 @@ public final class OperationResultCodeInfo
    *          been processed, or {@code null} if this information was not in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getTotalCount()
   {
     return totalCount;
@@ -195,6 +199,7 @@ public final class OperationResultCodeInfo
    *          in failure, or {@code null} if this information was not in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getFailedCount()
   {
     return failedCount;
@@ -210,6 +215,7 @@ public final class OperationResultCodeInfo
    *          in failure, or {@code null} if this information was not in the
    *          monitor entry.
    */
+  @Nullable()
   public Double getFailedPercent()
   {
     return failedPercent;
@@ -225,6 +231,7 @@ public final class OperationResultCodeInfo
    * @return  A map with information about the result codes that have been
    *          returned for operations of the associated type.
    */
+  @NotNull()
   public Map<Integer,ResultCodeInfo> getResultCodeInfoMap()
   {
     return resultCodeInfoMap;

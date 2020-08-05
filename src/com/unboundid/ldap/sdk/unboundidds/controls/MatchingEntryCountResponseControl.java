@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -110,7 +112,7 @@ public final class MatchingEntryCountResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.37) for the matching entry count response
    * control.
    */
-  public static final String MATCHING_ENTRY_COUNT_RESPONSE_OID =
+  @NotNull public static final String MATCHING_ENTRY_COUNT_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.37";
 
 
@@ -146,10 +148,10 @@ public final class MatchingEntryCountResponseControl
 
   // A list of messages providing debug information about the processing
   // performed by the server.
-  private final List<String> debugInfo;
+  @NotNull private final List<String> debugInfo;
 
   // The count type for this matching entry count response control.
-  private final MatchingEntryCountType countType;
+  @NotNull private final MatchingEntryCountType countType;
 
 
 
@@ -189,8 +191,10 @@ public final class MatchingEntryCountResponseControl
    *                        messages should be included.
    */
   private MatchingEntryCountResponseControl(
-               final MatchingEntryCountType countType, final int countValue,
-               final boolean searchIndexed, final Collection<String> debugInfo)
+               @NotNull final MatchingEntryCountType countType,
+               final int countValue,
+               final boolean searchIndexed,
+               @Nullable final Collection<String> debugInfo)
   {
     super(MATCHING_ENTRY_COUNT_RESPONSE_OID, false,
          encodeValue(countType, countValue, searchIndexed, debugInfo));
@@ -225,9 +229,9 @@ public final class MatchingEntryCountResponseControl
    *                        generic control as a matching entry count response
    *                        control.
    */
-  public MatchingEntryCountResponseControl(final String oid,
-                                           final boolean isCritical,
-                                           final ASN1OctetString value)
+  public MatchingEntryCountResponseControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -343,9 +347,10 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The matching entry count response control that was created.
    */
+  @NotNull()
   public static MatchingEntryCountResponseControl createExactCountResponse(
                      final int count, final boolean examined,
-                     final Collection<String> debugInfo)
+                     @Nullable final Collection<String> debugInfo)
   {
     return createExactCountResponse(count, examined, true, debugInfo);
   }
@@ -374,10 +379,11 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The matching entry count response control that was created.
    */
+  @NotNull()
   public static MatchingEntryCountResponseControl createExactCountResponse(
                      final int count, final boolean examined,
                      final boolean searchIndexed,
-                     final Collection<String> debugInfo)
+                     @Nullable final Collection<String> debugInfo)
   {
     Validator.ensureTrue(count >= 0);
 
@@ -416,8 +422,10 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The matching entry count response control that was created.
    */
+  @NotNull()
   public static MatchingEntryCountResponseControl createUpperBoundResponse(
-                     final int upperBound, final Collection<String> debugInfo)
+                     final int upperBound,
+                     @Nullable final Collection<String> debugInfo)
   {
     return createUpperBoundResponse(upperBound, true, debugInfo);
   }
@@ -447,9 +455,10 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The matching entry count response control that was created.
    */
+  @NotNull()
   public static MatchingEntryCountResponseControl createUpperBoundResponse(
                      final int upperBound, final boolean searchIndexed,
-                     final Collection<String> debugInfo)
+                     @Nullable final Collection<String> debugInfo)
   {
     Validator.ensureTrue(upperBound > 0);
 
@@ -472,8 +481,9 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The matching entry count response control that was created.
    */
+  @NotNull()
   public static MatchingEntryCountResponseControl createUnknownCountResponse(
-                     final Collection<String> debugInfo)
+                     @Nullable final Collection<String> debugInfo)
   {
     return new MatchingEntryCountResponseControl(MatchingEntryCountType.UNKNOWN,
          -1, false, debugInfo);
@@ -503,11 +513,12 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                                      final MatchingEntryCountType countType,
-                                      final int countValue,
-                                      final boolean searchIndexed,
-                                      final Collection<String> debugInfo)
+               @NotNull final MatchingEntryCountType countType,
+               final int countValue,
+               final boolean searchIndexed,
+               @Nullable final Collection<String> debugInfo)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
@@ -550,6 +561,7 @@ public final class MatchingEntryCountResponseControl
    *
    * @return  The matching entry count type for the response control.
    */
+  @NotNull()
   public MatchingEntryCountType getCountType()
   {
     return countType;
@@ -601,6 +613,7 @@ public final class MatchingEntryCountResponseControl
    *          performed by the server in the course of obtaining the matching
    *          entry count, or an empty list if no debug messages were provided.
    */
+  @NotNull()
   public List<String> getDebugInfo()
   {
     return debugInfo;
@@ -612,9 +625,11 @@ public final class MatchingEntryCountResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public MatchingEntryCountResponseControl decodeControl(final String oid,
-                                                final boolean isCritical,
-                                                final ASN1OctetString value)
+  @NotNull()
+  public MatchingEntryCountResponseControl decodeControl(
+              @NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new MatchingEntryCountResponseControl(oid, isCritical, value);
@@ -637,7 +652,9 @@ public final class MatchingEntryCountResponseControl
    *                         decode the matching entry count response control
    *                         contained in the provided result.
    */
-  public static MatchingEntryCountResponseControl get(final SearchResult result)
+  @Nullable()
+  public static MatchingEntryCountResponseControl get(
+                     @NotNull final SearchResult result)
          throws LDAPException
   {
     final Control c =
@@ -664,6 +681,7 @@ public final class MatchingEntryCountResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MATCHING_ENTRY_COUNT_RESPONSE.get();
@@ -675,7 +693,7 @@ public final class MatchingEntryCountResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("MatchingEntryCountResponseControl(countType='");
     buffer.append(countType.name());

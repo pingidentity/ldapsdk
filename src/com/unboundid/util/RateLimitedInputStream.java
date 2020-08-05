@@ -52,10 +52,10 @@ public final class RateLimitedInputStream
        extends InputStream
 {
   // The fixed-rate barrier that will serve as a rate limiter for this class.
-  private final FixedRateBarrier rateLimiter;
+  @NotNull private final FixedRateBarrier rateLimiter;
 
   // The input stream from which the data will actually be read.
-  private final InputStream wrappedStream;
+  @NotNull private final InputStream wrappedStream;
 
   // The maximum number of bytes that can be read in any single call to the
   // rate limiter.
@@ -73,7 +73,7 @@ public final class RateLimitedInputStream
    *                            be read using this input stream.  It must be
    *                            greater than zero.
    */
-  public RateLimitedInputStream(final InputStream wrappedStream,
+  public RateLimitedInputStream(@NotNull final InputStream wrappedStream,
                                 final int maxBytesPerSecond)
   {
     Validator.ensureTrue((wrappedStream != null),
@@ -136,7 +136,7 @@ public final class RateLimitedInputStream
    *                       data from the underlying input stream.
    */
   @Override()
-  public int read(final byte[] b)
+  public int read(@NotNull final byte[] b)
          throws IOException
   {
     return read(b, 0, b.length);
@@ -160,7 +160,7 @@ public final class RateLimitedInputStream
    *                       data from the underlying input stream.
    */
   @Override()
-  public int read(final byte[] b, final int offset, final int length)
+  public int read(@NotNull final byte[] b, final int offset, final int length)
          throws IOException
   {
     if (length <= 0)

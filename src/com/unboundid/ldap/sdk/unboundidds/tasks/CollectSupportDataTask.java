@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -132,7 +134,7 @@ public final class CollectSupportDataTask
    * The fully-qualified name of the Java class that is used for the collect
    * support data task.
    */
-  static final String COLLECT_SUPPORT_DATA_TASK_CLASS =
+  @NotNull static final String COLLECT_SUPPORT_DATA_TASK_CLASS =
        "com.unboundid.directory.server.tasks.CollectSupportDataTask";
 
 
@@ -141,7 +143,8 @@ public final class CollectSupportDataTask
    * The prefix that will appear at the beginning of all attribute names used by
    * the collect support data task.
    */
-  private static final String ATTR_PREFIX = "ds-task-collect-support-data-";
+  @NotNull private static final String ATTR_PREFIX =
+       "ds-task-collect-support-data-";
 
 
 
@@ -149,7 +152,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify a comment to include in the
    * support data archive.
    */
-  public static final String ATTR_COMMENT = ATTR_PREFIX + "comment";
+  @NotNull public static final String ATTR_COMMENT = ATTR_PREFIX + "comment";
 
 
 
@@ -157,7 +160,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the path to a file containing the
    * passphrase to use to encrypt the contents of the support data archive.
    */
-  public static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+  @NotNull public static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
        ATTR_PREFIX + "encryption-passphrase-file";
 
 
@@ -166,7 +169,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to indicate whether the support data archive
    * may include binary files that may otherwise have been omitted.
    */
-  public static final String ATTR_INCLUDE_BINARY_FILES =
+  @NotNull public static final String ATTR_INCLUDE_BINARY_FILES =
        ATTR_PREFIX + "include-binary-files";
 
 
@@ -175,7 +178,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to indicate whether the support data archive
    * should include information that may be expensive to capture.
    */
-  public static final String ATTR_INCLUDE_EXPENSIVE_DATA =
+  @NotNull public static final String ATTR_INCLUDE_EXPENSIVE_DATA =
        ATTR_PREFIX + "include-expensive-data";
 
 
@@ -185,7 +188,7 @@ public final class CollectSupportDataTask
    * may include the source code (if available) for any third-party extensions
    * installed in the server.
    */
-  public static final String ATTR_INCLUDE_EXTENSION_SOURCE =
+  @NotNull public static final String ATTR_INCLUDE_EXTENSION_SOURCE =
        ATTR_PREFIX + "include-extension-source";
 
 
@@ -195,7 +198,7 @@ public final class CollectSupportDataTask
    * should include a replication state dump (which may be several megabytes in
    * size).
    */
-  public static final String ATTR_INCLUDE_REPLICATION_STATE_DUMP =
+  @NotNull public static final String ATTR_INCLUDE_REPLICATION_STATE_DUMP =
        ATTR_PREFIX + "include-replication-state-dump";
 
 
@@ -204,7 +207,8 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the number of times to invoke the
    * jstack utility to capture server thread stack traces.
    */
-  public static final String ATTR_JSTACK_COUNT = ATTR_PREFIX + "jstack-count";
+  @NotNull public static final String ATTR_JSTACK_COUNT =
+       ATTR_PREFIX + "jstack-count";
 
 
 
@@ -212,7 +216,8 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the length of time that should be
    * covered by the log data included in the support data archive.
    */
-  public static final String ATTR_LOG_DURATION = ATTR_PREFIX + "log-duration";
+  @NotNull public static final String ATTR_LOG_DURATION =
+       ATTR_PREFIX + "log-duration";
 
 
 
@@ -221,7 +226,7 @@ public final class CollectSupportDataTask
    * to capture from the beginning of each log file included in the support data
    * archive.
    */
-  public static final String ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
+  @NotNull public static final String ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
        ATTR_PREFIX + "log-file-head-collection-size-kb";
 
 
@@ -231,7 +236,7 @@ public final class CollectSupportDataTask
    * to capture from the end of each log file included in the support data
    * archive.
    */
-  public static final String ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB =
+  @NotNull public static final String ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB =
        ATTR_PREFIX + "log-file-tail-collection-size-kb";
 
 
@@ -240,7 +245,8 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the path to which the support
    * data archive should be written.
    */
-  public static final String ATTR_OUTPUT_PATH = ATTR_PREFIX + "output-path";
+  @NotNull public static final String ATTR_OUTPUT_PATH =
+       ATTR_PREFIX + "output-path";
 
 
 
@@ -248,7 +254,8 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the number of intervals to
    * capture for tools that capture multiple samples.
    */
-  public static final String ATTR_REPORT_COUNT = ATTR_PREFIX + "report-count";
+  @NotNull public static final String ATTR_REPORT_COUNT =
+       ATTR_PREFIX + "report-count";
 
 
 
@@ -256,7 +263,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the length of time, in seconds,
    * between samples collected from tools that capture multiple samples.
    */
-  public static final String ATTR_REPORT_INTERVAL_SECONDS =
+  @NotNull public static final String ATTR_REPORT_INTERVAL_SECONDS =
        ATTR_PREFIX + "report-interval-seconds";
 
 
@@ -265,7 +272,7 @@ public final class CollectSupportDataTask
    *The name of the attribute used to specify the minimum age of previous
    * support data archives that should be retained.
    */
-  public static final String ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE =
+  @NotNull public static final String ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE =
        ATTR_PREFIX + "retain-previous-support-data-archive-age";
 
 
@@ -274,7 +281,7 @@ public final class CollectSupportDataTask
    *The name of the attribute used to specify the minimum number of previous
    * support data archives that should be retained.
    */
-  public static final String ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT =
+  @NotNull public static final String ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT =
        ATTR_PREFIX + "retain-previous-support-data-archive-count";
 
 
@@ -283,7 +290,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to specify the security level to use for
    * information added to the support data archive.
    */
-  public static final String ATTR_SECURITY_LEVEL =
+  @NotNull public static final String ATTR_SECURITY_LEVEL =
        ATTR_PREFIX + "security-level";
 
 
@@ -292,7 +299,7 @@ public final class CollectSupportDataTask
    * The name of the attribute used to indicate whether to collect items
    * sequentially rather than in parallel.
    */
-  public static final String ATTR_USE_SEQUENTIAL_MODE =
+  @NotNull public static final String ATTR_USE_SEQUENTIAL_MODE =
        ATTR_PREFIX + "use-sequential-mode";
 
 
@@ -300,7 +307,7 @@ public final class CollectSupportDataTask
   /**
    * The name of the object class used in collect support data task entries.
    */
-  public static final String OC_COLLECT_SUPPORT_DATA_TASK =
+  @NotNull public static final String OC_COLLECT_SUPPORT_DATA_TASK =
        "ds-task-collect-support-data";
 
 
@@ -308,7 +315,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the comment.
    */
-  static final TaskProperty PROPERTY_COMMENT =
+  @NotNull static final TaskProperty PROPERTY_COMMENT =
      new TaskProperty(ATTR_COMMENT, INFO_CSD_DISPLAY_NAME_COMMENT.get(),
           INFO_CSD_DESCRIPTION_COMMENT.get(), String.class, false, false,
           false);
@@ -318,7 +325,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the encryption passphrase file.
    */
-  static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
+  @NotNull static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
      new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
           INFO_CSD_DISPLAY_NAME_ENC_PW_FILE.get(),
           INFO_CSD_DESCRIPTION_ENC_PW_FILE.get(), String.class, false, false,
@@ -329,7 +336,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the include binary files flag.
    */
-  static final TaskProperty PROPERTY_INCLUDE_BINARY_FILES =
+  @NotNull static final TaskProperty PROPERTY_INCLUDE_BINARY_FILES =
      new TaskProperty(ATTR_INCLUDE_BINARY_FILES,
           INFO_CSD_DISPLAY_NAME_INCLUDE_BINARY_FILES.get(),
           INFO_CSD_DESCRIPTION_INCLUDE_BINARY_FILES.get(), Boolean.class, false,
@@ -340,7 +347,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the include expensive data flag.
    */
-  static final TaskProperty PROPERTY_INCLUDE_EXPENSIVE_DATA =
+  @NotNull static final TaskProperty PROPERTY_INCLUDE_EXPENSIVE_DATA =
      new TaskProperty(ATTR_INCLUDE_EXPENSIVE_DATA,
           INFO_CSD_DISPLAY_NAME_INCLUDE_EXPENSIVE_DATA.get(),
           INFO_CSD_DESCRIPTION_INCLUDE_EXPENSIVE_DATA.get(), Boolean.class,
@@ -351,7 +358,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the include extension source flag.
    */
-  static final TaskProperty PROPERTY_INCLUDE_EXTENSION_SOURCE =
+  @NotNull static final TaskProperty PROPERTY_INCLUDE_EXTENSION_SOURCE =
      new TaskProperty(ATTR_INCLUDE_EXTENSION_SOURCE,
           INFO_CSD_DISPLAY_NAME_INCLUDE_EXTENSION_SOURCE.get(),
           INFO_CSD_DESCRIPTION_INCLUDE_EXTENSION_SOURCE.get(), Boolean.class,
@@ -363,7 +370,7 @@ public final class CollectSupportDataTask
    * The task property that will be used for the include replication state dump
    * flag.
    */
-  static final TaskProperty PROPERTY_INCLUDE_REPLICATION_STATE_DUMP =
+  @NotNull static final TaskProperty PROPERTY_INCLUDE_REPLICATION_STATE_DUMP =
      new TaskProperty(ATTR_INCLUDE_REPLICATION_STATE_DUMP,
           INFO_CSD_DISPLAY_NAME_INCLUDE_REPLICATION_STATE_DUMP.get(),
           INFO_CSD_DESCRIPTION_INCLUDE_REPLICATION_STATE_DUMP.get(),
@@ -374,7 +381,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the jstack count.
    */
-  static final TaskProperty PROPERTY_JSTACK_COUNT =
+  @NotNull static final TaskProperty PROPERTY_JSTACK_COUNT =
      new TaskProperty(ATTR_JSTACK_COUNT,
           INFO_CSD_DISPLAY_NAME_JSTACK_COUNT.get(),
           INFO_CSD_DESCRIPTION_JSTACK_COUNT.get(),
@@ -385,7 +392,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the log duration.
    */
-  static final TaskProperty PROPERTY_LOG_DURATION =
+  @NotNull static final TaskProperty PROPERTY_LOG_DURATION =
      new TaskProperty(ATTR_LOG_DURATION,
           INFO_CSD_DISPLAY_NAME_LOG_DURATION.get(),
           INFO_CSD_DESCRIPTION_LOG_DURATION.get(),
@@ -396,7 +403,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the log head size.
    */
-  static final TaskProperty PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
+  @NotNull static final TaskProperty PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
      new TaskProperty(ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB,
           INFO_CSD_DISPLAY_NAME_LOG_HEAD_SIZE_KB.get(),
           INFO_CSD_DESCRIPTION_LOG_HEAD_SIZE_KB.get(),
@@ -407,7 +414,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the log tail size.
    */
-  static final TaskProperty PROPERTY_LOG_FILE_TAIL_COLLECTION_SIZE_KB =
+  @NotNull static final TaskProperty PROPERTY_LOG_FILE_TAIL_COLLECTION_SIZE_KB =
      new TaskProperty(ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB,
           INFO_CSD_DISPLAY_NAME_LOG_TAIL_SIZE_KB.get(),
           INFO_CSD_DESCRIPTION_LOG_TAIL_SIZE_KB.get(),
@@ -418,7 +425,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the output path.
    */
-  static final TaskProperty PROPERTY_OUTPUT_PATH =
+  @NotNull static final TaskProperty PROPERTY_OUTPUT_PATH =
      new TaskProperty(ATTR_OUTPUT_PATH,
           INFO_CSD_DISPLAY_NAME_OUTPUT_PATH.get(),
           INFO_CSD_DESCRIPTION_OUTPUT_PATH.get(),
@@ -429,7 +436,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the report count.
    */
-  static final TaskProperty PROPERTY_REPORT_COUNT =
+  @NotNull static final TaskProperty PROPERTY_REPORT_COUNT =
      new TaskProperty(ATTR_REPORT_COUNT,
           INFO_CSD_DISPLAY_NAME_REPORT_COUNT.get(),
           INFO_CSD_DESCRIPTION_REPORT_COUNT.get(),
@@ -440,7 +447,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the report interval.
    */
-  static final TaskProperty PROPERTY_REPORT_INTERVAL_SECONDS =
+  @NotNull static final TaskProperty PROPERTY_REPORT_INTERVAL_SECONDS =
      new TaskProperty(ATTR_REPORT_INTERVAL_SECONDS,
           INFO_CSD_DISPLAY_NAME_REPORT_INTERVAL.get(),
           INFO_CSD_DESCRIPTION_REPORT_INTERVAL.get(),
@@ -452,7 +459,7 @@ public final class CollectSupportDataTask
    * The task property that will be used for the retain previous support data
    * archive age.
    */
-  static final TaskProperty PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE =
+  @NotNull static final TaskProperty PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE =
      new TaskProperty(ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE,
           INFO_CSD_DISPLAY_NAME_RETAIN_PREVIOUS_ARCHIVE_AGE.get(),
           INFO_CSD_DESCRIPTION_RETAIN_PREVIOUS_ARCHIVE_AGE.get(),
@@ -464,7 +471,7 @@ public final class CollectSupportDataTask
    * The task property that will be used for the retain previous support data
    * archive count.
    */
-  static final TaskProperty PROPERTY_RETAIN_PREVIOUS_ARCHIVE_COUNT =
+  @NotNull static final TaskProperty PROPERTY_RETAIN_PREVIOUS_ARCHIVE_COUNT =
      new TaskProperty(ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT,
           INFO_CSD_DISPLAY_NAME_RETAIN_PREVIOUS_ARCHIVE_COUNT.get(),
           INFO_CSD_DESCRIPTION_RETAIN_PREVIOUS_ARCHIVE_COUNT.get(),
@@ -475,7 +482,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the security level.
    */
-  static final TaskProperty PROPERTY_SECURITY_LEVEL =
+  @NotNull static final TaskProperty PROPERTY_SECURITY_LEVEL =
      new TaskProperty(ATTR_SECURITY_LEVEL,
           INFO_CSD_DISPLAY_NAME_SECURITY_LEVEL.get(),
           INFO_CSD_DESCRIPTION_SECURITY_LEVEL.get(
@@ -495,7 +502,7 @@ public final class CollectSupportDataTask
   /**
    * The task property that will be used for the use sequential mode flag.
    */
-  static final TaskProperty PROPERTY_USE_SEQUENTIAL_MODE =
+  @NotNull static final TaskProperty PROPERTY_USE_SEQUENTIAL_MODE =
      new TaskProperty(ATTR_USE_SEQUENTIAL_MODE,
           INFO_CSD_DISPLAY_NAME_USE_SEQUENTIAL_MODE.get(),
           INFO_CSD_DESCRIPTION_USE_SEQUENTIAL_MODE.get(),
@@ -511,60 +518,60 @@ public final class CollectSupportDataTask
 
 
   // Indicates whether to include binary files in the support data archive.
-  private final Boolean includeBinaryFiles;
+  @Nullable private final Boolean includeBinaryFiles;
 
   // Indicates whether to include expensive data in the support data archive.
-  private final Boolean includeExpensiveData;
+  @Nullable private final Boolean includeExpensiveData;
 
   // Indicates whether to include third-party extension source code in the
   // support data archive.
-  private final Boolean includeExtensionSource;
+  @Nullable private final Boolean includeExtensionSource;
 
   // Indicates whether to include a replication state dump in the support data
   // archive.
-  private final Boolean includeReplicationStateDump;
+  @Nullable private final Boolean includeReplicationStateDump;
 
   // Indicates whether to capture information sequentially rather than in
   // parallel.
-  private final Boolean useSequentialMode;
+  @Nullable private final Boolean useSequentialMode;
 
   // The security level to use for data included in the support data archive.
-  private final CollectSupportDataSecurityLevel securityLevel;
+  @Nullable private final CollectSupportDataSecurityLevel securityLevel;
 
   // The number of jstacks to include in the support data archive.
-  private final Integer jstackCount;
+  @Nullable private final Integer jstackCount;
 
   // The amount of data in kilobytes to capture from the beginning of each log
   // file.
-  private final Integer logFileHeadCollectionSizeKB;
+  @Nullable private final Integer logFileHeadCollectionSizeKB;
 
   // The amount of data in kilobytes to capture from the end of each log file.
-  private final Integer logFileTailCollectionSizeKB;
+  @Nullable private final Integer logFileTailCollectionSizeKB;
 
   // The report count to use for sampled metrics.
-  private final Integer reportCount;
+  @Nullable private final Integer reportCount;
 
   // The report interval, in seconds, to use for sampled metrics.
-  private final Integer reportIntervalSeconds;
+  @Nullable private final Integer reportIntervalSeconds;
 
   // The minimum number of existing support data archives that should be
   // retained.
-  private final Integer retainPreviousSupportDataArchiveCount;
+  @Nullable private final Integer retainPreviousSupportDataArchiveCount;
 
   // A comment to include in the support data archive.
-  private final String comment;
+  @Nullable private final String comment;
 
   // The path to the encryption passphrase file.
-  private final String encryptionPassphraseFile;
+  @Nullable private final String encryptionPassphraseFile;
 
   // A string representation of the log duration to capture.
-  private final String logDuration;
+  @Nullable private final String logDuration;
 
   // The path to which the support data archive should be written.
-  private final String outputPath;
+  @Nullable private final String outputPath;
 
   // The minimum age for existing support data archives that should be retained.
-  private final String retainPreviousSupportDataArchiveAge;
+  @Nullable private final String retainPreviousSupportDataArchiveAge;
 
 
 
@@ -589,7 +596,7 @@ public final class CollectSupportDataTask
    *                     data task.  It must not be {@code null}.
    */
   public CollectSupportDataTask(
-              final CollectSupportDataTaskProperties properties)
+              @NotNull final CollectSupportDataTaskProperties properties)
   {
     super(properties.getTaskID(), COLLECT_SUPPORT_DATA_TASK_CLASS,
          properties.getScheduledStartTime(), properties.getDependencyIDs(),
@@ -629,7 +636,7 @@ public final class CollectSupportDataTask
    * @throws  TaskException  If the provided entry cannot be parsed as a collect
    *                         support data task entry.
    */
-  public CollectSupportDataTask(final Entry entry)
+  public CollectSupportDataTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -731,7 +738,8 @@ public final class CollectSupportDataTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid collect support data task.
    */
-  public CollectSupportDataTask(final Map<TaskProperty,List<Object>> properties)
+  public CollectSupportDataTask(
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(COLLECT_SUPPORT_DATA_TASK_CLASS, properties);
@@ -894,8 +902,9 @@ public final class CollectSupportDataTask
    * @return  The name of the provided security level, or {@code null} if the
    *          provided security level is {@code null}.
    */
+  @Nullable()
   static String getSecurityLevelName(
-                     final CollectSupportDataSecurityLevel securityLevel)
+       @Nullable final CollectSupportDataSecurityLevel securityLevel)
   {
     if (securityLevel == null)
     {
@@ -920,7 +929,8 @@ public final class CollectSupportDataTask
    *          {@code Long}, or {@code null} if the provided value was
    *          {@code null}.
    */
-  static Long getIntegerAsLong(final Integer i)
+  @Nullable()
+  static Long getIntegerAsLong(@Nullable final Integer i)
   {
     if (i == null)
     {
@@ -938,6 +948,7 @@ public final class CollectSupportDataTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_CSD_TASK_NAME.get();
@@ -949,6 +960,7 @@ public final class CollectSupportDataTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_CSD_TASK_DESCRIPTION.get();
@@ -964,6 +976,7 @@ public final class CollectSupportDataTask
    *          archive should be written, or {@code null} if no value has been
    *          specified for the property.
    */
+  @Nullable()
   public String getOutputPath()
   {
     return outputPath;
@@ -980,6 +993,7 @@ public final class CollectSupportDataTask
    *          {@code null} if no value has been specified for the property, and
    *          the support data archive should not be encrypted.
    */
+  @Nullable()
   public String getEncryptionPassphraseFile()
   {
     return encryptionPassphraseFile;
@@ -998,6 +1012,7 @@ public final class CollectSupportDataTask
    *          task is created (in which case the server will use a default
    *          behavior of excluding expensive data).
    */
+  @Nullable()
   public Boolean getIncludeExpensiveData()
   {
     return includeExpensiveData;
@@ -1016,6 +1031,7 @@ public final class CollectSupportDataTask
    *          which case the server will use a default behavior of excluding the
    *          state dump).
    */
+  @Nullable()
   public Boolean getIncludeReplicationStateDump()
   {
     return includeReplicationStateDump;
@@ -1032,6 +1048,7 @@ public final class CollectSupportDataTask
    *          should not be specified when the task is created (in which case
    *          the server will use a default behavior of excluding binary files).
    */
+  @Nullable()
   public Boolean getIncludeBinaryFiles()
   {
     return includeBinaryFiles;
@@ -1051,6 +1068,7 @@ public final class CollectSupportDataTask
    *          which case the server will use a default behavior of excluding
    *          extension source code).
    */
+  @Nullable()
   public Boolean getIncludeExtensionSource()
   {
     return includeExtensionSource;
@@ -1071,6 +1089,7 @@ public final class CollectSupportDataTask
    *          not be specified when the task is created (in which case the
    *          server will default to capturing data in parallel).
    */
+  @Nullable()
   public Boolean getUseSequentialMode()
   {
     return useSequentialMode;
@@ -1087,6 +1106,7 @@ public final class CollectSupportDataTask
    *          specified when the task is created (in which case the server will
    *          use a default security level).
    */
+  @Nullable()
   public CollectSupportDataSecurityLevel getSecurityLevel()
   {
     return securityLevel;
@@ -1103,6 +1123,7 @@ public final class CollectSupportDataTask
    *          should not be specified when the task is created (in which case
    *          the server will use a default report count).
    */
+  @Nullable()
   public Integer getReportCount()
   {
     return reportCount;
@@ -1119,6 +1140,7 @@ public final class CollectSupportDataTask
    *          should not be specified when the task is created (in which case
    *          the server will use a default report interval).
    */
+  @Nullable()
   public Integer getReportIntervalSeconds()
   {
     return reportIntervalSeconds;
@@ -1135,6 +1157,7 @@ public final class CollectSupportDataTask
    *          {@code null} if the property should not be specified when the task
    *          is created (in which case the server will use a default count).
    */
+  @Nullable()
   public Integer getJStackCount()
   {
     return jstackCount;
@@ -1153,6 +1176,7 @@ public final class CollectSupportDataTask
    *          which case the server will use a default behavior for selecting
    *          the amount of log content to include).
    */
+  @Nullable()
   public String getLogDuration()
   {
     return logDuration;
@@ -1170,6 +1194,7 @@ public final class CollectSupportDataTask
    *          task is created (in which case the server will determine an
    *          appropriate amount of log content to include).
    */
+  @Nullable()
   public Integer getLogFileHeadCollectionSizeKB()
   {
     return logFileHeadCollectionSizeKB;
@@ -1187,6 +1212,7 @@ public final class CollectSupportDataTask
    *          is created (in which case the server will determine an
    *          appropriate amount of log content to include).
    */
+  @Nullable()
   public Integer getLogFileTailCollectionSizeKB()
   {
     return logFileTailCollectionSizeKB;
@@ -1203,6 +1229,7 @@ public final class CollectSupportDataTask
    * @throws  TaskException  If the log duration value cannot be parsed as a
    *                         valid duration.
    */
+  @Nullable()
   public Long getLogDurationMillis()
          throws TaskException
   {
@@ -1231,6 +1258,7 @@ public final class CollectSupportDataTask
    * @return  An additional comment that should be included in the support data
    *          archive, or {@code null} if no comment should be included.
    */
+  @Nullable()
   public String getComment()
   {
     return comment;
@@ -1245,6 +1273,7 @@ public final class CollectSupportDataTask
    * @return  The minimum number of existing support data archives that should
    *          be retained, or {@code null} if there is no minimum retain count.
    */
+  @Nullable()
   public Integer getRetainPreviousSupportDataArchiveCount()
   {
     return retainPreviousSupportDataArchiveCount;
@@ -1259,6 +1288,7 @@ public final class CollectSupportDataTask
    * @return  The minimum age of existing support data archives that should
    *          be retained, or {@code null} if there is no minimum retain age.
    */
+  @Nullable()
   public String getRetainPreviousSupportDataArchiveAge()
   {
     return retainPreviousSupportDataArchiveAge;
@@ -1276,6 +1306,7 @@ public final class CollectSupportDataTask
    * @throws  TaskException  If the retain age value cannot be parsed as a valid
    *                         duration.
    */
+  @Nullable()
   public Long getRetainPreviousSupportDataArchiveAgeMillis()
          throws TaskException
   {
@@ -1302,6 +1333,7 @@ public final class CollectSupportDataTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_COLLECT_SUPPORT_DATA_TASK);
@@ -1313,6 +1345,7 @@ public final class CollectSupportDataTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final List<Attribute> attrList = new ArrayList<>(15);
@@ -1424,6 +1457,7 @@ public final class CollectSupportDataTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -1452,6 +1486,7 @@ public final class CollectSupportDataTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final Map<TaskProperty,List<Object>> props =

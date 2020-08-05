@@ -161,7 +161,7 @@ public final class PassphraseEncryptedStreamHeader
   /**
    * The "magic" value that will appear at the start of the header.
    */
-  public static final byte[] MAGIC_BYTES =
+  @NotNull public static final byte[] MAGIC_BYTES =
        { 0x50, 0x55, 0x4C, 0x53, 0x50, 0x45, 0x53, 0x48 };
 
 
@@ -181,16 +181,16 @@ public final class PassphraseEncryptedStreamHeader
 
 
   // The initialization vector used when creating the cipher.
-  private final byte[] cipherInitializationVector;
+  @NotNull private final byte[] cipherInitializationVector;
 
   // An encoded representation of this header.
-  private final byte[] encodedHeader;
+  @NotNull private final byte[] encodedHeader;
 
   // The salt used when generating the encryption key from the passphrase.
-  private final byte[] keyFactorySalt;
+  @NotNull private final byte[] keyFactorySalt;
 
   // A MAC of the header content.
-  private final byte[] macValue;
+  @NotNull private final byte[] macValue;
 
   // The iteration count used when generating the encryption key from the
   private final int keyFactoryIterationCount;
@@ -200,21 +200,21 @@ public final class PassphraseEncryptedStreamHeader
   private final int keyFactoryKeyLengthBits;
 
   // The secret key generated from the passphrase.
-  private final SecretKey secretKey;
+  @Nullable private final SecretKey secretKey;
 
   // The cipher transformation used for the encryption.
-  private final String cipherTransformation;
+  @NotNull private final String cipherTransformation;
 
   // The name of the key factory used to generate the encryption key from the
   // passphrase.
-  private final String keyFactoryAlgorithm;
+  @NotNull private final String keyFactoryAlgorithm;
 
   // An optional identifier that can be used to associate this header with some
   // other encryption settings object.
-  private final String keyIdentifier;
+  @Nullable private final String keyIdentifier;
 
   // The algorithm used to generate a MAC of the header content.
-  private final String macAlgorithm;
+  @NotNull private final String macAlgorithm;
 
 
 
@@ -255,14 +255,17 @@ public final class PassphraseEncryptedStreamHeader
    *                                     header.
    */
   private PassphraseEncryptedStreamHeader(
-               final String keyFactoryAlgorithm,
-               final int keyFactoryIterationCount, final byte[] keyFactorySalt,
+               @NotNull final String keyFactoryAlgorithm,
+               final int keyFactoryIterationCount,
+               @NotNull final byte[] keyFactorySalt,
                final int keyFactoryKeyLengthBits,
-               final String cipherTransformation,
-               final byte[] cipherInitializationVector,
-               final String keyIdentifier, final SecretKey secretKey,
-               final String macAlgorithm, final byte[] macValue,
-               final byte[] encodedHeader)
+               @NotNull final String cipherTransformation,
+               @NotNull final byte[] cipherInitializationVector,
+               @Nullable final String keyIdentifier,
+               @Nullable final SecretKey secretKey,
+               @NotNull final String macAlgorithm,
+               @NotNull final byte[] macValue,
+               @NotNull final byte[] encodedHeader)
   {
     this.keyFactoryAlgorithm = keyFactoryAlgorithm;
     this.keyFactoryIterationCount = keyFactoryIterationCount;
@@ -317,15 +320,15 @@ public final class PassphraseEncryptedStreamHeader
    *                                    generating the encryption key or MAC
    *                                    from the provided passphrase.
    */
-  PassphraseEncryptedStreamHeader(final char[] passphrase,
-                                  final String keyFactoryAlgorithm,
-                                  final int keyFactoryIterationCount,
-                                  final byte[] keyFactorySalt,
-                                  final int keyFactoryKeyLengthBits,
-                                  final String cipherTransformation,
-                                  final byte[] cipherInitializationVector,
-                                  final String keyIdentifier,
-                                  final String macAlgorithm)
+  PassphraseEncryptedStreamHeader(@NotNull final char[] passphrase,
+       @NotNull final String keyFactoryAlgorithm,
+       final int keyFactoryIterationCount,
+       @NotNull final byte[] keyFactorySalt,
+       final int keyFactoryKeyLengthBits,
+       @NotNull final String cipherTransformation,
+       @NotNull final byte[] cipherInitializationVector,
+       @Nullable final String keyIdentifier,
+       @NotNull final String macAlgorithm)
        throws GeneralSecurityException
   {
     this.keyFactoryAlgorithm = keyFactoryAlgorithm;
@@ -389,16 +392,17 @@ public final class PassphraseEncryptedStreamHeader
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    generating the MAC.
    */
+  @NotNull()
   private static ObjectPair<byte[],byte[]> encode(
-                      final String keyFactoryAlgorithm,
+                      @NotNull final String keyFactoryAlgorithm,
                       final int keyFactoryIterationCount,
-                      final byte[] keyFactorySalt,
+                      @NotNull final byte[] keyFactorySalt,
                       final int keyFactoryKeyLengthBits,
-                      final String cipherTransformation,
-                      final byte[] cipherInitializationVector,
-                      final String keyIdentifier,
-                      final SecretKey secretKey,
-                      final String macAlgorithm)
+                      @NotNull final String cipherTransformation,
+                      @NotNull final byte[] cipherInitializationVector,
+                      @Nullable final String keyIdentifier,
+                      @Nullable final SecretKey secretKey,
+                      @NotNull final String macAlgorithm)
           throws GeneralSecurityException
   {
     // Construct a list of all elements that will go in the header except the
@@ -462,7 +466,7 @@ public final class PassphraseEncryptedStreamHeader
    * @throws  IOException  If a problem is encountered while trying to write to
    *                       the provided output stream.
    */
-  public void writeTo(final OutputStream outputStream)
+  public void writeTo(@NotNull final OutputStream outputStream)
          throws IOException
   {
     outputStream.write(encodedHeader);
@@ -507,9 +511,10 @@ public final class PassphraseEncryptedStreamHeader
    * @throws  GeneralSecurityException  If a problem is encountered while trying
    *                                    to generate the MAC.
    */
+  @NotNull()
   public static PassphraseEncryptedStreamHeader
-                     readFrom(final InputStream inputStream,
-                              final char[] passphrase)
+                     readFrom(@NotNull final InputStream inputStream,
+                              @Nullable final char[] passphrase)
          throws IOException, LDAPException, InvalidKeyException,
                 GeneralSecurityException
   {
@@ -600,8 +605,10 @@ public final class PassphraseEncryptedStreamHeader
    * @throws  GeneralSecurityException  If a problem is encountered while trying
    *                                    to generate the MAC.
    */
-  public static PassphraseEncryptedStreamHeader
-                     decode(final byte[] encodedHeader, final char[] passphrase)
+  @NotNull()
+  public static PassphraseEncryptedStreamHeader decode(
+                     @NotNull final byte[] encodedHeader,
+                     @Nullable final char[] passphrase)
          throws LDAPException, InvalidKeyException, GeneralSecurityException
   {
     // Make sure that the array is long enough to hold a valid header.
@@ -676,10 +683,11 @@ public final class PassphraseEncryptedStreamHeader
    * @throws  GeneralSecurityException  If a problem is encountered while trying
    *                                    to generate the MAC.
    */
+  @NotNull()
   private static PassphraseEncryptedStreamHeader decodeHeaderSequence(
-                      final byte[] encodedHeader,
-                      final ASN1Sequence headerSequence,
-                      final char[] passphrase)
+                      @NotNull final byte[] encodedHeader,
+                      @NotNull final ASN1Sequence headerSequence,
+                      @Nullable final char[] passphrase)
           throws LDAPException, InvalidKeyException, GeneralSecurityException
   {
     try
@@ -836,11 +844,12 @@ public final class PassphraseEncryptedStreamHeader
    *                                    not being able to generate a consistent
    *                                    key.
    */
+  @NotNull()
   private static SecretKey generateKeyReliably(
-                      final String keyFactoryAlgorithm,
-                      final String cipherTransformation,
-                      final char[] passphrase,
-                      final byte[] keyFactorySalt,
+                      @NotNull final String keyFactoryAlgorithm,
+                      @NotNull final String cipherTransformation,
+                      @NotNull final char[] passphrase,
+                      @NotNull final byte[] keyFactorySalt,
                       final int keyFactoryIterationCount,
                       final int keyFactoryKeyLengthBits)
           throws GeneralSecurityException
@@ -904,6 +913,7 @@ public final class PassphraseEncryptedStreamHeader
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    creating the cipher.
    */
+  @NotNull()
   Cipher createCipher(final int mode)
          throws InvalidKeyException, GeneralSecurityException
   {
@@ -929,6 +939,7 @@ public final class PassphraseEncryptedStreamHeader
    * @return  The key factory algorithm used to generate the encryption key from
    *          the passphrase.
    */
+  @NotNull()
   public String getKeyFactoryAlgorithm()
   {
     return keyFactoryAlgorithm;
@@ -955,6 +966,7 @@ public final class PassphraseEncryptedStreamHeader
    *
    * @return  The salt used to generate the encryption key from the passphrase.
    */
+  @NotNull()
   public byte[] getKeyFactorySalt()
   {
     return Arrays.copyOf(keyFactorySalt, keyFactorySalt.length);
@@ -981,6 +993,7 @@ public final class PassphraseEncryptedStreamHeader
    *
    * @return  The cipher transformation used for the encryption.
    */
+  @NotNull()
   public String getCipherTransformation()
   {
     return cipherTransformation;
@@ -993,6 +1006,7 @@ public final class PassphraseEncryptedStreamHeader
    *
    * @return  The cipher initialization vector used for the encryption.
    */
+  @NotNull()
   public byte[] getCipherInitializationVector()
   {
     return Arrays.copyOf(cipherInitializationVector,
@@ -1009,6 +1023,7 @@ public final class PassphraseEncryptedStreamHeader
    *          stream header with some other encryption settings object, or
    *          {@code null} if none was provided.
    */
+  @Nullable()
   public String getKeyIdentifier()
   {
     return keyIdentifier;
@@ -1021,6 +1036,7 @@ public final class PassphraseEncryptedStreamHeader
    *
    * @return  The algorithm used to generate a MAC of the header content.
    */
+  @NotNull()
   public String getMACAlgorithm()
   {
     return macAlgorithm;
@@ -1035,6 +1051,7 @@ public final class PassphraseEncryptedStreamHeader
    * @return  An encoded representation of this passphrase-encrypted stream
    *          header.
    */
+  @NotNull()
   public byte[] getEncodedHeader()
   {
     return Arrays.copyOf(encodedHeader, encodedHeader.length);
@@ -1067,6 +1084,7 @@ public final class PassphraseEncryptedStreamHeader
    *         header.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1082,7 +1100,7 @@ public final class PassphraseEncryptedStreamHeader
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PassphraseEncryptedStreamHeader(keyFactoryAlgorithm='");
     buffer.append(keyFactoryAlgorithm);

@@ -49,7 +49,12 @@ import java.io.Serializable;
 @ThreadSafety(level = ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 final class QuotingRequirements implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
   private static final long serialVersionUID = -1430038162579028168L;
+
+
 
   // true if and only if the argument needs to be single-quoted on Unix
   private final boolean requiresSingleQuotesOnUnix;
@@ -66,7 +71,7 @@ final class QuotingRequirements implements Serializable
 
 
   /**
-   * Constructor.
+   * Creates a new instance of the requirements with the provided settings.
    *
    * @param  requiresSingleQuotesOnUnix  {@code true} if the argument requires
    *                                     single-quoting on Unix.

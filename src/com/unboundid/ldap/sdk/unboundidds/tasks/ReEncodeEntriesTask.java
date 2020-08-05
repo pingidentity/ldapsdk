@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public final class ReEncodeEntriesTask
    * The fully-qualified name of the Java class that is used for the re-encode
    * entries task.
    */
-  static final String RE_ENCODE_ENTRIES_TASK_CLASS =
+  @NotNull static final String RE_ENCODE_ENTRIES_TASK_CLASS =
        "com.unboundid.directory.server.tasks.ReEncodeEntriesTask";
 
 
@@ -111,34 +113,35 @@ public final class ReEncodeEntriesTask
    * The name of the attribute used to specify the backend ID containing the
    * entries to re-encode.
    */
-  private static final String ATTR_BACKEND_ID = "ds-task-reencode-backend-id";
+  @NotNull private static final String ATTR_BACKEND_ID =
+       "ds-task-reencode-backend-id";
 
 
   /**
    * The name of the attribute used to specify the include branch(es).
    */
-  private static final String ATTR_INCLUDE_BRANCH =
+  @NotNull private static final String ATTR_INCLUDE_BRANCH =
        "ds-task-reencode-include-branch";
 
 
   /**
    * The name of the attribute used to specify the exclude branch(es).
    */
-  private static final String ATTR_EXCLUDE_BRANCH =
+  @NotNull private static final String ATTR_EXCLUDE_BRANCH =
        "ds-task-reencode-exclude-branch";
 
 
   /**
    * The name of the attribute used to specify the include filter(s).
    */
-  private static final String ATTR_INCLUDE_FILTER =
+  @NotNull private static final String ATTR_INCLUDE_FILTER =
        "ds-task-reencode-include-filter";
 
 
   /**
    * The name of the attribute used to specify the exclude filter(s).
    */
-  private static final String ATTR_EXCLUDE_FILTER =
+  @NotNull private static final String ATTR_EXCLUDE_FILTER =
        "ds-task-reencode-exclude-filter";
 
 
@@ -146,7 +149,7 @@ public final class ReEncodeEntriesTask
    * The name of the attribute used to specify the maximum re-encode rate in
    * entries per second.
    */
-  private static final String ATTR_MAX_ENTRIES_PER_SECOND =
+  @NotNull private static final String ATTR_MAX_ENTRIES_PER_SECOND =
        "ds-task-reencode-max-entries-per-second";
 
 
@@ -154,7 +157,7 @@ public final class ReEncodeEntriesTask
    * The name of the attribute used to specify whether to skip fully uncached
    * entries.
    */
-  private static final String ATTR_SKIP_FULLY_UNCACHED =
+  @NotNull private static final String ATTR_SKIP_FULLY_UNCACHED =
        "ds-task-reencode-skip-fully-uncached-entries";
 
 
@@ -162,21 +165,21 @@ public final class ReEncodeEntriesTask
    * The name of the attribute used to specify whether to skip partially
    * uncached entries.
    */
-  private static final String ATTR_SKIP_PARTIALLY_UNCACHED =
+  @NotNull private static final String ATTR_SKIP_PARTIALLY_UNCACHED =
        "ds-task-reencode-skip-partially-uncached-entries";
 
 
   /**
    * The name of the object class used in re-encode entries task entries.
    */
-  private static final String OC_REENCODE_ENTRIES_TASK =
+  @NotNull private static final String OC_REENCODE_ENTRIES_TASK =
        "ds-task-reencode";
 
 
   /**
    * The task property that will be used for the backend ID.
    */
-  static final TaskProperty PROPERTY_BACKEND_ID =
+  @NotNull static final TaskProperty PROPERTY_BACKEND_ID =
        new TaskProperty(ATTR_BACKEND_ID,
             INFO_DISPLAY_NAME_REENCODE_BACKEND_ID.get(),
             INFO_DESCRIPTION_REENCODE_BACKEND_ID.get(),
@@ -187,7 +190,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the include branch(es).
    */
-  private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
      new TaskProperty(ATTR_INCLUDE_BRANCH,
           INFO_DISPLAY_NAME_REENCODE_INCLUDE_BRANCH.get(),
           INFO_DESCRIPTION_REENCODE_INCLUDE_BRANCH.get(),
@@ -198,7 +201,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the exclude branch(es).
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
      new TaskProperty(ATTR_EXCLUDE_BRANCH,
           INFO_DISPLAY_NAME_REENCODE_EXCLUDE_BRANCH.get(),
           INFO_DESCRIPTION_REENCODE_EXCLUDE_BRANCH.get(),
@@ -209,7 +212,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the include filter(s).
    */
-  private static final TaskProperty PROPERTY_INCLUDE_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_FILTER =
      new TaskProperty(ATTR_INCLUDE_FILTER,
           INFO_DISPLAY_NAME_REENCODE_INCLUDE_FILTER.get(),
           INFO_DESCRIPTION_REENCODE_INCLUDE_FILTER.get(),
@@ -220,7 +223,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the exclude filter(s).
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
      new TaskProperty(ATTR_EXCLUDE_FILTER,
           INFO_DISPLAY_NAME_REENCODE_EXCLUDE_FILTER.get(),
           INFO_DESCRIPTION_REENCODE_EXCLUDE_FILTER.get(),
@@ -231,7 +234,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the maximum reencode rate.
    */
-  private static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
+  @NotNull private static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
      new TaskProperty(ATTR_MAX_ENTRIES_PER_SECOND,
           INFO_DISPLAY_NAME_REENCODE_MAX_ENTRIES_PER_SECOND.get(),
           INFO_DESCRIPTION_REENCODE_MAX_ENTRIES_PER_SECOND.get(),
@@ -243,7 +246,7 @@ public final class ReEncodeEntriesTask
    * The task property that will be used to indicate whether to skip fully
    * uncached entries.
    */
-  private static final TaskProperty PROPERTY_SKIP_FULLY_UNCACHED =
+  @NotNull private static final TaskProperty PROPERTY_SKIP_FULLY_UNCACHED =
      new TaskProperty(ATTR_SKIP_FULLY_UNCACHED,
           INFO_DISPLAY_NAME_REENCODE_SKIP_FULLY_UNCACHED.get(),
           INFO_DESCRIPTION_REENCODE_SKIP_FULLY_UNCACHED.get(),
@@ -255,7 +258,7 @@ public final class ReEncodeEntriesTask
    * The task property that will be used to indicate whether to skip partially
    * uncached entries.
    */
-  private static final TaskProperty PROPERTY_SKIP_PARTIALLY_UNCACHED =
+  @NotNull private static final TaskProperty PROPERTY_SKIP_PARTIALLY_UNCACHED =
      new TaskProperty(ATTR_SKIP_PARTIALLY_UNCACHED,
           INFO_DISPLAY_NAME_REENCODE_SKIP_PARTIALLY_UNCACHED.get(),
           INFO_DESCRIPTION_REENCODE_SKIP_PARTIALLY_UNCACHED.get(),
@@ -277,22 +280,22 @@ public final class ReEncodeEntriesTask
   private final boolean skipPartiallyUncachedEntries;
 
   // The maximum number of entries to re-encode per second.
-  private final Long maxEntriesPerSecond;
+  @Nullable private final Long maxEntriesPerSecond;
 
   // The list of exclude branch DNs.
-  private final List<String> excludeBranches;
+  @NotNull private final List<String> excludeBranches;
 
   // The list of exclude filters.
-  private final List<String> excludeFilters;
+  @NotNull private final List<String> excludeFilters;
 
   // The list of include branch DNs.
-  private final List<String> includeBranches;
+  @NotNull private final List<String> includeBranches;
 
   // The list of include filters.
-  private final List<String> includeFilters;
+  @NotNull private final List<String> includeFilters;
 
   // The backend ID for the backend containing entries to re-encode.
-  private final String backendID;
+  @NotNull private final String backendID;
 
 
 
@@ -357,15 +360,15 @@ public final class ReEncodeEntriesTask
    *                                       a mix of cached and uncached
    *                                       attributes.
    */
-  public ReEncodeEntriesTask(final String taskID,
-                             final String backendID,
-                             final List<String> includeBranches,
-                             final List<String> excludeBranches,
-                             final List<String> includeFilters,
-                             final List<String> excludeFilters,
-                             final Long maxEntriesPerSecond,
-                             final boolean skipFullyUncachedEntries,
-                             final boolean skipPartiallyUncachedEntries)
+  public ReEncodeEntriesTask(@Nullable final String taskID,
+              @NotNull final String backendID,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final Long maxEntriesPerSecond,
+              final boolean skipFullyUncachedEntries,
+              final boolean skipPartiallyUncachedEntries)
   {
     this(taskID, backendID, includeBranches, excludeBranches, includeFilters,
          excludeFilters, maxEntriesPerSecond, skipFullyUncachedEntries,
@@ -430,19 +433,20 @@ public final class ReEncodeEntriesTask
    *                                       if this task does not complete
    *                                       successfully.
    */
-  public ReEncodeEntriesTask(final String taskID, final String backendID,
-              final List<String> includeBranches,
-              final List<String> excludeBranches,
-              final List<String> includeFilters,
-              final List<String> excludeFilters,
-              final Long maxEntriesPerSecond,
+  public ReEncodeEntriesTask(@Nullable final String taskID,
+              @NotNull final String backendID,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final Long maxEntriesPerSecond,
               final boolean skipFullyUncachedEntries,
               final boolean skipPartiallyUncachedEntries,
-              final Date scheduledStartTime,
-              final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnError)
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, backendID, includeBranches, excludeBranches, includeFilters,
          excludeFilters, maxEntriesPerSecond, skipFullyUncachedEntries,
@@ -524,22 +528,25 @@ public final class ReEncodeEntriesTask
    *                                       send an alert notification if this
    *                                       task fails to complete successfully.
    */
-  public ReEncodeEntriesTask(final String taskID, final String backendID,
-              final List<String> includeBranches,
-              final List<String> excludeBranches,
-              final List<String> includeFilters,
-              final List<String> excludeFilters,
-              final Long maxEntriesPerSecond,
+  public ReEncodeEntriesTask(@Nullable final String taskID,
+              @NotNull final String backendID,
+              @Nullable final List<String> includeBranches,
+              @Nullable final List<String> excludeBranches,
+              @Nullable final List<String> includeFilters,
+              @Nullable final List<String> excludeFilters,
+              @Nullable final Long maxEntriesPerSecond,
               final boolean skipFullyUncachedEntries,
               final boolean skipPartiallyUncachedEntries,
-              final Date scheduledStartTime,
-              final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnStart,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnSuccess,
-              final List<String> notifyOnError, final Boolean alertOnStart,
-              final Boolean alertOnSuccess, final Boolean alertOnError)
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, RE_ENCODE_ENTRIES_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -600,7 +607,7 @@ public final class ReEncodeEntriesTask
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         re-encode entries task entry.
    */
-  public ReEncodeEntriesTask(final Entry entry)
+  public ReEncodeEntriesTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -700,7 +707,8 @@ public final class ReEncodeEntriesTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid re-encode entries task.
    */
-  public ReEncodeEntriesTask(final Map<TaskProperty,List<Object>> properties)
+  public ReEncodeEntriesTask(
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(RE_ENCODE_ENTRIES_TASK_CLASS, properties);
@@ -792,6 +800,7 @@ public final class ReEncodeEntriesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_REENCODE_ENTRIES.get();
@@ -803,6 +812,7 @@ public final class ReEncodeEntriesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_REENCODE_ENTRIES.get();
@@ -817,6 +827,7 @@ public final class ReEncodeEntriesTask
    * @return  The backend ID for the backend containing the entries to
    *          re-encode.
    */
+  @NotNull()
   public String getBackendID()
   {
     return backendID;
@@ -831,6 +842,7 @@ public final class ReEncodeEntriesTask
    * @return  The base DNs of the branches to include in re-encode processing,
    *          or an empty list if there should not be any include branches.
    */
+  @NotNull()
   public List<String> getIncludeBranches()
   {
     return includeBranches;
@@ -845,6 +857,7 @@ public final class ReEncodeEntriesTask
    * @return  The base DNs of the branches to exclude from re-encode processing,
    *          or an empty list if there should not be any exclude branches.
    */
+  @NotNull()
   public List<String> getExcludeBranches()
   {
     return excludeBranches;
@@ -860,6 +873,7 @@ public final class ReEncodeEntriesTask
    *          re-encode processing, or an empty list if there should not be any
    *          include filters.
    */
+  @NotNull()
   public List<String> getIncludeFilters()
   {
     return includeFilters;
@@ -875,6 +889,7 @@ public final class ReEncodeEntriesTask
    *          re-encode processing, or an empty list if there should not be any
    *          exclude filters.
    */
+  @NotNull()
   public List<String> getExcludeFilters()
   {
     return excludeFilters;
@@ -889,6 +904,7 @@ public final class ReEncodeEntriesTask
    * @return  The maximum number of entries that should be re-encoded per
    *          second, or {@code null} if no rate limit should be imposed.
    */
+  @Nullable()
   public Long getMaxEntriesPerSecond()
   {
     return maxEntriesPerSecond;
@@ -928,6 +944,7 @@ public final class ReEncodeEntriesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_REENCODE_ENTRIES_TASK);
@@ -939,6 +956,7 @@ public final class ReEncodeEntriesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrList = new ArrayList<>(7);
@@ -983,6 +1001,7 @@ public final class ReEncodeEntriesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -1002,6 +1021,7 @@ public final class ReEncodeEntriesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

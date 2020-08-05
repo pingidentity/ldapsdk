@@ -271,15 +271,17 @@ public final class SubtreeDeleter
 
   // The fixed-rate barrier that will be used to limit the rate at which delete
   // operations will be attempted.
-  private FixedRateBarrier deleteRateLimiter = null;
+  @Nullable private FixedRateBarrier deleteRateLimiter = null;
 
   // A list of additional controls that should be included in search requests
   // used to find the entries to delete.
-  private List<Control> additionalSearchControls = Collections.emptyList();
+  @NotNull private List<Control> additionalSearchControls =
+       Collections.emptyList();
 
   // A list of additional controls that should be included in delete requests
   // used to
-  private List<Control> additionalDeleteControls = Collections.emptyList();
+  @NotNull private List<Control> additionalDeleteControls =
+       Collections.emptyList();
 
 
 
@@ -753,6 +755,7 @@ public final class SubtreeDeleter
    * @return  An unmodifiable list of additional controls that should be
    *          included in search requests used to identify entries to delete.
    */
+  @NotNull()
   public List<Control> getAdditionalSearchControls()
   {
     return additionalSearchControls;
@@ -770,7 +773,7 @@ public final class SubtreeDeleter
    *              not be {@code null} but may be empty.
    */
   public void setAdditionalSearchControls(
-                   final Control... additionalSearchControls)
+                   @NotNull final Control... additionalSearchControls)
   {
     setAdditionalSearchControls(Arrays.asList(additionalSearchControls));
   }
@@ -787,7 +790,7 @@ public final class SubtreeDeleter
    *              not be {@code null} but may be empty.
    */
   public void setAdditionalSearchControls(
-                   final List<Control> additionalSearchControls)
+                   @NotNull final List<Control> additionalSearchControls)
   {
     this.additionalSearchControls = Collections.unmodifiableList(
          new ArrayList<>(additionalSearchControls));
@@ -804,6 +807,7 @@ public final class SubtreeDeleter
    * @return  An unmodifiable list of additional controls that should be
    *          included in delete requests.
    */
+  @NotNull()
   public List<Control> getAdditionalDeleteControls()
   {
     return additionalDeleteControls;
@@ -821,7 +825,7 @@ public final class SubtreeDeleter
    *              empty.
    */
   public void setAdditionalDeleteControls(
-                   final Control... additionalDeleteControls)
+                   @NotNull final Control... additionalDeleteControls)
   {
     setAdditionalDeleteControls(Arrays.asList(additionalDeleteControls));
   }
@@ -838,7 +842,7 @@ public final class SubtreeDeleter
    *              empty.
    */
   public void setAdditionalDeleteControls(
-                   final List<Control> additionalDeleteControls)
+                   @NotNull final List<Control> additionalDeleteControls)
   {
     this.additionalDeleteControls = Collections.unmodifiableList(
          new ArrayList<>(additionalDeleteControls));
@@ -913,6 +917,7 @@ public final class SubtreeDeleter
    *          delete operations, or {@code null} if no rate limit should be
    *          imposed.
    */
+  @Nullable()
   public FixedRateBarrier getDeleteRateLimiter()
   {
     return deleteRateLimiter;
@@ -929,7 +934,8 @@ public final class SubtreeDeleter
    *              on delete operations.  It may be {@code null} if no delete
    *              rate limit should be imposed.
    */
-  public void setDeleteRateLimiter(final FixedRateBarrier deleteRateLimiter)
+  public void setDeleteRateLimiter(
+                  @Nullable final FixedRateBarrier deleteRateLimiter)
   {
     this.deleteRateLimiter = deleteRateLimiter;
   }
@@ -957,8 +963,9 @@ public final class SubtreeDeleter
    * @throws  LDAPException  If the provided base DN cannot be parsed as a valid
    *                         DN.
    */
-  public SubtreeDeleterResult delete(final LDAPInterface connection,
-                                     final String baseDN)
+  @NotNull()
+  public SubtreeDeleterResult delete(@NotNull final LDAPInterface connection,
+                                     @NotNull final String baseDN)
          throws LDAPException
   {
     return delete(connection, new DN(baseDN));
@@ -984,8 +991,9 @@ public final class SubtreeDeleter
    * @return  An object with information about the results of the subtree
    *          delete processing.
    */
-  public SubtreeDeleterResult delete(final LDAPInterface connection,
-                                     final DN baseDN)
+  @NotNull()
+  public SubtreeDeleterResult delete(@NotNull final LDAPInterface connection,
+                                     @NotNull final DN baseDN)
   {
     final AtomicReference<RootDSE> rootDSE = new AtomicReference<>();
     final boolean useSetSubtreeAccessibility =
@@ -1114,15 +1122,17 @@ public final class SubtreeDeleter
    * @return  An object with information about the results of the subtree
    *          delete processing.
    */
-  private static SubtreeDeleterResult delete(final LDAPInterface connection,
-               final DN baseDN, final boolean deleteBaseEntry,
+  @NotNull()
+  private static SubtreeDeleterResult delete(
+               @NotNull final LDAPInterface connection,
+               @NotNull final DN baseDN, final boolean deleteBaseEntry,
                final boolean useSetSubtreeAccessibilityOperation,
                final boolean useSimplePagedResultsControl,
                final int searchRequestSizeLimit, final int pageSize,
                final boolean useSubentriesControl,
-               final List<Control> searchControls,
-               final List<Control> deleteControls,
-               final FixedRateBarrier deleteRateLimiter)
+               @NotNull final List<Control> searchControls,
+               @NotNull final List<Control> deleteControls,
+               @Nullable final FixedRateBarrier deleteRateLimiter)
   {
     if (useSetSubtreeAccessibilityOperation)
     {
@@ -1197,8 +1207,10 @@ public final class SubtreeDeleter
    *          occurred while trying to make the subtree inaccessible, or
    *          {@code null} if the subtree was successfully made inaccessible.
    */
-  private static ExtendedResult setInaccessible(final LDAPInterface connection,
-                                                final DN baseDN)
+  @Nullable()
+  private static ExtendedResult setInaccessible(
+                                     @NotNull final LDAPInterface connection,
+                                     @NotNull final DN baseDN)
   {
     // Use the "Who Am I?" extended operation to get the authorization identity
     // of the provided connection.
@@ -1297,15 +1309,17 @@ public final class SubtreeDeleter
    * @return  An object with information about the results of the subtree
    *          delete processing.
    */
+  @NotNull()
   private static SubtreeDeleterResult deleteEntriesWithSimplePagedResults(
-                      final LDAPInterface connection, final DN baseDN,
+                      @NotNull final LDAPInterface connection,
+                      @NotNull final DN baseDN,
                       final boolean deleteBaseEntry,
                       final int searchRequestSizeLimit,
                       final int pageSize,
                       final boolean useSubentriesControl,
-                      final List<Control> searchControls,
-                      final List<Control> deleteControls,
-                      final FixedRateBarrier deleteRateLimiter)
+                      @NotNull final List<Control> searchControls,
+                      @NotNull final List<Control> deleteControls,
+                      @Nullable final FixedRateBarrier deleteRateLimiter)
   {
     // If we should use the subentries control, then first search to find all
     // subentries in the subtree.
@@ -1417,11 +1431,12 @@ public final class SubtreeDeleter
    * @return  A search request that can be used to find all LDAP subentries at
    *          or below the specified base DN.
    */
+  @NotNull()
   private static SearchRequest createSubentriesSearchRequest(
-                                    final DN baseDN,
+                                    @NotNull final DN baseDN,
                                     final int searchRequestSizeLimit,
-                                    final List<Control> controls,
-                                    final SortedSet<DN> dnSet)
+                                    @NotNull final List<Control> controls,
+                                    @NotNull final SortedSet<DN> dnSet)
   {
     final Filter filter =
          Filter.createEqualityFilter("objectClass", "ldapSubentry");
@@ -1468,11 +1483,12 @@ public final class SubtreeDeleter
    * @return  A search request that can be used to find all entries at or below
    *          the specified base DN that are not LDAP subentries.
    */
+  @NotNull()
   private static SearchRequest createNonSubentriesSearchRequest(
-                                    final DN baseDN,
+                                    @NotNull final DN baseDN,
                                     final int searchRequestSizeLimit,
-                                    final List<Control> controls,
-                                    final SortedSet<DN> dnSet)
+                                    @NotNull final List<Control> controls,
+                                    @NotNull final SortedSet<DN> dnSet)
   {
     final Filter filter = Filter.createPresenceFilter("objectClass");
 
@@ -1519,9 +1535,10 @@ public final class SubtreeDeleter
    *                               processing that prevents it from successfully
    *                               identifying all of the entries.
    */
-  private static void doPagedResultsSearch(final LDAPInterface connection,
-                                           final SearchRequest searchRequest,
-                                           final int pageSize)
+  private static void doPagedResultsSearch(
+                           @NotNull final LDAPInterface connection,
+                           @NotNull final SearchRequest searchRequest,
+                           final int pageSize)
           throws LDAPSearchException
   {
     final SubtreeDeleterSearchResultListener searchListener =
@@ -1645,15 +1662,16 @@ public final class SubtreeDeleter
    * @return  {@code true} if the entry was successfully deleted, or
    *          {@code false} if not.
    */
-  private static boolean deleteEntry(final LDAPInterface connection,
-                              final DN dn, final List<Control> deleteControls,
-                              final AtomicLong entriesDeleted,
-                              final SortedMap<DN,LDAPResult> deleteErrors,
-                              final FixedRateBarrier deleteRateLimiter,
-                              final int searchRequestSizeLimit,
-                              final List<Control> searchControls,
-                              final boolean useSubentriesControl,
-                              final AtomicReference<SearchResult> searchError)
+  private static boolean deleteEntry(@NotNull final LDAPInterface connection,
+               @NotNull final DN dn,
+               @NotNull final List<Control> deleteControls,
+               @NotNull final AtomicLong entriesDeleted,
+               @NotNull final SortedMap<DN,LDAPResult> deleteErrors,
+               @Nullable final FixedRateBarrier deleteRateLimiter,
+               final int searchRequestSizeLimit,
+               @NotNull final List<Control> searchControls,
+               final boolean useSubentriesControl,
+               @NotNull final AtomicReference<SearchResult> searchError)
   {
     if (deleteRateLimiter != null)
     {
@@ -1755,16 +1773,17 @@ public final class SubtreeDeleter
    *          {@code false} if any errors occurred that prevented one or more
    *          entries from being removed.
    */
-  private static boolean searchAndDelete(final LDAPInterface connection,
-                              final DN baseDN,
-                              final int searchRequestSizeLimit,
-                              final List<Control> searchControls,
-                              final boolean useSubentriesControl,
-                              final AtomicReference<SearchResult> searchError,
-                              final List<Control> deleteControls,
-                              final AtomicLong entriesDeleted,
-                              final SortedMap<DN,LDAPResult> deleteErrors,
-                              final FixedRateBarrier deleteRateLimiter)
+  private static boolean searchAndDelete(
+               @NotNull final LDAPInterface connection,
+               @NotNull final DN baseDN,
+               final int searchRequestSizeLimit,
+               @NotNull final List<Control> searchControls,
+               final boolean useSubentriesControl,
+               @NotNull final AtomicReference<SearchResult> searchError,
+               @NotNull final List<Control> deleteControls,
+               @NotNull final AtomicLong entriesDeleted,
+               @NotNull final SortedMap<DN,LDAPResult> deleteErrors,
+               @Nullable final FixedRateBarrier deleteRateLimiter)
   {
     while (true)
     {
@@ -2072,13 +2091,14 @@ public final class SubtreeDeleter
    *          delete processing.
    */
   private static SubtreeDeleterResult deleteEntriesWithoutSimplePagedResults(
-                      final LDAPInterface connection, final DN baseDN,
+                      @NotNull final LDAPInterface connection,
+                      @NotNull final DN baseDN,
                       final boolean deleteBaseEntry,
                       final int searchRequestSizeLimit,
                       final boolean useSubentriesControl,
-                      final List<Control> searchControls,
-                      final List<Control> deleteControls,
-                      final FixedRateBarrier deleteRateLimiter)
+                      @NotNull final List<Control> searchControls,
+                      @NotNull final List<Control> deleteControls,
+                      @Nullable final FixedRateBarrier deleteRateLimiter)
   {
     // If we should use the subentries control, then first search to find all
     // subentries in the subentry, and delete them first.  Continue the
@@ -2168,17 +2188,18 @@ public final class SubtreeDeleter
    *              unsuccessful attempts to delete entries.  It must not be
    *              {@code null}, and must be updatable.
    */
-  private static void searchAndDelete(final LDAPInterface connection,
-                           final DN baseDN, final SearchRequest searchRequest,
-                           final boolean useSubentriesControl,
-                           final List<Control> searchControls,
-                           final TreeSet<DN> dnsToDelete,
-                           final AtomicReference<SearchResult> searchError,
-                           final boolean deleteBaseEntry,
-                           final List<Control> deleteControls,
-                           final FixedRateBarrier deleteRateLimiter,
-                           final AtomicLong entriesDeleted,
-                           final SortedMap<DN,LDAPResult> deleteErrors)
+  private static void searchAndDelete(@NotNull final LDAPInterface connection,
+               @NotNull final DN baseDN,
+               @NotNull final SearchRequest searchRequest,
+               final boolean useSubentriesControl,
+               @NotNull final List<Control> searchControls,
+               @NotNull final TreeSet<DN> dnsToDelete,
+               @NotNull final AtomicReference<SearchResult> searchError,
+               final boolean deleteBaseEntry,
+               @NotNull final List<Control> deleteControls,
+               @Nullable final FixedRateBarrier deleteRateLimiter,
+               @NotNull final AtomicLong entriesDeleted,
+               @NotNull final SortedMap<DN,LDAPResult> deleteErrors)
   {
     while (true)
     {
@@ -2313,9 +2334,10 @@ public final class SubtreeDeleter
    * @return  The result of the attempt to remove the subtree accessibility
    *          restriction.
    */
+  @NotNull()
   private static ExtendedResult removeAccessibilityRestriction(
-                                     final LDAPInterface connection,
-                                     final DN baseDN)
+                                     @NotNull final LDAPInterface connection,
+                                     @NotNull final DN baseDN)
   {
     return processExtendedOperation(connection,
          SetSubtreeAccessibilityExtendedRequest.createSetAccessibleRequest(
@@ -2341,9 +2363,10 @@ public final class SubtreeDeleter
    *
    * @return  The extended result obtained from processing the request.
    */
+  @NotNull()
   private static ExtendedResult processExtendedOperation(
-                                     final LDAPInterface connection,
-                                     final ExtendedRequest request)
+                                     @NotNull final LDAPInterface connection,
+                                     @NotNull final ExtendedRequest request)
   {
     try
     {
@@ -2392,9 +2415,10 @@ public final class SubtreeDeleter
    * @return  {@code true} if the server advertises support for the specified
    *          request control, or {@code false} if not.
    */
-  private static boolean supportsExtendedRequest(final LDAPInterface connection,
-                              final AtomicReference<RootDSE> rootDSE,
-                              final String oid)
+  private static boolean supportsExtendedRequest(
+                              @NotNull final LDAPInterface connection,
+                              @NotNull final AtomicReference<RootDSE> rootDSE,
+                              @NotNull final String oid)
   {
     final RootDSE dse = getRootDSE(connection, rootDSE);
     if (dse == null)
@@ -2427,9 +2451,10 @@ public final class SubtreeDeleter
    * @return  {@code true} if the server advertises support for the specified
    *          request control, or {@code false} if not.
    */
-  private static boolean supportsControl(final LDAPInterface connection,
-                                         final AtomicReference<RootDSE> rootDSE,
-                                         final String oid)
+  private static boolean supportsControl(
+                              @NotNull final LDAPInterface connection,
+                              @NotNull final AtomicReference<RootDSE> rootDSE,
+                              @NotNull final String oid)
   {
     final RootDSE dse = getRootDSE(connection, rootDSE);
     if (dse == null)
@@ -2460,8 +2485,9 @@ public final class SubtreeDeleter
    * @return  The server's root DSE, or {@code null} if it could not be
    *          retrieved.
    */
-  private static RootDSE getRootDSE(final LDAPInterface connection,
-                                    final AtomicReference<RootDSE> rootDSE)
+  @Nullable()
+  private static RootDSE getRootDSE(@NotNull final LDAPInterface connection,
+                              @NotNull final AtomicReference<RootDSE> rootDSE)
   {
     final RootDSE dse = rootDSE.get();
     if (dse != null)
@@ -2488,6 +2514,7 @@ public final class SubtreeDeleter
    * @return  A string representation of this subtree deleter.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -2504,7 +2531,7 @@ public final class SubtreeDeleter
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SubtreeDeleter(deleteBaseEntry=");
     buffer.append(deleteBaseEntry);

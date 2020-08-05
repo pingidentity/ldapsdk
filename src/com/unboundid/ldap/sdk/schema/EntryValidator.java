@@ -59,6 +59,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -127,34 +129,34 @@ public final class EntryValidator
 
 
   // A count of the total number of entries examined.
-  private final AtomicLong entriesExamined;
+  @NotNull private final AtomicLong entriesExamined;
 
   // A count of the number of entries missing an attribute value contained in
   // the RDN.
-  private final AtomicLong entriesMissingRDNValues;
+  @NotNull private final AtomicLong entriesMissingRDNValues;
 
   // A count of the total number of invalid entries encountered.
-  private final AtomicLong invalidEntries;
+  @NotNull private final AtomicLong invalidEntries;
 
   // A count of the number of entries with DNs that could not be parsed.
-  private final AtomicLong malformedDNs;
+  @NotNull private final AtomicLong malformedDNs;
 
   // A count of the number of entries missing a superior object class.
-  private final AtomicLong missingSuperiorClasses;
+  @NotNull private final AtomicLong missingSuperiorClasses;
 
   // A count of the number of entries containing multiple structural object
   // classes.
-  private final AtomicLong multipleStructuralClasses;
+  @NotNull private final AtomicLong multipleStructuralClasses;
 
   // A count of the number of entries with RDNs that violate the associated
   // name form.
-  private final AtomicLong nameFormViolations;
+  @NotNull private final AtomicLong nameFormViolations;
 
   // A count of the number of entries without any object class.
-  private final AtomicLong noObjectClasses;
+  @NotNull private final AtomicLong noObjectClasses;
 
   // A count of the number of entries without a structural object class.
-  private final AtomicLong noStructuralClass;
+  @NotNull private final AtomicLong noStructuralClass;
 
   // Indicates whether an entry should be considered invalid if it contains an
   // attribute value which violates the associated attribute syntax.
@@ -208,37 +210,43 @@ public final class EntryValidator
 
   // A map of the attributes with values violating the associated syntax to the
   // number of values found violating the syntax.
-  private final ConcurrentHashMap<String,AtomicLong> attributesViolatingSyntax;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong>
+       attributesViolatingSyntax;
 
   // A map of the required attribute types that were missing from entries to
   // the number of entries missing them.
-  private final ConcurrentHashMap<String,AtomicLong> missingAttributes;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong> missingAttributes;
 
   // A map of the prohibited attribute types that were included in entries to
   // the number of entries referencing them.
-  private final ConcurrentHashMap<String,AtomicLong> prohibitedAttributes;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong>
+       prohibitedAttributes;
 
   // A map of the prohibited auxiliary object classes that were included in
   // entries to the number of entries referencing them.
-  private final ConcurrentHashMap<String,AtomicLong> prohibitedObjectClasses;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong>
+       prohibitedObjectClasses;
 
   // A map of the single-valued attributes with multiple values to the number
   // of entries with multiple values for those attributes.
-  private final ConcurrentHashMap<String,AtomicLong> singleValueViolations;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong>
+       singleValueViolations;
 
   // A map of undefined attribute types to the number of entries referencing
   // them.
-  private final ConcurrentHashMap<String,AtomicLong> undefinedAttributes;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong>
+       undefinedAttributes;
 
   // A map of undefined object classes to the number of entries referencing
   // them.
-  private final ConcurrentHashMap<String,AtomicLong> undefinedObjectClasses;
+  @NotNull private final ConcurrentHashMap<String,AtomicLong>
+       undefinedObjectClasses;
 
   // The schema against which entries will be validated.
-  private final Schema schema;
+  @NotNull private final Schema schema;
 
   // The attribute types for which to ignore syntax violations.
-  private Set<AttributeTypeDefinition> ignoreSyntaxViolationTypes;
+  @NotNull private Set<AttributeTypeDefinition> ignoreSyntaxViolationTypes;
 
 
 
@@ -248,7 +256,7 @@ public final class EntryValidator
    *
    * @param  schema  The schema against which entries will be validated.
    */
-  public EntryValidator(final Schema schema)
+  public EntryValidator(@NotNull final Schema schema)
   {
     this.schema = schema;
 
@@ -633,6 +641,7 @@ public final class EntryValidator
    * @return  The set of attribute types for which syntax violations should be
    *          ignored.
    */
+  @NotNull()
   public Set<AttributeTypeDefinition> getIgnoreSyntaxViolationsAttributeTypes()
   {
     return ignoreSyntaxViolationTypes;
@@ -651,7 +660,7 @@ public final class EntryValidator
    *                         ignored.
    */
   public void setIgnoreSyntaxViolationAttributeTypes(
-                   final AttributeTypeDefinition... attributeTypes)
+                   @Nullable final AttributeTypeDefinition... attributeTypes)
   {
     if (attributeTypes == null)
     {
@@ -677,7 +686,7 @@ public final class EntryValidator
    *                         ignored.
    */
   public void setIgnoreSyntaxViolationAttributeTypes(
-                   final String... attributeTypes)
+                   @Nullable final String... attributeTypes)
   {
     setIgnoreSyntaxViolationAttributeTypes(StaticUtils.toList(attributeTypes));
   }
@@ -696,7 +705,7 @@ public final class EntryValidator
    *                         schema will be ignored.
    */
   public void setIgnoreSyntaxViolationAttributeTypes(
-                   final Collection<String> attributeTypes)
+                   @Nullable final Collection<String> attributeTypes)
   {
     if (attributeTypes == null)
     {
@@ -798,8 +807,8 @@ public final class EntryValidator
    *          validation, or {@code false} if the entry fails at least one of
    *          the tests.
    */
-  public boolean entryIsValid(final Entry entry,
-                              final List<String> invalidReasons)
+  public boolean entryIsValid(@NotNull final Entry entry,
+                              @Nullable final List<String> invalidReasons)
   {
     Validator.ensureNotNull(entry);
 
@@ -857,7 +866,7 @@ public final class EntryValidator
     }
 
     // If we should check for missing required attributes, then do so.
-    HashSet<AttributeTypeDefinition> requiredAttrs = null;
+    Set<AttributeTypeDefinition> requiredAttrs = Collections.emptySet();
     if (checkMissingAttributes || checkProhibitedAttributes)
     {
       requiredAttrs = getRequiredAttributes(ocSet, ditContentRule);
@@ -872,7 +881,7 @@ public final class EntryValidator
     // are all defined in the schema, that they are allowed to be present in the
     // entry, that their values conform to the associated syntax, and that any
     // single-valued attributes have only one value.
-    HashSet<AttributeTypeDefinition> optionalAttrs = null;
+    Set<AttributeTypeDefinition> optionalAttrs = Collections.emptySet();
     if (checkProhibitedAttributes)
     {
       optionalAttrs =
@@ -926,9 +935,9 @@ public final class EntryValidator
    *          performed by this method, or {@code false} if there were any
    *          failures.
    */
-  private boolean getObjectClasses(final Entry entry,
-                                   final HashSet<ObjectClassDefinition> ocSet,
-                                   final List<String> invalidReasons)
+  private boolean getObjectClasses(@NotNull final Entry entry,
+                       @NotNull final HashSet<ObjectClassDefinition> ocSet,
+                       @Nullable final List<String> invalidReasons)
   {
     final String[] ocValues = entry.getObjectClassValues();
     if ((ocValues == null) || (ocValues.length == 0))
@@ -993,10 +1002,10 @@ public final class EntryValidator
    *          performed by this method, or {@code false} if there were any
    *          failures.
    */
-  private boolean addSuperiorClasses(final ObjectClassDefinition d,
-                                     final HashSet<ObjectClassDefinition> ocSet,
-                                     final HashSet<String> missingOCNames,
-                                     final List<String> invalidReasons)
+  private boolean addSuperiorClasses(@NotNull final ObjectClassDefinition d,
+                       @NotNull final HashSet<ObjectClassDefinition> ocSet,
+                       @NotNull final HashSet<String> missingOCNames,
+                       @Nullable final List<String> invalidReasons)
   {
     boolean entryValid = true;
 
@@ -1063,9 +1072,10 @@ public final class EntryValidator
    * @return  {@code true} if the entry passes all validation checks performed
    *          by this method, or {@code false} if not.
    */
-  private boolean getStructuralClass(final HashSet<ObjectClassDefinition> ocSet,
-               final AtomicReference<ObjectClassDefinition> structuralClass,
-               final List<String> invalidReasons)
+  private boolean getStructuralClass(
+       @NotNull final HashSet<ObjectClassDefinition> ocSet,
+       @NotNull final AtomicReference<ObjectClassDefinition> structuralClass,
+       @Nullable final List<String> invalidReasons)
   {
     final HashSet<ObjectClassDefinition> ocCopy = new HashSet<>(ocSet);
     for (final ObjectClassDefinition d : ocSet)
@@ -1162,9 +1172,10 @@ public final class EntryValidator
    * @return  The set of attributes which must be present in entries with the
    *          provided set of object classes and DIT content rule.
    */
+  @NotNull()
   private HashSet<AttributeTypeDefinition> getRequiredAttributes(
-               final HashSet<ObjectClassDefinition> ocSet,
-               final DITContentRuleDefinition ditContentRule)
+               @NotNull final HashSet<ObjectClassDefinition> ocSet,
+               @Nullable final DITContentRuleDefinition ditContentRule)
   {
     final HashSet<AttributeTypeDefinition> attrSet =
          new HashSet<>(StaticUtils.computeMapCapacity(20));
@@ -1201,10 +1212,11 @@ public final class EntryValidator
    * @return  The set of attributes which may optionally be present in entries
    *          with the provided set of object classes and DIT content rule.
    */
+  @NotNull()
   private HashSet<AttributeTypeDefinition> getOptionalAttributes(
-               final HashSet<ObjectClassDefinition> ocSet,
-               final DITContentRuleDefinition ditContentRule,
-               final HashSet<AttributeTypeDefinition> requiredAttrSet)
+               @NotNull final HashSet<ObjectClassDefinition> ocSet,
+               @Nullable final DITContentRuleDefinition ditContentRule,
+               @NotNull final Set<AttributeTypeDefinition> requiredAttrSet)
   {
     final HashSet<AttributeTypeDefinition> attrSet =
          new HashSet<>(StaticUtils.computeMapCapacity(20));
@@ -1268,9 +1280,10 @@ public final class EntryValidator
    * @return  {@code true} if the entry has all required attributes, or
    *          {@code false} if not.
    */
-  private boolean checkForMissingAttributes(final Entry entry, final RDN rdn,
-                       final HashSet<AttributeTypeDefinition> requiredAttrs,
-                       final List<String> invalidReasons)
+  private boolean checkForMissingAttributes(@NotNull final Entry entry,
+               @Nullable final RDN rdn,
+               @NotNull final Set<AttributeTypeDefinition> requiredAttrs,
+               @Nullable final List<String> invalidReasons)
   {
     boolean entryValid = true;
 
@@ -1322,10 +1335,10 @@ public final class EntryValidator
    * @return  {@code true} if the attribute passed all of the checks and appears
    *          to be valid, or {@code false} if it failed any of the checks.
    */
-  private boolean checkAttribute(final Attribute attr,
-                       final HashSet<AttributeTypeDefinition> requiredAttrs,
-                       final HashSet<AttributeTypeDefinition> optionalAttrs,
-                       final List<String> invalidReasons)
+  private boolean checkAttribute(@NotNull final Attribute attr,
+               @NotNull final Set<AttributeTypeDefinition> requiredAttrs,
+               @NotNull final Set<AttributeTypeDefinition> optionalAttrs,
+               @Nullable final List<String> invalidReasons)
   {
     boolean entryValid = true;
 
@@ -1715,9 +1728,9 @@ public final class EntryValidator
    *          method, or {@code false} if not.
    */
   private boolean checkAuxiliaryClasses(
-                       final HashSet<ObjectClassDefinition> ocSet,
-                       final DITContentRuleDefinition ditContentRule,
-                       final List<String> invalidReasons)
+               @NotNull final HashSet<ObjectClassDefinition> ocSet,
+               @NotNull final DITContentRuleDefinition ditContentRule,
+               @Nullable final List<String> invalidReasons)
   {
     final HashSet<ObjectClassDefinition> auxSet =
          new HashSet<>(StaticUtils.computeMapCapacity(20));
@@ -1771,11 +1784,11 @@ public final class EntryValidator
    * @return  {@code true} if the entry passes all checks performed by this
    *          method, or {@code false} if not.
    */
-  private boolean checkRDN(final RDN rdn, final Entry entry,
-                           final HashSet<AttributeTypeDefinition> requiredAttrs,
-                           final HashSet<AttributeTypeDefinition> optionalAttrs,
-                           final NameFormDefinition nameForm,
-                           final List<String> invalidReasons)
+  private boolean checkRDN(@NotNull final RDN rdn, @NotNull final Entry entry,
+               @NotNull final Set<AttributeTypeDefinition> requiredAttrs,
+               @NotNull final Set<AttributeTypeDefinition> optionalAttrs,
+               @Nullable final NameFormDefinition nameForm,
+               @Nullable final List<String> invalidReasons)
   {
     final HashSet<AttributeTypeDefinition> nfReqAttrs =
          new HashSet<>(StaticUtils.computeMapCapacity(5));
@@ -1905,8 +1918,8 @@ public final class EntryValidator
    * @param  key  The key for which the count is to be updated.
    * @param  map  The map in which the update is to be made.
    */
-  private static void updateCount(final String key,
-                           final ConcurrentHashMap<String,AtomicLong> map)
+  private static void updateCount(@NotNull final String key,
+               @NotNull final ConcurrentHashMap<String,AtomicLong> map)
   {
     final String lowerKey = StaticUtils.toLowerCase(key);
     AtomicLong l = map.get(lowerKey);
@@ -2095,6 +2108,7 @@ public final class EntryValidator
    *
    * @return  The undefined object classes encountered while processing entries.
    */
+  @NotNull()
   public Map<String,Long> getUndefinedObjectClasses()
   {
     return convertMap(undefinedObjectClasses);
@@ -2126,6 +2140,7 @@ public final class EntryValidator
    * @return  The undefined attribute types encountered while processing
    *          entries.
    */
+  @NotNull()
   public Map<String,Long> getUndefinedAttributes()
   {
     return convertMap(undefinedAttributes);
@@ -2157,6 +2172,7 @@ public final class EntryValidator
    * @return  The prohibited object classes encountered while processing
    *          entries.
    */
+  @NotNull()
   public Map<String,Long> getProhibitedObjectClasses()
   {
     return convertMap(prohibitedObjectClasses);
@@ -2187,6 +2203,7 @@ public final class EntryValidator
    *
    * @return  The prohibited attributes encountered while processing entries.
    */
+  @NotNull()
   public Map<String,Long> getProhibitedAttributes()
   {
     return convertMap(prohibitedAttributes);
@@ -2216,6 +2233,7 @@ public final class EntryValidator
    *
    * @return  The prohibited attributes encountered while processing entries.
    */
+  @NotNull()
   public Map<String,Long> getMissingAttributes()
   {
     return convertMap(missingAttributes);
@@ -2247,6 +2265,7 @@ public final class EntryValidator
    * @return  The attributes with malformed values encountered while processing
    *          entries.
    */
+  @NotNull()
   public Map<String,Long> getAttributesViolatingSyntax()
   {
     return convertMap(attributesViolatingSyntax);
@@ -2280,6 +2299,7 @@ public final class EntryValidator
    * @return  The attributes defined as single-valued that contained multiple
    *          values which were encountered while processing entries.
    */
+  @NotNull()
   public Map<String,Long> getSingleValueViolations()
   {
     return convertMap(singleValueViolations);
@@ -2295,7 +2315,7 @@ public final class EntryValidator
    *
    * @return  The total number of occurrences for all items in the provided map.
    */
-  private static long getMapTotal(final Map<String,AtomicLong> map)
+  private static long getMapTotal(@NotNull final Map<String,AtomicLong> map)
   {
     long total = 0L;
 
@@ -2317,7 +2337,9 @@ public final class EntryValidator
    *
    * @return  The new map.
    */
-  private static Map<String,Long> convertMap(final Map<String,AtomicLong> map)
+  @NotNull()
+  private static Map<String,Long> convertMap(
+                      @NotNull final Map<String,AtomicLong> map)
   {
     final TreeMap<String,Long> m = new TreeMap<>();
     for (final Map.Entry<String,AtomicLong> e : map.entrySet())
@@ -2342,6 +2364,7 @@ public final class EntryValidator
    *          processed by this class, or an empty list if all entries examined
    *          were valid.
    */
+  @NotNull()
   public List<String> getInvalidEntrySummary(final boolean detailedResults)
   {
     final long numInvalid = invalidEntries.get();

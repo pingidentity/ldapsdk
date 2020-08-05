@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -91,7 +93,7 @@ public enum UniquenessValidationResult
 
 
   // The name for this validation result.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -100,7 +102,7 @@ public enum UniquenessValidationResult
    *
    * @param  name  The name for this uniqueness validation result.
    */
-  UniquenessValidationResult(final String name)
+  UniquenessValidationResult(@NotNull final String name)
   {
     this.name = name;
   }
@@ -112,6 +114,7 @@ public enum UniquenessValidationResult
    *
    * @return  The name for this uniqueness validation result.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -128,7 +131,8 @@ public enum UniquenessValidationResult
    * @return  The uniqueness validation result with the given name, or
    *          {@code null} if there is no result with the given name.
    */
-  public static UniquenessValidationResult forName(final String name)
+  @Nullable()
+  public static UniquenessValidationResult forName(@NotNull final String name)
   {
     final String n = StaticUtils.toLowerCase(name).replace('_', '-');
     for (final UniquenessValidationResult r : values())
@@ -150,6 +154,7 @@ public enum UniquenessValidationResult
    * @return  A string representation for this uniqueness validation result.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

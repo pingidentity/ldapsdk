@@ -37,6 +37,8 @@ package com.unboundid.ldif;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -84,7 +86,8 @@ public enum DuplicateValueBehavior
    * @return  The requested duplicate value behavior, or {@code null} if no such
    *          behavior is defined.
    */
-  public static DuplicateValueBehavior forName(final String name)
+  @Nullable()
+  public static DuplicateValueBehavior forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

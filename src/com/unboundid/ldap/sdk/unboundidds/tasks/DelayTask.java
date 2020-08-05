@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class DelayTask
   /**
    * The fully-qualified name of the Java class that is used for the delay task.
    */
-  static final String DELAY_TASK_CLASS =
+  @NotNull static final String DELAY_TASK_CLASS =
        "com.unboundid.directory.server.tasks.DelayTask";
 
 
@@ -96,7 +98,7 @@ public final class DelayTask
    * The name of the attribute used to specify the length of time that the
    * task should sleep.
    */
-  private static final String ATTR_SLEEP_DURATION =
+  @NotNull private static final String ATTR_SLEEP_DURATION =
        "ds-task-delay-sleep-duration";
 
 
@@ -105,7 +107,7 @@ public final class DelayTask
    * The name of the task attribute that indicates whether to wait for the work
    * queue to become idle.
    */
-  private static final String ATTR_WAIT_FOR_WORK_QUEUE_IDLE =
+  @NotNull private static final String ATTR_WAIT_FOR_WORK_QUEUE_IDLE =
        "ds-task-delay-duration-to-wait-for-work-queue-idle";
 
 
@@ -114,7 +116,7 @@ public final class DelayTask
    * The name of the task attribute that provides a set of LDAP URLs to use to
    * issue searches that are expected to eventually return entries.
    */
-  private static final String ATTR_SEARCH_URL =
+  @NotNull private static final String ATTR_SEARCH_URL =
        "ds-task-delay-ldap-url-for-search-expected-to-return-entries";
 
 
@@ -123,7 +125,7 @@ public final class DelayTask
    * The name of the task attribute that specifies the length of time between
    * searches.
    */
-  private static final String ATTR_SEARCH_INTERVAL =
+  @NotNull private static final String ATTR_SEARCH_INTERVAL =
        "ds-task-delay-search-interval";
 
 
@@ -132,7 +134,7 @@ public final class DelayTask
    * The name of the task attribute that specifies the time limit for each
    * search.
    */
-  private static final String ATTR_SEARCH_TIME_LIMIT =
+  @NotNull private static final String ATTR_SEARCH_TIME_LIMIT =
        "ds-task-delay-search-time-limit";
 
 
@@ -141,7 +143,7 @@ public final class DelayTask
    * The name of the task attribute that specifies the total length of time to
    * wait for each search to return one or more entries.
    */
-  private static final String ATTR_SEARCH_DURATION =
+  @NotNull private static final String ATTR_SEARCH_DURATION =
        "ds-task-delay-duration-to-wait-for-search-to-return-entries";
 
 
@@ -150,7 +152,7 @@ public final class DelayTask
    * The name of the task attribute that specifies the task return state to use
    * if a timeout is encountered during processing.
    */
-  private static final String ATTR_TIMEOUT_RETURN_STATE =
+  @NotNull private static final String ATTR_TIMEOUT_RETURN_STATE =
        "ds-task-delay-task-return-state-if-timeout-is-encountered";
 
 
@@ -158,14 +160,14 @@ public final class DelayTask
   /**
    * The name of the object class used in delay task entries.
    */
-  private static final String OC_DELAY_TASK = "ds-task-delay";
+  @NotNull private static final String OC_DELAY_TASK = "ds-task-delay";
 
 
 
   /**
    * The task property that will be used for the sleep duration.
    */
-  private static final TaskProperty PROPERTY_SLEEP_DURATION_MILLIS =
+  @NotNull private static final TaskProperty PROPERTY_SLEEP_DURATION_MILLIS =
      new TaskProperty(ATTR_SLEEP_DURATION,
           INFO_DELAY_DISPLAY_NAME_SLEEP_DURATION.get(),
           INFO_DELAY_DESCRIPTION_SLEEP_DURATION.get(), Long.class, false,
@@ -177,11 +179,12 @@ public final class DelayTask
    * The task property that will be used for the length of time to wait for the
    * work queue to report that the server is idle.
    */
-  private static final TaskProperty PROPERTY_WAIT_FOR_WORK_QUEUE_IDLE_MILLIS =
-     new TaskProperty(ATTR_WAIT_FOR_WORK_QUEUE_IDLE,
-          INFO_DELAY_DISPLAY_NAME_WAIT_FOR_WORK_QUEUE_IDLE.get(),
-          INFO_DELAY_DESCRIPTION_WAIT_FOR_WORK_QUEUE_IDLE.get(), Long.class,
-          false, false, false);
+  @NotNull private static final TaskProperty
+       PROPERTY_WAIT_FOR_WORK_QUEUE_IDLE_MILLIS = new TaskProperty(
+            ATTR_WAIT_FOR_WORK_QUEUE_IDLE,
+            INFO_DELAY_DISPLAY_NAME_WAIT_FOR_WORK_QUEUE_IDLE.get(),
+            INFO_DELAY_DESCRIPTION_WAIT_FOR_WORK_QUEUE_IDLE.get(), Long.class,
+            false, false, false);
 
 
 
@@ -189,7 +192,7 @@ public final class DelayTask
    * The task property that will be used to provide LDAP URLs for searches that
    * are expected to eventually return entries.
    */
-  private static final TaskProperty PROPERTY_SEARCH_URL =
+  @NotNull private static final TaskProperty PROPERTY_SEARCH_URL =
      new TaskProperty(ATTR_SEARCH_URL,
           INFO_DELAY_DISPLAY_NAME_SEARCH_URL.get(),
           INFO_DELAY_DESCRIPTION_SEARCH_URL.get(), String.class, false, true,
@@ -201,7 +204,7 @@ public final class DelayTask
    * The task property that will be used to specify the length of time between
    * searches.
    */
-  private static final TaskProperty PROPERTY_SEARCH_INTERVAL_MILLIS =
+  @NotNull private static final TaskProperty PROPERTY_SEARCH_INTERVAL_MILLIS =
      new TaskProperty(ATTR_SEARCH_INTERVAL,
           INFO_DELAY_DISPLAY_NAME_SEARCH_INTERVAL.get(),
           INFO_DELAY_DESCRIPTION_SEARCH_INTERVAL.get(), Long.class, false,
@@ -213,7 +216,7 @@ public final class DelayTask
    * The task property that will be used to specify the time limit for each
    * search.
    */
-  private static final TaskProperty PROPERTY_SEARCH_TIME_LIMIT_MILLIS =
+  @NotNull private static final TaskProperty PROPERTY_SEARCH_TIME_LIMIT_MILLIS =
      new TaskProperty(ATTR_SEARCH_TIME_LIMIT,
           INFO_DELAY_DISPLAY_NAME_SEARCH_TIME_LIMIT.get(),
           INFO_DELAY_DESCRIPTION_SEARCH_TIME_LIMIT.get(), Long.class, false,
@@ -225,7 +228,7 @@ public final class DelayTask
    * The task property that will be used to specify the total length of time
    * allowed for a search to return entries.
    */
-  private static final TaskProperty PROPERTY_SEARCH_DURATION_MILLIS =
+  @NotNull private static final TaskProperty PROPERTY_SEARCH_DURATION_MILLIS =
      new TaskProperty(ATTR_SEARCH_DURATION,
           INFO_DELAY_DISPLAY_NAME_SEARCH_DURATION.get(),
           INFO_DELAY_DESCRIPTION_SEARCH_DURATION.get(), Long.class, false,
@@ -237,7 +240,7 @@ public final class DelayTask
    * The task property that will be used for the task return state if a timeout
    * is encountered.
    */
-  private static final TaskProperty PROPERTY_TIMEOUT_RETURN_STATE =
+  @NotNull private static final TaskProperty PROPERTY_TIMEOUT_RETURN_STATE =
      new TaskProperty(ATTR_TIMEOUT_RETURN_STATE,
           INFO_DELAY_DISPLAY_NAME_TIMEOUT_RETURN_STATE.get(),
           INFO_DELAY_DESCRIPTION_TIMEOUT_RETURN_STATE.get(),
@@ -263,29 +266,30 @@ public final class DelayTask
 
   // A list of LDAP URLs that define searches that are expected to return
   // entries.
-  private final List<LDAPURL> ldapURLsForSearchesExpectedToReturnEntries;
+  @NotNull private final List<LDAPURL>
+       ldapURLsForSearchesExpectedToReturnEntries;
 
   // The length of time, in milliseconds, between each search.
-  private final Long millisBetweenSearches;
+  @Nullable private final Long millisBetweenSearches;
 
   // The maximum length of time, in milliseconds, that the task should wait for
   // the work queue to report that the server is idle.
-  private final Long millisToWaitForWorkQueueToBecomeIdle;
+  @Nullable private final Long millisToWaitForWorkQueueToBecomeIdle;
 
   // The maximum length of time, in milliseconds, to wait for a response to
   // each search.
-  private final Long searchTimeLimitMillis;
+  @Nullable private final Long searchTimeLimitMillis;
 
   // The length of time, in milliseconds, that the task should sleep.
-  private final Long sleepDurationMillis;
+  @Nullable private final Long sleepDurationMillis;
 
   // The maximum length of time, in milliseconds, to wait for each search to
   // return at least one entry.
-  private final Long totalDurationMillisForEachLDAPURL;
+  @Nullable private final Long totalDurationMillisForEachLDAPURL;
 
   // The task state that should be returned if a timeout is encountered during
   // task processing.
-  private final String taskStateIfTimeoutIsEncountered;
+  @Nullable private final String taskStateIfTimeoutIsEncountered;
 
 
 
@@ -375,12 +379,14 @@ public final class DelayTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public DelayTask(final Long sleepDurationMillis,
-       final Long millisToWaitForWorkQueueToBecomeIdle,
-       final Collection<LDAPURL> ldapURLsForSearchesExpectedToReturnEntries,
-       final Long millisBetweenSearches, final Long searchTimeLimitMillis,
-       final Long totalDurationMillisForEachLDAPURL,
-       final TaskState taskStateIfTimeoutIsEncountered)
+  public DelayTask(@Nullable final Long sleepDurationMillis,
+       @Nullable final Long millisToWaitForWorkQueueToBecomeIdle,
+       @Nullable final Collection<LDAPURL>
+            ldapURLsForSearchesExpectedToReturnEntries,
+       @Nullable final Long millisBetweenSearches,
+       @Nullable final Long searchTimeLimitMillis,
+       @Nullable final Long totalDurationMillisForEachLDAPURL,
+       @Nullable final TaskState taskStateIfTimeoutIsEncountered)
        throws TaskException
   {
     this(null, sleepDurationMillis, millisToWaitForWorkQueueToBecomeIdle,
@@ -491,18 +497,25 @@ public final class DelayTask
    * @throws  TaskException  If there is a problem with any of the provided
    *                         arguments.
    */
-  public DelayTask(final String taskID, final Long sleepDurationMillis,
-       final Long millisToWaitForWorkQueueToBecomeIdle,
-       final Collection<LDAPURL> ldapURLsForSearchesExpectedToReturnEntries,
-       final Long millisBetweenSearches, final Long searchTimeLimitMillis,
-       final Long totalDurationMillisForEachLDAPURL,
-       final TaskState taskStateIfTimeoutIsEncountered,
-       final Date scheduledStartTime, final List<String> dependencyIDs,
-       final FailedDependencyAction failedDependencyAction,
-       final List<String> notifyOnStart, final List<String> notifyOnCompletion,
-       final List<String> notifyOnSuccess, final List<String> notifyOnError,
-       final Boolean alertOnStart, final Boolean alertOnSuccess,
-       final Boolean alertOnError)
+  public DelayTask(@Nullable final String taskID,
+       @Nullable final Long sleepDurationMillis,
+       @Nullable final Long millisToWaitForWorkQueueToBecomeIdle,
+       @Nullable final Collection<LDAPURL>
+            ldapURLsForSearchesExpectedToReturnEntries,
+       @Nullable final Long millisBetweenSearches,
+       @Nullable final Long searchTimeLimitMillis,
+       @Nullable final Long totalDurationMillisForEachLDAPURL,
+       @Nullable final TaskState taskStateIfTimeoutIsEncountered,
+       @Nullable final Date scheduledStartTime,
+       @Nullable final List<String> dependencyIDs,
+       @Nullable final FailedDependencyAction failedDependencyAction,
+       @Nullable final List<String> notifyOnStart,
+       @Nullable final List<String> notifyOnCompletion,
+       @Nullable final List<String> notifyOnSuccess,
+       @Nullable final List<String> notifyOnError,
+       @Nullable final Boolean alertOnStart,
+       @Nullable final Boolean alertOnSuccess,
+       @Nullable final Boolean alertOnError)
        throws TaskException
   {
     super(taskID, DELAY_TASK_CLASS, scheduledStartTime, dependencyIDs,
@@ -609,7 +622,7 @@ public final class DelayTask
    * @throws  TaskException  If the provided entry cannot be parsed as an delay
    *                         task entry.
    */
-  public DelayTask(final Entry entry)
+  public DelayTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -678,8 +691,9 @@ public final class DelayTask
    * @throws  TaskException  If the attribute value cannot be parsed as a
    *                         duration.
    */
-  private static Long parseDuration(final Entry entry,
-                                    final String attributeName)
+  @Nullable()
+  private static Long parseDuration(@NotNull final Entry entry,
+                                    @NotNull final String attributeName)
           throws TaskException
   {
     final String value = entry.getAttributeValue(attributeName);
@@ -713,7 +727,7 @@ public final class DelayTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid delay task.
    */
-  public DelayTask(final Map<TaskProperty,List<Object>> properties)
+  public DelayTask(@NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(DELAY_TASK_CLASS, properties);
@@ -788,6 +802,7 @@ public final class DelayTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_DELAY.get();
@@ -799,6 +814,7 @@ public final class DelayTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_DELAY.get();
@@ -813,6 +829,7 @@ public final class DelayTask
    *          or {@code null} if the task should not sleep for a specified
    *          period of time.
    */
+  @Nullable()
   public Long getSleepDurationMillis()
   {
     return sleepDurationMillis;
@@ -829,6 +846,7 @@ public final class DelayTask
    *          the server work queue to report that it is idle, or {@code null}
    *          if the task should not wait for the work queue to be idle
    */
+  @Nullable()
   public Long getMillisToWaitForWorkQueueToBecomeIdle()
   {
     return millisToWaitForWorkQueueToBecomeIdle;
@@ -844,6 +862,7 @@ public final class DelayTask
    *          are eventually expected to return one or more entries, or an empty
    *          list if no searches are to be performed.
    */
+  @NotNull()
   public List<LDAPURL> getLDAPURLsForSearchesExpectedToReturnEntries()
   {
     return ldapURLsForSearchesExpectedToReturnEntries;
@@ -862,6 +881,7 @@ public final class DelayTask
    *          searches created from each of the provided LDAP URLs, or
    *          {@code null} if no searches are to be performed.
    */
+  @Nullable()
   public Long getMillisBetweenSearches()
   {
     return millisBetweenSearches;
@@ -879,6 +899,7 @@ public final class DelayTask
    *          provided LDAP URLs, or {@code null} if no searches are to be
    *          performed.
    */
+  @Nullable()
   public Long getSearchTimeLimitMillis()
   {
     return searchTimeLimitMillis;
@@ -896,6 +917,7 @@ public final class DelayTask
    *          match at least one entry, or {@code null} if no searches are to be
    *          performed.
    */
+  @Nullable()
   public Long getTotalDurationMillisForEachLDAPURL()
   {
     return totalDurationMillisForEachLDAPURL;
@@ -913,6 +935,7 @@ public final class DelayTask
    *          encountered, or {@code null} if the server should determine the
    *          appropriate task state.
    */
+  @Nullable()
   public String getTaskStateIfTimeoutIsEncountered()
   {
     return taskStateIfTimeoutIsEncountered;
@@ -924,6 +947,7 @@ public final class DelayTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_DELAY_TASK);
@@ -935,6 +959,7 @@ public final class DelayTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final LinkedList<Attribute> attrList = new LinkedList<>();
@@ -1002,6 +1027,7 @@ public final class DelayTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -1020,6 +1046,7 @@ public final class DelayTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty, List<Object>> props =

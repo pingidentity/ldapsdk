@@ -39,6 +39,7 @@ package com.unboundid.ldap.listener.interceptor;
 
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -58,6 +59,7 @@ public interface InMemoryInterceptedSimpleBindRequest
    *
    * @return  The bind request to be processed.
    */
+  @NotNull()
   SimpleBindRequest getRequest();
 
 
@@ -69,5 +71,5 @@ public interface InMemoryInterceptedSimpleBindRequest
    *                      the one that was originally received from the client.
    *                      It must not be {@code null}.
    */
-  void setRequest(SimpleBindRequest bindRequest);
+  void setRequest(@NotNull SimpleBindRequest bindRequest);
 }

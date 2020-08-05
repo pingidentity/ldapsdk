@@ -58,6 +58,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -115,7 +117,7 @@ public final class GetBackendSetIDResponseControl
    * The OID (1.3.6.1.4.1.30221.2.5.34) for the get backend set ID response
    * control.
    */
-  public static final  String GET_BACKEND_SET_ID_RESPONSE_OID =
+  @NotNull public static final  String GET_BACKEND_SET_ID_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.34";
 
 
@@ -128,11 +130,11 @@ public final class GetBackendSetIDResponseControl
 
 
   // The backend set IDs for backend sets used during processing.
-  private final Set<String> backendSetIDs;
+  @NotNull private final Set<String> backendSetIDs;
 
   // The identifier for the entry-balancing request processor with which the
   // backend set IDs are associated.
-  private final String entryBalancingRequestProcessorID;
+  @NotNull private final String entryBalancingRequestProcessorID;
 
 
 
@@ -163,8 +165,8 @@ public final class GetBackendSetIDResponseControl
    *                                           {@code null}.
    */
   public GetBackendSetIDResponseControl(
-              final String entryBalancingRequestProcessorID,
-              final String backendSetID)
+              @NotNull final String entryBalancingRequestProcessorID,
+              @NotNull final String backendSetID)
   {
     this(entryBalancingRequestProcessorID,
          Collections.singletonList(backendSetID));
@@ -187,8 +189,8 @@ public final class GetBackendSetIDResponseControl
    *                                           empty.
    */
   public GetBackendSetIDResponseControl(
-              final String entryBalancingRequestProcessorID,
-              final Collection<String> backendSetIDs)
+              @NotNull final String entryBalancingRequestProcessorID,
+              @NotNull final Collection<String> backendSetIDs)
   {
     super(GET_BACKEND_SET_ID_RESPONSE_OID, false,
          encodeValue(entryBalancingRequestProcessorID, backendSetIDs));
@@ -213,9 +215,9 @@ public final class GetBackendSetIDResponseControl
    *                        generic control as a get backend set ID response
    *                        control.
    */
-  public GetBackendSetIDResponseControl(final String oid,
+  public GetBackendSetIDResponseControl(@NotNull final String oid,
                                         final boolean isCritical,
-                                        final ASN1OctetString value)
+                                        @Nullable final ASN1OctetString value)
        throws LDAPException
   {
     super(oid, isCritical, value);
@@ -271,9 +273,10 @@ public final class GetBackendSetIDResponseControl
    *
    * @return  The encoded representation of the control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                      final String entryBalancingRequestProcessorID,
-                      final Collection<String> backendSetIDs)
+                      @NotNull final String entryBalancingRequestProcessorID,
+                      @NotNull final Collection<String> backendSetIDs)
   {
     Validator.ensureNotNull(entryBalancingRequestProcessorID);
     Validator.ensureNotNull(backendSetIDs);
@@ -298,9 +301,10 @@ public final class GetBackendSetIDResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public GetBackendSetIDResponseControl decodeControl(final String oid,
-                                             final boolean isCritical,
-                                             final ASN1OctetString value)
+  @NotNull()
+  public GetBackendSetIDResponseControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new GetBackendSetIDResponseControl(oid, isCritical, value);
@@ -315,6 +319,7 @@ public final class GetBackendSetIDResponseControl
    * @return  The identifier for the entry-balancing request processor with
    *          which the backend set IDs are associated.
    */
+  @NotNull()
   public String getEntryBalancingRequestProcessorID()
   {
     return entryBalancingRequestProcessorID;
@@ -327,6 +332,7 @@ public final class GetBackendSetIDResponseControl
    *
    * @return  The backend set IDs for the backend sets used during processing.
    */
+  @NotNull()
   public Set<String> getBackendSetIDs()
   {
     return backendSetIDs;
@@ -348,7 +354,9 @@ public final class GetBackendSetIDResponseControl
    *                         decode the get backend set ID response control
    *                         contained in the provided result.
    */
-  public static GetBackendSetIDResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static GetBackendSetIDResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c =
@@ -386,8 +394,9 @@ public final class GetBackendSetIDResponseControl
    *                         decode the get backend set ID response control
    *                         contained in the provided result.
    */
-  public static GetBackendSetIDResponseControl
-                     get(final SearchResultEntry entry)
+  @Nullable()
+  public static GetBackendSetIDResponseControl get(
+                     @NotNull final SearchResultEntry entry)
          throws LDAPException
   {
     final Control c = entry.getControl(GET_BACKEND_SET_ID_RESPONSE_OID);
@@ -424,8 +433,9 @@ public final class GetBackendSetIDResponseControl
    *                         decode the any backend set ID response control
    *                         contained in the provided result.
    */
-  public static List<GetBackendSetIDResponseControl>
-                     get(final ExtendedResult result)
+  @NotNull()
+  public static List<GetBackendSetIDResponseControl> get(
+                     @NotNull final ExtendedResult result)
          throws LDAPException
   {
     final Control[] controls = result.getResponseControls();
@@ -458,6 +468,7 @@ public final class GetBackendSetIDResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_BACKEND_SET_ID_RESPONSE.get();
@@ -469,7 +480,7 @@ public final class GetBackendSetIDResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetBackendSetIDResponseControl(" +
          "entryBalancingRequestProcessorID='");

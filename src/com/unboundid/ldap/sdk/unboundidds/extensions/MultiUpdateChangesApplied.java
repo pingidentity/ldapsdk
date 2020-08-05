@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -126,6 +128,7 @@ public enum MultiUpdateChangesApplied
    *          value, or {@code null} if there is no changes applied value with
    *          the specified integer value.
    */
+  @Nullable()
   public static MultiUpdateChangesApplied valueOf(final int intValue)
   {
     for (final MultiUpdateChangesApplied v : values())
@@ -150,7 +153,8 @@ public enum MultiUpdateChangesApplied
    * @return  The requested multi-update changes applied value, or {@code null}
    *          if no such value is defined.
    */
-  public static MultiUpdateChangesApplied forName(final String name)
+  @Nullable()
+  public static MultiUpdateChangesApplied forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

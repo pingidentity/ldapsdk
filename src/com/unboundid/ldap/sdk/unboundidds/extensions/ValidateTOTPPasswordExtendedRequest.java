@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -91,7 +93,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.15) for the validate TOTP password extended
    * request.
    */
-  public static final String VALIDATE_TOTP_PASSWORD_REQUEST_OID =
+  @NotNull public static final String VALIDATE_TOTP_PASSWORD_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.15";
 
 
@@ -118,10 +120,10 @@ public final class ValidateTOTPPasswordExtendedRequest
 
 
   // The DN of the user for whom to validate the TOTP password.
-  private final String userDN;
+  @NotNull private final String userDN;
 
   // The TOTP password to validate.
-  private final String totpPassword;
+  @NotNull private final String totpPassword;
 
 
 
@@ -134,9 +136,10 @@ public final class ValidateTOTPPasswordExtendedRequest
    * @param  totpPassword  The TOTP password to validate.
    * @param  controls      The set of controls to include in the request.
    */
-  public ValidateTOTPPasswordExtendedRequest(final String userDN,
-                                             final String totpPassword,
-                                             final Control... controls)
+  public ValidateTOTPPasswordExtendedRequest(
+              @NotNull final String userDN,
+              @NotNull final String totpPassword,
+              @Nullable final Control... controls)
   {
     super(VALIDATE_TOTP_PASSWORD_REQUEST_OID,
          encodeValue(userDN, totpPassword), controls);
@@ -161,7 +164,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    *                         parse the provided extended request.
    */
   public ValidateTOTPPasswordExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -203,8 +206,10 @@ public final class ValidateTOTPPasswordExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String userDN,
-                                             final String totpPassword)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+                      @NotNull final String userDN,
+                      @NotNull final String totpPassword)
   {
     return new ASN1OctetString(new ASN1Sequence(
          new ASN1OctetString(TYPE_USER_DN, userDN),
@@ -218,6 +223,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    *
    * @return  The DN of the user for whom to validate the TOTP password.
    */
+  @NotNull()
   public String getUserDN()
   {
     return userDN;
@@ -230,6 +236,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    *
    * @return  The TOTP password to validate.
    */
+  @NotNull()
   public String getTOTPPassword()
   {
     return totpPassword;
@@ -241,6 +248,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ValidateTOTPPasswordExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -252,8 +260,9 @@ public final class ValidateTOTPPasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ValidateTOTPPasswordExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final ValidateTOTPPasswordExtendedRequest r =
          new ValidateTOTPPasswordExtendedRequest(userDN, totpPassword,
@@ -268,6 +277,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_VALIDATE_TOTP.get();
@@ -279,7 +289,7 @@ public final class ValidateTOTPPasswordExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ValidateTOTPPasswordExtendedRequest(userDN='");
     buffer.append(userDN);

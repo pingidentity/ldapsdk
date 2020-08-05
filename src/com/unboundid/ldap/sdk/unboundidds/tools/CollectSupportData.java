@@ -81,6 +81,8 @@ import com.unboundid.ldap.sdk.unboundidds.tasks.CollectSupportDataSecurityLevel;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
@@ -136,7 +138,7 @@ public final class CollectSupportData
    * The Ping Identity Directory Server's default access log timestamp format
    * when configured to use millisecond precision.
    */
-  static final String SERVER_LOG_TIMESTAMP_FORMAT_WITH_MILLIS =
+  @NotNull static final String SERVER_LOG_TIMESTAMP_FORMAT_WITH_MILLIS =
        "'['dd/MMM/yyyy:HH:mm:ss.SSS Z']'";
 
 
@@ -145,7 +147,7 @@ public final class CollectSupportData
    * The Ping Identity Directory Server's default access log timestamp format
    * when configured to use second precision.
    */
-  static final String SERVER_LOG_TIMESTAMP_FORMAT_WITHOUT_MILLIS =
+  @NotNull static final String SERVER_LOG_TIMESTAMP_FORMAT_WITHOUT_MILLIS =
        "'['dd/MMM/yyyy:HH:mm:ss Z']'";
 
 
@@ -155,44 +157,44 @@ public final class CollectSupportData
    * invoked to perform collect-support-data processing when the
    * --useRemoteServer argument is not provided.
    */
-  private static final String SERVER_CSD_TOOL_CLASS =
+  @NotNull private static final String SERVER_CSD_TOOL_CLASS =
        "com.unboundid.directory.server.tools.CollectSupportData";
 
 
 
   // The completion message for this tool, if available.
-  private final AtomicReference<String> toolCompletionMessage;
+  @NotNull private final AtomicReference<String> toolCompletionMessage;
 
   // The command-line arguments supported by this tool.
-  private ArgumentParser parser;
-  private BooleanArgument archiveExtensionSourceArg;
-  private BooleanArgument collectExpensiveDataArg;
-  private BooleanArgument collectReplicationStateDumpArg;
-  private BooleanArgument dryRunArg;
-  private BooleanArgument encryptArg;
-  private BooleanArgument generatePassphraseArg;
-  private BooleanArgument includeBinaryFilesArg;
-  private BooleanArgument noLDAPArg;
-  private BooleanArgument noPromptArg;
-  private BooleanArgument scriptFriendlyArg;
-  private BooleanArgument sequentialArg;
-  private BooleanArgument useAdministrativeSessionArg;
-  private BooleanArgument useRemoteServerArg;
-  private DurationArgument logDurationArg;
-  private FileArgument decryptArg;
-  private FileArgument outputPathArg;
-  private FileArgument passphraseFileArg;
-  private IntegerArgument jstackCountArg;
-  private IntegerArgument logFileHeadCollectionSizeKBArg;
-  private IntegerArgument logFileTailCollectionSizeKBArg;
-  private IntegerArgument reportCountArg;
-  private IntegerArgument reportIntervalSecondsArg;
-  private IntegerArgument pidArg;
-  private IntegerArgument proxyToServerPortArg;
-  private StringArgument commentArg;
-  private StringArgument proxyToServerAddressArg;
-  private StringArgument securityLevelArg;
-  private StringArgument logTimeRangeArg;
+  @Nullable private ArgumentParser parser;
+  @Nullable private BooleanArgument archiveExtensionSourceArg;
+  @Nullable private BooleanArgument collectExpensiveDataArg;
+  @Nullable private BooleanArgument collectReplicationStateDumpArg;
+  @Nullable private BooleanArgument dryRunArg;
+  @Nullable private BooleanArgument encryptArg;
+  @Nullable private BooleanArgument generatePassphraseArg;
+  @Nullable private BooleanArgument includeBinaryFilesArg;
+  @Nullable private BooleanArgument noLDAPArg;
+  @Nullable private BooleanArgument noPromptArg;
+  @Nullable private BooleanArgument scriptFriendlyArg;
+  @Nullable private BooleanArgument sequentialArg;
+  @Nullable private BooleanArgument useAdministrativeSessionArg;
+  @Nullable private BooleanArgument useRemoteServerArg;
+  @Nullable private DurationArgument logDurationArg;
+  @Nullable private FileArgument decryptArg;
+  @Nullable private FileArgument outputPathArg;
+  @Nullable private FileArgument passphraseFileArg;
+  @Nullable private IntegerArgument jstackCountArg;
+  @Nullable private IntegerArgument logFileHeadCollectionSizeKBArg;
+  @Nullable private IntegerArgument logFileTailCollectionSizeKBArg;
+  @Nullable private IntegerArgument reportCountArg;
+  @Nullable private IntegerArgument reportIntervalSecondsArg;
+  @Nullable private IntegerArgument pidArg;
+  @Nullable private IntegerArgument proxyToServerPortArg;
+  @Nullable private StringArgument commentArg;
+  @Nullable private StringArgument proxyToServerAddressArg;
+  @Nullable private StringArgument securityLevelArg;
+  @Nullable private StringArgument logTimeRangeArg;
 
 
 
@@ -203,7 +205,7 @@ public final class CollectSupportData
    * @param  args  The set of command-line arguments provided to this program.
    *               It must not be {@code null} but may be empty.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if ((resultCode != ResultCode.SUCCESS) &&
@@ -234,8 +236,9 @@ public final class CollectSupportData
    *          had not been provided.  Any other result code indicates that the
    *          processing did not complete successfully.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final CollectSupportData tool = new CollectSupportData(out, err);
     return tool.runTool(args);
@@ -252,7 +255,8 @@ public final class CollectSupportData
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public CollectSupportData(final OutputStream out, final OutputStream err)
+  public CollectSupportData(@Nullable final OutputStream out,
+                            @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -294,6 +298,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "collect-support-data";
@@ -305,6 +310,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_CSD_TOOL_DESCRIPTION_1.get();
@@ -316,6 +322,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getAdditionalDescriptionParagraphs()
   {
     return Collections.singletonList(INFO_CSD_TOOL_DESCRIPTION_2.get());
@@ -327,6 +334,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -420,6 +428,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return toolCompletionMessage.get();
@@ -431,7 +440,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -847,8 +856,10 @@ public final class CollectSupportData
    *                         provided string as a time range, or if the start
    *                         time is greater than the end time.
    */
-  static ObjectPair<Date,Date> parseTimeRange(final String timeRangeStr,
-                                              final boolean strict)
+  @Nullable()
+  static ObjectPair<Date,Date> parseTimeRange(
+              @NotNull final String timeRangeStr,
+              final boolean strict)
          throws LDAPException
   {
     final Date startTime;
@@ -916,7 +927,8 @@ public final class CollectSupportData
    * @throws  LDAPException  If the provided string cannot be parsed as a
    *                         valid timestamp.
    */
-  static Date parseTimestamp(final String timestampStr)
+  @NotNull()
+  static Date parseTimestamp(@NotNull final String timestampStr)
          throws LDAPException
   {
     // First, try using the timestamp argument to parse the timestamp.
@@ -970,6 +982,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // If the --useRemoteServer argument was provided, then use the extended
@@ -993,6 +1006,7 @@ public final class CollectSupportData
    *
    * @return  A result code that indicates the result of the processing.
    */
+  @NotNull()
   private ResultCode doExtendedOperationProcessing()
   {
     // Create a connection pool that will be used to communicate with the
@@ -1229,6 +1243,7 @@ public final class CollectSupportData
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         obtain the passphrase.
    */
+  @Nullable()
   private ASN1OctetString getEncryptionPassphraseForExtOpProcessing()
           throws LDAPException
   {
@@ -1331,6 +1346,7 @@ public final class CollectSupportData
  *
    * @return  A result code that indicates the result of the processing.
      */
+  @NotNull()
   private ResultCode doLocalProcessing()
   {
     // Construct the argument list to use when invoking the server-side code.
@@ -1592,6 +1608,7 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

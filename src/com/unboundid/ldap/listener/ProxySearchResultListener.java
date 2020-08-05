@@ -44,6 +44,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 
 
 
@@ -66,7 +67,7 @@ final class ProxySearchResultListener
   private final int messageID;
 
   // The client connection that will be used to return the results.
-  private final LDAPListenerClientConnection clientConnection;
+  @NotNull private final LDAPListenerClientConnection clientConnection;
 
 
 
@@ -78,8 +79,9 @@ final class ProxySearchResultListener
    * @param  messageID         The message ID that will be used for any response
    *                           messages returned to the client.
    */
-  ProxySearchResultListener(final LDAPListenerClientConnection clientConnection,
-                            final int messageID)
+  ProxySearchResultListener(
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID)
   {
     this.clientConnection = clientConnection;
     this.messageID        = messageID;
@@ -91,7 +93,7 @@ final class ProxySearchResultListener
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     try
     {
@@ -111,7 +113,7 @@ final class ProxySearchResultListener
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     try
     {

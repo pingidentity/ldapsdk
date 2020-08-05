@@ -56,6 +56,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,14 +77,14 @@ final class SRVRecordSet
   /**
    * The attribute name that will be used to retrieve the SRV record.
    */
-  private static final String DNS_ATTR_SRV = "SRV";
+  @NotNull private static final String DNS_ATTR_SRV = "SRV";
 
 
 
   /**
    * The names of the DNS attributes that should be retrieved.
    */
-  private static final String[] ATTRIBUTE_IDS = { DNS_ATTR_SRV };
+  @NotNull private static final String[] ATTRIBUTE_IDS = { DNS_ATTR_SRV };
 
 
 
@@ -99,10 +100,10 @@ final class SRVRecordSet
 
   // A list of all records associated with this set.  There is no defined order
   // to the list of records.
-  private final List<SRVRecord> allRecords;
+  @NotNull private final List<SRVRecord> allRecords;
 
   // A list of record sets ordered by ascending priority.
-  private final List<SRVRecordPrioritySet> recordSets;
+  @NotNull private final List<SRVRecordPrioritySet> recordSets;
 
   // The expiration time for this set.
   private final long expirationTime;
@@ -117,7 +118,8 @@ final class SRVRecordSet
    * @param  records         The set of all records to be processed.  It must
    *                         not be {@code null} or empty.
    */
-  SRVRecordSet(final long expirationTime, final List<SRVRecord> records)
+  SRVRecordSet(final long expirationTime,
+               @NotNull final List<SRVRecord> records)
   {
     this.expirationTime = expirationTime;
 
@@ -179,6 +181,7 @@ final class SRVRecordSet
    *
    * @return  A list of all SRV records ordered by priority and weight.
    */
+  @NotNull()
   List<SRVRecord> getOrderedRecords()
   {
     final ArrayList<SRVRecord> l = new ArrayList<>(totalRecords);
@@ -208,9 +211,10 @@ final class SRVRecordSet
    * @throws  LDAPException  If an error occurs while querying DNS or while
    *                         parsing the results.
    */
-  static SRVRecordSet getRecordSet(final String name,
-                           final Hashtable<String,String> jndiProperties,
-                           final long ttlMillis)
+  @NotNull()
+  static SRVRecordSet getRecordSet(@NotNull final String name,
+              @NotNull final Hashtable<String,String> jndiProperties,
+              final long ttlMillis)
          throws LDAPException
   {
     final ArrayList<String> recordStrings = new ArrayList<>(10);

@@ -72,6 +72,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -98,49 +100,49 @@ public final class LDAPListenerClientConnection
   /**
    * A pre-allocated empty array of controls.
    */
-  private static final Control[] EMPTY_CONTROL_ARRAY = new Control[0];
+  @NotNull private static final Control[] EMPTY_CONTROL_ARRAY = new Control[0];
 
 
 
   // The buffer used to hold responses to be sent to the client.
-  private final ASN1Buffer asn1Buffer;
+  @NotNull private final ASN1Buffer asn1Buffer;
 
   // The ASN.1 stream reader used to read requests from the client.
-  private volatile ASN1StreamReader asn1Reader;
+  @NotNull private volatile ASN1StreamReader asn1Reader;
 
   // Indicates whether to suppress the next call to sendMessage to send a
   // response to the client.
-  private final AtomicBoolean suppressNextResponse;
+  @NotNull private final AtomicBoolean suppressNextResponse;
 
   // The set of intermediate response transformers for this connection.
-  private final CopyOnWriteArrayList<IntermediateResponseTransformer>
+  @NotNull private final CopyOnWriteArrayList<IntermediateResponseTransformer>
        intermediateResponseTransformers;
 
   // The set of search result entry transformers for this connection.
-  private final CopyOnWriteArrayList<SearchEntryTransformer>
+  @NotNull private final CopyOnWriteArrayList<SearchEntryTransformer>
        searchEntryTransformers;
 
   // The set of search result reference transformers for this connection.
-  private final CopyOnWriteArrayList<SearchReferenceTransformer>
+  @NotNull private final CopyOnWriteArrayList<SearchReferenceTransformer>
        searchReferenceTransformers;
 
   // The listener that accepted this connection.
-  private final LDAPListener listener;
+  @Nullable private final LDAPListener listener;
 
   // The exception handler to use for this connection, if any.
-  private final LDAPListenerExceptionHandler exceptionHandler;
+  @Nullable private final LDAPListenerExceptionHandler exceptionHandler;
 
   // The request handler to use for this connection.
-  private final LDAPListenerRequestHandler requestHandler;
+  @NotNull private final LDAPListenerRequestHandler requestHandler;
 
   // The connection ID assigned to this connection.
   private final long connectionID;
 
   // The output stream used to write responses to the client.
-  private volatile OutputStream outputStream;
+  @NotNull private volatile OutputStream outputStream;
 
   // The socket used to communicate with the client.
-  private volatile Socket socket;
+  @NotNull private volatile Socket socket;
 
 
 
@@ -169,10 +171,10 @@ public final class LDAPListenerClientConnection
    *                         connection. for use.  If this is thrown, then the
    *                         provided socket will be closed.
    */
-  public LDAPListenerClientConnection(final LDAPListener listener,
-              final Socket socket,
-              final LDAPListenerRequestHandler requestHandler,
-              final LDAPListenerExceptionHandler exceptionHandler)
+  public LDAPListenerClientConnection(@Nullable final LDAPListener listener,
+              @NotNull final Socket socket,
+              @NotNull final LDAPListenerRequestHandler requestHandler,
+              @Nullable final LDAPListenerExceptionHandler exceptionHandler)
          throws LDAPException
   {
     Validator.ensureNotNull(socket, requestHandler);
@@ -368,7 +370,7 @@ public final class LDAPListenerClientConnection
    * @param  le  The exception providing information about the reason that this
    *             connection will be terminated.
    */
-  void close(final LDAPException le)
+  void close(@NotNull final LDAPException le)
   {
     if (exceptionHandler == null)
     {
@@ -666,7 +668,7 @@ public final class LDAPListenerClientConnection
    * @throws  LDAPException  If a problem occurs while attempting to send the
    *                         response to the client.
    */
-  private synchronized void sendMessage(final LDAPMessage message)
+  private synchronized void sendMessage(@NotNull final LDAPMessage message)
           throws LDAPException
   {
     // If we should suppress this response (which will only be because the
@@ -733,8 +735,8 @@ public final class LDAPListenerClientConnection
    *                         terminated.
    */
   public void sendSearchResultEntry(final int messageID,
-                   final SearchResultEntryProtocolOp protocolOp,
-                   final Control... controls)
+                   @NotNull final SearchResultEntryProtocolOp protocolOp,
+                   @Nullable final Control... controls)
          throws LDAPException
   {
     if (searchEntryTransformers.isEmpty())
@@ -804,8 +806,9 @@ public final class LDAPListenerClientConnection
    *                         thrown, then the client connection will have been
    *                         terminated.
    */
-  public void sendSearchResultEntry(final int messageID, final Entry entry,
-                                    final Control... controls)
+  public void sendSearchResultEntry(final int messageID,
+                                    @NotNull final Entry entry,
+                                    @Nullable final Control... controls)
          throws LDAPException
   {
     sendSearchResultEntry(messageID,
@@ -835,8 +838,8 @@ public final class LDAPListenerClientConnection
    *                         terminated.
    */
   public void sendSearchResultReference(final int messageID,
-                   final SearchResultReferenceProtocolOp protocolOp,
-                   final Control... controls)
+                   @NotNull final SearchResultReferenceProtocolOp protocolOp,
+                   @Nullable final Control... controls)
          throws LDAPException
   {
     if (searchReferenceTransformers.isEmpty())
@@ -907,8 +910,8 @@ public final class LDAPListenerClientConnection
    *                         terminated.
    */
   public void sendIntermediateResponse(final int messageID,
-                   final IntermediateResponseProtocolOp protocolOp,
-                   final Control... controls)
+                   @NotNull final IntermediateResponseProtocolOp protocolOp,
+                   @Nullable final Control... controls)
          throws LDAPException
   {
     if (intermediateResponseTransformers.isEmpty())
@@ -973,7 +976,7 @@ public final class LDAPListenerClientConnection
    *                         thrown, then the client connection will have been
    *                         terminated.
    */
-  public void sendUnsolicitedNotification(final ExtendedResult result)
+  public void sendUnsolicitedNotification(@NotNull final ExtendedResult result)
          throws LDAPException
   {
     sendUnsolicitedNotification(
@@ -1003,8 +1006,8 @@ public final class LDAPListenerClientConnection
    *                         terminated.
    */
   public void sendUnsolicitedNotification(
-                   final ExtendedResponseProtocolOp extendedResponse,
-                   final Control... controls)
+                   @NotNull final ExtendedResponseProtocolOp extendedResponse,
+                   @Nullable final Control... controls)
          throws LDAPException
   {
     sendMessage(new LDAPMessage(0, extendedResponse, controls));
@@ -1017,6 +1020,7 @@ public final class LDAPListenerClientConnection
    *
    * @return  The socket used to communicate with the client.
    */
+  @NotNull()
   public synchronized Socket getSocket()
   {
     return socket;
@@ -1042,7 +1046,9 @@ public final class LDAPListenerClientConnection
    *                         the existing socket to an SSL socket.  If this is
    *                         thrown, then the connection will have been closed.
    */
-  public synchronized OutputStream convertToTLS(final SSLSocketFactory f)
+  @NotNull()
+  public synchronized OutputStream convertToTLS(
+                                        @NotNull final SSLSocketFactory f)
          throws LDAPException
   {
     final OutputStream clearOutputStream = outputStream;
@@ -1102,7 +1108,8 @@ public final class LDAPListenerClientConnection
    * @param  t  A search entry transformer to be used to intercept and/or alter
    *            search result entries before they are returned to the client.
    */
-  public void addSearchEntryTransformer(final SearchEntryTransformer t)
+  public void addSearchEntryTransformer(
+                   @NotNull final SearchEntryTransformer t)
   {
     searchEntryTransformers.add(t);
   }
@@ -1114,7 +1121,8 @@ public final class LDAPListenerClientConnection
    *
    * @param  t  The search entry transformer to be removed.
    */
-  public void removeSearchEntryTransformer(final SearchEntryTransformer t)
+  public void removeSearchEntryTransformer(
+                   @NotNull final SearchEntryTransformer t)
   {
     searchEntryTransformers.remove(t);
   }
@@ -1128,7 +1136,8 @@ public final class LDAPListenerClientConnection
    *            alter search result references before they are returned to the
    *            client.
    */
-  public void addSearchReferenceTransformer(final SearchReferenceTransformer t)
+  public void addSearchReferenceTransformer(
+                   @NotNull final SearchReferenceTransformer t)
   {
     searchReferenceTransformers.add(t);
   }
@@ -1142,7 +1151,7 @@ public final class LDAPListenerClientConnection
    * @param  t  The search reference transformer to be removed.
    */
   public void removeSearchReferenceTransformer(
-                   final SearchReferenceTransformer t)
+                   @NotNull final SearchReferenceTransformer t)
   {
     searchReferenceTransformers.remove(t);
   }
@@ -1158,7 +1167,7 @@ public final class LDAPListenerClientConnection
    *            the client.
    */
   public void addIntermediateResponseTransformer(
-                   final IntermediateResponseTransformer t)
+                   @NotNull final IntermediateResponseTransformer t)
   {
     intermediateResponseTransformers.add(t);
   }
@@ -1172,7 +1181,7 @@ public final class LDAPListenerClientConnection
    * @param  t  The intermediate response transformer to be removed.
    */
   public void removeIntermediateResponseTransformer(
-                   final IntermediateResponseTransformer t)
+                   @NotNull final IntermediateResponseTransformer t)
   {
     intermediateResponseTransformers.remove(t);
   }

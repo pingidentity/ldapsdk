@@ -44,6 +44,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -70,17 +71,17 @@ final class LDIFLDAPSearchOutputHandler
 {
   // A list used to hold the lines for a formatted representation of a search
   // result entry or reference.
-  private final ArrayList<String> formattedLines;
+  @NotNull private final ArrayList<String> formattedLines;
 
   // The maximum width to use for output content.
   private final int maxWidth;
 
   // The associated LDAPSearch tool instance.
-  private final LDAPSearch ldapSearch;
+  @NotNull private final LDAPSearch ldapSearch;
 
   // A string builder used to hold the formatted representation of the lines
   // that comprise a search result entry or reference.
-  private final StringBuilder formattedLineBuffer;
+  @NotNull private final StringBuilder formattedLineBuffer;
 
 
 
@@ -90,7 +91,8 @@ final class LDIFLDAPSearchOutputHandler
    * @param  ldapSearch  The {@link LDAPSearch} tool instance.
    * @param  maxWidth    The maximum width to use for the output.
    */
-  LDIFLDAPSearchOutputHandler(final LDAPSearch ldapSearch, final int maxWidth)
+  LDIFLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch,
+                              final int maxWidth)
   {
     this.ldapSearch = ldapSearch;
     this.maxWidth   = maxWidth;
@@ -116,7 +118,7 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(final SearchResultEntry entry)
+  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -137,7 +139,8 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(final SearchResultReference ref)
+  public void formatSearchResultReference(
+                   @NotNull final SearchResultReference ref)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -158,7 +161,7 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(final LDAPResult result)
+  public void formatResult(@NotNull final LDAPResult result)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -178,8 +181,9 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void formatUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);

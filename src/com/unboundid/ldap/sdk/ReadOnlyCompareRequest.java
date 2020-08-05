@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,6 +69,7 @@ public interface ReadOnlyCompareRequest
    *
    * @return  The DN of the entry in which the comparison is to be performed.
    */
+  @NotNull()
   String getDN();
 
 
@@ -78,6 +81,7 @@ public interface ReadOnlyCompareRequest
    * @return  The name of the attribute for which the comparison is to be
    *          performed.
    */
+  @NotNull()
   String getAttributeName();
 
 
@@ -87,6 +91,7 @@ public interface ReadOnlyCompareRequest
    *
    * @return  The assertion value to verify within the target entry.
    */
+  @NotNull()
   String getAssertionValue();
 
 
@@ -98,6 +103,7 @@ public interface ReadOnlyCompareRequest
    * @return  The assertion value to verify within the target entry, formatted
    *          as a byte array.
    */
+  @NotNull()
   byte[] getAssertionValueBytes();
 
 
@@ -107,6 +113,7 @@ public interface ReadOnlyCompareRequest
    *
    * @return  The assertion value to verify within the target entry.
    */
+  @NotNull()
   ASN1OctetString getRawAssertionValue();
 
 
@@ -115,6 +122,7 @@ public interface ReadOnlyCompareRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   CompareRequest duplicate();
 
 
@@ -123,5 +131,6 @@ public interface ReadOnlyCompareRequest
    * {@inheritDoc}
    */
   @Override()
-  CompareRequest duplicate(Control[] controls);
+  @NotNull()
+  CompareRequest duplicate(@Nullable Control[] controls);
 }

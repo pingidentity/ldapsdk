@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,7 +87,7 @@ public class LDAPInterruptedException
    *                        LDAP interrupted exception.
    */
   LDAPInterruptedException(
-       final com.unboundid.ldap.sdk.LDAPException ldapException)
+       @NotNull final com.unboundid.ldap.sdk.LDAPException ldapException)
   {
     super(ldapException);
   }

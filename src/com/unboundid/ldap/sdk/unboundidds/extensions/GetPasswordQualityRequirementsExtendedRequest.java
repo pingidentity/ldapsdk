@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -98,8 +100,9 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.43) for the get password quality
    * requirements extended request.
    */
-  public static final String OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST =
-       "1.3.6.1.4.1.30221.2.6.43";
+  @NotNull public static final String
+       OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST =
+            "1.3.6.1.4.1.30221.2.6.43";
 
 
 
@@ -112,10 +115,10 @@ public final class GetPasswordQualityRequirementsExtendedRequest
 
   // The target type for this get password quality requirements extended
   // request.
-  private final GetPasswordQualityRequirementsTargetType targetType;
+  @NotNull private final GetPasswordQualityRequirementsTargetType targetType;
 
   // The target DN for this get password quality requirements extended request.
-  private final String targetDN;
+  @Nullable private final String targetDN;
 
 
 
@@ -133,9 +136,9 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *                     included.
    */
   private GetPasswordQualityRequirementsExtendedRequest(
-               final GetPasswordQualityRequirementsTargetType targetType,
-               final String targetDN,
-               final Control... controls)
+       @NotNull final GetPasswordQualityRequirementsTargetType targetType,
+       @Nullable final String targetDN,
+       @Nullable final Control... controls)
   {
     super(OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
          encodeValue(targetType, targetDN), controls);
@@ -157,7 +160,8 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *                         decoded the provided extended request as a
    *                         get password quality requirements request.
    */
-  public GetPasswordQualityRequirementsExtendedRequest(final ExtendedRequest r)
+  public GetPasswordQualityRequirementsExtendedRequest(
+              @NotNull final ExtendedRequest r)
          throws LDAPException
   {
     super(r);
@@ -228,9 +232,10 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded request value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                      final GetPasswordQualityRequirementsTargetType targetType,
-                      final String targetDN)
+       @NotNull final GetPasswordQualityRequirementsTargetType targetType,
+       @Nullable final String targetDN)
   {
     final ASN1Element targetElement;
     switch (targetType)
@@ -269,9 +274,10 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *          retrieve the password requirements for an add operation governed
    *          by the server's default password policy.
    */
+  @NotNull()
   public static GetPasswordQualityRequirementsExtendedRequest
                      createAddWithDefaultPasswordPolicyRequest(
-                          final Control... controls)
+                          @Nullable final Control... controls)
   {
     return new GetPasswordQualityRequirementsExtendedRequest(
          GetPasswordQualityRequirementsTargetType.
@@ -296,9 +302,11 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *          retrieve the password requirements for an add operation governed
    *          by the specified password policy.
    */
+  @NotNull()
   public static GetPasswordQualityRequirementsExtendedRequest
                      createAddWithSpecifiedPasswordPolicyRequest(
-                          final String policyDN, final Control... controls)
+                          @NotNull final String policyDN,
+                          @Nullable final Control... controls)
   {
     return new GetPasswordQualityRequirementsExtendedRequest(
          GetPasswordQualityRequirementsTargetType.
@@ -321,9 +329,10 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *          retrieve the password requirements for a self change requested
    *          with the same authorization identity as this extended request.
    */
+  @NotNull()
   public static GetPasswordQualityRequirementsExtendedRequest
                      createSelfChangeWithSameAuthorizationIdentityRequest(
-                          final Control... controls)
+                          @Nullable final Control... controls)
   {
     return new GetPasswordQualityRequirementsExtendedRequest(
          GetPasswordQualityRequirementsTargetType.
@@ -348,9 +357,11 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *          retrieve the password requirements for a self change requested by
    *          the specified user.
    */
+  @NotNull()
   public static GetPasswordQualityRequirementsExtendedRequest
                      createSelfChangeForSpecifiedUserRequest(
-                          final String userDN, final Control... controls)
+                          @NotNull final String userDN,
+                          @Nullable final Control... controls)
   {
     return new GetPasswordQualityRequirementsExtendedRequest(
          GetPasswordQualityRequirementsTargetType.
@@ -375,9 +386,11 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *          retrieve the password requirements for an administrative reset
    *          targeting the specified user.
    */
+  @NotNull()
   public static GetPasswordQualityRequirementsExtendedRequest
                      createAdministrativeResetForSpecifiedUserRequest(
-                          final String userDN, final Control... controls)
+                          @NotNull final String userDN,
+                          @Nullable final Control... controls)
   {
     return new GetPasswordQualityRequirementsExtendedRequest(
          GetPasswordQualityRequirementsTargetType.
@@ -394,6 +407,7 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * @return  The target type for this get password quality requirements
    *          request.
    */
+  @NotNull()
   public GetPasswordQualityRequirementsTargetType getTargetType()
   {
     return targetType;
@@ -416,6 +430,7 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    *
    * @return  The target DN for this get password quality requirements request.
    */
+  @Nullable()
   public String getTargetDN()
   {
     return targetDN;
@@ -427,8 +442,9 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetPasswordQualityRequirementsExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult result = super.process(connection, depth);
@@ -441,6 +457,7 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetPasswordQualityRequirementsExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -452,8 +469,9 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetPasswordQualityRequirementsExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final GetPasswordQualityRequirementsExtendedRequest r =
          new GetPasswordQualityRequirementsExtendedRequest(targetType,
@@ -468,6 +486,7 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_GET_PW_QUALITY_REQS.get();
@@ -479,7 +498,7 @@ public final class GetPasswordQualityRequirementsExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetPasswordQualityRequirementsExtendedRequest(targetType=");
     buffer.append(targetType.name());

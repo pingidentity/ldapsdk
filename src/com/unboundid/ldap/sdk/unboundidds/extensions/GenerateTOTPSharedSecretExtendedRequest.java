@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -143,7 +145,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.56) for the generate TOTP shared secret
    * extended request.
    */
-  public static final String GENERATE_TOTP_SHARED_SECRET_REQUEST_OID =
+  @NotNull public static final String GENERATE_TOTP_SHARED_SECRET_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.56";
 
 
@@ -171,10 +173,10 @@ public final class GenerateTOTPSharedSecretExtendedRequest
 
 
   // The static password for the request.
-  private final ASN1OctetString staticPassword;
+  @Nullable private final ASN1OctetString staticPassword;
 
   // The authentication ID for the request.
-  private final String authenticationID;
+  @Nullable private final String authenticationID;
 
 
 
@@ -202,9 +204,10 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *                           It may be {@code null} or empty if there should
    *                           not be any request controls.
    */
-  public GenerateTOTPSharedSecretExtendedRequest(final String authenticationID,
-                                                 final String staticPassword,
-                                                 final Control... controls)
+  public GenerateTOTPSharedSecretExtendedRequest(
+              @Nullable final String authenticationID,
+              @Nullable final String staticPassword,
+              @Nullable final Control... controls)
   {
     this(authenticationID, encodePassword(staticPassword), controls);
   }
@@ -235,9 +238,10 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *                           It may be {@code null} or empty if there should
    *                           not be any request controls.
    */
-  public GenerateTOTPSharedSecretExtendedRequest(final String authenticationID,
-                                                 final byte[] staticPassword,
-                                                 final Control... controls)
+  public GenerateTOTPSharedSecretExtendedRequest(
+              @Nullable final String authenticationID,
+              @Nullable final byte[] staticPassword,
+              @Nullable final Control... controls)
   {
     this(authenticationID, encodePassword(staticPassword), controls);
   }
@@ -268,8 +272,10 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *                           It may be {@code null} or empty if there should
    *                           not be any request controls.
    */
-  public GenerateTOTPSharedSecretExtendedRequest(final String authenticationID,
-               final ASN1OctetString staticPassword, final Control... controls)
+  public GenerateTOTPSharedSecretExtendedRequest(
+              @Nullable final String authenticationID,
+              @Nullable final ASN1OctetString staticPassword,
+              @Nullable final Control... controls)
   {
     super(GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
          encodeValue(authenticationID, staticPassword), controls);
@@ -290,7 +296,8 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         decode the provided request.
    */
-  public GenerateTOTPSharedSecretExtendedRequest(final ExtendedRequest request)
+  public GenerateTOTPSharedSecretExtendedRequest(
+              @NotNull final ExtendedRequest request)
          throws LDAPException
   {
     super(request);
@@ -361,7 +368,8 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *
    * @return  The encoded password, or {@code null} if no password was given.
    */
-  private static ASN1OctetString encodePassword(final Object password)
+  @Nullable()
+  private static ASN1OctetString encodePassword(@Nullable final Object password)
   {
     if (password == null)
     {
@@ -403,8 +411,10 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded request value.
    */
-  private static ASN1OctetString encodeValue(final String authenticationID,
-                                      final ASN1OctetString staticPassword)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @Nullable final String authenticationID,
+               @Nullable final ASN1OctetString staticPassword)
   {
     if (authenticationID == null)
     {
@@ -439,6 +449,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *          {@code null} if the shared secret is to be generated for the
    *          authorization identity associated with the extended request.
    */
+  @Nullable()
   public String getAuthenticationID()
   {
     return authenticationID;
@@ -453,6 +464,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * @return  The string representation of the static password for the target
    *          user, or {@code null} if no static password was provided.
    */
+  @Nullable()
   public String getStaticPasswordString()
   {
     if (staticPassword == null)
@@ -474,6 +486,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * @return  The bytes that comprise the static password for the target user,
    *          or {@code null} if no static password was provided.
    */
+  @Nullable()
   public byte[] getStaticPasswordBytes()
   {
     if (staticPassword == null)
@@ -492,8 +505,9 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected GenerateTOTPSharedSecretExtendedResult process(
-                 final LDAPConnection connection, final int depth)
+                 @NotNull final LDAPConnection connection, final int depth)
             throws LDAPException
   {
     return new GenerateTOTPSharedSecretExtendedResult(
@@ -506,6 +520,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GenerateTOTPSharedSecretExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -517,8 +532,9 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GenerateTOTPSharedSecretExtendedRequest duplicate(
-                                                      final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final GenerateTOTPSharedSecretExtendedRequest r =
          new GenerateTOTPSharedSecretExtendedRequest(authenticationID,
@@ -533,6 +549,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_GEN_TOTP_SECRET_REQUEST_NAME.get();
@@ -544,7 +561,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GenerateTOTPSharedSecretExtendedRequest(");
 

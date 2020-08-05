@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -171,6 +173,7 @@ public enum GetConfigurationType
    *          {@code null} if there is no enum value with the specified BER
    *          type.
    */
+  @Nullable()
   public static GetConfigurationType forBERType(final byte berType)
   {
     for (final GetConfigurationType t : values())
@@ -197,6 +200,7 @@ public enum GetConfigurationType
    *          or {@code null} if there is no enum value with the specified
    *          integer value.
    */
+  @Nullable()
   public static GetConfigurationType forIntValue(final int intValue)
   {
     for (final GetConfigurationType t : values())
@@ -221,7 +225,8 @@ public enum GetConfigurationType
    * @return  The requested get configuration type value, or {@code null} if no
    *          such value is defined.
    */
-  public static GetConfigurationType forName(final String name)
+  @Nullable()
+  public static GetConfigurationType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

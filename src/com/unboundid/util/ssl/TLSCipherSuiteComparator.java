@@ -41,6 +41,8 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -163,7 +165,7 @@ public final class TLSCipherSuiteComparator
   /**
    * The singleton instance of this comparator.
    */
-  private static final TLSCipherSuiteComparator INSTANCE =
+  @NotNull private static final TLSCipherSuiteComparator INSTANCE =
        new TLSCipherSuiteComparator();
 
 
@@ -190,6 +192,7 @@ public final class TLSCipherSuiteComparator
    *
    * @return  The singleton instance of this TLS cipher suite comparator.
    */
+  @NotNull()
   public static TLSCipherSuiteComparator getInstance()
   {
     return INSTANCE;
@@ -212,7 +215,7 @@ public final class TLSCipherSuiteComparator
    *          the names are considered logically equivalent.
    */
   @Override()
-  public int compare(final String s1, final String s2)
+  public int compare(@NotNull final String s1, @NotNull final String s2)
   {
     final String cipherSuiteName1 =
          StaticUtils.toUpperCase(s1).replace('-', '_');
@@ -266,8 +269,8 @@ public final class TLSCipherSuiteComparator
    *          are considered logically equivalent for the purposes of this
    *          method.
    */
-  private static int getSCSVOrder(final String cipherSuiteName1,
-                                  final String cipherSuiteName2)
+  private static int getSCSVOrder(@NotNull final String cipherSuiteName1,
+                                  @NotNull final String cipherSuiteName2)
   {
     if (cipherSuiteName1.endsWith("_SCSV"))
     {
@@ -309,8 +312,8 @@ public final class TLSCipherSuiteComparator
    *          are considered logically equivalent for the purposes of this
    *          method.
    */
-  private static int getPrefixOrder(final String cipherSuiteName1,
-                                    final String cipherSuiteName2)
+  private static int getPrefixOrder(@NotNull final String cipherSuiteName1,
+                                    @NotNull final String cipherSuiteName2)
   {
     final int prefixValue1 = getPrefixValue(cipherSuiteName1);
     final int prefixValue2 = getPrefixValue(cipherSuiteName2);
@@ -331,7 +334,7 @@ public final class TLSCipherSuiteComparator
    * @return  An integer value for the provided cipher suite name based on the
    *          protocol and key agreement algorithm.
    */
-  private static int getPrefixValue(final String cipherSuiteName)
+  private static int getPrefixValue(@NotNull final String cipherSuiteName)
   {
     if (cipherSuiteName.startsWith("TLS_AES_"))
     {
@@ -386,8 +389,8 @@ public final class TLSCipherSuiteComparator
    *          are considered logically equivalent for the purposes of this
    *          method.
    */
-  private static int getBlockCipherOrder(final String cipherSuiteName1,
-                                         final String cipherSuiteName2)
+  private static int getBlockCipherOrder(@NotNull final String cipherSuiteName1,
+                                         @NotNull final String cipherSuiteName2)
   {
     final int blockCipherValue1 = getBlockCipherValue(cipherSuiteName1);
     final int blockCipherValue2 = getBlockCipherValue(cipherSuiteName2);
@@ -407,7 +410,7 @@ public final class TLSCipherSuiteComparator
    * @return  An integer value for the provided cipher suite name based on the
    *          block cipher settings.
    */
-  private static int getBlockCipherValue(final String cipherSuiteName)
+  private static int getBlockCipherValue(@NotNull final String cipherSuiteName)
   {
     if (cipherSuiteName.contains("_AES_256_GCM"))
     {
@@ -467,8 +470,8 @@ public final class TLSCipherSuiteComparator
    *          are considered logically equivalent for the purposes of this
    *          method.
    */
-  private static int getDigestOrder(final String cipherSuiteName1,
-                                    final String cipherSuiteName2)
+  private static int getDigestOrder(@NotNull final String cipherSuiteName1,
+                                    @NotNull final String cipherSuiteName2)
   {
     final int digestValue1 = getDigestValue(cipherSuiteName1);
     final int digestValue2 = getDigestValue(cipherSuiteName2);
@@ -488,7 +491,7 @@ public final class TLSCipherSuiteComparator
    * @return  An integer value for the provided cipher suite name based on the
    *          block cipher settings.
    */
-  private static int getDigestValue(final String cipherSuiteName)
+  private static int getDigestValue(@NotNull final String cipherSuiteName)
   {
     if (cipherSuiteName.endsWith("_SHA512"))
     {
@@ -524,7 +527,7 @@ public final class TLSCipherSuiteComparator
    *          this TLS cipher suite comparator.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     return ((o != null) && (o instanceof TLSCipherSuiteComparator));
   }

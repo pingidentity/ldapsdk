@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -101,7 +103,7 @@ public final class AuditDataSecurityTask
    * The fully-qualified name of the Java class that is used for the audit data
    * security task.
    */
-  static final String AUDIT_DATA_SECURITY_TASK_CLASS =
+  @NotNull static final String AUDIT_DATA_SECURITY_TASK_CLASS =
        "com.unboundid.directory.server.tasks.AuditDataSecurityTask";
 
 
@@ -110,7 +112,7 @@ public final class AuditDataSecurityTask
    * The name of the attribute used to specify the set of auditors to use to
    * examine the data.
    */
-  private static final String ATTR_INCLUDE_AUDITOR =
+  @NotNull private static final String ATTR_INCLUDE_AUDITOR =
        "ds-task-audit-data-security-include-auditor";
 
 
@@ -119,7 +121,7 @@ public final class AuditDataSecurityTask
    * The name of the attribute used to specify the set of auditors that should
    * not be used when examining the data.
    */
-  private static final String ATTR_EXCLUDE_AUDITOR =
+  @NotNull private static final String ATTR_EXCLUDE_AUDITOR =
        "ds-task-audit-data-security-exclude-auditor";
 
 
@@ -128,7 +130,7 @@ public final class AuditDataSecurityTask
    * The name of the attribute used to the backend IDs for the backends in which
    * the audit should be performed.
    */
-  private static final String ATTR_BACKEND_ID =
+  @NotNull private static final String ATTR_BACKEND_ID =
        "ds-task-audit-data-security-backend-id";
 
 
@@ -137,7 +139,7 @@ public final class AuditDataSecurityTask
    * The name of the attribute used to specify a set of filters that should be
    * used to identify entries to include in the audit.
    */
-  private static final String ATTR_REPORT_FILTER =
+  @NotNull private static final String ATTR_REPORT_FILTER =
        "ds-task-audit-data-security-report-filter";
 
 
@@ -146,7 +148,7 @@ public final class AuditDataSecurityTask
    * The name of the attribute used to specify the directory in which the report
    * output files should be written.
    */
-  private static final String ATTR_OUTPUT_DIRECTORY =
+  @NotNull private static final String ATTR_OUTPUT_DIRECTORY =
        "ds-task-audit-data-security-output-directory";
 
 
@@ -154,7 +156,7 @@ public final class AuditDataSecurityTask
   /**
    * The name of the object class used in audit data security task entries.
    */
-  private static final String OC_AUDIT_DATA_SECURITY_TASK =
+  @NotNull private static final String OC_AUDIT_DATA_SECURITY_TASK =
        "ds-task-audit-data-security";
 
 
@@ -162,7 +164,7 @@ public final class AuditDataSecurityTask
   /**
    * The task property that will be used for the included set of auditors.
    */
-  private static final TaskProperty PROPERTY_INCLUDE_AUDITOR =
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_AUDITOR =
        new TaskProperty(ATTR_INCLUDE_AUDITOR,
             INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_INCLUDE_AUDITOR.get(),
             INFO_AUDIT_DATA_SECURITY_DESCRIPTION_INCLUDE_AUDITOR.get(),
@@ -173,7 +175,7 @@ public final class AuditDataSecurityTask
   /**
    * The task property that will be used for the excluded set of auditors.
    */
-  private static final TaskProperty PROPERTY_EXCLUDE_AUDITOR =
+  @NotNull private static final TaskProperty PROPERTY_EXCLUDE_AUDITOR =
        new TaskProperty(ATTR_EXCLUDE_AUDITOR,
             INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_EXCLUDE_AUDITOR.get(),
             INFO_AUDIT_DATA_SECURITY_DESCRIPTION_EXCLUDE_AUDITOR.get(),
@@ -184,7 +186,7 @@ public final class AuditDataSecurityTask
   /**
    * The task property that will be used for the backend IDs.
    */
-  private static final TaskProperty PROPERTY_BACKEND_ID =
+  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
        new TaskProperty(ATTR_BACKEND_ID,
             INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_BACKEND_ID.get(),
             INFO_AUDIT_DATA_SECURITY_DESCRIPTION_BACKEND_ID.get(),
@@ -195,7 +197,7 @@ public final class AuditDataSecurityTask
   /**
    * The task property that will be used for the report filters.
    */
-  private static final TaskProperty PROPERTY_REPORT_FILTER =
+  @NotNull private static final TaskProperty PROPERTY_REPORT_FILTER =
        new TaskProperty(ATTR_REPORT_FILTER,
             INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_REPORT_FILTER.get(),
             INFO_AUDIT_DATA_SECURITY_DESCRIPTION_REPORT_FILTER.get(),
@@ -206,7 +208,7 @@ public final class AuditDataSecurityTask
   /**
    * The task property that will be used for the output directory.
    */
-  private static final TaskProperty PROPERTY_OUTPUT_DIRECTORY =
+  @NotNull private static final TaskProperty PROPERTY_OUTPUT_DIRECTORY =
        new TaskProperty(ATTR_OUTPUT_DIRECTORY,
             INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_OUTPUT_DIR.get(),
             INFO_AUDIT_DATA_SECURITY_DESCRIPTION_OUTPUT_DIR.get(),
@@ -222,19 +224,19 @@ public final class AuditDataSecurityTask
 
 
   // The backend IDs of the backends in which the audit should be performed.
-  private final List<String> backendIDs;
+  @NotNull private final List<String> backendIDs;
 
   // The names of the excluded auditors to use in the audit.
-  private final List<String> excludeAuditors;
+  @NotNull private final List<String> excludeAuditors;
 
   // The names of the included auditors to use in the audit.
-  private final List<String> includeAuditors;
+  @NotNull private final List<String> includeAuditors;
 
   // The report filters to select entries to audit.
-  private final List<String> reportFilters;
+  @NotNull private final List<String> reportFilters;
 
   // The path of the output directory to use for report data files.
-  private final String outputDirectory;
+  @Nullable private final String outputDirectory;
 
 
 
@@ -281,11 +283,11 @@ public final class AuditDataSecurityTask
    *                          written.  It may be {@code null} if a default
    *                          output directory should be used.
    */
-  public AuditDataSecurityTask(final List<String> includeAuditors,
-                               final List<String> excludeAuditors,
-                               final List<String> backendIDs,
-                               final List<String> reportFilters,
-                               final String outputDirectory)
+  public AuditDataSecurityTask(@Nullable final List<String> includeAuditors,
+                               @Nullable final List<String> excludeAuditors,
+                               @Nullable final List<String> backendIDs,
+                               @Nullable final List<String> reportFilters,
+                               @Nullable final String outputDirectory)
   {
     this(null, includeAuditors, excludeAuditors, backendIDs, reportFilters,
          outputDirectory, null, null, null, null, null);
@@ -339,14 +341,17 @@ public final class AuditDataSecurityTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public AuditDataSecurityTask(final String taskID,
-              final List<String> includeAuditors,
-              final List<String> excludeAuditors, final List<String> backendIDs,
-              final List<String> reportFilters, final String outputDirectory,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnError)
+  public AuditDataSecurityTask(@Nullable final String taskID,
+              @Nullable final List<String> includeAuditors,
+              @Nullable final List<String> excludeAuditors,
+              @Nullable final List<String> backendIDs,
+              @Nullable final List<String> reportFilters,
+              @Nullable final String outputDirectory,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, includeAuditors, excludeAuditors, backendIDs, reportFilters,
          outputDirectory, scheduledStartTime, dependencyIDs,
@@ -416,17 +421,22 @@ public final class AuditDataSecurityTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public AuditDataSecurityTask(final String taskID,
-              final List<String> includeAuditors,
-              final List<String> excludeAuditors, final List<String> backendIDs,
-              final List<String> reportFilters, final String outputDirectory,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnStart,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnSuccess,
-              final List<String> notifyOnError, final Boolean alertOnStart,
-              final Boolean alertOnSuccess, final Boolean alertOnError)
+  public AuditDataSecurityTask(@Nullable final String taskID,
+              @Nullable final List<String> includeAuditors,
+              @Nullable final List<String> excludeAuditors,
+              @Nullable final List<String> backendIDs,
+              @Nullable final List<String> reportFilters,
+              @Nullable final String outputDirectory,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, AUDIT_DATA_SECURITY_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -454,7 +464,7 @@ public final class AuditDataSecurityTask
    * @throws  TaskException  If the provided entry cannot be parsed as an audit
    *                         data security task entry.
    */
-  public AuditDataSecurityTask(final Entry entry)
+  public AuditDataSecurityTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -483,7 +493,8 @@ public final class AuditDataSecurityTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid audit data security task.
    */
-  public AuditDataSecurityTask(final Map<TaskProperty,List<Object>> properties)
+  public AuditDataSecurityTask(
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(AUDIT_DATA_SECURITY_TASK_CLASS, properties);
@@ -557,6 +568,7 @@ public final class AuditDataSecurityTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_AUDIT_DATA_SECURITY.get();
@@ -568,6 +580,7 @@ public final class AuditDataSecurityTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_AUDIT_DATA_SECURITY.get();
@@ -583,6 +596,7 @@ public final class AuditDataSecurityTask
    *          task, or an empty list if either an exclude list should be used or
    *          all enabled auditors should be used.
    */
+  @NotNull()
   public List<String> getIncludeAuditors()
   {
     return includeAuditors;
@@ -598,6 +612,7 @@ public final class AuditDataSecurityTask
    *          task, or an empty list if either an include list should be used or
    *          all enabled auditors should be used.
    */
+  @NotNull()
   public List<String> getExcludeAuditors()
   {
     return excludeAuditors;
@@ -613,6 +628,7 @@ public final class AuditDataSecurityTask
    *          course of the audit, or an empty list if all backends that support
    *          this capability should be used.
    */
+  @NotNull()
   public List<String> getBackendIDs()
   {
     return backendIDs;
@@ -630,6 +646,7 @@ public final class AuditDataSecurityTask
    *          course of the audit, or an empty list if all entries should be
    *          examined.
    */
+  @NotNull()
   public List<String> getReportFilterStrings()
   {
     return reportFilters;
@@ -648,6 +665,7 @@ public final class AuditDataSecurityTask
    * @throws  LDAPException  If any of the filter strings cannot be parsed as a
    *                         valid filter.
    */
+  @NotNull()
   public List<Filter> getReportFilters()
          throws LDAPException
   {
@@ -673,6 +691,7 @@ public final class AuditDataSecurityTask
    * @return  The path to the directory on the server filesystem in which the
    *          report output files should be written.
    */
+  @Nullable()
   public String getOutputDirectory()
   {
     return outputDirectory;
@@ -684,6 +703,7 @@ public final class AuditDataSecurityTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_AUDIT_DATA_SECURITY_TASK);
@@ -695,6 +715,7 @@ public final class AuditDataSecurityTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final LinkedList<Attribute> attrList = new LinkedList<>();
@@ -733,6 +754,7 @@ public final class AuditDataSecurityTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -749,6 +771,7 @@ public final class AuditDataSecurityTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
@@ -798,7 +821,8 @@ public final class AuditDataSecurityTask
    *
    * @return  The resulting string list.
    */
-  private static List<String> getStringList(final List<String> l)
+  @NotNull()
+  private static List<String> getStringList(@Nullable final List<String> l)
   {
     if (l == null)
     {

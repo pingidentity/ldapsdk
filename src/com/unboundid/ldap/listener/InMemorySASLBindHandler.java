@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,6 +64,7 @@ public abstract class InMemorySASLBindHandler
    *
    * @return  The name of the SASL mechanism supported by this bind handler.
    */
+  @NotNull()
   public abstract String getSASLMechanismName();
 
 
@@ -92,10 +95,12 @@ public abstract class InMemorySASLBindHandler
    * @return  The result that should be returned to the client in response to
    *          the provided request.
    */
-  public abstract BindResult processSASLBind(InMemoryRequestHandler handler,
-                                             int messageID, DN bindDN,
-                                             ASN1OctetString credentials,
-                                             List<Control> controls);
+  @NotNull()
+  public abstract BindResult processSASLBind(
+                                  @NotNull InMemoryRequestHandler handler,
+                                  int messageID, @NotNull DN bindDN,
+                                  @Nullable ASN1OctetString credentials,
+                                  @NotNull List<Control> controls);
 
 
 
@@ -105,6 +110,7 @@ public abstract class InMemorySASLBindHandler
    * @return  A string representation of this SASL bind handler.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return "InMemorySASLBindHandler(mechanismName='" + getSASLMechanismName() +

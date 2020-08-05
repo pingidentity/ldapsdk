@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -107,8 +109,9 @@ public final class StreamProxyValuesIntermediateResponse
    * The OID (1.3.6.1.4.1.30221.2.6.9) for the get stream proxy values
    * intermediate response.
    */
-  public static final String STREAM_PROXY_VALUES_INTERMEDIATE_RESPONSE_OID =
-       "1.3.6.1.4.1.30221.2.6.9";
+  @NotNull public static final String
+       STREAM_PROXY_VALUES_INTERMEDIATE_RESPONSE_OID =
+            "1.3.6.1.4.1.30221.2.6.9";
 
 
 
@@ -179,15 +182,15 @@ public final class StreamProxyValuesIntermediateResponse
   private final int result;
 
   // The list of values for this stream proxy values intermediate response.
-  private final List<StreamProxyValuesBackendSetValue> values;
+  @NotNull private final List<StreamProxyValuesBackendSetValue> values;
 
   // The attribute name for this stream proxy values intermediate response, if
   // any.
-  private final String attributeName;
+  @Nullable private final String attributeName;
 
   // The diagnostic message for this stream proxy values intermediate response,
   // if any.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
 
 
@@ -213,10 +216,12 @@ public final class StreamProxyValuesIntermediateResponse
    *                            intermediate response.  It may be {@code null}
    *                            or empty if there should not be any controls.
    */
-  public StreamProxyValuesIntermediateResponse(final String attributeName,
-              final int result, final String diagnosticMessage,
-              final Collection<StreamProxyValuesBackendSetValue> values,
-              final Control... controls)
+  public StreamProxyValuesIntermediateResponse(
+       @Nullable final String attributeName,
+       final int result,
+       @Nullable final String diagnosticMessage,
+       @Nullable final Collection<StreamProxyValuesBackendSetValue> values,
+       @Nullable final Control... controls)
   {
     super(STREAM_PROXY_VALUES_INTERMEDIATE_RESPONSE_OID,
           encodeValue(attributeName, result, diagnosticMessage, values),
@@ -251,7 +256,7 @@ public final class StreamProxyValuesIntermediateResponse
    *                         response.
    */
   public StreamProxyValuesIntermediateResponse(
-                 final IntermediateResponse intermediateResponse)
+                 @NotNull final IntermediateResponse intermediateResponse)
          throws LDAPException
   {
     super(intermediateResponse);
@@ -355,9 +360,12 @@ public final class StreamProxyValuesIntermediateResponse
    * @return  An ASN.1 octet string containing the encoded value to use for this
    *          intermediate response.
    */
-  private static ASN1OctetString encodeValue(final String attributeName,
-               final int result, final String diagnosticMessage,
-               final Collection<StreamProxyValuesBackendSetValue> values)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+       @Nullable final String attributeName,
+       final int result,
+       @Nullable final String diagnosticMessage,
+       @Nullable final Collection<StreamProxyValuesBackendSetValue> values)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
 
@@ -399,6 +407,7 @@ public final class StreamProxyValuesIntermediateResponse
    *          intermediate response is associated, or {@code null} if the values
    *          are entry DNs rather than attribute values.
    */
+  @Nullable()
   public String getAttributeName()
   {
     return attributeName;
@@ -427,6 +436,7 @@ public final class StreamProxyValuesIntermediateResponse
    * @return  The diagnostic message for this stream proxy values intermediate
    *          response, or {@code null} if there is none.
    */
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -441,6 +451,7 @@ public final class StreamProxyValuesIntermediateResponse
    * @return  The list of values for this stream proxy values intermediate
    *          response, or an empty list if there are no values.
    */
+  @NotNull()
   public List<StreamProxyValuesBackendSetValue> getValues()
   {
     return values;
@@ -452,6 +463,7 @@ public final class StreamProxyValuesIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getIntermediateResponseName()
   {
     return INFO_INTERMEDIATE_RESPONSE_NAME_STREAM_PROXY_VALUES.get();
@@ -463,6 +475,7 @@ public final class StreamProxyValuesIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String valueToString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -515,7 +528,7 @@ public final class StreamProxyValuesIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("StreamProxyValuesIntermediateResponse(");
 

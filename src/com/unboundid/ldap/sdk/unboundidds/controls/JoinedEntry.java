@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -99,7 +101,7 @@ public final class JoinedEntry
 
 
   // The list of nested join results for this joined entry.
-  private final List<JoinedEntry> nestedJoinResults;
+  @NotNull private final List<JoinedEntry> nestedJoinResults;
 
 
 
@@ -114,8 +116,8 @@ public final class JoinedEntry
    *                            entry.  It may be {@code null} or empty if there
    *                            are no nested join results.
    */
-  public JoinedEntry(final Entry entry,
-                     final List<JoinedEntry> nestedJoinResults)
+  public JoinedEntry(@NotNull final Entry entry,
+                     @Nullable final List<JoinedEntry> nestedJoinResults)
   {
     this(entry.getDN(), entry.getAttributes(), nestedJoinResults);
   }
@@ -134,8 +136,9 @@ public final class JoinedEntry
    *                            entry.  It may be {@code null} or empty if there
    *                            are no nested join results.
    */
-  public JoinedEntry(final String dn, final Collection<Attribute> attributes,
-                     final List<JoinedEntry> nestedJoinResults)
+  public JoinedEntry(@NotNull final String dn,
+                     @NotNull final Collection<Attribute> attributes,
+                     @Nullable final List<JoinedEntry> nestedJoinResults)
   {
     super(dn, attributes);
 
@@ -157,6 +160,7 @@ public final class JoinedEntry
    * @return  An ASN.1 element containing the encoded representation of this
    *          joined entry.
    */
+  @NotNull()
   ASN1Element encode()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
@@ -196,7 +200,8 @@ public final class JoinedEntry
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided ASN.1 element as a joined entry.
    */
-  static JoinedEntry decode(final ASN1Element element)
+  @NotNull()
+  static JoinedEntry decode(@NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -251,6 +256,7 @@ public final class JoinedEntry
    * @return  The list of nested join results for this joined entry, or an
    *          empty list if there are none.
    */
+  @NotNull()
   public List<JoinedEntry> getNestedJoinResults()
   {
     return nestedJoinResults;
@@ -265,7 +271,7 @@ public final class JoinedEntry
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("JoinedEntry(dn='");
     buffer.append(getDN());

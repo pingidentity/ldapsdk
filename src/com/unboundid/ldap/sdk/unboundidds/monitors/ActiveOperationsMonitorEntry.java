@@ -44,6 +44,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,7 +85,7 @@ public final class ActiveOperationsMonitorEntry
   /**
    * The structural object class used in active operations monitor entries.
    */
-  static final String ACTIVE_OPERATIONS_MONITOR_OC =
+  @NotNull static final String ACTIVE_OPERATIONS_MONITOR_OC =
        "ds-active-operations-monitor-entry";
 
 
@@ -92,7 +94,7 @@ public final class ActiveOperationsMonitorEntry
    * The name of the attribute that contains information about the number of
    * operations currently in progress.
    */
-  private static final String ATTR_NUM_OPS_IN_PROGRESS =
+  @NotNull private static final String ATTR_NUM_OPS_IN_PROGRESS =
        "num-operations-in-progress";
 
 
@@ -101,7 +103,7 @@ public final class ActiveOperationsMonitorEntry
    * The name of the attribute that contains information about the number of
    * persistent searches currently in progress.
    */
-  private static final String ATTR_NUM_PSEARCHES_IN_PROGRESS =
+  @NotNull private static final String ATTR_NUM_PSEARCHES_IN_PROGRESS =
        "num-persistent-searches-in-progress";
 
 
@@ -110,7 +112,8 @@ public final class ActiveOperationsMonitorEntry
    * The name of the attribute that contains information about an operation in
    * progress.
    */
-  private static final String ATTR_OP_IN_PROGRESS = "operation-in-progress";
+  @NotNull private static final String ATTR_OP_IN_PROGRESS =
+       "operation-in-progress";
 
 
 
@@ -118,7 +121,7 @@ public final class ActiveOperationsMonitorEntry
    * The name of the attribute that contains information about a persistent
    * search in progress.
    */
-  private static final String ATTR_PSEARCH_IN_PROGRESS =
+  @NotNull private static final String ATTR_PSEARCH_IN_PROGRESS =
        "persistent-search-in-progress";
 
 
@@ -131,16 +134,16 @@ public final class ActiveOperationsMonitorEntry
 
 
   // The list of operations currently in progress.
-  private final List<String> activeOperations;
+  @NotNull private final List<String> activeOperations;
 
   // The list of persistent searches currently in progress.
-  private final List<String> activePersistentSearches;
+  @NotNull private final List<String> activePersistentSearches;
 
   // The number of operations currently in progress.
-  private final Long numOpsInProgress;
+  @Nullable private final Long numOpsInProgress;
 
   // The number of persistent searches currently in progress.
-  private final Long numPsearchesInProgress;
+  @Nullable private final Long numPsearchesInProgress;
 
 
 
@@ -170,6 +173,7 @@ public final class ActiveOperationsMonitorEntry
    *          Server, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getNumOperationsInProgress()
   {
     return numOpsInProgress;
@@ -185,6 +189,7 @@ public final class ActiveOperationsMonitorEntry
    *          progress in the Directory Server, or an empty list if it was not
    *          included in the monitor entry.
    */
+  @NotNull()
   public List<String> getActiveOperations()
   {
     return activeOperations;
@@ -200,6 +205,7 @@ public final class ActiveOperationsMonitorEntry
    *          Directory Server, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getNumPersistentSearchesInProgress()
   {
     return numPsearchesInProgress;
@@ -215,6 +221,7 @@ public final class ActiveOperationsMonitorEntry
    *          progress in the Directory Server, or an empty list if it was not
    *          included in the monitor entry.
    */
+  @NotNull()
   public List<String> getActivePersistentSearches()
   {
     return activePersistentSearches;
@@ -226,6 +233,7 @@ public final class ActiveOperationsMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_ACTIVE_OPERATIONS_MONITOR_DISPNAME.get();
@@ -237,6 +245,7 @@ public final class ActiveOperationsMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_ACTIVE_OPERATIONS_MONITOR_DESC.get();
@@ -248,6 +257,7 @@ public final class ActiveOperationsMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

@@ -74,7 +74,8 @@ public enum OutputFormat
    * @return  The requested output format value, or {@code null} if no such
    *          format is defined.
    */
-  public static OutputFormat forName(final String name)
+  @Nullable()
+  public static OutputFormat forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

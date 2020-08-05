@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -137,6 +139,7 @@ public enum MultiUpdateErrorBehavior
    *          or {@code null} if there is no error behavior with the specified
    *          value.
    */
+  @Nullable()
   public static MultiUpdateErrorBehavior valueOf(final int intValue)
   {
     for (final MultiUpdateErrorBehavior v : values())
@@ -161,7 +164,8 @@ public enum MultiUpdateErrorBehavior
    * @return  The requested multi-update error behavior, or {@code null} if no
    *          such behavior is defined.
    */
-  public static MultiUpdateErrorBehavior forName(final String name)
+  @Nullable()
+  public static MultiUpdateErrorBehavior forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

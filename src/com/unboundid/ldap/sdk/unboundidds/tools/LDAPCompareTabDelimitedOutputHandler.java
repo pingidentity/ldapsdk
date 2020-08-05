@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -69,7 +70,7 @@ final class LDAPCompareTabDelimitedOutputHandler
       extends LDAPCompareOutputHandler
 {
   // THe column formatter that will do the heavy lifting.
-  private final ColumnFormatter formatter;
+  @NotNull private final ColumnFormatter formatter;
 
 
 
@@ -98,7 +99,9 @@ final class LDAPCompareTabDelimitedOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  String formatResult(final CompareRequest request, final LDAPResult result)
+  @NotNull()
+  String formatResult(@NotNull final CompareRequest request,
+                      @NotNull final LDAPResult result)
   {
     return formatter.formatRow(request.getDN(), request.getAttributeName(),
          request.getAssertionValue(), result.getResultCode().intValue(),

@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -95,7 +96,7 @@ public class LDAPModification
 
 
   // The modification object for this LDAP modification.
-  private final Modification modification;
+  @NotNull private final Modification modification;
 
 
 
@@ -105,7 +106,7 @@ public class LDAPModification
    * @param  op    The type of modification to perform.
    * @param  attr  The attribute to use for the modification.
    */
-  public LDAPModification(final int op, final LDAPAttribute attr)
+  public LDAPModification(final int op, @NotNull final LDAPAttribute attr)
   {
     modification = new Modification(ModificationType.valueOf(op),
          attr.getName(), attr.getByteValueArray());
@@ -120,7 +121,7 @@ public class LDAPModification
    * @param  modification  The {@code Modification} object to use to create this
    *                       LDAP modification.
    */
-  public LDAPModification(final Modification modification)
+  public LDAPModification(@NotNull final Modification modification)
   {
     this.modification = modification;
   }
@@ -144,6 +145,7 @@ public class LDAPModification
    *
    * @return  The attribute to include in this modification.
    */
+  @NotNull()
   public LDAPAttribute getAttribute()
   {
     return new LDAPAttribute(modification.getAttribute());
@@ -158,6 +160,7 @@ public class LDAPModification
    * @return  A {@code Modification} object that is the equivalent of this LDAP
    *          modification.
    */
+  @NotNull()
   public Modification toModification()
   {
     return modification;
@@ -171,6 +174,7 @@ public class LDAPModification
    * @return  A string representation of this LDAP modification.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return modification.toString();

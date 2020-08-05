@@ -82,8 +82,8 @@ public enum HorizontalAlignment
    * @param  width   The number of characters to append to the provided buffer.
    *                 It must be greater than or equal to 1.
    */
-  public void format(final StringBuilder buffer, final String text,
-                     final int width)
+  public void format(@NotNull final StringBuilder buffer,
+                     @NotNull final String text, final int width)
   {
     final int length = text.length();
     if (length >= width)
@@ -136,7 +136,8 @@ public enum HorizontalAlignment
    * @return  The requested horizontal alignment value, or {@code null} if no
    *          such value is defined.
    */
-  public static HorizontalAlignment forName(final String name)
+  @Nullable()
+  public static HorizontalAlignment forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,7 +90,7 @@ public final class AuthenticationFailureReason
    * usable state.  Examining the set of account usability errors should provide
    * more specific information about the nature of the error.
    */
-  public static final String FAILURE_NAME_ACCOUNT_NOT_USABLE =
+  @NotNull public static final String FAILURE_NAME_ACCOUNT_NOT_USABLE =
        "account-not-usable";
 
 
@@ -106,7 +108,7 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that the server was unable to
    * assign a client connection policy for the user.
    */
-  public static final String
+  @NotNull public static final String
        FAILURE_NAME_CANNOT_ASSIGN_CLIENT_CONNECTION_POLICY =
        "cannot-assign-client-connection-policy";
 
@@ -126,7 +128,7 @@ public final class AuthenticationFailureReason
    * unable to identify the user specified as the authentication or
    * authorization identity.
    */
-  public static final String FAILURE_NAME_CANNOT_IDENTIFY_USER =
+  @NotNull public static final String FAILURE_NAME_CANNOT_IDENTIFY_USER =
        "cannot-identify-user";
 
 
@@ -145,7 +147,7 @@ public final class AuthenticationFailureReason
    * some constraint defined in the server (password policy, client connection
    * policy, operational attributes in the user entry, etc.).
    */
-  public static final String FAILURE_NAME_CONSTRAINT_VIOLATION =
+  @NotNull public static final String FAILURE_NAME_CONSTRAINT_VIOLATION =
        "constraint-violation";
 
 
@@ -162,7 +164,8 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that there was a problem with
    * a control included in the bind request.
    */
-  public static final String FAILURE_NAME_CONTROL_PROBLEM = "control-problem";
+  @NotNull public static final String FAILURE_NAME_CONTROL_PROBLEM =
+       "control-problem";
 
 
 
@@ -180,7 +183,7 @@ public final class AuthenticationFailureReason
    * the SASL credentials provided to the server (e.g., they were malformed, out
    * of sequence, or otherwise invalid).
    */
-  public static final String FAILURE_NAME_IMPROPER_SASL_CREDENTIALS =
+  @NotNull public static final String FAILURE_NAME_IMPROPER_SASL_CREDENTIALS =
        "improper-sasl-credentials";
 
 
@@ -197,7 +200,7 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that the bind was not
    * permitted by the server's access control configuration.
    */
-  public static final String FAILURE_NAME_INSUFFICIENT_ACCESS_RIGHTS =
+  @NotNull public static final String FAILURE_NAME_INSUFFICIENT_ACCESS_RIGHTS =
        "insufficient-access-rights";
 
 
@@ -214,7 +217,7 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that the user provided an
    * incorrect password or other form of invalid credentials.
    */
-  public static final String FAILURE_NAME_INVALID_CREDENTIALS =
+  @NotNull public static final String FAILURE_NAME_INVALID_CREDENTIALS =
        "invalid-credentials";
 
 
@@ -233,7 +236,8 @@ public final class AuthenticationFailureReason
    * mode and will only permit authentication for a limited set of
    * administrators.
    */
-  public static final String FAILURE_NAME_LOCKDOWN_MODE = "lockdown-mode";
+  @NotNull public static final String FAILURE_NAME_LOCKDOWN_MODE =
+       "lockdown-mode";
 
 
 
@@ -249,8 +253,9 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that the user will only be
    * permitted to authenticate in a secure manner.
    */
-  public static final String FAILURE_NAME_SECURE_AUTHENTICATION_REQUIRED =
-       "secure-authentication-required";
+  @NotNull public static final String
+       FAILURE_NAME_SECURE_AUTHENTICATION_REQUIRED =
+            "secure-authentication-required";
 
 
 
@@ -266,7 +271,8 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that a server error occurred
    * while processing the bind operation.
    */
-  public static final String FAILURE_NAME_SERVER_ERROR = "server-error";
+  @NotNull public static final String FAILURE_NAME_SERVER_ERROR =
+       "server-error";
 
 
 
@@ -283,9 +289,9 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that a third-party SASL
    * mechanism handler failed to authenticate the user.
    */
-  public static final String
+  @NotNull public static final String
        FAILURE_NAME_THIRD_PARTY_SASL_AUTHENTICATION_FAILURE =
-       "third-party-sasl-authentication-failure";
+            "third-party-sasl-authentication-failure";
 
 
 
@@ -301,8 +307,9 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that the attempted
    * authentication type is not available for the target user.
    */
-  public static final  String FAILURE_NAME_UNAVAILABLE_AUTHENTICATION_TYPE =
-       "unavailable-authentication-type";
+  @NotNull public static final  String
+       FAILURE_NAME_UNAVAILABLE_AUTHENTICATION_TYPE =
+            "unavailable-authentication-type";
 
 
 
@@ -318,7 +325,7 @@ public final class AuthenticationFailureReason
    * The name for a failure type that does not fit into any other of the defined
    * failure types.
    */
-  public static final String FAILURE_NAME_OTHER = "other";
+  @NotNull public static final String FAILURE_NAME_OTHER = "other";
 
 
 
@@ -335,7 +342,7 @@ public final class AuthenticationFailureReason
    * The name for the failure type that indicates that the bind request used a
    * password that did not satisfy the configured set of password validators.
    */
-  public static final String FAILURE_NAME_PASSWORD_FAILED_VALIDATION =
+  @NotNull public static final String FAILURE_NAME_PASSWORD_FAILED_VALIDATION =
        "password-failed-validation";
 
 
@@ -352,13 +359,13 @@ public final class AuthenticationFailureReason
 
   // A human-readable message that provides specific details about this account
   // usability error.
-  private final String message;
+  @Nullable private final String message;
 
   // The name for this account usability error.
-  private final String name;
+  @NotNull private final String name;
 
   // The encoded string representation for this account usability error.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -372,8 +379,9 @@ public final class AuthenticationFailureReason
    *                   about this account usability error.  It may be
    *                   {@code null} if no message is available.
    */
-  public AuthenticationFailureReason(final int intValue, final String name,
-                                     final String message)
+  public AuthenticationFailureReason(final int intValue,
+                                     @NotNull final String name,
+                                     @Nullable final String message)
   {
     Validator.ensureNotNull(name);
 
@@ -409,7 +417,7 @@ public final class AuthenticationFailureReason
    * @throws LDAPException  If the provided string cannot be decoded as a valid
    *                         authentication failure reason.
    */
-  public AuthenticationFailureReason(final String stringRepresentation)
+  public AuthenticationFailureReason(@NotNull final String stringRepresentation)
        throws LDAPException
   {
     this.stringRepresentation = stringRepresentation;
@@ -496,6 +504,7 @@ public final class AuthenticationFailureReason
    *
    * @return  The name for this authentication failure reason.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -511,6 +520,7 @@ public final class AuthenticationFailureReason
    *          authentication failure reason, or {@code null} if no message is
    *          available.
    */
+  @Nullable()
   public String getMessage()
   {
     return message;
@@ -524,6 +534,7 @@ public final class AuthenticationFailureReason
    * @return  A string representation of this authentication failure reason.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;

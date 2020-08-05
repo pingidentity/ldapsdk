@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -77,7 +79,8 @@ public final class ExcludeAllEntriesTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry transformEntry(final Entry entry)
+  @Nullable()
+  public Entry transformEntry(@NotNull final Entry entry)
   {
     return null;
   }
@@ -88,7 +91,9 @@ public final class ExcludeAllEntriesTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translate(final Entry original, final long firstLineNumber)
+  @Nullable()
+  public Entry translate(@NotNull final Entry original,
+                         final long firstLineNumber)
   {
     return null;
   }
@@ -99,7 +104,8 @@ public final class ExcludeAllEntriesTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translateEntryToWrite(final Entry original)
+  @Nullable()
+  public Entry translateEntryToWrite(@NotNull final Entry original)
   {
     return null;
   }

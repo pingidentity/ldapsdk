@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -145,7 +147,7 @@ public enum TaskState
 
 
   // The name of this failed dependency action.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -154,7 +156,7 @@ public enum TaskState
    *
    * @param  name  The name of the task state to create.
    */
-  TaskState(final String name)
+  TaskState(@NotNull final String name)
   {
     this.name = name;
   }
@@ -166,6 +168,7 @@ public enum TaskState
    *
    * @return  The name of this task state.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -181,7 +184,8 @@ public enum TaskState
    * @return  The requested task state, or {@code null} if there is no state
    *          with the given name.
    */
-  public static TaskState forName(final String name)
+  @Nullable()
+  public static TaskState forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -288,6 +292,7 @@ public enum TaskState
    * @return  A string representation of this task state.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

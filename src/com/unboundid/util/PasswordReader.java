@@ -67,7 +67,7 @@ public final class PasswordReader
    * The input stream from which to read the password.  This should only be set
    * when running unit tests.
    */
-  private static volatile BufferedReader TEST_READER = null;
+  @Nullable private static volatile BufferedReader TEST_READER = null;
 
 
 
@@ -75,7 +75,8 @@ public final class PasswordReader
    * The default value to use for the environment variable.  This should only
    * be set when running unit tests.
    */
-  private static volatile String DEFAULT_ENVIRONMENT_VARIABLE_VALUE = null;
+  @Nullable private static volatile String DEFAULT_ENVIRONMENT_VARIABLE_VALUE =
+       null;
 
 
 
@@ -86,7 +87,7 @@ public final class PasswordReader
    * necessary for tests running in a separate process that can't use the
    * {@code TEST_READER}.
    */
-  private static final String PASSWORD_FILE_ENVIRONMENT_VARIABLE =
+  @NotNull private static final String PASSWORD_FILE_ENVIRONMENT_VARIABLE =
        "LDAP_SDK_PASSWORD_READER_PASSWORD_FILE";
 
 
@@ -109,6 +110,7 @@ public final class PasswordReader
    * @throws  LDAPException  If a problem is encountered while trying to read
    *                         the password.
    */
+  @NotNull()
   public static char[] readPasswordChars()
          throws LDAPException
   {
@@ -172,6 +174,7 @@ public final class PasswordReader
    * @throws  LDAPException  If a problem is encountered while trying to read
    *                         the password.
    */
+  @NotNull()
   public static byte[] readPassword()
          throws LDAPException
   {
@@ -217,7 +220,7 @@ public final class PasswordReader
    *                It must not be {@code null} but may be empty.
    */
   @InternalUseOnly()
-  public static void setTestReaderLines(final String... lines)
+  public static void setTestReaderLines(@NotNull final String... lines)
   {
     final ByteStringBuffer buffer = new ByteStringBuffer();
     for (final String line : lines)
@@ -243,7 +246,7 @@ public final class PasswordReader
    *                 means.
    */
   @InternalUseOnly()
-  public static void setTestReader(final BufferedReader reader)
+  public static void setTestReader(@Nullable final BufferedReader reader)
   {
     TEST_READER = reader;
   }
@@ -255,10 +258,11 @@ public final class PasswordReader
    * it is not set.  This is only intended for use in testing purposes.
    *
    * @param  value  The default value that should be used for the environment
-   *                variable if it is not set.  It may be {@code null} if
+   *                variable if it is not set.  It may be {@code null} if the
+   *                environment variable should be treated as unset.
    */
   @InternalUseOnly()
-  static void setDefaultEnvironmentVariableValue(final String value)
+  static void setDefaultEnvironmentVariableValue(@Nullable final String value)
   {
     DEFAULT_ENVIRONMENT_VARIABLE_VALUE = value;
   }

@@ -37,6 +37,11 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
+
+
+
 /**
  * This class provides a thread that may be used to parallelize the process of
  * searching for entries on which to invoke password policy state operations.
@@ -56,10 +61,10 @@ final class ManageAccountSearchProcessorThread
 {
   // The manage-account search processor that will actually do the majority of
   // the work.
-  private final ManageAccountSearchProcessor searchProcessor;
+  @NotNull private final ManageAccountSearchProcessor searchProcessor;
 
   // The search operation currently being processed by this thread.
-  private volatile ManageAccountSearchOperation activeSearchOperation;
+  @Nullable private volatile ManageAccountSearchOperation activeSearchOperation;
 
 
 
@@ -75,7 +80,7 @@ final class ManageAccountSearchProcessorThread
    *                          be {@code null}.
    */
   ManageAccountSearchProcessorThread(final int threadNumber,
-       final ManageAccountSearchProcessor searchProcessor)
+       @NotNull final ManageAccountSearchProcessor searchProcessor)
   {
     setName("manage-account Search Processor Thread " + threadNumber);
 

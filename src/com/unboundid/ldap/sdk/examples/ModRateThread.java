@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
 
@@ -66,41 +68,41 @@ final class ModRateThread
       extends Thread
 {
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of modrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The counter used to track the number of errors encountered while
   // processing modifications.
-  private final AtomicLong errorCounter;
+  @NotNull private final AtomicLong errorCounter;
 
   // The counter used to track the number of modifications performed.
-  private final AtomicLong modCounter;
+  @NotNull private final AtomicLong modCounter;
 
   // The value that will be updated with total duration of the modifications.
-  private final AtomicLong modDurations;
+  @NotNull private final AtomicLong modDurations;
 
   // The counter used to track the number of iterations remaining on the
   // current connection.
-  private final AtomicLong remainingIterationsBeforeReconnect;
+  @Nullable private final AtomicLong remainingIterationsBeforeReconnect;
 
   // The result code for this thread.
-  private final AtomicReference<ResultCode> resultCode;
+  @NotNull private final AtomicReference<ResultCode> resultCode;
 
   // Indicates whether to generate increment modifications instead of replace
   // modifications.
   private final boolean increment;
 
   // The set of request controls to include in modify requests.
-  private final Control[] modifyControls;
+  @NotNull private final Control[] modifyControls;
 
   // The barrier that will be used to coordinate starting among all the threads.
-  private final CyclicBarrier startBarrier;
+  @NotNull private final CyclicBarrier startBarrier;
 
   // The barrier to use for controlling the rate of modifies.  null if no
   // rate-limiting should be used.
-  private final FixedRateBarrier fixedRateBarrier;
+  @Nullable private final FixedRateBarrier fixedRateBarrier;
 
   // The amount by which to increment values.
   private final int incrementAmount;
@@ -109,7 +111,7 @@ final class ModRateThread
   private final int valueCount;
 
   // The connection to use for the modifications.
-  private LDAPConnection connection;
+  @Nullable private LDAPConnection connection;
 
   // The number of iterations to request on a connection before closing and
   // re-establishing it.
@@ -117,25 +119,25 @@ final class ModRateThread
 
   // A reference to the associated modrate tool that can be used when attempting
   // to establish connections.
-  private final ModRate modRate;
+  @NotNull private final ModRate modRate;
 
   // The result code counter to use for failed operations.
-  private final ResultCodeCounter rcCounter;
+  @NotNull private final ResultCodeCounter rcCounter;
 
   // The names of the attributes to modify.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
   // The thread that is actually performing the modifications.
-  private final AtomicReference<Thread> modThread;
+  @NotNull private final AtomicReference<Thread> modThread;
 
   // The value pattern to use for proxied authorization.
-  private final ValuePattern authzID;
+  @Nullable private final ValuePattern authzID;
 
   // The value pattern to use for the entry DNs.
-  private final ValuePattern entryDN;
+  @NotNull private final ValuePattern entryDN;
 
   // The value pattern to use to generate values.
-  private final ValuePattern valuePattern;
+  @NotNull private final ValuePattern valuePattern;
 
 
 
@@ -190,18 +192,23 @@ final class ModRateThread
    *                                    rate of modifies.  {@code null} if no
    *                                    rate-limiting should be used.
    */
-  ModRateThread(final ModRate modRate, final int threadNumber,
-                final LDAPConnection connection, final ValuePattern entryDN,
-                final String[] attributes, final ValuePattern valuePattern,
+  ModRateThread(@NotNull final ModRate modRate, final int threadNumber,
+                @NotNull final LDAPConnection connection,
+                @NotNull final ValuePattern entryDN,
+                @NotNull final String[] attributes,
+                @NotNull final ValuePattern valuePattern,
                 final int valueCount, final boolean increment,
-                final int incrementAmount, final Control[] modifyControls,
-                final ValuePattern authzID,
+                final int incrementAmount,
+                @NotNull final Control[] modifyControls,
+                @Nullable final ValuePattern authzID,
                 final long iterationsBeforeReconnect,
-                final AtomicInteger runningThreads,
-                final CyclicBarrier startBarrier, final AtomicLong modCounter,
-                final AtomicLong modDurations, final AtomicLong errorCounter,
-                final ResultCodeCounter rcCounter,
-                final FixedRateBarrier rateBarrier)
+                @NotNull final AtomicInteger runningThreads,
+                @NotNull final CyclicBarrier startBarrier,
+                @NotNull final AtomicLong modCounter,
+                @NotNull final AtomicLong modDurations,
+                @NotNull final AtomicLong errorCounter,
+                @NotNull final ResultCodeCounter rcCounter,
+                @Nullable final FixedRateBarrier rateBarrier)
   {
     setName("ModRate Thread " + threadNumber);
     setDaemon(true);
@@ -395,6 +402,7 @@ final class ModRateThread
    * @return  A result code that provides information about whether any errors
    *          were encountered during processing.
    */
+  @NotNull()
   public ResultCode stopRunning()
   {
     final Thread t = modThread.get();

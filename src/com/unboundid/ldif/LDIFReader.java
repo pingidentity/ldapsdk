@@ -74,6 +74,8 @@ import com.unboundid.util.AggregateInputStream;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKThreadFactory;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -195,7 +197,7 @@ public final class LDIFReader
    * has signalled that a read Entry should be skipped by returning null,
    * which normally implies EOF.
    */
-  private static final Entry SKIP_ENTRY = new Entry("cn=skipped");
+  @NotNull private static final Entry SKIP_ENTRY = new Entry("cn=skipped");
 
 
 
@@ -203,7 +205,7 @@ public final class LDIFReader
    * The default base path that will be prepended to relative paths.  It will
    * end with a trailing slash.
    */
-  private static final String DEFAULT_RELATIVE_BASE_PATH;
+  @NotNull private static final String DEFAULT_RELATIVE_BASE_PATH;
   static
   {
     final File currentDir;
@@ -231,31 +233,32 @@ public final class LDIFReader
 
 
   // The buffered reader that will be used to read LDIF data.
-  private final BufferedReader reader;
+  @NotNull private final BufferedReader reader;
 
   // The behavior that should be exhibited when encountering duplicate attribute
   // values.
-  private volatile DuplicateValueBehavior duplicateValueBehavior;
+  @NotNull private volatile DuplicateValueBehavior duplicateValueBehavior;
 
   // A line number counter.
   private long lineNumberCounter = 0;
 
   // The change record translator to use, if any.
-  private final LDIFReaderChangeRecordTranslator changeRecordTranslator;
+  @Nullable private final LDIFReaderChangeRecordTranslator
+       changeRecordTranslator;
 
   // The entry translator to use, if any.
-  private final LDIFReaderEntryTranslator entryTranslator;
+  @Nullable private final LDIFReaderEntryTranslator entryTranslator;
 
   // The schema that will be used when processing, if applicable.
-  private Schema schema;
+  @Nullable private Schema schema;
 
   // Specifies the base path that will be prepended to relative paths for file
   // URLs.
-  private volatile String relativeBasePath;
+  @NotNull private volatile String relativeBasePath;
 
   // The behavior that should be exhibited with regard to illegal trailing
   // spaces in attribute values.
-  private volatile TrailingSpaceBehavior trailingSpaceBehavior;
+  @NotNull private volatile TrailingSpaceBehavior trailingSpaceBehavior;
 
   // True iff we are processing asynchronously.
   private final boolean isAsync;
@@ -265,14 +268,14 @@ public final class LDIFReader
   //
 
   // Parses entries asynchronously.
-  private final AsynchronousParallelProcessor<UnparsedLDIFRecord,LDIFRecord>
-       asyncParser;
+  @Nullable private final
+       AsynchronousParallelProcessor<UnparsedLDIFRecord,LDIFRecord> asyncParser;
 
   // Set to true when the end of the input is reached.
-  private final AtomicBoolean asyncParsingComplete;
+  @Nullable private final AtomicBoolean asyncParsingComplete;
 
   // The records that have been read and parsed.
-  private final BlockingQueue<Result<UnparsedLDIFRecord,LDIFRecord>>
+  @Nullable private final BlockingQueue<Result<UnparsedLDIFRecord,LDIFRecord>>
        asyncParsedRecords;
 
 
@@ -286,7 +289,7 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final String path)
+  public LDIFReader(@NotNull final String path)
          throws IOException
   {
     this(new FileInputStream(path));
@@ -311,7 +314,7 @@ public final class LDIFReader
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
    *      constructor for more details about asynchronous processing.
    */
-  public LDIFReader(final String path, final int numParseThreads)
+  public LDIFReader(@NotNull final String path, final int numParseThreads)
          throws IOException
   {
     this(new FileInputStream(path), numParseThreads);
@@ -328,7 +331,7 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final File file)
+  public LDIFReader(@NotNull final File file)
          throws IOException
   {
     this(new FileInputStream(file));
@@ -350,7 +353,7 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final File file, final int numParseThreads)
+  public LDIFReader(@NotNull final File file, final int numParseThreads)
          throws IOException
   {
     this(new FileInputStream(file), numParseThreads);
@@ -378,8 +381,8 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final File[] files, final int numParseThreads,
-                    final LDIFReaderEntryTranslator entryTranslator)
+  public LDIFReader(@NotNull final File[] files, final int numParseThreads,
+                    @Nullable final LDIFReaderEntryTranslator entryTranslator)
          throws IOException
   {
     this(files, numParseThreads, entryTranslator, null);
@@ -418,10 +421,10 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final File[] files, final int numParseThreads,
-              final LDIFReaderEntryTranslator entryTranslator,
-              final LDIFReaderChangeRecordTranslator changeRecordTranslator)
-         throws IOException
+  public LDIFReader(@NotNull final File[] files, final int numParseThreads,
+       @Nullable final LDIFReaderEntryTranslator entryTranslator,
+       @Nullable final LDIFReaderChangeRecordTranslator changeRecordTranslator)
+       throws IOException
   {
     this(files, numParseThreads, entryTranslator, changeRecordTranslator,
          "UTF-8");
@@ -463,11 +466,11 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final File[] files, final int numParseThreads,
-              final LDIFReaderEntryTranslator entryTranslator,
-              final LDIFReaderChangeRecordTranslator changeRecordTranslator,
-              final String characterSet)
-         throws IOException
+  public LDIFReader(@NotNull final File[] files, final int numParseThreads,
+       @Nullable final LDIFReaderEntryTranslator entryTranslator,
+       @Nullable final LDIFReaderChangeRecordTranslator changeRecordTranslator,
+       @NotNull final String characterSet)
+       throws IOException
   {
     this(createAggregateInputStream(files), numParseThreads, entryTranslator,
          changeRecordTranslator, characterSet);
@@ -489,7 +492,9 @@ public final class LDIFReader
    * @throws  IOException  If a problem is encountered while attempting to
    *                       create the input stream.
    */
-  private static InputStream createAggregateInputStream(final File... files)
+  @NotNull()
+  private static InputStream createAggregateInputStream(
+                                  @NotNull final File... files)
           throws IOException
   {
     if (files.length == 0)
@@ -511,7 +516,7 @@ public final class LDIFReader
    * @param  inputStream  The input stream from which the data is to be read.
    *                      It must not be {@code null}.
    */
-  public LDIFReader(final InputStream inputStream)
+  public LDIFReader(@NotNull final InputStream inputStream)
   {
     this(inputStream, 0);
   }
@@ -532,7 +537,8 @@ public final class LDIFReader
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
    *      constructor for more details about asynchronous processing.
    */
-  public LDIFReader(final InputStream inputStream, final int numParseThreads)
+  public LDIFReader(@NotNull final InputStream inputStream,
+                    final int numParseThreads)
   {
     // UTF-8 is required by RFC 2849.  Java guarantees it's always available.
     this(new BufferedReader(
@@ -563,8 +569,9 @@ public final class LDIFReader
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
    *      constructor for more details about asynchronous processing.
    */
-  public LDIFReader(final InputStream inputStream, final int numParseThreads,
-                    final LDIFReaderEntryTranslator entryTranslator)
+  public LDIFReader(@NotNull final InputStream inputStream,
+                    final int numParseThreads,
+                    @Nullable final LDIFReaderEntryTranslator entryTranslator)
   {
     this(inputStream, numParseThreads, entryTranslator, null);
   }
@@ -601,9 +608,10 @@ public final class LDIFReader
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
    *      constructor for more details about asynchronous processing.
    */
-  public LDIFReader(final InputStream inputStream, final int numParseThreads,
-              final LDIFReaderEntryTranslator entryTranslator,
-              final LDIFReaderChangeRecordTranslator changeRecordTranslator)
+  public LDIFReader(@NotNull final InputStream inputStream,
+       final int numParseThreads,
+       @Nullable final LDIFReaderEntryTranslator entryTranslator,
+       @Nullable final LDIFReaderChangeRecordTranslator changeRecordTranslator)
   {
     // UTF-8 is required by RFC 2849.  Java guarantees it's always available.
     this(inputStream, numParseThreads, entryTranslator, changeRecordTranslator,
@@ -645,10 +653,11 @@ public final class LDIFReader
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
    *      constructor for more details about asynchronous processing.
    */
-  public LDIFReader(final InputStream inputStream, final int numParseThreads,
-              final LDIFReaderEntryTranslator entryTranslator,
-              final LDIFReaderChangeRecordTranslator changeRecordTranslator,
-              final String characterSet)
+  public LDIFReader(@NotNull final InputStream inputStream,
+       final int numParseThreads,
+       @Nullable final LDIFReaderEntryTranslator entryTranslator,
+       @Nullable final LDIFReaderChangeRecordTranslator changeRecordTranslator,
+       @NotNull final String characterSet)
   {
     this(new BufferedReader(
               new InputStreamReader(inputStream, Charset.forName(characterSet)),
@@ -666,7 +675,7 @@ public final class LDIFReader
    * @param  reader  The buffered reader that will be used to read the LDIF
    *                 data.  It must not be {@code null}.
    */
-  public LDIFReader(final BufferedReader reader)
+  public LDIFReader(@NotNull final BufferedReader reader)
   {
     this(reader, 0);
   }
@@ -688,7 +697,8 @@ public final class LDIFReader
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
    *      constructor for more details about asynchronous processing.
    */
-  public LDIFReader(final BufferedReader reader, final int numParseThreads)
+  public LDIFReader(@NotNull final BufferedReader reader,
+                    final int numParseThreads)
   {
     this(reader, numParseThreads, null);
   }
@@ -724,9 +734,9 @@ public final class LDIFReader
    *                         the input file in parallel because the entry
    *                         translation is also done in parallel.
    */
-  public LDIFReader(final BufferedReader reader,
+  public LDIFReader(@NotNull final BufferedReader reader,
                     final int numParseThreads,
-                    final LDIFReaderEntryTranslator entryTranslator)
+                    @Nullable final LDIFReaderEntryTranslator entryTranslator)
   {
     this(reader, numParseThreads, entryTranslator, null);
   }
@@ -762,9 +772,10 @@ public final class LDIFReader
    *                                 because the change record translation is
    *                                 also done in parallel.
    */
-  public LDIFReader(final BufferedReader reader, final int numParseThreads,
-              final LDIFReaderEntryTranslator entryTranslator,
-              final LDIFReaderChangeRecordTranslator changeRecordTranslator)
+  public LDIFReader(@NotNull final BufferedReader reader,
+       final int numParseThreads,
+       @Nullable final LDIFReaderEntryTranslator entryTranslator,
+       @Nullable final LDIFReaderChangeRecordTranslator changeRecordTranslator)
   {
     Validator.ensureNotNull(reader);
     Validator.ensureTrue(numParseThreads >= 0,
@@ -833,7 +844,8 @@ public final class LDIFReader
    * @throws  LDIFException  If a problem is encountered while attempting to
    *                         decode data read as LDIF.
    */
-  public static List<Entry> readEntries(final String path)
+  @NotNull()
+  public static List<Entry> readEntries(@NotNull final String path)
          throws IOException, LDIFException
   {
     return readEntries(new LDIFReader(path));
@@ -858,7 +870,8 @@ public final class LDIFReader
    * @throws  LDIFException  If a problem is encountered while attempting to
    *                         decode data read as LDIF.
    */
-  public static List<Entry> readEntries(final File file)
+  @NotNull()
+  public static List<Entry> readEntries(@NotNull final File file)
          throws IOException, LDIFException
   {
     return readEntries(new LDIFReader(file));
@@ -884,7 +897,8 @@ public final class LDIFReader
    * @throws  LDIFException  If a problem is encountered while attempting to
    *                         decode data read as LDIF.
    */
-  public static List<Entry> readEntries(final InputStream inputStream)
+  @NotNull()
+  public static List<Entry> readEntries(@NotNull final InputStream inputStream)
          throws IOException, LDIFException
   {
     return readEntries(new LDIFReader(inputStream));
@@ -906,7 +920,8 @@ public final class LDIFReader
    * @throws  LDIFException  If a problem is encountered while attempting to
    *                         decode data read as LDIF.
    */
-  private static List<Entry> readEntries(final LDIFReader reader)
+  @NotNull()
+  private static List<Entry> readEntries(@NotNull final LDIFReader reader)
           throws IOException, LDIFException
   {
     try
@@ -1008,6 +1023,7 @@ public final class LDIFReader
    * @return  The behavior that should be exhibited if the LDIF reader
    *          encounters an entry with duplicate values.
    */
+  @NotNull()
   public DuplicateValueBehavior getDuplicateValueBehavior()
   {
     return duplicateValueBehavior;
@@ -1024,7 +1040,7 @@ public final class LDIFReader
    *                                 duplicate values.
    */
   public void setDuplicateValueBehavior(
-                   final DuplicateValueBehavior duplicateValueBehavior)
+                   @NotNull final DuplicateValueBehavior duplicateValueBehavior)
   {
     this.duplicateValueBehavior = duplicateValueBehavior;
   }
@@ -1100,6 +1116,7 @@ public final class LDIFReader
    * @return  The behavior that should be exhibited when encountering attribute
    *          values which are not base64-encoded but contain trailing spaces.
    */
+  @NotNull()
   public TrailingSpaceBehavior getTrailingSpaceBehavior()
   {
     return trailingSpaceBehavior;
@@ -1120,7 +1137,7 @@ public final class LDIFReader
    *                                base64-encoded but contain trailing spaces.
    */
   public void setTrailingSpaceBehavior(
-                   final TrailingSpaceBehavior trailingSpaceBehavior)
+                   @NotNull final TrailingSpaceBehavior trailingSpaceBehavior)
   {
     this.trailingSpaceBehavior = trailingSpaceBehavior;
   }
@@ -1135,6 +1152,7 @@ public final class LDIFReader
    * @return  The base path that will be prepended to relative paths in order to
    *          obtain an absolute path.
    */
+  @NotNull()
   public String getRelativeBasePath()
   {
     return relativeBasePath;
@@ -1150,7 +1168,7 @@ public final class LDIFReader
    * @param  relativeBasePath  The base path that will be prepended to relative
    *                           paths in order to obtain an absolute path.
    */
-  public void setRelativeBasePath(final String relativeBasePath)
+  public void setRelativeBasePath(@NotNull final String relativeBasePath)
   {
     setRelativeBasePath(new File(relativeBasePath));
   }
@@ -1165,7 +1183,7 @@ public final class LDIFReader
    * @param  relativeBasePath  The base path that will be prepended to relative
    *                           paths in order to obtain an absolute path.
    */
-  public void setRelativeBasePath(final File relativeBasePath)
+  public void setRelativeBasePath(@NotNull final File relativeBasePath)
   {
     final String path = relativeBasePath.getAbsolutePath();
     if (path.endsWith(File.separator))
@@ -1188,6 +1206,7 @@ public final class LDIFReader
    *          {@code null} if no schema should be used and all attributes should
    *          be treated as case-insensitive strings.
    */
+  @Nullable()
   public Schema getSchema()
   {
     return schema;
@@ -1202,7 +1221,7 @@ public final class LDIFReader
    *                 or {@code null} if no schema should be used and all
    *                 attributes should be treated as case-insensitive strings.
    */
-  public void setSchema(final Schema schema)
+  public void setSchema(@Nullable final Schema schema)
   {
     this.schema = schema;
   }
@@ -1222,6 +1241,7 @@ public final class LDIFReader
    * @throws  LDIFException  If the data read could not be parsed as an entry or
    *                         an LDIF change record.
    */
+  @Nullable()
   public LDIFRecord readLDIFRecord()
          throws IOException, LDIFException
   {
@@ -1248,6 +1268,7 @@ public final class LDIFReader
    *
    * @throws  LDIFException  If the data read could not be parsed as an entry.
    */
+  @Nullable()
   public Entry readEntry()
          throws IOException, LDIFException
   {
@@ -1276,6 +1297,7 @@ public final class LDIFReader
    * @throws  LDIFException  If the data read could not be parsed as an LDIF
    *                         change record.
    */
+  @Nullable()
   public LDIFChangeRecord readChangeRecord()
          throws IOException, LDIFException
   {
@@ -1304,6 +1326,7 @@ public final class LDIFReader
    * @throws  LDIFException  If the data read could not be parsed as an LDIF
    *                         change record.
    */
+  @Nullable()
   public LDIFChangeRecord readChangeRecord(final boolean defaultAdd)
          throws IOException, LDIFException
   {
@@ -1331,6 +1354,7 @@ public final class LDIFReader
    *
    * @throws LDIFException If LDIFException was thrown parsing the record.
    */
+  @Nullable()
   private LDIFRecord readLDIFRecordAsync()
           throws IOException, LDIFException
   {
@@ -1368,6 +1392,7 @@ public final class LDIFReader
    *                       LDIF source.
    * @throws LDIFException If the data read could not be parsed as an entry.
    */
+  @Nullable()
   private Entry readEntryAsync()
           throws IOException, LDIFException
   {
@@ -1437,6 +1462,7 @@ public final class LDIFReader
    * @throws LDIFException If the data read could not be parsed as an LDIF
    *                       change record.
    */
+  @Nullable()
   private LDIFChangeRecord readChangeRecordAsync(final boolean defaultAdd)
           throws IOException, LDIFException
   {
@@ -1496,6 +1522,7 @@ public final class LDIFReader
    *
    * @throws  LDIFException  If the data read could not be parsed as an entry.
    */
+  @Nullable()
   private Result<UnparsedLDIFRecord, LDIFRecord> readLDIFRecordResultAsync()
           throws IOException, LDIFException
   {
@@ -1601,7 +1628,7 @@ public final class LDIFReader
    *                       is not an LDIFException.
    * @throws LDIFException  If t is an LDIFException.
    */
-  static void rethrow(final Throwable t)
+  static void rethrow(@Nullable final Throwable t)
          throws IOException, LDIFException
   {
     if (t == null)
@@ -1645,6 +1672,7 @@ public final class LDIFReader
    * @throws LDIFException If the data read could not be parsed as an entry or
    *                       an LDIF change record.
    */
+  @Nullable()
   private LDIFRecord readLDIFRecordInternal()
        throws IOException, LDIFException
   {
@@ -1664,6 +1692,7 @@ public final class LDIFReader
    *                       LDIF source.
    * @throws LDIFException If the data read could not be parsed as an entry.
    */
+  @Nullable()
   private Entry readEntryInternal()
        throws IOException, LDIFException
   {
@@ -1708,6 +1737,7 @@ public final class LDIFReader
    * @throws LDIFException If the data read could not be parsed as an LDIF
    *                       change record.
    */
+  @Nullable()
   private LDIFChangeRecord readChangeRecordInternal(final boolean defaultAdd)
        throws IOException, LDIFException
   {
@@ -1739,7 +1769,7 @@ public final class LDIFReader
    * Reads a record (either an entry or a change record) from the LDIF source
    * and places it in the line list.
    *
-   * @return  The line number for the first line of the entry that was read.
+   * @return  The unparsed record that was read.
    *
    * @throws  IOException  If a problem occurs while attempting to read from the
    *                       LDIF source.
@@ -1747,6 +1777,7 @@ public final class LDIFReader
    * @throws  LDIFException  If the data read could not be parsed as a valid
    *                         LDIF record.
    */
+  @NotNull()
   private UnparsedLDIFRecord readUnparsedRecord()
          throws IOException, LDIFException
   {
@@ -1855,7 +1886,8 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
    *                         entry.
    */
-  public static Entry decodeEntry(final String... ldifLines)
+  @NotNull()
+  public static Entry decodeEntry(@NotNull final String... ldifLines)
          throws LDIFException
   {
     final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.STRIP,
@@ -1887,9 +1919,10 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
    *                         entry.
    */
+  @NotNull()
   public static Entry decodeEntry(final boolean ignoreDuplicateValues,
-                                  final Schema schema,
-                                  final String... ldifLines)
+                                  @Nullable final Schema schema,
+                                  @NotNull final String... ldifLines)
          throws LDIFException
   {
     return decodeEntry(ignoreDuplicateValues, TrailingSpaceBehavior.REJECT,
@@ -1921,11 +1954,13 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
    *                         entry.
    */
+  @NotNull()
   public static Entry decodeEntry(
-         final boolean ignoreDuplicateValues,
-         final TrailingSpaceBehavior trailingSpaceBehavior,
-         final Schema schema,
-         final String... ldifLines) throws LDIFException
+                     final boolean ignoreDuplicateValues,
+                     @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+                     @Nullable final Schema schema,
+                     @NotNull final String... ldifLines)
+         throws LDIFException
   {
     final Entry e = decodeEntry(prepareRecord(
               (ignoreDuplicateValues
@@ -1955,7 +1990,9 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         change record.
    */
-  public static LDIFChangeRecord decodeChangeRecord(final String... ldifLines)
+  @NotNull()
+  public static LDIFChangeRecord decodeChangeRecord(
+                                      @NotNull final String... ldifLines)
          throws LDIFException
   {
     return decodeChangeRecord(false, ldifLines);
@@ -1983,8 +2020,9 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         change record.
    */
+  @NotNull()
   public static LDIFChangeRecord decodeChangeRecord(final boolean defaultAdd,
-                                                    final String... ldifLines)
+                                      @NotNull final String... ldifLines)
          throws LDIFException
   {
     final LDIFChangeRecord r =
@@ -2025,11 +2063,12 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         change record.
    */
+  @NotNull()
   public static LDIFChangeRecord decodeChangeRecord(
-                                      final boolean ignoreDuplicateValues,
-                                      final Schema schema,
-                                      final boolean defaultAdd,
-                                      final String... ldifLines)
+                     final boolean ignoreDuplicateValues,
+                     @Nullable final Schema schema,
+                     final boolean defaultAdd,
+                     @NotNull final String... ldifLines)
          throws LDIFException
   {
     return decodeChangeRecord(ignoreDuplicateValues,
@@ -2069,12 +2108,13 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         change record.
    */
+  @NotNull()
   public static LDIFChangeRecord decodeChangeRecord(
                      final boolean ignoreDuplicateValues,
-                     final TrailingSpaceBehavior trailingSpaceBehavior,
-                     final Schema schema,
+                     @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+                     @Nullable final Schema schema,
                      final boolean defaultAdd,
-                     final String... ldifLines)
+                     @NotNull final String... ldifLines)
          throws LDIFException
   {
     final LDIFChangeRecord r = decodeChangeRecord(
@@ -2113,10 +2153,12 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided lines do not contain valid LDIF
    *                         content.
    */
+  @NotNull()
   private static UnparsedLDIFRecord prepareRecord(
-                      final DuplicateValueBehavior duplicateValueBehavior,
-                      final TrailingSpaceBehavior trailingSpaceBehavior,
-                      final Schema schema, final String... ldifLines)
+               @NotNull final DuplicateValueBehavior duplicateValueBehavior,
+               @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+               @Nullable final Schema schema,
+               @NotNull final String... ldifLines)
           throws LDIFException
   {
     Validator.ensureNotNull(ldifLines);
@@ -2212,10 +2254,11 @@ public final class LDIFReader
    * @throws  LDIFException  If the data read could not be parsed as an entry or
    *                         an LDIF change record.
    */
+  @NotNull()
   private static LDIFRecord decodeRecord(
-                                 final UnparsedLDIFRecord unparsedRecord,
-                                 final String relativeBasePath,
-                                 final Schema schema)
+                      @NotNull final UnparsedLDIFRecord unparsedRecord,
+                      @NotNull final String relativeBasePath,
+                      @Nullable final Schema schema)
        throws LDIFException
   {
     // If there was an error reading from the input, then we rethrow it here.
@@ -2294,8 +2337,10 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be read as an
    *                         entry.
    */
-  private static Entry decodeEntry(final UnparsedLDIFRecord unparsedRecord,
-                                   final String relativeBasePath)
+  @NotNull()
+  private static Entry decodeEntry(
+                            @NotNull final UnparsedLDIFRecord unparsedRecord,
+                            @NotNull final String relativeBasePath)
           throws LDIFException
   {
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
@@ -2422,11 +2467,12 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         change record.
    */
+  @NotNull()
   private static LDIFChangeRecord decodeChangeRecord(
-                                       final UnparsedLDIFRecord unparsedRecord,
-                                       final String relativeBasePath,
-                                       final boolean defaultAdd,
-                                       final Schema schema)
+                      @NotNull final UnparsedLDIFRecord unparsedRecord,
+                      @NotNull final String relativeBasePath,
+                      final boolean defaultAdd,
+                      @Nullable final Schema schema)
           throws LDIFException
   {
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
@@ -2691,11 +2737,11 @@ public final class LDIFReader
    * @throws  LDIFException  If a problem is encountered while trying to decode
    *                         the changetype.
    */
-  private static Control decodeControl(final StringBuilder line,
-                                       final int colonPos,
-                                       final long firstLineNumber,
-                                       final ArrayList<StringBuilder> ldifLines,
-                                       final String relativeBasePath)
+  @NotNull()
+  private static Control decodeControl(@NotNull final StringBuilder line,
+                              final int colonPos, final long firstLineNumber,
+                              @NotNull final ArrayList<StringBuilder> ldifLines,
+                              @NotNull final String relativeBasePath)
           throws LDIFException
   {
     final String controlString;
@@ -2960,9 +3006,10 @@ public final class LDIFReader
    * @throws  LDIFException  If a problem is encountered while trying to decode
    *                         the changetype.
    */
-  private static String decodeChangeType(final StringBuilder line,
+  @NotNull()
+  private static String decodeChangeType(@NotNull final StringBuilder line,
                              final int colonPos, final long firstLineNumber,
-                             final ArrayList<StringBuilder> ldifLines)
+                             @NotNull final ArrayList<StringBuilder> ldifLines)
           throws LDIFException
   {
     final int length = line.length();
@@ -3052,12 +3099,15 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         set of attributes.
    */
-  private static ArrayList<Attribute> parseAttributes(final String dn,
-       final DuplicateValueBehavior duplicateValueBehavior,
-       final TrailingSpaceBehavior trailingSpaceBehavior, final Schema schema,
-       final ArrayList<StringBuilder> ldifLines,
-       final Iterator<StringBuilder> iterator, final String relativeBasePath,
-       final long firstLineNumber)
+  @NotNull()
+  private static ArrayList<Attribute> parseAttributes(@NotNull final String dn,
+               @NotNull final DuplicateValueBehavior duplicateValueBehavior,
+               @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+               @Nullable final Schema schema,
+               @NotNull final ArrayList<StringBuilder> ldifLines,
+               @NotNull final Iterator<StringBuilder> iterator,
+               @NotNull final String relativeBasePath,
+               final long firstLineNumber)
           throws LDIFException
   {
     final LinkedHashMap<String,Object> attributes =
@@ -3335,8 +3385,9 @@ public final class LDIFReader
    * @throws  IOException  If a problem is encountered while attempting to read
    *                       from the target file.
    */
-  private static byte[] retrieveURLBytes(final String urlString,
-                                         final String relativeBasePath,
+  @NotNull()
+  private static byte[] retrieveURLBytes(@NotNull final String urlString,
+                                         @NotNull final String relativeBasePath,
                                          final long firstLineNumber)
           throws LDIFException, IOException
   {
@@ -3449,11 +3500,12 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         set of modifications.
    */
-  private static Modification[] parseModifications(final String dn,
-                      final TrailingSpaceBehavior trailingSpaceBehavior,
-                      final ArrayList<StringBuilder> ldifLines,
-                      final Iterator<StringBuilder> iterator,
-                      final long firstLineNumber, final Schema schema)
+  @NotNull()
+  private static Modification[] parseModifications(@NotNull final String dn,
+               @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+               @NotNull final ArrayList<StringBuilder> ldifLines,
+               @NotNull final Iterator<StringBuilder> iterator,
+               final long firstLineNumber, @Nullable final Schema schema)
           throws LDIFException
   {
     final ArrayList<Modification> modList = new ArrayList<>(ldifLines.size());
@@ -3781,13 +3833,15 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         modify DN change record.
    */
+  @NotNull()
   private static LDIFModifyDNChangeRecord parseModifyDNChangeRecord(
-       final ArrayList<StringBuilder> ldifLines,
-       final Iterator<StringBuilder> iterator, final String dn,
-       final List<Control> controls,
-       final TrailingSpaceBehavior trailingSpaceBehavior,
-       final long firstLineNumber)
-       throws LDIFException
+               @NotNull final ArrayList<StringBuilder> ldifLines,
+               @NotNull final Iterator<StringBuilder> iterator,
+               @NotNull final String dn,
+               @Nullable final List<Control> controls,
+               @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+               final long firstLineNumber)
+          throws LDIFException
   {
     // The next line must be the new RDN, and it must start with "newrdn:".
     StringBuilder line = iterator.next();
@@ -4075,9 +4129,9 @@ public final class LDIFReader
    *                         {@code stripTrailingSpaces} was provided with a
    *                         value of {@code false}.
    */
-  private static void handleTrailingSpaces(final StringBuilder buffer,
-                           final String dn, final long firstLineNumber,
-                           final TrailingSpaceBehavior trailingSpaceBehavior)
+  private static void handleTrailingSpaces(@NotNull final StringBuilder buffer,
+               @Nullable final String dn, final long firstLineNumber,
+               @NotNull final TrailingSpaceBehavior trailingSpaceBehavior)
           throws LDIFException
   {
     int pos = buffer.length() - 1;
@@ -4128,18 +4182,18 @@ public final class LDIFReader
    */
   private static final class UnparsedLDIFRecord
   {
-    private final ArrayList<StringBuilder> lineList;
+    @Nullable private final ArrayList<StringBuilder> lineList;
     private final long firstLineNumber;
-    private final Exception failureCause;
+    @Nullable private final Exception failureCause;
     private final boolean isEOF;
-    private final DuplicateValueBehavior duplicateValueBehavior;
-    private final Schema schema;
-    private final TrailingSpaceBehavior trailingSpaceBehavior;
+    @NotNull private final DuplicateValueBehavior duplicateValueBehavior;
+    @Nullable private final Schema schema;
+    @NotNull private final TrailingSpaceBehavior trailingSpaceBehavior;
 
 
 
     /**
-     * Constructor.
+     * Creates a new instance of this record.
      *
      * @param  lineList                The lines that comprise the LDIF record.
      * @param  duplicateValueBehavior  The behavior to exhibit if the entry
@@ -4151,10 +4205,10 @@ public final class LDIFReader
      *                                 applicable.
      * @param  firstLineNumber         The first line number of the LDIF record.
      */
-    private UnparsedLDIFRecord(final ArrayList<StringBuilder> lineList,
-                 final DuplicateValueBehavior duplicateValueBehavior,
-                 final TrailingSpaceBehavior trailingSpaceBehavior,
-                 final Schema schema, final long firstLineNumber)
+    private UnparsedLDIFRecord(@NotNull final ArrayList<StringBuilder> lineList,
+                 @NotNull final DuplicateValueBehavior duplicateValueBehavior,
+                 @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+                 @Nullable final Schema schema, final long firstLineNumber)
     {
       this.lineList               = lineList;
       this.firstLineNumber        = firstLineNumber;
@@ -4170,11 +4224,11 @@ public final class LDIFReader
 
 
     /**
-     * Constructor.
+     * Creates a new instance of this record.
      *
      * @param failureCause  The Exception thrown when reading from the input.
      */
-    private UnparsedLDIFRecord(final Exception failureCause)
+    private UnparsedLDIFRecord(@NotNull final Exception failureCause)
     {
       this.failureCause = failureCause;
 
@@ -4191,8 +4245,10 @@ public final class LDIFReader
     /**
      * Return the lines that comprise the LDIF record.
      *
-     * @return  The lines that comprise the LDIF record.
+     * @return  The lines that comprise the LDIF record, or {@code null} if this
+     *          is a failure record.
      */
+    @Nullable()
     private ArrayList<StringBuilder> getLineList()
     {
       return lineList;
@@ -4207,6 +4263,7 @@ public final class LDIFReader
      * @return  The behavior to exhibit when encountering duplicate attribute
      *          values.
      */
+    @NotNull()
     private DuplicateValueBehavior getDuplicateValueBehavior()
     {
       return duplicateValueBehavior;
@@ -4226,6 +4283,7 @@ public final class LDIFReader
      *          attribute values which are not base64-encoded but contain
      *          trailing spaces.
      */
+    @NotNull()
     private TrailingSpaceBehavior getTrailingSpaceBehavior()
     {
       return trailingSpaceBehavior;
@@ -4240,6 +4298,7 @@ public final class LDIFReader
      * @return  The schema that should be used when parsing the record, or
      *          {@code null} if none should be used.
      */
+    @Nullable()
     private Schema getSchema()
     {
       return schema;
@@ -4278,6 +4337,7 @@ public final class LDIFReader
      *
      * @return  The reason that reading the record lines failed.
      */
+    @Nullable()
     private Exception getFailureCause()
     {
       return failureCause;
@@ -4294,7 +4354,7 @@ public final class LDIFReader
        extends Thread
   {
     /**
-     * Constructor.
+     * Creates a new instance o fthis thread.
      */
     private LineReaderThread()
     {
@@ -4383,7 +4443,7 @@ public final class LDIFReader
      * {@inheritDoc}
      */
     @Override()
-    public LDIFRecord process(final UnparsedLDIFRecord input)
+    public LDIFRecord process(@NotNull final UnparsedLDIFRecord input)
            throws LDIFException
     {
       LDIFRecord record = decodeRecord(input, relativeBasePath, schema);

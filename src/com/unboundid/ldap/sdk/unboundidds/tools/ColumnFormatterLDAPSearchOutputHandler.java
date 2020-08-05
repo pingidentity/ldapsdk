@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -78,29 +79,29 @@ final class ColumnFormatterLDAPSearchOutputHandler
 {
   // A list used to hold the lines for a formatted representation of a search
   // result entry or reference.
-  private final ArrayList<String> formattedLines;
+  @NotNull private final ArrayList<String> formattedLines;
 
   // Indicates whether to include all values of a multivalued attribute.
   private final boolean includeAllValues;
 
   // The column formatter that will be used to generate the output.
-  private final ColumnFormatter formatter;
+  @NotNull private final ColumnFormatter formatter;
 
   // The maximum width to use for comments in the output.
   private final int maxCommentWidth;
 
   // The associated LDAPSearch tool instance.
-  private final LDAPSearch ldapSearch;
+  @NotNull private final LDAPSearch ldapSearch;
 
   // An array that holds the values for each of the columns to be output.
-  private final Object[] columnValues;
+  @NotNull private final Object[] columnValues;
 
   // The names of the requested attributes.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
   // A string builder used to hold the formatted representation of the lines
   // that comprise a search result entry or reference.
-  private final StringBuilder formattedLineBuffer;
+  @NotNull private final StringBuilder formattedLineBuffer;
 
 
 
@@ -119,11 +120,11 @@ final class ColumnFormatterLDAPSearchOutputHandler
    *                              {@code true}, then a vertical bar (|) will be
    *                              used to separate the values within each field.
    */
-  ColumnFormatterLDAPSearchOutputHandler(final LDAPSearch ldapSearch,
-                                         final OutputFormat outputFormat,
-                                         final List<String> requestedAttributes,
-                                         final int maxCommentWidth,
-                                         final boolean includeAllValues)
+  ColumnFormatterLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch,
+       @NotNull final OutputFormat outputFormat,
+       @NotNull final List<String> requestedAttributes,
+       final int maxCommentWidth,
+       final boolean includeAllValues)
   {
     this.ldapSearch = ldapSearch;
     this.maxCommentWidth = maxCommentWidth;
@@ -170,7 +171,7 @@ final class ColumnFormatterLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(final SearchResultEntry entry)
+  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     columnValues[0] = entry.getDN();
 
@@ -213,7 +214,8 @@ final class ColumnFormatterLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(final SearchResultReference ref)
+  public void formatSearchResultReference(
+                   @NotNull final SearchResultReference ref)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -235,7 +237,7 @@ final class ColumnFormatterLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(final LDAPResult result)
+  public void formatResult(@NotNull final LDAPResult result)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -256,8 +258,9 @@ final class ColumnFormatterLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void formatUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final ExtendedResult notification)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);

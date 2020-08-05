@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.42) for the clear missed notification
    * changes alarm extended request.
    */
-  public static final String
+  @NotNull public static final String
        CLEAR_MISSED_NOTIFICATION_CHANGES_ALARM_REQUEST_OID =
             "1.3.6.1.4.1.30221.2.6.42";
 
@@ -101,10 +103,10 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
 
 
   // The notification destination ID.
-  private final String destinationID;
+  @NotNull private final String destinationID;
 
   // The notification manager ID.
-  private final String managerID;
+  @NotNull private final String managerID;
 
 
 
@@ -121,8 +123,9 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    *                           are needed.
    */
   public ClearMissedNotificationChangesAlarmExtendedRequest(
-       final String managerID, final String destinationID,
-       final Control... controls)
+       @NotNull final String managerID,
+       @NotNull final String destinationID,
+       @Nullable final Control... controls)
   {
     super(CLEAR_MISSED_NOTIFICATION_CHANGES_ALARM_REQUEST_OID,
          encodeValue(managerID, destinationID), controls);
@@ -144,7 +147,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    * @throws LDAPException  If a problem occurs while decoding the request.
    */
   public ClearMissedNotificationChangesAlarmExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -189,8 +192,9 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String managerID,
-                      final String destinationID)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String managerID,
+                      @NotNull final String destinationID)
   {
     Validator.ensureNotNull(managerID);
     Validator.ensureNotNull(destinationID);
@@ -208,6 +212,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    *
    * @return  The notification manager ID.
    */
+  @NotNull()
   public String getManagerID()
   {
     return managerID;
@@ -220,6 +225,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    *
    * @return  The notification destination ID.
    */
+  @NotNull()
   public String getDestinationID()
   {
     return destinationID;
@@ -231,6 +237,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ClearMissedNotificationChangesAlarmExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -242,8 +249,9 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public ClearMissedNotificationChangesAlarmExtendedRequest
-              duplicate(final Control[] controls)
+  @NotNull()
+  public ClearMissedNotificationChangesAlarmExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final ClearMissedNotificationChangesAlarmExtendedRequest r =
          new ClearMissedNotificationChangesAlarmExtendedRequest(managerID,
@@ -258,6 +266,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_CLEAR_MISSED_NOTIFICATION_CHANGES_ALARM.
@@ -270,7 +279,7 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ClearMissedNotificationChangesAlarmExtendedRequest(" +
          "managerID='");

@@ -43,6 +43,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,7 +71,7 @@ public final class IntegerArgument
 
 
   // The set of values assigned to this argument.
-  private final ArrayList<Integer> values;
+  @NotNull private final ArrayList<Integer> values;
 
   // The lower bound for this argument.
   private final int lowerBound;
@@ -78,10 +80,10 @@ public final class IntegerArgument
   private final int upperBound;
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The list of default values that will be used if no values were provided.
-  private final List<Integer> defaultValues;
+  @Nullable private final List<Integer> defaultValues;
 
 
 
@@ -103,8 +105,9 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final String description)
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 1, null, description);
@@ -139,11 +142,11 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
-                         final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description)
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired, final int maxOccurrences,
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -186,11 +189,11 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
-                         final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description,
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired, final int maxOccurrences,
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
                          final int lowerBound, final int upperBound)
          throws ArgumentException
   {
@@ -231,12 +234,12 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
-                         final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description,
-                         final Integer defaultValue)
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired, final int maxOccurrences,
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
+                         @Nullable final Integer defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -276,12 +279,12 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
-                         final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description,
-                         final List<Integer> defaultValues)
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired, final int maxOccurrences,
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
+                         @Nullable final List<Integer> defaultValues)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -326,13 +329,13 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
-                         final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description, final int lowerBound,
-                         final int upperBound,
-                         final Integer defaultValue)
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired, final int maxOccurrences,
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
+                         final int lowerBound, final int upperBound,
+                         @Nullable final Integer defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -377,13 +380,13 @@ public final class IntegerArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public IntegerArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
-                         final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description, final int lowerBound,
-                         final int upperBound,
-                         final List<Integer> defaultValues)
+  public IntegerArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired, final int maxOccurrences,
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
+                         final int lowerBound, final int upperBound,
+                         @Nullable final List<Integer> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -416,7 +419,7 @@ public final class IntegerArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private IntegerArgument(final IntegerArgument source)
+  private IntegerArgument(@NotNull final IntegerArgument source)
   {
     super(source);
 
@@ -460,6 +463,7 @@ public final class IntegerArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
+  @Nullable()
   public List<Integer> getDefaultValues()
   {
     return defaultValues;
@@ -475,7 +479,7 @@ public final class IntegerArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -486,7 +490,7 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     final int intValue;
@@ -539,6 +543,7 @@ public final class IntegerArgument
    *          provided, or {@code null} if it does not have any values or
    *          default values.
    */
+  @Nullable()
   public Integer getValue()
   {
     if (values.isEmpty())
@@ -565,6 +570,7 @@ public final class IntegerArgument
    * @return  The set of values for this argument, or the default values if none
    *          were provided.
    */
+  @NotNull()
   public List<Integer> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
@@ -581,6 +587,7 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     final List<Integer> intValues;
@@ -630,6 +637,7 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_INTEGER_TYPE_NAME.get();
@@ -641,6 +649,7 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     return INFO_INTEGER_CONSTRAINTS_LOWER_AND_UPPER_BOUND.get(lowerBound,
@@ -665,6 +674,7 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public IntegerArgument getCleanCopy()
   {
     return new IntegerArgument(this);
@@ -676,21 +686,18 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (values != null)
+    for (final Integer i : values)
     {
-      for (final Integer i : values)
+      argStrings.add(getIdentifierString());
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED");
-        }
-        else
-        {
-          argStrings.add(i.toString());
-        }
+        argStrings.add("***REDACTED");
+      }
+      else
+      {
+        argStrings.add(i.toString());
       }
     }
   }
@@ -701,7 +708,7 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("IntegerArgument(");
     appendBasicToStringInfo(buffer);

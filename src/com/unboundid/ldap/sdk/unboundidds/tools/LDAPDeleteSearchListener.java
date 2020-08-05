@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,20 +82,20 @@ final class LDAPDeleteSearchListener
 
 
   // A reference to the return code that should be used for the tool.
-  private final AtomicReference<ResultCode> returnCode;
+  @NotNull private final AtomicReference<ResultCode> returnCode;
 
   // A reference to the associated LDAPDelete tool instance.
-  private final LDAPDelete ldapDelete;
+  @NotNull private final LDAPDelete ldapDelete;
 
   // A string representation of the search base DN.
-  private final String baseDN;
+  @NotNull private final String baseDN;
 
   // A string representation of the search filter.
-  private final String filter;
+  @NotNull private final String filter;
 
   // The that will be updated with the DNs of entries matching an associated
   // search.
-  private final TreeSet<DN> dnSet;
+  @NotNull private final TreeSet<DN> dnSet;
 
 
 
@@ -114,9 +115,11 @@ final class LDAPDeleteSearchListener
    * @param  filter      The string representation of the filter for the search
    *                     being processed.  It must not be {@code null}.
    */
-  LDAPDeleteSearchListener(final LDAPDelete ldapDelete, final TreeSet<DN> dnSet,
-                           final String baseDN, final String filter,
-                           final AtomicReference<ResultCode> returnCode)
+  LDAPDeleteSearchListener(@NotNull final LDAPDelete ldapDelete,
+       @NotNull final TreeSet<DN> dnSet,
+       @NotNull final String baseDN,
+       @NotNull final String filter,
+       @NotNull final AtomicReference<ResultCode> returnCode)
   {
     this.ldapDelete = ldapDelete;
     this.baseDN = baseDN;
@@ -131,7 +134,7 @@ final class LDAPDeleteSearchListener
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
      try
     {
@@ -155,7 +158,7 @@ final class LDAPDeleteSearchListener
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     returnCode.compareAndSet(null, ResultCode.REFERRAL);
     ldapDelete.commentToErr(ERR_LDAPDELETE_SEARCH_LISTENER_REFERENCE.get(

@@ -43,6 +43,7 @@ import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,6 +74,7 @@ public interface ProtocolOp
    *
    * @return  The ASN.1 element containing the encoded protocol op.
    */
+  @NotNull()
   ASN1Element encodeProtocolOp();
 
 
@@ -85,7 +87,7 @@ public interface ProtocolOp
    * @param  buffer  The ASN.1 buffer to which the encoded representation should
    *                 be written.
    */
-  void writeTo(ASN1Buffer buffer);
+  void writeTo(@NotNull ASN1Buffer buffer);
 
 
 
@@ -96,5 +98,5 @@ public interface ProtocolOp
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  void toString(StringBuilder buffer);
+  void toString(@NotNull StringBuilder buffer);
 }

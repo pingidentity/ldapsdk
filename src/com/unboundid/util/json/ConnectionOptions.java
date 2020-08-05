@@ -42,6 +42,7 @@ import java.io.Serializable;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ssl.HostNameSSLSocketVerifier;
@@ -65,7 +66,7 @@ final class ConnectionOptions
    * timeout should be enforced for the LDAP SDK.  If it is absent, then a
    * default of 60000 (1 minute) will be used.
    */
-  private static final String FIELD_CONNECT_TIMEOUT_MILLIS =
+  @NotNull private static final String FIELD_CONNECT_TIMEOUT_MILLIS =
        "connect-timeout-millis";
 
 
@@ -78,7 +79,7 @@ final class ConnectionOptions
    * 300000 (5 minutes) will be used.  This response timeout can be overridden
    * on a per-operation basis.
    */
-  private static final String FIELD_DEFAULT_RESPONSE_TIMEOUT_MILLIS =
+  @NotNull private static final String FIELD_DEFAULT_RESPONSE_TIMEOUT_MILLIS =
        "default-response-timeout-millis";
 
 
@@ -89,7 +90,8 @@ final class ConnectionOptions
    * value should be a boolean.  If it is absent, then a default of
    * {@code false} will be used.
    */
-  private static final String FIELD_FOLLOW_REFERRALS = "follow-referrals";
+  @NotNull private static final String FIELD_FOLLOW_REFERRALS =
+       "follow-referrals";
 
 
 
@@ -99,7 +101,7 @@ final class ConnectionOptions
    * operations.  If it is present, then value should be a boolean.  If it is
    * absent, then a default of {@code false} will be used.
    */
-  private static final String FIELD_USE_SCHEMA = "use-schema";
+  @NotNull private static final String FIELD_USE_SCHEMA = "use-schema";
 
 
 
@@ -113,7 +115,7 @@ final class ConnectionOptions
    * it is present, then the value should be a boolean.  If it is absent, then a
    * default of {@code false} will be used.
    */
-  private static final String FIELD_USE_SYNCHRONOUS_MODE =
+  @NotNull private static final String FIELD_USE_SYNCHRONOUS_MODE =
        "use-synchronous-mode";
 
 
@@ -152,7 +154,7 @@ final class ConnectionOptions
    * @throws LDAPException  If there is a problem with the connection options
    *                         data in the provided JSON object.
    */
-  ConnectionOptions(final JSONObject connectionDetailsObject)
+  ConnectionOptions(@NotNull final JSONObject connectionDetailsObject)
        throws LDAPException
   {
     boolean referrals = false;
@@ -209,7 +211,7 @@ final class ConnectionOptions
    * @return  The {@code LDAPConnectionOptions} object that was created.
    */
   LDAPConnectionOptions createConnectionOptions(
-                             final SecurityOptions securityOptions)
+                             @NotNull final SecurityOptions securityOptions)
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
 

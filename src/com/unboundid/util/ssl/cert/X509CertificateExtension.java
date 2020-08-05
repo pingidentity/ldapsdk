@@ -49,6 +49,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -79,10 +80,10 @@ public class X509CertificateExtension
   private final boolean isCritical;
 
   // The value for this extension.
-  private final byte[] value;
+  @NotNull private final byte[] value;
 
   // The OID for this extension.
-  private final OID oid;
+  @NotNull private final OID oid;
 
 
 
@@ -92,7 +93,8 @@ public class X509CertificateExtension
    *
    * @param  extension  The extension to wrap.
    */
-  protected X509CertificateExtension(final X509CertificateExtension extension)
+  protected X509CertificateExtension(
+                 @NotNull final X509CertificateExtension extension)
   {
     oid = extension.oid;
     isCritical = extension.isCritical;
@@ -109,8 +111,9 @@ public class X509CertificateExtension
    *                     critical.
    * @param  value       The value for this extension.
    */
-  public X509CertificateExtension(final OID oid, final boolean isCritical,
-                                  final byte[] value)
+  public X509CertificateExtension(@NotNull final OID oid,
+                                  final boolean isCritical,
+                                  @NotNull final byte[] value)
   {
     this.oid = oid;
     this.isCritical = isCritical;
@@ -130,7 +133,9 @@ public class X509CertificateExtension
    * @throws  CertException  If a problem is encountered while attempting to
    *                         decode the extension.
    */
-  static X509CertificateExtension decode(final ASN1Element extensionElement)
+  @NotNull()
+  static X509CertificateExtension decode(
+              @NotNull final ASN1Element extensionElement)
          throws CertException
   {
     final OID oid;
@@ -271,6 +276,7 @@ public class X509CertificateExtension
    *
    * @return  The OID for this extension.
    */
+  @NotNull()
   public final OID getOID()
   {
     return oid;
@@ -296,6 +302,7 @@ public class X509CertificateExtension
    *
    * @return  The value for this extension.
    */
+  @NotNull()
   public final byte[] getValue()
   {
     return value;
@@ -312,6 +319,7 @@ public class X509CertificateExtension
    * @throws  CertException  If a problem is encountered while encoding the
    *                         extension.
    */
+  @NotNull()
   ASN1Sequence encode()
        throws CertException
   {
@@ -345,6 +353,7 @@ public class X509CertificateExtension
    *
    * @return  The name for this extension.
    */
+  @NotNull()
   public String getExtensionName()
   {
     return oid.toString();
@@ -357,6 +366,7 @@ public class X509CertificateExtension
    *
    * @return  A string representation of this extension.
    */
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -372,7 +382,7 @@ public class X509CertificateExtension
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("X509CertificateExtension(oid='");
     buffer.append(oid.toString());

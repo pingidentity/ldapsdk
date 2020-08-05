@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -66,7 +68,7 @@ public class LDAPExtendedOperationException
 
 
   // The extended result for this exception.
-  private final ExtendedResult extendedResult;
+  @NotNull private final ExtendedResult extendedResult;
 
 
 
@@ -77,7 +79,8 @@ public class LDAPExtendedOperationException
    * @param  extendedResult  The extended result to use to create this
    *                         exception.
    */
-  public LDAPExtendedOperationException(final ExtendedResult extendedResult)
+  public LDAPExtendedOperationException(
+              @NotNull final ExtendedResult extendedResult)
   {
     super(extendedResult);
 
@@ -90,6 +93,7 @@ public class LDAPExtendedOperationException
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPResult toLDAPResult()
   {
     return extendedResult;
@@ -102,6 +106,7 @@ public class LDAPExtendedOperationException
    *
    * @return  The extended result that was returned by the server.
    */
+  @NotNull()
   public ExtendedResult getExtendedResult()
   {
     return extendedResult;
@@ -115,6 +120,7 @@ public class LDAPExtendedOperationException
    * @return  The response OID from the extended result, or {@code null} if the
    *          result did not include an OID.
    */
+  @Nullable()
   public String getResponseOID()
   {
     return extendedResult.getOID();
@@ -128,6 +134,7 @@ public class LDAPExtendedOperationException
    * @return  The response value from the extended result, or {@code null} if
    *          the result did not include a value.
    */
+  @Nullable()
   public ASN1OctetString getResponseValue()
   {
     return extendedResult.getValue();
@@ -139,7 +146,7 @@ public class LDAPExtendedOperationException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     super.toString(buffer);
   }

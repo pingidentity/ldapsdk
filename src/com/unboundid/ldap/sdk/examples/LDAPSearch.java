@@ -58,6 +58,8 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -136,7 +138,7 @@ public final class LDAPSearch
   /**
    * The date formatter that should be used when writing timestamps.
    */
-  private static final SimpleDateFormat DATE_FORMAT =
+  @NotNull private static final SimpleDateFormat DATE_FORMAT =
        new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss.SSS");
 
 
@@ -149,34 +151,34 @@ public final class LDAPSearch
 
 
   // The argument parser used by this program.
-  private ArgumentParser parser;
+  @Nullable private ArgumentParser parser;
 
   // Indicates whether the search should be repeated.
   private boolean repeat;
 
   // The argument used to indicate whether to follow referrals.
-  private BooleanArgument followReferrals;
+  @Nullable private BooleanArgument followReferrals;
 
   // The argument used to indicate whether to use terse mode.
-  private BooleanArgument terseMode;
+  @Nullable private BooleanArgument terseMode;
 
   // The argument used to specify any bind controls that should be used.
-  private ControlArgument bindControls;
+  @Nullable private ControlArgument bindControls;
 
   // The argument used to specify any search controls that should be used.
-  private ControlArgument searchControls;
+  @Nullable private ControlArgument searchControls;
 
   // The number of times to perform the search.
-  private IntegerArgument numSearches;
+  @Nullable private IntegerArgument numSearches;
 
   // The interval in milliseconds between repeated searches.
-  private IntegerArgument repeatIntervalMillis;
+  @Nullable private IntegerArgument repeatIntervalMillis;
 
   // The argument used to specify the base DN for the search.
-  private DNArgument baseDN;
+  @Nullable private DNArgument baseDN;
 
   // The argument used to specify the scope for the search.
-  private ScopeArgument scopeArg;
+  @Nullable private ScopeArgument scopeArg;
 
 
 
@@ -186,7 +188,7 @@ public final class LDAPSearch
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -211,9 +213,9 @@ public final class LDAPSearch
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final LDAPSearch ldapSearch = new LDAPSearch(outStream, errStream);
     return ldapSearch.runTool(args);
@@ -231,7 +233,8 @@ public final class LDAPSearch
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public LDAPSearch(final OutputStream outStream, final OutputStream errStream)
+  public LDAPSearch(@Nullable final OutputStream outStream,
+                    @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
   }
@@ -244,6 +247,7 @@ public final class LDAPSearch
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldapsearch";
@@ -257,6 +261,7 @@ public final class LDAPSearch
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Search an LDAP directory server.";
@@ -270,6 +275,7 @@ public final class LDAPSearch
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -315,6 +321,7 @@ public final class LDAPSearch
    *          trailing arguments are allowed.
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return "{filter} [attr1 [attr2 [...]]]";
@@ -457,7 +464,7 @@ public final class LDAPSearch
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     this.parser = parser;
@@ -565,6 +572,7 @@ public final class LDAPSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Control> getBindControls()
   {
     return bindControls.getValues();
@@ -580,6 +588,7 @@ public final class LDAPSearch
    * @return  The result code for the processing that was performed.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Make sure that at least one trailing argument was provided, which will be
@@ -757,7 +766,7 @@ public final class LDAPSearch
    * @param  entry  The entry that was returned from the search.
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry entry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry entry)
   {
     if (repeat)
     {
@@ -776,7 +785,8 @@ public final class LDAPSearch
    * @param  reference  The reference that was returned from the search.
    */
   @Override()
-  public void searchReferenceReturned(final SearchResultReference reference)
+  public void searchReferenceReturned(
+                   @NotNull final SearchResultReference reference)
   {
     if (repeat)
     {
@@ -792,6 +802,7 @@ public final class LDAPSearch
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

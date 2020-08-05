@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -80,7 +81,7 @@ public final class UnbindRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public UnbindRequestAccessLogMessage(final String s)
+  public UnbindRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -95,7 +96,7 @@ public final class UnbindRequestAccessLogMessage
    * @param  m  The log message to be parsed as an unbind request access log
    *            message.
    */
-  public UnbindRequestAccessLogMessage(final LogMessage m)
+  public UnbindRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
   }
@@ -106,6 +107,7 @@ public final class UnbindRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.UNBIND;

@@ -41,6 +41,8 @@ import java.math.BigDecimal;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -128,13 +130,13 @@ public final class JSONNumber
 
 
   // The numeric value for this object.
-  private final BigDecimal value;
+  @NotNull private final BigDecimal value;
 
   // The normalized representation of the value.
-  private final BigDecimal normalizedValue;
+  @NotNull private final BigDecimal normalizedValue;
 
   // The string representation for this object.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -172,7 +174,7 @@ public final class JSONNumber
    * @param  value  The value for this JSON number.  It must not be
    *                {@code null}.
    */
-  public JSONNumber(final BigDecimal value)
+  public JSONNumber(@NotNull final BigDecimal value)
   {
     this.value = value;
     stringRepresentation = value.toPlainString();
@@ -208,7 +210,7 @@ public final class JSONNumber
    * @throws  JSONException  If the provided string cannot be parsed as a valid
    *                         JSON number.
    */
-  public JSONNumber(final String stringRepresentation)
+  public JSONNumber(@NotNull final String stringRepresentation)
          throws JSONException
   {
     this.stringRepresentation = stringRepresentation;
@@ -413,6 +415,7 @@ public final class JSONNumber
    *
    * @return  The value of this JSON number as a {@code BigDecimal}.
    */
+  @NotNull()
   public BigDecimal getValue()
   {
     return value;
@@ -435,7 +438,7 @@ public final class JSONNumber
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == this)
     {
@@ -460,7 +463,8 @@ public final class JSONNumber
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final JSONValue v, final boolean ignoreFieldNameCase,
+  public boolean equals(@NotNull final JSONValue v,
+                        final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
   {
@@ -480,6 +484,7 @@ public final class JSONNumber
    *          JSON object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;
@@ -497,7 +502,7 @@ public final class JSONNumber
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringRepresentation);
   }
@@ -515,6 +520,7 @@ public final class JSONNumber
    *          appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toSingleLineString()
   {
     return stringRepresentation;
@@ -532,7 +538,7 @@ public final class JSONNumber
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toSingleLineString(final StringBuilder buffer)
+  public void toSingleLineString(@NotNull final StringBuilder buffer)
   {
     buffer.append(stringRepresentation);
   }
@@ -550,6 +556,7 @@ public final class JSONNumber
    *          appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString()
   {
     return normalizedValue.toPlainString();
@@ -568,7 +575,7 @@ public final class JSONNumber
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     buffer.append(normalizedValue.toPlainString());
   }
@@ -598,6 +605,7 @@ public final class JSONNumber
    *          appear in a JSON object.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString(final boolean ignoreFieldNameCase,
                                    final boolean ignoreValueCase,
                                    final boolean ignoreArrayOrder)
@@ -630,7 +638,7 @@ public final class JSONNumber
    *                              {@code true}).
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer,
+  public void toNormalizedString(@NotNull final StringBuilder buffer,
                                  final boolean ignoreFieldNameCase,
                                  final boolean ignoreValueCase,
                                  final boolean ignoreArrayOrder)
@@ -644,7 +652,7 @@ public final class JSONNumber
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendNumber(stringRepresentation);
   }
@@ -655,8 +663,8 @@ public final class JSONNumber
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final String fieldName,
-                                 final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final String fieldName,
+                                 @NotNull final JSONBuffer buffer)
   {
     buffer.appendNumber(fieldName, stringRepresentation);
   }

@@ -41,6 +41,8 @@ import java.net.InetAddress;
 import java.util.List;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,8 +70,9 @@ public abstract class LDAPConnectionLogger
    *                         It will not be {@code null}.
    * @param  port            The port to which the connection was established.
    */
-  public void logConnect(final LDAPConnectionInfo connectionInfo,
-                         final String host, final InetAddress inetAddress,
+  public void logConnect(@NotNull final LDAPConnectionInfo connectionInfo,
+                         @NotNull final String host,
+                         @NotNull final InetAddress inetAddress,
                          final int port)
   {
     // No action will be taken by default.
@@ -91,9 +94,10 @@ public abstract class LDAPConnectionLogger
    *                           connection attempt.  It will not be
    *                           {@code null}.
    */
-  public void logConnectFailure(final LDAPConnectionInfo connectionInfo,
-                                final String host, final int port,
-                                final LDAPException connectException)
+  public void logConnectFailure(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   @NotNull final String host, final int port,
+                   @NotNull final LDAPException connectException)
   {
     // No action will be taken by default.
   }
@@ -123,11 +127,11 @@ public abstract class LDAPConnectionLogger
    *                            {@code null} if the disconnect was not caused by
    *                            an exception or error.
    */
-  public void logDisconnect(final LDAPConnectionInfo connectionInfo,
-                            final String host, final int port,
-                            final DisconnectType disconnectType,
-                            final String disconnectMessage,
-                            final Throwable disconnectCause)
+  public void logDisconnect(@NotNull final LDAPConnectionInfo connectionInfo,
+                   @NotNull final String host, final int port,
+                   @NotNull final DisconnectType disconnectType,
+                   @Nullable final String disconnectMessage,
+                   @Nullable final Throwable disconnectCause)
   {
     // No action will be taken by default.
   }
@@ -148,10 +152,11 @@ public abstract class LDAPConnectionLogger
    * @param  requestControls     The list of controls included in the abandon
    *                             request.
    */
-  public void logAbandonRequest(final LDAPConnectionInfo connectionInfo,
-                                final int messageID,
-                                final int messageIDToAbandon,
-                                final List<Control> requestControls)
+  public void logAbandonRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   final int messageIDToAbandon,
+                    @NotNull final List<Control> requestControls)
   {
     // No action will be taken by default.
   }
@@ -172,9 +177,9 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logAddRequest(final LDAPConnectionInfo connectionInfo,
+  public void logAddRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                             final int messageID,
-                            final ReadOnlyAddRequest addRequest)
+                            @NotNull final ReadOnlyAddRequest addRequest)
   {
     // No action will be taken by default.
   }
@@ -194,9 +199,9 @@ public abstract class LDAPConnectionLogger
    *                           or that was generated from an exception.  It will
    *                           not be {@code null}.
    */
-  public void logAddResult(final LDAPConnectionInfo connectionInfo,
-                            final int requestMessageID,
-                            final LDAPResult addResult)
+  public void logAddResult(@NotNull final LDAPConnectionInfo connectionInfo,
+                           final int requestMessageID,
+                           @NotNull final LDAPResult addResult)
   {
     // No action will be taken by default.
   }
@@ -217,9 +222,9 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logBindRequest(final LDAPConnectionInfo connectionInfo,
+  public void logBindRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                              final int messageID,
-                             final SimpleBindRequest bindRequest)
+                             @NotNull final SimpleBindRequest bindRequest)
   {
     // No action will be taken by default.
   }
@@ -240,9 +245,9 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logBindRequest(final LDAPConnectionInfo connectionInfo,
+  public void logBindRequest(@NotNull final LDAPConnectionInfo connectionInfo,
                              final int messageID,
-                             final SASLBindRequest bindRequest)
+                             @NotNull final SASLBindRequest bindRequest)
   {
     // No action will be taken by default.
   }
@@ -262,9 +267,9 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logBindResult(final LDAPConnectionInfo connectionInfo,
+  public void logBindResult(@NotNull final LDAPConnectionInfo connectionInfo,
                             final int requestMessageID,
-                            final BindResult bindResult)
+                            @NotNull final BindResult bindResult)
   {
     // No action will be taken by default.
   }
@@ -285,9 +290,10 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logCompareRequest(final LDAPConnectionInfo connectionInfo,
-                                final int messageID,
-                                final ReadOnlyCompareRequest compareRequest)
+  public void logCompareRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyCompareRequest compareRequest)
   {
     // No action will be taken by default.
   }
@@ -307,9 +313,9 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logCompareResult(final LDAPConnectionInfo connectionInfo,
+  public void logCompareResult(@NotNull final LDAPConnectionInfo connectionInfo,
                                final int requestMessageID,
-                               final LDAPResult compareResult)
+                               @NotNull final LDAPResult compareResult)
   {
     // No action will be taken by default.
   }
@@ -330,9 +336,10 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logDeleteRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final ReadOnlyDeleteRequest deleteRequest)
+  public void logDeleteRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyDeleteRequest deleteRequest)
   {
     // No action will be taken by default.
   }
@@ -352,9 +359,10 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logDeleteResult(final LDAPConnectionInfo connectionInfo,
-                              final int requestMessageID,
-                              final LDAPResult deleteResult)
+  public void logDeleteResult(
+                    @NotNull final LDAPConnectionInfo connectionInfo,
+                    final int requestMessageID,
+                    @NotNull final LDAPResult deleteResult)
   {
     // No action will be taken by default.
   }
@@ -375,9 +383,10 @@ public abstract class LDAPConnectionLogger
    *                          must not be altered in any way.  It will not be
    *                          {@code null}.
    */
-  public void logExtendedRequest(final LDAPConnectionInfo connectionInfo,
-                                 final int messageID,
-                                 final ExtendedRequest extendedRequest)
+  public void logExtendedRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ExtendedRequest extendedRequest)
   {
     // No action will be taken by default.
   }
@@ -397,9 +406,10 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logExtendedResult(final LDAPConnectionInfo connectionInfo,
-                                final int requestMessageID,
-                                final ExtendedResult extendedResult)
+  public void logExtendedResult(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final ExtendedResult extendedResult)
   {
     // No action will be taken by default.
   }
@@ -420,9 +430,10 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logModifyRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final ReadOnlyModifyRequest modifyRequest)
+  public void logModifyRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyModifyRequest modifyRequest)
   {
     // No action will be taken by default.
   }
@@ -442,9 +453,10 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logModifyResult(final LDAPConnectionInfo connectionInfo,
-                              final int requestMessageID,
-                              final LDAPResult modifyResult)
+  public void logModifyResult(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final LDAPResult modifyResult)
   {
     // No action will be taken by default.
   }
@@ -465,9 +477,10 @@ public abstract class LDAPConnectionLogger
    *                          must not be altered in any way.  It will not be
    *                          {@code null}.
    */
-  public void logModifyDNRequest(final LDAPConnectionInfo connectionInfo,
-                                 final int messageID,
-                                 final ReadOnlyModifyDNRequest modifyDNRequest)
+  public void logModifyDNRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlyModifyDNRequest modifyDNRequest)
   {
     // No action will be taken by default.
   }
@@ -487,9 +500,10 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logModifyDNResult(final LDAPConnectionInfo connectionInfo,
-                                final int requestMessageID,
-                                final LDAPResult modifyDNResult)
+  public void logModifyDNResult(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final LDAPResult modifyDNResult)
   {
     // No action will be taken by default.
   }
@@ -510,9 +524,10 @@ public abstract class LDAPConnectionLogger
    *                         must not be altered in any way.  It will not be
    *                         {@code null}.
    */
-  public void logSearchRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final ReadOnlySearchRequest searchRequest)
+  public void logSearchRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final ReadOnlySearchRequest searchRequest)
   {
     // No action will be taken by default.
   }
@@ -530,9 +545,10 @@ public abstract class LDAPConnectionLogger
    * @param  searchEntry       The search result entry that was received from
    *                           the server.  It will not be {@code null}.
    */
-  public void logSearchEntry(final LDAPConnectionInfo connectionInfo,
-                             final int requestMessageID,
-                             final SearchResultEntry searchEntry)
+  public void logSearchEntry(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final SearchResultEntry searchEntry)
   {
     // No action will be taken by default.
   }
@@ -550,9 +566,10 @@ public abstract class LDAPConnectionLogger
    * @param  searchReference   The search result reference that was received
    *                           from the server.  It will not be {@code null}.
    */
-  public void logSearchReference(final LDAPConnectionInfo connectionInfo,
-                                 final int requestMessageID,
-                                 final SearchResultReference searchReference)
+  public void logSearchReference(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final SearchResultReference searchReference)
   {
     // No action will be taken by default.
   }
@@ -572,9 +589,10 @@ public abstract class LDAPConnectionLogger
    *                           server, or that was generated from an exception.
    *                           It will not be {@code null}.
    */
-  public void logSearchResult(final LDAPConnectionInfo connectionInfo,
-                               final int requestMessageID,
-                               final SearchResult searchResult)
+  public void logSearchResult(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int requestMessageID,
+                   @NotNull final SearchResult searchResult)
   {
     // No action will be taken by default.
   }
@@ -593,9 +611,10 @@ public abstract class LDAPConnectionLogger
    * @param  requestControls     The list of controls included in the unbind
    *                             request.
    */
-  public void logUnbindRequest(final LDAPConnectionInfo connectionInfo,
-                               final int messageID,
-                               final List<Control> requestControls)
+  public void logUnbindRequest(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
+                   final int messageID,
+                   @NotNull final List<Control> requestControls)
   {
     // No action will be taken by default.
   }
@@ -614,9 +633,10 @@ public abstract class LDAPConnectionLogger
    * @param  intermediateResponse  The intermediate response message that was
    *                               received.
    */
-  public void logIntermediateResponse(final LDAPConnectionInfo connectionInfo,
+  public void logIntermediateResponse(
+                   @NotNull final LDAPConnectionInfo connectionInfo,
                    final int messageID,
-                   final IntermediateResponse intermediateResponse)
+                   @NotNull final IntermediateResponse intermediateResponse)
   {
     // No action will be taken by default.
   }

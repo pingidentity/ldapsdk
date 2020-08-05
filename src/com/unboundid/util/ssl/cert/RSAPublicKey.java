@@ -45,6 +45,7 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -78,10 +79,10 @@ public final class RSAPublicKey
 
 
   // The modulus for the RSA public key.
-  private final BigInteger modulus;
+  @NotNull private final BigInteger modulus;
 
   // The public exponent for the RSA public key.
-  private final BigInteger publicExponent;
+  @NotNull private final BigInteger publicExponent;
 
 
 
@@ -93,7 +94,8 @@ public final class RSAPublicKey
    * @param  publicExponent  The public exponent for this RSA public key.  It
    *                         must not be {@code null}.
    */
-  RSAPublicKey(final BigInteger modulus, final BigInteger publicExponent)
+  RSAPublicKey(@NotNull final BigInteger modulus,
+               @NotNull final BigInteger publicExponent)
   {
     this.modulus = modulus;
     this.publicExponent = publicExponent;
@@ -109,7 +111,7 @@ public final class RSAPublicKey
    * @throws  CertException  If the provided public key cannot be decoded as an
    *                         RSA public key.
    */
-  RSAPublicKey(final ASN1BitString subjectPublicKey)
+  RSAPublicKey(@NotNull final ASN1BitString subjectPublicKey)
        throws CertException
   {
     try
@@ -137,6 +139,7 @@ public final class RSAPublicKey
    *
    * @return  The encoded representation of this RSA public key.
    */
+  @NotNull()
   ASN1BitString encode()
   {
     final ASN1Sequence publicKeySequence = new ASN1Sequence(
@@ -154,6 +157,7 @@ public final class RSAPublicKey
    *
    * @return  The modulus for the RSA public key.
    */
+  @NotNull()
   public BigInteger getModulus()
   {
     return modulus;
@@ -166,6 +170,7 @@ public final class RSAPublicKey
    *
    * @return  The public exponent for the RSA public key.
    */
+  @NotNull()
   public BigInteger getPublicExponent()
   {
     return publicExponent;
@@ -177,7 +182,7 @@ public final class RSAPublicKey
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("RSAPublicKey(modulus=");
     StaticUtils.toHex(modulus.toByteArray(), ":", buffer);

@@ -39,6 +39,8 @@ package com.unboundid.util.parallel;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -63,6 +65,7 @@ public interface Result<I,O>
    *
    * @return  The input item.
    */
+  @NotNull()
   I getInput();
 
 
@@ -73,6 +76,7 @@ public interface Result<I,O>
    * @return  The output item.  This will be {@code null} if
    *          {@code Processor#process()} returned null or threw an exception.
    */
+  @Nullable()
   O getOutput();
 
 
@@ -84,5 +88,6 @@ public interface Result<I,O>
    * @return  The exception thrown by {@code Processor#process()} or
    *          {@code null} if none was thrown.
    */
+  @Nullable()
   Throwable getFailureCause();
 }

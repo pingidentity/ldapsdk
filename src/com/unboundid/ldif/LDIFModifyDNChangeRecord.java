@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,16 +85,16 @@ public final class LDIFModifyDNChangeRecord
   private final boolean deleteOldRDN;
 
   // The parsed new superior DN for the entry.
-  private volatile DN parsedNewSuperiorDN;
+  @Nullable private volatile DN parsedNewSuperiorDN;
 
   // The parsed new RDN for the entry.
-  private volatile RDN parsedNewRDN;
+  @Nullable private volatile RDN parsedNewRDN;
 
   // The new RDN value for the entry.
-  private final String newRDN;
+  @NotNull private final String newRDN;
 
   // The new superior DN for the entry, if available.
-  private final String newSuperiorDN;
+  @Nullable private final String newSuperiorDN;
 
 
 
@@ -109,9 +111,10 @@ public final class LDIFModifyDNChangeRecord
    *                        record.  It may be {@code null} if the entry is not
    *                        to be moved below a new parent.
    */
-  public LDIFModifyDNChangeRecord(final String dn, final String newRDN,
+  public LDIFModifyDNChangeRecord(@NotNull final String dn,
+                                  @NotNull final String newRDN,
                                   final boolean deleteOldRDN,
-                                  final String newSuperiorDN)
+                                  @Nullable final String newSuperiorDN)
   {
     this(dn, newRDN, deleteOldRDN, newSuperiorDN, null);
   }
@@ -134,10 +137,11 @@ public final class LDIFModifyDNChangeRecord
    *                        record.  It may be {@code null} or empty if there
    *                        are no controls.
    */
-  public LDIFModifyDNChangeRecord(final String dn, final String newRDN,
+  public LDIFModifyDNChangeRecord(@NotNull final String dn,
+                                  @NotNull final String newRDN,
                                   final boolean deleteOldRDN,
-                                  final String newSuperiorDN,
-                                  final List<Control> controls)
+                                  @Nullable final String newSuperiorDN,
+                                  @Nullable final List<Control> controls)
   {
     super(dn, controls);
 
@@ -161,7 +165,8 @@ public final class LDIFModifyDNChangeRecord
    *                          modify DN change record.  It must not be
    *                          {@code null}.
    */
-  public LDIFModifyDNChangeRecord(final ModifyDNRequest modifyDNRequest)
+  public LDIFModifyDNChangeRecord(
+              @NotNull final ModifyDNRequest modifyDNRequest)
   {
     super(modifyDNRequest.getDN(), modifyDNRequest.getControlList());
 
@@ -180,6 +185,7 @@ public final class LDIFModifyDNChangeRecord
    *
    * @return  The new RDN value for the entry.
    */
+  @NotNull()
   public String getNewRDN()
   {
     return newRDN;
@@ -195,6 +201,7 @@ public final class LDIFModifyDNChangeRecord
    * @throws  LDAPException  If a problem occurs while trying to parse the new
    *                         RDN.
    */
+  @NotNull()
   public RDN getParsedNewRDN()
          throws LDAPException
   {
@@ -227,6 +234,7 @@ public final class LDIFModifyDNChangeRecord
    * @return  The new superior DN for the entry, or {@code null} if the entry is
    *          not to be moved below a new parent.
    */
+  @Nullable()
   public String getNewSuperiorDN()
   {
     return newSuperiorDN;
@@ -243,6 +251,7 @@ public final class LDIFModifyDNChangeRecord
    * @throws  LDAPException  If a problem occurs while trying to parse the new
    *                         superior DN.
    */
+  @Nullable()
   public DN getParsedNewSuperiorDN()
          throws LDAPException
   {
@@ -266,6 +275,7 @@ public final class LDIFModifyDNChangeRecord
    * @throws  LDAPException  If a problem occurs while trying to parse the
    *                         target DN, new RDN, or new superior DN.
    */
+  @NotNull()
   public DN getNewDN()
          throws LDAPException
   {
@@ -296,6 +306,7 @@ public final class LDIFModifyDNChangeRecord
    * @return  The modify DN request created from this LDIF modify DN change
    *          record.
    */
+  @NotNull()
   public ModifyDNRequest toModifyDNRequest()
   {
     return toModifyDNRequest(true);
@@ -313,6 +324,7 @@ public final class LDIFModifyDNChangeRecord
    * @return  The modify DN request created from this LDIF modify DN change
    *          record.
    */
+  @NotNull()
   public ModifyDNRequest toModifyDNRequest(final boolean includeControls)
   {
     final ModifyDNRequest modifyDNRequest =
@@ -331,6 +343,7 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ChangeType getChangeType()
   {
     return ChangeType.MODIFY_DN;
@@ -342,7 +355,8 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDIFModifyDNChangeRecord duplicate(final Control... controls)
+  @NotNull()
+  public LDIFModifyDNChangeRecord duplicate(@Nullable final Control... controls)
   {
     return new LDIFModifyDNChangeRecord(getDN(), newRDN, deleteOldRDN,
          newSuperiorDN, StaticUtils.toList(controls));
@@ -354,7 +368,8 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult processChange(final LDAPInterface connection,
+  @NotNull()
+  public LDAPResult processChange(@NotNull final LDAPInterface connection,
                                   final boolean includeControls)
          throws LDAPException
   {
@@ -367,6 +382,7 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<>(10);
@@ -403,7 +419,8 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
+  public void toLDIF(@NotNull final ByteStringBuffer buffer,
+                     final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
@@ -451,7 +468,8 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toLDIFString(final StringBuilder buffer, final int wrapColumn)
+  public void toLDIFString(@NotNull final StringBuilder buffer,
+                           final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
                                   wrapColumn);
@@ -535,7 +553,7 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -636,7 +654,7 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDIFModifyDNChangeRecord(dn='");
     buffer.append(getDN());

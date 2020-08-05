@@ -49,6 +49,8 @@ import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -127,32 +129,33 @@ public final class FewestConnectionsServerSet
    * The name of a system property that can be used to override the default
    * blacklist check interval, in milliseconds.
    */
-  static final String PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS =
-       FewestConnectionsServerSet.class.getName() +
-            ".defaultBlacklistCheckIntervalMillis";
+  @NotNull static final String
+       PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS =
+            FewestConnectionsServerSet.class.getName() +
+                 ".defaultBlacklistCheckIntervalMillis";
 
 
 
   // The bind request to use to authenticate connections created by this
   // server set.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
   // The set of connection options to use for new connections.
-  private final LDAPConnectionOptions connectionOptions;
+  @NotNull private final LDAPConnectionOptions connectionOptions;
 
   // A map with the number of connections currently established for each server.
-  private final Map<ObjectPair<String,Integer>,AtomicLong>
+  @NotNull private final Map<ObjectPair<String,Integer>,AtomicLong>
        connectionCountsByServer;
 
   // The post-connect processor to invoke against connections created by this
   // server set.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The blacklist manager for this server set.
-  private final ServerSetBlacklistManager blacklistManager;
+  @Nullable private final ServerSetBlacklistManager blacklistManager;
 
   // The socket factory to use to establish connections.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
 
 
@@ -171,7 +174,8 @@ public final class FewestConnectionsServerSet
    *                    elements in the {@code addresses} array must correspond
    *                    to the order of elements in the {@code ports} array.
    */
-  public FewestConnectionsServerSet(final String[] addresses, final int[] ports)
+  public FewestConnectionsServerSet(@NotNull final String[] addresses,
+                                    @NotNull final int[] ports)
   {
     this(addresses, ports, null, null);
   }
@@ -196,8 +200,9 @@ public final class FewestConnectionsServerSet
    * @param  connectionOptions  The set of connection options to use for the
    *                            underlying connections.
    */
-  public FewestConnectionsServerSet(final String[] addresses, final int[] ports,
-              final LDAPConnectionOptions connectionOptions)
+  public FewestConnectionsServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(addresses, ports, null, connectionOptions);
   }
@@ -222,8 +227,9 @@ public final class FewestConnectionsServerSet
    * @param  socketFactory  The socket factory to use to create the underlying
    *                        connections.
    */
-  public FewestConnectionsServerSet(final String[] addresses, final int[] ports,
-                                    final SocketFactory socketFactory)
+  public FewestConnectionsServerSet(@NotNull final String[] addresses,
+                                    @NotNull final int[] ports,
+                                    @Nullable final SocketFactory socketFactory)
   {
     this(addresses, ports, socketFactory, null);
   }
@@ -250,9 +256,10 @@ public final class FewestConnectionsServerSet
    * @param  connectionOptions  The set of connection options to use for the
    *                            underlying connections.
    */
-  public FewestConnectionsServerSet(final String[] addresses, final int[] ports,
-              final SocketFactory socketFactory,
-              final LDAPConnectionOptions connectionOptions)
+  public FewestConnectionsServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions)
   {
     this(addresses, ports, socketFactory, connectionOptions, null, null);
   }
@@ -288,11 +295,12 @@ public final class FewestConnectionsServerSet
    *                               may be {@code null} if this server set should
    *                               not perform any post-connect processing.
    */
-  public FewestConnectionsServerSet(final String[] addresses, final int[] ports,
-              final SocketFactory socketFactory,
-              final LDAPConnectionOptions connectionOptions,
-              final BindRequest bindRequest,
-              final PostConnectProcessor postConnectProcessor)
+  public FewestConnectionsServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions,
+              @Nullable final BindRequest bindRequest,
+              @Nullable final PostConnectProcessor postConnectProcessor)
   {
     this(addresses, ports, socketFactory, connectionOptions, bindRequest,
          postConnectProcessor, getDefaultBlacklistCheckIntervalMillis());
@@ -341,11 +349,12 @@ public final class FewestConnectionsServerSet
    *                                       zero indicates that no blacklist
    *                                       should be maintained.
    */
-  public FewestConnectionsServerSet(final String[] addresses, final int[] ports,
-              final SocketFactory socketFactory,
-              final LDAPConnectionOptions connectionOptions,
-              final BindRequest bindRequest,
-              final PostConnectProcessor postConnectProcessor,
+  public FewestConnectionsServerSet(@NotNull final String[] addresses,
+              @NotNull final int[] ports,
+              @Nullable final SocketFactory socketFactory,
+              @Nullable final LDAPConnectionOptions connectionOptions,
+              @Nullable final BindRequest bindRequest,
+              @Nullable final PostConnectProcessor postConnectProcessor,
               final long blacklistCheckIntervalMillis)
   {
     Validator.ensureNotNull(addresses, ports);
@@ -434,6 +443,7 @@ public final class FewestConnectionsServerSet
    * @return  The addresses of the directory servers to which the connections
    *          should be established.
    */
+  @NotNull()
   public String[] getAddresses()
   {
     int i = 0;
@@ -456,6 +466,7 @@ public final class FewestConnectionsServerSet
    * @return  The ports of the directory servers to which the connections should
    *          be established.
    */
+  @NotNull()
   public int[] getPorts()
   {
     int i = 0;
@@ -476,6 +487,7 @@ public final class FewestConnectionsServerSet
    *
    * @return  The socket factory that will be used to establish connections.
    */
+  @NotNull()
   public SocketFactory getSocketFactory()
   {
     return socketFactory;
@@ -490,6 +502,7 @@ public final class FewestConnectionsServerSet
    * @return  The set of connection options that will be used for underlying
    *          connections.
    */
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     return connectionOptions;
@@ -523,6 +536,7 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -535,8 +549,9 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPConnection getConnection(
-                             final LDAPConnectionPoolHealthCheck healthCheck)
+              @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     // Organize the servers int lists by increasing numbers of connections.
@@ -645,11 +660,12 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
-  protected void handleConnectionClosed(final LDAPConnection connection,
-                                        final String host, final int port,
-                                        final DisconnectType disconnectType,
-                                        final String message,
-                                        final Throwable cause)
+  protected void handleConnectionClosed(
+                      @NotNull final LDAPConnection connection,
+                      @NotNull final String host, final int port,
+                      @NotNull final DisconnectType disconnectType,
+                      @Nullable final String message,
+                      @Nullable final Throwable cause)
   {
     final ObjectPair<String,Integer> hostPort = new ObjectPair<>(host, port);
     final AtomicLong counter = connectionCountsByServer.get(hostPort);
@@ -672,6 +688,7 @@ public final class FewestConnectionsServerSet
    * @return  The blacklist manager for this server set, or {@code null} if no
    *          blacklist will be maintained.
    */
+  @Nullable()
   public ServerSetBlacklistManager getBlacklistManager()
   {
     return blacklistManager;
@@ -683,7 +700,7 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("FewestConnectionsServerSet(servers={");
 

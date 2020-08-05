@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -182,7 +184,7 @@ public enum AccessLogMessageType
    * @param  logIdentifier  The string that will be used to identify this
    *                        message type in log files.
    */
-  AccessLogMessageType(final String logIdentifier)
+  AccessLogMessageType(@NotNull final String logIdentifier)
   {
     this.logIdentifier = logIdentifier;
   }
@@ -196,6 +198,7 @@ public enum AccessLogMessageType
    * @return  The string that will be used to identify this message type in log
    *          files.
    */
+  @NotNull()
   public String getLogIdentifier()
   {
     return logIdentifier;
@@ -212,7 +215,9 @@ public enum AccessLogMessageType
    * @return  The appropriate message type, or {@code null} if there is no
    *          message type associated with the provided identifier.
    */
-  public static AccessLogMessageType forName(final String logIdentifier)
+  @Nullable
+  public static AccessLogMessageType forName(
+                     @NotNull final String logIdentifier)
   {
     for (final AccessLogMessageType t : values())
     {

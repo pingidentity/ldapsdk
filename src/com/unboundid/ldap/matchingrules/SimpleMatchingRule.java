@@ -41,6 +41,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,8 +72,8 @@ public abstract class SimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     return normalize(value1).equals(normalize(value2));
@@ -83,8 +85,8 @@ public abstract class SimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
-                                 final ASN1OctetString[] attributeValues)
+  public boolean matchesAnyValue(@NotNull final ASN1OctetString assertionValue,
+                      @NotNull final ASN1OctetString[] attributeValues)
          throws LDAPException
   {
     if ((assertionValue == null) || (attributeValues == null) ||
@@ -120,10 +122,10 @@ public abstract class SimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesSubstring(final ASN1OctetString value,
-                                  final ASN1OctetString subInitial,
-                                  final ASN1OctetString[] subAny,
-                                  final ASN1OctetString subFinal)
+  public boolean matchesSubstring(@NotNull final ASN1OctetString value,
+                                  @Nullable final ASN1OctetString subInitial,
+                                  @Nullable final ASN1OctetString[] subAny,
+                                  @Nullable final ASN1OctetString subFinal)
          throws LDAPException
   {
     final byte[] normValue = normalize(value).getValue();
@@ -225,8 +227,8 @@ public abstract class SimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public int compareValues(final ASN1OctetString value1,
-                           final ASN1OctetString value2)
+  public int compareValues(@NotNull final ASN1OctetString value1,
+                           @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     final byte[] normValue1 = normalize(value1).getValue();

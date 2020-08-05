@@ -59,20 +59,21 @@ final class StreamFileValuePatternReaderThread
       extends Thread
 {
   // The number of lines that have been read from the file so far.
-  private final AtomicLong nextLineNumber;
+  @NotNull private final AtomicLong nextLineNumber;
 
   // A reference to the reader used to read lines from the file.
-  private final AtomicReference<BufferedReader> fileReader;
+  @NotNull private final AtomicReference<BufferedReader> fileReader;
 
   // A reference that holds this thread and makes it available to the associated
   // StreamFileValuePatternComponent.
-  private final AtomicReference<StreamFileValuePatternReaderThread> threadRef;
+  @NotNull private final AtomicReference<StreamFileValuePatternReaderThread>
+       threadRef;
 
   // The file from which the data is to be read.
-  private final File file;
+  @NotNull private final File file;
 
   // The queue that will be used to hold the lines of data read from the file.
-  private final LinkedBlockingQueue<String> lineQueue;
+  @NotNull private final LinkedBlockingQueue<String> lineQueue;
 
   // The maximum length of time in milliseconds that an attempt to offer a
   // string to the queue will be allowed to block before the associated reader
@@ -110,11 +111,12 @@ final class StreamFileValuePatternReaderThread
    * @throws  IOException  If a problem is encountered while attempting to open
    *                       the specified file for reading.
    */
-  StreamFileValuePatternReaderThread(final File file,
-       final LinkedBlockingQueue<String> lineQueue,
+  StreamFileValuePatternReaderThread(@NotNull final File file,
+       @NotNull final LinkedBlockingQueue<String> lineQueue,
        final long maxOfferBlockTimeMillis,
-       final AtomicLong nextLineNumber,
-       final AtomicReference<StreamFileValuePatternReaderThread> threadRef)
+       @NotNull final AtomicLong nextLineNumber,
+       @NotNull final AtomicReference<StreamFileValuePatternReaderThread>
+            threadRef)
        throws IOException
   {
     setName("StreamFileValuePatternReaderThread for file '" +

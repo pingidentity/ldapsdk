@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -82,10 +84,10 @@ public enum PublicKeyAlgorithmIdentifier
 
 
   // The OID for this public key algorithm.
-  private final OID oid;
+  @NotNull private final OID oid;
 
   // The name for this public key algorithm.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -97,7 +99,8 @@ public enum PublicKeyAlgorithmIdentifier
    *                    algorithm.
    * @param  name       The name for this public key algorithm.
    */
-  PublicKeyAlgorithmIdentifier(final String oidString, final String name)
+  PublicKeyAlgorithmIdentifier(@NotNull final String oidString,
+                               @NotNull final String name)
   {
     this.name = name;
 
@@ -111,6 +114,7 @@ public enum PublicKeyAlgorithmIdentifier
    *
    * @return  The OID for this public key algorithm.
    */
+  @NotNull()
   public OID getOID()
   {
     return oid;
@@ -123,6 +127,7 @@ public enum PublicKeyAlgorithmIdentifier
    *
    * @return  The name for this public key algorithm.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -141,7 +146,8 @@ public enum PublicKeyAlgorithmIdentifier
    *          {@code null} if the provided OID does not reference a known
    *          public key algorithm identifier.
    */
-  public static PublicKeyAlgorithmIdentifier forOID(final OID oid)
+  @Nullable()
+  public static PublicKeyAlgorithmIdentifier forOID(@NotNull final OID oid)
   {
     for (final PublicKeyAlgorithmIdentifier v : values())
     {
@@ -167,7 +173,8 @@ public enum PublicKeyAlgorithmIdentifier
    *          {@code null} if the provided name does not reference a known
    *          public key algorithm identifier.
    */
-  public static PublicKeyAlgorithmIdentifier forName(final String name)
+  @Nullable()
+  public static PublicKeyAlgorithmIdentifier forName(@NotNull final String name)
   {
     final String preparedName = prepareName(name);
     for (final PublicKeyAlgorithmIdentifier v : values())
@@ -191,7 +198,8 @@ public enum PublicKeyAlgorithmIdentifier
    *
    * @return  The prepared version of the provided name.
    */
-  private static String prepareName(final String name)
+  @NotNull()
+  private static String prepareName(@NotNull final String name)
   {
     final StringBuilder buffer = new StringBuilder(name.length());
 
@@ -226,7 +234,8 @@ public enum PublicKeyAlgorithmIdentifier
    *          value with the provided OID, or a string representation of the OID
    *          if there is no value with that OID.
    */
-  public static String getNameOrOID(final OID oid)
+  @NotNull()
+  public static String getNameOrOID(@NotNull final OID oid)
   {
     final PublicKeyAlgorithmIdentifier id = forOID(oid);
     if (id == null)
@@ -247,6 +256,7 @@ public enum PublicKeyAlgorithmIdentifier
    * @return  A string representation of this public key algorithm identifier.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

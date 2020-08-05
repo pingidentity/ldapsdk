@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -70,24 +72,24 @@ public final class RDNNameValuePair
 
 
   // The attribute value for this name-value pair.
-  private final ASN1OctetString attributeValue;
+  @NotNull private final ASN1OctetString attributeValue;
 
   // The schema to use to generate the normalized string representation of this
   // name-value pair, if any.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The attribute name for this name-value pair.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
   // The all-lowercase representation of the attribute name for this name-value
   // pair.
-  private volatile String normalizedAttributeName;
+  @Nullable private volatile String normalizedAttributeName;
 
   // The normalized string representation for this RDN name-value pair.
-  private volatile String normalizedString;
+  @Nullable private volatile String normalizedString;
 
   // The string representation for this RDN name-value pair.
-  private volatile String stringRepresentation;
+  @Nullable private volatile String stringRepresentation;
 
 
 
@@ -102,8 +104,9 @@ public final class RDNNameValuePair
    *                        representation of this name-value pair, if any.  It
    *                        may be {@code null} if no schema is available.
    */
-  RDNNameValuePair(final String attributeName,
-                   final ASN1OctetString attributeValue, final Schema schema)
+  RDNNameValuePair(@NotNull final String attributeName,
+                   @NotNull final ASN1OctetString attributeValue,
+                   @Nullable final Schema schema)
   {
     this.attributeName = attributeName;
     this.attributeValue = attributeValue;
@@ -121,6 +124,7 @@ public final class RDNNameValuePair
    *
    * @return  The attribute name for this name-value pair.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -133,6 +137,7 @@ public final class RDNNameValuePair
    *
    * @return  A normalized representation of the attribute name.
    */
+  @NotNull()
   public String getNormalizedAttributeName()
   {
     if (normalizedAttributeName == null)
@@ -169,7 +174,7 @@ public final class RDNNameValuePair
    *          name (or a name that is logically equivalent to it), or
    *          {@code false} if not.
    */
-  public boolean hasAttributeName(final String name)
+  public boolean hasAttributeName(@NotNull final String name)
   {
     if (attributeName.equalsIgnoreCase(name))
     {
@@ -195,6 +200,7 @@ public final class RDNNameValuePair
    * @return  The string representation of the attribute value for this
    *          name-value pair.
    */
+  @NotNull()
   public String getAttributeValue()
   {
     return attributeValue.stringValue();
@@ -209,6 +215,7 @@ public final class RDNNameValuePair
    * @return  The bytes that comprise the attribute value for this name-value
    *          pair.
    */
+  @NotNull()
   public byte[] getAttributeValueBytes()
   {
     return attributeValue.getValue();
@@ -221,6 +228,7 @@ public final class RDNNameValuePair
    *
    * @return  The raw attribute value for this name-value pair.
    */
+  @NotNull()
   public ASN1OctetString getRawAttributeValue()
   {
     return attributeValue;
@@ -238,7 +246,7 @@ public final class RDNNameValuePair
    *          attribute value (or a value that is logically equivalent to it),
    *          or {@code false} if not.
    */
-  public boolean hasAttributeValue(final String value)
+  public boolean hasAttributeValue(@NotNull final String value)
   {
     try
     {
@@ -266,7 +274,7 @@ public final class RDNNameValuePair
    *          attribute value (or a value that is logically equivalent to it),
    *          or {@code false} if not.
    */
-  public boolean hasAttributeValue(final byte[] value)
+  public boolean hasAttributeValue(@NotNull final byte[] value)
   {
     try
     {
@@ -299,7 +307,7 @@ public final class RDNNameValuePair
    *          equivalent to the provided RDN name-value pair.
    */
   @Override()
-  public int compareTo(final RDNNameValuePair p)
+  public int compareTo(@NotNull final RDNNameValuePair p)
   {
     final String thisNormalizedName = getNormalizedAttributeName();
     final String thatNormalizedName = p.getNormalizedAttributeName();
@@ -344,7 +352,8 @@ public final class RDNNameValuePair
    *          pairs are logically equivalent.
    */
   @Override()
-  public int compare(final RDNNameValuePair p1, final RDNNameValuePair p2)
+  public int compare(@NotNull final RDNNameValuePair p1,
+                     @NotNull final RDNNameValuePair p2)
   {
     return p1.compareTo(p2);
   }
@@ -374,7 +383,7 @@ public final class RDNNameValuePair
    *          is logically equivalent to this RDN name-value pair, or
    *          {@code false} if not.
    */
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -403,6 +412,7 @@ public final class RDNNameValuePair
    * @return  A string representation of this RDN name-value pair.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     if (stringRepresentation == null)
@@ -426,6 +436,7 @@ public final class RDNNameValuePair
    * @return  A string representation of this RDN name-value pair with minimal
    *          encoding for special characters.
    */
+  @NotNull()
   public String toMinimallyEncodedString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -449,7 +460,7 @@ public final class RDNNameValuePair
    *                           semicolons, greater-than, less-than, and
    *                           backslash characters will be encoded.
    */
-  public void toString(final StringBuilder buffer,
+  public void toString(@NotNull final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
     if ((stringRepresentation != null) && (! minimizeEncoding))
@@ -477,6 +488,7 @@ public final class RDNNameValuePair
    *
    * @return  A normalized string representation of this RDN name-value pair.
    */
+  @NotNull()
   public String toNormalizedString()
   {
     if (normalizedString == null)
@@ -498,7 +510,7 @@ public final class RDNNameValuePair
    * @param  buffer  The buffer to which the normalized string representation
    *                 should be appended.  It must not be {@code null}.
    */
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     buffer.append(getNormalizedAttributeName());
     buffer.append('=');

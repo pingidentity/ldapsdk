@@ -39,6 +39,7 @@ package com.unboundid.util.parallel;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,6 +70,6 @@ public interface ResultProcessor<I,O>
    *                    all processing by the AsynchronousParallelProcessor
    *                    should be aborted.
    */
-  void processResult(Result<I,O> result)
+  void processResult(@NotNull Result<I,O> result)
        throws Exception;
 }

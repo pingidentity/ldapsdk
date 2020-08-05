@@ -38,6 +38,7 @@ package com.unboundid.util.ssl.cert;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OID;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -68,7 +69,8 @@ public final class SubjectAlternativeNameExtension
   /**
    * The OID (2.5.29.17) for subject alternative name extensions.
    */
-  public static final OID SUBJECT_ALTERNATIVE_NAME_OID = new OID("2.5.29.17");
+  @NotNull public static final OID SUBJECT_ALTERNATIVE_NAME_OID =
+       new OID("2.5.29.17");
 
 
 
@@ -92,7 +94,7 @@ public final class SubjectAlternativeNameExtension
    *                         value.
    */
   SubjectAlternativeNameExtension(final boolean isCritical,
-                                  final GeneralNames generalNames)
+                                  @NotNull final GeneralNames generalNames)
        throws CertException
   {
     super(SUBJECT_ALTERNATIVE_NAME_OID, isCritical, generalNames);
@@ -110,7 +112,8 @@ public final class SubjectAlternativeNameExtension
    * @throws  CertException  If the provided extension cannot be decoded as a
    *                         subject alternative name extension.
    */
-  SubjectAlternativeNameExtension(final X509CertificateExtension extension)
+  SubjectAlternativeNameExtension(
+       @NotNull final X509CertificateExtension extension)
        throws CertException
   {
     super(extension);
@@ -122,6 +125,7 @@ public final class SubjectAlternativeNameExtension
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtensionName()
   {
     return INFO_SUBJECT_ALT_NAME_EXTENSION_NAME.get();
@@ -133,7 +137,7 @@ public final class SubjectAlternativeNameExtension
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     toString("SubjectAlternativeNameExtension", buffer);
   }

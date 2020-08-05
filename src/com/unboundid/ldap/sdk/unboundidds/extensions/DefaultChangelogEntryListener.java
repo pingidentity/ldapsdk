@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.IntermediateResponse;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -75,7 +76,8 @@ final class DefaultChangelogEntryListener
 
 
   // The list that will be used to collect entries that are returned.
-  private final ArrayList<ChangelogEntryIntermediateResponse> entryList;
+  @NotNull private final ArrayList<ChangelogEntryIntermediateResponse>
+       entryList;
 
 
 
@@ -85,7 +87,8 @@ final class DefaultChangelogEntryListener
    *
    * @param  r  The request to be processed.
    */
-  DefaultChangelogEntryListener(final GetChangelogBatchExtendedRequest r)
+  DefaultChangelogEntryListener(
+       @NotNull final GetChangelogBatchExtendedRequest r)
   {
     entryList = new ArrayList<>(r.getMaxChanges());
   }
@@ -96,7 +99,8 @@ final class DefaultChangelogEntryListener
    * {@inheritDoc}
    */
   @Override()
-  public void handleChangelogEntry(final ChangelogEntryIntermediateResponse ir)
+  public void handleChangelogEntry(
+       @NotNull final ChangelogEntryIntermediateResponse ir)
   {
     entryList.add(ir);
   }
@@ -108,7 +112,7 @@ final class DefaultChangelogEntryListener
    */
   @Override()
   public void handleMissingChangelogEntries(
-                   final MissingChangelogEntriesIntermediateResponse ir)
+       @NotNull final MissingChangelogEntriesIntermediateResponse ir)
   {
     // This response will be ignored.
   }
@@ -119,7 +123,8 @@ final class DefaultChangelogEntryListener
    * {@inheritDoc}
    */
   @Override()
-  public void handleOtherIntermediateResponse(final IntermediateResponse ir)
+  public void handleOtherIntermediateResponse(
+       @NotNull final IntermediateResponse ir)
   {
     // This response will be ignored.
   }
@@ -133,6 +138,7 @@ final class DefaultChangelogEntryListener
    * @return  The list of changelog entries returned during the course of
    *          processing the operation.
    */
+  @NotNull()
   List<ChangelogEntryIntermediateResponse> getEntryList()
   {
     return entryList;

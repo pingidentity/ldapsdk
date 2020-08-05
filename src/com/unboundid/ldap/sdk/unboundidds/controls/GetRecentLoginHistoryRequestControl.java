@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -78,7 +79,7 @@ public final class GetRecentLoginHistoryRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.61) for the get password policy state issues
    * request control.
    */
-  public static final  String GET_RECENT_LOGIN_HISTORY_REQUEST_OID =
+  @NotNull public static final  String GET_RECENT_LOGIN_HISTORY_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.61";
 
 
@@ -125,7 +126,7 @@ public final class GetRecentLoginHistoryRequestControl
    *                         decode the provided control as a get recent login
    *                         history request control.
    */
-  public GetRecentLoginHistoryRequestControl(final Control control)
+  public GetRecentLoginHistoryRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -143,6 +144,7 @@ public final class GetRecentLoginHistoryRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_RECENT_LOGIN_HISTORY_REQUEST.get();
@@ -154,7 +156,7 @@ public final class GetRecentLoginHistoryRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetRecentLoginHistoryRequestControl(isCritical=");
     buffer.append(isCritical());

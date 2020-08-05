@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -72,7 +73,7 @@ public interface ChangelogEntryListener
    * @param  ir  The changelog entry intermediate response that was returned by
    *            the server.
    */
-  void handleChangelogEntry(ChangelogEntryIntermediateResponse ir);
+  void handleChangelogEntry(@NotNull ChangelogEntryIntermediateResponse ir);
 
 
 
@@ -84,7 +85,7 @@ public interface ChangelogEntryListener
    *             returned by the server.
    */
   void handleMissingChangelogEntries(
-            MissingChangelogEntriesIntermediateResponse ir);
+            @NotNull MissingChangelogEntriesIntermediateResponse ir);
 
 
 
@@ -97,5 +98,5 @@ public interface ChangelogEntryListener
    * @param  ir  The generic entry intermediate response that was returned by
    *             the server.
    */
-  void handleOtherIntermediateResponse(IntermediateResponse ir);
+  void handleOtherIntermediateResponse(@NotNull IntermediateResponse ir);
 }

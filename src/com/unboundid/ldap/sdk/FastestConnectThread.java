@@ -42,6 +42,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -57,31 +59,31 @@ final class FastestConnectThread
 {
   // The flag that will be used to indicate whether a connection has already
   // been selected by the server set.
-  private final AtomicBoolean connectionSelected;
+  @NotNull private final AtomicBoolean connectionSelected;
 
   // The bind request to use to authenticate connections created by this
   // server set.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
   // The queue that should be used to return the result to the server set.
-  private final BlockingQueue<Object> resultQueue;
+  @NotNull private final BlockingQueue<Object> resultQueue;
 
   // The port to which the connection should be established.
   private final int port;
 
   // The LDAP connection to be established.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // The health check to use to evaluate the suitability of the established
   // connection.
-  private final LDAPConnectionPoolHealthCheck healthCheck;
+  @Nullable private final LDAPConnectionPoolHealthCheck healthCheck;
 
   // The post-connect processor to invoke against connections created by this
   // server set.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The address to which the connection should be established.
-  private final String address;
+  @NotNull private final String address;
 
 
 
@@ -115,14 +117,14 @@ final class FastestConnectThread
    *                               a connection has already been selected by the
    *                               associated server set.
    */
-  FastestConnectThread(final String address, final int port,
-                       final SocketFactory socketFactory,
-                       final LDAPConnectionOptions connectionOptions,
-                       final BindRequest bindRequest,
-                       final PostConnectProcessor postConnectProcessor,
-                       final LDAPConnectionPoolHealthCheck healthCheck,
-                       final BlockingQueue<Object> resultQueue,
-                       final AtomicBoolean connectionSelected)
+  FastestConnectThread(@NotNull final String address, final int port,
+       @NotNull final SocketFactory socketFactory,
+       @NotNull final LDAPConnectionOptions connectionOptions,
+       @Nullable final BindRequest bindRequest,
+       @Nullable final PostConnectProcessor postConnectProcessor,
+       @Nullable final LDAPConnectionPoolHealthCheck healthCheck,
+       @NotNull final BlockingQueue<Object> resultQueue,
+       @NotNull final AtomicBoolean connectionSelected)
   {
     super("Fastest Connect Thread for " + address + ':' + port);
     setDaemon(true);

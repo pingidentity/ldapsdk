@@ -44,6 +44,8 @@ import java.util.List;
 import com.unboundid.asn1.ASN1Constants;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -63,10 +65,10 @@ public final class ToCodeArgHelper
   // argument, with all appropriate formatting applied.  The first line will
   // not be indented.  If there are multiple lines, then subsequent lines may be
   // indented relative to the first line.
-  private final List<String> argStrings;
+  @NotNull private final List<String> argStrings;
 
   // An optional comment that may help clarify the argument.
-  private final String comment;
+  @Nullable private final String comment;
 
 
 
@@ -79,7 +81,8 @@ public final class ToCodeArgHelper
    * @param  comment    A comment that may help clarify the argument.  It may
    *                    be {@code null} if there should be no comment.
    */
-  private ToCodeArgHelper(final String argString, final String comment)
+  private ToCodeArgHelper(@NotNull final String argString,
+                          @Nullable final String comment)
   {
     argStrings = Collections.singletonList(argString);
     this.comment = comment;
@@ -96,7 +99,8 @@ public final class ToCodeArgHelper
    * @param  comment     A comment that may help clarify the argument.  It may
    *                     be {@code null} if there should be no comment.
    */
-  private ToCodeArgHelper(final List<String> argStrings, final String comment)
+  private ToCodeArgHelper(@NotNull final List<String> argStrings,
+                          @Nullable final String comment)
   {
     this.argStrings = argStrings;
     this.comment = comment;
@@ -118,6 +122,7 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
+  @NotNull()
   public static ToCodeArgHelper createByte(final byte b,
                                            final boolean includeComment)
   {
@@ -161,9 +166,10 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createByteArray(final byte[] b,
+  @NotNull()
+  public static ToCodeArgHelper createByteArray(@Nullable final byte[] b,
                                                 final boolean includeComments,
-                                                final String comment)
+                                                @Nullable final String comment)
   {
     return new ToCodeArgHelper(getByteArrayLines(b, includeComments), comment);
   }
@@ -189,7 +195,8 @@ public final class ToCodeArgHelper
    * @return  The list of lines that comprise the string representation of the
    *          provided byte array.
    */
-  private static List<String> getByteArrayLines(final byte[] b,
+  @NotNull()
+  private static List<String> getByteArrayLines(@Nullable final byte[] b,
                                                 final boolean includeComments)
   {
     if (b == null)
@@ -257,8 +264,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
+  @NotNull()
   public static ToCodeArgHelper createBoolean(final boolean b,
-                                              final String comment)
+                                              @Nullable final String comment)
   {
     return new ToCodeArgHelper((b ? "true" : "false"), comment);
   }
@@ -274,8 +282,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
+  @NotNull()
   public static ToCodeArgHelper createInteger(final long i,
-                                              final String comment)
+                                              @Nullable final String comment)
   {
     String valueString = String.valueOf(i);
     if ((i > Integer.MAX_VALUE) || (i < Integer.MIN_VALUE))
@@ -301,8 +310,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createString(final String s,
-                                             final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createString(@Nullable final String s,
+                                             @Nullable final String comment)
   {
     if (s == null)
     {
@@ -326,8 +336,10 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createASN1OctetString(final ASN1OctetString s,
-                                                      final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createASN1OctetString(
+                                     @Nullable final ASN1OctetString s,
+                                     @Nullable final String comment)
   {
     if (s == null)
     {
@@ -403,8 +415,10 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createModificationType(final ModificationType t,
-                                                       final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createModificationType(
+                                     @Nullable final ModificationType t,
+                                     @Nullable final String comment)
   {
     if (t == null)
     {
@@ -437,8 +451,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createScope(final SearchScope s,
-                                            final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createScope(@Nullable final SearchScope s,
+                                            @Nullable final String comment)
   {
     if (s == null)
     {
@@ -470,8 +485,10 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createDerefPolicy(final DereferencePolicy p,
-                                                  final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createDerefPolicy(
+              @Nullable final DereferencePolicy p,
+              @Nullable final String comment)
   {
     if (p == null)
     {
@@ -504,8 +521,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createAttribute(final Attribute a,
-                                                final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createAttribute(@Nullable final Attribute a,
+                                                @Nullable final String comment)
   {
     if (a == null)
     {
@@ -617,8 +635,10 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createModification(final Modification m,
-                                                   final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createModification(
+                                     @Nullable final Modification m,
+                                     @Nullable final String comment)
   {
     if (m == null)
     {
@@ -729,8 +749,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createFilter(final Filter f,
-                                             final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createFilter(@Nullable final Filter f,
+                                             @Nullable final String comment)
   {
     if (f == null)
     {
@@ -756,8 +777,10 @@ public final class ToCodeArgHelper
    * @param  suffix  The suffix to append to the last line.  It must not be
    *                 {@code null} but may be empty.
    */
-  private static void addFilterLines(final List<String> lines, final Filter f,
-                                     final String indent, final String suffix)
+  private static void addFilterLines(@NotNull final List<String> lines,
+                                     @NotNull final Filter f,
+                                     @NotNull final String indent,
+                                     @NotNull final String suffix)
   {
     final String nestedIndent = indent + "     ";
 
@@ -1121,8 +1144,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createControl(final Control c,
-                                              final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createControl(@Nullable final Control c,
+                                              @Nullable final String comment)
   {
     if (c == null)
     {
@@ -1177,8 +1201,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createControlArray(final Control[] c,
-                                                   final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createControlArray(@Nullable final Control[] c,
+                                     @Nullable final String comment)
   {
     if (c == null)
     {
@@ -1231,7 +1256,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createRaw(final String s, final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createRaw(@NotNull final String s,
+                                          @Nullable final String comment)
   {
     return new ToCodeArgHelper(s, comment);
   }
@@ -1250,8 +1277,9 @@ public final class ToCodeArgHelper
    *
    * @return  The argument that was created.
    */
-  public static ToCodeArgHelper createRaw(final List<String> s,
-                                          final String comment)
+  @NotNull()
+  public static ToCodeArgHelper createRaw(@NotNull final List<String> s,
+                                          @Nullable final String comment)
   {
     return new ToCodeArgHelper(s, comment);
   }
@@ -1266,7 +1294,7 @@ public final class ToCodeArgHelper
    * @return  {@code true} if all of the values represent printable strings, or
    *          {@code false} if not.
    */
-  private static boolean allPrintable(final ASN1OctetString... values)
+  private static boolean allPrintable(@NotNull final ASN1OctetString... values)
   {
     for (final ASN1OctetString s : values)
     {
@@ -1291,6 +1319,7 @@ public final class ToCodeArgHelper
    * @return  The list of lines comprising the string representation for this
    *          argument.  At least one line will be included.
    */
+  @NotNull()
   public List<String> getLines()
   {
     return argStrings;
@@ -1303,6 +1332,7 @@ public final class ToCodeArgHelper
    *
    * @return  The comment for this argument, or {@code null} if there is none.
    */
+  @Nullable()
   public String getComment()
   {
     return comment;

@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -95,7 +97,7 @@ public final class GeneratedPassword
 
 
   // The password that was generated.
-  private final ASN1OctetString password;
+  @NotNull private final ASN1OctetString password;
 
   // Indicates whether the server attempted to perform any validation on the
   // provided password.
@@ -103,7 +105,7 @@ public final class GeneratedPassword
 
   // A list of messages with information about any problems identified while the
   // server was validating the quality of the generated password.
-  private final List<String> validationErrors;
+  @NotNull private final List<String> validationErrors;
 
 
 
@@ -120,9 +122,9 @@ public final class GeneratedPassword
    *                              server was validating the quality of the
    *                              generated password.
    */
-  public GeneratedPassword(final String password,
+  public GeneratedPassword(@NotNull final String password,
                            final boolean validationAttempted,
-                           final List<String> validationErrors)
+                           @Nullable final List<String> validationErrors)
   {
     this(new ASN1OctetString(password), validationAttempted, validationErrors);
   }
@@ -142,9 +144,9 @@ public final class GeneratedPassword
    *                              server was validating the quality of the
    *                              generated password.
    */
-  public GeneratedPassword(final byte[] password,
+  public GeneratedPassword(@NotNull final byte[] password,
                            final boolean validationAttempted,
-                           final List<String> validationErrors)
+                           @Nullable final List<String> validationErrors)
   {
     this(new ASN1OctetString(password), validationAttempted, validationErrors);
   }
@@ -164,9 +166,9 @@ public final class GeneratedPassword
    *                              server was validating the quality of the
    *                              generated password.
    */
-  private GeneratedPassword(final ASN1OctetString password,
+  private GeneratedPassword(@NotNull final ASN1OctetString password,
                             final boolean validationAttempted,
-                            final List<String> validationErrors)
+                            @Nullable final List<String> validationErrors)
   {
     Validator.ensureTrue(
          ((password != null) && (password.getValueLength() > 0)),
@@ -193,6 +195,7 @@ public final class GeneratedPassword
    *
    * @return  A string representation of the server-generated password.
    */
+  @NotNull()
   public String getPasswordString()
   {
     return password.stringValue();
@@ -205,6 +208,7 @@ public final class GeneratedPassword
    *
    * @return  The bytes that comprise the server-generated password.
    */
+  @NotNull()
   public byte[] getPasswordBytes()
   {
     return password.getValue();
@@ -236,6 +240,7 @@ public final class GeneratedPassword
    *          all of the requirements for all of the appropriate password
    *          validators.
    */
+  @NotNull()
   public List<String> getValidationErrors()
   {
     return validationErrors;
@@ -250,6 +255,7 @@ public final class GeneratedPassword
    * @return  An ASN.1 sequence containing an encoded representation of this
    *          generated password object.
    */
+  @NotNull()
   public ASN1Sequence encode()
   {
     final List<ASN1Element> elements = new ArrayList<>(3);
@@ -285,7 +291,8 @@ public final class GeneratedPassword
    * @throws  LDAPException  If a problem is encountered while decoding the
    *                         provided element as a generated password.
    */
-  public static GeneratedPassword decode(final ASN1Element element)
+  @NotNull()
+  public static GeneratedPassword decode(@NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -331,6 +338,7 @@ public final class GeneratedPassword
    * @return  A string representation of this generated password object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -346,7 +354,7 @@ public final class GeneratedPassword
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GeneratedPassword(passwordLength=");
     buffer.append(password.getValueLength());

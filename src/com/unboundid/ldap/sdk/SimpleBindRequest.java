@@ -57,6 +57,8 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,8 @@ public final class SimpleBindRequest
    * The ASN.1 octet string that will be used for the bind DN if none was
    * provided.
    */
-  private static final ASN1OctetString NO_BIND_DN = new ASN1OctetString();
+  @NotNull private static final ASN1OctetString NO_BIND_DN =
+       new ASN1OctetString();
 
 
 
@@ -95,7 +98,7 @@ public final class SimpleBindRequest
    * The ASN.1 octet string that will be used for the bind password if none was
    * provided.
    */
-  private static final ASN1OctetString NO_PASSWORD =
+  @NotNull private static final ASN1OctetString NO_PASSWORD =
        new ASN1OctetString(CRED_TYPE_SIMPLE);
 
 
@@ -111,18 +114,18 @@ public final class SimpleBindRequest
   private int messageID = -1;
 
   // The bind DN for this simple bind request.
-  private final ASN1OctetString bindDN;
+  @NotNull private final ASN1OctetString bindDN;
 
   // The password for this simple bind request.
-  private final ASN1OctetString password;
+  @Nullable private final ASN1OctetString password;
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>();
 
   // The password provider that should be used to obtain the password for this
   // simple bind request.
-  private final PasswordProvider passwordProvider;
+  @Nullable private final PasswordProvider passwordProvider;
 
 
 
@@ -144,7 +147,8 @@ public final class SimpleBindRequest
    * @param  bindDN    The bind DN for this simple bind request.
    * @param  password  The password for this simple bind request.
    */
-  public SimpleBindRequest(final String bindDN, final String password)
+  public SimpleBindRequest(@Nullable final String bindDN,
+                           @Nullable final String password)
   {
     this(bindDN, password, NO_CONTROLS);
   }
@@ -157,7 +161,8 @@ public final class SimpleBindRequest
    * @param  bindDN    The bind DN for this simple bind request.
    * @param  password  The password for this simple bind request.
    */
-  public SimpleBindRequest(final String bindDN, final byte[] password)
+  public SimpleBindRequest(@Nullable final String bindDN,
+                           @Nullable final byte[] password)
   {
     this(bindDN, password, NO_CONTROLS);
   }
@@ -170,7 +175,8 @@ public final class SimpleBindRequest
    * @param  bindDN    The bind DN for this simple bind request.
    * @param  password  The password for this simple bind request.
    */
-  public SimpleBindRequest(final DN bindDN, final String password)
+  public SimpleBindRequest(@Nullable final DN bindDN,
+                           @Nullable final String password)
   {
     this(bindDN, password, NO_CONTROLS);
   }
@@ -183,7 +189,8 @@ public final class SimpleBindRequest
    * @param  bindDN    The bind DN for this simple bind request.
    * @param  password  The password for this simple bind request.
    */
-  public SimpleBindRequest(final DN bindDN, final byte[] password)
+  public SimpleBindRequest(@Nullable final DN bindDN,
+                           @Nullable final byte[] password)
   {
     this(bindDN, password, NO_CONTROLS);
   }
@@ -197,8 +204,9 @@ public final class SimpleBindRequest
    * @param  password  The password for this simple bind request.
    * @param  controls  The set of controls for this simple bind request.
    */
-  public SimpleBindRequest(final String bindDN, final String password,
-                           final Control... controls)
+  public SimpleBindRequest(@Nullable final String bindDN,
+                           @Nullable final String password,
+                           @Nullable final Control... controls)
   {
     super(controls);
 
@@ -232,8 +240,9 @@ public final class SimpleBindRequest
    * @param  password  The password for this simple bind request.
    * @param  controls  The set of controls for this simple bind request.
    */
-  public SimpleBindRequest(final String bindDN, final byte[] password,
-                           final Control... controls)
+  public SimpleBindRequest(@Nullable final String bindDN,
+                           @Nullable final byte[] password,
+                           @Nullable final Control... controls)
   {
     super(controls);
 
@@ -267,8 +276,9 @@ public final class SimpleBindRequest
    * @param  password  The password for this simple bind request.
    * @param  controls  The set of controls for this simple bind request.
    */
-  public SimpleBindRequest(final DN bindDN, final String password,
-                           final Control... controls)
+  public SimpleBindRequest(@Nullable final DN bindDN,
+                           @Nullable final String password,
+                           @Nullable final Control... controls)
   {
     super(controls);
 
@@ -302,8 +312,9 @@ public final class SimpleBindRequest
    * @param  password  The password for this simple bind request.
    * @param  controls  The set of controls for this simple bind request.
    */
-  public SimpleBindRequest(final DN bindDN, final byte[] password,
-                           final Control... controls)
+  public SimpleBindRequest(@Nullable final DN bindDN,
+                           @Nullable final byte[] password,
+                           @Nullable final Control... controls)
   {
     super(controls);
 
@@ -341,9 +352,9 @@ public final class SimpleBindRequest
    *                           must not be {@code null}.
    * @param  controls          The set of controls for this simple bind request.
    */
-  public SimpleBindRequest(final String bindDN,
-                           final PasswordProvider passwordProvider,
-                           final Control... controls)
+  public SimpleBindRequest(@NotNull final String bindDN,
+                           @NotNull final PasswordProvider passwordProvider,
+                           @Nullable final Control... controls)
   {
     super(controls);
 
@@ -366,9 +377,9 @@ public final class SimpleBindRequest
    *                           must not be {@code null}.
    * @param  controls          The set of controls for this simple bind request.
    */
-  public SimpleBindRequest(final DN bindDN,
-                           final PasswordProvider passwordProvider,
-                           final Control... controls)
+  public SimpleBindRequest(@NotNull final DN bindDN,
+                           @NotNull final PasswordProvider passwordProvider,
+                           @Nullable final Control... controls)
   {
     super(controls);
 
@@ -389,10 +400,10 @@ public final class SimpleBindRequest
    *                           the password to use for the bind request.
    * @param  controls          The set of controls for this simple bind request.
    */
-  private SimpleBindRequest(final ASN1OctetString bindDN,
-                            final ASN1OctetString password,
-                            final PasswordProvider passwordProvider,
-                            final Control... controls)
+  private SimpleBindRequest(@Nullable final ASN1OctetString bindDN,
+                            @Nullable final ASN1OctetString password,
+                            @Nullable final PasswordProvider passwordProvider,
+                            @Nullable final Control... controls)
   {
     super(controls);
 
@@ -408,6 +419,7 @@ public final class SimpleBindRequest
    *
    * @return  The bind DN for this simple bind request.
    */
+  @NotNull()
   public String getBindDN()
   {
     return bindDN.stringValue();
@@ -422,6 +434,7 @@ public final class SimpleBindRequest
    * @return  The password for this simple bind request, or {@code null} if a
    *          password provider will be used to obtain the password.
    */
+  @Nullable()
   public ASN1OctetString getPassword()
   {
     return password;
@@ -436,6 +449,7 @@ public final class SimpleBindRequest
    *          {@code null} if this bind request was created with an explicit
    *          password rather than a password provider.
    */
+  @Nullable()
   public PasswordProvider getPasswordProvider()
   {
     return passwordProvider;
@@ -458,7 +472,7 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence requestSequence =
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST);
@@ -504,6 +518,7 @@ public final class SimpleBindRequest
    *                                 password.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
          throws LDAPSDKUsageException
   {
@@ -525,7 +540,9 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     // See if a bind DN was provided without a password.  If that is the case
@@ -626,7 +643,8 @@ public final class SimpleBindRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private BindResult processSync(final LDAPConnection connection,
+  @NotNull()
+  private BindResult processSync(@NotNull final LDAPConnection connection,
                                  final boolean allowRetry)
           throws LDAPException
   {
@@ -706,8 +724,9 @@ public final class SimpleBindRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private BindResult handleResponse(final LDAPConnection connection,
-                                    final LDAPResponse response,
+  @NotNull()
+  private BindResult handleResponse(@NotNull final LDAPConnection connection,
+                                    @Nullable final LDAPResponse response,
                                     final long requestTime,
                                     final boolean allowRetry)
           throws LDAPException
@@ -778,8 +797,9 @@ public final class SimpleBindRequest
    * @return  The result from re-trying the bind, or {@code null} if it could
    *          not be re-tried.
    */
-  private BindResult reconnectAndRetry(final LDAPConnection connection,
-                                       final ResultCode resultCode)
+  @Nullable()
+  private BindResult reconnectAndRetry(@NotNull final LDAPConnection connection,
+                                       @NotNull final ResultCode resultCode)
   {
     try
     {
@@ -808,7 +828,9 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public SimpleBindRequest getRebindRequest(final String host, final int port)
+  @NotNull()
+  public SimpleBindRequest getRebindRequest(@NotNull final String host,
+                                            final int port)
   {
     return new SimpleBindRequest(bindDN, password, passwordProvider,
          getControls());
@@ -821,7 +843,7 @@ public final class SimpleBindRequest
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -850,6 +872,7 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getBindType()
   {
     return "SIMPLE";
@@ -872,6 +895,7 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SimpleBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -883,7 +907,8 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public SimpleBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public SimpleBindRequest duplicate(@Nullable final Control[] controls)
   {
     final SimpleBindRequest bindRequest =
          new SimpleBindRequest(bindDN, password, passwordProvider, controls);
@@ -897,7 +922,7 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SimpleBindRequest(dn='");
     buffer.append(bindDN);
@@ -928,7 +953,8 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

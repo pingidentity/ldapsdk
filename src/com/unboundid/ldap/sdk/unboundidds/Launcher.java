@@ -78,6 +78,8 @@ import com.unboundid.ldif.LDIFModify;
 import com.unboundid.ldif.LDIFSearch;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -181,7 +183,7 @@ public final class Launcher
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     main(System.out, System.err, args);
   }
@@ -202,9 +204,9 @@ public final class Launcher
    *
    * @return  A result code with information about the status of processing.
    */
-  public static ResultCode main(final OutputStream outStream,
-                                final OutputStream errStream,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream,
+                                @NotNull final String... args)
   {
     if ((args == null) || (args.length == 0) ||
         args[0].equalsIgnoreCase("version"))
@@ -433,6 +435,7 @@ public final class Launcher
    * @return  A list of all of the classes that provide  the implementations for
    *          all of the command-line tools included with the LDAP SDK.
    */
+  @NotNull()
   public static List<Class<? extends CommandLineTool>> getToolClasses()
   {
     return Arrays.asList(
@@ -497,9 +500,11 @@ public final class Launcher
    * @throws  LDAPException  If a problem occurs while attempting to create an
    *                         instance of the requested tool.
    */
-  public static CommandLineTool getToolInstance(final Class<?> toolClass,
-                                                final OutputStream outStream,
-                                                final OutputStream errStream)
+  @NotNull()
+  public static CommandLineTool getToolInstance(
+                     @NotNull final Class<?> toolClass,
+                     @Nullable final OutputStream outStream,
+                     @Nullable final OutputStream errStream)
          throws LDAPException
   {
     if (! CommandLineTool.class.isAssignableFrom(toolClass))

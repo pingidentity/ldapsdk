@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -214,6 +216,7 @@ public enum UniquenessValidationLevel
    *          {@code null} if there is no validation level with the given
    *          integer value.
    */
+  @Nullable()
   public static UniquenessValidationLevel valueOf(final int intValue)
   {
     switch (intValue)
@@ -242,7 +245,8 @@ public enum UniquenessValidationLevel
    * @return  The requested uniqueness validation level, or {@code null} if no
    *          such level is defined.
    */
-  public static UniquenessValidationLevel forName(final String name)
+  @Nullable()
+  public static UniquenessValidationLevel forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

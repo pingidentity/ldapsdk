@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -102,7 +103,7 @@ public final class DraftLDUPSubentriesRequestControl
   /**
    * The OID (1.3.6.1.4.1.7628.5.101.1) for the LDAP subentries request control.
    */
-  public static final String SUBENTRIES_REQUEST_OID =
+  @NotNull public static final String SUBENTRIES_REQUEST_OID =
        "1.3.6.1.4.1.7628.5.101.1";
 
 
@@ -147,7 +148,7 @@ public final class DraftLDUPSubentriesRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         subentries request control.
    */
-  public DraftLDUPSubentriesRequestControl(final Control control)
+  public DraftLDUPSubentriesRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -165,6 +166,7 @@ public final class DraftLDUPSubentriesRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SUBENTRIES_REQUEST.get();
@@ -176,7 +178,7 @@ public final class DraftLDUPSubentriesRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DraftLDUPSubentriesRequestControl(isCritical=");
     buffer.append(isCritical());

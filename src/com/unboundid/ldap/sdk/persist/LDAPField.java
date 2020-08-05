@@ -43,6 +43,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.unboundid.util.NotNull;
+
 
 
 /**
@@ -198,7 +200,7 @@ public @interface LDAPField
    *
    * @return  The encoder class for the field.
    */
-  Class<? extends ObjectEncoder> encoderClass()
+  @NotNull Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
 
 
@@ -210,7 +212,7 @@ public @interface LDAPField
    *
    * @return  The filter usage value for this field.
    */
-  FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
+  @NotNull FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
 
 
 
@@ -223,7 +225,7 @@ public @interface LDAPField
    *          be stored in LDAP entries, or an empty string if the attribute
    *          name should match the name of the associated field.
    */
-  String attribute() default "";
+  @NotNull String attribute() default "";
 
 
 
@@ -240,7 +242,7 @@ public @interface LDAPField
    *          corresponding LDAP entry, or an empty array if there should not be
    *          any default values.
    */
-  String[] defaultDecodeValue() default {};
+  @NotNull String[] defaultDecodeValue() default {};
 
 
 
@@ -253,7 +255,7 @@ public @interface LDAPField
    *          value, or an empty array if there should not be any default
    *          values.
    */
-  String[] defaultEncodeValue() default {};
+  @NotNull String[] defaultEncodeValue() default {};
 
 
 
@@ -271,5 +273,5 @@ public @interface LDAPField
    *          may be used, or an empty array if it should be assumed to only be
    *          included in the structural object class.
    */
-  String[] objectClass() default {};
+  @NotNull String[] objectClass() default {};
 }

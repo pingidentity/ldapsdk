@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -83,7 +85,7 @@ public final class JSONArray
   /**
    * A pre-allocated empty JSON array.
    */
-  public static final JSONArray EMPTY_ARRAY = new JSONArray();
+  @NotNull public static final JSONArray EMPTY_ARRAY = new JSONArray();
 
 
 
@@ -95,13 +97,13 @@ public final class JSONArray
 
 
   // The hash code for this JSON array.
-  private Integer hashCode;
+  @Nullable private Integer hashCode;
 
   // The list of values for this array.
-  private final List<JSONValue> values;
+  @NotNull private final List<JSONValue> values;
 
   // The string representation for this JSON array.
-  private String stringRepresentation;
+  @Nullable private String stringRepresentation;
 
 
 
@@ -112,7 +114,7 @@ public final class JSONArray
    *                 {@code null} or empty to indicate that the array should be
    *                 empty.
    */
-  public JSONArray(final JSONValue... values)
+  public JSONArray(@Nullable final JSONValue... values)
   {
     this((values == null) ? null : Arrays.asList(values));
   }
@@ -126,7 +128,7 @@ public final class JSONArray
    *                 {@code null} or empty to indicate that the array should be
    *                 empty.
    */
-  public JSONArray(final List<? extends JSONValue> values)
+  public JSONArray(@Nullable final List<? extends JSONValue> values)
   {
     if (values == null)
     {
@@ -149,6 +151,7 @@ public final class JSONArray
    *
    * @return  The set of values contained in this JSON array.
    */
+  @NotNull()
   public List<JSONValue> getValues()
   {
     return values;
@@ -207,7 +210,7 @@ public final class JSONArray
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == this)
     {
@@ -245,7 +248,7 @@ public final class JSONArray
    *          provided array (subject to the specified constraints), or
    *          {@code false} if not.
    */
-  public boolean equals(final JSONArray array,
+  public boolean equals(@NotNull final JSONArray array,
                         final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
@@ -321,7 +324,8 @@ public final class JSONArray
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final JSONValue v, final boolean ignoreFieldNameCase,
+  public boolean equals(@NotNull final JSONValue v,
+                        final boolean ignoreFieldNameCase,
                         final boolean ignoreValueCase,
                         final boolean ignoreArrayOrder)
   {
@@ -356,7 +360,7 @@ public final class JSONArray
    * @return  {@code true} if this JSON array contains an element with the
    *          specified value, or {@code false} if not.
    */
-  public boolean contains(final JSONValue value,
+  public boolean contains(@NotNull final JSONValue value,
                           final boolean ignoreFieldNameCase,
                           final boolean ignoreValueCase,
                           final boolean ignoreArrayOrder,
@@ -395,6 +399,7 @@ public final class JSONArray
    *          JSON object, including the surrounding square brackets.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     if (stringRepresentation == null)
@@ -420,7 +425,7 @@ public final class JSONArray
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     if (stringRepresentation != null)
     {
@@ -455,6 +460,7 @@ public final class JSONArray
    *          JSON object, including the surrounding square brackets.
    */
   @Override()
+  @NotNull()
   public String toSingleLineString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -473,7 +479,7 @@ public final class JSONArray
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toSingleLineString(final StringBuilder buffer)
+  public void toSingleLineString(@NotNull final StringBuilder buffer)
   {
     buffer.append("[ ");
 
@@ -504,6 +510,7 @@ public final class JSONArray
    * @return  A normalized string representation of this array.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -525,7 +532,7 @@ public final class JSONArray
    * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer)
+  public void toNormalizedString(@NotNull final StringBuilder buffer)
   {
     toNormalizedString(buffer, false, true, false);
   }
@@ -555,6 +562,7 @@ public final class JSONArray
    * @return  A normalized string representation of this array.
    */
   @Override()
+  @NotNull()
   public String toNormalizedString(final boolean ignoreFieldNameCase,
                                    final boolean ignoreValueCase,
                                    final boolean ignoreArrayOrder)
@@ -591,7 +599,7 @@ public final class JSONArray
    *                              {@code true}).
    */
   @Override()
-  public void toNormalizedString(final StringBuilder buffer,
+  public void toNormalizedString(@NotNull final StringBuilder buffer,
                                  final boolean ignoreFieldNameCase,
                                  final boolean ignoreValueCase,
                                  final boolean ignoreArrayOrder)
@@ -629,7 +637,7 @@ public final class JSONArray
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.beginArray();
 
@@ -647,8 +655,8 @@ public final class JSONArray
    * {@inheritDoc}
    */
   @Override()
-  public void appendToJSONBuffer(final String fieldName,
-                                 final JSONBuffer buffer)
+  public void appendToJSONBuffer(@NotNull final String fieldName,
+                                 @NotNull final JSONBuffer buffer)
   {
     buffer.beginArray(fieldName);
 

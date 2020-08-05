@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -60,10 +62,10 @@ final class InterceptedSearchEntry
       implements InMemoryInterceptedSearchEntry
 {
   // The search request for this operation.
-  private final ReadOnlySearchRequest searchRequest;
+  @NotNull private final ReadOnlySearchRequest searchRequest;
 
   // The search result entry to be processed.
-  private SearchResultEntry entry;
+  @Nullable private SearchResultEntry entry;
 
 
 
@@ -75,9 +77,9 @@ final class InterceptedSearchEntry
    * @param  entry            The search result entry to be processed.
    * @param  requestControls  The set of controls included in the request.
    */
-  InterceptedSearchEntry(final InterceptedSearchOperation op,
-                         final SearchResultEntryProtocolOp entry,
-                         final Control... requestControls)
+  InterceptedSearchEntry(@NotNull final InterceptedSearchOperation op,
+                         @NotNull final SearchResultEntryProtocolOp entry,
+                         @Nullable final Control... requestControls)
   {
     super(op);
 
@@ -91,6 +93,7 @@ final class InterceptedSearchEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReadOnlySearchRequest getRequest()
   {
     return searchRequest;
@@ -102,6 +105,7 @@ final class InterceptedSearchEntry
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public SearchResultEntry getSearchEntry()
   {
     return entry;
@@ -113,7 +117,7 @@ final class InterceptedSearchEntry
    * {@inheritDoc}
    */
   @Override()
-  public void setSearchEntry(final Entry entry)
+  public void setSearchEntry(@Nullable final Entry entry)
   {
     if (entry == null)
     {
@@ -135,7 +139,7 @@ final class InterceptedSearchEntry
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedSearchEntry(");
     appendCommonToString(buffer);

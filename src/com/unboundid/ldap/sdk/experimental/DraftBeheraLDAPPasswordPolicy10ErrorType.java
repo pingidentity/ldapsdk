@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.experimental;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -122,7 +124,7 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
   private final int value;
 
   // The human-readable name for this password policy error type.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -132,7 +134,8 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
    * @param  name   The human-readable name for this error type.
    * @param  value  The numeric value associated with this error type.
    */
-  DraftBeheraLDAPPasswordPolicy10ErrorType(final String name, final int value)
+  DraftBeheraLDAPPasswordPolicy10ErrorType(@NotNull final String name,
+                                           final int value)
   {
     this.name  = name;
     this.value = value;
@@ -145,6 +148,7 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
    *
    * @return  The human-readable name for this password policy error type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -172,8 +176,9 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
    * @return  The associated error type, or {@code null} if there is no
    *          password policy error type with the specified set of values.
    */
-  public static DraftBeheraLDAPPasswordPolicy10ErrorType
-              valueOf(final int intValue)
+  @Nullable()
+  public static DraftBeheraLDAPPasswordPolicy10ErrorType valueOf(
+                     final int intValue)
   {
     switch (intValue)
     {
@@ -220,8 +225,9 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
    * @return  The requested password policy error type, or {@code null} if no
    *          such type is defined.
    */
+  @Nullable()
   public static DraftBeheraLDAPPasswordPolicy10ErrorType forName(
-                                                              final String name)
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -283,6 +289,7 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
    * @return  A string representation for this password policy error type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

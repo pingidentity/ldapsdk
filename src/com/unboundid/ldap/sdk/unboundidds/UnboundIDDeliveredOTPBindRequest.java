@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             DeliverOneTimePasswordExtendedRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -102,7 +104,7 @@ public final class UnboundIDDeliveredOTPBindRequest
   /**
    * The name for the UnboundID delivered OTP SASL mechanism.
    */
-  public static final String UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME =
+  @NotNull public static final String UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME =
        "UNBOUNDID-DELIVERED-OTP";
 
 
@@ -139,13 +141,13 @@ public final class UnboundIDDeliveredOTPBindRequest
   private volatile int messageID = -1;
 
   // The authentication identity for the bind.
-  private final String authenticationID;
+  @NotNull private final String authenticationID;
 
   // The authorization identity for the bind, if provided.
-  private final String authorizationID;
+  @Nullable private final String authorizationID;
 
   // The one-time password for the bind, if provided.
-  private final String oneTimePassword;
+  @NotNull private final String oneTimePassword;
 
 
 
@@ -172,10 +174,11 @@ public final class UnboundIDDeliveredOTPBindRequest
    *                           request.  It may be {@code null} or empty if no
    *                           controls should be included.
    */
-  public UnboundIDDeliveredOTPBindRequest(final String authenticationID,
-                                          final String authorizationID,
-                                          final String oneTimePassword,
-                                          final Control... controls)
+  public UnboundIDDeliveredOTPBindRequest(
+              @NotNull final String authenticationID,
+              @Nullable final String authorizationID,
+              @NotNull final String oneTimePassword,
+              @Nullable final Control... controls)
   {
     super(controls);
 
@@ -206,9 +209,10 @@ public final class UnboundIDDeliveredOTPBindRequest
    * @throws  LDAPException  If the provided credentials are not valid for an
    *                         UNBOUNDID-DELIVERED-OTP bind request.
    */
-  public static UnboundIDDeliveredOTPBindRequest
-              decodeSASLCredentials(final ASN1OctetString saslCredentials,
-                                    final Control... controls)
+  @NotNull()
+  public static UnboundIDDeliveredOTPBindRequest decodeSASLCredentials(
+                     @NotNull final ASN1OctetString saslCredentials,
+                     @Nullable final Control... controls)
          throws LDAPException
   {
     String          authenticationID = null;
@@ -270,6 +274,7 @@ public final class UnboundIDDeliveredOTPBindRequest
    *
    * @return  The authentication identity for the bind request.
    */
+  @NotNull()
   public String getAuthenticationID()
   {
     return authenticationID;
@@ -284,6 +289,7 @@ public final class UnboundIDDeliveredOTPBindRequest
    *          if the authorization identity should be the same as the
    *          authentication identity.
    */
+  @Nullable()
   public String getAuthorizationID()
   {
     return authorizationID;
@@ -296,6 +302,7 @@ public final class UnboundIDDeliveredOTPBindRequest
    *
    * @return  The one-time password for the bind request.
    */
+  @NotNull()
   public String getOneTimePassword()
   {
     return oneTimePassword;
@@ -307,7 +314,9 @@ public final class UnboundIDDeliveredOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     messageID = InternalSDKHelper.nextMessageID(connection);
@@ -342,9 +351,11 @@ public final class UnboundIDDeliveredOTPBindRequest
    * @return  An ASN.1 octet string that may be used as the SASL credentials for
    *          an UnboundID delivered one-time password bind request.
    */
-  public static ASN1OctetString encodeCredentials(final String authenticationID,
-                                                  final String authorizationID,
-                                                  final String oneTimePassword)
+  @NotNull()
+  public static ASN1OctetString encodeCredentials(
+                                     @NotNull final String authenticationID,
+                                     @Nullable final String authorizationID,
+                                     @NotNull final String oneTimePassword)
   {
     Validator.ensureNotNull(authenticationID);
     Validator.ensureNotNull(oneTimePassword);
@@ -367,6 +378,7 @@ public final class UnboundIDDeliveredOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDDeliveredOTPBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -378,7 +390,9 @@ public final class UnboundIDDeliveredOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public UnboundIDDeliveredOTPBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public UnboundIDDeliveredOTPBindRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final UnboundIDDeliveredOTPBindRequest bindRequest =
          new UnboundIDDeliveredOTPBindRequest(authenticationID,
@@ -393,6 +407,7 @@ public final class UnboundIDDeliveredOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME;
@@ -415,7 +430,7 @@ public final class UnboundIDDeliveredOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UnboundDeliveredOTPBindRequest(authID='");
     buffer.append(authenticationID);
@@ -453,7 +468,8 @@ public final class UnboundIDDeliveredOTPBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

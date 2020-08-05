@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,7 +83,7 @@ public enum CollectSupportDataOutputStream
   private final int intValue;
 
   // The name for this output stream value.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -94,7 +96,7 @@ public enum CollectSupportDataOutputStream
    * @param  intValue  The integer value for this collect support data output
    *                   stream value.
    */
-  CollectSupportDataOutputStream(final String name, final int intValue)
+  CollectSupportDataOutputStream(@NotNull final String name, final int intValue)
   {
     this.name = name;
     this.intValue = intValue;
@@ -107,6 +109,7 @@ public enum CollectSupportDataOutputStream
    *
    * @return  The name for this collect support data output stream value.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -138,7 +141,9 @@ public enum CollectSupportDataOutputStream
    *          or {@code null} if no output stream value is defined with the
    *          given name.
    */
-  public static CollectSupportDataOutputStream forName(final String name)
+  @Nullable()
+  public static CollectSupportDataOutputStream forName(
+                     @NotNull final String name)
   {
     final String lowerName = StaticUtils.toLowerCase(name).replace('-', '_');
     switch (lowerName)
@@ -177,6 +182,7 @@ public enum CollectSupportDataOutputStream
    *          integer value, or {@code null} if no output stream value is
    *          defined with the given integer value.
    */
+  @Nullable()
   public static CollectSupportDataOutputStream forIntValue(final int intValue)
   {
     for (final CollectSupportDataOutputStream os : values())
@@ -200,6 +206,7 @@ public enum CollectSupportDataOutputStream
    *          value.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

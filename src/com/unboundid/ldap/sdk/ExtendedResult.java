@@ -45,6 +45,8 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -95,10 +97,10 @@ public class ExtendedResult
 
 
   // The encoded value for this extended response, if available.
-  private final ASN1OctetString value;
+  @Nullable private final ASN1OctetString value;
 
   // The OID for this extended response, if available.
-  private final String oid;
+  @Nullable private final String oid;
 
 
 
@@ -120,11 +122,14 @@ public class ExtendedResult
    * @param  responseControls   The set of controls from the response, if
    *                            available.
    */
-  public ExtendedResult(final int messageID, final ResultCode resultCode,
-                        final String diagnosticMessage, final String matchedDN,
-                        final String[] referralURLs, final String oid,
-                        final ASN1OctetString value,
-                        final Control[] responseControls)
+  public ExtendedResult(final int messageID,
+                        @NotNull final ResultCode resultCode,
+                        @Nullable final String diagnosticMessage,
+                        @Nullable final String matchedDN,
+                        @Nullable final String[] referralURLs,
+                        @Nullable final String oid,
+                        @Nullable final ASN1OctetString value,
+                        @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           responseControls);
@@ -142,7 +147,7 @@ public class ExtendedResult
    * @param  result  The LDAP result whose content should be used for this
    *                 extended result.
    */
-  public ExtendedResult(final LDAPResult result)
+  public ExtendedResult(@NotNull final LDAPResult result)
   {
     super(result);
 
@@ -159,7 +164,7 @@ public class ExtendedResult
    * @param  exception  The {@code LDAPException} to use to create this extended
    *                    result.
    */
-  public ExtendedResult(final LDAPException exception)
+  public ExtendedResult(@NotNull final LDAPException exception)
   {
     this(exception.toLDAPResult());
   }
@@ -173,7 +178,7 @@ public class ExtendedResult
    * @param  extendedResult  The extended response to use to initialize this
    *                           extended response.
    */
-  protected ExtendedResult(final ExtendedResult extendedResult)
+  protected ExtendedResult(@NotNull final ExtendedResult extendedResult)
   {
     this(extendedResult.getMessageID(), extendedResult.getResultCode(),
          extendedResult.getDiagnosticMessage(), extendedResult.getMatchedDN(),
@@ -199,9 +204,10 @@ public class ExtendedResult
    * @throws  LDAPException  If a problem occurs while reading or decoding data
    *                         from the ASN.1 stream reader.
    */
+  @NotNull()
   static ExtendedResult readExtendedResultFrom(final int messageID,
-                             final ASN1StreamReaderSequence messageSequence,
-                             final ASN1StreamReader reader)
+              @NotNull final ASN1StreamReaderSequence messageSequence,
+              @NotNull final ASN1StreamReader reader)
          throws LDAPException
   {
     try
@@ -296,6 +302,7 @@ public class ExtendedResult
    * @return  The OID for this extended result, or {@code null} if none is
    *          available.
    */
+  @Nullable()
   public final String getOID()
   {
     return oid;
@@ -322,6 +329,7 @@ public class ExtendedResult
    * @return  The encoded value for this extended result, or {@code null} if
    *          none is available.
    */
+  @Nullable()
   public final ASN1OctetString getValue()
   {
     return value;
@@ -340,6 +348,7 @@ public class ExtendedResult
    *          {@code null} if neither a user-friendly name nor a response OID
    *          are available.
    */
+  @Nullable()
   public String getExtendedResultName()
   {
     // By default, we will return the OID (which may be null).  Subclasses
@@ -355,6 +364,7 @@ public class ExtendedResult
    * @return  A string representation of this extended response.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -372,7 +382,7 @@ public class ExtendedResult
    *                 extended response will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ExtendedResult(resultCode=");
     buffer.append(getResultCode());

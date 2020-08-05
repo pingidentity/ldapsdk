@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 import java.util.Set;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotNull;
 
 
 
@@ -66,7 +67,7 @@ final class SplitLDIFEntry
    * The name of the set that will be used to indicate that the entry should be
    * written to a file dedicated to entries outside the split.
    */
-  static final String SET_NAME_OUTSIDE_SPLIT = ".outside-split";
+  @NotNull static final String SET_NAME_OUTSIDE_SPLIT = ".outside-split";
 
 
 
@@ -74,7 +75,7 @@ final class SplitLDIFEntry
    * The name of the set that will be used to indicate that an error occurred
    * in the course of determining which set(s) should be used for an entry.
    */
-  static final String SET_NAME_ERRORS = ".errors";
+  @NotNull static final String SET_NAME_ERRORS = ".errors";
 
 
 
@@ -86,10 +87,10 @@ final class SplitLDIFEntry
 
 
   // The bytes that comprise the LDIF representation of the entry.
-  private final byte[] ldifBytes;
+  @NotNull private final byte[] ldifBytes;
 
   // The names of the sets to which this entry should be written.
-  private final Set<String> sets;
+  @NotNull private final Set<String> sets;
 
 
 
@@ -103,8 +104,9 @@ final class SplitLDIFEntry
    *                    written.  This may be {@code null} if the appropriate
    *                    collection of sets has not yet been determined.
    */
-  SplitLDIFEntry(final Entry e, final byte[] ldifBytes,
-                 final Set<String> sets)
+  SplitLDIFEntry(@NotNull final Entry e,
+                 @NotNull final byte[] ldifBytes,
+                 @NotNull final Set<String> sets)
   {
     super(e);
 
@@ -119,6 +121,7 @@ final class SplitLDIFEntry
    *
    * @return  The bytes that comprise the LDIF representation of the entry.
    */
+  @NotNull()
   byte[] getLDIFBytes()
   {
     return ldifBytes;
@@ -132,6 +135,7 @@ final class SplitLDIFEntry
    * @return  The sets to which this entry should be written, or {@code null} if
    *          it has not yet been determined.
    */
+  @NotNull()
   Set<String> getSets()
   {
     return sets;

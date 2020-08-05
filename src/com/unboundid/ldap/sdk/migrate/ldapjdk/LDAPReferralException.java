@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,7 +71,7 @@ public class LDAPReferralException
 
 
   // The referral URLs for this exception.
-  private final String[] referralURLs;
+  @NotNull private final String[] referralURLs;
 
 
 
@@ -93,8 +95,9 @@ public class LDAPReferralException
    *                             exception.
    * @param  serverErrorMessage  The error message returned from the server.
    */
-  public LDAPReferralException(final String message, final int resultCode,
-                               final String serverErrorMessage)
+  public LDAPReferralException(@Nullable final String message,
+                               final int resultCode,
+                               @Nullable final String serverErrorMessage)
   {
     super(message, resultCode, serverErrorMessage, null);
 
@@ -110,8 +113,9 @@ public class LDAPReferralException
    * @param  resultCode  The result code for this LDAP referral exception.
    * @param  referrals   The set of referrals for this exception.
    */
-  public LDAPReferralException(final String message, final int resultCode,
-                               final String[] referrals)
+  public LDAPReferralException(@Nullable final String message,
+                               final int resultCode,
+                               @NotNull final String[] referrals)
   {
     super(message, resultCode, null, null);
 
@@ -128,7 +132,7 @@ public class LDAPReferralException
    *                        LDAP interrupted exception.
    */
   public LDAPReferralException(
-              final com.unboundid.ldap.sdk.LDAPException ldapException)
+              @NotNull final com.unboundid.ldap.sdk.LDAPException ldapException)
   {
     super(ldapException);
 
@@ -144,7 +148,7 @@ public class LDAPReferralException
    * @param  reference  The {@code SearchResultReference} object to use to
    *                    create this exception.
    */
-  public LDAPReferralException(final SearchResultReference reference)
+  public LDAPReferralException(@NotNull final SearchResultReference reference)
   {
     super(null, REFERRAL);
 
@@ -158,6 +162,7 @@ public class LDAPReferralException
    *
    * @return  The set of referral URLs for this exception.
    */
+  @NotNull()
   public String[] getURLs()
   {
     return referralURLs;

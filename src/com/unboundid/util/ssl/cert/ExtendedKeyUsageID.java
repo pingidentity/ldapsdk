@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -125,7 +127,8 @@ public enum ExtendedKeyUsageID
    * @param  name       The human-readable name for this extended key usage ID
    *                    value.
    */
-  ExtendedKeyUsageID(final String oidString, final String name)
+  ExtendedKeyUsageID(@NotNull final String oidString,
+                     @NotNull final String name)
   {
     this.name = name;
 
@@ -139,6 +142,7 @@ public enum ExtendedKeyUsageID
    *
    * @return  The OID for this extended key usage ID value.
    */
+  @NotNull()
   public OID getOID()
   {
     return oid;
@@ -151,6 +155,7 @@ public enum ExtendedKeyUsageID
    *
    * @return  The human-readable name for this extended key usage ID value.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -167,7 +172,8 @@ public enum ExtendedKeyUsageID
    * @return  The extended key usage ID value with the specified OID, or
    *          {@code null} if there is no value with the specified OID.
    */
-  public static ExtendedKeyUsageID forOID(final OID oid)
+  @Nullable()
+  public static ExtendedKeyUsageID forOID(@NotNull final OID oid)
   {
     for (final ExtendedKeyUsageID id : values())
     {
@@ -193,7 +199,8 @@ public enum ExtendedKeyUsageID
    *            the provided OID, or a string representation of the OID if there
    *            is no value with that OID.
    */
-  public static String getNameOrOID(final OID oid)
+  @NotNull()
+  public static String getNameOrOID(@NotNull final OID oid)
   {
     final ExtendedKeyUsageID id = forOID(oid);
     if (id == null)
@@ -217,7 +224,8 @@ public enum ExtendedKeyUsageID
    * @return  The requested extended key usage ID, or {@code null} if no such ID
    *          is defined.
    */
-  public static ExtendedKeyUsageID forName(final String name)
+  @Nullable()
+  public static ExtendedKeyUsageID forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

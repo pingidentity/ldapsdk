@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -116,7 +117,7 @@ public final class SubtreeDeleteRequestControl
   /**
    * The OID (1.2.840.113556.1.4.805) for the subtree delete request control.
    */
-  public static final String SUBTREE_DELETE_REQUEST_OID =
+  @NotNull public static final String SUBTREE_DELETE_REQUEST_OID =
        "1.2.840.113556.1.4.805";
 
 
@@ -162,7 +163,7 @@ public final class SubtreeDeleteRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         subtree delete request control.
    */
-  public SubtreeDeleteRequestControl(final Control control)
+  public SubtreeDeleteRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -180,6 +181,7 @@ public final class SubtreeDeleteRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SUBTREE_DELETE_REQUEST.get();
@@ -191,7 +193,7 @@ public final class SubtreeDeleteRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SubtreeDeleteRequestControl(isCritical=");
     buffer.append(isCritical());

@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -132,7 +134,7 @@ public enum PasswordPolicyErrorType
   private final int value;
 
   // The human-readable name for this password policy error type.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -142,7 +144,7 @@ public enum PasswordPolicyErrorType
    * @param  name   The human-readable name for this error type.
    * @param  value  The numeric value associated with this error type.
    */
-  PasswordPolicyErrorType(final String name, final int value)
+  PasswordPolicyErrorType(@NotNull final String name, final int value)
   {
     this.name  = name;
     this.value = value;
@@ -155,6 +157,7 @@ public enum PasswordPolicyErrorType
    *
    * @return  The human-readable name for this password policy error type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -182,6 +185,7 @@ public enum PasswordPolicyErrorType
    * @return  The associated error type, or {@code null} if there is no
    *          password policy error type with the specified set of values.
    */
+  @Nullable()
   public static PasswordPolicyErrorType valueOf(final int intValue)
   {
     switch (intValue)
@@ -229,7 +233,8 @@ public enum PasswordPolicyErrorType
    * @return  The requested password policy error type, or {@code null} if no
    *          such type is defined.
    */
-  public static PasswordPolicyErrorType forName(final String name)
+  @Nullable()
+  public static PasswordPolicyErrorType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -291,6 +296,7 @@ public enum PasswordPolicyErrorType
    * @return  A string representation for this password policy error type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

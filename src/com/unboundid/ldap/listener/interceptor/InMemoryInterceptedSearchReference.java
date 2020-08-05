@@ -40,6 +40,8 @@ package com.unboundid.ldap.listener.interceptor;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,6 +64,7 @@ public interface InMemoryInterceptedSearchReference
    *
    * @return  The search request that was processed.
    */
+  @NotNull()
   ReadOnlySearchRequest getRequest();
 
 
@@ -71,6 +74,7 @@ public interface InMemoryInterceptedSearchReference
    *
    * @return  The search result reference to be returned to the client.
    */
+  @Nullable()
   SearchResultReference getSearchReference();
 
 
@@ -84,5 +88,5 @@ public interface InMemoryInterceptedSearchReference
    *                    client.  It may be {@code null} if the reference should
    *                    be suppressed rather than being returned to the client.
    */
-  void setSearchReference(SearchResultReference reference);
+  void setSearchReference(@Nullable SearchResultReference reference);
 }

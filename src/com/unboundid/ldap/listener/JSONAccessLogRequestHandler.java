@@ -72,6 +72,8 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -95,32 +97,32 @@ public final class JSONAccessLogRequestHandler
 {
   // The operation ID counter that will be used for this request handler
   // instance.
-  private final AtomicLong nextOperationID;
+  @Nullable private final AtomicLong nextOperationID;
 
   // A map used to correlate the number of search result entries returned for a
   // particular message ID.
-  private final ConcurrentHashMap<Integer,AtomicLong> entryCounts;
+  @NotNull private final ConcurrentHashMap<Integer,AtomicLong> entryCounts;
 
   // The log handler that will be used to log the messages.
-  private final Handler logHandler;
+  @NotNull private final Handler logHandler;
 
   // The client connection with which this request handler is associated.
-  private final LDAPListenerClientConnection clientConnection;
+  @Nullable private final LDAPListenerClientConnection clientConnection;
 
   // The request handler that actually will be used to process any requests
   // received.
-  private final LDAPListenerRequestHandler requestHandler;
+  @NotNull private final LDAPListenerRequestHandler requestHandler;
 
   // The thread-local decimal formatters that will be used to format etime
   // values.
-  private final ThreadLocal<DecimalFormat> decimalFormatters;
+  @NotNull private final ThreadLocal<DecimalFormat> decimalFormatters;
 
   // The thread-local JSON buffers that will be used to format log message
   // objects.
-  private final ThreadLocal<JSONBuffer> jsonBuffers;
+  @NotNull private final ThreadLocal<JSONBuffer> jsonBuffers;
 
   // The thread-local date formatters that will be used to format timestamps.
-  private final ThreadLocal<SimpleDateFormat> timestampFormatters;
+  @NotNull private final ThreadLocal<SimpleDateFormat> timestampFormatters;
 
 
 
@@ -139,8 +141,8 @@ public final class JSONAccessLogRequestHandler
    *                         process any requests received.  It must not be
    *                         {@code null}.
    */
-  public JSONAccessLogRequestHandler(final Handler logHandler,
-              final LDAPListenerRequestHandler requestHandler)
+  public JSONAccessLogRequestHandler(@NotNull final Handler logHandler,
+              @NotNull final LDAPListenerRequestHandler requestHandler)
   {
     Validator.ensureNotNull(logHandler, requestHandler);
 
@@ -178,12 +180,12 @@ public final class JSONAccessLogRequestHandler
    * @param  decimalFormatters    The thread-local decimal formatters that
    *                              will be used to format etime values.
    */
-  private JSONAccessLogRequestHandler(final Handler logHandler,
-               final LDAPListenerRequestHandler requestHandler,
-               final LDAPListenerClientConnection clientConnection,
-               final ThreadLocal<JSONBuffer> jsonBuffers,
-               final ThreadLocal<SimpleDateFormat> timestampFormatters,
-               final ThreadLocal<DecimalFormat> decimalFormatters)
+  private JSONAccessLogRequestHandler(@NotNull final Handler logHandler,
+               @NotNull final LDAPListenerRequestHandler requestHandler,
+               @NotNull final LDAPListenerClientConnection clientConnection,
+               @NotNull final ThreadLocal<JSONBuffer> jsonBuffers,
+               @NotNull final ThreadLocal<SimpleDateFormat> timestampFormatters,
+               @NotNull final ThreadLocal<DecimalFormat> decimalFormatters)
   {
     this.logHandler = logHandler;
     this.requestHandler = requestHandler;
@@ -203,7 +205,7 @@ public final class JSONAccessLogRequestHandler
    */
   @Override()
   public JSONAccessLogRequestHandler newInstance(
-              final LDAPListenerClientConnection connection)
+              @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException
   {
     final JSONAccessLogRequestHandler h =
@@ -251,8 +253,8 @@ public final class JSONAccessLogRequestHandler
    */
   @Override()
   public void processAbandonRequest(final int messageID,
-                                    final AbandonRequestProtocolOp request,
-                                    final List<Control> controls)
+                   @NotNull final AbandonRequestProtocolOp request,
+                   @NotNull final List<Control> controls)
   {
     final JSONBuffer buffer = getRequestHeader("abandon",
          nextOperationID.incrementAndGet(), messageID);
@@ -272,9 +274,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processAddRequest(final int messageID,
-                                       final AddRequestProtocolOp request,
-                                       final List<Control> controls)
+                          @NotNull final AddRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
     final JSONBuffer buffer = getRequestHeader("add", opID, messageID);
@@ -309,9 +312,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processBindRequest(final int messageID,
-                                        final BindRequestProtocolOp request,
-                                        final List<Control> controls)
+                          @NotNull final BindRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -359,9 +363,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processCompareRequest(final int messageID,
-                          final CompareRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final CompareRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -397,9 +402,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processDeleteRequest(final int messageID,
-                                          final DeleteRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final DeleteRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -435,9 +441,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ExtendedRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -479,9 +486,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyRequest(final int messageID,
-                                          final ModifyRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final ModifyRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -516,9 +524,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyDNRequest(final int messageID,
-                          final ModifyDNRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ModifyDNRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -561,9 +570,10 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processSearchRequest(final int messageID,
-                                          final SearchRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final SearchRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
 
@@ -619,8 +629,8 @@ public final class JSONAccessLogRequestHandler
    */
   @Override()
   public void processUnbindRequest(final int messageID,
-                                   final UnbindRequestProtocolOp request,
-                                   final List<Control> controls)
+                   @NotNull final UnbindRequestProtocolOp request,
+                   @NotNull final List<Control> controls)
   {
     final JSONBuffer buffer = getRequestHeader("unbind",
          nextOperationID.getAndIncrement(), messageID);
@@ -639,6 +649,7 @@ public final class JSONAccessLogRequestHandler
    *
    * @return  A JSON buffer that can be used to construct a log message.
    */
+  @NotNull()
   private JSONBuffer getBuffer()
   {
     JSONBuffer buffer = jsonBuffers.get();
@@ -662,7 +673,7 @@ public final class JSONAccessLogRequestHandler
    *
    * @param  buffer  The buffer to which the timestamp should be added.
    */
-  private void addTimestamp(final JSONBuffer buffer)
+  private void addTimestamp(@NotNull final JSONBuffer buffer)
   {
     SimpleDateFormat timestampFormatter = timestampFormatters.get();
     if (timestampFormatter == null)
@@ -687,7 +698,8 @@ public final class JSONAccessLogRequestHandler
    * @return  A {@code JSONBuffer} with header information appended for the
    *          connection;
    */
-  private JSONBuffer getConnectionHeader(final String messageType)
+  @NotNull()
+  private JSONBuffer getConnectionHeader(@NotNull final String messageType)
   {
     final JSONBuffer buffer = getBuffer();
     buffer.beginObject();
@@ -711,8 +723,9 @@ public final class JSONAccessLogRequestHandler
    * @return  A {@code StringBuilder} with header information appended for the
    *          request;
    */
-  private JSONBuffer getRequestHeader(final String opType, final long opID,
-                                      final int msgID)
+  @NotNull()
+  private JSONBuffer getRequestHeader(@NotNull final String opType,
+                                      final long opID, final int msgID)
   {
     final JSONBuffer buffer = getBuffer();
     buffer.beginObject();
@@ -745,12 +758,13 @@ public final class JSONAccessLogRequestHandler
    * @param  eTimeNanos         The length of time in nanoseconds required to
    *                            process the operation.
    */
-  private void generateResponse(final JSONBuffer buffer, final String opType,
+  private void generateResponse(@NotNull final JSONBuffer buffer,
+                                @NotNull final String opType,
                                 final long opID, final int msgID,
                                 final int resultCode,
-                                final String diagnosticMessage,
-                                final String matchedDN,
-                                final List<String> referralURLs,
+                                @Nullable final String diagnosticMessage,
+                                @Nullable final String matchedDN,
+                                @NotNull final List<String> referralURLs,
                                 final long eTimeNanos)
   {
     buffer.clear();
@@ -807,9 +821,11 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ObjectPair<SearchResultEntryProtocolOp,Control[]> transformEntry(
-              final int messageID, final SearchResultEntryProtocolOp entry,
-              final Control[] controls)
+              final int messageID,
+              @NotNull final SearchResultEntryProtocolOp entry,
+              @NotNull final Control[] controls)
   {
     final AtomicLong l = entryCounts.get(messageID);
     if (l != null)

@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -148,6 +149,7 @@ public final class LDAPConnectionPoolHealthCheckResult
    *          result.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -163,7 +165,7 @@ public final class LDAPConnectionPoolHealthCheckResult
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPConnectionPoolHealthCheckResult(numExamined=");
     buffer.append(numExamined);

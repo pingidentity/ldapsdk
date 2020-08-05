@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -80,23 +82,23 @@ final class SplitLDIFFilterTranslator
       extends SplitLDIFTranslator
 {
   // The map used to cache decisions made by this translator.
-  private final ConcurrentHashMap<String,Set<String>> rdnCache;
+  @Nullable private final ConcurrentHashMap<String,Set<String>> rdnCache;
 
   // A map used to associate the search filter for each set with the name of
   // that set.
-  private final Map<Filter,Set<String>> setFilters;
+  @NotNull private final Map<Filter,Set<String>> setFilters;
 
   // A map of the names that will be used for each of the sets.
-  private final Map<Integer,Set<String>> setNames;
+  @NotNull private final Map<Integer,Set<String>> setNames;
 
   // The schema to use for filter evaluation.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The sets in which entries outside the split base should be placed.
-  private final Set<String> outsideSplitBaseSetNames;
+  @NotNull private final Set<String> outsideSplitBaseSetNames;
 
   // The sets in which the split base entry should be placed.
-  private final Set<String> splitBaseEntrySetNames;
+  @NotNull private final Set<String> splitBaseEntrySetNames;
 
 
 
@@ -127,8 +129,9 @@ final class SplitLDIFFilterTranslator
    *                                               outside the split should be
    *                                               added to all sets.
    */
-  SplitLDIFFilterTranslator(final DN splitBaseDN, final Schema schema,
-                            final LinkedHashSet<Filter> filters,
+  SplitLDIFFilterTranslator(final DN splitBaseDN,
+                            @Nullable final Schema schema,
+                            @NotNull final LinkedHashSet<Filter> filters,
                             final boolean assumeFlatDIT,
                             final boolean addEntriesOutsideSplitToAllSets,
                             final boolean addEntriesOutsideSplitToDedicatedSet)
@@ -186,7 +189,8 @@ final class SplitLDIFFilterTranslator
    * {@inheritDoc}
    */
   @Override()
-  public SplitLDIFEntry translate(final Entry original,
+  @NotNull()
+  public SplitLDIFEntry translate(@NotNull final Entry original,
                                   final long firstLineNumber)
          throws LDIFException
   {

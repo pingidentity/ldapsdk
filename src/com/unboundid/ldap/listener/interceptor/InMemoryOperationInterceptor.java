@@ -40,6 +40,7 @@ package com.unboundid.ldap.listener.interceptor;
 import com.unboundid.ldap.sdk.LDAPException;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,7 +77,8 @@ public abstract class InMemoryOperationInterceptor
    *                         represented by this exception should be used
    *                         instead.
    */
-  public void processAddRequest(final InMemoryInterceptedAddRequest request)
+  public void processAddRequest(
+                   @NotNull final InMemoryInterceptedAddRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -91,7 +93,8 @@ public abstract class InMemoryOperationInterceptor
    * @param  result  Information about the add result that is to be returned to
    *                 the client.
    */
-  public void processAddResult(final InMemoryInterceptedAddResult result)
+  public void processAddResult(
+                   @NotNull final InMemoryInterceptedAddResult result)
   {
     // No processing will be performed by default.
   }
@@ -111,7 +114,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processSimpleBindRequest(
-                   final InMemoryInterceptedSimpleBindRequest request)
+                   @NotNull final InMemoryInterceptedSimpleBindRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -127,7 +130,7 @@ public abstract class InMemoryOperationInterceptor
    *                 the client.
    */
   public void processSimpleBindResult(
-                   final InMemoryInterceptedSimpleBindResult result)
+                   @NotNull final InMemoryInterceptedSimpleBindResult result)
   {
     // No processing will be performed by default.
   }
@@ -147,7 +150,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processSASLBindRequest(
-                   final InMemoryInterceptedSASLBindRequest request)
+                   @NotNull final InMemoryInterceptedSASLBindRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -163,7 +166,7 @@ public abstract class InMemoryOperationInterceptor
    *                 the client.
    */
   public void processSASLBindResult(
-                   final InMemoryInterceptedSASLBindResult result)
+                   @NotNull final InMemoryInterceptedSASLBindResult result)
   {
     // No processing will be performed by default.
   }
@@ -183,7 +186,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processCompareRequest(
-                   final InMemoryInterceptedCompareRequest request)
+                   @NotNull final InMemoryInterceptedCompareRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -199,7 +202,7 @@ public abstract class InMemoryOperationInterceptor
    *                 to the client.
    */
   public void processCompareResult(
-                   final InMemoryInterceptedCompareResult result)
+                   @NotNull final InMemoryInterceptedCompareResult result)
   {
     // No processing will be performed by default.
   }
@@ -219,7 +222,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processDeleteRequest(
-                   final InMemoryInterceptedDeleteRequest request)
+                   @NotNull final InMemoryInterceptedDeleteRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -234,7 +237,8 @@ public abstract class InMemoryOperationInterceptor
    * @param  result  Information about the delete result that is to be returned
    *                 to the client.
    */
-  public void processDeleteResult(final InMemoryInterceptedDeleteResult result)
+  public void processDeleteResult(
+                   @NotNull final InMemoryInterceptedDeleteResult result)
   {
     // No processing will be performed by default.
   }
@@ -254,7 +258,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processExtendedRequest(
-                   final InMemoryInterceptedExtendedRequest request)
+                   @NotNull final InMemoryInterceptedExtendedRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -270,7 +274,7 @@ public abstract class InMemoryOperationInterceptor
    *                 returned to the client.
    */
   public void processExtendedResult(
-                   final InMemoryInterceptedExtendedResult result)
+                   @NotNull final InMemoryInterceptedExtendedResult result)
   {
     // No processing will be performed by default.
   }
@@ -290,7 +294,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processModifyRequest(
-                   final InMemoryInterceptedModifyRequest request)
+                   @NotNull final InMemoryInterceptedModifyRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -305,7 +309,8 @@ public abstract class InMemoryOperationInterceptor
    * @param  result  Information about the modify result that is to be returned
    *                 to the client.
    */
-  public void processModifyResult(final InMemoryInterceptedModifyResult result)
+  public void processModifyResult(
+                   @NotNull final InMemoryInterceptedModifyResult result)
   {
     // No processing will be performed by default.
   }
@@ -325,7 +330,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processModifyDNRequest(
-                   final InMemoryInterceptedModifyDNRequest request)
+                   @NotNull final InMemoryInterceptedModifyDNRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -341,7 +346,7 @@ public abstract class InMemoryOperationInterceptor
    *                 returned to the client.
    */
   public void processModifyDNResult(
-                   final InMemoryInterceptedModifyDNResult result)
+                   @NotNull final InMemoryInterceptedModifyDNResult result)
   {
     // No processing will be performed by default.
   }
@@ -361,7 +366,7 @@ public abstract class InMemoryOperationInterceptor
    *                         instead.
    */
   public void processSearchRequest(
-                   final InMemoryInterceptedSearchRequest request)
+                   @NotNull final InMemoryInterceptedSearchRequest request)
          throws LDAPException
   {
     // No processing will be performed by default.
@@ -375,7 +380,8 @@ public abstract class InMemoryOperationInterceptor
    *
    * @param  entry  Information about the search result entry to be returned.
    */
-  public void processSearchEntry(final InMemoryInterceptedSearchEntry entry)
+  public void processSearchEntry(
+                   @NotNull final InMemoryInterceptedSearchEntry entry)
   {
     // No processing will be performed by default.
   }
@@ -390,7 +396,7 @@ public abstract class InMemoryOperationInterceptor
    *                    returned.
    */
   public void processSearchReference(
-                   final InMemoryInterceptedSearchReference reference)
+                   @NotNull final InMemoryInterceptedSearchReference reference)
   {
     // No processing will be performed by default.
   }
@@ -404,7 +410,8 @@ public abstract class InMemoryOperationInterceptor
    * @param  result  Information about the search result that is to be returned
    *                 to the client.
    */
-  public void processSearchResult(final InMemoryInterceptedSearchResult result)
+  public void processSearchResult(
+                   @NotNull final InMemoryInterceptedSearchResult result)
   {
     // No processing will be performed by default.
   }
@@ -419,7 +426,7 @@ public abstract class InMemoryOperationInterceptor
    *                   returned to the client.
    */
   public void processIntermediateResponse(
-                   final InMemoryInterceptedIntermediateResponse response)
+       @NotNull final InMemoryInterceptedIntermediateResponse response)
   {
     // No processing will be performed by default.
   }

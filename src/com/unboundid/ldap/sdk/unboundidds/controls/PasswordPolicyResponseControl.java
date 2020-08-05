@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -110,7 +112,7 @@ public final class PasswordPolicyResponseControl
    * The OID (1.3.6.1.4.1.42.2.27.8.5.1) for the password policy response
    * control.
    */
-  public static final String PASSWORD_POLICY_RESPONSE_OID =
+  @NotNull public static final String PASSWORD_POLICY_RESPONSE_OID =
        "1.3.6.1.4.1.42.2.27.8.5.1";
 
 
@@ -154,10 +156,10 @@ public final class PasswordPolicyResponseControl
   private final int warningValue;
 
   // The password policy error type, if applicable.
-  private final PasswordPolicyErrorType errorType;
+  @Nullable private final PasswordPolicyErrorType errorType;
 
   // The password policy warning type, if applicable.
-  private final PasswordPolicyWarningType warningType;
+  @Nullable private final PasswordPolicyWarningType warningType;
 
 
 
@@ -188,8 +190,9 @@ public final class PasswordPolicyResponseControl
    *                       type.
    */
   public PasswordPolicyResponseControl(
-              final PasswordPolicyWarningType warningType,
-              final int warningValue, final PasswordPolicyErrorType errorType)
+              @Nullable final PasswordPolicyWarningType warningType,
+              final int warningValue,
+              @Nullable final PasswordPolicyErrorType errorType)
   {
     this(warningType, warningValue, errorType, false);
   }
@@ -213,8 +216,9 @@ public final class PasswordPolicyResponseControl
    *                       critical.
    */
   public PasswordPolicyResponseControl(
-              final PasswordPolicyWarningType warningType,
-              final int warningValue, final PasswordPolicyErrorType errorType,
+              @Nullable final PasswordPolicyWarningType warningType,
+              final int warningValue,
+              @Nullable final PasswordPolicyErrorType errorType,
               final boolean isCritical)
   {
     super(PASSWORD_POLICY_RESPONSE_OID, isCritical,
@@ -248,9 +252,9 @@ public final class PasswordPolicyResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         password policy response control.
    */
-  public PasswordPolicyResponseControl(final String oid,
+  public PasswordPolicyResponseControl(@NotNull final String oid,
                                        final boolean isCritical,
-                                       final ASN1OctetString value)
+                                       @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -374,9 +378,10 @@ public final class PasswordPolicyResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public PasswordPolicyResponseControl
-              decodeControl(final String oid, final boolean isCritical,
-                            final ASN1OctetString value)
+              decodeControl(@NotNull final String oid, final boolean isCritical,
+                            @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new PasswordPolicyResponseControl(oid, isCritical, value);
@@ -398,7 +403,9 @@ public final class PasswordPolicyResponseControl
    *                         decode the password policy response control
    *                         contained in the provided result.
    */
-  public static PasswordPolicyResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static PasswordPolicyResponseControl get(
+                     @NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(PASSWORD_POLICY_RESPONSE_OID);
@@ -432,10 +439,11 @@ public final class PasswordPolicyResponseControl
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
-  private static ASN1OctetString
-          encodeValue(final PasswordPolicyWarningType warningType,
-                      final int warningValue,
-                      final PasswordPolicyErrorType errorType)
+  @NotNull()
+  private static ASN1OctetString encodeValue(
+               @Nullable final PasswordPolicyWarningType warningType,
+               final int warningValue,
+               @Nullable final PasswordPolicyErrorType errorType)
   {
     final ArrayList<ASN1Element> valueElements = new ArrayList<>(2);
 
@@ -474,6 +482,7 @@ public final class PasswordPolicyResponseControl
    * @return  The warning type for this password policy response control, or
    *          {@code null} if there is no warning type.
    */
+  @Nullable()
   public PasswordPolicyWarningType getWarningType()
   {
     return warningType;
@@ -502,6 +511,7 @@ public final class PasswordPolicyResponseControl
    * @return  The error type for this password policy response control, or
    *          {@code null} if there is no error type.
    */
+  @Nullable()
   public PasswordPolicyErrorType getErrorType()
   {
     return errorType;
@@ -513,6 +523,7 @@ public final class PasswordPolicyResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_POLICY_RESPONSE.get();
@@ -524,7 +535,7 @@ public final class PasswordPolicyResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
 
     buffer.append("PasswordPolicyResponseControl(");

@@ -115,51 +115,51 @@ public abstract class CommandLineTool
 {
   // The argument used to indicate that the tool should append to the output
   // file rather than overwrite it.
-  private BooleanArgument appendToOutputFileArgument = null;
+  @Nullable private BooleanArgument appendToOutputFileArgument = null;
 
   // The argument used to request tool help.
-  private BooleanArgument helpArgument = null;
+  @Nullable private BooleanArgument helpArgument = null;
 
   // The argument used to request help about SASL authentication.
-  private BooleanArgument helpSASLArgument = null;
+  @Nullable private BooleanArgument helpSASLArgument = null;
 
   // The argument used to request help information about all of the subcommands.
-  private BooleanArgument helpSubcommandsArgument = null;
+  @Nullable private BooleanArgument helpSubcommandsArgument = null;
 
   // The argument used to request interactive mode.
-  private BooleanArgument interactiveArgument = null;
+  @Nullable private BooleanArgument interactiveArgument = null;
 
   // The argument used to indicate that output should be written to standard out
   // as well as the specified output file.
-  private BooleanArgument teeOutputArgument = null;
+  @Nullable private BooleanArgument teeOutputArgument = null;
 
   // The argument used to request the tool version.
-  private BooleanArgument versionArgument = null;
+  @Nullable private BooleanArgument versionArgument = null;
 
   // The argument used to specify the output file for standard output and
   // standard error.
-  private FileArgument outputFileArgument = null;
+  @Nullable private FileArgument outputFileArgument = null;
 
   // A list of arguments that can be used to enable SSL/TLS debugging.
-  private final List<BooleanArgument> enableSSLDebuggingArguments;
+  @NotNull private final List<BooleanArgument> enableSSLDebuggingArguments;
 
   // The password file reader for this tool.
-  private final PasswordFileReader passwordFileReader;
+  @NotNull private final PasswordFileReader passwordFileReader;
 
   // The print stream that was originally used for standard output.  It may not
   // be the current standard output stream if an output file has been
   // configured.
-  private final PrintStream originalOut;
+  @NotNull  private final PrintStream originalOut;
 
   // The print stream that was originally used for standard error.  It may not
   // be the current standard error stream if an output file has been configured.
-  private final PrintStream originalErr;
+  @NotNull private final PrintStream originalErr;
 
   // The print stream to use for messages written to standard output.
-  private volatile PrintStream out;
+  @NotNull private volatile PrintStream out;
 
   // The print stream to use for messages written to standard error.
-  private volatile PrintStream err;
+  @NotNull private volatile PrintStream err;
 
 
 
@@ -178,8 +178,8 @@ public abstract class CommandLineTool
    *                    or a custom output stream if the output should be sent
    *                    to an alternate location.
    */
-  public CommandLineTool(final OutputStream outStream,
-                         final OutputStream errStream)
+  public CommandLineTool(@Nullable final OutputStream outStream,
+                         @Nullable final OutputStream errStream)
   {
     if (outStream == null)
     {
@@ -226,7 +226,8 @@ public abstract class CommandLineTool
    *          {@link ResultCode#SUCCESS} if the tool completed its work
    *          successfully, or some other result if a problem occurred.
    */
-  public final ResultCode runTool(final String... args)
+  @NotNull()
+  public final ResultCode runTool(@Nullable final String... args)
   {
     final ArgumentParser parser;
     try
@@ -243,13 +244,17 @@ public abstract class CommandLineTool
         // arguments when run non-interactively.
         try
         {
-          parser.parse(args);
+          parser.parse(StaticUtils.NO_STRINGS);
         }
         catch (final Exception e)
         {
           Debug.debugException(e);
           exceptionFromParsingWithNoArgumentsExplicitlyProvided = true;
         }
+      }
+      else if (args == null)
+      {
+        parser.parse(StaticUtils.NO_STRINGS);
       }
       else
       {
@@ -604,9 +609,9 @@ public abstract class CommandLineTool
    *                                         an unnamed trailing argument.
    */
   private static void getToolInvocationProvidedArguments(
-                           final ArgumentParser parser,
-                           final Set<Argument> argumentsSetFromPropertiesFile,
-                           final List<ObjectPair<String,String>> argList)
+               @NotNull final ArgumentParser parser,
+               @NotNull final Set<Argument> argumentsSetFromPropertiesFile,
+               @NotNull final List<ObjectPair<String,String>> argList)
   {
     final String noValue = null;
     final SubCommand subCommand = parser.getSelectedSubCommand();
@@ -687,9 +692,9 @@ public abstract class CommandLineTool
    *                                         an unnamed trailing argument.
    */
   private static void getToolInvocationPropertiesFileArguments(
-                          final ArgumentParser parser,
-                          final Set<Argument> argumentsSetFromPropertiesFile,
-                          final List<ObjectPair<String,String>> argList)
+               @NotNull final ArgumentParser parser,
+               @NotNull final Set<Argument> argumentsSetFromPropertiesFile,
+               @NotNull final List<ObjectPair<String,String>> argList)
   {
     final ArgumentParser subCommandParser;
     final SubCommand subCommand = parser.getSelectedSubCommand();
@@ -771,8 +776,9 @@ public abstract class CommandLineTool
    *
    * @return  The sorted map of subcommands.
    */
+  @NotNull()
   private static TreeMap<String,SubCommand> getSortedSubCommands(
-                                                 final ArgumentParser parser)
+                      @NotNull final ArgumentParser parser)
   {
     final TreeMap<String,SubCommand> m = new TreeMap<>();
     for (final SubCommand sc : parser.getSubCommands())
@@ -791,7 +797,7 @@ public abstract class CommandLineTool
    * @param  parser  The argument parser used to process the provided set of
    *                 command-line arguments.
    */
-  private void displayExampleUsages(final ArgumentParser parser)
+  private void displayExampleUsages(@NotNull final ArgumentParser parser)
   {
     final LinkedHashMap<String[],String> examples;
     if ((parser != null) && (parser.getSelectedSubCommand() != null))
@@ -874,6 +880,7 @@ public abstract class CommandLineTool
    *
    * @return  The name for this tool.
    */
+  @NotNull()
   public abstract String getToolName();
 
 
@@ -887,6 +894,7 @@ public abstract class CommandLineTool
    *
    * @return  A human-readable description for this tool.
    */
+  @Nullable()
   public abstract String getToolDescription();
 
 
@@ -905,6 +913,7 @@ public abstract class CommandLineTool
    *          description paragraph (whose text is returned by the
    *          {@code getToolDescription} method) is needed.
    */
+  @Nullable()
   public List<String> getAdditionalDescriptionParagraphs()
   {
     return Collections.emptyList();
@@ -918,6 +927,7 @@ public abstract class CommandLineTool
    * @return  A version string for this tool, or {@code null} if none is
    *          available.
    */
+  @Nullable()
   public String getToolVersion()
   {
     return null;
@@ -971,6 +981,7 @@ public abstract class CommandLineTool
    *          the usage information for this tool, or {@code null} if trailing
    *          arguments are not supported.
    */
+  @Nullable()
   public String getTrailingArgumentsPlaceholder()
   {
     return null;
@@ -1044,8 +1055,9 @@ public abstract class CommandLineTool
    *                         obtaining the arguments that should be used to
    *                         run the tool.
    */
+  @Nullable()
   protected List<String> requestToolArgumentsInteractively(
-                              final ArgumentParser parser)
+                              @NotNull final ArgumentParser parser)
             throws LDAPException
   {
     // Fall back to using the LDAP SDK's default interactive mode processor.
@@ -1125,6 +1137,7 @@ public abstract class CommandLineTool
    *          the completion state for this tool, or {@code null} if no
    *          completion message is available.
    */
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return null;
@@ -1142,6 +1155,7 @@ public abstract class CommandLineTool
    * @throws ArgumentException  If there was a problem initializing the
    *                            parser for this tool.
    */
+  @NotNull()
   public final ArgumentParser createArgumentParser()
          throws ArgumentException
   {
@@ -1246,7 +1260,7 @@ public abstract class CommandLineTool
    * @param  helpSASLArgument  The argument that is used to retrieve usage
    *                           information about SASL authentication.
    */
-  void setHelpSASLArgument(final BooleanArgument helpSASLArgument)
+  void setHelpSASLArgument(@NotNull final BooleanArgument helpSASLArgument)
   {
     this.helpSASLArgument = helpSASLArgument;
   }
@@ -1262,7 +1276,7 @@ public abstract class CommandLineTool
    *                                     JVM SSL/TLS debugging.
    */
   protected void addEnableSSLDebuggingArgument(
-                      final BooleanArgument enableSSLDebuggingArgument)
+                      @NotNull final BooleanArgument enableSSLDebuggingArgument)
   {
     enableSSLDebuggingArguments.add(enableSSLDebuggingArgument);
   }
@@ -1278,7 +1292,9 @@ public abstract class CommandLineTool
    * @return  A set containing the long identifiers used for usage arguments
    *          injected by this class.
    */
-  static Set<String> getUsageArgumentIdentifiers(final CommandLineTool tool)
+  @NotNull()
+  static Set<String> getUsageArgumentIdentifiers(
+                          @NotNull final CommandLineTool tool)
   {
     final LinkedHashSet<String> ids =
          new LinkedHashSet<>(StaticUtils.computeMapCapacity(9));
@@ -1324,7 +1340,7 @@ public abstract class CommandLineTool
    *                             tool-specific arguments to the provided
    *                             argument parser.
    */
-  public abstract void addToolArguments(ArgumentParser parser)
+  public abstract void addToolArguments(@NotNull ArgumentParser parser)
          throws ArgumentException;
 
 
@@ -1355,6 +1371,7 @@ public abstract class CommandLineTool
    * @return  A result code that indicates whether the processing completed
    *          successfully.
    */
+  @NotNull()
   public abstract ResultCode doToolProcessing();
 
 
@@ -1405,7 +1422,7 @@ public abstract class CommandLineTool
    *                     {@code null} if the tool was interrupted before it
    *                     completed processing.
    */
-  protected void doShutdownHookProcessing(final ResultCode resultCode)
+  protected void doShutdownHookProcessing(@Nullable final ResultCode resultCode)
   {
     throw new LDAPSDKUsageException(
          ERR_COMMAND_LINE_TOOL_SHUTDOWN_HOOK_NOT_IMPLEMENTED.get(
@@ -1425,6 +1442,7 @@ public abstract class CommandLineTool
    *          information is available.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @Nullable()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     return null;
@@ -1438,6 +1456,7 @@ public abstract class CommandLineTool
    *
    * @return  The password file reader for this tool.
    */
+  @NotNull()
   public final PasswordFileReader getPasswordFileReader()
   {
     return passwordFileReader;
@@ -1450,6 +1469,7 @@ public abstract class CommandLineTool
    *
    * @return  The print stream that will be used for standard output.
    */
+  @NotNull()
   public final PrintStream getOut()
   {
     return out;
@@ -1465,6 +1485,7 @@ public abstract class CommandLineTool
    * @return  The print stream that may be used to write to the original
    *          standard output.
    */
+  @NotNull()
   public final PrintStream getOriginalOut()
   {
     return originalOut;
@@ -1484,7 +1505,7 @@ public abstract class CommandLineTool
    *              sequence.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
-  public final synchronized void out(final Object... msg)
+  public final synchronized void out(@NotNull final Object... msg)
   {
     write(out, 0, 0, msg);
   }
@@ -1513,7 +1534,7 @@ public abstract class CommandLineTool
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
   public final synchronized void wrapOut(final int indent, final int wrapColumn,
-                                         final Object... msg)
+                                         @NotNull final Object... msg)
   {
     write(out, indent, wrapColumn, msg);
   }
@@ -1552,7 +1573,7 @@ public abstract class CommandLineTool
                                           final int subsequentLineIndent,
                                           final int wrapColumn,
                                           final boolean endWithNewline,
-                                          final Object... msg)
+                                          @NotNull final Object... msg)
   {
     write(out, firstLineIndent, subsequentLineIndent, wrapColumn,
          endWithNewline, msg);
@@ -1565,6 +1586,7 @@ public abstract class CommandLineTool
    *
    * @return  The print stream that will be used for standard error.
    */
+  @NotNull()
   public final PrintStream getErr()
   {
     return err;
@@ -1580,6 +1602,7 @@ public abstract class CommandLineTool
    * @return  The print stream that may be used to write to the original
    *          standard error.
    */
+  @NotNull()
   public final PrintStream getOriginalErr()
   {
     return originalErr;
@@ -1599,7 +1622,7 @@ public abstract class CommandLineTool
    *              sequence.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
-  public final synchronized void err(final Object... msg)
+  public final synchronized void err(@NotNull final Object... msg)
   {
     write(err, 0, 0, msg);
   }
@@ -1628,7 +1651,7 @@ public abstract class CommandLineTool
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
   public final synchronized void wrapErr(final int indent, final int wrapColumn,
-                                         final Object... msg)
+                                         @NotNull final Object... msg)
   {
     write(err, indent, wrapColumn, msg);
   }
@@ -1654,7 +1677,8 @@ public abstract class CommandLineTool
    *                     followed by an end-of-line sequence.
    */
   private static void write(final PrintStream stream, final int indent,
-                            final int wrapColumn, final Object... msg)
+                            final int wrapColumn,
+                            @NotNull final Object... msg)
   {
     write(stream, indent, indent, wrapColumn, true, msg);
   }
@@ -1688,10 +1712,12 @@ public abstract class CommandLineTool
    *                               that line will be followed by an end-of-line
    *                               sequence.
    */
-  private static void write(final PrintStream stream, final int firstLineIndent,
+  private static void write(@NotNull final PrintStream stream,
+                            final int firstLineIndent,
                             final int subsequentLineIndent,
                             final int wrapColumn,
-                            final boolean endWithNewline, final Object... msg)
+                            final boolean endWithNewline,
+                            @NotNull final Object... msg)
   {
     final StringBuilder buffer = new StringBuilder();
     for (final Object o : msg)

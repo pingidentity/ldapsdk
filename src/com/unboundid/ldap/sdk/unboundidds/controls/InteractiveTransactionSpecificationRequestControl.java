@@ -51,6 +51,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartInteractiveTransactionExtendedResult;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -108,8 +109,9 @@ public final class InteractiveTransactionSpecificationRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.4) for the interactive transaction
    * specification request control.
    */
-  public static final String INTERACTIVE_TRANSACTION_SPECIFICATION_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.5.4";
+  @NotNull public static final String
+       INTERACTIVE_TRANSACTION_SPECIFICATION_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.5.4";
 
 
 
@@ -142,7 +144,7 @@ public final class InteractiveTransactionSpecificationRequestControl
 
 
   // The transaction ID for the associated transaction.
-  private final ASN1OctetString transactionID;
+  @NotNull private final ASN1OctetString transactionID;
 
   // Indicates whether the transaction should be aborted if the associated
   // operation does not complete successfully.
@@ -165,7 +167,7 @@ public final class InteractiveTransactionSpecificationRequestControl
    *                         extended operation.  It must not be {@code null}.
    */
   public InteractiveTransactionSpecificationRequestControl(
-              final ASN1OctetString transactionID)
+              @NotNull final ASN1OctetString transactionID)
   {
     this(transactionID, false, true);
   }
@@ -190,7 +192,8 @@ public final class InteractiveTransactionSpecificationRequestControl
    *                         the transaction.
    */
   public InteractiveTransactionSpecificationRequestControl(
-              final ASN1OctetString transactionID, final boolean abortOnFailure,
+              @NotNull final ASN1OctetString transactionID,
+              final boolean abortOnFailure,
               final boolean writeLock)
   {
     super(INTERACTIVE_TRANSACTION_SPECIFICATION_REQUEST_OID, true,
@@ -215,7 +218,7 @@ public final class InteractiveTransactionSpecificationRequestControl
    *                         control.
    */
   public InteractiveTransactionSpecificationRequestControl(
-              final Control control)
+              @NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -315,8 +318,9 @@ public final class InteractiveTransactionSpecificationRequestControl
    * @return  The ASN.1 octet string containing the encoded value for this
    *          control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                 final ASN1OctetString transactionID,
+                 @NotNull final ASN1OctetString transactionID,
                  final boolean abortOnFailure, final boolean writeLock)
   {
     Validator.ensureNotNull(transactionID);
@@ -344,6 +348,7 @@ public final class InteractiveTransactionSpecificationRequestControl
    *
    * @return  The transaction ID for the associated transaction.
    */
+  @NotNull()
   public ASN1OctetString getTransactionID()
   {
     return transactionID;
@@ -387,6 +392,7 @@ public final class InteractiveTransactionSpecificationRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_INTERACTIVE_TXN_REQUEST.get();
@@ -398,7 +404,7 @@ public final class InteractiveTransactionSpecificationRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InteractiveTransactionSpecificationRequestControl(" +
                   "transactionID='");

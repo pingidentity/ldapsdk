@@ -37,6 +37,8 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -219,10 +221,10 @@ public enum NamedCurve
 
 
   // The OID for this extended key usage ID value.
-  private final OID oid;
+  @NotNull private final OID oid;
 
   // The name for this extended key usage ID value.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -233,7 +235,7 @@ public enum NamedCurve
    *                    curve value.
    * @param  name       The name for this named curve value.
    */
-  NamedCurve(final String oidString, final String name)
+  NamedCurve(@NotNull final String oidString, @NotNull final String name)
   {
     this.name = name;
 
@@ -247,6 +249,7 @@ public enum NamedCurve
    *
    * @return  The OID for this named curve value.
    */
+  @NotNull()
   public OID getOID()
   {
     return oid;
@@ -259,6 +262,7 @@ public enum NamedCurve
    *
    * @return  The name for this named curve value.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -275,7 +279,8 @@ public enum NamedCurve
    * @return  The named curve value with the specified OID, or {@code null} if
    *          there is no value with the specified OID.
    */
-  public static NamedCurve forOID(final OID oid)
+  @Nullable()
+  public static NamedCurve forOID(@NotNull final OID oid)
   {
     for (final NamedCurve curve : values())
     {
@@ -300,7 +305,8 @@ public enum NamedCurve
    *          string representation of the OID if there is no value with that
    *          OID.
    */
-  public static String getNameOrOID(final OID oid)
+  @NotNull()
+  public static String getNameOrOID(@NotNull final OID oid)
   {
     final NamedCurve curve = forOID(oid);
     if (curve == null)
@@ -324,9 +330,10 @@ public enum NamedCurve
    * @return  The requested named curve, or {@code null} if no such curve is
    *          defined.
    */
-  public static NamedCurve forName(final String name)
+  @Nullable()
+  public static NamedCurve forName(@NotNull final String name)
   {
-    for (final NamedCurve namedCurve : NamedCurve.values())
+    for (final NamedCurve namedCurve : values())
     {
       if (namedCurve.name.equalsIgnoreCase(name) ||
            namedCurve.name().equalsIgnoreCase(name))

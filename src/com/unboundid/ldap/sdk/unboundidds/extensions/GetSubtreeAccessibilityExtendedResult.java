@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public final class GetSubtreeAccessibilityExtendedResult
    * The OID (1.3.6.1.4.1.30221.1.6.21) for the get subtree accessibility
    * extended result.
    */
-  public static final String GET_SUBTREE_ACCESSIBILITY_RESULT_OID =
+  @NotNull public static final String GET_SUBTREE_ACCESSIBILITY_RESULT_OID =
        "1.3.6.1.4.1.30221.1.6.21";
 
 
@@ -148,7 +150,8 @@ public final class GetSubtreeAccessibilityExtendedResult
 
 
   // A list of the subtree accessibility restrictions defined in the server.
-  private final List<SubtreeAccessibilityRestriction> accessibilityRestrictions;
+  @Nullable private final List<SubtreeAccessibilityRestriction>
+       accessibilityRestrictions;
 
 
 
@@ -163,7 +166,7 @@ public final class GetSubtreeAccessibilityExtendedResult
    *                         result.
    */
   public GetSubtreeAccessibilityExtendedResult(
-              final ExtendedResult extendedResult)
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -283,10 +286,12 @@ public final class GetSubtreeAccessibilityExtendedResult
    *                            available.
    */
   public GetSubtreeAccessibilityExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final Collection<SubtreeAccessibilityRestriction> restrictions,
-              final Control... responseControls)
+       @NotNull final ResultCode resultCode,
+       @Nullable final String diagnosticMessage,
+       @Nullable final String matchedDN,
+       @Nullable final String[] referralURLs,
+       @Nullable final Collection<SubtreeAccessibilityRestriction> restrictions,
+       @Nullable final Control... responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, encodeValue(restrictions), responseControls);
@@ -316,8 +321,9 @@ public final class GetSubtreeAccessibilityExtendedResult
    * @return  An ASN.1 octet string containing the properly-encoded value, or
    *          {@code null} if there should be no value.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(
-               final Collection<SubtreeAccessibilityRestriction> restrictions)
+       @Nullable final Collection<SubtreeAccessibilityRestriction> restrictions)
   {
     if (restrictions == null)
     {
@@ -360,6 +366,7 @@ public final class GetSubtreeAccessibilityExtendedResult
    *          {@code null} if no restriction data was included in the response
    *          from the server (e.g., because it was an error response).
    */
+  @Nullable()
   public List<SubtreeAccessibilityRestriction> getAccessibilityRestrictions()
   {
     return accessibilityRestrictions;
@@ -371,6 +378,7 @@ public final class GetSubtreeAccessibilityExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_GET_SUBTREE_ACCESSIBILITY.get();
@@ -382,7 +390,7 @@ public final class GetSubtreeAccessibilityExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetSubtreeAccessibilityExtendedResult(resultCode=");
     buffer.append(getResultCode());

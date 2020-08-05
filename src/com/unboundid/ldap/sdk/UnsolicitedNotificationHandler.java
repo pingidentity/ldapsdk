@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,6 +75,6 @@ public interface UnsolicitedNotificationHandler
    * @param  notification  The unsolicited notification that has been received
    *                       from the server.
    */
-  void handleUnsolicitedNotification(LDAPConnection connection,
-                                     ExtendedResult notification);
+  void handleUnsolicitedNotification(@NotNull LDAPConnection connection,
+                                     @NotNull ExtendedResult notification);
 }

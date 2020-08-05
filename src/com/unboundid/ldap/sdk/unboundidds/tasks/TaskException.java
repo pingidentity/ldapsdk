@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -75,7 +77,7 @@ public final class TaskException
    *
    * @param  message  The message to use for this task exception.
    */
-  public TaskException(final String message)
+  public TaskException(@NotNull final String message)
   {
     super(message);
   }
@@ -89,7 +91,8 @@ public final class TaskException
    * @param  cause    The underlying exception that triggered this task
    *                  exception.
    */
-  public TaskException(final String message, final Throwable cause)
+  public TaskException(@NotNull final String message,
+                       @Nullable final Throwable cause)
   {
     super(message, cause);
   }

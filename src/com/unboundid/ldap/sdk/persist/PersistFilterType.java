@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -123,7 +125,8 @@ public enum PersistFilterType
    * @return  The requested filter type, or {@code null} if no such type is
    *          defined.
    */
-  public static PersistFilterType forName(final String name)
+  @Nullable()
+  public static PersistFilterType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

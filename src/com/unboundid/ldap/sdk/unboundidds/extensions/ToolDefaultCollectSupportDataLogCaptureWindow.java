@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -78,8 +79,8 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
    * The singleton instance of this tool-default collect support data log
    * capture window object.
    */
-  private static final ToolDefaultCollectSupportDataLogCaptureWindow INSTANCE =
-       new ToolDefaultCollectSupportDataLogCaptureWindow();
+  @NotNull private static final ToolDefaultCollectSupportDataLogCaptureWindow
+       INSTANCE = new ToolDefaultCollectSupportDataLogCaptureWindow();
 
 
 
@@ -92,7 +93,7 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
 
   // An ASN.1 element that provides an encoded representation of this
   // tool-default collect support data log capture window.
-  private final ASN1Element encodedWindow;
+  @NotNull private final ASN1Element encodedWindow;
 
 
 
@@ -114,6 +115,7 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
    * @return  The singleton instance of this tool-default collect support data
    *          log capture window object.
    */
+  @NotNull()
   public static ToolDefaultCollectSupportDataLogCaptureWindow getInstance()
   {
     return INSTANCE;
@@ -134,8 +136,8 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
    *                         a valid tool-default collect support data log
    *                         capture window object.
    */
-  static ToolDefaultCollectSupportDataLogCaptureWindow
-              decodeInternal(final ASN1Element e)
+  static ToolDefaultCollectSupportDataLogCaptureWindow decodeInternal(
+              @NotNull final ASN1Element e)
          throws LDAPException
   {
     try
@@ -160,6 +162,7 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return encodedWindow;
@@ -171,7 +174,7 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ToolDefaultCollectSupportDataLogCaptureWindow()");
   }

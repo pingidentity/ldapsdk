@@ -41,6 +41,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -64,8 +66,9 @@ public abstract class NameResolver
    * The name of the system property that the JVM uses to specify how long (in
    * seconds) to cache the results of successful name service lookups.
    */
-  private static final String JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS =
-       "networkaddress.cache.ttl";
+  @NotNull private static final String
+       JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS =
+            "networkaddress.cache.ttl";
 
 
 
@@ -74,8 +77,9 @@ public abstract class NameResolver
    * seconds) to cache the results of unsuccessful name service lookups (that
    * is, lookups that return no mapping).
    */
-  private static final String JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS =
-       "networkaddress.cache.negative.ttl";
+  @NotNull private static final String
+       JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS =
+            "networkaddress.cache.negative.ttl";
 
 
 
@@ -111,7 +115,8 @@ public abstract class NameResolver
    * @throws  SecurityException  If a security manager prevents the name
    *                             resolution attempt.
    */
-  public InetAddress getByName(final String host)
+  @NotNull()
+  public InetAddress getByName(@Nullable final String host)
          throws UnknownHostException, SecurityException
   {
     return InetAddress.getByName(host);
@@ -141,7 +146,8 @@ public abstract class NameResolver
    * @throws  SecurityException  If a security manager prevents the name
    *                             resolution attempt.
    */
-  public InetAddress[] getAllByName(final String host)
+  @NotNull()
+  public InetAddress[] getAllByName(@Nullable final String host)
          throws UnknownHostException, SecurityException
   {
     return InetAddress.getAllByName(host);
@@ -159,7 +165,8 @@ public abstract class NameResolver
    *          textual representation of the IP address if the name cannot be
    *          determined.
    */
-  public String getHostName(final InetAddress inetAddress)
+  @NotNull()
+  public String getHostName(@NotNull final InetAddress inetAddress)
   {
     return inetAddress.getHostName();
   }
@@ -177,7 +184,8 @@ public abstract class NameResolver
    *          object, or a textual representation of the IP address if the name
    *          cannot be determined.
    */
-  public String getCanonicalHostName(final InetAddress inetAddress)
+  @NotNull()
+  public String getCanonicalHostName(@NotNull final InetAddress inetAddress)
   {
     return inetAddress.getCanonicalHostName();
   }
@@ -195,6 +203,7 @@ public abstract class NameResolver
    * @throws  SecurityException  If a security manager prevents the name
    *                             resolution attempt.
    */
+  @NotNull()
   public InetAddress getLocalHost()
          throws UnknownHostException, SecurityException
   {
@@ -209,6 +218,7 @@ public abstract class NameResolver
    *
    * @return  The loopback address for the system.
    */
+  @NotNull()
   public InetAddress getLoopbackAddress()
   {
     return InetAddress.getLoopbackAddress();
@@ -285,6 +295,7 @@ public abstract class NameResolver
    * @return  A string representation of this name resolver.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -301,5 +312,5 @@ public abstract class NameResolver
    * @param  buffer  A buffer to which the string representation should be
    *                 appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(@NotNull final StringBuilder buffer);
 }

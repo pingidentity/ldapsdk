@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.persist;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -58,7 +59,8 @@ public final class DefaultOIDAllocator
   /**
    * The singleton instance of this OID allocator.
    */
-  private static final DefaultOIDAllocator INSTANCE = new DefaultOIDAllocator();
+  @NotNull private static final DefaultOIDAllocator INSTANCE =
+       new DefaultOIDAllocator();
 
 
 
@@ -84,6 +86,7 @@ public final class DefaultOIDAllocator
    *
    * @return  The singleton instance of this OID allocator.
    */
+  @NotNull()
   public static DefaultOIDAllocator getInstance()
   {
     return INSTANCE;
@@ -95,7 +98,8 @@ public final class DefaultOIDAllocator
    * {@inheritDoc}
    */
   @Override()
-  public String allocateAttributeTypeOID(final String name)
+  @NotNull()
+  public String allocateAttributeTypeOID(@NotNull final String name)
   {
     return StaticUtils.toLowerCase(name) + "-oid";
   }
@@ -106,7 +110,8 @@ public final class DefaultOIDAllocator
    * {@inheritDoc}
    */
   @Override()
-  public String allocateObjectClassOID(final String name)
+  @NotNull()
+  public String allocateObjectClassOID(@NotNull final String name)
   {
     return StaticUtils.toLowerCase(name) + "-oid";
   }

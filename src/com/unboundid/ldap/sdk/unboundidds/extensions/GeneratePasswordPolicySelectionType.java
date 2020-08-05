@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -126,6 +127,7 @@ public enum GeneratePasswordPolicySelectionType
    *          or {@code null} if there is no selection type with the provided
    *          BER type.
    */
+  @Nullable()
   public static GeneratePasswordPolicySelectionType forType(final byte berType)
   {
     for (final GeneratePasswordPolicySelectionType t : values())

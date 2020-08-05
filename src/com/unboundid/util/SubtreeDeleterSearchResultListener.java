@@ -70,16 +70,16 @@ final class SubtreeDeleterSearchResultListener
 
 
   // A reference to the first exception caught during processing.
-  private final AtomicReference<LDAPException> firstException;
+  @NotNull private final AtomicReference<LDAPException> firstException;
 
   // The base DN for the associated search request.
-  private final DN searchBaseDN;
+  @NotNull private final DN searchBaseDN;
 
   // The filter for the associated search request.
-  private final Filter searchFilter;
+  @NotNull private final Filter searchFilter;
 
   // A set to be updated with the DNs of the entries returned from the search.
-  private final SortedSet<DN> dnSet;
+  @NotNull private final SortedSet<DN> dnSet;
 
 
 
@@ -95,9 +95,9 @@ final class SubtreeDeleterSearchResultListener
    *                       entries that are returned from the associated search.
    *                       It must not be {@code null}, and must be updatable.
    */
-  SubtreeDeleterSearchResultListener(final DN searchBaseDN,
-                                     final Filter searchFilter,
-                                     final SortedSet<DN> dnSet)
+  SubtreeDeleterSearchResultListener(@NotNull final DN searchBaseDN,
+                                     @NotNull final Filter searchFilter,
+                                     @NotNull final SortedSet<DN> dnSet)
   {
     this.searchBaseDN = searchBaseDN;
     this.searchFilter = searchFilter;
@@ -114,6 +114,7 @@ final class SubtreeDeleterSearchResultListener
    * @return  The first exception that was caught during processing, or
    *          {@code null} if no exception was caught during processing.
    */
+  @Nullable()
   LDAPException getFirstException()
   {
     return firstException.get();
@@ -125,7 +126,7 @@ final class SubtreeDeleterSearchResultListener
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     try
     {
@@ -145,7 +146,7 @@ final class SubtreeDeleterSearchResultListener
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     if (firstException.get() == null)
     {

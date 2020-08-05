@@ -38,6 +38,7 @@ package com.unboundid.ldap.matchingrules;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -56,7 +57,7 @@ public final class OctetStringMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final OctetStringMatchingRule INSTANCE =
+  @NotNull private static final OctetStringMatchingRule INSTANCE =
        new OctetStringMatchingRule();
 
 
@@ -64,7 +65,7 @@ public final class OctetStringMatchingRule
   /**
    * The name for the octetStringMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "octetStringMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME = "octetStringMatch";
 
 
 
@@ -72,7 +73,7 @@ public final class OctetStringMatchingRule
    * The name for the octetStringMatch equality matching rule, formatted in all
    * lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -80,14 +81,15 @@ public final class OctetStringMatchingRule
   /**
    * The OID for the octetStringMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.17";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.17";
 
 
 
   /**
    * The name for the octetStringOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_NAME = "octetStringOrderingMatch";
+  @NotNull public static final String ORDERING_RULE_NAME =
+       "octetStringOrderingMatch";
 
 
 
@@ -95,7 +97,7 @@ public final class OctetStringMatchingRule
    * The name for the octetStringOrderingMatch ordering matching rule, formatted
    * in all lowercase characters.
    */
-  static final String LOWER_ORDERING_RULE_NAME =
+  @NotNull static final String LOWER_ORDERING_RULE_NAME =
        StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
@@ -103,14 +105,15 @@ public final class OctetStringMatchingRule
   /**
    * The OID for the octetStringOrderingMatch ordering matching rule.
    */
-  public static final String ORDERING_RULE_OID = "2.5.13.18";
+  @NotNull public static final String ORDERING_RULE_OID = "2.5.13.18";
 
 
 
   /**
    * The name for the octetStringSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_NAME = "octetStringSubstringsMatch";
+  @NotNull public static final String SUBSTRING_RULE_NAME =
+       "octetStringSubstringsMatch";
 
 
 
@@ -118,7 +121,7 @@ public final class OctetStringMatchingRule
    * The name for the octetStringSubstringsMatch substring matching rule,
    * formatted in all lowercase characters.
    */
-  static final String LOWER_SUBSTRING_RULE_NAME =
+  @NotNull static final String LOWER_SUBSTRING_RULE_NAME =
        StaticUtils.toLowerCase(SUBSTRING_RULE_NAME);
 
 
@@ -126,14 +129,14 @@ public final class OctetStringMatchingRule
   /**
    * The OID for the octetStringSubstringMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_OID = "2.5.13.19";
+  @NotNull public static final String SUBSTRING_RULE_OID = "2.5.13.19";
 
 
 
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -5655018388491186342L;
+  @NotNull private static final long serialVersionUID = -5655018388491186342L;
 
 
 
@@ -152,6 +155,7 @@ public final class OctetStringMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static OctetStringMatchingRule getInstance()
   {
     return INSTANCE;
@@ -163,6 +167,7 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -174,6 +179,7 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -185,6 +191,7 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleName()
   {
     return ORDERING_RULE_NAME;
@@ -196,6 +203,7 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getOrderingMatchingRuleOID()
   {
     return ORDERING_RULE_OID;
@@ -207,6 +215,7 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleName()
   {
     return SUBSTRING_RULE_NAME;
@@ -218,6 +227,7 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleOID()
   {
     return SUBSTRING_RULE_OID;
@@ -229,7 +239,8 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
   {
     return value;
   }
@@ -240,8 +251,10 @@ public final class OctetStringMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
   {
     return value;
   }

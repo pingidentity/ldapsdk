@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,7 +76,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final String dn, final Attribute... attributes)
+  public ReadOnlyEntry(@NotNull final String dn,
+                       @NotNull final Attribute... attributes)
   {
     this(dn, null, attributes);
   }
@@ -90,8 +93,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final String dn, final Schema schema,
-                       final Attribute... attributes)
+  public ReadOnlyEntry(@NotNull final String dn, @Nullable final Schema schema,
+                       @NotNull final Attribute... attributes)
   {
     super(dn, schema, attributes);
   }
@@ -105,7 +108,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final DN dn, final Attribute... attributes)
+  public ReadOnlyEntry(@NotNull final DN dn,
+                       @NotNull final Attribute... attributes)
   {
     this(dn, null, attributes);
   }
@@ -121,8 +125,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final DN dn, final Schema schema,
-                       final Attribute... attributes)
+  public ReadOnlyEntry(@NotNull final DN dn, @Nullable final Schema schema,
+                       @NotNull final Attribute... attributes)
   {
     super(dn, schema, attributes);
   }
@@ -136,7 +140,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final String dn, final Collection<Attribute> attributes)
+  public ReadOnlyEntry(@NotNull final String dn,
+                       @NotNull final Collection<Attribute> attributes)
   {
     this(dn, null, attributes);
   }
@@ -152,8 +157,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final String dn, final Schema schema,
-                       final Collection<Attribute> attributes)
+  public ReadOnlyEntry(@NotNull final String dn, @Nullable final Schema schema,
+                       @NotNull final Collection<Attribute> attributes)
   {
     super(dn, schema, attributes);
   }
@@ -167,7 +172,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final DN dn, final Collection<Attribute> attributes)
+  public ReadOnlyEntry(@NotNull final DN dn,
+                       @NotNull final Collection<Attribute> attributes)
   {
     this(dn, null, attributes);
   }
@@ -183,8 +189,8 @@ public class ReadOnlyEntry
    * @param  attributes  The set of attributes for this entry.  It must not be
    *                     {@code null}.
    */
-  public ReadOnlyEntry(final DN dn, final Schema schema,
-                       final Collection<Attribute> attributes)
+  public ReadOnlyEntry(@NotNull final DN dn, @Nullable final Schema schema,
+                       @NotNull final Collection<Attribute> attributes)
   {
     super(dn, schema, attributes);
   }
@@ -196,7 +202,7 @@ public class ReadOnlyEntry
    *
    * @param  entry  The entry to use to create this read-only entry.
    */
-  public ReadOnlyEntry(final Entry entry)
+  public ReadOnlyEntry(@NotNull final Entry entry)
   {
     super(entry);
   }
@@ -212,7 +218,7 @@ public class ReadOnlyEntry
    * @throws  LDIFException  If the provided lines cannot be decoded as an entry
    *                         in LDIF format.
    */
-  public ReadOnlyEntry(final String... ldifLines)
+  public ReadOnlyEntry(@NotNull final String... ldifLines)
          throws LDIFException
   {
     this(null, ldifLines);
@@ -231,7 +237,8 @@ public class ReadOnlyEntry
    * @throws  LDIFException  If the provided lines cannot be decoded as an entry
    *                         in LDIF format.
    */
-  public ReadOnlyEntry(final Schema schema, final String... ldifLines)
+  public ReadOnlyEntry(@Nullable final Schema schema,
+                       @NotNull final String... ldifLines)
          throws LDIFException
   {
     super(schema, ldifLines);
@@ -249,7 +256,7 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setDN(final String dn)
+  public void setDN(@NotNull final String dn)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -267,7 +274,7 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setDN(final DN dn)
+  public void setDN(@NotNull final DN dn)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -287,7 +294,7 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean addAttribute(final Attribute attribute)
+  public boolean addAttribute(@NotNull final Attribute attribute)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -310,8 +317,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean addAttribute(final String attributeName,
-                              final String attributeValue)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final String attributeValue)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -334,8 +341,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean addAttribute(final String attributeName,
-                              final byte[] attributeValue)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final byte[] attributeValue)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -358,8 +365,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean addAttribute(final String attributeName,
-                              final String... attributeValues)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final String... attributeValues)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -382,8 +389,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean addAttribute(final String attributeName,
-                              final byte[]... attributeValues)
+  public boolean addAttribute(@NotNull final String attributeName,
+                              @NotNull final byte[]... attributeValues)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -404,7 +411,7 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean removeAttribute(final String attributeName)
+  public boolean removeAttribute(@NotNull final String attributeName)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -427,8 +434,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean removeAttributeValue(final String attributeName,
-                                      final String attributeValue)
+  public boolean removeAttributeValue(@NotNull final String attributeName,
+                                      @NotNull final String attributeValue)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -451,8 +458,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean removeAttributeValue(final String attributeName,
-                                      final byte[] attributeValue)
+  public boolean removeAttributeValue(@NotNull final String attributeName,
+                                      @NotNull final byte[] attributeValue)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -475,8 +482,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean removeAttributeValues(final String attributeName,
-                                       final String... attributeValues)
+  public boolean removeAttributeValues(@NotNull final String attributeName,
+                                       @NotNull final String... attributeValues)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -499,8 +506,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public boolean removeAttributeValues(final String attributeName,
-                                       final byte[]... attributeValues)
+  public boolean removeAttributeValues(@NotNull final String attributeName,
+                                       @NotNull final byte[]... attributeValues)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -519,7 +526,7 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setAttribute(final Attribute attribute)
+  public void setAttribute(@NotNull final Attribute attribute)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -540,8 +547,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setAttribute(final String attributeName,
-                           final String attributeValue)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final String attributeValue)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -562,8 +569,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setAttribute(final String attributeName,
-                           final byte[] attributeValue)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final byte[] attributeValue)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -584,8 +591,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setAttribute(final String attributeName,
-                           final String... attributeValues)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final String... attributeValues)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -606,8 +613,8 @@ public class ReadOnlyEntry
    *                                         read-only entry.
    */
   @Override()
-  public void setAttribute(final String attributeName,
-                           final byte[]... attributeValues)
+  public void setAttribute(@NotNull final String attributeName,
+                           @NotNull final byte[]... attributeValues)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();

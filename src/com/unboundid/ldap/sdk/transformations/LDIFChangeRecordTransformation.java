@@ -41,6 +41,8 @@ import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFReaderChangeRecordTranslator;
 import com.unboundid.ldif.LDIFWriterChangeRecordTranslator;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,5 +69,7 @@ public interface LDIFChangeRecordTransformation
    *          necessary, or {@code null} if the change record should be
    *          suppressed.
    */
-  LDIFChangeRecord transformChangeRecord(LDIFChangeRecord changeRecord);
+  @Nullable()
+  LDIFChangeRecord transformChangeRecord(
+                        @NotNull LDIFChangeRecord changeRecord);
 }

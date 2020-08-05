@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,7 +98,7 @@ public final class GetConfigurationExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.28) for the get configuration extended
    * request.
    */
-  public static final  String GET_CONFIG_REQUEST_OID =
+  @NotNull public static final String GET_CONFIG_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.28";
 
 
@@ -109,10 +111,10 @@ public final class GetConfigurationExtendedRequest
 
 
   // The type of configuration that should be retrieved.
-  private final GetConfigurationType configurationType;
+  @NotNull private final GetConfigurationType configurationType;
 
   // The name of the configuration file that should be retrieved.
-  private final String fileName;
+  @Nullable private final String fileName;
 
 
 
@@ -126,7 +128,7 @@ public final class GetConfigurationExtendedRequest
    * @throws LDAPException  If the provided request cannot be decoded as a get
    *                         configuration extended request.
    */
-  public GetConfigurationExtendedRequest(final ExtendedRequest r)
+  public GetConfigurationExtendedRequest(@NotNull final ExtendedRequest r)
        throws LDAPException
   {
     super(r);
@@ -194,8 +196,9 @@ public final class GetConfigurationExtendedRequest
    *                            no controls should be included in the request.
    */
   private GetConfigurationExtendedRequest(
-               final GetConfigurationType configurationType,
-               final String fileName, final Control... controls)
+               @NotNull final GetConfigurationType configurationType,
+               @Nullable final String fileName,
+               @Nullable final Control... controls)
   {
     super(GET_CONFIG_REQUEST_OID, encodeValue(configurationType, fileName),
          controls);
@@ -218,9 +221,10 @@ public final class GetConfigurationExtendedRequest
    * @return  The ASN.1 octet string containing the encoded representation of
    *          the provided information.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                      final GetConfigurationType configurationType,
-                      final String fileName)
+                      @NotNull final GetConfigurationType configurationType,
+                      @Nullable final String fileName)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(0);
     switch (configurationType)
@@ -255,9 +259,10 @@ public final class GetConfigurationExtendedRequest
    *
    * @return  The get configuration extended request that has been created.
    */
+  @NotNull()
   public static GetConfigurationExtendedRequest
                      createGetActiveConfigurationRequest(
-                          final Control... controls)
+                          @Nullable final Control... controls)
   {
     return new GetConfigurationExtendedRequest(GetConfigurationType.ACTIVE,
          null, controls);
@@ -277,9 +282,11 @@ public final class GetConfigurationExtendedRequest
    *
    * @return  The get configuration extended request that has been created.
    */
+  @NotNull()
   public static GetConfigurationExtendedRequest
                      createGetBaselineConfigurationRequest(
-                          final String fileName, final Control... controls)
+                          @NotNull final String fileName,
+                          @Nullable final Control... controls)
   {
     Validator.ensureNotNull(fileName);
 
@@ -301,9 +308,11 @@ public final class GetConfigurationExtendedRequest
    *
    * @return  The get configuration extended request that has been created.
    */
+  @NotNull()
   public static GetConfigurationExtendedRequest
                      createGetArchivedConfigurationRequest(
-                          final String fileName, final Control... controls)
+                          @NotNull final String fileName,
+                          @Nullable final Control... controls)
   {
     Validator.ensureNotNull(fileName);
 
@@ -318,6 +327,7 @@ public final class GetConfigurationExtendedRequest
    *
    * @return  The type of configuration file that should be requested.
    */
+  @NotNull()
   public GetConfigurationType getConfigurationType()
   {
     return configurationType;
@@ -333,6 +343,7 @@ public final class GetConfigurationExtendedRequest
    * @return  The name of the configuration file that should be requested, or
    *          {@code null} if this is not applicable.
    */
+  @Nullable()
   public String getFileName()
   {
     return fileName;
@@ -344,8 +355,9 @@ public final class GetConfigurationExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetConfigurationExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -358,6 +370,7 @@ public final class GetConfigurationExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetConfigurationExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -369,7 +382,9 @@ public final class GetConfigurationExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public GetConfigurationExtendedRequest duplicate(final Control[] controls)
+  @NotNull()
+  public GetConfigurationExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final GetConfigurationExtendedRequest r =
          new GetConfigurationExtendedRequest(configurationType, fileName,
@@ -384,6 +399,7 @@ public final class GetConfigurationExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_GET_CONFIG.get();
@@ -395,7 +411,7 @@ public final class GetConfigurationExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetConfigurationsExtendedRequest(configType=");
     buffer.append(configurationType.name());

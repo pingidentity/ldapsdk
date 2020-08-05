@@ -47,6 +47,8 @@ import java.util.StringTokenizer;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -77,7 +79,7 @@ public final class NumericGaugeMonitorEntry
   /**
    * The structural object class used in gauge monitor entries.
    */
-  static final String NUMERIC_GAUGE_MONITOR_OC =
+  @NotNull static final String NUMERIC_GAUGE_MONITOR_OC =
        "ds-numeric-gauge-monitor-entry";
 
 
@@ -90,19 +92,19 @@ public final class NumericGaugeMonitorEntry
 
 
   // The current value for the gauge.
-  private final Double currentValue;
+  @Nullable private final Double currentValue;
 
   // The maximum value observed for the gauge.
-  private final Double maximumValue;
+  @Nullable private final Double maximumValue;
 
   // The minimum value observed for the gauge.
-  private final Double minimumValue;
+  @Nullable private final Double minimumValue;
 
   // The current value for the gauge.
-  private final Double previousValue;
+  @Nullable private final Double previousValue;
 
   // The set of observed values for the gauge.
-  private final List<Double> observedValues;
+  @NotNull private final List<Double> observedValues;
 
 
 
@@ -112,7 +114,7 @@ public final class NumericGaugeMonitorEntry
    * @param  entry  The entry to be parsed as a numeric gauge monitor entry.  It
    *                must not be {@code null}.
    */
-  public NumericGaugeMonitorEntry(final Entry entry)
+  public NumericGaugeMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -155,6 +157,7 @@ public final class NumericGaugeMonitorEntry
    * @return  The current value for the gauge, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Double getCurrentValue()
   {
     return currentValue;
@@ -168,6 +171,7 @@ public final class NumericGaugeMonitorEntry
    * @return  The previous value for the gauge, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Double getPreviousValue()
   {
     return previousValue;
@@ -181,6 +185,7 @@ public final class NumericGaugeMonitorEntry
    * @return  The minimum value observed for the gauge, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Double getMinimumValue()
   {
     return minimumValue;
@@ -194,6 +199,7 @@ public final class NumericGaugeMonitorEntry
    * @return  The maximum value observed for the gauge, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Double getMaximumValue()
   {
     return maximumValue;
@@ -207,6 +213,7 @@ public final class NumericGaugeMonitorEntry
    * @return  The set of observed values for the gauge, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @NotNull()
   public List<Double> getObservedValues()
   {
     return observedValues;
@@ -218,6 +225,7 @@ public final class NumericGaugeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_NUMERIC_GAUGE_MONITOR_DISPNAME.get();
@@ -229,6 +237,7 @@ public final class NumericGaugeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_NUMERIC_GAUGE_MONITOR_DESC.get();
@@ -240,6 +249,7 @@ public final class NumericGaugeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final Map<String,MonitorAttribute> superAttributes =

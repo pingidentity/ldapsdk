@@ -93,17 +93,17 @@ public final class PasswordFileReader
 {
   // A list of passwords that will be tried as encryption keys if an encrypted
   // password file is encountered.
-  private final CopyOnWriteArrayList<char[]> encryptionPasswordCache;
+  @NotNull private final CopyOnWriteArrayList<char[]> encryptionPasswordCache;
 
   // The print stream that should be used as standard output of an encrypted
   // password file is encountered and it is necessary to prompt for the password
   // used as the encryption key.
-  private final PrintStream standardError;
+  @NotNull private final PrintStream standardError;
 
   // The print stream that should be used as standard output of an encrypted
   // password file is encountered and it is necessary to prompt for the password
   // used as the encryption key.
-  private final PrintStream standardOutput;
+  @NotNull private final PrintStream standardOutput;
 
 
 
@@ -132,8 +132,8 @@ public final class PasswordFileReader
    *                         used as the encryption key.  This must not be
    *                         {@code null}.
    */
-  public PasswordFileReader(final PrintStream standardOutput,
-                            final PrintStream standardError)
+  public PasswordFileReader(@NotNull final PrintStream standardOutput,
+                            @NotNull final PrintStream standardError)
   {
     Validator.ensureNotNullWithMessage(standardOutput,
          "PasswordFileReader.standardOutput must not be null.");
@@ -163,7 +163,8 @@ public final class PasswordFileReader
    * @throws  LDAPException  If the file does not exist, if it does not contain
    *                         exactly one line, or if that line is empty.
    */
-  public char[] readPassword(final String path)
+  @NotNull()
+  public char[] readPassword(@NotNull final String path)
          throws IOException, LDAPException
   {
     return readPassword(new File(path));
@@ -186,7 +187,8 @@ public final class PasswordFileReader
    * @throws  LDAPException  If the file does not exist, if it does not contain
    *                         exactly one line, or if that line is empty.
    */
-  public char[] readPassword(final File file)
+  @NotNull()
+  public char[] readPassword(@NotNull final File file)
          throws IOException, LDAPException
   {
     if (! file.exists())
@@ -295,6 +297,7 @@ public final class PasswordFileReader
    * @return  A list of the encryption passwords currently held in the cache, or
    *          an empty list if there are no cached passwords.
    */
+  @NotNull()
   public List<char[]> getCachedEncryptionPasswords()
   {
     final ArrayList<char[]> cacheCopy;
@@ -321,7 +324,8 @@ public final class PasswordFileReader
    *                             if an encrypted password file is encountered.
    *                             It must not be {@code null} or empty.
    */
-  public void addToEncryptionPasswordCache(final String encryptionPassword)
+  public void addToEncryptionPasswordCache(
+                   @NotNull final String encryptionPassword)
   {
     addToEncryptionPasswordCache(encryptionPassword.toCharArray());
   }
@@ -337,7 +341,8 @@ public final class PasswordFileReader
    *                             if an encrypted password file is encountered.
    *                             It must not be {@code null} or empty.
    */
-  public void addToEncryptionPasswordCache(final char[] encryptionPassword)
+  public void addToEncryptionPasswordCache(
+                   @NotNull final char[] encryptionPassword)
   {
     Validator.ensureNotNullWithMessage(encryptionPassword,
          "PasswordFileReader.addToEncryptionPasswordCache.encryptionPassword " +

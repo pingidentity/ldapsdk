@@ -40,6 +40,8 @@ package com.unboundid.ldap.listener;
 import com.unboundid.ldap.protocol.SearchResultEntryProtocolOp;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ObjectPair;
@@ -71,6 +73,8 @@ public interface SearchEntryTransformer
    *          of controls, or {@code null} to indicate that the entry should not
    *          be returned to the client.
    */
+  @Nullable()
   ObjectPair<SearchResultEntryProtocolOp,Control[]> transformEntry(
-       int messageID, SearchResultEntryProtocolOp entry, Control[] controls);
+       int messageID, @NotNull SearchResultEntryProtocolOp entry,
+       @NotNull Control[] controls);
 }

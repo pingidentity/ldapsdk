@@ -44,6 +44,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -109,7 +110,8 @@ public final class JoinRequestControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.9) for the join request control.
    */
-  public static final String JOIN_REQUEST_OID = "1.3.6.1.4.1.30221.2.5.9";
+  @NotNull public static final String JOIN_REQUEST_OID =
+       "1.3.6.1.4.1.30221.2.5.9";
 
 
 
@@ -121,7 +123,7 @@ public final class JoinRequestControl
 
 
   // The join request value for this control.
-  private final JoinRequestValue joinRequestValue;
+  @NotNull private final JoinRequestValue joinRequestValue;
 
 
 
@@ -130,7 +132,7 @@ public final class JoinRequestControl
    *
    * @param  joinRequestValue  The join request value to use for this control.
    */
-  public JoinRequestControl(final JoinRequestValue joinRequestValue)
+  public JoinRequestControl(@NotNull final JoinRequestValue joinRequestValue)
   {
     super(JOIN_REQUEST_OID, true,
           new ASN1OctetString(joinRequestValue.encode().encode()));
@@ -150,7 +152,7 @@ public final class JoinRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         virtual attributes only request control.
    */
-  public JoinRequestControl(final Control control)
+  public JoinRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -187,6 +189,7 @@ public final class JoinRequestControl
    *
    * @return  The join request value for this join request control.
    */
+  @NotNull()
   public JoinRequestValue getJoinRequestValue()
   {
     return joinRequestValue;
@@ -198,6 +201,7 @@ public final class JoinRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_JOIN_REQUEST.get();
@@ -209,7 +213,7 @@ public final class JoinRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("JoinRequestControl(value=");
     joinRequestValue.toString(buffer);

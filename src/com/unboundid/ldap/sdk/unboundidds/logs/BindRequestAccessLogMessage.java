@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -74,16 +76,16 @@ public class BindRequestAccessLogMessage
 
 
   // The type of authentication requested by the client.
-  private final BindRequestAuthenticationType authenticationType;
+  @Nullable private final BindRequestAuthenticationType authenticationType;
 
   // The DN of the user attempting to bind.
-  private final String dn;
+  @Nullable private final String dn;
 
   // The string representation of the protocol version.
-  private final String protocolVersion;
+  @Nullable private final String protocolVersion;
 
   // The name of the SASL mechanism requested by the client.
-  private final String saslMechanismName;
+  @Nullable private final String saslMechanismName;
 
 
 
@@ -97,7 +99,7 @@ public class BindRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public BindRequestAccessLogMessage(final String s)
+  public BindRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -112,7 +114,7 @@ public class BindRequestAccessLogMessage
    * @param  m  The log message to be parsed as a bind request access log
    *            message.
    */
-  public BindRequestAccessLogMessage(final LogMessage m)
+  public BindRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -141,6 +143,7 @@ public class BindRequestAccessLogMessage
    * @return  The type of authentication requested by the client, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final BindRequestAuthenticationType getAuthenticationType()
   {
     return authenticationType;
@@ -155,6 +158,7 @@ public class BindRequestAccessLogMessage
    * @return  The DN of the user attempting to bind, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public final String getDN()
   {
     return dn;
@@ -168,6 +172,7 @@ public class BindRequestAccessLogMessage
    * @return  The protocol version for the bind request, or {@code null} if it
    *          is not included in the log message.
    */
+  @Nullable()
   public final String getProtocolVersion()
   {
     return protocolVersion;
@@ -182,6 +187,7 @@ public class BindRequestAccessLogMessage
    * @return  The name of the requested SASL mechanism, or {@code null} if it
    *          is not included in the log message.
    */
+  @Nullable()
   public final String getSASLMechanismName()
   {
     return saslMechanismName;
@@ -193,6 +199,7 @@ public class BindRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.BIND;

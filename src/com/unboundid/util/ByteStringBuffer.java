@@ -71,14 +71,16 @@ public final class ByteStringBuffer
   /**
    * The pre-allocated array that will be used for a boolean value of "false".
    */
-  private static final byte[] FALSE_VALUE_BYTES = StaticUtils.getBytes("false");
+  @NotNull private static final byte[] FALSE_VALUE_BYTES =
+       StaticUtils.getBytes("false");
 
 
 
   /**
    * The pre-allocated array that will be used for a boolean value of "true".
    */
-  private static final byte[] TRUE_VALUE_BYTES = StaticUtils.getBytes("true");
+  @NotNull private static final byte[] TRUE_VALUE_BYTES =
+       StaticUtils.getBytes("true");
 
 
 
@@ -86,7 +88,7 @@ public final class ByteStringBuffer
    * A thread-local byte array that will be used for holding numeric values
    * to append to the buffer.
    */
-  private static final ThreadLocal<byte[]> TEMP_NUMBER_BUFFER =
+  @NotNull private static final ThreadLocal<byte[]> TEMP_NUMBER_BUFFER =
        new ThreadLocal<>();
 
 
@@ -99,7 +101,7 @@ public final class ByteStringBuffer
 
 
   // The backing array for this buffer.
-  private byte[] array;
+  @NotNull private byte[] array;
 
   // The length of the backing array.
   private int capacity;
@@ -141,6 +143,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer append(final boolean b)
   {
     if (b)
@@ -162,6 +165,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer append(final byte b)
   {
     ensureCapacity(endPos + 1);
@@ -181,7 +185,8 @@ public final class ByteStringBuffer
    *
    * @throws  NullPointerException  If the provided array is {@code null}.
    */
-  public ByteStringBuffer append(final byte[] b)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final byte[] b)
          throws NullPointerException
   {
     if (b == null)
@@ -212,7 +217,9 @@ public final class ByteStringBuffer
    *                                     if the offset plus the length is beyond
    *                                     the end of the provided array.
    */
-  public ByteStringBuffer append(final byte[] b, final int off, final int len)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final byte[] b, final int off,
+                                 final int len)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (b == null)
@@ -267,7 +274,8 @@ public final class ByteStringBuffer
    *
    * @throws  NullPointerException  If the provided byte string is {@code null}.
    */
-  public ByteStringBuffer append(final ByteString b)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final ByteString b)
          throws NullPointerException
   {
     if (b == null)
@@ -294,7 +302,8 @@ public final class ByteStringBuffer
    *
    * @throws  NullPointerException  If the provided buffer is {@code null}.
    */
-  public ByteStringBuffer append(final ByteStringBuffer buffer)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final ByteStringBuffer buffer)
          throws NullPointerException
   {
     if (buffer == null)
@@ -318,6 +327,7 @@ public final class ByteStringBuffer
    * @return  A reference to this buffer.
    */
   @Override()
+  @NotNull()
   public ByteStringBuffer append(final char c)
   {
     final byte b = (byte) (c & 0x7F);
@@ -345,7 +355,8 @@ public final class ByteStringBuffer
    *
    * @throws  NullPointerException  If the provided array is {@code null}.
    */
-  public ByteStringBuffer append(final char[] c)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final char[] c)
          throws NullPointerException
   {
     if (c == null)
@@ -377,7 +388,9 @@ public final class ByteStringBuffer
    *                                     if the offset plus the length is beyond
    *                                     the end of the provided array.
    */
-  public ByteStringBuffer append(final char[] c, final int off, final int len)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final char[] c, final int off,
+                                 final int len)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (c == null)
@@ -449,7 +462,8 @@ public final class ByteStringBuffer
    *                                {@code null}.
    */
   @Override()
-  public ByteStringBuffer append(final CharSequence s)
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final CharSequence s)
          throws NullPointerException
   {
     final String str = s.toString();
@@ -477,7 +491,8 @@ public final class ByteStringBuffer
    *                                     character sequence.
    */
   @Override()
-  public ByteStringBuffer append(final CharSequence s, final int start,
+  @NotNull()
+  public ByteStringBuffer append(@NotNull final CharSequence s, final int start,
                                  final int end)
          throws NullPointerException, IndexOutOfBoundsException
   {
@@ -542,6 +557,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer append(final int i)
   {
     final int length = getBytes(i);
@@ -557,6 +573,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer append(final long l)
   {
     final int length = getBytes(l);
@@ -576,6 +593,7 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
+  @NotNull()
   public ByteStringBuffer insert(final int pos, final boolean b)
          throws  IndexOutOfBoundsException
   {
@@ -602,6 +620,7 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
+  @NotNull ()
   public ByteStringBuffer insert(final int pos, final byte b)
          throws IndexOutOfBoundsException
   {
@@ -650,7 +669,8 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
-  public ByteStringBuffer insert(final int pos, final byte[] b)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos, @NotNull final byte[] b)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (b == null)
@@ -687,8 +707,9 @@ public final class ByteStringBuffer
    *                                     the offset plus the length is beyond
    *                                     the end of the provided array.
    */
-  public ByteStringBuffer insert(final int pos, final byte[] b, final int off,
-                                 final int len)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos, @NotNull final byte[] b,
+                                 final int off, final int len)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (b == null)
@@ -757,12 +778,13 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    *
-   * @throws  NullPointerException  If the provided buffer is {@code null}.
+   * @throws  NullPointerException  If the provided byte string is {@code null}.
    *
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
-  public ByteStringBuffer insert(final int pos, final ByteString b)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos, @NotNull final ByteString b)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (b == null)
@@ -793,7 +815,9 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
-  public ByteStringBuffer insert(final int pos, final ByteStringBuffer buffer)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos,
+                                 @NotNull final ByteStringBuffer buffer)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (buffer == null)
@@ -820,6 +844,7 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
+  @NotNull()
   public ByteStringBuffer insert(final int pos, final char c)
          throws IndexOutOfBoundsException
   {
@@ -877,7 +902,8 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
-  public ByteStringBuffer insert(final int pos, final char[] c)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos, @NotNull final char[] c)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (c == null)
@@ -912,8 +938,9 @@ public final class ByteStringBuffer
    *                                     the offset plus the length is beyond
    *                                     the end of the provided array.
    */
-  public ByteStringBuffer insert(final int pos, final char[] c, final int off,
-                                 final int len)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos, @NotNull final char[] c,
+                                 final int off, final int len)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (c == null)
@@ -944,7 +971,8 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
-  public ByteStringBuffer insert(final int pos, final CharSequence s)
+  @NotNull()
+  public ByteStringBuffer insert(final int pos, @NotNull final CharSequence s)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (s == null)
@@ -995,6 +1023,7 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
+  @NotNull()
   public ByteStringBuffer insert(final int pos, final int i)
          throws IndexOutOfBoundsException
   {
@@ -1015,6 +1044,7 @@ public final class ByteStringBuffer
    * @throws  IndexOutOfBoundsException  If the specified position is negative
    *                                     or greater than the current length.
    */
+  @NotNull()
   public ByteStringBuffer insert(final int pos, final long l)
          throws IndexOutOfBoundsException
   {
@@ -1036,6 +1066,7 @@ public final class ByteStringBuffer
    *                                     bytes currently contained in this
    *                                     buffer.
    */
+  @NotNull()
   public ByteStringBuffer delete(final int len)
          throws IndexOutOfBoundsException
   {
@@ -1059,6 +1090,7 @@ public final class ByteStringBuffer
    *                                     length is greater than the end of the
    *                                     content in the buffer.
    */
+  @NotNull()
   public ByteStringBuffer delete(final int off, final int len)
          throws IndexOutOfBoundsException
   {
@@ -1123,6 +1155,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer set(final boolean b)
   {
     if (b)
@@ -1144,6 +1177,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer set(final byte b)
   {
     endPos = 0;
@@ -1162,7 +1196,8 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
-  public ByteStringBuffer set(final byte[] b)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final byte[] b)
          throws NullPointerException
   {
     if (b == null)
@@ -1195,7 +1230,9 @@ public final class ByteStringBuffer
    *                                     if the offset plus the length is beyond
    *                                     the end of the provided array.
    */
-  public ByteStringBuffer set(final byte[] b, final int off, final int len)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final byte[] b, final int off,
+                              final int len)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (b == null)
@@ -1246,7 +1283,8 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
-  public ByteStringBuffer set(final ByteString b)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final ByteString b)
          throws NullPointerException
   {
     if (b == null)
@@ -1275,7 +1313,8 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
-  public ByteStringBuffer set(final ByteStringBuffer buffer)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final ByteStringBuffer buffer)
          throws NullPointerException
   {
     if (buffer == null)
@@ -1299,6 +1338,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer set(final char c)
   {
     endPos = 0;
@@ -1318,7 +1358,8 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
-  public ByteStringBuffer set(final char[] c)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final char[] c)
          throws NullPointerException
   {
     if (c == null)
@@ -1352,7 +1393,9 @@ public final class ByteStringBuffer
    *                                     if the offset plus the length is beyond
    *                                     the end of the provided array.
    */
-  public ByteStringBuffer set(final char[] c, final int off, final int len)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final char[] c, final int off,
+                              final int len)
          throws NullPointerException, IndexOutOfBoundsException
   {
     if (c == null)
@@ -1403,7 +1446,8 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
-  public ByteStringBuffer set(final CharSequence s)
+  @NotNull()
+  public ByteStringBuffer set(@NotNull final CharSequence s)
          throws NullPointerException
   {
     if (s == null)
@@ -1428,6 +1472,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer set(final int i)
   {
     final int length = getBytes(i);
@@ -1443,6 +1488,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer set(final long l)
   {
     final int length = getBytes(l);
@@ -1456,6 +1502,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer clear()
   {
     endPos = 0;
@@ -1473,6 +1520,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer clear(final boolean zero)
   {
     endPos = 0;
@@ -1493,6 +1541,7 @@ public final class ByteStringBuffer
    *
    * @return  The current backing array for this buffer.
    */
+  @NotNull()
   public byte[] getBackingArray()
   {
     return array;
@@ -1640,6 +1689,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @NotNull()
   public ByteStringBuffer trimToSize()
   {
     if (endPos != capacity)
@@ -1707,6 +1757,7 @@ public final class ByteStringBuffer
    *                                     length is greater than or equal to the
    *                                     length of the buffer.
    */
+  @NotNull()
   public byte[] bytesAt(final int offset, final int length)
          throws IndexOutOfBoundsException
   {
@@ -1744,7 +1795,7 @@ public final class ByteStringBuffer
    * @return  {@code true} if this buffer starts with the specified set of
    *          bytes, or {@code false} if not.
    */
-  public boolean startsWith(final byte[] bytes)
+  public boolean startsWith(@NotNull final byte[] bytes)
   {
     if (bytes.length > endPos)
     {
@@ -1772,7 +1823,7 @@ public final class ByteStringBuffer
    * @return  {@code true} if this buffer ends with the specified set of bytes,
    *          or {@code false} if not.
    */
-  public boolean endsWith(final byte[] bytes)
+  public boolean endsWith(@NotNull final byte[] bytes)
   {
     if (bytes.length > endPos)
     {
@@ -1797,6 +1848,7 @@ public final class ByteStringBuffer
    *
    * @return  A byte array containing the content from this buffer.
    */
+  @NotNull()
   public byte[] toByteArray()
   {
     final byte[] newArray = new byte[endPos];
@@ -1811,6 +1863,7 @@ public final class ByteStringBuffer
    *
    * @return  A byte string with the content from this buffer.
    */
+  @NotNull()
   public ByteString toByteString()
   {
     return new ASN1OctetString(toByteArray());
@@ -1824,6 +1877,7 @@ public final class ByteStringBuffer
    *
    * @return  An input stream that may be used to read content from this buffer.
    */
+  @NotNull()
   public InputStream asInputStream()
   {
     return new ByteArrayInputStream(array, 0, endPos);
@@ -1839,7 +1893,7 @@ public final class ByteStringBuffer
    *
    * @throws  IOException  If an unexpected problem occurs.
    */
-  public void readFrom(final File file)
+  public void readFrom(@NotNull final File file)
          throws IOException
   {
     try (FileInputStream inputStream = new FileInputStream(file))
@@ -1859,7 +1913,7 @@ public final class ByteStringBuffer
    *
    * @throws  IOException  If an unexpected problem occurs.
    */
-  public void readFrom(final InputStream inputStream)
+  public void readFrom(@NotNull final InputStream inputStream)
          throws IOException
   {
     final int initialEndPos = endPos;
@@ -1905,7 +1959,7 @@ public final class ByteStringBuffer
    * @throws  IOException  If a problem occurs while writing to the provided
    *                       output stream.
    */
-  public void write(final OutputStream outputStream)
+  public void write(@NotNull final OutputStream outputStream)
          throws IOException
   {
     outputStream.write(array, 0, endPos);
@@ -2143,7 +2197,7 @@ public final class ByteStringBuffer
    *          buffer, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -2186,6 +2240,7 @@ public final class ByteStringBuffer
    *
    * @return  A duplicate of this byte string buffer.
    */
+  @NotNull()
   public ByteStringBuffer duplicate()
   {
     final ByteStringBuffer newBuffer = new ByteStringBuffer(endPos);
@@ -2200,6 +2255,7 @@ public final class ByteStringBuffer
    * @return  A string representation of the contents for this buffer.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return StaticUtils.toUTF8String(array, 0, endPos);

@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -102,7 +104,7 @@ public final class SoftDeletedEntryAccessRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.24) for the soft-deleted entry access
    * request control.
    */
-  public static final String SOFT_DELETED_ENTRY_ACCESS_REQUEST_OID =
+  @NotNull public static final String SOFT_DELETED_ENTRY_ACCESS_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.24";
 
 
@@ -207,7 +209,7 @@ public final class SoftDeletedEntryAccessRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         soft-deleted entry access request control.
    */
-  public SoftDeletedEntryAccessRequestControl(final Control control)
+  public SoftDeletedEntryAccessRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -288,6 +290,7 @@ public final class SoftDeletedEntryAccessRequestControl
    *          value of a soft-deleted entry access request control, or
    *          {@code null} if no value is needed for the control.
    */
+  @Nullable()
   private static ASN1OctetString encodeValue(
                       final boolean includeNonSoftDeletedEntries,
                       final boolean returnEntriesInUndeletedForm)
@@ -358,6 +361,7 @@ public final class SoftDeletedEntryAccessRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SOFT_DELETED_ACCESS_REQUEST.get();
@@ -369,7 +373,7 @@ public final class SoftDeletedEntryAccessRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SoftDeletedEntryAccessRequestControl(isCritical=");
     buffer.append(isCritical());

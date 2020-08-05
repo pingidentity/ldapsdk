@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -288,7 +290,7 @@ public final class UniquenessRequestControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.52) for the uniqueness request control.
    */
-  public static final String UNIQUENESS_REQUEST_OID =
+  @NotNull public static final String UNIQUENESS_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.52";
 
 
@@ -364,30 +366,31 @@ public final class UniquenessRequestControl
 
   // An optional filter that should be used in the course of identifying
   // uniqueness conflicts.
-  private final Filter filter;
+  @Nullable private final Filter filter;
 
   // A potentially-empty set of attribute types that should be checked for
   // uniqueness conflicts.
-  private final Set<String> attributeTypes;
+  @NotNull private final Set<String> attributeTypes;
 
   // An optional base DN to use when checking for conflicts.
-  private final String baseDN;
+  @Nullable private final String baseDN;
 
   // A value that will be used to correlate this request control with its
   // corresponding response control.
-  private final String uniquenessID;
+  @NotNull private final String uniquenessID;
 
   // The behavior that the server should exhibit if multiple attribute types
   // are configured.
-  private final UniquenessMultipleAttributeBehavior multipleAttributeBehavior;
+  @NotNull private final UniquenessMultipleAttributeBehavior
+       multipleAttributeBehavior;
 
   // The level of validation that the server should perform before processing
   // the associated change.
-  private final UniquenessValidationLevel postCommitValidationLevel;
+  @NotNull private final UniquenessValidationLevel postCommitValidationLevel;
 
   // The level of validation that the server should perform after processing the
   // associated change.
-  private final UniquenessValidationLevel preCommitValidationLevel;
+  @NotNull private final UniquenessValidationLevel preCommitValidationLevel;
 
 
 
@@ -407,8 +410,8 @@ public final class UniquenessRequestControl
    *                         a valid uniqueness request control.
    */
   public UniquenessRequestControl(final boolean isCritical,
-              final String uniquenessID,
-              final UniquenessRequestControlProperties properties)
+              @Nullable final String uniquenessID,
+              @NotNull final UniquenessRequestControlProperties properties)
          throws LDAPException
   {
     this((uniquenessID == null
@@ -426,19 +429,19 @@ public final class UniquenessRequestControl
    * the two versions), and with the additional constraint that the uniqueness
    * ID must not be {@code null}.
    *
-   * @param  isCritical    Indicates whether the control should be considered
-   *                       critical.
    * @param  uniquenessID  A value that will be used to correlate this request
    *                       control with its corresponding response control.  It
    *                       must not be {@code null}.
    * @param  properties    The set of properties for this control.  It must not
    *                       be {@code null}.
+   * @param  isCritical    Indicates whether the control should be considered
+   *                       critical.
    *
    * @throws  LDAPException  If the provided properties cannot be used to create
    *                         a valid uniqueness request control.
    */
-  private UniquenessRequestControl(final String uniquenessID,
-               final UniquenessRequestControlProperties properties,
+  private UniquenessRequestControl(@NotNull final String uniquenessID,
+               @NotNull final UniquenessRequestControlProperties properties,
                final boolean isCritical)
           throws LDAPException
   {
@@ -478,8 +481,9 @@ public final class UniquenessRequestControl
    *
    * @return  The encoded value that was created.
    */
-  private static ASN1OctetString encodeValue(final String uniquenessID,
-                      final UniquenessRequestControlProperties properties)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String uniquenessID,
+       @NotNull final UniquenessRequestControlProperties properties)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(8);
 
@@ -556,7 +560,7 @@ public final class UniquenessRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         valid uniqueness request control.
    */
-  public UniquenessRequestControl(final Control control)
+  public UniquenessRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -704,6 +708,7 @@ public final class UniquenessRequestControl
    *
    * @return  The uniqueness identifier for this control.
    */
+  @NotNull()
   public String getUniquenessID()
   {
     return uniquenessID;
@@ -719,6 +724,7 @@ public final class UniquenessRequestControl
    *          uniqueness conflicts, or an empty set if only a filter should be
    *          used to identify conflicts.
    */
+  @NotNull()
   public Set<String> getAttributeTypes()
   {
     return attributeTypes;
@@ -733,6 +739,7 @@ public final class UniquenessRequestControl
    * @return  The behavior that the server should exhibit if multiple attribute
    *          types are configured.
    */
+  @NotNull()
   public UniquenessMultipleAttributeBehavior getMultipleAttributeBehavior()
   {
     return multipleAttributeBehavior;
@@ -748,6 +755,7 @@ public final class UniquenessRequestControl
    *          uniqueness conflicts, or {@code null} if the server should search
    *          below all public naming contexts.
    */
+  @Nullable()
   public String getBaseDN()
   {
     return baseDN;
@@ -762,6 +770,7 @@ public final class UniquenessRequestControl
    * @return  A filter that will be used to identify uniqueness conflicts, or
    *          {@code null} if no filter has been defined.
    */
+  @Nullable()
   public Filter getFilter()
   {
     return filter;
@@ -790,6 +799,7 @@ public final class UniquenessRequestControl
    *
    * @return  The pre-commit validation level.
    */
+  @NotNull()
   public UniquenessValidationLevel getPreCommitValidationLevel()
   {
     return preCommitValidationLevel;
@@ -804,6 +814,7 @@ public final class UniquenessRequestControl
    *
    * @return  The post-commit validation level.
    */
+  @NotNull()
   public UniquenessValidationLevel getPostCommitValidationLevel()
   {
     return postCommitValidationLevel;
@@ -815,6 +826,7 @@ public final class UniquenessRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_UNIQUENESS_REQ_CONTROL_NAME.get();
@@ -826,7 +838,7 @@ public final class UniquenessRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UniquenessRequestControl(isCritical=");
     buffer.append(isCritical());

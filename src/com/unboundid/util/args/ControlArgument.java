@@ -59,6 +59,8 @@ import com.unboundid.ldap.sdk.experimental.
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -105,7 +107,7 @@ public final class ControlArgument
   /**
    * A map of human-readable names to the corresponding numeric OIDs.
    */
-  private static final Map<String,String> OIDS_BY_NAME;
+  @NotNull private static final Map<String,String> OIDS_BY_NAME;
   static
   {
     final HashMap<String,String> oidsByName =
@@ -337,13 +339,13 @@ public final class ControlArgument
 
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The list of default values for this argument.
-  private final List<Control> defaultValues;
+  @Nullable private final List<Control> defaultValues;
 
   // The set of values assigned to this argument.
-  private final List<Control> values;
+  @NotNull private final List<Control> values;
 
 
 
@@ -364,8 +366,9 @@ public final class ControlArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public ControlArgument(final Character shortIdentifier,
-                         final String longIdentifier, final String description)
+  public ControlArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 0, null, description);
@@ -399,11 +402,12 @@ public final class ControlArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public ControlArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
+  public ControlArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired,
                          final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description)
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -440,11 +444,13 @@ public final class ControlArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public ControlArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
+  public ControlArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired,
                          final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description, final Control defaultValue)
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
+                         @Nullable final Control defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
@@ -483,12 +489,13 @@ public final class ControlArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public ControlArgument(final Character shortIdentifier,
-                         final String longIdentifier, final boolean isRequired,
+  public ControlArgument(@Nullable final Character shortIdentifier,
+                         @Nullable final String longIdentifier,
+                         final boolean isRequired,
                          final int maxOccurrences,
-                         final String valuePlaceholder,
-                         final String description,
-                         final List<Control> defaultValues)
+                         @Nullable final String valuePlaceholder,
+                         @NotNull final String description,
+                         @Nullable final List<Control> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -518,7 +525,7 @@ public final class ControlArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private ControlArgument(final ControlArgument source)
+  private ControlArgument(@NotNull final ControlArgument source)
   {
     super(source);
 
@@ -536,6 +543,7 @@ public final class ControlArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
+  @Nullable()
   public List<Control> getDefaultValues()
   {
     return defaultValues;
@@ -551,7 +559,7 @@ public final class ControlArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -562,7 +570,7 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     String oid = null;
@@ -674,6 +682,7 @@ public final class ControlArgument
    *          provided, or {@code null} if there is no value and no default
    *          value.
    */
+  @Nullable()
   public Control getValue()
   {
     if (values.isEmpty())
@@ -702,6 +711,7 @@ public final class ControlArgument
    * @return  The set of values for this argument, or the default values if none
    *          were provided.
    */
+  @NotNull()
   public List<Control> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
@@ -718,6 +728,7 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     final List<Control> controls;
@@ -789,6 +800,7 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_CONTROL_TYPE_NAME.get();
@@ -800,6 +812,7 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     return INFO_CONTROL_CONSTRAINTS.get();
@@ -823,6 +836,7 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ControlArgument getCleanCopy()
   {
     return new ControlArgument(this);
@@ -834,43 +848,40 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (values != null)
+    final StringBuilder buffer = new StringBuilder();
+    for (final Control c : values)
     {
-      final StringBuilder buffer = new StringBuilder();
-      for (final Control c : values)
+      argStrings.add(getIdentifierString());
+
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED***");
-          continue;
-        }
-
-        buffer.setLength(0);
-        buffer.append(c.getOID());
-        buffer.append(':');
-        buffer.append(c.isCritical());
-
-        if (c.hasValue())
-        {
-          final byte[] valueBytes = c.getValue().getValue();
-          if (StaticUtils.isPrintableString(valueBytes))
-          {
-            buffer.append(':');
-            buffer.append(c.getValue().stringValue());
-          }
-          else
-          {
-            buffer.append("::");
-            Base64.encode(valueBytes, buffer);
-          }
-        }
-
-        argStrings.add(buffer.toString());
+        argStrings.add("***REDACTED***");
+        continue;
       }
+
+      buffer.setLength(0);
+      buffer.append(c.getOID());
+      buffer.append(':');
+      buffer.append(c.isCritical());
+
+      if (c.hasValue())
+      {
+        final byte[] valueBytes = c.getValue().getValue();
+        if (StaticUtils.isPrintableString(valueBytes))
+        {
+          buffer.append(':');
+          buffer.append(c.getValue().stringValue());
+        }
+        else
+        {
+          buffer.append("::");
+          Base64.encode(valueBytes, buffer);
+        }
+      }
+
+      argStrings.add(buffer.toString());
     }
   }
 
@@ -880,7 +891,7 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ControlArgument(");
     appendBasicToStringInfo(buffer);

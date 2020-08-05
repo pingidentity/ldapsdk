@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -153,6 +155,7 @@ public enum TransactionSettingsBackendLockBehavior
    * @return  The backend lock behavior value with the specified integer value,
    *          or {@code null} if there is no such backend lock behavior value.
    */
+  @Nullable()
   public static TransactionSettingsBackendLockBehavior
                      valueOf(final int intValue)
   {
@@ -179,8 +182,9 @@ public enum TransactionSettingsBackendLockBehavior
    * @return  The requested transaction settings backend lock behavior, or
    *          {@code null} if no such behavior is defined.
    */
+  @Nullable()
   public static TransactionSettingsBackendLockBehavior forName(
-                                                            final String name)
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

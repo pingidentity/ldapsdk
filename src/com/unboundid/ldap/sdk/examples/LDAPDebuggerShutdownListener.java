@@ -41,6 +41,7 @@ import java.util.logging.Handler;
 
 import com.unboundid.ldap.listener.LDAPListener;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -57,10 +58,10 @@ final class LDAPDebuggerShutdownListener
       extends Thread
 {
   // The log handler that will be closed.
-  private final Handler logHandler;
+  @NotNull private final Handler logHandler;
 
   // The LDAP listener that will be closed.
-  private final LDAPListener listener;
+  @NotNull private final LDAPListener listener;
 
 
 
@@ -71,8 +72,8 @@ final class LDAPDebuggerShutdownListener
    * @param  listener    The LDAP listener to be shut down.
    * @param  logHandler  The log handler to be closed.
    */
-  LDAPDebuggerShutdownListener(final LDAPListener listener,
-                               final Handler logHandler)
+  LDAPDebuggerShutdownListener(@NotNull final LDAPListener listener,
+                               @NotNull final Handler logHandler)
   {
     this.listener   = listener;
     this.logHandler = logHandler;

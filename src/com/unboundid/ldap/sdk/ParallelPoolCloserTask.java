@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import java.util.logging.Level;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 
 
 
@@ -55,7 +56,7 @@ final class ParallelPoolCloserTask
   private final boolean unbind;
 
   // The connection to be closed.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
 
 
@@ -66,7 +67,8 @@ final class ParallelPoolCloserTask
    * @param  unbind       Indicates whether to try to send an unbind request to
    *                      the server before closing the connection.
    */
-  ParallelPoolCloserTask(final LDAPConnection connection, final boolean unbind)
+  ParallelPoolCloserTask(@NotNull final LDAPConnection connection,
+                         final boolean unbind)
   {
     this.connection = connection;
     this.unbind     = unbind;

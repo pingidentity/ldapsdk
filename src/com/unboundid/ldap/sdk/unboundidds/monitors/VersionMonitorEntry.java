@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public final class VersionMonitorEntry
   /**
    * The structural object class used in version monitor entries.
    */
-  protected static final String VERSION_MONITOR_OC =
+  @NotNull protected static final String VERSION_MONITOR_OC =
        "ds-version-monitor-entry";
 
 
@@ -111,126 +113,127 @@ public final class VersionMonitorEntry
   /**
    * The name of the attribute used to provide the server build ID.
    */
-  private static final String ATTR_BUILD_ID = "buildID";
+  @NotNull private static final String ATTR_BUILD_ID = "buildID";
 
 
 
   /**
    * The name of the attribute used to provide the server promoted build number.
    */
-  private static final String ATTR_BUILD_NUMBER = "buildNumber";
+  @NotNull private static final String ATTR_BUILD_NUMBER = "buildNumber";
 
 
 
   /**
    * The name of the attribute used to provide a compact server version string.
    */
-  private static final String ATTR_COMPACT_VERSION = "compactVersion";
+  @NotNull private static final String ATTR_COMPACT_VERSION = "compactVersion";
 
 
 
   /**
    * The name of the attribute used to provide the list of bugfix IDs.
    */
-  private static final String ATTR_FIX_IDS = "fixIDs";
+  @NotNull private static final String ATTR_FIX_IDS = "fixIDs";
 
 
 
   /**
    * The name of the attribute used to provide a full server version string.
    */
-  private static final String ATTR_FULL_VERSION = "fullVersion";
+  @NotNull private static final String ATTR_FULL_VERSION = "fullVersion";
 
 
 
   /**
    * The name of the attribute used to hold the Groovy library version.
    */
-  private static final String ATTR_GROOVY_VERSION = "groovyVersion";
+  @NotNull private static final String ATTR_GROOVY_VERSION = "groovyVersion";
 
 
 
   /**
    * The name of the attribute used to hold the Berkeley DB JE library version.
    */
-  private static final String ATTR_JE_VERSION = "jeVersion";
+  @NotNull private static final String ATTR_JE_VERSION = "jeVersion";
 
 
 
   /**
    * The name of the attribute used to hold the jzlib library version.
    */
-  private static final String ATTR_JZLIB_VERSION = "jzlibVersion";
+  @NotNull private static final String ATTR_JZLIB_VERSION = "jzlibVersion";
 
 
 
   /**
    * The name of the attribute used to hold the LDAP SDK library version.
    */
-  private static final String ATTR_LDAP_SDK_VERSION = "ldapSDKVersion";
+  @NotNull private static final String ATTR_LDAP_SDK_VERSION = "ldapSDKVersion";
 
 
 
   /**
    * The name of the attribute used to provide the major version number.
    */
-  private static final String ATTR_MAJOR_VERSION = "majorVersion";
+  @NotNull private static final String ATTR_MAJOR_VERSION = "majorVersion";
 
 
 
   /**
    * The name of the attribute used to provide the minor version number.
    */
-  private static final String ATTR_MINOR_VERSION = "minorVersion";
+  @NotNull private static final String ATTR_MINOR_VERSION = "minorVersion";
 
 
 
   /**
    * The name of the attribute used to provide the point version number.
    */
-  private static final String ATTR_POINT_VERSION = "pointVersion";
+  @NotNull private static final String ATTR_POINT_VERSION = "pointVersion";
 
 
 
   /**
    * The name of the attribute used to provide the product name.
    */
-  private static final String ATTR_PRODUCT_NAME = "productName";
+  @NotNull private static final String ATTR_PRODUCT_NAME = "productName";
 
 
 
   /**
    * The name of the attribute used to provide the source revision identifier.
    */
-  private static final String ATTR_REVISION_ID = "revisionID";
+  @NotNull private static final String ATTR_REVISION_ID = "revisionID";
 
 
 
   /**
    * The name of the attribute used to provide the source revision number.
    */
-  private static final String ATTR_REVISION_NUMBER = "revisionNumber";
+  @NotNull private static final String ATTR_REVISION_NUMBER = "revisionNumber";
 
 
 
   /**
    * The name of the attribute used to hold the server SDK library version.
    */
-  private static final String ATTR_SERVER_SDK_VERSION = "serverSDKVersion";
+  @NotNull private static final String ATTR_SERVER_SDK_VERSION =
+       "serverSDKVersion";
 
 
 
   /**
    * The name of the attribute used to provide the short product name.
    */
-  private static final String ATTR_SHORT_NAME = "shortName";
+  @NotNull private static final String ATTR_SHORT_NAME = "shortName";
 
 
 
   /**
    * The name of the attribute used to hold the server SNMP4J library version.
    */
-  private static final String ATTR_SNMP4J_VERSION = "snmp4jVersion";
+  @NotNull private static final String ATTR_SNMP4J_VERSION = "snmp4jVersion";
 
 
 
@@ -238,7 +241,8 @@ public final class VersionMonitorEntry
    * The name of the attribute used to hold the server SNMP4J agent library
    * version.
    */
-  private static final String ATTR_SNMP4J_AGENT_VERSION = "snmp4jAgentVersion";
+  @NotNull private static final String ATTR_SNMP4J_AGENT_VERSION =
+       "snmp4jAgentVersion";
 
 
 
@@ -246,7 +250,7 @@ public final class VersionMonitorEntry
    * The name of the attribute used to hold the server SNMP4J AgentX library
    * version.
    */
-  private static final String ATTR_SNMP4J_AGENTX_VERSION =
+  @NotNull private static final String ATTR_SNMP4J_AGENTX_VERSION =
        "snmp4jAgentXVersion";
 
 
@@ -254,7 +258,8 @@ public final class VersionMonitorEntry
   /**
    * The name of the attribute used to provide the server's version qualifier.
    */
-  private static final String ATTR_VERSION_QUALIFIER = "versionQualifier";
+  @NotNull private static final String ATTR_VERSION_QUALIFIER =
+       "versionQualifier";
 
 
 
@@ -266,68 +271,68 @@ public final class VersionMonitorEntry
 
 
   // The server build number.
-  private final Long buildNumber;
+  @Nullable private final Long buildNumber;
 
   // The server major version number.
-  private final Long majorVersion;
+  @Nullable private final Long majorVersion;
 
   // The server minor version number.
-  private final Long minorVersion;
+  @Nullable private final Long minorVersion;
 
   // The server point version number.
-  private final Long pointVersion;
+  @Nullable private final Long pointVersion;
 
   // The server source revision number.
-  private final Long revisionNumber;
+  @Nullable private final Long revisionNumber;
 
   // The server build ID.
-  private final String buildID;
+  @Nullable private final String buildID;
 
   // The compact server version string.
-  private final String compactVersion;
+  @Nullable private final String compactVersion;
 
   // The list of bugfix IDs.
-  private final String fixIDs;
+  @Nullable private final String fixIDs;
 
   // The Groovy library version.
-  private final String groovyVersion;
+  @Nullable private final String groovyVersion;
 
   // The full server version string.
-  private final String fullVersion;
+  @Nullable private final String fullVersion;
 
   // The Berkeley DB JE library version.
-  private final String jeVersion;
+  @Nullable private final String jeVersion;
 
   // The jzlib library version.
-  private final String jzlibVersion;
+  @Nullable private final String jzlibVersion;
 
   // The LDAP SDK library version.
-  private final String ldapSDKVersion;
+  @Nullable private final String ldapSDKVersion;
 
   // The server product name.
-  private final String productName;
+  @Nullable private final String productName;
 
   // A string that identifies the source revision from which the server was
   // built.
-  private final String revisionID;
+  @Nullable private final String revisionID;
 
   // The server SDK library version.
-  private final String serverSDKVersion;
+  @Nullable private final String serverSDKVersion;
 
   // The server short product name.
-  private final String shortName;
+  @Nullable private final String shortName;
 
   // The SNMP4J library version.
-  private final String snmp4jVersion;
+  @Nullable private final String snmp4jVersion;
 
   // The SNMP4J agent library version.
-  private final String snmp4jAgentVersion;
+  @Nullable private final String snmp4jAgentVersion;
 
   // The SNMP4J AgentX library version.
-  private final String snmp4jAgentXVersion;
+  @Nullable private final String snmp4jAgentXVersion;
 
   // The server version qualifier string.
-  private final String versionQualifier;
+  @Nullable private final String versionQualifier;
 
 
 
@@ -337,7 +342,7 @@ public final class VersionMonitorEntry
    * @param  entry  The entry to be parsed as a version monitor entry.  It must
    *                not be {@code null}.
    */
-  public VersionMonitorEntry(final Entry entry)
+  public VersionMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -372,6 +377,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server build ID string, or {@code null} if it was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public String getBuildID()
   {
     return buildID;
@@ -385,6 +391,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server promoted build number, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getBuildNumber()
   {
     return buildNumber;
@@ -399,6 +406,7 @@ public final class VersionMonitorEntry
    * @return  A compact representation of the Directory Server version string,
    *          or {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getCompactVersion()
   {
     return compactVersion;
@@ -414,6 +422,7 @@ public final class VersionMonitorEntry
    *          included in the Directory Server, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getFixIDs()
   {
     return fixIDs;
@@ -427,6 +436,7 @@ public final class VersionMonitorEntry
    * @return  The full Directory Server version string, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public String getFullVersion()
   {
     return fullVersion;
@@ -440,6 +450,7 @@ public final class VersionMonitorEntry
    * @return  The Groovy library version string, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getGroovyVersion()
   {
     return groovyVersion;
@@ -453,6 +464,7 @@ public final class VersionMonitorEntry
    * @return  The Berkeley DB Java Edition library version string, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getBerkeleyDBJEVersion()
   {
     return jeVersion;
@@ -466,6 +478,7 @@ public final class VersionMonitorEntry
    * @return  The jzlib library version string, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getJZLibVersion()
   {
     return jzlibVersion;
@@ -479,6 +492,7 @@ public final class VersionMonitorEntry
    * @return  The UnboundID LDAP SDK for Java library version string, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getLDAPSDKVersion()
   {
     return ldapSDKVersion;
@@ -492,6 +506,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server major version number, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMajorVersion()
   {
     return majorVersion;
@@ -505,6 +520,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server minor version number, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMinorVersion()
   {
     return minorVersion;
@@ -518,6 +534,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server point version number, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getPointVersion()
   {
     return pointVersion;
@@ -532,6 +549,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server product name, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getProductName()
   {
     return productName;
@@ -551,6 +569,7 @@ public final class VersionMonitorEntry
    *               system might not use numeric revision identifiers.
    */
   @Deprecated()
+  @Nullable()
   public Long getRevisionNumber()
   {
     return revisionNumber;
@@ -565,6 +584,7 @@ public final class VersionMonitorEntry
    * @return  A string that identifies the source revision from which the server
    *          was built.
    */
+  @Nullable()
   public String getRevisionID()
   {
     return revisionID;
@@ -578,6 +598,7 @@ public final class VersionMonitorEntry
    * @return  The UnboundID Server SDK library version string, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public String getServerSDKVersion()
   {
     return serverSDKVersion;
@@ -592,6 +613,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server short product name, or {@code null} if it was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public String getShortProductName()
   {
     return shortName;
@@ -605,6 +627,7 @@ public final class VersionMonitorEntry
    * @return  The SNMP4J library version string, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getSNMP4JVersion()
   {
     return snmp4jVersion;
@@ -618,6 +641,7 @@ public final class VersionMonitorEntry
    * @return  The SNMP4J agent library version string, or {@code null} if it was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public String getSNMP4JAgentVersion()
   {
     return snmp4jAgentVersion;
@@ -631,6 +655,7 @@ public final class VersionMonitorEntry
    * @return  The SNMP4J AgentX library version string, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public String getSNMP4JAgentXVersion()
   {
     return snmp4jAgentXVersion;
@@ -644,6 +669,7 @@ public final class VersionMonitorEntry
    * @return  The Directory Server version qualifier string, or {@code null} if
    *          it was not included in the monitor entry.
    */
+  @Nullable()
   public String getVersionQualifier()
   {
     return versionQualifier;
@@ -655,6 +681,7 @@ public final class VersionMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_VERSION_MONITOR_DISPNAME.get();
@@ -666,6 +693,7 @@ public final class VersionMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_VERSION_MONITOR_DESC.get();
@@ -677,6 +705,7 @@ public final class VersionMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

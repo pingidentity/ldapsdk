@@ -58,6 +58,8 @@ import com.unboundid.ldap.sdk.SASLBindRequest;
 import com.unboundid.ldap.sdk.ToCodeArgHelper;
 import com.unboundid.ldap.sdk.ToCodeHelper;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -125,7 +127,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * The name for the UnboundID externally-processed authentication SASL
    * mechanism.
    */
-  public static final String
+  @NotNull public static final String
        UNBOUNDID_EXTERNALLY_PROCESSED_AUTH_MECHANISM_NAME =
             "UNBOUNDID-EXTERNALLY-PROCESSED-AUTHENTICATION";
 
@@ -200,7 +202,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
 
 
   // The encoded SASL credentials for this bind request.
-  private volatile ASN1OctetString encodedCredentials;
+  @Nullable private volatile ASN1OctetString encodedCredentials;
 
   // Indicates whether the external authentication processing involved a
   // password.
@@ -219,21 +221,21 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
 
   // A map of additional properties that should be recorded in the server's
   // access log.
-  private final Map<String,String> additionalAccessLogProperties;
+  @NotNull private final Map<String,String> additionalAccessLogProperties;
 
   // The authentication ID that identifies the user for whom the external
   // authentication processing was performed.
-  private final String authenticationID;
+  @NotNull private final String authenticationID;
 
   // The IPv4 or IPv6 address of the end client, if available.
-  private final String endClientIPAddress;
+  @Nullable private final String endClientIPAddress;
 
   // The reason that the external authentication attempt was considered a
   // failure.
-  private final String externalAuthFailureReason;
+  @Nullable private final String externalAuthFailureReason;
 
   // The name of the mechanism used for the external authentication attempt.
-  private final String externalMechanismName;
+  @NotNull private final String externalMechanismName;
 
 
 
@@ -291,14 +293,15 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    *                                        needed.
    */
   public UnboundIDExternallyProcessedAuthenticationBindRequest(
-              final String authenticationID, final String externalMechanismName,
+              @NotNull final String authenticationID,
+              @NotNull final String externalMechanismName,
               final boolean externalAuthWasSuccessful,
-              final String externalAuthFailureReason,
+              @Nullable final String externalAuthFailureReason,
               final boolean externalAuthWasPasswordBased,
               final boolean externalAuthWasSecure,
-              final String endClientIPAddress,
-              final Map<String,String> additionalAccessLogProperties,
-              final Control... controls)
+              @Nullable final String endClientIPAddress,
+              @Nullable final Map<String,String> additionalAccessLogProperties,
+              @Nullable final Control... controls)
   {
     super(controls);
 
@@ -346,9 +349,11 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    *                         am UNBOUNDID-EXTERNALLY-PROCESSED-AUTHENTICATION
    *                         bind request
    */
+  @NotNull()
   public static UnboundIDExternallyProcessedAuthenticationBindRequest
-              decodeSASLCredentials(final ASN1OctetString saslCredentials,
-                                    final Control... controls)
+              decodeSASLCredentials(
+                   @NotNull final ASN1OctetString saslCredentials,
+                   @Nullable final Control... controls)
          throws LDAPException
   {
     Validator.ensureNotNull(saslCredentials);
@@ -458,6 +463,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * @return  The authentication ID that identifies the user for whom the
    *          external authentication processing was performed.
    */
+  @NotNull()
   public String getAuthenticationID()
   {
     return authenticationID;
@@ -472,6 +478,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * @return  The name of the mechanism used for the external authentication
    *          attempt.
    */
+  @NotNull()
   public String getExternalMechanismName()
   {
     return externalMechanismName;
@@ -500,6 +507,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * @return  The reason that the external authentication attempt was considered
    *          a failure, or {@code null} if no failure reason is available.
    */
+  @Nullable()
   public String getExternalAuthenticationFailureReason()
   {
     return externalAuthFailureReason;
@@ -543,6 +551,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    *          external authentication processing, or {@code null} if this is not
    *          available.
    */
+  @Nullable()
   public String getEndClientIPAddress()
   {
     return endClientIPAddress;
@@ -558,6 +567,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    *          server's access log for the external authentication attempt, or an
    *          empty map if there are no additional log properties.
    */
+  @NotNull()
   public Map<String,String> getAdditionalAccessLogProperties()
   {
     return additionalAccessLogProperties;
@@ -569,6 +579,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return UNBOUNDID_EXTERNALLY_PROCESSED_AUTH_MECHANISM_NAME;
@@ -583,6 +594,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * @return  An encoded representation of the SASL credentials for this bind
    *          request.
    */
+  @NotNull()
   public ASN1OctetString getEncodedCredentials()
   {
     if (encodedCredentials == null)
@@ -648,7 +660,9 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     messageID = InternalSDKHelper.nextMessageID(connection);
@@ -673,6 +687,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDExternallyProcessedAuthenticationBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -684,8 +699,9 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDExternallyProcessedAuthenticationBindRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final UnboundIDExternallyProcessedAuthenticationBindRequest bindRequest =
          new UnboundIDExternallyProcessedAuthenticationBindRequest(
@@ -705,8 +721,9 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public UnboundIDExternallyProcessedAuthenticationBindRequest getRebindRequest(
-              final String host, final int port)
+              @NotNull final String host, final int port)
   {
     return duplicate();
   }
@@ -717,7 +734,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("UnboundIDExternallyProcessedAuthenticationBindRequest(" +
          "authenticationID='");
@@ -798,7 +815,8 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the map of additional log properties.

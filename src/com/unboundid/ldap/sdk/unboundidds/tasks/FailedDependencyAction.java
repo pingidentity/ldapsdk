@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -85,7 +87,7 @@ public enum FailedDependencyAction
 
 
   // The name of this failed dependency action.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -94,7 +96,7 @@ public enum FailedDependencyAction
    *
    * @param  name  The name of the failed dependency action to create.
    */
-  FailedDependencyAction(final String name)
+  FailedDependencyAction(@NotNull final String name)
   {
     this.name = name;
   }
@@ -106,6 +108,7 @@ public enum FailedDependencyAction
    *
    * @return  The name of this failed dependency action.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -122,7 +125,8 @@ public enum FailedDependencyAction
    * @return  The requested failed dependency action, or {@code null} if there
    *          is no action with the given name.
    */
-  public static FailedDependencyAction forName(final String name)
+  @Nullable()
+  public static FailedDependencyAction forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -145,6 +149,7 @@ public enum FailedDependencyAction
    * @return  A string representation of this failed dependency action.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

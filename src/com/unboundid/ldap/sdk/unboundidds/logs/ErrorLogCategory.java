@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -238,7 +240,8 @@ public enum ErrorLogCategory
    * @return  The requested error log category, or {@code null} if no such
    *          category is defined.
    */
-  public static ErrorLogCategory forName(final String name)
+  @Nullable()
+  public static ErrorLogCategory forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

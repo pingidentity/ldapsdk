@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             RevokeTOTPSharedSecretExtendedRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -90,26 +92,26 @@ public final class GenerateTOTPSharedSecret
 {
   // Indicates that the tool should interactively prompt for the static password
   // for the user for whom the TOTP secret is to be generated.
-  private BooleanArgument promptForUserPassword = null;
+  @Nullable private BooleanArgument promptForUserPassword = null;
 
   // Indicates that the tool should revoke all existing TOTP shared secrets for
   // the user.
-  private BooleanArgument revokeAll = null;
+  @Nullable private BooleanArgument revokeAll = null;
 
   // The path to a file containing the static password for the user for whom the
   // TOTP secret is to be generated.
-  private FileArgument userPasswordFile = null;
+  @Nullable private FileArgument userPasswordFile = null;
 
   // The username for the user for whom the TOTP shared secret is to be
   // generated.
-  private StringArgument authenticationID = null;
+  @Nullable private StringArgument authenticationID = null;
 
   // The TOTP shared secret to revoke.
-  private StringArgument revoke = null;
+  @Nullable private StringArgument revoke = null;
 
   // The static password for the user for whom the TOTP shared sec ret is to be
   // generated.
-  private StringArgument userPassword = null;
+  @Nullable private StringArgument userPassword = null;
 
 
 
@@ -118,7 +120,7 @@ public final class GenerateTOTPSharedSecret
    *
    * @param  args  The command-line arguments provided to this program.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -142,8 +144,9 @@ public final class GenerateTOTPSharedSecret
    *          code other than {@link ResultCode#SUCCESS} should be considered a
    *          failure.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final GenerateTOTPSharedSecret tool =
          new GenerateTOTPSharedSecret(out, err);
@@ -160,8 +163,8 @@ public final class GenerateTOTPSharedSecret
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public GenerateTOTPSharedSecret(final OutputStream out,
-                                  final OutputStream err)
+  public GenerateTOTPSharedSecret(@Nullable final OutputStream out,
+                                  @Nullable final OutputStream err)
   {
     super(out, err);
   }
@@ -172,6 +175,7 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "generate-totp-shared-secret";
@@ -183,6 +187,7 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_GEN_TOTP_SECRET_TOOL_DESC.get();
@@ -194,6 +199,7 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -315,7 +321,7 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     // Create the authentication ID argument, which will identify the target
@@ -391,6 +397,7 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Establish a connection to the Directory Server.
@@ -587,6 +594,7 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

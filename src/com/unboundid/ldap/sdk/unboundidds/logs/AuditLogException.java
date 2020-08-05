@@ -43,6 +43,8 @@ import java.util.List;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -76,7 +78,7 @@ public final class AuditLogException
 
 
   // The malformed log message that triggered this exception.
-  private final List<String> logMessageLines;
+  @NotNull private final List<String> logMessageLines;
 
 
 
@@ -89,8 +91,8 @@ public final class AuditLogException
    * @param  explanation      A message explaining the problem that occurred.
    *                          It must not be {@code null}.
    */
-  public AuditLogException(final List<String> logMessageLines,
-                           final String explanation)
+  public AuditLogException(@NotNull final List<String> logMessageLines,
+                           @NotNull final String explanation)
   {
     this(logMessageLines, explanation, null);
   }
@@ -108,8 +110,9 @@ public final class AuditLogException
    * @param  cause            An underlying exception that triggered this
    *                          exception.
    */
-  public AuditLogException(final List<String> logMessageLines,
-                           final String explanation, final Throwable cause)
+  public AuditLogException(@NotNull final List<String> logMessageLines,
+                           @NotNull final String explanation,
+                           @Nullable final Throwable cause)
   {
     super(explanation, cause);
 
@@ -130,6 +133,7 @@ public final class AuditLogException
    *          triggered this exception, or an empty list if no log message lines
    *          are available.
    */
+  @NotNull()
   public List<String> getLogMessageLines()
   {
     return logMessageLines;

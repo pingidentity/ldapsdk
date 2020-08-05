@@ -43,6 +43,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.unboundid.util.NotNull;
+
 
 
 /**
@@ -104,7 +106,7 @@ public @interface LDAPSetter
    *
    * @return  The encoder class for this method.
    */
-  Class<? extends ObjectEncoder> encoderClass()
+  @NotNull Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
 
 
@@ -120,5 +122,5 @@ public @interface LDAPSetter
    *          attribute name will be assumed to match the method name minus the
    *          initial "set".
    */
-  String attribute() default "";
+  @NotNull String attribute() default "";
 }

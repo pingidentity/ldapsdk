@@ -45,6 +45,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +104,7 @@ public final class OneTimePassword
    * The name of the MAC algorithm that will be used to perform HMAC-SHA-1
    * processing.
    */
-  private static final String HMAC_ALGORITHM_SHA_1 = "HmacSHA1";
+  @NotNull private static final String HMAC_ALGORITHM_SHA_1 = "HmacSHA1";
 
 
 
@@ -111,7 +112,7 @@ public final class OneTimePassword
    * The name of the secret key spec algorithm that will be used to construct a
    * secret key from the raw bytes that comprise it.
    */
-  private static final String KEY_ALGORITHM_RAW = "RAW";
+  @NotNull private static final String KEY_ALGORITHM_RAW = "RAW";
 
 
 
@@ -140,7 +141,9 @@ public final class OneTimePassword
    * @throws  LDAPException  If an unexpected problem is encountered while
    *                         attempting to generate the one-time password.
    */
-  public static String hotp(final byte[] sharedSecret, final long counter)
+  @NotNull()
+  public static String hotp(@NotNull final byte[] sharedSecret,
+                            final long counter)
          throws LDAPException
   {
     return hotp(sharedSecret, counter, DEFAULT_HOTP_NUM_DIGITS);
@@ -165,8 +168,9 @@ public final class OneTimePassword
    * @throws  LDAPException  If an unexpected problem is encountered while
    *                         attempting to generate the one-time password.
    */
-  public static String hotp(final byte[] sharedSecret, final long counter,
-                            final int numDigits)
+  @NotNull()
+  public static String hotp(@NotNull final byte[] sharedSecret,
+                            final long counter, final int numDigits)
          throws LDAPException
   {
     try
@@ -250,7 +254,8 @@ public final class OneTimePassword
    * @throws  LDAPException  If an unexpected problem is encountered while
    *                         attempting to generate the one-time password.
    */
-  public static String totp(final byte[] sharedSecret)
+  @NotNull()
+  public static String totp(@NotNull final byte[] sharedSecret)
          throws LDAPException
   {
     return totp(sharedSecret, System.currentTimeMillis(),
@@ -286,7 +291,9 @@ public final class OneTimePassword
    * @throws  LDAPException  If an unexpected problem is encountered while
    *                         attempting to generate the one-time password.
    */
-  public static String totp(final byte[] sharedSecret, final long authTime,
+  @NotNull()
+  public static String totp(@NotNull final byte[] sharedSecret,
+                            final long authTime,
                             final int intervalDurationSeconds,
                             final int numDigits)
          throws LDAPException

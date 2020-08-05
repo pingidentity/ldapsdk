@@ -44,6 +44,8 @@ import java.util.Enumeration;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -73,10 +75,10 @@ public class LDAPEntry
 
 
   // The DN for this entry.
-  private final String dn;
+  @NotNull private final String dn;
 
   // The attribute set for this entry.
-  private final LDAPAttributeSet attributeSet;
+  @NotNull private final LDAPAttributeSet attributeSet;
 
 
 
@@ -95,7 +97,7 @@ public class LDAPEntry
    *
    * @param  distinguishedName  The DN to use for the entry.
    */
-  public LDAPEntry(final String distinguishedName)
+  public LDAPEntry(@NotNull final String distinguishedName)
   {
     this(distinguishedName, new LDAPAttributeSet());
   }
@@ -108,7 +110,8 @@ public class LDAPEntry
    * @param  distinguishedName  The DN to use for the entry.
    * @param  attrs              The attributes to use for the entry.
    */
-  public LDAPEntry(final String distinguishedName, final LDAPAttributeSet attrs)
+  public LDAPEntry(@NotNull final String distinguishedName,
+                   @Nullable final LDAPAttributeSet attrs)
   {
     dn = distinguishedName;
 
@@ -129,7 +132,7 @@ public class LDAPEntry
    *
    * @param  entry  The entry to use to create this LDAP entry.
    */
-  public LDAPEntry(final Entry entry)
+  public LDAPEntry(@NotNull final Entry entry)
   {
     dn = entry.getDN();
 
@@ -147,6 +150,7 @@ public class LDAPEntry
    *
    * @return  The distinguished name for this entry.
    */
+  @NotNull()
   public String getDN()
   {
     return dn;
@@ -159,6 +163,7 @@ public class LDAPEntry
    *
    * @return  The attributes for this entry.
    */
+  @NotNull()
   public LDAPAttributeSet getAttributeSet()
   {
     return attributeSet;
@@ -174,7 +179,8 @@ public class LDAPEntry
    *
    * @return  The set of attributes containing the specified subtype.
    */
-  public LDAPAttributeSet getAttributeSet(final String subtype)
+  @NotNull()
+  public LDAPAttributeSet getAttributeSet(@NotNull final String subtype)
   {
     return attributeSet.getSubset(subtype);
   }
@@ -188,7 +194,8 @@ public class LDAPEntry
    *
    * @return  The requested attribute, or {@code null} if there is none.
    */
-  public LDAPAttribute getAttribute(final String attrName)
+  @Nullable()
+  public LDAPAttribute getAttribute(@NotNull final String attrName)
   {
     return attributeSet.getAttribute(attrName);
   }
@@ -203,7 +210,9 @@ public class LDAPEntry
    *
    * @return  The requested attribute, or {@code null} if there is none.
    */
-  public LDAPAttribute getAttribute(final String attrName, final String lang)
+  @Nullable()
+  public LDAPAttribute getAttribute(@NotNull final String attrName,
+                                    @Nullable final String lang)
   {
     return attributeSet.getAttribute(attrName, lang);
   }
@@ -217,6 +226,7 @@ public class LDAPEntry
    * @return  The {@code Entry} object that is the equivalent of this LDAP
    *          entry.
    */
+  @NotNull()
   public final Entry toEntry()
   {
     final ArrayList<Attribute> attrs = new ArrayList<>(attributeSet.size());
@@ -237,6 +247,7 @@ public class LDAPEntry
    * @return  A string representation of this LDAP entry.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return toEntry().toString();

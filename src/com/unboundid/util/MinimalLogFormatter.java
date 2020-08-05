@@ -58,7 +58,7 @@ public final class MinimalLogFormatter
   /**
    * The default format string that will be used for generating timestamps.
    */
-  public static final String DEFAULT_TIMESTAMP_FORMAT =
+  @NotNull public static final String DEFAULT_TIMESTAMP_FORMAT =
        "'['dd/MMM/yyyy:HH:mm:ss Z']'";
 
 
@@ -67,7 +67,7 @@ public final class MinimalLogFormatter
    * The set of thread-local date formatters that will be used for generating
    * message timestamps.
    */
-  private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
+  @NotNull private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
        new ThreadLocal<>();
 
 
@@ -76,7 +76,8 @@ public final class MinimalLogFormatter
    * The set of thread-local buffers that will be used for generating the
    * message.
    */
-  private static final ThreadLocal<StringBuilder> BUFFERS = new ThreadLocal<>();
+  @NotNull private static final ThreadLocal<StringBuilder> BUFFERS =
+       new ThreadLocal<>();
 
 
 
@@ -97,7 +98,7 @@ public final class MinimalLogFormatter
   private final boolean lineBreakAfterMessage;
 
   // The format string that will be used to generate timestamps, if appropriate.
-  private final String timestampFormat;
+  @Nullable private final String timestampFormat;
 
 
 
@@ -130,7 +131,7 @@ public final class MinimalLogFormatter
    * @param  lineBreakAfterMessage  Indicates whether to insert aline break
    *                                after the generated message.
    */
-  public MinimalLogFormatter(final String timestampFormat,
+  public MinimalLogFormatter(@Nullable final String timestampFormat,
                              final boolean includeLevel,
                              final boolean lineBreakAfterHeader,
                              final boolean lineBreakAfterMessage)
@@ -151,7 +152,8 @@ public final class MinimalLogFormatter
    * @return  A string containing the formatted log record.
    */
   @Override()
-  public String format(final LogRecord record)
+  @NotNull()
+  public String format(@NotNull final LogRecord record)
   {
     StringBuilder b = BUFFERS.get();
     if (b == null)

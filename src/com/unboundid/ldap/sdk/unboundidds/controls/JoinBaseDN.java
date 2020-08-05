@@ -45,6 +45,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -126,7 +128,7 @@ public final class JoinBaseDN
   private final byte type;
 
   // The base DN value to use if the custom type is used.
-  private final String customBaseDN;
+  @Nullable private final String customBaseDN;
 
 
 
@@ -136,7 +138,7 @@ public final class JoinBaseDN
    * @param  type          The base type value for this join base DN.
    * @param  customBaseDN  The custom base DN to use, if appropriate.
    */
-  private JoinBaseDN(final byte type, final String customBaseDN)
+  private JoinBaseDN(final byte type, @Nullable final String customBaseDN)
   {
     this.type         = type;
     this.customBaseDN = customBaseDN;
@@ -151,6 +153,7 @@ public final class JoinBaseDN
    * @return  A join base DN object which indicates that join processing should
    *          use the base DN from the search request.
    */
+  @NotNull()
   public static JoinBaseDN createUseSearchBaseDN()
   {
     return USE_SEARCH_BASE_DN;
@@ -165,6 +168,7 @@ public final class JoinBaseDN
    * @return  A join base DN object which indicates that join processing should
    *          use the DN of the source entry.
    */
+  @NotNull()
   public static JoinBaseDN createUseSourceEntryDN()
   {
     return USE_SOURCE_ENTRY_DN;
@@ -181,7 +185,8 @@ public final class JoinBaseDN
    * @return  A join base DN object which indicates that join processing should
    *          use the provided base DN.
    */
-  public static JoinBaseDN createUseCustomBaseDN(final String baseDN)
+  @NotNull()
+  public static JoinBaseDN createUseCustomBaseDN(@NotNull final String baseDN)
   {
     Validator.ensureNotNull(baseDN);
     return new JoinBaseDN(BASE_TYPE_CUSTOM, baseDN);
@@ -208,6 +213,7 @@ public final class JoinBaseDN
    *          {@code null} if the base DN should be the search base DN or the
    *          source entry DN.
    */
+  @Nullable()
   public String getCustomBaseDN()
   {
     return customBaseDN;
@@ -221,6 +227,7 @@ public final class JoinBaseDN
    *
    * @return  The encoded representation of this join base DN.
    */
+  @NotNull()
   ASN1Element encode()
   {
     switch (type)
@@ -250,7 +257,8 @@ public final class JoinBaseDN
    * @throws  LDAPException  If a problem occurs while attempting to decode the
    *                         provided element as a join rule.
    */
-  static JoinBaseDN decode(final ASN1Element element)
+  @NotNull()
+  static JoinBaseDN decode(@NotNull final ASN1Element element)
          throws LDAPException
   {
     switch (element.getType())
@@ -280,6 +288,7 @@ public final class JoinBaseDN
    * @return  A string representation of this join base DN.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -295,7 +304,7 @@ public final class JoinBaseDN
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     switch (type)
     {

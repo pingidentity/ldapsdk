@@ -57,6 +57,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -93,7 +95,7 @@ public final class PasswordPolicyStateJSON
    * The name of the operational attribute that holds a JSON representation of a
    * user's password policy state.
    */
-  public static final String PASSWORD_POLICY_STATE_JSON_ATTRIBUTE =
+  @NotNull public static final String PASSWORD_POLICY_STATE_JSON_ATTRIBUTE =
        "ds-pwp-state-json";
 
 
@@ -102,7 +104,7 @@ public final class PasswordPolicyStateJSON
    * The name of the field that will be used to hold the message component of an
    * account usability error, warning, or notice.
    */
-  private static final String USABILITY_FIELD_MESSAGE = "message";
+  @NotNull private static final String USABILITY_FIELD_MESSAGE = "message";
 
 
 
@@ -110,7 +112,7 @@ public final class PasswordPolicyStateJSON
    * The name of the field that will be used to hold the integer version of
    * the identifier for of an account usability error, warning, or notice.
    */
-  private static final String USABILITY_FIELD_TYPE_ID = "type-id";
+  @NotNull private static final String USABILITY_FIELD_TYPE_ID = "type-id";
 
 
 
@@ -118,7 +120,7 @@ public final class PasswordPolicyStateJSON
    * The name of the field that will be used to hold the name of the identifier
    * for of an account usability error, warning, or notice.
    */
-  private static final String USABILITY_FIELD_TYPE_NAME = "type-name";
+  @NotNull private static final String USABILITY_FIELD_TYPE_NAME = "type-name";
 
 
 
@@ -131,7 +133,7 @@ public final class PasswordPolicyStateJSON
 
 
   // The JSON object that contains the password policy state information.
-  private final JSONObject passwordPolicyStateObject;
+  @NotNull private final JSONObject passwordPolicyStateObject;
 
 
 
@@ -141,7 +143,8 @@ public final class PasswordPolicyStateJSON
    * @param  passwordPolicyStateObject  The JSON object containing the encoded
    *                                    password policy state.
    */
-  public PasswordPolicyStateJSON(final JSONObject passwordPolicyStateObject)
+  public PasswordPolicyStateJSON(
+       @NotNull final JSONObject passwordPolicyStateObject)
   {
     this.passwordPolicyStateObject = passwordPolicyStateObject;
   }
@@ -168,8 +171,10 @@ public final class PasswordPolicyStateJSON
    *                         retrieve the user's entry or decode the password
    *                         policy state JSON object.
    */
-  public static PasswordPolicyStateJSON get(final LDAPInterface connection,
-                                            final String userDN)
+  @Nullable()
+  public static PasswordPolicyStateJSON get(
+                     @NotNull final LDAPInterface connection,
+                     @NotNull final String userDN)
          throws LDAPException
   {
     final SearchResultEntry userEntry = connection.getEntry(userDN,
@@ -199,7 +204,8 @@ public final class PasswordPolicyStateJSON
    * @throws  LDAPException  If a problem is encountered while trying to decode
    *                         the password policy state JSON object.
    */
-  public static PasswordPolicyStateJSON get(final Entry userEntry)
+  @Nullable()
+  public static PasswordPolicyStateJSON get(@NotNull final Entry userEntry)
          throws LDAPException
   {
     final String valueString =
@@ -235,6 +241,7 @@ public final class PasswordPolicyStateJSON
    * @return  The JSON object that contains the encoded password policy state
    *          information.
    */
+  @NotNull()
   public JSONObject getPasswordPolicyStateJSONObject()
   {
     return passwordPolicyStateObject;
@@ -250,6 +257,7 @@ public final class PasswordPolicyStateJSON
    *          the associated user, or {@code null} if this was not included in
    *          the password policy state JSON object.
    */
+  @Nullable()
   public String getPasswordPolicyDN()
   {
     return passwordPolicyStateObject.getFieldAsString(
@@ -267,6 +275,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this flag was not included in the password policy
    *          state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsUsable()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -284,6 +293,7 @@ public final class PasswordPolicyStateJSON
    *          empty if there are no account usability errors or if this was not
    *          included in the password policy state JSON object.
    */
+  @NotNull()
   public List<PasswordPolicyStateAccountUsabilityError>
               getAccountUsabilityErrors()
   {
@@ -324,6 +334,7 @@ public final class PasswordPolicyStateJSON
    *          be empty if there are no account usability warnings or if this was
    *          not included in the password policy state JSON object.
    */
+  @NotNull()
   public List<PasswordPolicyStateAccountUsabilityWarning>
               getAccountUsabilityWarnings()
   {
@@ -364,6 +375,7 @@ public final class PasswordPolicyStateJSON
    *          are no account usability notices or if this was not included in
    *          the password policy state JSON object.
    */
+  @NotNull()
   public List<PasswordPolicyStateAccountUsabilityNotice>
               getAccountUsabilityNotices()
   {
@@ -404,6 +416,7 @@ public final class PasswordPolicyStateJSON
    *          static password, or {@code null} if this flag was not included in
    *          the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getHasStaticPassword()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -419,6 +432,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this was not included in the password policy state
    *          JSON object.
    */
+  @Nullable()
   public Date getPasswordChangedTime()
   {
     return getDate(PASSWORD_CHANGED_TIME);
@@ -434,6 +448,7 @@ public final class PasswordPolicyStateJSON
    *          password was last changed, or {@code null} if this was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Integer getSecondsSincePasswordChange()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -451,6 +466,7 @@ public final class PasswordPolicyStateJSON
    *          administratively disabled, or {@code null} if this flag was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsDisabled()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -469,6 +485,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this flag was not included in the password policy
    *          state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsNotYetActive()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -484,6 +501,7 @@ public final class PasswordPolicyStateJSON
    *          or {@code null} if this was not included in the password policy
    *          state JSON object.
    */
+  @Nullable()
   public Date getAccountActivationTime()
   {
     return getDate(ACCOUNT_ACTIVATION_TIME);
@@ -500,6 +518,7 @@ public final class PasswordPolicyStateJSON
    *          policy state JSON object (e.g., because the user does not have an
    *          activation time in the future).
    */
+  @Nullable()
   public Integer getSecondsUntilAccountActivation()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -517,6 +536,7 @@ public final class PasswordPolicyStateJSON
    *          policy state JSON object (e.g., because the user does not have an
    *          activation time in the past).
    */
+  @Nullable()
   public Integer getSecondsSinceAccountActivation()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -534,6 +554,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this flag was not included in the password policy
    *          state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsExpired()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -549,6 +570,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this was not included in the password policy state
    *          JSON object.
    */
+  @Nullable()
   public Date getAccountExpirationTime()
   {
     return getDate(ACCOUNT_EXPIRATION_TIME);
@@ -565,6 +587,7 @@ public final class PasswordPolicyStateJSON
    *          policy state JSON object (e.g., because the user does not have an
    *          expiration time in the future).
    */
+  @Nullable()
   public Integer getSecondsUntilAccountExpiration()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -581,6 +604,7 @@ public final class PasswordPolicyStateJSON
    *          state JSON object (e.g., because the user does not have an
    *          expiration time in the past).
    */
+  @Nullable()
   public Integer getSecondsSinceAccountExpiration()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -598,6 +622,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this flag was not included in the password policy
    *          state JSON object.
    */
+  @Nullable()
   public Boolean getPasswordIsExpired()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -616,6 +641,7 @@ public final class PasswordPolicyStateJSON
    *          object (e.g., because password expiration is not configured in the
    *          password policy that governs the user).
    */
+  @Nullable()
   public Integer getMaximumPasswordAgeSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -632,6 +658,7 @@ public final class PasswordPolicyStateJSON
    *          JSON object (e.g., because password expiration is not configured
    *          in the password policy that governs the user).
    */
+  @Nullable()
   public Date getPasswordExpirationTime()
   {
     return getDate(PASSWORD_EXPIRATION_TIME);
@@ -649,6 +676,7 @@ public final class PasswordPolicyStateJSON
    *          configured in the password policy that governs the user, or
    *          because the user's password is already expired).
    */
+  @Nullable()
   public Integer getSecondsUntilPasswordExpiration()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -666,6 +694,7 @@ public final class PasswordPolicyStateJSON
    *          configured in the password policy that governs the user, or
    *          because the user's password is not expired).
    */
+  @Nullable()
   public Integer getSecondsSincePasswordExpiration()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -686,6 +715,7 @@ public final class PasswordPolicyStateJSON
    *          password expiration is not configured in the password policy that
    *          governs the user).
    */
+  @Nullable()
   public Integer getPasswordExpirationWarningIntervalSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -708,6 +738,7 @@ public final class PasswordPolicyStateJSON
    *          expiration is not configured in the password policy that governs
    *          the user).
    */
+  @Nullable()
   public Boolean getExpirePasswordsWithoutWarning()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -728,6 +759,7 @@ public final class PasswordPolicyStateJSON
    *          expiration is not configured in the password policy that governs
    *          the user).
    */
+  @Nullable()
   public Boolean getPasswordExpirationWarningIssued()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -748,6 +780,7 @@ public final class PasswordPolicyStateJSON
    *          expiration is not configured in the password policy that governs
    *          the user).
    */
+  @Nullable()
   public Date getPasswordExpirationWarningTime()
   {
     return getDate(PASSWORD_EXPIRATION_WARNING_TIME);
@@ -766,6 +799,7 @@ public final class PasswordPolicyStateJSON
    *          in the password policy that governs the user, or because the user
    *          has already been warned about an upcoming expiration).
    */
+  @Nullable()
   public Integer getSecondsUntilPasswordExpirationWarning()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -785,6 +819,7 @@ public final class PasswordPolicyStateJSON
    *          password policy that governs the user, or because the user has
    *          not yet been warned about an upcoming expiration).
    */
+  @Nullable()
   public Integer getSecondsSincePasswordExpirationWarning()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -803,6 +838,7 @@ public final class PasswordPolicyStateJSON
    *          authentication attempts, or {@code null} if this flag was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsFailureLocked()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -821,6 +857,7 @@ public final class PasswordPolicyStateJSON
    *          because account lockout is not configured in the password policy
    *          that governs the user).
    */
+  @Nullable()
   public Integer getFailureLockoutCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -838,6 +875,7 @@ public final class PasswordPolicyStateJSON
    *          policy state JSON object (e.g., because account lockout is not
    *          configured in the password policy that governs the user).
    */
+  @Nullable()
   public Integer getCurrentAuthenticationFailureCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -856,6 +894,7 @@ public final class PasswordPolicyStateJSON
    *          lockout is not configured in the password policy that governs the
    *          user).
    */
+  @Nullable()
   public Integer getRemainingAuthenticationFailureCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -874,6 +913,7 @@ public final class PasswordPolicyStateJSON
    *          password policy state JSON object (e.g., because account lockout
    *          is not configured in the password policy that governs the user).
    */
+  @NotNull()
   public List<Date> getAuthenticationFailureTimes()
   {
     final List<Date> authFailureTimes = new ArrayList<>();
@@ -910,6 +950,7 @@ public final class PasswordPolicyStateJSON
    *          not included in the password policy state JSON object (e.g.,
    *          because the user's account is not failure locked).
    */
+  @Nullable()
   public Date getFailureLockoutTime()
   {
     return getDate(FAILURE_LOCKOUT_TIME);
@@ -928,6 +969,7 @@ public final class PasswordPolicyStateJSON
    *          the password policy that governs the user, or because account
    *          lockout is not temporary).
    */
+  @Nullable()
   public Integer getFailureLockoutDurationSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -947,6 +989,7 @@ public final class PasswordPolicyStateJSON
    *          account is not failure locked, or because the lockout is not
    *          temporary).
    */
+  @Nullable()
   public Date getFailureLockoutExpirationTime()
   {
     return getDate(FAILURE_LOCKOUT_EXPIRATION_TIME);
@@ -964,6 +1007,7 @@ public final class PasswordPolicyStateJSON
    *          JSON object (e.g., because the user's account is not failure
    *          locked, or because the lockout is not temporary).
    */
+  @Nullable()
   public Integer getSecondsRemainingInFailureLockout()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -981,6 +1025,7 @@ public final class PasswordPolicyStateJSON
    *          policy state JSON object (e.g., because last login time tracking
    *          is not configured in the password policy that governs the user).
    */
+  @Nullable()
   public Date getLastLoginTime()
   {
     return getDate(LAST_LOGIN_TIME);
@@ -998,6 +1043,7 @@ public final class PasswordPolicyStateJSON
    *          last login time tracking is not configured in the password policy
    *          that governs the user).
    */
+  @Nullable()
   public Integer getSecondsSinceLastLogin()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1016,6 +1062,7 @@ public final class PasswordPolicyStateJSON
    *          address tracking is not configured in the password policy that
    *          governs the user).
    */
+  @Nullable()
   public String getLastLoginIPAddress()
   {
     return passwordPolicyStateObject.getFieldAsString(
@@ -1034,6 +1081,7 @@ public final class PasswordPolicyStateJSON
    *          currently idle-locked, or {@code null} if this flag was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsIdleLocked()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1052,6 +1100,7 @@ public final class PasswordPolicyStateJSON
    *          JSON object (e.g., because idle lockout is not configured in the
    *          password policy that governs the user).
    */
+  @Nullable()
   public Integer getIdleLockoutIntervalSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1070,6 +1119,7 @@ public final class PasswordPolicyStateJSON
    *          password policy state JSON object (e.g., because idle lockout is
    *          not configured in the password policy that governs the user).
    */
+  @Nullable()
   public Date getIdleLockoutTime()
   {
     return getDate(IDLE_LOCKOUT_TIME);
@@ -1089,6 +1139,7 @@ public final class PasswordPolicyStateJSON
    *          not configured in the password policy that governs the user, or
    *          because the user's account is already idle-locked).
    */
+  @Nullable()
   public Integer getSecondsUntilIdleLockout()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1109,6 +1160,7 @@ public final class PasswordPolicyStateJSON
    *          not configured in the password policy that governs the user, or
    *          because the user's account is not idle-locked).
    */
+  @Nullable()
   public Integer getSecondsSinceIdleLockout()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1128,6 +1180,7 @@ public final class PasswordPolicyStateJSON
    *          change their password, or {@code null} if this flag was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getMustChangePassword()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1146,6 +1199,7 @@ public final class PasswordPolicyStateJSON
    *          reset-locked, or {@code null} if this flag was not included in the
    *          password policy state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsResetLocked()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1166,6 +1220,7 @@ public final class PasswordPolicyStateJSON
    *          this flag was not included in the password policy state JSON
    *          object.
    */
+  @Nullable()
   public Boolean getForceChangeOnAdd()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1187,6 +1242,7 @@ public final class PasswordPolicyStateJSON
    *          this flag was not included in the password policy state JSON
    *          object.
    */
+  @Nullable()
   public Boolean getForceChangeOnReset()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1206,6 +1262,7 @@ public final class PasswordPolicyStateJSON
    *          password policy state JSON object (e.g., because reset lockout is
    *          not configured in the password policy that governs the user).
    */
+  @Nullable()
   public Integer getMaximumPasswordResetAgeSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1226,6 +1283,7 @@ public final class PasswordPolicyStateJSON
    *          is not configured in the password policy that governs the user,
    *          or because the user's password has not been reset).
    */
+  @Nullable()
   public Date getResetLockoutTime()
   {
     return getDate(RESET_LOCKOUT_TIME);
@@ -1246,6 +1304,7 @@ public final class PasswordPolicyStateJSON
    *          because the user's password has not been reset, or because the
    *          user's account is already reset-locked).
    */
+  @Nullable()
   public Integer getSecondsUntilResetLockout()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1265,6 +1324,7 @@ public final class PasswordPolicyStateJSON
    *          maintain a password history, or because it maintains a password
    *          history based on a duration rather than a count).
    */
+  @Nullable()
   public Integer getMaximumPasswordHistoryCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1285,6 +1345,7 @@ public final class PasswordPolicyStateJSON
    *           because it maintains a password history based on a count rather
    *           than a duration).
    */
+  @Nullable()
   public Integer getMaximumPasswordHistoryDurationSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1303,6 +1364,7 @@ public final class PasswordPolicyStateJSON
    *          governs the user is not configured to maintain a password
    *          history).
    */
+  @Nullable()
   public Integer getCurrentPasswordHistoryCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1323,6 +1385,7 @@ public final class PasswordPolicyStateJSON
    *          minimum password age, or {@code null} if this flag was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getIsWithinMinimumPasswordAge()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1343,6 +1406,7 @@ public final class PasswordPolicyStateJSON
    *          password age is configured in the password policy that governs the
    *          user).
    */
+  @Nullable()
   public Integer getMinimumPasswordAgeSeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1363,6 +1427,7 @@ public final class PasswordPolicyStateJSON
    *          longer than the minimum age since they last changed their
    *          password).
    */
+  @Nullable()
   public Date getMinimumPasswordAgeExpirationTime()
   {
     return getDate(MINIMUM_PASSWORD_AGE_EXPIRATION_TIME);
@@ -1382,6 +1447,7 @@ public final class PasswordPolicyStateJSON
    *          user, or because it has been longer than the minimum age since
    *          they last changed their password).
    */
+  @Nullable()
   public Integer getSecondsRemainingInMinimumPasswordAge()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1400,6 +1466,7 @@ public final class PasswordPolicyStateJSON
    *          (e.g., if grace logins are not configured in the password policy
    *          that governs the user).
    */
+  @Nullable()
   public Integer getMaximumGraceLoginCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1416,6 +1483,7 @@ public final class PasswordPolicyStateJSON
    *          policy state JSON object (e.g., if grace logins are not configured
    *          in the password policy that governs the user).
    */
+  @Nullable()
   public Integer getUsedGraceLoginCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1432,6 +1500,7 @@ public final class PasswordPolicyStateJSON
    *          (e.g., if grace logins are not configured in the password policy
    *          that governs the user).
    */
+  @Nullable()
   public Integer getRemainingGraceLoginCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1450,6 +1519,7 @@ public final class PasswordPolicyStateJSON
    *          JSON object (e.g., if grace logins are not configured in the
    *          password policy that governs the user).
    */
+  @NotNull()
   public List<Date> getGraceLoginUseTimes()
   {
     final List<Date> graceLoginTimes = new ArrayList<>();
@@ -1486,6 +1556,7 @@ public final class PasswordPolicyStateJSON
    *          not have a valid retired password, or {@code null} if this flag
    *          was not included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getHasRetiredPassword()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1503,6 +1574,7 @@ public final class PasswordPolicyStateJSON
    *          JSON object (e.g., because the user does not have a retired
    *          password).
    */
+  @Nullable()
   public Date getRetiredPasswordExpirationTime()
   {
     return getDate(RETIRED_PASSWORD_EXPIRATION_TIME);
@@ -1519,6 +1591,7 @@ public final class PasswordPolicyStateJSON
    *          password policy state JSON object (e.g., because the user does not
    *          have a retired password).
    */
+  @Nullable()
   public Integer getSecondsUntilRetiredPasswordExpiration()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1538,6 +1611,7 @@ public final class PasswordPolicyStateJSON
    *          this flag was not included in the password policy state JSON
    *          object.
    */
+  @Nullable()
   public Boolean getRequireSecureAuthentication()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1557,6 +1631,7 @@ public final class PasswordPolicyStateJSON
    *          or {@code null} if this flag was not included in the password
    *          policy state JSON object.
    */
+  @Nullable()
   public Boolean getRequireSecurePasswordChanges()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1574,6 +1649,7 @@ public final class PasswordPolicyStateJSON
    *          available to the user or if this was not included in the password
    *          policy state JSON object.
    */
+  @NotNull()
   public List<String> getAvailableSASLMechanisms()
   {
     final List<String> saslMechanismNames = new ArrayList<>();
@@ -1610,6 +1686,7 @@ public final class PasswordPolicyStateJSON
    *          available to the user or if this was not included in the password
    *          policy state JSON object.
    */
+  @NotNull()
   public List<String> getAvailableOTPDeliveryMechanisms()
   {
     final List<String> deliveryMechanismNames = new ArrayList<>();
@@ -1646,6 +1723,7 @@ public final class PasswordPolicyStateJSON
    *          have any TOTP shared secrets, or {@code null} if this flag was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getHasTOTPSharedSecret()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1665,6 +1743,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if this flag was not included in the password policy
    *          state JSON object.
    */
+  @Nullable()
   public Boolean getHasRegisteredYubiKeyOTPDevice()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1684,6 +1763,7 @@ public final class PasswordPolicyStateJSON
    *          validation-locked, or {@code null} if this flag was not included
    *          in the password policy state JSON object.
    */
+  @Nullable()
   public Boolean getAccountIsValidationLocked()
   {
     return passwordPolicyStateObject.getFieldAsBoolean(
@@ -1700,6 +1780,7 @@ public final class PasswordPolicyStateJSON
    *          bind operation for the user, or {@code null} if this was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Date getLastBindPasswordValidationTime()
   {
     return getDate(LAST_BIND_PASSWORD_VALIDATION_TIME);
@@ -1716,6 +1797,7 @@ public final class PasswordPolicyStateJSON
    *          user, or {@code null} if this was not included in the password
    *          policy state JSON object.
    */
+  @Nullable()
   public Integer getSecondsSinceLastBindPasswordValidation()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1733,6 +1815,7 @@ public final class PasswordPolicyStateJSON
    *          each user, or {@code null} if this was not included in the
    *          password policy state JSON object.
    */
+  @Nullable()
   public Integer getMinimumBindPasswordValidationFrequencySeconds()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1751,6 +1834,7 @@ public final class PasswordPolicyStateJSON
    *          password validators, or {@code null} if this was not included in
    *          the password policy state JSON object.
    */
+  @Nullable()
   public String getBindPasswordValidationFailureAction()
   {
     return passwordPolicyStateObject.getFieldAsString(
@@ -1768,6 +1852,7 @@ public final class PasswordPolicyStateJSON
    * @throws  LDAPException  If a problem occurs while trying to parse the
    *                         recent login history for the user.
    */
+  @Nullable()
   public RecentLoginHistory getRecentLoginHistory()
          throws LDAPException
   {
@@ -1793,6 +1878,7 @@ public final class PasswordPolicyStateJSON
    *          should maintain for a user, or {@code null}if this was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Integer getMaximumRecentLoginHistorySuccessfulAuthenticationCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1810,6 +1896,7 @@ public final class PasswordPolicyStateJSON
    *          server should maintain for a user, or {@code null}if this was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Integer
        getMaximumRecentLoginHistorySuccessfulAuthenticationDurationSeconds()
   {
@@ -1828,6 +1915,7 @@ public final class PasswordPolicyStateJSON
    *          should maintain for a user, or {@code null}if this was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Integer getMaximumRecentLoginHistoryFailedAuthenticationCount()
   {
     return passwordPolicyStateObject.getFieldAsInteger(
@@ -1845,6 +1933,7 @@ public final class PasswordPolicyStateJSON
    *          server should maintain for a user, or {@code null}if this was not
    *          included in the password policy state JSON object.
    */
+  @Nullable()
   public Integer
        getMaximumRecentLoginHistoryFailedAuthenticationDurationSeconds()
   {
@@ -1865,6 +1954,7 @@ public final class PasswordPolicyStateJSON
    *          {@code null} if the field is not contained in the JSON object or
    *          if its value cannot be parsed as a {@code Date}.
    */
+  @Nullable()
   private Date getDate(final PasswordPolicyStateJSONField field)
   {
     final String stringValue =
@@ -1893,6 +1983,7 @@ public final class PasswordPolicyStateJSON
    * @return  A string representation of the password policy state information.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return passwordPolicyStateObject.toSingleLineString();

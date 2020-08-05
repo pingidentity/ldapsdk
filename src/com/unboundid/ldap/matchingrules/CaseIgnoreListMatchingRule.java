@@ -46,6 +46,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -68,7 +70,7 @@ public final class CaseIgnoreListMatchingRule
    * The singleton instance that will be returned from the {@code getInstance}
    * method.
    */
-  private static final CaseIgnoreListMatchingRule INSTANCE =
+  @NotNull private static final CaseIgnoreListMatchingRule INSTANCE =
        new CaseIgnoreListMatchingRule();
 
 
@@ -76,7 +78,8 @@ public final class CaseIgnoreListMatchingRule
   /**
    * The name for the caseIgnoreListMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_NAME = "caseIgnoreListMatch";
+  @NotNull public static final String EQUALITY_RULE_NAME =
+       "caseIgnoreListMatch";
 
 
 
@@ -84,7 +87,7 @@ public final class CaseIgnoreListMatchingRule
    * The name for the caseIgnoreListMatch equality matching rule, formatted in
    * all lowercase characters.
    */
-  static final String LOWER_EQUALITY_RULE_NAME =
+  @NotNull static final String LOWER_EQUALITY_RULE_NAME =
        StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
@@ -92,14 +95,14 @@ public final class CaseIgnoreListMatchingRule
   /**
    * The OID for the caseIgnoreListMatch equality matching rule.
    */
-  public static final String EQUALITY_RULE_OID = "2.5.13.11";
+  @NotNull public static final String EQUALITY_RULE_OID = "2.5.13.11";
 
 
 
   /**
    * The name for the caseIgnoreListSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_NAME =
+  @NotNull public static final String SUBSTRING_RULE_NAME =
        "caseIgnoreListSubstringsMatch";
 
 
@@ -108,7 +111,7 @@ public final class CaseIgnoreListMatchingRule
    * The name for the caseIgnoreListSubstringsMatch substring matching rule,
    * formatted in all lowercase characters.
    */
-  static final String LOWER_SUBSTRING_RULE_NAME =
+  @NotNull static final String LOWER_SUBSTRING_RULE_NAME =
        StaticUtils.toLowerCase(SUBSTRING_RULE_NAME);
 
 
@@ -116,7 +119,7 @@ public final class CaseIgnoreListMatchingRule
   /**
    * The OID for the caseIgnoreListSubstringsMatch substring matching rule.
    */
-  public static final String SUBSTRING_RULE_OID = "2.5.13.12";
+  @NotNull public static final String SUBSTRING_RULE_OID = "2.5.13.12";
 
 
 
@@ -142,6 +145,7 @@ public final class CaseIgnoreListMatchingRule
    *
    * @return  A singleton instance of this matching rule.
    */
+  @NotNull()
   public static CaseIgnoreListMatchingRule getInstance()
   {
     return INSTANCE;
@@ -153,6 +157,7 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleName()
   {
     return EQUALITY_RULE_NAME;
@@ -164,6 +169,7 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getEqualityMatchingRuleOID()
   {
     return EQUALITY_RULE_OID;
@@ -175,6 +181,7 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getOrderingMatchingRuleName()
   {
     return null;
@@ -186,6 +193,7 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public String getOrderingMatchingRuleOID()
   {
     return null;
@@ -197,6 +205,7 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleName()
   {
     return SUBSTRING_RULE_NAME;
@@ -208,6 +217,7 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSubstringMatchingRuleOID()
   {
     return SUBSTRING_RULE_OID;
@@ -219,8 +229,8 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean valuesMatch(final ASN1OctetString value1,
-                             final ASN1OctetString value2)
+  public boolean valuesMatch(@NotNull final ASN1OctetString value1,
+                             @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     return normalize(value1).equals(normalize(value2));
@@ -232,10 +242,10 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public boolean matchesSubstring(final ASN1OctetString value,
-                                  final ASN1OctetString subInitial,
-                                  final ASN1OctetString[] subAny,
-                                  final ASN1OctetString subFinal)
+  public boolean matchesSubstring(@NotNull final ASN1OctetString value,
+                                  @Nullable final ASN1OctetString subInitial,
+                                  @Nullable final ASN1OctetString[] subAny,
+                                  @Nullable final ASN1OctetString subFinal)
          throws LDAPException
   {
     String normStr = normalize(value).stringValue();
@@ -311,8 +321,8 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public int compareValues(final ASN1OctetString value1,
-                           final ASN1OctetString value2)
+  public int compareValues(@NotNull final ASN1OctetString value1,
+                           @NotNull final ASN1OctetString value2)
          throws LDAPException
   {
     throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
@@ -325,7 +335,8 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalize(final ASN1OctetString value)
+  @NotNull()
+  public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
          throws LDAPException
   {
     final List<String>     items    = getLowercaseItems(value);
@@ -350,8 +361,10 @@ public final class CaseIgnoreListMatchingRule
    * {@inheritDoc}
    */
   @Override()
-  public ASN1OctetString normalizeSubstring(final ASN1OctetString value,
-                                            final byte substringType)
+  @NotNull()
+  public ASN1OctetString normalizeSubstring(
+                              @NotNull final ASN1OctetString value,
+                              final byte substringType)
          throws LDAPException
   {
     return CaseIgnoreStringMatchingRule.getInstance().normalizeSubstring(value,
@@ -372,7 +385,8 @@ public final class CaseIgnoreListMatchingRule
    * @throws  LDAPException  If the provided value does not represent a valid
    *                         list in accordance with this matching rule.
    */
-  public static List<String> getItems(final ASN1OctetString value)
+  @NotNull()
+  public static List<String> getItems(@NotNull final ASN1OctetString value)
          throws LDAPException
   {
     return getItems(value.stringValue());
@@ -392,7 +406,8 @@ public final class CaseIgnoreListMatchingRule
    * @throws  LDAPException  If the provided value does not represent a valid
    *                         list in accordance with this matching rule.
    */
-  public static List<String> getItems(final String value)
+  @NotNull()
+  public static List<String> getItems(@NotNull final String value)
          throws LDAPException
   {
     final ArrayList<String> items = new ArrayList<>(10);
@@ -467,7 +482,9 @@ public final class CaseIgnoreListMatchingRule
    * @throws  LDAPException  If the provided value does not represent a valid
    *                         list in accordance with this matching rule.
    */
-  public static List<String> getLowercaseItems(final ASN1OctetString value)
+  @NotNull()
+  public static List<String> getLowercaseItems(
+                                  @NotNull final ASN1OctetString value)
          throws LDAPException
   {
     return getLowercaseItems(value.stringValue());
@@ -487,7 +504,8 @@ public final class CaseIgnoreListMatchingRule
    * @throws  LDAPException  If the provided value does not represent a valid
    *                         list in accordance with this matching rule.
    */
-  public static List<String> getLowercaseItems(final String value)
+  @NotNull()
+  public static List<String> getLowercaseItems(@NotNull final String value)
          throws LDAPException
   {
     return getItems(StaticUtils.toLowerCase(value));
@@ -503,7 +521,8 @@ public final class CaseIgnoreListMatchingRule
    * @param  item    The item to be normalized.  It must already be trimmed and
    *                 all characters converted to lowercase.
    */
-  static void normalizeItem(final StringBuilder buffer, final String item)
+  static void normalizeItem(@NotNull final StringBuilder buffer,
+                            @NotNull final String item)
   {
     final int length = item.length();
 
@@ -551,7 +570,7 @@ public final class CaseIgnoreListMatchingRule
    * @throws  LDAPException  If either of the characters are not hexadecimal
    *                         digits.
    */
-  static char decodeHexChar(final String s, final int p)
+  static char decodeHexChar(@NotNull final String s, final int p)
          throws LDAPException
   {
     char c = 0;

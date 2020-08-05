@@ -57,6 +57,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -86,14 +88,14 @@ public final class ToolInvocationLogger
   /**
    * The format string that should be used to format log message timestamps.
    */
-  private static final String LOG_MESSAGE_DATE_FORMAT =
+  @NotNull private static final String LOG_MESSAGE_DATE_FORMAT =
        "dd/MMM/yyyy:HH:mm:ss.SSS Z";
 
   /**
    * The name of a system property that can be used to specify an alternate
    * instance root path for testing purposes.
    */
-  static final String PROPERTY_TEST_INSTANCE_ROOT =
+  @NotNull static final String PROPERTY_TEST_INSTANCE_ROOT =
           ToolInvocationLogger.class.getName() + ".testInstanceRootPath";
 
   /**
@@ -133,10 +135,11 @@ public final class ToolInvocationLogger
    *          be used to determine whether invocation logging should be
    *          performed.
    */
+  @NotNull()
   public static ToolInvocationLogDetails getLogMessageDetails(
-                                              final String commandName,
-                                              final boolean logByDefault,
-                                              final PrintStream toolErrorStream)
+              @NotNull final String commandName,
+              final boolean logByDefault,
+              @NotNull final PrintStream toolErrorStream)
   {
     // Try to figure out the path to the server instance root.  In production
     // code, we'll look for an INSTANCE_ROOT environment variable to specify
@@ -334,11 +337,13 @@ public final class ToolInvocationLogger
    *          doesn't exist or has a value that is neither {@code true} nor
    *          {@code false}.
    */
-   private static Boolean getBooleanProperty(final String propertyName,
-                                             final Properties properties,
-                                             final File propertiesFilePath,
-                                             final Boolean defaultValue,
-                                             final PrintStream toolErrorStream)
+  @Nullable()
+   private static Boolean getBooleanProperty(
+                @NotNull final String propertyName,
+                @NotNull final Properties properties,
+                @NotNull final File propertiesFilePath,
+                @Nullable final Boolean defaultValue,
+                @NotNull final PrintStream toolErrorStream)
    {
      final String propertyValue = properties.getProperty(propertyName);
      if (propertyValue == null)
@@ -383,11 +388,13 @@ public final class ToolInvocationLogger
    * @return  A file referenced by the specified property, or {@code null} if
    *          the property is not set or does not reference a valid path.
    */
-  private static File getLogFileProperty(final String propertyName,
-                                         final Properties properties,
-                                         final File propertiesFilePath,
-                                         final File instanceRootDirectory,
-                                         final PrintStream toolErrorStream)
+  @Nullable()
+  private static File getLogFileProperty(
+               @NotNull final String propertyName,
+               @NotNull final Properties properties,
+               @NotNull final File propertiesFilePath,
+               @Nullable final File instanceRootDirectory,
+               @NotNull final PrintStream toolErrorStream)
   {
     final String propertyValue = properties.getProperty(propertyName);
     if (propertyValue == null)
@@ -484,10 +491,11 @@ public final class ToolInvocationLogger
    *                                  were obtained.
    */
   public static void logLaunchMessage(
-          final ToolInvocationLogDetails logDetails,
-          final List<ObjectPair<String,String>> commandLineArguments,
-          final List<ObjectPair<String,String>> propertiesFileArguments,
-          final String propertiesFilePath)
+          @NotNull final ToolInvocationLogDetails logDetails,
+          @NotNull final List<ObjectPair<String,String>> commandLineArguments,
+          @NotNull final List<ObjectPair<String,String>>
+               propertiesFileArguments,
+          @NotNull final String propertiesFilePath)
   {
     // Build the log message.
     final StringBuilder msgBuffer = new StringBuilder();
@@ -593,8 +601,9 @@ public final class ToolInvocationLogger
    * @return  A cleaned and possibly redacted version of the provided argument
    *          value.
    */
-  private static String getCleanArgumentValue(final String name,
-                                              final String value)
+  @NotNull()
+  private static String getCleanArgumentValue(@NotNull final String name,
+                                              @NotNull final String value)
   {
     final String lowerName = StaticUtils.toLowerCase(name);
     if (lowerName.contains("password") ||
@@ -645,8 +654,9 @@ public final class ToolInvocationLogger
    *                      {@code null} if no such message is available.
    */
   public static void logCompletionMessage(
-                          final ToolInvocationLogDetails logDetails,
-                          final Integer exitCode, final String exitMessage)
+                          @NotNull final ToolInvocationLogDetails logDetails,
+                          @Nullable final Integer exitCode,
+                          @Nullable final String exitMessage)
   {
     // Build the log message.
     final StringBuilder msgBuffer = new StringBuilder();
@@ -703,8 +713,8 @@ public final class ToolInvocationLogger
    * @param  message  The message to be cleaned.
    * @param  buffer   The buffer to which the message should be appended.
    */
-  private static void cleanMessage(final String message,
-                                   final StringBuilder buffer)
+  private static void cleanMessage(@NotNull final String message,
+                                   @NotNull final StringBuilder buffer)
   {
     for (final char c : message.toCharArray())
     {
@@ -737,9 +747,9 @@ public final class ToolInvocationLogger
    *                          attempting to perform invocation logging.  It
    *                          must not be {@code null}.
    */
-  private static void logMessageToFile(final byte[] logMessageBytes,
-                                       final File logFile,
-                                       final PrintStream toolErrorStream)
+  private static void logMessageToFile(@NotNull final byte[] logMessageBytes,
+               @NotNull final File logFile,
+               @NotNull final PrintStream toolErrorStream)
   {
     // Open a file channel for the target log file.
     final Set<StandardOpenOption> openOptionsSet = EnumSet.of(
@@ -813,9 +823,11 @@ public final class ToolInvocationLogger
    * @return  The file lock that was acquired, or {@code null} if the lock could
    *          not be acquired.
    */
-  private static FileLock acquireFileLock(final FileChannel fileChannel,
-                                          final File logFile,
-                                          final PrintStream toolErrorStream)
+  @Nullable()
+  private static FileLock acquireFileLock(
+               @NotNull final FileChannel fileChannel,
+               @NotNull final File logFile,
+               @NotNull final PrintStream toolErrorStream)
   {
     try
     {
@@ -870,8 +882,8 @@ public final class ToolInvocationLogger
    * @param  toolErrorStream  The print stream that should be used to write the
    *                          message.
    */
-  private static void printError(final String message,
-                                 final PrintStream toolErrorStream)
+  private static void printError(@NotNull final String message,
+                                 @NotNull final PrintStream toolErrorStream)
   {
     toolErrorStream.println();
 

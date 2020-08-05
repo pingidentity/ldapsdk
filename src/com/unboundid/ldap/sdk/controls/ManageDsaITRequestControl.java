@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -126,7 +127,7 @@ public final class ManageDsaITRequestControl
   /**
    * The OID (2.16.840.1.113730.3.4.2) for the ManageDsaIT request control.
    */
-  public static final String MANAGE_DSA_IT_REQUEST_OID =
+  @NotNull public static final String MANAGE_DSA_IT_REQUEST_OID =
        "2.16.840.1.113730.3.4.2";
 
 
@@ -172,7 +173,7 @@ public final class ManageDsaITRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         ManageDsaIT request control.
    */
-  public ManageDsaITRequestControl(final Control control)
+  public ManageDsaITRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -190,6 +191,7 @@ public final class ManageDsaITRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MANAGE_DSAIT_REQUEST.get();
@@ -201,7 +203,7 @@ public final class ManageDsaITRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ManageDsaITRequestControl(isCritical=");
     buffer.append(isCritical());

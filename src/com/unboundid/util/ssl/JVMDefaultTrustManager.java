@@ -62,6 +62,8 @@ import javax.net.ssl.X509TrustManager;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -90,8 +92,8 @@ public final class JVMDefaultTrustManager
   /**
    * A reference to the singleton instance of this class.
    */
-  private static final AtomicReference<JVMDefaultTrustManager> INSTANCE =
-       new AtomicReference<>();
+  @NotNull private static final AtomicReference<JVMDefaultTrustManager>
+       INSTANCE = new AtomicReference<>();
 
 
 
@@ -99,14 +101,14 @@ public final class JVMDefaultTrustManager
    * The name of the system property that specifies the path to the Java
    * installation for the currently-running JVM.
    */
-  private static final String PROPERTY_JAVA_HOME = "java.home";
+  @NotNull private static final String PROPERTY_JAVA_HOME = "java.home";
 
 
 
   /**
    * A set of alternate file extensions that may be used by Java keystores.
    */
-  static final String[] FILE_EXTENSIONS  =
+  @NotNull static final String[] FILE_EXTENSIONS  =
   {
     ".jks",
     ".p12",
@@ -119,7 +121,7 @@ public final class JVMDefaultTrustManager
   /**
    * A pre-allocated empty certificate array.
    */
-  private static final X509Certificate[] NO_CERTIFICATES =
+  @NotNull private static final X509Certificate[] NO_CERTIFICATES =
        new X509Certificate[0];
 
 
@@ -133,19 +135,20 @@ public final class JVMDefaultTrustManager
 
   // A certificate exception that should be thrown for any attempt to use this
   // trust store.
-  private final CertificateException certificateException;
+  @Nullable private final CertificateException certificateException;
 
   // The file from which they keystore was loaded.
-  private final File caCertsFile;
+  @Nullable private final File caCertsFile;
 
   // The keystore instance containing the JVM's default set of trusted issuers.
-  private final KeyStore keystore;
+  @Nullable private final KeyStore keystore;
 
   // A map of the certificates in the keystore, indexed by signature.
-  private final Map<ASN1OctetString,X509Certificate> trustedCertsBySignature;
+  @NotNull private final Map<ASN1OctetString,X509Certificate>
+       trustedCertsBySignature;
 
   // A map of the certificates in the keystore, indexed by key ID.
-  private final Map<ASN1OctetString,
+  @NotNull private final Map<ASN1OctetString,
        com.unboundid.util.ssl.cert.X509Certificate> trustedCertsByKeyID;
 
 
@@ -156,7 +159,7 @@ public final class JVMDefaultTrustManager
    * @param  javaHomePropertyName  The name of the system property that should
    *                               specify the path to the Java installation.
    */
-  JVMDefaultTrustManager(final String javaHomePropertyName)
+  JVMDefaultTrustManager(@NotNull final String javaHomePropertyName)
   {
     // Determine the path to the root of the Java installation.
     final String javaHomePath =
@@ -287,6 +290,7 @@ public final class JVMDefaultTrustManager
    *
    * @return  The singleton instance of this trust manager.
    */
+  @NotNull()
   public static JVMDefaultTrustManager getInstance()
   {
     final JVMDefaultTrustManager existingInstance = INSTANCE.get();
@@ -317,6 +321,7 @@ public final class JVMDefaultTrustManager
    * @throws  CertificateException  If a problem was encountered while
    *                                initializing this trust manager.
    */
+  @NotNull()
   KeyStore getKeyStore()
            throws CertificateException
   {
@@ -340,6 +345,7 @@ public final class JVMDefaultTrustManager
    * @throws  CertificateException  If a problem was encountered while
    *                                initializing this trust manager.
    */
+  @NotNull()
   public File getCACertsFile()
          throws CertificateException
   {
@@ -361,6 +367,7 @@ public final class JVMDefaultTrustManager
    * @throws  CertificateException  If a problem was encountered while
    *                                initializing this trust manager.
    */
+  @NotNull()
   public Collection<X509Certificate> getTrustedIssuerCertificates()
          throws CertificateException
   {
@@ -386,8 +393,8 @@ public final class JVMDefaultTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     checkTrusted(chain);
@@ -407,8 +414,8 @@ public final class JVMDefaultTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     checkTrusted(chain);
@@ -424,6 +431,7 @@ public final class JVMDefaultTrustManager
    *          initializing this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     if (certificateException != null)
@@ -450,8 +458,9 @@ public final class JVMDefaultTrustManager
    * @throws  CertificateException  If the keystore could not be found or
    *                                loaded.
    */
+  @NotNull()
   private static ObjectPair<KeyStore,File> getJVMDefaultKeyStore(
-                                                final File javaHomeDirectory)
+                      @NotNull final File javaHomeDirectory)
           throws CertificateException
   {
     final File libSecurityCACerts = StaticUtils.constructPath(javaHomeDirectory,
@@ -543,9 +552,10 @@ public final class JVMDefaultTrustManager
    * @return  The first valid keystore found that meets all the necessary
    *          criteria, or {@code null} if no such keystore could be found.
    */
+  @Nullable()
   private static ObjectPair<KeyStore,File> searchForKeyStore(
-                      final File directory,
-                      final Map<File,CertificateException> exceptions)
+                      @NotNull final File directory,
+                      @NotNull final Map<File,CertificateException> exceptions)
   {
 filesInDirectoryLoop:
     for (final File f : directory.listFiles())
@@ -612,7 +622,8 @@ filesInDirectoryLoop:
    * @throws  CertificateException  If a problem occurs while trying to load the
    *
    */
-  private static KeyStore loadKeyStore(final File f)
+  @Nullable()
+  private static KeyStore loadKeyStore(@NotNull final File f)
           throws CertificateException
   {
     if ((! f.exists()) || (! f.isFile()))
@@ -681,7 +692,7 @@ filesInDirectoryLoop:
    * @throws  CertificateException  If the provided certificate chain should not
    *                                be considered trusted.
    */
-  void checkTrusted(final X509Certificate[] chain)
+  void checkTrusted(@NotNull final X509Certificate[] chain)
        throws CertificateException
   {
     if (certificateException != null)
@@ -757,7 +768,9 @@ filesInDirectoryLoop:
    *                                current validity window and no alternate
    *                                path could be found.
    */
-  private X509Certificate[] getChainToValidate(final X509Certificate[] chain)
+  @NotNull()
+  private X509Certificate[] getChainToValidate(
+                                 @NotNull final X509Certificate[] chain)
           throws CertificateException
   {
     final Date currentDate = new Date();
@@ -875,10 +888,12 @@ filesInDirectoryLoop:
    * @return  An alternate chain for the provided certificate, or {@code null}
    *          if no alternate chain could be found.
    */
-  private List<X509Certificate> findAlternateChain(final X509Certificate cert,
-                                     final X509Certificate certIsIssuerOf,
-                                     final Date currentDate,
-                                     final Set<X509Certificate> alreadyExamined)
+  @Nullable()
+  private List<X509Certificate> findAlternateChain(
+               @NotNull final X509Certificate cert,
+               @NotNull final X509Certificate certIsIssuerOf,
+               @NotNull final Date currentDate,
+               @NotNull final Set<X509Certificate> alreadyExamined)
   {
     final byte[] publicKeyBytes = cert.getPublicKey().getEncoded();
     for (final X509Certificate c : trustedCertsBySignature.values())
@@ -951,8 +966,8 @@ filesInDirectoryLoop:
    * @return  {@code true} if the certificate is currently valid, or
    *          {@code false} if not.
    */
-  private static boolean isCurrentlyValid(final X509Certificate cert,
-                                          final Date currentDate)
+  private static boolean isCurrentlyValid(@NotNull final X509Certificate cert,
+                                          @NotNull final Date currentDate)
   {
     final Date notBefore = cert.getNotBefore();
     if (currentDate.before(notBefore))
@@ -988,8 +1003,9 @@ filesInDirectoryLoop:
    *                                found, or if the issuer certificate is
    *                                not currently valid.
    */
-  private X509Certificate findIssuer(final X509Certificate cert,
-                                     final Date currentDate)
+  @Nullable()
+  private X509Certificate findIssuer(@NotNull final X509Certificate cert,
+                                     @NotNull final Date currentDate)
           throws CertificateException
   {
     try
@@ -1048,7 +1064,7 @@ filesInDirectoryLoop:
    * @return  {@code true} if the chain could be validated, or {@code false} if
    *          not.
    */
-  private boolean checkIncompleteChain(final X509Certificate[] chain)
+  private boolean checkIncompleteChain(@NotNull final X509Certificate[] chain)
   {
     try
     {
@@ -1103,7 +1119,8 @@ filesInDirectoryLoop:
    *
    * @return  A string representation of the provided certificate chain.
    */
-  static String chainToString(final X509Certificate[] chain)
+  @NotNull()
+  static String chainToString(@NotNull final X509Certificate[] chain)
   {
     final StringBuilder buffer = new StringBuilder();
 

@@ -48,6 +48,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,7 +89,7 @@ public final class GroovyScriptedTask
    * The fully-qualified name of the Java class that is used for the core
    * Groovy-scripted task.
    */
-  static final String GROOVY_SCRIPTED_TASK_CLASS =
+  @NotNull static final String GROOVY_SCRIPTED_TASK_CLASS =
        "com.unboundid.directory.sdk.extensions.GroovyScriptedTask";
 
 
@@ -96,7 +98,7 @@ public final class GroovyScriptedTask
    * The name of the attribute used to specify the fully-qualified name of the
    * Groovy class providing the logic for the scripted task.
    */
-  private static final String ATTR_GROOVY_SCRIPTED_TASK_CLASS =
+  @NotNull private static final String ATTR_GROOVY_SCRIPTED_TASK_CLASS =
        "ds-scripted-task-class";
 
 
@@ -104,7 +106,7 @@ public final class GroovyScriptedTask
   /**
    * The name of the attribute used to provide arguments to the script.
    */
-  private static final String ATTR_GROOVY_SCRIPTED_TASK_ARGUMENT =
+  @NotNull private static final String ATTR_GROOVY_SCRIPTED_TASK_ARGUMENT =
        "ds-scripted-task-argument";
 
 
@@ -112,7 +114,7 @@ public final class GroovyScriptedTask
   /**
    * The name of the object class used in Groovy-scripted task entries.
    */
-  private static final String OC_GROOVY_SCRIPTED_TASK =
+  @NotNull private static final String OC_GROOVY_SCRIPTED_TASK =
        "ds-groovy-scripted-task";
 
 
@@ -120,7 +122,7 @@ public final class GroovyScriptedTask
   /**
    * The task property that will be used for the task class.
    */
-  static final TaskProperty PROPERTY_TASK_CLASS =
+  @NotNull static final TaskProperty PROPERTY_TASK_CLASS =
      new TaskProperty(ATTR_GROOVY_SCRIPTED_TASK_CLASS,
           INFO_DISPLAY_NAME_GROOVY_SCRIPTED_TASK_CLASS.get(),
           INFO_DESCRIPTION_GROOVY_SCRIPTED_TASK_CLASS.get(), String.class, true,
@@ -131,7 +133,7 @@ public final class GroovyScriptedTask
   /**
    * The task property that will be used for the task arguments.
    */
-  static final TaskProperty PROPERTY_TASK_ARG =
+  @NotNull static final TaskProperty PROPERTY_TASK_ARG =
      new TaskProperty(ATTR_GROOVY_SCRIPTED_TASK_ARGUMENT,
           INFO_DISPLAY_NAME_GROOVY_SCRIPTED_TASK_ARG.get(),
           INFO_DESCRIPTION_GROOVY_SCRIPTED_TASK_ARG.get(), String.class, false,
@@ -147,10 +149,10 @@ public final class GroovyScriptedTask
 
 
   // A list of the arguments for the task.
-  private final List<String> taskArguments;
+  @NotNull private final List<String> taskArguments;
 
   // The name of the Groovy class providing the logic for the scripted task.
-  private final String taskClassName;
+  @NotNull private final String taskClassName;
 
 
 
@@ -181,8 +183,9 @@ public final class GroovyScriptedTask
    *                        name=value.  It may be {@code null} or empty if
    *                        there should not be any arguments.
    */
-  public GroovyScriptedTask(final String taskID, final String taskClassName,
-                            final List<String> taskArguments)
+  public GroovyScriptedTask(@Nullable final String taskID,
+                            @NotNull final String taskClassName,
+                            @Nullable final List<String> taskArguments)
   {
     this(taskID, taskClassName, taskArguments, null, null, null, null, null);
   }
@@ -217,13 +220,14 @@ public final class GroovyScriptedTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public GroovyScriptedTask(final String taskID, final String taskClassName,
-                            final List<String> taskArguments,
-                            final Date scheduledStartTime,
-                            final List<String> dependencyIDs,
-                            final FailedDependencyAction failedDependencyAction,
-                            final List<String> notifyOnCompletion,
-                            final List<String> notifyOnError)
+  public GroovyScriptedTask(@Nullable final String taskID,
+              @NotNull final String taskClassName,
+              @Nullable final List<String> taskArguments,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, taskClassName, taskArguments, scheduledStartTime,
          dependencyIDs, failedDependencyAction, null, notifyOnCompletion,
@@ -274,18 +278,19 @@ public final class GroovyScriptedTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public GroovyScriptedTask(final String taskID, final String taskClassName,
-                            final List<String> taskArguments,
-                            final Date scheduledStartTime,
-                            final List<String> dependencyIDs,
-                            final FailedDependencyAction failedDependencyAction,
-                            final List<String> notifyOnStart,
-                            final List<String> notifyOnCompletion,
-                            final List<String> notifyOnSuccess,
-                            final List<String> notifyOnError,
-                            final Boolean alertOnStart,
-                            final Boolean alertOnSuccess,
-                            final Boolean alertOnError)
+  public GroovyScriptedTask(@Nullable final String taskID,
+              @NotNull final String taskClassName,
+              @Nullable final List<String> taskArguments,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, GROOVY_SCRIPTED_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
@@ -316,7 +321,7 @@ public final class GroovyScriptedTask
    * @throws  TaskException  If the provided entry cannot be parsed as a
    *                         Groovy-scripted task entry.
    */
-  public GroovyScriptedTask(final Entry entry)
+  public GroovyScriptedTask(@NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -357,7 +362,8 @@ public final class GroovyScriptedTask
    * @throws  TaskException  If the provided set of properties cannot be used to
    *                         create a valid Groovy-scripted task.
    */
-  public GroovyScriptedTask(final Map<TaskProperty,List<Object>> properties)
+  public GroovyScriptedTask(
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(GROOVY_SCRIPTED_TASK_CLASS, properties);
@@ -405,6 +411,7 @@ public final class GroovyScriptedTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_GROOVY_SCRIPTED_TASK.get();
@@ -416,6 +423,7 @@ public final class GroovyScriptedTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_GROOVY_SCRIPTED_TASK.get();
@@ -430,6 +438,7 @@ public final class GroovyScriptedTask
    * @return  The fully-qualified name of the Groovy class providing the logic
    *          for the scripted task.
    */
+  @NotNull()
   public String getGroovyScriptedTaskClassName()
   {
     return taskClassName;
@@ -443,6 +452,7 @@ public final class GroovyScriptedTask
    * @return  A list of the arguments to provide to the Groovy-scripted task, or
    *          an empty list if there are no arguments.
    */
+  @NotNull()
   public List<String> getGroovyScriptedTaskArguments()
   {
     return taskArguments;
@@ -454,6 +464,7 @@ public final class GroovyScriptedTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(OC_GROOVY_SCRIPTED_TASK);
@@ -465,6 +476,7 @@ public final class GroovyScriptedTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Attribute> getAdditionalAttributes()
   {
     final ArrayList<Attribute> attrList = new ArrayList<>(2);
@@ -485,6 +497,7 @@ public final class GroovyScriptedTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<TaskProperty> getTaskSpecificProperties()
   {
     return Collections.unmodifiableList(Arrays.asList(
@@ -498,6 +511,7 @@ public final class GroovyScriptedTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =

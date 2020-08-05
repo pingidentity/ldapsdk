@@ -46,6 +46,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -134,7 +136,8 @@ public abstract class SchemaElement
    * @throws  LDAPException  If the end of the string was reached without
    *                         finding a non-space character.
    */
-  static int skipSpaces(final String s, final int startPos, final int length)
+  static int skipSpaces(@NotNull final String s, final int startPos,
+                        final int length)
          throws LDAPException
   {
     int pos = startPos;
@@ -173,10 +176,11 @@ public abstract class SchemaElement
    * @throws  LDAPException  If a problem occurs while reading hex-encoded
    *                         bytes.
    */
-  private static int readEscapedHexString(final String s, final int startPos,
+  private static int readEscapedHexString(@NotNull final String s,
+                                          final int startPos,
                                           final int length,
-                                          final String componentName,
-                                          final StringBuilder buffer)
+                                          @NotNull final String componentName,
+                                          @NotNull final StringBuilder buffer)
           throws LDAPException
   {
     int pos    = startPos;
@@ -357,9 +361,9 @@ public abstract class SchemaElement
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         read the single-quoted string.
    */
-  static int readQDString(final String s, final int startPos, final int length,
-                          final String componentName,
-                          final StringBuilder buffer)
+  static int readQDString(@NotNull final String s, final int startPos,
+                          final int length, @NotNull final String componentName,
+                          @NotNull final StringBuilder buffer)
       throws LDAPException
   {
     // The first character must be a single quote.
@@ -439,9 +443,10 @@ public abstract class SchemaElement
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         read the single-quoted strings.
    */
-  static int readQDStrings(final String s, final int startPos, final int length,
-                           final String componentName,
-                           final ArrayList<String> valueList)
+  static int readQDStrings(@NotNull final String s, final int startPos,
+                           final int length,
+                           @NotNull final String componentName,
+                           @NotNull final ArrayList<String> valueList)
       throws LDAPException
   {
     // Look at the first character.  It must be either a single quote or an
@@ -526,8 +531,8 @@ public abstract class SchemaElement
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         read the OID string.
    */
-  static int readOID(final String s, final int startPos, final int length,
-                     final StringBuilder buffer)
+  static int readOID(@NotNull final String s, final int startPos,
+                     final int length, @NotNull final StringBuilder buffer)
       throws LDAPException
   {
     // Read until we find the first space.
@@ -603,9 +608,9 @@ public abstract class SchemaElement
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         read the OID strings.
    */
-  static int readOIDs(final String s, final int startPos, final int length,
-                      final String componentName,
-                      final ArrayList<String> valueList)
+  static int readOIDs(@NotNull final String s, final int startPos,
+                      final int length, @NotNull final String componentName,
+                      @NotNull final ArrayList<String> valueList)
       throws LDAPException
   {
     // Look at the first character.  If it's an opening parenthesis, then read
@@ -685,7 +690,8 @@ public abstract class SchemaElement
    * @param  value   The value to be encoded and placed in the buffer.
    * @param  buffer  The buffer to which the encoded value is to be appended.
    */
-  static void encodeValue(final String value, final StringBuilder buffer)
+  static void encodeValue(@NotNull final String value,
+                          @NotNull final StringBuilder buffer)
   {
     final int length = value.length();
     for (int i=0; i < length; i++)
@@ -709,6 +715,7 @@ public abstract class SchemaElement
    *
    * @return  The type of schema element that this object represents.
    */
+  @NotNull()
   public abstract SchemaElementType getSchemaElementType();
 
 
@@ -730,7 +737,7 @@ public abstract class SchemaElement
    * @return  {@code true} if the provided object may be considered equal to
    *          this schema element, or {@code false} if not.
    */
-  public abstract boolean equals(Object o);
+  public abstract boolean equals(@Nullable Object o);
 
 
 
@@ -743,8 +750,9 @@ public abstract class SchemaElement
    * @return  {@code true} if the provided extension maps are equivalent, or
    *          {@code false} if not.
    */
-  protected static boolean extensionsEqual(final Map<String,String[]> m1,
-                                           final Map<String,String[]> m2)
+  protected static boolean extensionsEqual(
+                                @NotNull final Map<String,String[]> m1,
+                                @NotNull final Map<String,String[]> m2)
   {
     if (m1.isEmpty())
     {
@@ -779,7 +787,8 @@ public abstract class SchemaElement
    * @return  A string array if the provided collection is non-{@code null}, or
    *          {@code null} if the provided collection is {@code null}.
    */
-  static String[] toArray(final Collection<String> c)
+  @Nullable()
+  static String[] toArray(@Nullable final Collection<String> c)
   {
     if (c == null)
     {
@@ -799,5 +808,6 @@ public abstract class SchemaElement
    *          described in RFC 4512.
    */
   @Override()
+  @NotNull()
   public abstract String toString();
 }

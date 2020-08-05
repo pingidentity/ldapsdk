@@ -55,10 +55,10 @@ public final class RateLimitedOutputStream
   private final boolean autoFlush;
 
   // The fixed-rate barrier that will serve as a rate limiter for this class.
-  private final FixedRateBarrier rateLimiter;
+  @NotNull private final FixedRateBarrier rateLimiter;
 
   // The output stream to which the data will actually be written.
-  private final OutputStream wrappedStream;
+  @NotNull private final OutputStream wrappedStream;
 
   // The maximum number of bytes that can be written in any single call to the
   // rate limiter.
@@ -79,7 +79,7 @@ public final class RateLimitedOutputStream
    * @param  autoFlush          Indicates whether to automatically flush the
    *                            wrapped output stream after each write.
    */
-  public RateLimitedOutputStream(final OutputStream wrappedStream,
+  public RateLimitedOutputStream(@NotNull final OutputStream wrappedStream,
                                  final int maxBytesPerSecond,
                                  final boolean autoFlush)
   {
@@ -147,7 +147,7 @@ public final class RateLimitedOutputStream
    *                       wrapped stream.
    */
   @Override()
-  public void write(final byte[] b)
+  public void write(@NotNull final byte[] b)
          throws IOException
   {
     write(b, 0, b.length);
@@ -172,7 +172,7 @@ public final class RateLimitedOutputStream
    *                       wrapped stream.
    */
   @Override()
-  public void write(final byte[] b, final int offset, final int length)
+  public void write(@NotNull final byte[] b, final int offset, final int length)
          throws IOException
   {
     if (length <= 0)

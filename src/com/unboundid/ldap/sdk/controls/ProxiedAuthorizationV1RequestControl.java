@@ -46,6 +46,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -134,7 +135,7 @@ public final class ProxiedAuthorizationV1RequestControl
    * The OID (2.16.840.1.113730.3.4.12) for the proxied authorization v1 request
    * control.
    */
-  public static final String PROXIED_AUTHORIZATION_V1_REQUEST_OID =
+  @NotNull public static final String PROXIED_AUTHORIZATION_V1_REQUEST_OID =
        "2.16.840.1.113730.3.4.12";
 
 
@@ -148,7 +149,7 @@ public final class ProxiedAuthorizationV1RequestControl
 
   // The DN of the target user under whose authorization the associated
   // operation should be performed.
-  private final String proxyDN;
+  @NotNull private final String proxyDN;
 
 
 
@@ -161,7 +162,7 @@ public final class ProxiedAuthorizationV1RequestControl
    *                  {@code null}, although it may be an empty string to
    *                  request an anonymous authorization.
    */
-  public ProxiedAuthorizationV1RequestControl(final String proxyDN)
+  public ProxiedAuthorizationV1RequestControl(@NotNull final String proxyDN)
   {
     super(PROXIED_AUTHORIZATION_V1_REQUEST_OID, true, encodeValue(proxyDN));
 
@@ -180,7 +181,7 @@ public final class ProxiedAuthorizationV1RequestControl
    *                  associated request should be performed.  It must not be
    *                  {@code null}.
    */
-  public ProxiedAuthorizationV1RequestControl(final DN proxyDN)
+  public ProxiedAuthorizationV1RequestControl(@NotNull final DN proxyDN)
   {
     super(PROXIED_AUTHORIZATION_V1_REQUEST_OID, true,
           encodeValue(proxyDN.toString()));
@@ -200,7 +201,7 @@ public final class ProxiedAuthorizationV1RequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         proxied authorization v1 request control.
    */
-  public ProxiedAuthorizationV1RequestControl(final Control control)
+  public ProxiedAuthorizationV1RequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -241,7 +242,8 @@ public final class ProxiedAuthorizationV1RequestControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
-  private static ASN1OctetString encodeValue(final String proxyDN)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String proxyDN)
   {
     final ASN1Element[] valueElements =
     {
@@ -260,6 +262,7 @@ public final class ProxiedAuthorizationV1RequestControl
    * @return  The DN of the target user under whose authorization the associated
    *          request should be performed.
    */
+  @NotNull()
   public String getProxyDN()
   {
     return proxyDN;
@@ -271,6 +274,7 @@ public final class ProxiedAuthorizationV1RequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PROXIED_AUTHZ_V1_REQUEST.get();
@@ -282,7 +286,7 @@ public final class ProxiedAuthorizationV1RequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ProxiedAuthorizationV1RequestControl(proxyDN='");
     buffer.append(proxyDN);

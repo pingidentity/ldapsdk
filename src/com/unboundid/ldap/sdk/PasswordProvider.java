@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,6 +75,7 @@ public abstract class PasswordProvider
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         obtain the password.
    */
+  @NotNull()
   public abstract byte[] getPasswordBytes()
          throws LDAPException;
 }

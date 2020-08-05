@@ -58,6 +58,7 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -92,7 +93,8 @@ public final class TopologyRegistryTrustManager
    * The name of the object class that will be used in entries that may provide
    * information about inter-server certificates in the topology registry.
    */
-  private static final String INTER_SERVER_CERT_OC = "ds-cfg-server-instance";
+  @NotNull private static final String INTER_SERVER_CERT_OC =
+       "ds-cfg-server-instance";
 
 
 
@@ -100,7 +102,7 @@ public final class TopologyRegistryTrustManager
    * The name of the attribute type for attributes that provide information
    * about inter-server certificates in the topology registry.
    */
-  private static final String INTER_SERVER_CERT_AT =
+  @NotNull private static final String INTER_SERVER_CERT_AT =
        "ds-cfg-inter-server-certificate";
 
 
@@ -109,7 +111,7 @@ public final class TopologyRegistryTrustManager
    * The name of the object class that will be used in entries that may provide
    * information about listener certificates in the topology registry.
    */
-  private static final String LISTENER_CERT_OC =
+  @NotNull private static final String LISTENER_CERT_OC =
        "ds-cfg-server-instance-listener";
 
 
@@ -118,14 +120,16 @@ public final class TopologyRegistryTrustManager
    * The name of the attribute type for attributes that provide information
    * about listener certificates in the topology registry.
    */
-  private static final String LISTENER_CERT_AT = "ds-cfg-listener-certificate";
+  @NotNull private static final String LISTENER_CERT_AT =
+       "ds-cfg-listener-certificate";
 
 
 
   /**
    * A pre-allocated empty certificate array.
    */
-  static final X509Certificate[] NO_CERTIFICATES = new X509Certificate[0];
+  @NotNull static final X509Certificate[] NO_CERTIFICATES =
+       new X509Certificate[0];
 
 
 
@@ -137,13 +141,14 @@ public final class TopologyRegistryTrustManager
 
 
   // The time that the cached certificates will expire.
-  private final AtomicLong cacheExpirationTime;
+  @NotNull private final AtomicLong cacheExpirationTime;
 
   // The certificates that have been cached.
-  private final AtomicReference<Set<X509Certificate>> cachedCertificates;
+  @NotNull private final AtomicReference<Set<X509Certificate>>
+       cachedCertificates;
 
   // The configuration file from which the certificate records will be read.
-  private final File configurationFile;
+  @NotNull private final File configurationFile;
 
   // The maximum length of time in milliseconds that previously loaded
   // certificates may be cached.
@@ -162,7 +167,7 @@ public final class TopologyRegistryTrustManager
    *                              cached.  If this is less than or equal to
    *                              zero, then certificates will not be cached.
    */
-  public TopologyRegistryTrustManager(final File configurationFile,
+  public TopologyRegistryTrustManager(@NotNull final File configurationFile,
                                       final long cacheDurationMillis)
   {
     this.configurationFile = configurationFile;
@@ -187,8 +192,8 @@ public final class TopologyRegistryTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
        throws CertificateException
   {
     checkTrusted(chain);
@@ -208,8 +213,8 @@ public final class TopologyRegistryTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
        throws CertificateException
   {
     checkTrusted(chain);
@@ -225,7 +230,7 @@ public final class TopologyRegistryTrustManager
    * @throws  CertificateException  If the certificate chain should not be
    *                                trusted.
    */
-  private void checkTrusted(final X509Certificate[] chain)
+  private void checkTrusted(@NotNull final X509Certificate[] chain)
           throws CertificateException
   {
     // Make sure that the chain is not null or empty.
@@ -322,8 +327,9 @@ public final class TopologyRegistryTrustManager
    * @throws  CertificateException  If a problem is encountered while reading
    *                                certificates from the topology registry.
    */
+  @NotNull()
   private Set<X509Certificate> readTopologyRegistryCertificates(
-                                    final X509Certificate peerCert)
+                                    @NotNull final X509Certificate peerCert)
           throws CertificateException
   {
     try (LDIFReader ldifReader = new LDIFReader(configurationFile))
@@ -394,8 +400,8 @@ public final class TopologyRegistryTrustManager
    *                are parsed.
    * @param  attr   The attribute whose values should be parsed.
    */
-  private void parseCertificates(final Set<X509Certificate> certs,
-                                 final Attribute attr)
+  private void parseCertificates(@NotNull final Set<X509Certificate> certs,
+                                 @NotNull final Attribute attr)
   {
     final StringBuilder certBase64 = new StringBuilder();
     for (final String value : attr.getValues())
@@ -438,7 +444,8 @@ public final class TopologyRegistryTrustManager
    *          empty set of accepted issuers if a problem was encountered while
    *          initializing this trust manager.
    */
-                                 @Override()
+  @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

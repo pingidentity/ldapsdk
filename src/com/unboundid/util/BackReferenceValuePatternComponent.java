@@ -85,7 +85,7 @@ final class BackReferenceValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     // This should never be called.
     throw new AssertionError(

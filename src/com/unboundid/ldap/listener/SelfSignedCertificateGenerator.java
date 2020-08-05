@@ -53,6 +53,7 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -97,9 +98,10 @@ public final class SelfSignedCertificateGenerator
    *                         temporary keystore containing the self-signed
    *                         certificate.
    */
+  @NotNull()
   public static ObjectPair<File,char[]> generateTemporarySelfSignedCertificate(
-                                             final String toolName,
-                                             final String keyStoreType)
+                                             @NotNull final String toolName,
+                                             @NotNull final String keyStoreType)
          throws CertException
   {
     final File keyStoreFile;
@@ -151,11 +153,12 @@ public final class SelfSignedCertificateGenerator
    * @throws  CertException  If a problem occurs while trying to generate
    *                         self-signed certificate.
    */
-  public static void generateSelfSignedCertificate(final String toolName,
-                                                   final File keyStoreFile,
-                                                   final String keyStorePIN,
-                                                   final String keyStoreType,
-                                                   final String alias)
+  public static void generateSelfSignedCertificate(
+                          @NotNull final String toolName,
+                          @NotNull final File keyStoreFile,
+                          @NotNull final String keyStorePIN,
+                          @NotNull final String keyStoreType,
+                          @NotNull final String alias)
          throws CertException
   {
     // Try to get a set of all addresses associated with the local system and

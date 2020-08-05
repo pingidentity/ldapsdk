@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.persist;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -63,7 +64,7 @@ public interface ObjectSearchListener<T>
    * @param  o  The object that has been decoded from the entry that was
    *            returned.  It will never be {@code null}.
    */
-  void objectReturned(T o);
+  void objectReturned(@NotNull T o);
 
 
 
@@ -77,8 +78,8 @@ public interface ObjectSearchListener<T>
    * @param  exception  The exception that was encountered while trying to
    *                    create and initialize an object from the provided entry.
    */
-  void unparsableEntryReturned(SearchResultEntry entry,
-                               LDAPPersistException exception);
+  void unparsableEntryReturned(@NotNull SearchResultEntry entry,
+                               @NotNull LDAPPersistException exception);
 
 
 
@@ -89,5 +90,5 @@ public interface ObjectSearchListener<T>
    * @param  searchReference  The search result reference that has been
    *                          retrieved from the server.
    */
-  void searchReferenceReturned(SearchResultReference searchReference);
+  void searchReferenceReturned(@NotNull SearchResultReference searchReference);
 }

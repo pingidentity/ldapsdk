@@ -63,6 +63,8 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,56 +89,58 @@ public final class Schema
   /**
    * The name of the attribute used to hold the attribute syntax definitions.
    */
-  public static final String ATTR_ATTRIBUTE_SYNTAX = "ldapSyntaxes";
+  @NotNull public static final String ATTR_ATTRIBUTE_SYNTAX = "ldapSyntaxes";
 
 
 
   /**
    * The name of the attribute used to hold the attribute type definitions.
    */
-  public static final String ATTR_ATTRIBUTE_TYPE = "attributeTypes";
+  @NotNull public static final String ATTR_ATTRIBUTE_TYPE = "attributeTypes";
 
 
 
   /**
    * The name of the attribute used to hold the DIT content rule definitions.
    */
-  public static final String ATTR_DIT_CONTENT_RULE = "dITContentRules";
+  @NotNull public static final String ATTR_DIT_CONTENT_RULE = "dITContentRules";
 
 
 
   /**
    * The name of the attribute used to hold the DIT structure rule definitions.
    */
-  public static final String ATTR_DIT_STRUCTURE_RULE = "dITStructureRules";
+  @NotNull public static final String ATTR_DIT_STRUCTURE_RULE =
+       "dITStructureRules";
 
 
 
   /**
    * The name of the attribute used to hold the matching rule definitions.
    */
-  public static final String ATTR_MATCHING_RULE = "matchingRules";
+  @NotNull public static final String ATTR_MATCHING_RULE = "matchingRules";
 
 
 
   /**
    * The name of the attribute used to hold the matching rule use definitions.
    */
-  public static final String ATTR_MATCHING_RULE_USE = "matchingRuleUse";
+  @NotNull public static final String ATTR_MATCHING_RULE_USE =
+       "matchingRuleUse";
 
 
 
   /**
    * The name of the attribute used to hold the name form definitions.
    */
-  public static final String ATTR_NAME_FORM = "nameForms";
+  @NotNull public static final String ATTR_NAME_FORM = "nameForms";
 
 
 
   /**
    * The name of the attribute used to hold the object class definitions.
    */
-  public static final String ATTR_OBJECT_CLASS = "objectClasses";
+  @NotNull public static final String ATTR_OBJECT_CLASS = "objectClasses";
 
 
 
@@ -144,15 +148,16 @@ public final class Schema
    * The name of the attribute used to hold the DN of the subschema subentry
    * with the schema information that governs a specified entry.
    */
-  public static final String ATTR_SUBSCHEMA_SUBENTRY = "subschemaSubentry";
+  @NotNull public static final String ATTR_SUBSCHEMA_SUBENTRY =
+       "subschemaSubentry";
 
 
 
   /**
    * The default standard schema available for use in the LDAP SDK.
    */
-  private static final AtomicReference<Schema> DEFAULT_STANDARD_SCHEMA =
-       new AtomicReference<>();
+  @NotNull private static final AtomicReference<Schema>
+       DEFAULT_STANDARD_SCHEMA = new AtomicReference<>();
 
 
 
@@ -160,7 +165,7 @@ public final class Schema
    * The set of request attributes that will be used when retrieving the server
    * subschema subentry in order to retrieve all of the schema elements.
    */
-  private static final String[] SCHEMA_REQUEST_ATTRS =
+  @NotNull private static final String[] SCHEMA_REQUEST_ATTRS =
   {
     "*",
     ATTR_ATTRIBUTE_SYNTAX,
@@ -180,7 +185,7 @@ public final class Schema
    * subschema subentry attribute from a specified entry in order to determine
    * the location of the server schema definitions.
    */
-  private static final String[] SUBSCHEMA_SUBENTRY_REQUEST_ATTRS =
+  @NotNull private static final String[] SUBSCHEMA_SUBENTRY_REQUEST_ATTRS =
   {
     ATTR_SUBSCHEMA_SUBENTRY
   };
@@ -191,7 +196,7 @@ public final class Schema
    * Retrieves the resource path that may be used to obtain a file with a number
    * of standard schema definitions.
    */
-  private static final String DEFAULT_SCHEMA_RESOURCE_PATH =
+  @NotNull private static final String DEFAULT_SCHEMA_RESOURCE_PATH =
        "com/unboundid/ldap/sdk/schema/standard-schema.ldif";
 
 
@@ -205,83 +210,85 @@ public final class Schema
 
   // A map of all subordinate attribute type definitions for each attribute
   // type definition.
-  private final Map<AttributeTypeDefinition,List<AttributeTypeDefinition>>
-       subordinateAttributeTypes;
+  @NotNull private final
+       Map<AttributeTypeDefinition,List<AttributeTypeDefinition>>
+            subordinateAttributeTypes;
 
   // The set of attribute syntaxes mapped from lowercase name/OID to syntax.
-  private final Map<String,AttributeSyntaxDefinition> asMap;
+  @NotNull private final Map<String,AttributeSyntaxDefinition> asMap;
 
   // The set of attribute types mapped from lowercase name/OID to type.
-  private final Map<String,AttributeTypeDefinition> atMap;
+  @NotNull private final Map<String,AttributeTypeDefinition> atMap;
 
   // The set of DIT content rules mapped from lowercase name/OID to rule.
-  private final Map<String,DITContentRuleDefinition> dcrMap;
+  @NotNull private final Map<String,DITContentRuleDefinition> dcrMap;
 
   // The set of DIT structure rules mapped from rule ID to rule.
-  private final Map<Integer,DITStructureRuleDefinition> dsrMapByID;
+  @NotNull private final Map<Integer,DITStructureRuleDefinition> dsrMapByID;
 
   // The set of DIT structure rules mapped from lowercase name to rule.
-  private final Map<String,DITStructureRuleDefinition> dsrMapByName;
+  @NotNull private final Map<String,DITStructureRuleDefinition> dsrMapByName;
 
   // The set of DIT structure rules mapped from lowercase name to rule.
-  private final Map<String,DITStructureRuleDefinition> dsrMapByNameForm;
+  @NotNull private final Map<String,DITStructureRuleDefinition>
+       dsrMapByNameForm;
 
   // The set of matching rules mapped from lowercase name/OID to rule.
-  private final Map<String,MatchingRuleDefinition> mrMap;
+  @NotNull private final Map<String,MatchingRuleDefinition> mrMap;
 
   // The set of matching rule uses mapped from matching rule OID to use.
-  private final Map<String,MatchingRuleUseDefinition> mruMap;
+  @NotNull private final Map<String,MatchingRuleUseDefinition> mruMap;
 
   // The set of name forms mapped from lowercase name/OID to name form.
-  private final Map<String,NameFormDefinition> nfMapByName;
+  @NotNull private final Map<String,NameFormDefinition> nfMapByName;
 
   // The set of name forms mapped from structural class OID to name form.
-  private final Map<String,NameFormDefinition> nfMapByOC;
+  @NotNull private final Map<String,NameFormDefinition> nfMapByOC;
 
   // The set of object classes mapped from lowercase name/OID to class.
-  private final Map<String,ObjectClassDefinition> ocMap;
+  @NotNull private final Map<String,ObjectClassDefinition> ocMap;
 
   // The entry used to create this schema object.
-  private final ReadOnlyEntry schemaEntry;
+  @NotNull private final ReadOnlyEntry schemaEntry;
 
   // The set of attribute syntaxes defined in the schema.
-  private final Set<AttributeSyntaxDefinition> asSet;
+  @NotNull private final Set<AttributeSyntaxDefinition> asSet;
 
   // The set of attribute types defined in the schema.
-  private final Set<AttributeTypeDefinition> atSet;
+  @NotNull private final Set<AttributeTypeDefinition> atSet;
 
   // The set of operational attribute types defined in the schema.
-  private final Set<AttributeTypeDefinition> operationalATSet;
+  @NotNull private final Set<AttributeTypeDefinition> operationalATSet;
 
   // The set of user attribute types defined in the schema.
-  private final Set<AttributeTypeDefinition> userATSet;
+  @NotNull private final Set<AttributeTypeDefinition> userATSet;
 
   // The set of DIT content rules defined in the schema.
-  private final Set<DITContentRuleDefinition> dcrSet;
+  @NotNull private final Set<DITContentRuleDefinition> dcrSet;
 
   // The set of DIT structure rules defined in the schema.
-  private final Set<DITStructureRuleDefinition> dsrSet;
+  @NotNull private final Set<DITStructureRuleDefinition> dsrSet;
 
   // The set of matching rules defined in the schema.
-  private final Set<MatchingRuleDefinition> mrSet;
+  @NotNull private final Set<MatchingRuleDefinition> mrSet;
 
   // The set of matching rule uses defined in the schema.
-  private final Set<MatchingRuleUseDefinition> mruSet;
+  @NotNull private final Set<MatchingRuleUseDefinition> mruSet;
 
   // The set of name forms defined in the schema.
-  private final Set<NameFormDefinition> nfSet;
+  @NotNull private final Set<NameFormDefinition> nfSet;
 
   // The set of object classes defined in the schema.
-  private final Set<ObjectClassDefinition> ocSet;
+  @NotNull private final Set<ObjectClassDefinition> ocSet;
 
   // The set of abstract object classes defined in the schema.
-  private final Set<ObjectClassDefinition> abstractOCSet;
+  @NotNull private final Set<ObjectClassDefinition> abstractOCSet;
 
   // The set of auxiliary object classes defined in the schema.
-  private final Set<ObjectClassDefinition> auxiliaryOCSet;
+  @NotNull private final Set<ObjectClassDefinition> auxiliaryOCSet;
 
   // The set of structural object classes defined in the schema.
-  private final Set<ObjectClassDefinition> structuralOCSet;
+  @NotNull private final Set<ObjectClassDefinition> structuralOCSet;
 
 
 
@@ -292,7 +299,7 @@ public final class Schema
    * @param  schemaEntry  The schema entry to decode.  It must not be
    *                      {@code null}.
    */
-  public Schema(final Entry schemaEntry)
+  public Schema(@NotNull final Entry schemaEntry)
   {
     this(schemaEntry, null, null, null, null, null, null, null, null);
   }
@@ -356,15 +363,15 @@ public final class Schema
    *                                      attribute syntax definitions should be
    *                                      silently ignored.
    */
-  public Schema(final Entry schemaEntry,
-                final Map<String,LDAPException> unparsableAttributeSyntaxes,
-                final Map<String,LDAPException> unparsableMatchingRules,
-                final Map<String,LDAPException> unparsableAttributeTypes,
-                final Map<String,LDAPException> unparsableObjectClasses,
-                final Map<String,LDAPException> unparsableDITContentRules,
-                final Map<String,LDAPException> unparsableDITStructureRules,
-                final Map<String,LDAPException> unparsableNameForms,
-                final Map<String,LDAPException> unparsableMatchingRuleUses)
+  public Schema(@NotNull final Entry schemaEntry,
+       @Nullable final Map<String,LDAPException> unparsableAttributeSyntaxes,
+       @Nullable final Map<String,LDAPException> unparsableMatchingRules,
+       @Nullable final Map<String,LDAPException> unparsableAttributeTypes,
+       @Nullable final Map<String,LDAPException> unparsableObjectClasses,
+       @Nullable final Map<String,LDAPException> unparsableDITContentRules,
+       @Nullable final Map<String,LDAPException> unparsableDITStructureRules,
+       @Nullable final Map<String,LDAPException> unparsableNameForms,
+       @Nullable final Map<String,LDAPException> unparsableMatchingRuleUses)
   {
     this.schemaEntry = new ReadOnlyEntry(schemaEntry);
 
@@ -721,7 +728,7 @@ public final class Schema
             m.put(StaticUtils.toLowerCase(name), oc);
           }
 
-          switch (oc.getObjectClassType(null))
+          switch (oc.getObjectClassType(this))
           {
             case ABSTRACT:
               sAbstract.add(oc);
@@ -792,7 +799,8 @@ public final class Schema
    * @throws  LDAPException  If the provided entry contains any schema element
    *                         definitions that cannot be parsed.
    */
-  public static Schema parseSchemaEntry(final Entry schemaEntry)
+  @NotNull()
+  public static Schema parseSchemaEntry(@NotNull final Entry schemaEntry)
          throws LDAPException
   {
     final Map<String,LDAPException> unparsableAttributeSyntaxes =
@@ -907,8 +915,8 @@ public final class Schema
    * @param  buffer   The buffer to which the message should be appended.
    * @param  message  The message to append to the buffer.
    */
-  private static void appendErrorMessage(final StringBuilder buffer,
-                                         final String message)
+  private static void appendErrorMessage(@NotNull final StringBuilder buffer,
+                                         @NotNull final String message)
   {
     final int length = buffer.length();
     if (length > 0)
@@ -946,7 +954,8 @@ public final class Schema
    * @throws  LDAPException  If a problem occurs while obtaining the server
    *                         schema.
    */
-  public static Schema getSchema(final LDAPConnection connection)
+  @Nullable()
+  public static Schema getSchema(@NotNull final LDAPConnection connection)
          throws LDAPException
   {
     return getSchema(connection, "");
@@ -977,8 +986,9 @@ public final class Schema
    * @throws  LDAPException  If a problem occurs while obtaining the server
    *                         schema.
    */
-  public static Schema getSchema(final LDAPConnection connection,
-                                 final String entryDN)
+  @Nullable()
+  public static Schema getSchema(@NotNull final LDAPConnection connection,
+                                 @Nullable final String entryDN)
          throws LDAPException
   {
     return getSchema(connection, entryDN, false);
@@ -1017,8 +1027,9 @@ public final class Schema
    *                         unparsable elements and
    *                         {@code throwOnUnparsableElement} is {@code true}.
    */
-  public static Schema getSchema(final LDAPConnection connection,
-                                 final String entryDN,
+  @Nullable()
+  public static Schema getSchema(@NotNull final LDAPConnection connection,
+                                 @Nullable final String entryDN,
                                  final boolean throwOnUnparsableElement)
          throws LDAPException
   {
@@ -1081,7 +1092,8 @@ public final class Schema
    * @throws  LDIFException  If a problem occurs while attempting to parse the
    *                         contents of any of the schema files.
    */
-  public static Schema getSchema(final String... schemaFiles)
+  @Nullable()
+  public static Schema getSchema(@NotNull final String... schemaFiles)
          throws IOException, LDIFException
   {
     Validator.ensureNotNull(schemaFiles);
@@ -1119,7 +1131,8 @@ public final class Schema
    * @throws  LDIFException  If a problem occurs while attempting to parse the
    *                         contents of any of the schema files.
    */
-  public static Schema getSchema(final File... schemaFiles)
+  @Nullable()
+  public static Schema getSchema(@NotNull final File... schemaFiles)
          throws IOException, LDIFException
   {
     Validator.ensureNotNull(schemaFiles);
@@ -1151,7 +1164,8 @@ public final class Schema
    * @throws  LDIFException  If a problem occurs while attempting to parse the
    *                         contents of any of the schema files.
    */
-  public static Schema getSchema(final List<File> schemaFiles)
+  @Nullable()
+  public static Schema getSchema(@NotNull final List<File> schemaFiles)
          throws IOException, LDIFException
   {
     return getSchema(schemaFiles, false);
@@ -1187,7 +1201,8 @@ public final class Schema
    *                         then this may also be thrown if any of the schema
    *                         files contains any unparsable schema elements.
    */
-  public static Schema getSchema(final List<File> schemaFiles,
+  @Nullable()
+  public static Schema getSchema(@NotNull final List<File> schemaFiles,
                                  final boolean throwOnUnparsableElement)
          throws IOException, LDIFException
   {
@@ -1271,7 +1286,8 @@ public final class Schema
    * @throws  LDIFException  If a problem occurs while attempting to parse the
    *                         data read as LDIF.
    */
-  public static Schema getSchema(final InputStream inputStream)
+  @Nullable()
+  public static Schema getSchema(@NotNull final InputStream inputStream)
          throws IOException, LDIFException
   {
     Validator.ensureNotNull(inputStream);
@@ -1310,6 +1326,7 @@ public final class Schema
    * @throws  LDAPException  If a problem occurs while attempting to obtain or
    *                         parse the default standard schema definitions.
    */
+  @NotNull()
   public static Schema getDefaultStandardSchema()
          throws LDAPException
   {
@@ -1356,7 +1373,8 @@ public final class Schema
    *
    * @return  A merged representation of the provided schemas.
    */
-  public static Schema mergeSchemas(final Schema... schemas)
+  @Nullable()
+  public static Schema mergeSchemas(@NotNull final Schema... schemas)
   {
     if ((schemas == null) || (schemas.length == 0))
     {
@@ -1498,6 +1516,7 @@ public final class Schema
    *
    * @return  The entry used to create this schema object.
    */
+  @NotNull()
   public ReadOnlyEntry getSchemaEntry()
   {
     return schemaEntry;
@@ -1524,8 +1543,10 @@ public final class Schema
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the specified entry.
    */
-  public static String getSubschemaSubentryDN(final LDAPConnection connection,
-                                              final String entryDN)
+  @Nullable()
+  public static String getSubschemaSubentryDN(
+                            @NotNull final LDAPConnection connection,
+                            @Nullable final String entryDN)
          throws LDAPException
   {
     Validator.ensureNotNull(connection);
@@ -1557,6 +1578,7 @@ public final class Schema
    * @return  The set of attribute syntax definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<AttributeSyntaxDefinition> getAttributeSyntaxes()
   {
     return asSet;
@@ -1577,7 +1599,8 @@ public final class Schema
    * @return  The requested attribute syntax, or {@code null} if there is no
    *          such syntax defined in the server schema.
    */
-  public AttributeSyntaxDefinition getAttributeSyntax(final String oid)
+  @Nullable()
+  public AttributeSyntaxDefinition getAttributeSyntax(@NotNull final String oid)
   {
     Validator.ensureNotNull(oid);
 
@@ -1603,6 +1626,7 @@ public final class Schema
    * @return  The set of attribute type definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<AttributeTypeDefinition> getAttributeTypes()
   {
     return atSet;
@@ -1618,6 +1642,7 @@ public final class Schema
    * @return  The set of operational attribute type definitions contained in the
    *          server schema.
    */
+  @NotNull()
   public Set<AttributeTypeDefinition> getOperationalAttributeTypes()
   {
     return operationalATSet;
@@ -1633,6 +1658,7 @@ public final class Schema
    * @return  The set of user attribute type definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<AttributeTypeDefinition> getUserAttributeTypes()
   {
     return userATSet;
@@ -1650,7 +1676,8 @@ public final class Schema
    * @return  The requested attribute type, or {@code null} if there is no
    *          such attribute type defined in the server schema.
    */
-  public AttributeTypeDefinition getAttributeType(final String name)
+  @Nullable()
+  public AttributeTypeDefinition getAttributeType(@NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -1671,8 +1698,9 @@ public final class Schema
    *          not have any subordinate types or the provided attribute type is
    *          not defined in the schema.
    */
+  @NotNull()
   public List<AttributeTypeDefinition> getSubordinateAttributeTypes(
-                                            final AttributeTypeDefinition d)
+              @NotNull final AttributeTypeDefinition d)
   {
     Validator.ensureNotNull(d);
 
@@ -1696,6 +1724,7 @@ public final class Schema
    * @return  The set of DIT content rule definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<DITContentRuleDefinition> getDITContentRules()
   {
     return dcrSet;
@@ -1713,7 +1742,8 @@ public final class Schema
    * @return  The requested DIT content rule, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
-  public DITContentRuleDefinition getDITContentRule(final String name)
+  @Nullable()
+  public DITContentRuleDefinition getDITContentRule(@NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -1729,6 +1759,7 @@ public final class Schema
    * @return  The set of DIT structure rule definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<DITStructureRuleDefinition> getDITStructureRules()
   {
     return dsrSet;
@@ -1745,6 +1776,7 @@ public final class Schema
    * @return  The requested DIT structure rule, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
+  @Nullable()
   public DITStructureRuleDefinition getDITStructureRuleByID(final int ruleID)
   {
     return dsrMapByID.get(ruleID);
@@ -1762,8 +1794,9 @@ public final class Schema
    * @return  The requested DIT structure rule, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
+  @Nullable()
   public DITStructureRuleDefinition getDITStructureRuleByName(
-                                         final String ruleName)
+                                         @NotNull final String ruleName)
   {
     Validator.ensureNotNull(ruleName);
 
@@ -1782,8 +1815,9 @@ public final class Schema
    * @return  The requested DIT structure rule, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
+  @Nullable()
   public DITStructureRuleDefinition getDITStructureRuleByNameForm(
-                                         final String nameForm)
+                                         @NotNull final String nameForm)
   {
     Validator.ensureNotNull(nameForm);
 
@@ -1799,6 +1833,7 @@ public final class Schema
    * @return  The set of matching rule definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<MatchingRuleDefinition> getMatchingRules()
   {
     return mrSet;
@@ -1816,7 +1851,8 @@ public final class Schema
    * @return  The requested matching rule, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
-  public MatchingRuleDefinition getMatchingRule(final String name)
+  @Nullable()
+  public MatchingRuleDefinition getMatchingRule(@NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -1832,6 +1868,7 @@ public final class Schema
    * @return  The set of matching rule use definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<MatchingRuleUseDefinition> getMatchingRuleUses()
   {
     return mruSet;
@@ -1849,7 +1886,9 @@ public final class Schema
    * @return  The requested matching rule, or {@code null} if there is no
    *          such matching rule use defined in the server schema.
    */
-  public MatchingRuleUseDefinition getMatchingRuleUse(final String name)
+  @Nullable()
+  public MatchingRuleUseDefinition getMatchingRuleUse(
+              @NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -1863,6 +1902,7 @@ public final class Schema
    *
    * @return  The set of name form definitions contained in the server schema.
    */
+  @NotNull()
   public Set<NameFormDefinition> getNameForms()
   {
     return nfSet;
@@ -1880,7 +1920,8 @@ public final class Schema
    * @return  The requested name form, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
-  public NameFormDefinition getNameFormByName(final String name)
+  @Nullable()
+  public NameFormDefinition getNameFormByName(@NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -1900,7 +1941,9 @@ public final class Schema
    * @return  The requested name form, or {@code null} if there is no
    *          such rule defined in the server schema.
    */
-  public NameFormDefinition getNameFormByObjectClass(final String objectClass)
+  @NotNull()
+  public NameFormDefinition getNameFormByObjectClass(
+                                 @NotNull final String objectClass)
   {
     Validator.ensureNotNull(objectClass);
 
@@ -1916,6 +1959,7 @@ public final class Schema
    * @return  The set of object class definitions contained in the server
    *          schema.
    */
+  @NotNull()
   public Set<ObjectClassDefinition> getObjectClasses()
   {
     return ocSet;
@@ -1930,6 +1974,7 @@ public final class Schema
    * @return  The set of abstract object class definitions contained in the
    *          server schema.
    */
+  @NotNull()
   public Set<ObjectClassDefinition> getAbstractObjectClasses()
   {
     return abstractOCSet;
@@ -1944,6 +1989,7 @@ public final class Schema
    * @return  The set of auxiliary object class definitions contained in the
    *          server schema.
    */
+  @NotNull()
   public Set<ObjectClassDefinition> getAuxiliaryObjectClasses()
   {
     return auxiliaryOCSet;
@@ -1958,6 +2004,7 @@ public final class Schema
    * @return  The set of structural object class definitions contained in the
    *          server schema.
    */
+  @NotNull()
   public Set<ObjectClassDefinition> getStructuralObjectClasses()
   {
     return structuralOCSet;
@@ -1975,7 +2022,8 @@ public final class Schema
    * @return  The requested object class, or {@code null} if there is no such
    *          class defined in the server schema.
    */
-  public ObjectClassDefinition getObjectClass(final String name)
+  @Nullable()
+  public ObjectClassDefinition getObjectClass(@NotNull final String name)
   {
     Validator.ensureNotNull(name);
 
@@ -2065,7 +2113,7 @@ public final class Schema
    *          object, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -2118,6 +2166,7 @@ public final class Schema
    * @return  A string representation of the associated schema entry.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return schemaEntry.toString();

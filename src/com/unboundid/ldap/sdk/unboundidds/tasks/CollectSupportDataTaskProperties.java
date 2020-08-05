@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -81,98 +83,98 @@ public final class CollectSupportDataTaskProperties
 
   // Indicates whether to generate an administrative alert if the task completes
   // with an error.
-  private Boolean alertOnError;
+  @Nullable private Boolean alertOnError;
 
   // Indicates whether to generate an administrative alert when the task starts
   // running.
-  private Boolean alertOnStart;
+  @Nullable private Boolean alertOnStart;
 
   // Indicates whether to generate an administrative alert if the task completes
   // successfully.
-  private Boolean alertOnSuccess;
+  @Nullable private Boolean alertOnSuccess;
 
   // Indicates whether to include binary files in the support data archive.
-  private Boolean includeBinaryFiles;
+  @Nullable private Boolean includeBinaryFiles;
 
   // Indicates whether to include expensive data in the support data archive.
-  private Boolean includeExpensiveData;
+  @Nullable private Boolean includeExpensiveData;
 
   // Indicates whether to include third-party extension source code in the
   // support data archive.
-  private Boolean includeExtensionSource;
+  @Nullable private Boolean includeExtensionSource;
 
   // Indicates whether to include a replication state dump in the support data
   // archive.
-  private Boolean includeReplicationStateDump;
+  @Nullable private Boolean includeReplicationStateDump;
 
   // Indicates whether to capture information sequentially rather than in
   // parallel.
-  private Boolean useSequentialMode;
+  @Nullable private Boolean useSequentialMode;
 
   // The security level to use for data included in the support data archive.
-  private CollectSupportDataSecurityLevel securityLevel;
+  @Nullable private CollectSupportDataSecurityLevel securityLevel;
 
   // The time at which the task should start running.
-  private Date scheduledStartTime;
+  @Nullable private Date scheduledStartTime;
 
   // The action to take if any of the dependencies for this task complete
   // unsuccessfully.
-  private FailedDependencyAction failedDependencyAction;
+  @Nullable private FailedDependencyAction failedDependencyAction;
 
   // The number of jstacks to include in the support data archive.
-  private Integer jstackCount;
+  @Nullable private Integer jstackCount;
 
   // The amount of data in kilobytes to capture from the beginning of each log
   // file.
-  private Integer logFileHeadCollectionSizeKB;
+  @Nullable private Integer logFileHeadCollectionSizeKB;
 
   // The amount of data in kilobytes to capture from the end of each log file.
-  private Integer logFileTailCollectionSizeKB;
+  @Nullable private Integer logFileTailCollectionSizeKB;
 
   // The report count to use for sampled metrics.
-  private Integer reportCount;
+  @Nullable private Integer reportCount;
 
   // The report interval in seconds to use for sampled metrics.
-  private Integer reportIntervalSeconds;
+  @Nullable private Integer reportIntervalSeconds;
 
   // The minimum number of existing support data archives that should be
   // retained.
-  private Integer retainPreviousSupportDataArchiveCount;
+  @Nullable private Integer retainPreviousSupportDataArchiveCount;
 
   // The dependency IDs of any tasks on which the collect support data task
   // should depend.
-  private final List<String> dependencyIDs;
+  @NotNull private final List<String> dependencyIDs;
 
   // The addresses to email whenever the task completes, regardless of success
   // or failure.
-  private final List<String> notifyOnCompletion;
+  @NotNull private final List<String> notifyOnCompletion;
 
   // The addresses to email if the task completes with an error.
-  private final List<String> notifyOnError;
+  @NotNull private final List<String> notifyOnError;
 
   // The addresses to email when the task starts.
-  private final List<String> notifyOnStart;
+  @NotNull private final List<String> notifyOnStart;
 
   // The addresses to email if the task completes successfully.
-  private final List<String> notifyOnSuccess;
+  @NotNull private final List<String> notifyOnSuccess;
 
   // A comment to include in the support data archive.
-  private String comment;
+  @Nullable private String comment;
 
   // The path to the encryption passphrase file.
-  private String encryptionPassphraseFile;
+  @Nullable private String encryptionPassphraseFile;
 
   // A string representation of the log duration to capture.
-  private String logDuration;
+  @Nullable private String logDuration;
 
   // The path to which the support data archive should be written.
-  private String outputPath;
+  @Nullable private String outputPath;
 
   // The minimum age for existing support data archives that should be retained.
-  private String retainPreviousSupportDataArchiveAge;
+  @Nullable private String retainPreviousSupportDataArchiveAge;
 
   // The task ID to use for the collect support data task.
-  private String taskID;
+  @Nullable private String taskID;
 
 
 
@@ -222,7 +224,7 @@ public final class CollectSupportDataTaskProperties
    * @param  properties  The collect support data task properties to duplicate.
    */
   public CollectSupportDataTaskProperties(
-              final CollectSupportDataTaskProperties properties)
+              @NotNull final CollectSupportDataTaskProperties properties)
   {
     alertOnError = properties.getAlertOnError();
     alertOnStart = properties.getAlertOnStart();
@@ -265,7 +267,8 @@ public final class CollectSupportDataTaskProperties
    * @param  task  The collect support data task instance from which the
    *               properties should be set.
    */
-  public CollectSupportDataTaskProperties(final CollectSupportDataTask task)
+  public CollectSupportDataTaskProperties(
+              @NotNull final CollectSupportDataTask task)
   {
     alertOnError = task.getAlertOnError();
     alertOnStart = task.getAlertOnStart();
@@ -309,6 +312,7 @@ public final class CollectSupportDataTaskProperties
    *          archive should be written, or {@code null} if no value has been
    *          specified for the property.
    */
+  @Nullable()
   public String getOutputPath()
   {
     return outputPath;
@@ -336,7 +340,7 @@ public final class CollectSupportDataTaskProperties
    *                     if the server should choose the path and name for the
    *                     output file.
    */
-  public void setOutputPath(final String outputPath)
+  public void setOutputPath(@Nullable final String outputPath)
   {
     this.outputPath = outputPath;
   }
@@ -352,6 +356,7 @@ public final class CollectSupportDataTaskProperties
    *          {@code null} if no value has been specified for the property, and
    *          the support data archive should not be encrypted.
    */
+  @Nullable()
   public String getEncryptionPassphraseFile()
   {
     return encryptionPassphraseFile;
@@ -371,7 +376,8 @@ public final class CollectSupportDataTaskProperties
    *                                   may be {@code null} if the support data
    *                                   archive should not be encrypted.
    */
-  public void setEncryptionPassphraseFile(final String encryptionPassphraseFile)
+  public void setEncryptionPassphraseFile(
+                   @Nullable final String encryptionPassphraseFile)
   {
     this.encryptionPassphraseFile = encryptionPassphraseFile;
   }
@@ -389,6 +395,7 @@ public final class CollectSupportDataTaskProperties
    *          task is created (in which case the server will use a default
    *          behavior of excluding expensive data).
    */
+  @Nullable()
   public Boolean getIncludeExpensiveData()
   {
     return includeExpensiveData;
@@ -409,7 +416,8 @@ public final class CollectSupportDataTaskProperties
    *                               case the server will use a default behavior
    *                               of excluding expensive data).
    */
-  public void setIncludeExpensiveData(final Boolean includeExpensiveData)
+  public void setIncludeExpensiveData(
+                   @Nullable final Boolean includeExpensiveData)
   {
     this.includeExpensiveData = includeExpensiveData;
   }
@@ -427,6 +435,7 @@ public final class CollectSupportDataTaskProperties
    *          which case the server will use a default behavior of excluding the
    *          state dump).
    */
+  @Nullable()
   public Boolean getIncludeReplicationStateDump()
   {
     return includeReplicationStateDump;
@@ -449,7 +458,7 @@ public final class CollectSupportDataTaskProperties
    *                                      the state dump).
    */
   public void setIncludeReplicationStateDump(
-                   final Boolean includeReplicationStateDump)
+                   @Nullable final Boolean includeReplicationStateDump)
   {
     this.includeReplicationStateDump = includeReplicationStateDump;
   }
@@ -465,6 +474,7 @@ public final class CollectSupportDataTaskProperties
    *          should not be specified when the task is created (in which case
    *          the server will use a default behavior of excluding binary files).
    */
+  @Nullable()
   public Boolean getIncludeBinaryFiles()
   {
     return includeBinaryFiles;
@@ -483,7 +493,7 @@ public final class CollectSupportDataTaskProperties
    *                             which case the server will use a default
    *                             behavior of excluding binary files).
    */
-  public void setIncludeBinaryFiles(final Boolean includeBinaryFiles)
+  public void setIncludeBinaryFiles(@Nullable final Boolean includeBinaryFiles)
   {
     this.includeBinaryFiles = includeBinaryFiles;
   }
@@ -502,6 +512,7 @@ public final class CollectSupportDataTaskProperties
    *          which case the server will use a default behavior of excluding
    *          extension source code).
    */
+  @Nullable()
   public Boolean getIncludeExtensionSource()
   {
     return includeExtensionSource;
@@ -524,7 +535,8 @@ public final class CollectSupportDataTaskProperties
    *                                 a default behavior of excluding extension
    *                                 source code).
    */
-  public void setIncludeExtensionSource(final Boolean includeExtensionSource)
+  public void setIncludeExtensionSource(
+                   @Nullable final Boolean includeExtensionSource)
   {
     this.includeExtensionSource = includeExtensionSource;
   }
@@ -544,6 +556,7 @@ public final class CollectSupportDataTaskProperties
    *          not be specified when the task is created (in which case the
    *          server will default to capturing data in parallel).
    */
+  @Nullable()
   public Boolean getUseSequentialMode()
   {
     return useSequentialMode;
@@ -566,7 +579,7 @@ public final class CollectSupportDataTaskProperties
    *                            is created (in which case the server will
    *                            default to capturing data in parallel).
    */
-  public void setUseSequentialMode(final Boolean useSequentialMode)
+  public void setUseSequentialMode(@Nullable final Boolean useSequentialMode)
   {
     this.useSequentialMode = useSequentialMode;
   }
@@ -582,6 +595,7 @@ public final class CollectSupportDataTaskProperties
    *          specified when the task is created (in which case the server will
    *          use a default security level).
    */
+  @Nullable()
   public CollectSupportDataSecurityLevel getSecurityLevel()
   {
     return securityLevel;
@@ -600,7 +614,8 @@ public final class CollectSupportDataTaskProperties
    *                        default security level).
    */
   public void setSecurityLevel(
-                   final CollectSupportDataSecurityLevel securityLevel)
+       @Nullable final CollectSupportDataSecurityLevel securityLevel)
+
   {
     this.securityLevel = securityLevel;
   }
@@ -616,6 +631,7 @@ public final class CollectSupportDataTaskProperties
    *          should not be specified when the task is created (in which case
    *          the server will use a default report count).
    */
+  @Nullable()
   public Integer getReportCount()
   {
     return reportCount;
@@ -635,7 +651,7 @@ public final class CollectSupportDataTaskProperties
    *                      when the task is created (in which case the server
    *                      will use a default report count).
    */
-  public void setReportCount(final Integer reportCount)
+  public void setReportCount(@Nullable final Integer reportCount)
   {
     this.reportCount = reportCount;
   }
@@ -651,6 +667,7 @@ public final class CollectSupportDataTaskProperties
    *          should not be specified when the task is created (in which case
    *          the server will use a default report interval).
    */
+  @Nullable()
   public Integer getReportIntervalSeconds()
   {
     return reportIntervalSeconds;
@@ -670,7 +687,8 @@ public final class CollectSupportDataTaskProperties
    *                                task is created (in which case the server
    *                                will use a default report count).
    */
-  public void setReportIntervalSeconds(final Integer reportIntervalSeconds)
+  public void setReportIntervalSeconds(
+                   @Nullable final Integer reportIntervalSeconds)
   {
     this.reportIntervalSeconds = reportIntervalSeconds;
   }
@@ -686,6 +704,7 @@ public final class CollectSupportDataTaskProperties
    *          {@code null} if the property should not be specified when the task
    *          is created (in which case the server will use a default count).
    */
+  @Nullable()
   public Integer getJStackCount()
   {
     return jstackCount;
@@ -705,7 +724,7 @@ public final class CollectSupportDataTaskProperties
    *                      should not be specified when the task is created (in
    *                      which case the server will use a default count).
    */
-  public void setJStackCount(final Integer jstackCount)
+  public void setJStackCount(@Nullable final Integer jstackCount)
   {
     this.jstackCount = jstackCount;
   }
@@ -723,6 +742,7 @@ public final class CollectSupportDataTaskProperties
    *          which case the server will use a default behavior for selecting
    *          the amount of log content to include).
    */
+  @Nullable()
   public String getLogDuration()
   {
     return logDuration;
@@ -739,6 +759,7 @@ public final class CollectSupportDataTaskProperties
    * @throws  TaskException  If the log duration value cannot be parsed as a
    *                         valid duration.
    */
+  @Nullable()
   public Long getLogDurationMillis()
          throws TaskException
   {
@@ -780,7 +801,7 @@ public final class CollectSupportDataTaskProperties
    * @throws  TaskException  If the provided string representation cannot be
    *                         parsed as a valid duration.
    */
-  public void setLogDuration(final String logDuration)
+  public void setLogDuration(@Nullable final String logDuration)
          throws TaskException
   {
     if (logDuration == null)
@@ -817,7 +838,7 @@ public final class CollectSupportDataTaskProperties
    *                            case the server will determine an appropriate
    *                            amount of log content to include).
    */
-  public void setLogDurationMillis(final Long logDurationMillis)
+  public void setLogDurationMillis(@Nullable final Long logDurationMillis)
   {
     if (logDurationMillis == null)
     {
@@ -842,6 +863,7 @@ public final class CollectSupportDataTaskProperties
    *          task is created (in which case the server will determine an
    *          appropriate amount of log content to include).
    */
+  @Nullable()
   public Integer getLogFileHeadCollectionSizeKB()
   {
     return logFileHeadCollectionSizeKB;
@@ -864,7 +886,7 @@ public final class CollectSupportDataTaskProperties
    *                                      content to include).
    */
   public void setLogFileHeadCollectionSizeKB(
-                   final Integer logFileHeadCollectionSizeKB)
+                   @Nullable final Integer logFileHeadCollectionSizeKB)
   {
     this.logFileHeadCollectionSizeKB = logFileHeadCollectionSizeKB;
   }
@@ -881,6 +903,7 @@ public final class CollectSupportDataTaskProperties
    *          is created (in which case the server will determine an
    *          appropriate amount of log content to include).
    */
+  @Nullable()
   public Integer getLogFileTailCollectionSizeKB()
   {
     return logFileTailCollectionSizeKB;
@@ -903,7 +926,7 @@ public final class CollectSupportDataTaskProperties
    *                                      content to include).
    */
   public void setLogFileTailCollectionSizeKB(
-                   final Integer logFileTailCollectionSizeKB)
+                   @Nullable final Integer logFileTailCollectionSizeKB)
   {
     this.logFileTailCollectionSizeKB = logFileTailCollectionSizeKB;
   }
@@ -917,6 +940,7 @@ public final class CollectSupportDataTaskProperties
    * @return  An additional comment that should be included in the support data
    *          archive, or {@code null} if no comment should be included.
    */
+  @Nullable()
   public String getComment()
   {
     return comment;
@@ -932,7 +956,7 @@ public final class CollectSupportDataTaskProperties
    *                  support data archive.  It may be {@code null} if no
    *                  additional comment should be included.
    */
-  public void setComment(final String comment)
+  public void setComment(@Nullable final String comment)
   {
     this.comment = comment;
   }
@@ -946,6 +970,7 @@ public final class CollectSupportDataTaskProperties
    * @return  The minimum number of existing support data archives that should
    *          be retained, or {@code null} if there is no minimum retain count.
    */
+  @Nullable()
   public Integer getRetainPreviousSupportDataArchiveCount()
   {
     return retainPreviousSupportDataArchiveCount;
@@ -977,7 +1002,7 @@ public final class CollectSupportDataTaskProperties
    *              archives should be removed (if no retain age is specified).
    */
   public void setRetainPreviousSupportDataArchiveCount(
-                   final Integer retainPreviousSupportDataArchiveCount)
+       @Nullable final Integer retainPreviousSupportDataArchiveCount)
   {
     this.retainPreviousSupportDataArchiveCount =
          retainPreviousSupportDataArchiveCount;
@@ -992,6 +1017,7 @@ public final class CollectSupportDataTaskProperties
    * @return  The minimum age of existing support data archives that should
    *          be retained, or {@code null} if there is no minimum retain age.
    */
+  @Nullable()
   public String getRetainPreviousSupportDataArchiveAge()
   {
     return retainPreviousSupportDataArchiveAge;
@@ -1009,6 +1035,7 @@ public final class CollectSupportDataTaskProperties
    * @throws  TaskException  If the retain age value cannot be parsed as a valid
    *                         duration.
    */
+  @Nullable()
   public Long getRetainPreviousSupportDataArchiveAgeMillis()
          throws TaskException
   {
@@ -1063,7 +1090,7 @@ public final class CollectSupportDataTaskProperties
    *                         parsed as a valid duration.
    */
   public void setRetainPreviousSupportDataArchiveAge(
-                   final String retainPreviousSupportDataArchiveAge)
+                   @Nullable final String retainPreviousSupportDataArchiveAge)
          throws TaskException
   {
     if (retainPreviousSupportDataArchiveAge == null)
@@ -1113,7 +1140,7 @@ public final class CollectSupportDataTaskProperties
    *              specified).
    */
   public void setRetainPreviousSupportDataArchiveAgeMillis(
-                   final Long retainPreviousSupportDataArchiveAgeMillis)
+       @Nullable final Long retainPreviousSupportDataArchiveAgeMillis)
   {
     if (retainPreviousSupportDataArchiveAgeMillis == null)
     {
@@ -1135,6 +1162,7 @@ public final class CollectSupportDataTaskProperties
    * @return  The task ID that should be used for the task, or {@code null} if a
    *          random UUID should be generated for use as the task ID.
    */
+  @Nullable()
   public String getTaskID()
   {
     return taskID;
@@ -1149,7 +1177,7 @@ public final class CollectSupportDataTaskProperties
    *                 {@code null} if a random UUID should be generated for use
    *                 as the task ID.
    */
-  public void setTaskID(final String taskID)
+  public void setTaskID(@Nullable final String taskID)
   {
     this.taskID = taskID;
   }
@@ -1165,6 +1193,7 @@ public final class CollectSupportDataTaskProperties
    *          immediately (or as soon as all of its dependencies have been
    *          satisfied).
    */
+  @Nullable()
   public Date getScheduledStartTime()
   {
     return scheduledStartTime;
@@ -1182,7 +1211,7 @@ public final class CollectSupportDataTaskProperties
    *                             start immediately (or as soon as all of its
    *                             dependencies have been satisfied).
    */
-  public void setScheduledStartTime(final Date scheduledStartTime)
+  public void setScheduledStartTime(@Nullable final Date scheduledStartTime)
   {
     this.scheduledStartTime = scheduledStartTime;
   }
@@ -1198,6 +1227,7 @@ public final class CollectSupportDataTaskProperties
    *          an empty list if the new task should not depend on any other
    *          tasks.
    */
+  @NotNull()
   public List<String> getDependencyIDs()
   {
     return new ArrayList<>(dependencyIDs);
@@ -1215,7 +1245,7 @@ public final class CollectSupportDataTaskProperties
    *                        if the new task should not depend on any other
    *                        tasks.
    */
-  public void setDependencyIDs(final List<String> dependencyIDs)
+  public void setDependencyIDs(@Nullable final List<String> dependencyIDs)
   {
     this.dependencyIDs.clear();
     if (dependencyIDs != null)
@@ -1236,6 +1266,7 @@ public final class CollectSupportDataTaskProperties
    *          the task (and the server should choose an appropriate failed
    *          dependency action).
    */
+  @Nullable()
   public FailedDependencyAction getFailedDependencyAction()
   {
     return failedDependencyAction;
@@ -1256,7 +1287,7 @@ public final class CollectSupportDataTaskProperties
    *                                 appropriate failed dependency action).
    */
   public void setFailedDependencyAction(
-                   final FailedDependencyAction failedDependencyAction)
+       @Nullable final FailedDependencyAction failedDependencyAction)
   {
     this.failedDependencyAction = failedDependencyAction;
   }
@@ -1270,6 +1301,7 @@ public final class CollectSupportDataTaskProperties
    *          empty list if no email notification should be sent when starting
    *          the task.
    */
+  @NotNull()
   public List<String> getNotifyOnStart()
   {
     return new ArrayList<>(notifyOnStart);
@@ -1285,7 +1317,7 @@ public final class CollectSupportDataTaskProperties
    *                        email notification should be sent when starting the
    *                        task.
    */
-  public void setNotifyOnStart(final List<String> notifyOnStart)
+  public void setNotifyOnStart(@Nullable final List<String> notifyOnStart)
   {
     this.notifyOnStart.clear();
     if (notifyOnStart != null)
@@ -1304,6 +1336,7 @@ public final class CollectSupportDataTaskProperties
    *          empty list if no email notification should be sent when the task
    *          completes.
    */
+  @NotNull()
   public List<String> getNotifyOnCompletion()
   {
     return new ArrayList<>(notifyOnCompletion);
@@ -1320,7 +1353,8 @@ public final class CollectSupportDataTaskProperties
    *                             no email notification should be sent when the
    *                             task completes.
    */
-  public void setNotifyOnCompletion(final List<String> notifyOnCompletion)
+  public void setNotifyOnCompletion(
+                   @Nullable final List<String> notifyOnCompletion)
   {
     this.notifyOnCompletion.clear();
     if (notifyOnCompletion != null)
@@ -1338,6 +1372,7 @@ public final class CollectSupportDataTaskProperties
    *          empty list if no email notification should be sent on successful
    *          completion.
    */
+  @NotNull()
   public List<String> getNotifyOnSuccess()
   {
     return new ArrayList<>(notifyOnSuccess);
@@ -1353,7 +1388,7 @@ public final class CollectSupportDataTaskProperties
    *                          no email notification should be sent on
    *                          successful completion.
    */
-  public void setNotifyOnSuccess(final List<String> notifyOnSuccess)
+  public void setNotifyOnSuccess(@Nullable final List<String> notifyOnSuccess)
   {
     this.notifyOnSuccess.clear();
     if (notifyOnSuccess != null)
@@ -1372,6 +1407,7 @@ public final class CollectSupportDataTaskProperties
    *          or an empty list if no email notification should be sent on an
    *          unsuccessful completion.
    */
+  @NotNull()
   public List<String> getNotifyOnError()
   {
     return new ArrayList<>(notifyOnError);
@@ -1388,7 +1424,7 @@ public final class CollectSupportDataTaskProperties
    *                        no email notification should be sent on an
    *                        unsuccessful completion.
    */
-  public void setNotifyOnError(final List<String> notifyOnError)
+  public void setNotifyOnError(@Nullable final List<String> notifyOnError)
   {
     this.notifyOnError.clear();
     if (notifyOnError != null)
@@ -1409,6 +1445,7 @@ public final class CollectSupportDataTaskProperties
    *          task is created (and the server will default to not sending any
    *          alert).
    */
+  @Nullable()
   public Boolean getAlertOnStart()
   {
     return alertOnStart;
@@ -1427,7 +1464,7 @@ public final class CollectSupportDataTaskProperties
    *                       created (and the server will default to not sending
    *                       any alert).
    */
-  public void setAlertOnStart(final Boolean alertOnStart)
+  public void setAlertOnStart(@Nullable final Boolean alertOnStart)
   {
     this.alertOnStart = alertOnStart;
   }
@@ -1444,6 +1481,7 @@ public final class CollectSupportDataTaskProperties
    *          specified when the task is created (and the server will default to
    *          not sending any alert).
    */
+  @Nullable()
   public Boolean getAlertOnSuccess()
   {
     return alertOnSuccess;
@@ -1462,7 +1500,7 @@ public final class CollectSupportDataTaskProperties
    *                         specified when the task is created (and the server
    *                         will default to not sending any alert).
    */
-  public void setAlertOnSuccess(final Boolean alertOnSuccess)
+  public void setAlertOnSuccess(@Nullable final Boolean alertOnSuccess)
   {
     this.alertOnSuccess = alertOnSuccess;
   }
@@ -1480,6 +1518,7 @@ public final class CollectSupportDataTaskProperties
    *          specified when the task is created (and the server will default to
    *          not sending any alert).
    */
+  @Nullable()
   public Boolean getAlertOnError()
   {
     return alertOnError;
@@ -1499,7 +1538,7 @@ public final class CollectSupportDataTaskProperties
    *                       when the task is created (and the server will default
    *                       to not sending any alert).
    */
-  public void setAlertOnError(final Boolean alertOnError)
+  public void setAlertOnError(@Nullable final Boolean alertOnError)
   {
     this.alertOnError = alertOnError;
   }
@@ -1514,6 +1553,7 @@ public final class CollectSupportDataTaskProperties
    *          properties object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1530,7 +1570,7 @@ public final class CollectSupportDataTaskProperties
    * @param  buffer  The buffer to which the string representation will be
    *                 appended.  It must not be {@code null}.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CollectSupportDataArchiveProperties(");
 
@@ -1585,8 +1625,9 @@ public final class CollectSupportDataTaskProperties
    * @param  value   The value to be used.  It may be {@code null} if there is
    *                 no value for the property.
    */
-  private static void appendNameValuePair(final StringBuilder buffer,
-                                          final String name, final Object value)
+  private static void appendNameValuePair(@NotNull final StringBuilder buffer,
+                                          @NotNull final String name,
+                                          @Nullable final Object value)
   {
     if (value == null)
     {
@@ -1617,9 +1658,9 @@ public final class CollectSupportDataTaskProperties
    * @param  values   The list of values to be used.  It may be {@code null} or
    *                  empty if there are no values for the property.
    */
-  private static void appendNameValuePair(final StringBuilder buffer,
-                                          final String name,
-                                          final List<String> values)
+  private static void appendNameValuePair(@NotNull final StringBuilder buffer,
+                                          @NotNull final String name,
+                                          @Nullable final List<String> values)
   {
     if ((values == null) || values.isEmpty())
     {

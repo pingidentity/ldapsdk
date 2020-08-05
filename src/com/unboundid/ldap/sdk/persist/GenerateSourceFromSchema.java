@@ -66,6 +66,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -101,21 +103,22 @@ public final class GenerateSourceFromSchema
   /**
    * A pre-allocated empty tree set.
    */
-  private static final TreeSet<String> EMPTY_TREE_SET = new TreeSet<>();
+  @NotNull private static final TreeSet<String> EMPTY_TREE_SET =
+       new TreeSet<>();
 
 
 
   // Arguments used by this tool.
-  private BooleanArgument terseArg;
-  private DNArgument      defaultParentDNArg;
-  private FileArgument    outputDirectoryArg;
-  private StringArgument  auxiliaryClassArg;
-  private StringArgument  classNameArg;
-  private StringArgument  lazyAttributeArg;
-  private StringArgument  operationalAttributeArg;
-  private StringArgument  packageNameArg;
-  private StringArgument  rdnAttributeArg;
-  private StringArgument  structuralClassArg;
+  @Nullable private BooleanArgument terseArg;
+  @Nullable private DNArgument      defaultParentDNArg;
+  @Nullable private FileArgument    outputDirectoryArg;
+  @Nullable private StringArgument  auxiliaryClassArg;
+  @Nullable private StringArgument  classNameArg;
+  @Nullable private StringArgument  lazyAttributeArg;
+  @Nullable private StringArgument  operationalAttributeArg;
+  @Nullable private StringArgument  packageNameArg;
+  @Nullable private StringArgument  rdnAttributeArg;
+  @Nullable private StringArgument  structuralClassArg;
 
   // Indicates whether any multivalued attributes have been identified, and
   // therefore we need to include java.util.Arrays in the import list.
@@ -143,7 +146,7 @@ public final class GenerateSourceFromSchema
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -168,9 +171,10 @@ public final class GenerateSourceFromSchema
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  @NotNull()
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final GenerateSourceFromSchema tool =
          new GenerateSourceFromSchema(outStream, errStream);
@@ -189,8 +193,8 @@ public final class GenerateSourceFromSchema
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public GenerateSourceFromSchema(final OutputStream outStream,
-                                  final OutputStream errStream)
+  public GenerateSourceFromSchema(@Nullable final OutputStream outStream,
+                                  @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -206,6 +210,7 @@ public final class GenerateSourceFromSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "generate-source-from-schema";
@@ -217,6 +222,7 @@ public final class GenerateSourceFromSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_GEN_SOURCE_TOOL_DESCRIPTION.get();
@@ -230,6 +236,7 @@ public final class GenerateSourceFromSchema
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -367,7 +374,7 @@ public final class GenerateSourceFromSchema
    * {@inheritDoc}
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     outputDirectoryArg = new FileArgument('d', "outputDirectory", false, 1,
@@ -436,6 +443,7 @@ public final class GenerateSourceFromSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Establish a connection to the target directory server and retrieve the
@@ -491,7 +499,8 @@ public final class GenerateSourceFromSchema
    *
    * @return  A result code obtained for the processing.
    */
-  private ResultCode generateSourceFile(final Schema schema,
+  @NotNull()
+  private ResultCode generateSourceFile(@NotNull final Schema schema,
                                         final boolean terse)
   {
     // Retrieve and process the structural object class.
@@ -1152,13 +1161,13 @@ public final class GenerateSourceFromSchema
    * @param  oac  The object classes referenced by the optional attributes.
    * @param  t    A map of attribute type names to Java types.
    */
-  private void processObjectClass(final ObjectClassDefinition oc,
-                   final Schema s,
-                   final TreeMap<String,AttributeTypeDefinition> ra,
-                   final TreeMap<String,TreeSet<String>> rac,
-                   final TreeMap<String,AttributeTypeDefinition> oa,
-                   final TreeMap<String,TreeSet<String>> oac,
-                   final TreeMap<String,String> t)
+  private void processObjectClass(@NotNull final ObjectClassDefinition oc,
+                   @NotNull final Schema s,
+                   @NotNull final TreeMap<String,AttributeTypeDefinition> ra,
+                   @NotNull final TreeMap<String,TreeSet<String>> rac,
+                   @NotNull final TreeMap<String,AttributeTypeDefinition> oa,
+                   @NotNull final TreeMap<String,TreeSet<String>> oac,
+                   @NotNull final TreeMap<String,String> t)
   {
     for (final AttributeTypeDefinition d : oc.getRequiredAttributes(s, true))
     {
@@ -1237,11 +1246,12 @@ public final class GenerateSourceFromSchema
    *                   loading.
    * @param  terse     Indicates whether to use terse mode.
    */
-  private static void writeField(final PrintWriter writer,
-                           final AttributeTypeDefinition d, final String type,
-                           final TreeSet<String> ocNames,
+  private static void writeField(@NotNull final PrintWriter writer,
+                           @NotNull final AttributeTypeDefinition d,
+                           @NotNull final String type,
+                           @NotNull final TreeSet<String> ocNames,
                            final boolean inRDN, final boolean required,
-                           final String sc, final boolean lazy,
+                           @NotNull final String sc, final boolean lazy,
                            final boolean terse)
   {
     final String attrName  = d.getNameOrOID();
@@ -1431,10 +1441,10 @@ public final class GenerateSourceFromSchema
    * @param  type       The name of the Java type to use for the attribute.
    * @param  addSetter  Indicates whether to write a setter method.
    */
-  private static void writeFieldMethods(final PrintWriter writer,
-                                        final AttributeTypeDefinition d,
-                                        final String type,
-                                        final boolean addSetter)
+  private static void writeFieldMethods(@NotNull final PrintWriter writer,
+                           @NotNull final AttributeTypeDefinition d,
+                           @NotNull final String type,
+                           final boolean addSetter)
   {
     writer.println();
     writer.println();
@@ -1955,11 +1965,11 @@ public final class GenerateSourceFromSchema
    * @param  operationalAttrs  The set of operational attributes for the
    *                           generated class.
    */
-  private static void writeToString(final PrintWriter writer,
-               final String className,
-               final Collection<AttributeTypeDefinition> requiredAttrs,
-               final Collection<AttributeTypeDefinition> optionalAttrs,
-               final Collection<AttributeTypeDefinition> operationalAttrs)
+  private static void writeToString(@NotNull final PrintWriter writer,
+       @NotNull final String className,
+       @NotNull final Collection<AttributeTypeDefinition> requiredAttrs,
+       @NotNull final Collection<AttributeTypeDefinition> optionalAttrs,
+       @NotNull final Collection<AttributeTypeDefinition> operationalAttrs)
   {
     writer.println();
     writer.println();
@@ -2033,8 +2043,8 @@ public final class GenerateSourceFromSchema
    * @param  w  The writer to use to write the {@code toString} content.
    * @param  d  The attribute type definition for the field to write.
    */
-  private static void writeToStringField(final PrintWriter w,
-                                         final AttributeTypeDefinition d)
+  private static void writeToStringField(@NotNull final PrintWriter w,
+                           @NotNull final AttributeTypeDefinition d)
   {
     final String fieldName = PersistUtils.toJavaIdentifier(d.getNameOrOID());
     w.println();
@@ -2071,8 +2081,9 @@ public final class GenerateSourceFromSchema
    *
    * @return  The Java type to use for the provided attribute type definition.
    */
-  private String getJavaType(final Schema schema,
-                             final AttributeTypeDefinition d)
+  @NotNull()
+  private String getJavaType(@NotNull final Schema schema,
+                             @NotNull final AttributeTypeDefinition d)
   {
     if (! d.isSingleValued())
     {
@@ -2153,6 +2164,7 @@ public final class GenerateSourceFromSchema
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

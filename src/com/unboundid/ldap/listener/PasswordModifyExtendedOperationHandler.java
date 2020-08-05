@@ -58,6 +58,7 @@ import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.NoOpRequestControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils ;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -91,6 +92,7 @@ public final class PasswordModifyExtendedOperationHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedOperationHandlerName()
   {
     return "Password Modify";
@@ -102,6 +104,7 @@ public final class PasswordModifyExtendedOperationHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getSupportedExtendedRequestOIDs()
   {
     return Collections.singletonList(
@@ -114,9 +117,11 @@ public final class PasswordModifyExtendedOperationHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ExtendedResult processExtendedOperation(
-                             final InMemoryRequestHandler handler,
-                             final int messageID, final ExtendedRequest request)
+                             @NotNull final InMemoryRequestHandler handler,
+                             final int messageID,
+                             @NotNull final ExtendedRequest request)
   {
     // This extended operation handler supports the no operation control.  If
     // any other control is present, then reject it if it's critical.

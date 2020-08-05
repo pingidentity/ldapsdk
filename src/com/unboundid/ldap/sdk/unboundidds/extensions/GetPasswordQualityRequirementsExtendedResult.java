@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -101,8 +103,9 @@ public final class GetPasswordQualityRequirementsExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.44) for the get password quality
    * requirements extended result.
    */
-  public static final String OID_GET_PASSWORD_QUALITY_REQUIREMENTS_RESULT =
-       "1.3.6.1.4.1.30221.2.6.44";
+  @NotNull public static final String
+       OID_GET_PASSWORD_QUALITY_REQUIREMENTS_RESULT =
+            "1.3.6.1.4.1.30221.2.6.44";
 
 
 
@@ -136,19 +139,19 @@ public final class GetPasswordQualityRequirementsExtendedResult
 
   // Indicates whether the user will be required to provide his/her current
   // password when performing the associated self password change.
-  private final Boolean currentPasswordRequired;
+  @Nullable private final Boolean currentPasswordRequired;
 
   // Indicates whether the user will be required to change his/her password
   // after performing the associated add or administrative reset.
-  private final Boolean mustChangePassword;
+  @Nullable private final Boolean mustChangePassword;
 
   // The length of time in seconds that the resulting password will be
   // considered valid.
-  private final Integer secondsUntilExpiration;
+  @Nullable private final Integer secondsUntilExpiration;
 
   // The list of password quality requirements that the server will enforce for
   // the associated operation.
-  private final List<PasswordQualityRequirement> passwordRequirements;
+  @NotNull private final List<PasswordQualityRequirement> passwordRequirements;
 
 
 
@@ -212,13 +215,16 @@ public final class GetPasswordQualityRequirementsExtendedResult
    *                                  if no controls are needed.
    */
   public GetPasswordQualityRequirementsExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final Collection<PasswordQualityRequirement> passwordRequirements,
-              final Boolean currentPasswordRequired,
-              final Boolean mustChangePassword,
-              final Integer secondsUntilExpiration,
-              final Control... controls)
+       @NotNull final ResultCode resultCode,
+       @Nullable final String diagnosticMessage,
+       @Nullable final String matchedDN,
+       @Nullable final String[] referralURLs,
+       @Nullable final Collection<PasswordQualityRequirement>
+            passwordRequirements,
+       @Nullable final Boolean currentPasswordRequired,
+       @Nullable final Boolean mustChangePassword,
+       @Nullable final Integer secondsUntilExpiration,
+       @Nullable final Control... controls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          ((resultCode == ResultCode.SUCCESS)
@@ -256,7 +262,8 @@ public final class GetPasswordQualityRequirementsExtendedResult
    *                         parsed as a get password quality requirements
    *                         result.
    */
-  public GetPasswordQualityRequirementsExtendedResult(final ExtendedResult r)
+  public GetPasswordQualityRequirementsExtendedResult(
+              @NotNull final ExtendedResult r)
          throws LDAPException
   {
     super(r);
@@ -378,10 +385,14 @@ public final class GetPasswordQualityRequirementsExtendedResult
    * @return  The ASN.1 element with the encoded result value, or {@code null}
    *          if the result should not have a value.
    */
-  private static ASN1OctetString encodeValue(final ResultCode resultCode,
-       final Collection<PasswordQualityRequirement> passwordRequirements,
-       final Boolean currentPasswordRequired, final Boolean mustChangePassword,
-       final Integer secondsUntilExpiration)
+  @Nullable()
+  private static ASN1OctetString encodeValue(
+       @NotNull final ResultCode resultCode,
+       @Nullable final Collection<PasswordQualityRequirement>
+            passwordRequirements,
+       @Nullable final Boolean currentPasswordRequired,
+       @Nullable final Boolean mustChangePassword,
+       @Nullable final Integer secondsUntilExpiration)
   {
     if (resultCode != ResultCode.SUCCESS)
     {
@@ -446,6 +457,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
    *          will not impose any password quality requirements for the
    *          specified operation type.
    */
+  @NotNull()
   public List<PasswordQualityRequirement> getPasswordRequirements()
   {
     return passwordRequirements;
@@ -466,6 +478,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
    *          the target operation is not a self change or if this result is for
    *          a non-successful get password quality requirements operation.
    */
+  @Nullable()
   public Boolean getCurrentPasswordRequired()
   {
     return currentPasswordRequired;
@@ -490,6 +503,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
    *          administrative reset, or if this result is for a non-successful
    *          get password quality requirements operation.
    */
+  @Nullable()
   public Boolean getMustChangePassword()
   {
     return mustChangePassword;
@@ -514,6 +528,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
    *          requirements operation or if the newly-selected password can be
    *          used indefinitely.
    */
+  @Nullable()
   public Integer getSecondsUntilExpiration()
   {
     return secondsUntilExpiration;
@@ -525,6 +540,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_GET_PW_QUALITY_REQS.get();
@@ -536,7 +552,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetPasswordQualityRequirementsExtendedResult(resultCode=");
     buffer.append(getResultCode());

@@ -63,7 +63,7 @@ abstract class ValuePatternComponent
    *
    * @param  buffer  The buffer to which the value should be appended.
    */
-  abstract void append(StringBuilder buffer);
+  abstract void append(@NotNull StringBuilder buffer);
 
 
 

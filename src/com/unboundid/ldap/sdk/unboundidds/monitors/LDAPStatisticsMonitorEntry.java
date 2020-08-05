@@ -43,6 +43,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -103,7 +105,7 @@ public final class LDAPStatisticsMonitorEntry
   /**
    * The structural object class used in LDAP statistics monitor entries.
    */
-  static final String LDAP_STATISTICS_MONITOR_OC =
+  @NotNull static final String LDAP_STATISTICS_MONITOR_OC =
        "ds-ldap-statistics-monitor-entry";
 
 
@@ -111,63 +113,66 @@ public final class LDAPStatisticsMonitorEntry
   /**
    * The name of the attribute that contains the number of abandon requests.
    */
-  private static final String ATTR_ABANDON_REQUESTS = "abandonRequests";
+  @NotNull private static final String ATTR_ABANDON_REQUESTS =
+       "abandonRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of add requests.
    */
-  private static final String ATTR_ADD_REQUESTS = "addRequests";
+  @NotNull private static final String ATTR_ADD_REQUESTS = "addRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of add responses.
    */
-  private static final String ATTR_ADD_RESPONSES = "addResponses";
+  @NotNull private static final String ATTR_ADD_RESPONSES = "addResponses";
 
 
 
   /**
    * The name of the attribute that contains the number of bind requests.
    */
-  private static final String ATTR_BIND_REQUESTS = "bindRequests";
+  @NotNull private static final String ATTR_BIND_REQUESTS = "bindRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of bind responses.
    */
-  private static final String ATTR_BIND_RESPONSES = "bindResponses";
+  @NotNull private static final String ATTR_BIND_RESPONSES = "bindResponses";
 
 
 
   /**
    * The name of the attribute that contains the number of bytes read.
    */
-  private static final String ATTR_BYTES_READ = "bytesRead";
+  @NotNull private static final String ATTR_BYTES_READ = "bytesRead";
 
 
 
   /**
    * The name of the attribute that contains the number of bytes written.
    */
-  private static final String ATTR_BYTES_WRITTEN = "bytesWritten";
+  @NotNull private static final String ATTR_BYTES_WRITTEN = "bytesWritten";
 
 
 
   /**
    * The name of the attribute that contains the number of compare requests.
    */
-  private static final String ATTR_COMPARE_REQUESTS = "compareRequests";
+  @NotNull private static final String ATTR_COMPARE_REQUESTS =
+       "compareRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of compare responses.
    */
-  private static final String ATTR_COMPARE_RESPONSES = "compareResponses";
+  @NotNull private static final String ATTR_COMPARE_RESPONSES =
+       "compareResponses";
 
 
 
@@ -175,7 +180,8 @@ public final class LDAPStatisticsMonitorEntry
    * The name of the attribute that contains the number of connections
    * closed.
    */
-  private static final String ATTR_CONNECTIONS_CLOSED = "connectionsClosed";
+  @NotNull private static final String ATTR_CONNECTIONS_CLOSED =
+       "connectionsClosed";
 
 
 
@@ -183,7 +189,7 @@ public final class LDAPStatisticsMonitorEntry
    * The name of the attribute that contains the number of connections
    * established.
    */
-  private static final String ATTR_CONNECTIONS_ESTABLISHED =
+  @NotNull private static final String ATTR_CONNECTIONS_ESTABLISHED =
        "connectionsEstablished";
 
 
@@ -191,35 +197,39 @@ public final class LDAPStatisticsMonitorEntry
   /**
    * The name of the attribute that contains the number of delete requests.
    */
-  private static final String ATTR_DELETE_REQUESTS = "deleteRequests";
+  @NotNull private static final String ATTR_DELETE_REQUESTS = "deleteRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of delete responses.
    */
-  private static final String ATTR_DELETE_RESPONSES = "deleteResponses";
+  @NotNull private static final String ATTR_DELETE_RESPONSES =
+       "deleteResponses";
 
 
 
   /**
    * The name of the attribute that contains the number of extended requests.
    */
-  private static final String ATTR_EXTENDED_REQUESTS = "extendedRequests";
+  @NotNull private static final String ATTR_EXTENDED_REQUESTS =
+       "extendedRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of extended responses.
    */
-  private static final String ATTR_EXTENDED_RESPONSES = "extendedResponses";
+  @NotNull private static final String ATTR_EXTENDED_RESPONSES =
+       "extendedResponses";
 
 
 
   /**
    * The name of the attribute that contains the number of LDAP messages read.
    */
-  private static final String ATTR_LDAP_MESSAGES_READ = "ldapMessagesRead";
+  @NotNull private static final String ATTR_LDAP_MESSAGES_READ =
+       "ldapMessagesRead";
 
 
 
@@ -227,7 +237,7 @@ public final class LDAPStatisticsMonitorEntry
    * The name of the attribute that contains the number of LDAP messages
    * written.
    */
-  private static final String ATTR_LDAP_MESSAGES_WRITTEN =
+  @NotNull private static final String ATTR_LDAP_MESSAGES_WRITTEN =
        "ldapMessagesWritten";
 
 
@@ -235,56 +245,63 @@ public final class LDAPStatisticsMonitorEntry
   /**
    * The name of the attribute that contains the number of modify requests.
    */
-  private static final String ATTR_MODIFY_REQUESTS = "modifyRequests";
+  @NotNull private static final String ATTR_MODIFY_REQUESTS = "modifyRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of modify responses.
    */
-  private static final String ATTR_MODIFY_RESPONSES = "modifyResponses";
+  @NotNull private static final String ATTR_MODIFY_RESPONSES =
+       "modifyResponses";
 
 
 
   /**
    * The name of the attribute that contains the number of modify DN requests.
    */
-  private static final String ATTR_MODIFY_DN_REQUESTS = "modifyDNRequests";
+  @NotNull private static final String ATTR_MODIFY_DN_REQUESTS =
+       "modifyDNRequests";
 
 
 
   /**
    * The name of the attribute that contains the number of modify DN responses.
    */
-  private static final String ATTR_MODIFY_DN_RESPONSES = "modifyDNResponses";
+  @NotNull private static final String ATTR_MODIFY_DN_RESPONSES =
+       "modifyDNResponses";
 
 
 
   /**
    * The name of the attribute that contains the number of operations abandoned.
    */
-  private static final String ATTR_OPS_ABANDONED = "operationsAbandoned";
+  @NotNull private static final String ATTR_OPS_ABANDONED =
+       "operationsAbandoned";
 
 
 
   /**
    * The name of the attribute that contains the number of operations completed.
    */
-  private static final String ATTR_OPS_COMPLETED = "operationsCompleted";
+  @NotNull private static final String ATTR_OPS_COMPLETED =
+       "operationsCompleted";
 
 
 
   /**
    * The name of the attribute that contains the number of operations initiated.
    */
-  private static final String ATTR_OPS_INITIATED = "operationsInitiated";
+  @NotNull private static final String ATTR_OPS_INITIATED =
+       "operationsInitiated";
 
 
 
   /**
    * The name of the attribute that contains the number of search requests.
    */
-  private static final String ATTR_SEARCH_REQUESTS = "searchRequests";
+  @NotNull private static final String ATTR_SEARCH_REQUESTS =
+       "searchRequests";
 
 
 
@@ -292,7 +309,7 @@ public final class LDAPStatisticsMonitorEntry
    * The name of the attribute that contains the number of search result done
    * responses.
    */
-  private static final String ATTR_SEARCH_RESULT_DONE_RESPONSES =
+  @NotNull private static final String ATTR_SEARCH_RESULT_DONE_RESPONSES =
        "searchResultsDone";
 
 
@@ -301,7 +318,7 @@ public final class LDAPStatisticsMonitorEntry
    * The name of the attribute that contains the number of search result entry
    * responses.
    */
-  private static final String ATTR_SEARCH_RESULT_ENTRY_RESPONSES =
+  @NotNull private static final String ATTR_SEARCH_RESULT_ENTRY_RESPONSES =
        "searchResultEntries";
 
 
@@ -310,7 +327,7 @@ public final class LDAPStatisticsMonitorEntry
    * The name of the attribute that contains the number of search result
    * reference responses.
    */
-  private static final String ATTR_SEARCH_RESULT_REFERENCE_RESPONSES =
+  @NotNull private static final String ATTR_SEARCH_RESULT_REFERENCE_RESPONSES =
        "searchResultReferences";
 
 
@@ -318,7 +335,7 @@ public final class LDAPStatisticsMonitorEntry
   /**
    * The name of the attribute that contains the number of unbind requests.
    */
-  private static final String ATTR_UNBIND_REQUESTS = "unbindRequests";
+  @NotNull private static final String ATTR_UNBIND_REQUESTS = "unbindRequests";
 
 
 
@@ -330,91 +347,91 @@ public final class LDAPStatisticsMonitorEntry
 
 
   // The number of abandon requests.
-  private final Long abandonRequests;
+  @Nullable private final Long abandonRequests;
 
   // The number of add requests.
-  private final Long addRequests;
+  @Nullable private final Long addRequests;
 
   // The number of add responses.
-  private final Long addResponses;
+  @Nullable private final Long addResponses;
 
   // The number of bind requests.
-  private final Long bindRequests;
+  @Nullable private final Long bindRequests;
 
   // The number of bind responses.
-  private final Long bindResponses;
+  @Nullable private final Long bindResponses;
 
   // The number of bytes read.
-  private final Long bytesRead;
+  @Nullable private final Long bytesRead;
 
   // The number of bytes written.
-  private final Long bytesWritten;
+  @Nullable private final Long bytesWritten;
 
   // The number of compare requests.
-  private final Long compareRequests;
+  @Nullable private final Long compareRequests;
 
   // The number of compare responses.
-  private final Long compareResponses;
+  @Nullable private final Long compareResponses;
 
   // The number of connections that have been closed.
-  private final Long connectionsClosed;
+  @Nullable private final Long connectionsClosed;
 
   // The number of connections that have been established.
-  private final Long connectionsEstablished;
+  @Nullable private final Long connectionsEstablished;
 
   // The number of delete requests.
-  private final Long deleteRequests;
+  @Nullable private final Long deleteRequests;
 
   // The number of delete responses.
-  private final Long deleteResponses;
+  @Nullable private final Long deleteResponses;
 
   // The number of extended requests.
-  private final Long extendedRequests;
+  @Nullable private final Long extendedRequests;
 
   // The number of extended responses.
-  private final Long extendedResponses;
+  @Nullable private final Long extendedResponses;
 
   // The number of LDAP messages read.
-  private final Long ldapMessagesRead;
+  @Nullable private final Long ldapMessagesRead;
 
   // The number of LDAP messages written.
-  private final Long ldapMessagesWritten;
+  @Nullable private final Long ldapMessagesWritten;
 
   // The number of modify requests.
-  private final Long modifyRequests;
+  @Nullable private final Long modifyRequests;
 
   // The number of modify responses.
-  private final Long modifyResponses;
+  @Nullable private final Long modifyResponses;
 
   // The number of modify DN requests.
-  private final Long modifyDNRequests;
+  @Nullable private final Long modifyDNRequests;
 
   // The number of modify DN responses.
-  private final Long modifyDNResponses;
+  @Nullable private final Long modifyDNResponses;
 
   // The number of operations abandoned.
-  private final Long opsAbandoned;
+  @Nullable private final Long opsAbandoned;
 
   // The number of operations completed.
-  private final Long opsCompleted;
+  @Nullable private final Long opsCompleted;
 
   // The number of operations initiated.
-  private final Long opsInitiated;
+  @Nullable private final Long opsInitiated;
 
   // The number of search requests.
-  private final Long searchRequests;
+  @Nullable private final Long searchRequests;
 
   // The number of search result done responses.
-  private final Long searchDoneResponses;
+  @Nullable private final Long searchDoneResponses;
 
   // The number of search result entry responses.
-  private final Long searchEntryResponses;
+  @Nullable private final Long searchEntryResponses;
 
   // The number of search result reference responses.
-  private final Long searchReferenceResponses;
+  @Nullable private final Long searchReferenceResponses;
 
   // The number of unbind requests.
-  private final Long unbindRequests;
+  @Nullable private final Long unbindRequests;
 
 
 
@@ -424,7 +441,7 @@ public final class LDAPStatisticsMonitorEntry
    * @param  entry  The entry to be parsed as an LDAP statistics monitor entry.
    *                It must not be {@code null}.
    */
-  public LDAPStatisticsMonitorEntry(final Entry entry)
+  public LDAPStatisticsMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -469,6 +486,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getConnectionsEstablished()
   {
     return connectionsEstablished;
@@ -484,6 +502,7 @@ public final class LDAPStatisticsMonitorEntry
    *          handler was started, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getConnectionsClosed()
   {
     return connectionsClosed;
@@ -499,6 +518,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getOperationsInitiated()
   {
     return opsInitiated;
@@ -514,6 +534,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getOperationsCompleted()
   {
     return opsCompleted;
@@ -529,6 +550,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getOperationsAbandoned()
   {
     return opsAbandoned;
@@ -544,6 +566,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getBytesRead()
   {
     return bytesRead;
@@ -559,6 +582,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getBytesWritten()
   {
     return bytesWritten;
@@ -574,6 +598,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getLDAPMessagesRead()
   {
     return ldapMessagesRead;
@@ -589,6 +614,7 @@ public final class LDAPStatisticsMonitorEntry
    *          associated connection handler was started, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getLDAPMessagesWritten()
   {
     return ldapMessagesWritten;
@@ -604,6 +630,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getAbandonRequests()
   {
     return abandonRequests;
@@ -619,6 +646,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getAddRequests()
   {
     return addRequests;
@@ -634,6 +662,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getAddResponses()
   {
     return addResponses;
@@ -649,6 +678,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getBindRequests()
   {
     return bindRequests;
@@ -664,6 +694,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getBindResponses()
   {
     return bindResponses;
@@ -679,6 +710,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getCompareRequests()
   {
     return compareRequests;
@@ -694,6 +726,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getCompareResponses()
   {
     return compareResponses;
@@ -709,6 +742,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getDeleteRequests()
   {
     return deleteRequests;
@@ -724,6 +758,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getDeleteResponses()
   {
     return deleteResponses;
@@ -739,6 +774,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getExtendedRequests()
   {
     return extendedRequests;
@@ -754,6 +790,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getExtendedResponses()
   {
     return extendedResponses;
@@ -769,6 +806,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getModifyRequests()
   {
     return modifyRequests;
@@ -784,6 +822,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getModifyResponses()
   {
     return modifyResponses;
@@ -799,6 +838,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getModifyDNRequests()
   {
     return modifyDNRequests;
@@ -814,6 +854,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getModifyDNResponses()
   {
     return modifyDNResponses;
@@ -829,6 +870,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getSearchRequests()
   {
     return searchRequests;
@@ -844,6 +886,7 @@ public final class LDAPStatisticsMonitorEntry
    *          associated connection handler was started, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getSearchResultEntries()
   {
     return searchEntryResponses;
@@ -859,6 +902,7 @@ public final class LDAPStatisticsMonitorEntry
    *          associated connection handler was started, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getSearchResultReferences()
   {
     return searchReferenceResponses;
@@ -874,6 +918,7 @@ public final class LDAPStatisticsMonitorEntry
    *          associated connection handler was started, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Long getSearchDoneResponses()
   {
     return searchDoneResponses;
@@ -889,6 +934,7 @@ public final class LDAPStatisticsMonitorEntry
    *          connection handler was started, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public Long getUnbindRequests()
   {
     return unbindRequests;
@@ -900,6 +946,7 @@ public final class LDAPStatisticsMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_LDAP_STATS_MONITOR_DISPNAME.get();
@@ -911,6 +958,7 @@ public final class LDAPStatisticsMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_LDAP_STATS_MONITOR_DESC.get();
@@ -922,6 +970,7 @@ public final class LDAPStatisticsMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

@@ -40,6 +40,7 @@ package com.unboundid.ldap.listener.interceptor;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.ReadOnlyModifyDNRequest;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -59,6 +60,7 @@ public interface InMemoryInterceptedModifyDNRequest
    *
    * @return  The modify DN request to be processed.
    */
+  @NotNull()
   ReadOnlyModifyDNRequest getRequest();
 
 
@@ -70,5 +72,5 @@ public interface InMemoryInterceptedModifyDNRequest
    *                          instead of the one that was originally received
    *                          from the client.  It must not be {@code null}.
    */
-  void setRequest(ModifyDNRequest modifyDNRequest);
+  void setRequest(@NotNull ModifyDNRequest modifyDNRequest);
 }

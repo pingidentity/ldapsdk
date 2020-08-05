@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -239,7 +241,8 @@ public enum DisconnectType
    * @param  resultCode   The result code most closely associated with this
    *                      disconnect type.
    */
-  DisconnectType(final String description, final ResultCode resultCode)
+  DisconnectType(@NotNull final String description,
+                 @NotNull final ResultCode resultCode)
   {
     this.description = description;
     this.resultCode  = resultCode;
@@ -252,6 +255,7 @@ public enum DisconnectType
    *
    * @return  The description for this disconnect type.
    */
+  @NotNull()
   public String getDescription()
   {
     return description;
@@ -265,6 +269,7 @@ public enum DisconnectType
    *
    * @return  The result code most closely associated with this disconnect type.
    */
+  @NotNull()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -280,7 +285,8 @@ public enum DisconnectType
    * @return  The requested change type, or {@code null} if no such
    *          disconnect type is defined.
    */
-  public static DisconnectType forName(final String name)
+  @Nullable()
+  public static DisconnectType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -377,7 +383,7 @@ public enum DisconnectType
    *          expected and there is likely nothing that a disconnect handler
    *          needs to do to handle it, or {@code false} if not.
    */
-  public static boolean isExpected(final DisconnectType disconnectType)
+  public static boolean isExpected(@NotNull final DisconnectType disconnectType)
   {
     switch (disconnectType)
     {
@@ -404,6 +410,7 @@ public enum DisconnectType
    * @return  A string representation for this disconnect type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -420,7 +427,7 @@ public enum DisconnectType
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DisconnectType(name='");
     buffer.append(name());

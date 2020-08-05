@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -78,7 +80,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
   /**
    * The name of the token used to provide the name of the associated attribute.
    */
-  private static final String TOKEN_NAME_ATTR = "attr";
+  @NotNull private static final String TOKEN_NAME_ATTR = "attr";
 
 
 
@@ -86,7 +88,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
    * The name of the token used to provide the number of values before the
    * change.
    */
-  private static final String TOKEN_NAME_BEFORE_COUNT =
+  @NotNull private static final String TOKEN_NAME_BEFORE_COUNT =
        StaticUtils.toLowerCase("beforeCount");
 
 
@@ -95,7 +97,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
    * The name of the token used to provide the number of values after the
    * change.
    */
-  private static final String TOKEN_NAME_AFTER_COUNT =
+  @NotNull private static final String TOKEN_NAME_AFTER_COUNT =
        StaticUtils.toLowerCase("afterCount");
 
 
@@ -114,10 +116,10 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
 
   // The name of the updated attribute for which the number of values exceeded
   // the maximum display count before and/or after the change.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
   // The string representation for this element.
-  private final String stringRepresentation;
+  @NotNull private final String stringRepresentation;
 
 
 
@@ -130,7 +132,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
    * @throws  LDAPException  If an error occurred while attempting to parse the
    *                         value.
    */
-  public ChangeLogEntryAttributeExceededMaxValuesCount(final String s)
+  public ChangeLogEntryAttributeExceededMaxValuesCount(@NotNull final String s)
          throws LDAPException
   {
     stringRepresentation = s;
@@ -254,6 +256,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
    *          values for inclusion in the ds-changelog-before-values and/or
    *          ds-changelog-after-values attribute of the changelog entry.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -322,7 +325,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
    *          {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -355,6 +358,7 @@ public final class ChangeLogEntryAttributeExceededMaxValuesCount
    *          max values count.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return stringRepresentation;

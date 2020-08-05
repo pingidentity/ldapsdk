@@ -42,6 +42,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -59,7 +61,7 @@ public final class AggregateLDIFReaderChangeRecordTranslator
 {
   // The set of LDIF reader change record translators to be invoked for each
   // record to process.
-  private final List<LDIFReaderChangeRecordTranslator> translators;
+  @NotNull private final List<LDIFReaderChangeRecordTranslator> translators;
 
 
 
@@ -71,7 +73,7 @@ public final class AggregateLDIFReaderChangeRecordTranslator
    *                      invoked for each record to be processed.
    */
   public AggregateLDIFReaderChangeRecordTranslator(
-              final LDIFReaderChangeRecordTranslator... translators)
+              @Nullable final LDIFReaderChangeRecordTranslator... translators)
   {
     this(StaticUtils.toList(translators));
   }
@@ -86,7 +88,8 @@ public final class AggregateLDIFReaderChangeRecordTranslator
    *                      invoked for each record to be processed.
    */
   public AggregateLDIFReaderChangeRecordTranslator(
-       final Collection<? extends LDIFReaderChangeRecordTranslator> translators)
+       @Nullable final Collection<? extends LDIFReaderChangeRecordTranslator>
+            translators)
   {
     if (translators == null)
     {
@@ -105,7 +108,8 @@ public final class AggregateLDIFReaderChangeRecordTranslator
    * {@inheritDoc}
    */
   @Override()
-  public LDIFChangeRecord translate(final LDIFChangeRecord original,
+  @Nullable()
+  public LDIFChangeRecord translate(@NotNull  final LDIFChangeRecord original,
                                     final long firstLineNumber)
          throws LDIFException
   {

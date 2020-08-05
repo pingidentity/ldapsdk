@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,7 +75,7 @@ public final class PasswordModifyExtendedResult
 
 
   // The generated password from the response, if applicable.
-  private final ASN1OctetString generatedPassword;
+  @Nullable private final ASN1OctetString generatedPassword;
 
 
 
@@ -88,7 +90,8 @@ public final class PasswordModifyExtendedResult
    * @throws  LDAPException  If the provided extended result cannot be decoded
    *                         as a password modify extended result.
    */
-  public PasswordModifyExtendedResult(final ExtendedResult extendedResult)
+  public PasswordModifyExtendedResult(
+              @NotNull final ExtendedResult extendedResult)
          throws LDAPException
   {
     super(extendedResult);
@@ -148,12 +151,12 @@ public final class PasswordModifyExtendedResult
    *                            available.
    */
   public PasswordModifyExtendedResult(final int messageID,
-                                      final ResultCode resultCode,
-                                      final String diagnosticMessage,
-                                      final String matchedDN,
-                                      final String[] referralURLs,
-                                      final ASN1OctetString generatedPassword,
-                                      final Control[] responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final ASN1OctetString generatedPassword,
+              @Nullable final Control[] responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
           null, encodeValue(generatedPassword), responseControls);
@@ -172,8 +175,9 @@ public final class PasswordModifyExtendedResult
    * @return  An ASN.1 octet string containing the encoded value, or
    *          {@code null} if there should not be an encoded value.
    */
-  private static ASN1OctetString
-          encodeValue(final ASN1OctetString generatedPassword)
+  @Nullable()
+  private static ASN1OctetString encodeValue(
+                      @Nullable final ASN1OctetString generatedPassword)
   {
     if (generatedPassword == null)
     {
@@ -198,6 +202,7 @@ public final class PasswordModifyExtendedResult
    *          this extended result, or {@code null} if no generated password was
    *          included in the extended result.
    */
+  @Nullable()
   public String getGeneratedPassword()
   {
     if (generatedPassword == null)
@@ -220,6 +225,7 @@ public final class PasswordModifyExtendedResult
    *          this extended result, or {@code null} if no generated password was
    *          included in the extended result.
    */
+  @Nullable()
   public byte[] getGeneratedPasswordBytes()
   {
     if (generatedPassword == null)
@@ -242,6 +248,7 @@ public final class PasswordModifyExtendedResult
    *          {@code null} if no generated password was included in the extended
    *          result.
    */
+  @Nullable()
   public ASN1OctetString getRawGeneratedPassword()
   {
     return generatedPassword;
@@ -253,6 +260,7 @@ public final class PasswordModifyExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_PASSWORD_MODIFY.get();
@@ -268,7 +276,7 @@ public final class PasswordModifyExtendedResult
    *                 extended result will be appended.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PasswordModifyExtendedResult(resultCode=");
     buffer.append(getResultCode());
@@ -282,9 +290,7 @@ public final class PasswordModifyExtendedResult
 
     if (generatedPassword != null)
     {
-      buffer.append(", generatedPassword='");
-      buffer.append(generatedPassword.stringValue());
-      buffer.append('\'');
+      buffer.append(", generatedPassword='*****REDACTED*****'");
     }
 
     final String diagnosticMessage = getDiagnosticMessage();

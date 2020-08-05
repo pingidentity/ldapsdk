@@ -61,7 +61,7 @@ public final class ColumnFormatter
    * The symbols to use for special characters that might be encountered when
    * using a decimal formatter.
    */
-  private static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS =
+  @NotNull private static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS =
        new DecimalFormatSymbols();
   static
   {
@@ -74,7 +74,7 @@ public final class ColumnFormatter
   /**
    * The default output format to use.
    */
-  private static final OutputFormat DEFAULT_OUTPUT_FORMAT =
+  @NotNull private static final OutputFormat DEFAULT_OUTPUT_FORMAT =
        OutputFormat.COLUMNS;
 
 
@@ -82,14 +82,14 @@ public final class ColumnFormatter
   /**
    * The default spacer to use between columns.
    */
-  private static final String DEFAULT_SPACER = " ";
+  @NotNull private static final String DEFAULT_SPACER = " ";
 
 
 
   /**
    * The default date format string that will be used for timestamps.
    */
-  private static final String DEFAULT_TIMESTAMP_FORMAT = "HH:mm:ss";
+  @NotNull private static final String DEFAULT_TIMESTAMP_FORMAT = "HH:mm:ss";
 
 
 
@@ -104,25 +104,26 @@ public final class ColumnFormatter
   private final boolean includeTimestamp;
 
   // The column to use for the timestamp.
-  private final FormattableColumn timestampColumn;
+  @Nullable private final FormattableColumn timestampColumn;
 
   // The columns to be formatted.
-  private final FormattableColumn[] columns;
+  @NotNull private final FormattableColumn[] columns;
 
   // The output format to use.
-  private final OutputFormat outputFormat;
+  @NotNull private final OutputFormat outputFormat;
 
   // The string to insert between columns.
-  private final String spacer;
+  @NotNull private final String spacer;
 
   // The format string to use for the timestamp.
-  private final String timestampFormat;
+  @NotNull private final String timestampFormat;
 
   // The thread-local formatter to use for floating-point values.
-  private final transient ThreadLocal<DecimalFormat> decimalFormatter;
+  @NotNull private final transient ThreadLocal<DecimalFormat> decimalFormatter;
 
   // The thread-local formatter to use when formatting timestamps.
-  private final transient ThreadLocal<SimpleDateFormat> timestampFormatter;
+  @NotNull private final transient ThreadLocal<SimpleDateFormat>
+       timestampFormatter;
 
 
 
@@ -133,7 +134,7 @@ public final class ColumnFormatter
    * @param  columns  The columns to be formatted.  At least one column must be
    *                  provided.
    */
-  public ColumnFormatter(final FormattableColumn... columns)
+  public ColumnFormatter(@NotNull final FormattableColumn... columns)
   {
     this(false, null, null, null, columns);
   }
@@ -160,9 +161,10 @@ public final class ColumnFormatter
    *                           column must be provided.
    */
   public ColumnFormatter(final boolean includeTimestamp,
-                         final String timestampFormat,
-                         final OutputFormat outputFormat, final String spacer,
-                         final FormattableColumn... columns)
+                         @Nullable final String timestampFormat,
+                         @Nullable final OutputFormat outputFormat,
+                         @Nullable final String spacer,
+                         @NotNull final FormattableColumn... columns)
   {
     Validator.ensureNotNull(columns);
     Validator.ensureTrue(columns.length > 0);
@@ -238,6 +240,7 @@ public final class ColumnFormatter
    *
    * @return  The format string that will be used for generating timestamps.
    */
+  @NotNull()
   public String getTimestampFormatString()
   {
     return timestampFormat;
@@ -250,6 +253,7 @@ public final class ColumnFormatter
    *
    * @return  The output format for this formatter.
    */
+  @NotNull()
   public OutputFormat getOutputFormat()
   {
     return outputFormat;
@@ -262,6 +266,7 @@ public final class ColumnFormatter
    *
    * @return  The spacer that will be used between columns.
    */
+  @NotNull()
   public String getSpacer()
   {
     return spacer;
@@ -274,6 +279,7 @@ public final class ColumnFormatter
    *
    * @return  The set of columns for this formatter.
    */
+  @NotNull()
   public FormattableColumn[] getColumns()
   {
     final FormattableColumn[] copy = new FormattableColumn[columns.length];
@@ -291,6 +297,7 @@ public final class ColumnFormatter
    *
    * @return  The lines that should comprise the column headers.
    */
+  @NotNull()
   public String[] getHeaderLines(final boolean includeDashes)
   {
     if (outputFormat == OutputFormat.COLUMNS)
@@ -425,7 +432,8 @@ public final class ColumnFormatter
    *
    * @return  A string containing the formatted row.
    */
-  public String formatRow(final Object... columnData)
+  @NotNull()
+  public String formatRow(@NotNull final Object... columnData)
   {
     final StringBuilder buffer = new StringBuilder();
 
@@ -487,7 +495,8 @@ public final class ColumnFormatter
    *
    * @return  A string representation of the provided object.
    */
-  private String toString(final Object o)
+  @NotNull()
+  private String toString(@Nullable final Object o)
   {
     if (o == null)
     {

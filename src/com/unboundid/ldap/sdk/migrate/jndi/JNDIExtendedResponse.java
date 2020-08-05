@@ -45,6 +45,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -70,7 +72,7 @@ public final class JNDIExtendedResponse
 
 
   // The SDK extended result that backs this JNDI extended response.
-  private final ExtendedResult r;
+  @NotNull private final ExtendedResult r;
 
 
 
@@ -80,7 +82,7 @@ public final class JNDIExtendedResponse
    * @param  r  The SDK extended result to use to create this JNDI extended
    *            response.
    */
-  public JNDIExtendedResponse(final ExtendedResult r)
+  public JNDIExtendedResponse(@NotNull final ExtendedResult r)
   {
     this.r = r;
   }
@@ -97,7 +99,7 @@ public final class JNDIExtendedResponse
    * @throws  NamingException  If a problem occurs while trying to create this
    *                           JNDI extended response.
    */
-  public JNDIExtendedResponse(final ExtendedResponse r)
+  public JNDIExtendedResponse(@NotNull final ExtendedResponse r)
          throws NamingException
   {
     this(toSDKExtendedResult(r));
@@ -119,7 +121,8 @@ public final class JNDIExtendedResponse
    *
    * @throws  NamingException  If a problem occurs while creating the response.
    */
-  JNDIExtendedResponse(final String id, final byte[] berValue, final int offset,
+  JNDIExtendedResponse(@Nullable final String id,
+                       @Nullable final byte[] berValue, final int offset,
                        final int length)
        throws NamingException
   {
@@ -162,6 +165,7 @@ public final class JNDIExtendedResponse
    *          if there is no OID.
    */
   @Override()
+  @Nullable()
   public String getID()
   {
     return r.getOID();
@@ -177,6 +181,7 @@ public final class JNDIExtendedResponse
    *          there is no value.
    */
   @Override()
+  @Nullable()
   public byte[] getEncodedValue()
   {
     final ASN1OctetString value = r.getValue();
@@ -199,6 +204,7 @@ public final class JNDIExtendedResponse
    * @return  An LDAP SDK extended result that is the equivalent of this JNDI
    *          extended response.
    */
+  @NotNull()
   public ExtendedResult toSDKExtendedResult()
   {
     return r;
@@ -219,7 +225,9 @@ public final class JNDIExtendedResponse
    * @throws  NamingException  If a problem occurs while decoding the provided
    *                           JNDI extended response as an SDK extended result.
    */
-  public static ExtendedResult toSDKExtendedResult(final ExtendedResponse r)
+  @Nullable()
+  public static ExtendedResult toSDKExtendedResult(
+                                    @Nullable final ExtendedResponse r)
          throws NamingException
   {
     if (r == null)
@@ -250,6 +258,7 @@ public final class JNDIExtendedResponse
    * @return  A string representation of this JNDI response.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return r.toString();

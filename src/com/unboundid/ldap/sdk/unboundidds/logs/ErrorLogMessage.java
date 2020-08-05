@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,33 +73,33 @@ public final class ErrorLogMessage
 
 
   // The name of the category for this error log message.
-  private final ErrorLogCategory category;
+  @Nullable private final ErrorLogCategory category;
 
   // The name of the severity for this error log message.
-  private final ErrorLogSeverity severity;
+  @Nullable private final ErrorLogSeverity severity;
 
   // The message ID for this error log message.
-  private final Long messageID;
+  @Nullable private final Long messageID;
 
   // The connection ID for the operation currently being processed by the thread
   // that generated this error log message.
-  private final Long triggeredByConnectionID;
+  @Nullable private final Long triggeredByConnectionID;
 
   // The operation ID for the operation currently being processed by the thread
   // that generated this error log message.
-  private final Long triggeredByOperationID;
+  @Nullable private final Long triggeredByOperationID;
 
   // The Directory Server instance name for this error log message.
-  private final String instanceName;
+  @Nullable private final String instanceName;
 
   // The message string for this error log message.
-  private final String message;
+  @Nullable private final String message;
 
   // The product name for this error log message.
-  private final String productName;
+  @Nullable private final String productName;
 
   // The startup ID for this error log message;
-  private final String startupID;
+  @Nullable private final String startupID;
 
 
 
@@ -109,7 +111,7 @@ public final class ErrorLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ErrorLogMessage(final String s)
+  public ErrorLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -122,7 +124,7 @@ public final class ErrorLogMessage
    *
    * @param  m  The log message to be parsed as an error log message.
    */
-  public ErrorLogMessage(final LogMessage m)
+  public ErrorLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -165,6 +167,7 @@ public final class ErrorLogMessage
    * @return  The server product name for this error log message, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getProductName()
   {
     return productName;
@@ -178,6 +181,7 @@ public final class ErrorLogMessage
    * @return  The Directory Server instance name for this error log message, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getInstanceName()
   {
     return instanceName;
@@ -191,6 +195,7 @@ public final class ErrorLogMessage
    * @return  The Directory Server startup ID for this error log message, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getStartupID()
   {
     return startupID;
@@ -204,6 +209,7 @@ public final class ErrorLogMessage
    * @return  The category for this error log message, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public ErrorLogCategory getCategory()
   {
     return category;
@@ -217,6 +223,7 @@ public final class ErrorLogMessage
    * @return  The severity for this error log message, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   public ErrorLogSeverity getSeverity()
   {
     return severity;
@@ -230,6 +237,7 @@ public final class ErrorLogMessage
    * @return  The numeric identifier for this error log message, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   public Long getMessageID()
   {
     return messageID;
@@ -245,6 +253,7 @@ public final class ErrorLogMessage
    *          the thread that generated this error log message, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   public Long getTriggeredByConnectionID()
   {
     return triggeredByConnectionID;
@@ -260,6 +269,7 @@ public final class ErrorLogMessage
    *          the thread that generated this error log message, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   public Long getTriggeredByOperationID()
   {
     return triggeredByOperationID;
@@ -273,6 +283,7 @@ public final class ErrorLogMessage
    * @return  The message text for this error log message, or {@code null} if it
    *          is not included in the log message.
    */
+  @Nullable()
   public String getMessage()
   {
     return message;

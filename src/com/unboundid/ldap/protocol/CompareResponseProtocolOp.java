@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -86,9 +88,10 @@ public final class CompareResponseProtocolOp
    * @param  referralURLs       The list of referral URLs for this response, if
    *                            any.
    */
-  public CompareResponseProtocolOp(final int resultCode, final String matchedDN,
-                                 final String diagnosticMessage,
-                                 final List<String> referralURLs)
+  public CompareResponseProtocolOp(final int resultCode,
+                                   @Nullable final String matchedDN,
+                                   @Nullable final String diagnosticMessage,
+                                   @Nullable final List<String> referralURLs)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_RESPONSE, resultCode, matchedDN,
           diagnosticMessage, referralURLs);
@@ -102,7 +105,7 @@ public final class CompareResponseProtocolOp
    *
    * @param  result  The LDAP result object to use to create this protocol op.
    */
-  public CompareResponseProtocolOp(final LDAPResult result)
+  public CompareResponseProtocolOp(@NotNull final LDAPResult result)
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_RESPONSE,
          result.getResultCode().intValue(), result.getMatchedDN(),
@@ -122,7 +125,7 @@ public final class CompareResponseProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         compare response.
    */
-  CompareResponseProtocolOp(final ASN1StreamReader reader)
+  CompareResponseProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     super(reader);
@@ -134,6 +137,7 @@ public final class CompareResponseProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
@@ -187,8 +191,9 @@ public final class CompareResponseProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a compare response protocol op.
    */
+  @NotNull()
   public static CompareResponseProtocolOp decodeProtocolOp(
-                                               final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try

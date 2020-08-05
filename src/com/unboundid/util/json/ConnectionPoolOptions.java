@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -70,7 +72,8 @@ final class ConnectionPoolOptions
    * available.  If this field is present, then the value should be a boolean.
    * If it is not present, then a default of {@code true} will be assumed.
    */
-  private static final String FIELD_CREATE_IF_NECESSARY = "create-if-necessary";
+  @NotNull private static final String FIELD_CREATE_IF_NECESSARY =
+       "create-if-necessary";
 
 
 
@@ -83,7 +86,7 @@ final class ConnectionPoolOptions
    * this field is not present, then no attempt will be made to retrieve an
    * entry during health check processing.
    */
-  private static final String FIELD_HEALTH_CHECK_GET_ENTRY_DN =
+  @NotNull private static final String FIELD_HEALTH_CHECK_GET_ENTRY_DN =
        "health-check-get-entry-dn";
 
 
@@ -95,8 +98,9 @@ final class ConnectionPoolOptions
    * a positive integer.  If it is absent, then a default of 10000 milliseconds
    * (ten seconds) will be used.
    */
-  private static final String FIELD_HEALTH_CHECK_GET_ENTRY_TIMEOUT_MILLIS =
-       "health-check-get-entry-maximum-response-time-millis";
+  @NotNull private static final String
+       FIELD_HEALTH_CHECK_GET_ENTRY_TIMEOUT_MILLIS =
+            "health-check-get-entry-maximum-response-time-millis";
 
 
 
@@ -106,7 +110,7 @@ final class ConnectionPoolOptions
    * then the value must be a positive integer.  If it is absent, then a default
    * of 60000 milliseconds (one minute) will be used.
    */
-  private static final String FIELD_HEALTH_CHECK_INTERVAL_MILLIS =
+  @NotNull private static final String FIELD_HEALTH_CHECK_INTERVAL_MILLIS =
        "health-check-interval-millis";
 
 
@@ -119,7 +123,7 @@ final class ConnectionPoolOptions
    * will be established in parallel across that many threads.  If it is absent,
    * then a default of 1 will be assumed.
    */
-  private static final String FIELD_INITIAL_CONNECT_THREADS =
+  @NotNull private static final String FIELD_INITIAL_CONNECT_THREADS =
        "initial-connect-threads";
 
 
@@ -134,8 +138,9 @@ final class ConnectionPoolOptions
    * present, then its value must be a boolean.  If it is absent, then a default
    * of {@code false} will be assumed.
    */
-  private static final String FIELD_INVOKE_AUTHENTICATION_HEALTH_CHECKS =
-       "invoke-authentication-health-checks";
+  @NotNull private static final String
+       FIELD_INVOKE_AUTHENTICATION_HEALTH_CHECKS =
+            "invoke-authentication-health-checks";
 
 
 
@@ -146,7 +151,7 @@ final class ConnectionPoolOptions
    * must be a boolean.  If it is absent, then a default of {@code true} will be
    * assumed.
    */
-  private static final String FIELD_INVOKE_BACKGROUND_HEALTH_CHECKS =
+  @NotNull private static final String FIELD_INVOKE_BACKGROUND_HEALTH_CHECKS =
        "invoke-background-health-checks";
 
 
@@ -157,7 +162,7 @@ final class ConnectionPoolOptions
    * pool.  If this field is present, then its value must be a boolean.  If it
    * is absent, then a default of {@code false} will be assumed.
    */
-  private static final String FIELD_INVOKE_CHECKOUT_HEALTH_CHECKS =
+  @NotNull private static final String FIELD_INVOKE_CHECKOUT_HEALTH_CHECKS =
        "invoke-checkout-health-checks";
 
 
@@ -168,7 +173,7 @@ final class ConnectionPoolOptions
    * field is present, then its value must be a boolean.  If it is absent, then
    * a default of {@code false} will be assumed.
    */
-  private static final String FIELD_INVOKE_CREATE_HEALTH_CHECKS =
+  @NotNull private static final String FIELD_INVOKE_CREATE_HEALTH_CHECKS =
        "invoke-create-health-checks";
 
 
@@ -184,7 +189,7 @@ final class ConnectionPoolOptions
    * method to perform a search), but not against failures encountered while a
    * connection is checked out of the pool.
    */
-  private static final String FIELD_INVOKE_EXCEPTION_HEALTH_CHECKS =
+  @NotNull private static final String FIELD_INVOKE_EXCEPTION_HEALTH_CHECKS =
        "invoke-exception-health-checks";
 
 
@@ -195,7 +200,7 @@ final class ConnectionPoolOptions
    * the pool.  If this field is present, then its value must be a boolean.  If
    * it is absent, then a default of {@code false} will be assumed.
    */
-  private static final String FIELD_INVOKE_RELEASE_HEALTH_CHECKS =
+  @NotNull private static final String FIELD_INVOKE_RELEASE_HEALTH_CHECKS =
        "invoke-release-health-checks";
 
 
@@ -212,7 +217,7 @@ final class ConnectionPoolOptions
    * default of 0 will be assumed, which indicates that connections should not
    * be automatically closed after a specified period of time.
    */
-  private static final String FIELD_MAX_CONNECTION_AGE_MILLIS =
+  @NotNull private static final String FIELD_MAX_CONNECTION_AGE_MILLIS =
        "maximum-connection-age-millis";
 
 
@@ -226,7 +231,7 @@ final class ConnectionPoolOptions
    * period of time).  If it is absent, then the maximum connection age will be
    * used for these connections.
    */
-  private static final String
+  @NotNull private static final String
        FIELD_MAX_DEFUNCT_REPLACEMENT_CONNECTION_AGE_MILLIS =
             "maximum-defunct-replacement-connection-age-millis";
 
@@ -243,7 +248,7 @@ final class ConnectionPoolOptions
    * connection or throw an exception (based on the value of the
    * create-if-necessary field).
    */
-  private static final String FIELD_MAX_WAIT_TIME_MILLIS =
+  @NotNull private static final String FIELD_MAX_WAIT_TIME_MILLIS =
        "maximum-wait-time-millis";
 
 
@@ -263,7 +268,7 @@ final class ConnectionPoolOptions
    * types of operations for which automatic retry should be enabled.  If it is
    * absent, then no automatic retry will be attempted.
    */
-  private static final String FIELD_RETRY_FAILED_OPS =
+  @NotNull private static final String FIELD_RETRY_FAILED_OPS =
        "retry-failed-operations-due-to-invalid-connections";
 
 
@@ -272,7 +277,7 @@ final class ConnectionPoolOptions
   private final boolean createIfNecessary;
 
   // The health check to use for connection pools.
-  private final GetEntryLDAPConnectionPoolHealthCheck healthCheck;
+  @Nullable private final GetEntryLDAPConnectionPoolHealthCheck healthCheck;
 
   // The number of concurrent threads to create the initial set of connections.
   private final int initialConnectThreads;
@@ -287,10 +292,10 @@ final class ConnectionPoolOptions
   private final long maxWaitTimeMillis;
 
   // The maximum defunct replacement connection age.
-  private final Long maxDefunctReplacementConnectionAgeMillis;
+  @Nullable private final Long maxDefunctReplacementConnectionAgeMillis;
 
   // The set of operation types for which to enable retry.
-  private final Set<OperationType> retryOperationTypes;
+  @NotNull private final Set<OperationType> retryOperationTypes;
 
 
 
@@ -304,7 +309,7 @@ final class ConnectionPoolOptions
    * @throws  LDAPException  If there is a problem with the connection pool
    *                         options data in the provided JSON object.
    */
-  ConnectionPoolOptions(final JSONObject connectionDetailsObject)
+  ConnectionPoolOptions(@NotNull final JSONObject connectionDetailsObject)
        throws LDAPException
   {
     boolean create                   = true;
@@ -505,6 +510,7 @@ final class ConnectionPoolOptions
    *
    * @return  The health check that should be used for connection pools.
    */
+  @Nullable()
   GetEntryLDAPConnectionPoolHealthCheck getHealthCheck()
   {
     return healthCheck;
@@ -517,7 +523,7 @@ final class ConnectionPoolOptions
    *
    * @param  pool  The connection pool to update.
    */
-  void applyConnectionPoolSettings(final LDAPConnectionPool pool)
+  void applyConnectionPoolSettings(@NotNull final LDAPConnectionPool pool)
   {
     pool.setCreateIfNecessary(createIfNecessary);
     pool.setHealthCheckIntervalMillis(healthCheckIntervalMillis);

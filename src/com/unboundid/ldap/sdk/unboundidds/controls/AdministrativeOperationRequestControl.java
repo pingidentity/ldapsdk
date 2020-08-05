@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,7 +81,7 @@ public final class AdministrativeOperationRequestControl
    * The OID (1.3.6.1.4.1.30221.2.5.11) for the administrative operation request
    * control.
    */
-  public static final String ADMINISTRATIVE_OPERATION_REQUEST_OID =
+  @NotNull public static final String ADMINISTRATIVE_OPERATION_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.11";
 
 
@@ -92,7 +94,7 @@ public final class AdministrativeOperationRequestControl
 
 
   // The informational message to include in the control, if defined.
-  private final String message;
+  @Nullable private final String message;
 
 
 
@@ -114,7 +116,7 @@ public final class AdministrativeOperationRequestControl
    *                  the associated operation.  It may be {@code null} if no
    *                  additional message should be provided.
    */
-  public AdministrativeOperationRequestControl(final String message)
+  public AdministrativeOperationRequestControl(@Nullable final String message)
   {
     super(ADMINISTRATIVE_OPERATION_REQUEST_OID, false, encodeValue(message));
 
@@ -130,7 +132,7 @@ public final class AdministrativeOperationRequestControl
    * @param  control  The generic control to be decoded as an administrative
    *                  operation request control.
    */
-  public AdministrativeOperationRequestControl(final Control control)
+  public AdministrativeOperationRequestControl(@NotNull final Control control)
   {
     super(control);
 
@@ -157,7 +159,8 @@ public final class AdministrativeOperationRequestControl
    * @return  An appropriately-encoded value for this control, or {@code null}
    *          if no value is needed.
    */
-  private static ASN1OctetString encodeValue(final String message)
+  @Nullable()
+  private static ASN1OctetString encodeValue(@Nullable final String message)
   {
     if (message == null)
     {
@@ -177,6 +180,7 @@ public final class AdministrativeOperationRequestControl
    * @return  The informational message for this control, or {@code null} if
    *          none was provided.
    */
+  @Nullable()
   public String getMessage()
   {
     return message;
@@ -188,6 +192,7 @@ public final class AdministrativeOperationRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ADMINISTRATIVE_OPERATION_REQUEST.get();
@@ -199,7 +204,7 @@ public final class AdministrativeOperationRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AdministrativeOperationRequestControl(");
 

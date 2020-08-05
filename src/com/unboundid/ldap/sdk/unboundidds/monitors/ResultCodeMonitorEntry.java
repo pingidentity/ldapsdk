@@ -44,6 +44,7 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -74,7 +75,7 @@ public final class ResultCodeMonitorEntry
   /**
    * The structural object class used in group cache monitor entries.
    */
-  static final String RESULT_CODE_MONITOR_OC =
+  @NotNull static final String RESULT_CODE_MONITOR_OC =
        "ds-ldap-result-codes-monitor-entry";
 
 
@@ -87,31 +88,34 @@ public final class ResultCodeMonitorEntry
 
 
   // The result code information for extended operations.
-  private final ExtendedOperationResultCodeInfo extendedOperationResultCodeInfo;
+  @NotNull private final ExtendedOperationResultCodeInfo
+       extendedOperationResultCodeInfo;
 
   // The result code information for add operations.
-  private final OperationResultCodeInfo addOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo addOperationResultCodeInfo;
 
   // The result code information for all types of operations.
-  private final OperationResultCodeInfo allOperationsResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo allOperationsResultCodeInfo;
 
   // The result code information for bind operations.
-  private final OperationResultCodeInfo bindOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo bindOperationResultCodeInfo;
 
   // The result code information for compare operations.
-  private final OperationResultCodeInfo compareOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo
+       compareOperationResultCodeInfo;
 
   // The result code information for delete operations.
-  private final OperationResultCodeInfo deleteOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo deleteOperationResultCodeInfo;
 
   // The result code information for modify operations.
-  private final OperationResultCodeInfo modifyOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo modifyOperationResultCodeInfo;
 
   // The result code information for modify DN operations.
-  private final OperationResultCodeInfo modifyDNOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo
+       modifyDNOperationResultCodeInfo;
 
   // The result code information for search operations.
-  private final OperationResultCodeInfo searchOperationResultCodeInfo;
+  @NotNull private final OperationResultCodeInfo searchOperationResultCodeInfo;
 
 
 
@@ -121,7 +125,7 @@ public final class ResultCodeMonitorEntry
    * @param  entry  The entry to be parsed as a result code monitor entry.  It
    *                must not be {@code null}.
    */
-  public ResultCodeMonitorEntry(final Entry entry)
+  public ResultCodeMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -153,6 +157,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information that encompasses all types of operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getAllOperationsResultCodeInfo()
   {
     return allOperationsResultCodeInfo;
@@ -165,6 +170,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for add operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getAddOperationResultCodeInfo()
   {
     return addOperationResultCodeInfo;
@@ -177,6 +183,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for bind operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getBindOperationResultCodeInfo()
   {
     return bindOperationResultCodeInfo;
@@ -189,6 +196,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for compare operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getCompareOperationResultCodeInfo()
   {
     return compareOperationResultCodeInfo;
@@ -201,6 +209,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for delete operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getDeleteOperationResultCodeInfo()
   {
     return deleteOperationResultCodeInfo;
@@ -213,6 +222,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for extended operations.
    */
+  @NotNull()
   public ExtendedOperationResultCodeInfo getExtendedOperationResultCodeInfo()
   {
     return extendedOperationResultCodeInfo;
@@ -225,6 +235,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for modify operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getModifyOperationResultCodeInfo()
   {
     return modifyOperationResultCodeInfo;
@@ -237,6 +248,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for modify DN operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getModifyDNOperationResultCodeInfo()
   {
     return modifyDNOperationResultCodeInfo;
@@ -249,6 +261,7 @@ public final class ResultCodeMonitorEntry
    *
    * @return  Result code information for search operations.
    */
+  @NotNull()
   public OperationResultCodeInfo getSearchOperationResultCodeInfo()
   {
     return searchOperationResultCodeInfo;
@@ -260,6 +273,7 @@ public final class ResultCodeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_RESULT_CODE_MONITOR_DISPNAME.get();
@@ -271,6 +285,7 @@ public final class ResultCodeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_RESULT_CODE_MONITOR_DESC.get();
@@ -282,6 +297,7 @@ public final class ResultCodeMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
@@ -311,8 +327,9 @@ public final class ResultCodeMonitorEntry
    * @param  attrPrefix      The attribute prefix
    */
   private static void addAttrs(
-       final LinkedHashMap<String,MonitorAttribute> attrs,
-       final OperationResultCodeInfo resultCodeInfo, final String attrPrefix)
+       @NotNull final LinkedHashMap<String,MonitorAttribute> attrs,
+       @NotNull final OperationResultCodeInfo resultCodeInfo,
+       @NotNull final String attrPrefix)
   {
     final String opName;
     if (resultCodeInfo.getOperationType() == null)
@@ -427,8 +444,8 @@ public final class ResultCodeMonitorEntry
    * @param  resultCodeInfo  The result code information to use.
    */
   private static void addAttrs(
-       final LinkedHashMap<String,MonitorAttribute> attrs,
-       final ExtendedOperationResultCodeInfo resultCodeInfo)
+       @NotNull final LinkedHashMap<String,MonitorAttribute> attrs,
+       @NotNull final ExtendedOperationResultCodeInfo resultCodeInfo)
   {
     final String opName = INFO_RESULT_CODE_OP_NAME_EXTENDED.get();
     final String lowerOpName = StaticUtils.toLowerCase(opName);

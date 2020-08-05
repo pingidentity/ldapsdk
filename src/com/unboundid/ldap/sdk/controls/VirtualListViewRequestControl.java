@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -172,7 +174,7 @@ public final class VirtualListViewRequestControl
    * The OID (2.16.840.1.113730.3.4.9) for the virtual list view request
    * control.
    */
-  public static final String VIRTUAL_LIST_VIEW_REQUEST_OID =
+  @NotNull public static final String VIRTUAL_LIST_VIEW_REQUEST_OID =
        "2.16.840.1.113730.3.4.9";
 
 
@@ -202,11 +204,11 @@ public final class VirtualListViewRequestControl
 
   // The assertion value that will be used to identify the start of the
   // requested page of results for a greater-or-equal target type.
-  private final ASN1OctetString assertionValue;
+  @Nullable private final ASN1OctetString assertionValue;
 
   // The context ID that may be used to help the server continue in the same
   // result set for subsequent searches.
-  private final ASN1OctetString contextID;
+  @Nullable private final ASN1OctetString contextID;
 
   // The maximum number of entries to return after the target entry.
   private final int afterCount;
@@ -245,13 +247,14 @@ public final class VirtualListViewRequestControl
    *                       searches.  For the first request in a series of
    *                       searches with the VLV control, it should be
    *                       {@code null}.  For subsequent searches in the VLV
-   *                       sequence, it should be the (possibly {@code null}
+   *                       sequence, it should be the (possibly {@code null})
    *                       context ID included in the response control from the
    *                       previous search.
    */
   public VirtualListViewRequestControl(final int targetOffset,
               final int beforeCount, final int afterCount,
-              final int contentCount,  final ASN1OctetString contextID)
+              final int contentCount,
+              @Nullable final ASN1OctetString contextID)
   {
     this(targetOffset, beforeCount, afterCount, contentCount, contextID, true);
   }
@@ -281,13 +284,13 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    */
-  public VirtualListViewRequestControl(final String assertionValue,
+  public VirtualListViewRequestControl(@NotNull final String assertionValue,
               final int beforeCount, final int afterCount,
-              final ASN1OctetString contextID)
+              @Nullable final ASN1OctetString contextID)
   {
     this(new ASN1OctetString(assertionValue), beforeCount, afterCount,
          contextID, true);
@@ -318,13 +321,13 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    */
-  public VirtualListViewRequestControl(final byte[] assertionValue,
+  public VirtualListViewRequestControl(@NotNull final byte[] assertionValue,
               final int beforeCount, final int afterCount,
-              final ASN1OctetString contextID)
+              @Nullable final ASN1OctetString contextID)
   {
     this(new ASN1OctetString(assertionValue), beforeCount, afterCount,
          contextID, true);
@@ -355,13 +358,14 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    */
-  public VirtualListViewRequestControl(final ASN1OctetString assertionValue,
+  public VirtualListViewRequestControl(
+              @NotNull final ASN1OctetString assertionValue,
               final int beforeCount, final int afterCount,
-              final ASN1OctetString contextID)
+              @Nullable final ASN1OctetString contextID)
   {
     this(assertionValue, beforeCount, afterCount, contextID, true);
   }
@@ -389,7 +393,7 @@ public final class VirtualListViewRequestControl
    *                       searches.  For the first request in a series of
    *                       searches with the VLV control, it should be
    *                       {@code null}.  For subsequent searches in the VLV
-   *                       sequence, it should be the (possibly {@code null}
+   *                       sequence, it should be the (possibly {@code null})
    *                       context ID included in the response control from the
    *                       previous search.
    * @param  isCritical    Indicates whether this control should be marked
@@ -397,7 +401,8 @@ public final class VirtualListViewRequestControl
    */
   public VirtualListViewRequestControl(final int targetOffset,
               final int beforeCount, final int afterCount,
-              final int contentCount,  final ASN1OctetString contextID,
+              final int contentCount,
+              @Nullable final ASN1OctetString contextID,
               final boolean isCritical)
   {
     super(VIRTUAL_LIST_VIEW_REQUEST_OID, isCritical,
@@ -438,15 +443,16 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    * @param  isCritical    Indicates whether this control should be marked
    *                       critical.
    */
-  public VirtualListViewRequestControl(final String assertionValue,
+  public VirtualListViewRequestControl(@NotNull final String assertionValue,
               final int beforeCount, final int afterCount,
-              final ASN1OctetString contextID, final boolean isCritical)
+              @Nullable final ASN1OctetString contextID,
+              final boolean isCritical)
   {
     this(new ASN1OctetString(assertionValue), beforeCount, afterCount,
                              contextID, isCritical);
@@ -477,15 +483,16 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    * @param  isCritical    Indicates whether this control should be marked
    *                       critical.
    */
-  public VirtualListViewRequestControl(final byte[] assertionValue,
+  public VirtualListViewRequestControl(@NotNull final byte[] assertionValue,
               final int beforeCount, final int afterCount,
-              final ASN1OctetString contextID, final boolean isCritical)
+              @Nullable final ASN1OctetString contextID,
+              final boolean isCritical)
   {
     this(new ASN1OctetString(assertionValue), beforeCount, afterCount,
                              contextID, isCritical);
@@ -516,15 +523,17 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    * @param  isCritical    Indicates whether this control should be marked
    *                       critical.
    */
-  public VirtualListViewRequestControl(final ASN1OctetString assertionValue,
+  public VirtualListViewRequestControl(
+              @NotNull final ASN1OctetString assertionValue,
               final int beforeCount, final int afterCount,
-              final ASN1OctetString contextID, final boolean isCritical)
+              @Nullable final ASN1OctetString contextID,
+              final boolean isCritical)
   {
     super(VIRTUAL_LIST_VIEW_REQUEST_OID, isCritical,
           encodeValue(assertionValue, beforeCount, afterCount, contextID));
@@ -550,7 +559,7 @@ public final class VirtualListViewRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         virtual list view request control.
    */
-  public VirtualListViewRequestControl(final Control control)
+  public VirtualListViewRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -640,18 +649,18 @@ public final class VirtualListViewRequestControl
    *                       searches.  For the first request in a series of
    *                       searches with the VLV control, it should be
    *                       {@code null}.  For subsequent searches in the VLV
-   *                       sequence, it should be the (possibly {@code null}
+   *                       sequence, it should be the (possibly {@code null})
    *                       context ID included in the response control from the
    *                       previous search.
    *
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(final int targetOffset,
-                                             final int beforeCount,
-                                             final int afterCount,
-                                             final int contentCount,
-                                             final ASN1OctetString contextID)
+                      final int beforeCount, final int afterCount,
+                      final int contentCount,
+                      @Nullable final ASN1OctetString contextID)
   {
     final ASN1Element[] targetElements =
     {
@@ -707,18 +716,19 @@ public final class VirtualListViewRequestControl
    *                         searches.  For the first request in a series of
    *                         searches with the VLV control, it should be
    *                         {@code null}.  For subsequent searches in the VLV
-   *                         sequence, it should be the (possibly {@code null}
+   *                         sequence, it should be the (possibly {@code null})
    *                         context ID included in the response control from
    *                         the previous search.
    *
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
-                                      final ASN1OctetString assertionValue,
-                                      final int beforeCount,
-                                      final int afterCount,
-                                      final ASN1OctetString contextID)
+                      @NotNull final ASN1OctetString assertionValue,
+                      final int beforeCount,
+                      final int afterCount,
+                      @Nullable final ASN1OctetString contextID)
   {
     Validator.ensureNotNull(assertionValue);
 
@@ -772,6 +782,7 @@ public final class VirtualListViewRequestControl
    *          list view request control, or {@code null} if the target is
    *          specified by offset.
    */
+  @Nullable()
   public String getAssertionValueString()
   {
     if (assertionValue == null)
@@ -794,6 +805,7 @@ public final class VirtualListViewRequestControl
    *          virtual list view request control, or {@code null} if the target
    *          is specified by offset.
    */
+  @Nullable()
   public byte[] getAssertionValueBytes()
   {
     if (assertionValue == null)
@@ -815,6 +827,7 @@ public final class VirtualListViewRequestControl
    * @return  The assertion value for this virtual list view request control, or
    *          {@code null} if the target is specified by offset.
    */
+  @Nullable()
   public ASN1OctetString getAssertionValue()
   {
     return assertionValue;
@@ -872,6 +885,7 @@ public final class VirtualListViewRequestControl
    * @return  The context ID for this virtual list view request control, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public ASN1OctetString getContextID()
   {
     return contextID;
@@ -883,6 +897,7 @@ public final class VirtualListViewRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_VLV_REQUEST.get();
@@ -894,7 +909,7 @@ public final class VirtualListViewRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("VirtualListViewRequestControl(beforeCount=");
     buffer.append(beforeCount);

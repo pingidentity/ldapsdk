@@ -64,14 +64,14 @@ final class HTTPValuePatternComponent
 
 
   // The lines that make up the data file.
-  private final String[] lines;
+  @NotNull private final String[] lines;
 
   // The random number generator that will be used to seed the thread-local
   // generators.
-  private final Random seedRandom;
+  @NotNull private final Random seedRandom;
 
   // The random number generator that will be used by this component.
-  private final ThreadLocal<Random> random;
+  @NotNull private final ThreadLocal<Random> random;
 
 
 
@@ -85,7 +85,7 @@ final class HTTPValuePatternComponent
    * @throws  IOException  If a problem occurs while reading data from the
    *                       specified HTTP URL.
    */
-  HTTPValuePatternComponent(final String url, final long seed)
+  HTTPValuePatternComponent(@NotNull final String url, final long seed)
        throws IOException
   {
     // Create the random number generators that will be used.
@@ -133,7 +133,7 @@ final class HTTPValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     Random r = random.get();
     if (r == null)

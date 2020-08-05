@@ -41,6 +41,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -65,7 +67,8 @@ public final class OAUTHBEARERBindRequest
   /**
    * The name for the OAUTHBEARER SASL mechanism.
    */
-  public static final String OAUTHBEARER_MECHANISM_NAME = "OAUTHBEARER";
+  @NotNull public static final String OAUTHBEARER_MECHANISM_NAME =
+       "OAUTHBEARER";
 
 
 
@@ -87,7 +90,7 @@ public final class OAUTHBEARERBindRequest
    * The component of the GS2 header that indicates that channel binding is not
    * supported.
    */
-  private static final byte[] GS2_HEADER_ELEMENT_NO_CHANNEL_BINDING =
+  @NotNull private static final byte[] GS2_HEADER_ELEMENT_NO_CHANNEL_BINDING =
        StaticUtils.getBytes("n");
 
 
@@ -95,7 +98,7 @@ public final class OAUTHBEARERBindRequest
   /**
    * The component of the GS2 header that precedes the authorization ID.
    */
-  private static final byte[] GS2_HEADER_ELEMENT_AUTHZ_ID_PREFIX =
+  @NotNull private static final byte[] GS2_HEADER_ELEMENT_AUTHZ_ID_PREFIX =
        StaticUtils.getBytes("a=");
 
 
@@ -104,8 +107,9 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * access token.
    */
-  private static final byte[] OAUTHBEARER_CRED_ELEMENT_ACCESS_TOKEN_PREFIX =
-       StaticUtils.getBytes("auth=Bearer ");
+  @NotNull private static final byte[]
+       OAUTHBEARER_CRED_ELEMENT_ACCESS_TOKEN_PREFIX =
+            StaticUtils.getBytes("auth=Bearer ");
 
 
 
@@ -113,8 +117,9 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * server address.
    */
-  private static final byte[] OAUTHBEARER_CRED_ELEMENT_SERVER_ADDRESS_PREFIX =
-       StaticUtils.getBytes("host=");
+  @NotNull private static final byte[]
+       OAUTHBEARER_CRED_ELEMENT_SERVER_ADDRESS_PREFIX =
+            StaticUtils.getBytes("host=");
 
 
 
@@ -122,8 +127,9 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * server port.
    */
-  private static final byte[] OAUTHBEARER_CRED_ELEMENT_SERVER_PORT_PREFIX =
-       StaticUtils.getBytes("port=");
+  @NotNull private static final byte[]
+       OAUTHBEARER_CRED_ELEMENT_SERVER_PORT_PREFIX =
+            StaticUtils.getBytes("port=");
 
 
 
@@ -131,8 +137,9 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * request method.
    */
-  private static final byte[] OAUTHBEARER_CRED_ELEMENT_REQUEST_METHOD_PREFIX =
-       StaticUtils.getBytes("mthd=");
+  @NotNull private static final byte[]
+       OAUTHBEARER_CRED_ELEMENT_REQUEST_METHOD_PREFIX =
+            StaticUtils.getBytes("mthd=");
 
 
 
@@ -140,8 +147,9 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * request path.
    */
-  private static final byte[] OAUTHBEARER_CRED_ELEMENT_REQUEST_PATH_PREFIX =
-       StaticUtils.getBytes("path=");
+  @NotNull private static final byte[]
+       OAUTHBEARER_CRED_ELEMENT_REQUEST_PATH_PREFIX =
+            StaticUtils.getBytes("path=");
 
 
 
@@ -149,7 +157,7 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * request post data.
    */
-  private static final byte[]
+  @NotNull private static final byte[]
        OAUTHBEARER_CRED_ELEMENT_REQUEST_POST_DATA_PREFIX =
             StaticUtils.getBytes("post=");
 
@@ -159,7 +167,7 @@ public final class OAUTHBEARERBindRequest
    * The component of the OAUTHBEARER bind request credentials that precedes the
    * request query string.
    */
-  private static final byte[]
+  @NotNull private static final byte[]
        OAUTHBEARER_CRED_ELEMENT_REQUEST_QUERY_STRING_PREFIX =
             StaticUtils.getBytes("qs=");
 
@@ -169,7 +177,7 @@ public final class OAUTHBEARERBindRequest
    * The SASL credentials that should be included in the dummy bind request that
    * is used to complete a failed authentication attempt.
    */
-  private static final ASN1OctetString DUMMY_REQUEST_CREDENTIALS =
+  @NotNull private static final ASN1OctetString DUMMY_REQUEST_CREDENTIALS =
        new ASN1OctetString(new byte[] { OAUTHBEARER_DELIMITER });
 
 
@@ -185,29 +193,29 @@ public final class OAUTHBEARERBindRequest
   private volatile int messageID;
 
   // The port of the server to which the request will be sent.
-  private final Integer serverPort;
+  @Nullable private final Integer serverPort;
 
   // The access token to include in the bind request.
-  private final String accessToken;
+  @NotNull private final String accessToken;
 
   // The authorization identity to include in the GS2 header for the bind
   // request.
-  private final String authorizationID;
+  @Nullable private final String authorizationID;
 
   // The method to use for HTTP-based requests.
-  private final String requestMethod;
+  @Nullable private final String requestMethod;
 
   // The path to use for HTTP-based requests.
-  private final String requestPath;
+  @Nullable private final String requestPath;
 
   // The post data for HTTP-based requests.
-  private final String requestPostData;
+  @Nullable private final String requestPostData;
 
   // The query string for HTTP-based requests.
-  private final String requestQueryString;
+  @Nullable private final String requestQueryString;
 
   // The address of the server to which the request will be sent.
-  private final String serverAddress;
+  @Nullable private final String serverAddress;
 
 
 
@@ -221,8 +229,8 @@ public final class OAUTHBEARERBindRequest
    *                      It may be {@code null} or empty if no controls are
    *                      needed.
    */
-  public OAUTHBEARERBindRequest(final String accessToken,
-                                final Control... controls)
+  public OAUTHBEARERBindRequest(@NotNull final String accessToken,
+                                @Nullable final Control... controls)
   {
     super(controls);
 
@@ -253,8 +261,8 @@ public final class OAUTHBEARERBindRequest
    *                     may be {@code null} or empty if no controls are needed.
    */
   public OAUTHBEARERBindRequest(
-              final OAUTHBEARERBindRequestProperties properties,
-              final Control... controls)
+              @NotNull final OAUTHBEARERBindRequestProperties properties,
+              @Nullable final Control... controls)
   {
     super(controls);
 
@@ -276,6 +284,7 @@ public final class OAUTHBEARERBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return OAUTHBEARER_MECHANISM_NAME;
@@ -288,6 +297,7 @@ public final class OAUTHBEARERBindRequest
    *
    * @return  The access token to include in the bind request.
    */
+  @NotNull()
   public String getAccessToken()
   {
     return accessToken;
@@ -303,6 +313,7 @@ public final class OAUTHBEARERBindRequest
    *          request, or {@code null} if no authorization ID should be
    *          included.
    */
+  @Nullable()
   public String getAuthorizationID()
   {
     return authorizationID;
@@ -316,6 +327,7 @@ public final class OAUTHBEARERBindRequest
    * @return  The server address to include in the bind request, or {@code null}
    *          if it should be omitted.
    */
+  @Nullable()
   public String getServerAddress()
   {
     return serverAddress;
@@ -329,6 +341,7 @@ public final class OAUTHBEARERBindRequest
    * @return  The server port to include in the bind request, or {@code null}
    *          if it should be omitted.
    */
+  @Nullable()
   public Integer getServerPort()
   {
     return serverPort;
@@ -342,6 +355,7 @@ public final class OAUTHBEARERBindRequest
    * @return  The method to use for HTTP-based requests, or {@code null} if it
    *          should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestMethod()
   {
     return requestMethod;
@@ -355,6 +369,7 @@ public final class OAUTHBEARERBindRequest
    * @return  The path to use for HTTP-based requests, or {@code null} if it
    *          should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestPath()
   {
     return requestPath;
@@ -368,6 +383,7 @@ public final class OAUTHBEARERBindRequest
    * @return  The post data for HTTP-based requests, or {@code null} if it
    *          should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestPostData()
   {
     return requestPostData;
@@ -381,6 +397,7 @@ public final class OAUTHBEARERBindRequest
    * @return  The query string to use for HTTP-based requests, or {@code null}
    *          if it should be omitted from the bind request.
    */
+  @Nullable()
   public String getRequestQueryString()
   {
     return requestQueryString;
@@ -392,8 +409,9 @@ public final class OAUTHBEARERBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected OAUTHBEARERBindResult process(final LDAPConnection connection,
-                                          final int depth)
+  @NotNull()
+  protected OAUTHBEARERBindResult process(
+                 @NotNull final LDAPConnection connection, final int depth)
             throws LDAPException
   {
     // Send the initial request.  If the response has a result code that is
@@ -436,6 +454,7 @@ public final class OAUTHBEARERBindRequest
    *
    * @return  An ASN.1 octet string containing the encoded credentials.
    */
+  @NotNull()
   ASN1OctetString encodeCredentials()
   {
     final ByteStringBuffer buffer = new ByteStringBuffer();
@@ -522,6 +541,7 @@ public final class OAUTHBEARERBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OAUTHBEARERBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -533,7 +553,8 @@ public final class OAUTHBEARERBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public OAUTHBEARERBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public OAUTHBEARERBindRequest duplicate(@Nullable final Control[] controls)
   {
     final OAUTHBEARERBindRequestProperties properties =
          new OAUTHBEARERBindRequestProperties(this);
@@ -551,6 +572,7 @@ public final class OAUTHBEARERBindRequest
    * @return  A string representation of the OAUTHBEARER bind request.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -567,7 +589,7 @@ public final class OAUTHBEARERBindRequest
    * @param  buffer  The buffer to which the information should be appended.  It
    *                 must not be {@code null}.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("OAUTHBEARERBindRequest(accessToken='{redacted}'");
 

@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.transformations;
 
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotNull;
 
 
 
@@ -56,7 +57,7 @@ final class PreEncodedLDIFEntry
 
 
   // The bytes that comprise the LDIF representation of this entry.
-  private final byte[] ldifBytes;
+  @NotNull private final byte[] ldifBytes;
 
 
 
@@ -67,7 +68,8 @@ final class PreEncodedLDIFEntry
    * @param  ldifBytes  The bytes that comprise the pre-encoded LDIF
    *                    representation of the entry.
    */
-  PreEncodedLDIFEntry(final Entry entry, final byte[] ldifBytes)
+  PreEncodedLDIFEntry(@NotNull final Entry entry,
+                      @NotNull final byte[] ldifBytes)
   {
     super(entry);
 
@@ -83,6 +85,7 @@ final class PreEncodedLDIFEntry
    * @return  The bytes that comprise the pre-encoded LDIF representation of the
    *          entry.
    */
+  @NotNull()
   byte[] getLDIFBytes()
   {
     return ldifBytes;

@@ -55,6 +55,8 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -100,13 +102,13 @@ public final class LDAPCompare
 
 
   // The argument parser for this tool.
-  private ArgumentParser parser;
+  @Nullable private ArgumentParser parser;
 
   // The argument used to specify any bind controls that should be used.
-  private ControlArgument bindControls;
+  @Nullable private ControlArgument bindControls;
 
   // The argument used to specify any compare controls that should be used.
-  private ControlArgument compareControls;
+  @Nullable private ControlArgument compareControls;
 
 
 
@@ -116,7 +118,7 @@ public final class LDAPCompare
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -141,9 +143,9 @@ public final class LDAPCompare
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final LDAPCompare ldapCompare = new LDAPCompare(outStream, errStream);
     return ldapCompare.runTool(args);
@@ -161,7 +163,8 @@ public final class LDAPCompare
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public LDAPCompare(final OutputStream outStream, final OutputStream errStream)
+  public LDAPCompare(@Nullable final OutputStream outStream,
+                     @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
   }
@@ -174,6 +177,7 @@ public final class LDAPCompare
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldapcompare";
@@ -187,6 +191,7 @@ public final class LDAPCompare
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Perform LDAP compare operations in an LDAP directory server.";
@@ -200,6 +205,7 @@ public final class LDAPCompare
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -246,6 +252,7 @@ public final class LDAPCompare
    *          trailing arguments are allowed.
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return "attr:value dn1 [dn2 [dn3 [...]]]";
@@ -388,7 +395,7 @@ public final class LDAPCompare
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     // Save a reference to the argument parser.
@@ -460,6 +467,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<Control> getBindControls()
   {
     return bindControls.getValues();
@@ -475,6 +483,7 @@ public final class LDAPCompare
    * @return  The result code for the processing that was performed.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Make sure that at least two trailing arguments were provided, which will
@@ -615,6 +624,7 @@ public final class LDAPCompare
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

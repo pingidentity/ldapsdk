@@ -45,6 +45,8 @@ import java.util.concurrent.TimeUnit;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -86,10 +88,10 @@ public final class DurationArgument
 
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The default value for this argument, in nanoseconds.
-  private final Long defaultValueNanos;
+  @Nullable private final Long defaultValueNanos;
 
   // The maximum allowed value for this argument, in nanoseconds.
   private final long maxValueNanos;
@@ -98,15 +100,15 @@ public final class DurationArgument
   private final long minValueNanos;
 
   // The provided value for this argument, in nanoseconds.
-  private Long valueNanos;
+  @Nullable private Long valueNanos;
 
   // The string representation of the lower bound, using the user-supplied
   // value.
-  private final String lowerBoundStr;
+  @NotNull private final String lowerBoundStr;
 
   // The string representation of the upper bound, using the user-supplied
   // value.
-  private final String upperBoundStr;
+  @NotNull private final String upperBoundStr;
 
 
 
@@ -127,8 +129,9 @@ public final class DurationArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DurationArgument(final Character shortIdentifier,
-                          final String longIdentifier, final String description)
+  public DurationArgument(@Nullable final Character shortIdentifier,
+                          @Nullable final String longIdentifier,
+                          @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, null, description);
@@ -158,10 +161,11 @@ public final class DurationArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DurationArgument(final Character shortIdentifier,
-                          final String longIdentifier, final boolean isRequired,
-                          final String valuePlaceholder,
-                          final String description)
+  public DurationArgument(@Nullable final Character shortIdentifier,
+                          @Nullable final String longIdentifier,
+                          final boolean isRequired,
+                          @Nullable final String valuePlaceholder,
+                          @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired, valuePlaceholder,
@@ -216,13 +220,17 @@ public final class DurationArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public DurationArgument(final Character shortIdentifier,
-                          final String longIdentifier, final boolean isRequired,
-                          final String valuePlaceholder,
-                          final String description, final Long defaultValue,
-                          final TimeUnit defaultValueUnit,
-                          final Long lowerBound, final TimeUnit lowerBoundUnit,
-                          final Long upperBound, final TimeUnit upperBoundUnit)
+  public DurationArgument(@Nullable final Character shortIdentifier,
+                          @Nullable final String longIdentifier,
+                          final boolean isRequired,
+                          @Nullable final String valuePlaceholder,
+                          @NotNull final String description,
+                          @Nullable final Long defaultValue,
+                          @Nullable final TimeUnit defaultValueUnit,
+                          @Nullable final Long lowerBound,
+                          @Nullable final TimeUnit lowerBoundUnit,
+                          @Nullable final Long upperBound,
+                          @Nullable final TimeUnit upperBoundUnit)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired, 1,
@@ -352,7 +360,7 @@ public final class DurationArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private DurationArgument(final DurationArgument source)
+  private DurationArgument(@NotNull final DurationArgument source)
   {
     super(source);
 
@@ -375,7 +383,7 @@ public final class DurationArgument
    *
    * @return  The lower bound for this argument using the specified time unit.
    */
-  public long getLowerBound(final TimeUnit unit)
+  public long getLowerBound(@NotNull final TimeUnit unit)
   {
     return unit.convert(minValueNanos, TimeUnit.NANOSECONDS);
   }
@@ -390,7 +398,7 @@ public final class DurationArgument
    *
    * @return  The upper bound for this argument using the specified time unit.
    */
-  public long getUpperBound(final TimeUnit unit)
+  public long getUpperBound(@NotNull final TimeUnit unit)
   {
     return unit.convert(maxValueNanos, TimeUnit.NANOSECONDS);
   }
@@ -401,6 +409,7 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     final long v;
@@ -442,7 +451,8 @@ public final class DurationArgument
    * @return  The default value for this argument using the specified time unit,
    *          or {@code null} if none is defined.
    */
-  public Long getDefaultValue(final TimeUnit unit)
+  @Nullable()
+  public Long getDefaultValue(@NotNull final TimeUnit unit)
   {
     if (defaultValueNanos == null)
     {
@@ -466,7 +476,8 @@ public final class DurationArgument
    *          default value will be returned.  If no value was provided and no
    *          default value was defined, then {@code null} will be returned.
    */
-  public Long getValue(final TimeUnit unit)
+  @Nullable()
+  public Long getValue(@NotNull final TimeUnit unit)
   {
     if (valueNanos == null)
     {
@@ -493,7 +504,7 @@ public final class DurationArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -504,7 +515,7 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     if (valueNanos != null)
@@ -563,8 +574,8 @@ public final class DurationArgument
    * @throws  ArgumentException  If the provided string cannot be parsed as a
    *                             valid duration.
    */
-  public static long parseDuration(final String durationString,
-                                   final TimeUnit timeUnit)
+  public static long parseDuration(@NotNull final String durationString,
+                                   @NotNull final TimeUnit timeUnit)
          throws ArgumentException
   {
     // The string must not be empty.
@@ -686,6 +697,7 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_DURATION_TYPE_NAME.get();
@@ -697,33 +709,14 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append(INFO_DURATION_CONSTRAINTS_FORMAT.get());
-
-    if (lowerBoundStr != null)
-    {
-      if (upperBoundStr == null)
-      {
-        buffer.append("  ");
-        buffer.append(INFO_DURATION_CONSTRAINTS_LOWER_BOUND.get(lowerBoundStr));
-      }
-      else
-      {
-        buffer.append("  ");
-        buffer.append(INFO_DURATION_CONSTRAINTS_LOWER_AND_UPPER_BOUND.get(
-             lowerBoundStr, upperBoundStr));
-      }
-    }
-    else
-    {
-      if (upperBoundStr != null)
-      {
-        buffer.append("  ");
-        buffer.append(INFO_DURATION_CONSTRAINTS_UPPER_BOUND.get(upperBoundStr));
-      }
-    }
+    buffer.append("  ");
+    buffer.append(INFO_DURATION_CONSTRAINTS_LOWER_AND_UPPER_BOUND.get(
+         lowerBoundStr, upperBoundStr));
 
     return buffer.toString();
   }
@@ -746,6 +739,7 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DurationArgument getCleanCopy()
   {
     return new DurationArgument(this);
@@ -762,6 +756,7 @@ public final class DurationArgument
    *
    * @return  The duration string for the specified number of nanoseconds.
    */
+  @NotNull()
   public static String nanosToDuration(final long nanos)
   {
     if (nanos == 0)
@@ -841,7 +836,7 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
     if (valueNanos != null)
     {
@@ -863,24 +858,16 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DurationArgument(");
     appendBasicToStringInfo(buffer);
-
-    if (lowerBoundStr != null)
-    {
-      buffer.append(", lowerBound='");
-      buffer.append(lowerBoundStr);
-      buffer.append('\'');
-    }
-
-    if (upperBoundStr != null)
-    {
-      buffer.append(", upperBound='");
-      buffer.append(upperBoundStr);
-      buffer.append('\'');
-    }
+    buffer.append(", lowerBound='");
+    buffer.append(lowerBoundStr);
+    buffer.append('\'');
+    buffer.append(", upperBound='");
+    buffer.append(upperBoundStr);
+    buffer.append('\'');
 
     if (defaultValueNanos != null)
     {

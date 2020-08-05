@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -72,23 +74,23 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 public final class InMemoryListenerConfig
 {
   // The address on which this listener should accept client connections.
-  private final InetAddress listenAddress;
+  @Nullable private final InetAddress listenAddress;
 
   // The port on which this listener should accept client connections.
   private final int listenPort;
 
   // The socket factory that should be used for accepting new connections.
-  private final ServerSocketFactory serverSocketFactory;
+  @Nullable private final ServerSocketFactory serverSocketFactory;
 
   // The socket factory that should be used for creating client connections.
-  private final SocketFactory clientSocketFactory;
+  @Nullable private final SocketFactory clientSocketFactory;
 
   // The socket factory that will be used to add StartTLS encryption to an
   // existing connection.
-  private final SSLSocketFactory startTLSSocketFactory;
+  @Nullable private final SSLSocketFactory startTLSSocketFactory;
 
   // The used to refer to this listener.
-  private final String listenerName;
+  @NotNull private final String listenerName;
 
 
 
@@ -129,12 +131,11 @@ public final class InMemoryListenerConfig
    * @throws  LDAPException  If the provided listener name is {@code null} or
    *                         the configured listen port is out of range.
    */
-  public InMemoryListenerConfig(final String listenerName,
-                                final InetAddress listenAddress,
-                                final int listenPort,
-                                final ServerSocketFactory serverSocketFactory,
-                                final SocketFactory clientSocketFactory,
-                                final SSLSocketFactory startTLSSocketFactory)
+  public InMemoryListenerConfig(@NotNull final String listenerName,
+              @Nullable final InetAddress listenAddress, final int listenPort,
+              @Nullable final ServerSocketFactory serverSocketFactory,
+              @Nullable final SocketFactory clientSocketFactory,
+              @Nullable final SSLSocketFactory startTLSSocketFactory)
          throws LDAPException
   {
     if ((listenerName == null) || listenerName.isEmpty())
@@ -171,8 +172,9 @@ public final class InMemoryListenerConfig
    *
    * @throws  LDAPException  If the provided name is {@code null}.
    */
+  @NotNull()
   public static InMemoryListenerConfig createLDAPConfig(
-                                            final String listenerName)
+                                            @NotNull final String listenerName)
          throws LDAPException
   {
     return new InMemoryListenerConfig(listenerName, null, 0, null, null, null);
@@ -197,8 +199,9 @@ public final class InMemoryListenerConfig
    * @throws  LDAPException  If the provided listener name is {@code null} or
    *                         the configured listen port is out of range.
    */
+  @NotNull()
   public static InMemoryListenerConfig createLDAPConfig(
-                                            final String listenerName,
+                                            @NotNull final String listenerName,
                                             final int listenPort)
          throws LDAPException
   {
@@ -238,10 +241,12 @@ public final class InMemoryListenerConfig
    * @throws  LDAPException  If the provided listener name is {@code null} or
    *                         the configured listen port is out of range.
    */
+  @NotNull()
   public static InMemoryListenerConfig createLDAPConfig(
-                     final String listenerName, final InetAddress listenAddress,
+                     @NotNull final String listenerName,
+                     @Nullable final InetAddress listenAddress,
                      final int listenPort,
-                     final SSLSocketFactory startTLSSocketFactory)
+                     @Nullable final SSLSocketFactory startTLSSocketFactory)
          throws LDAPException
   {
     return new InMemoryListenerConfig(listenerName, listenAddress, listenPort,
@@ -265,9 +270,10 @@ public final class InMemoryListenerConfig
    *
    * @throws  LDAPException  If the provided name is {@code null}.
    */
+  @NotNull()
   public static InMemoryListenerConfig createLDAPSConfig(
-                     final String listenerName,
-                     final SSLServerSocketFactory serverSocketFactory)
+                     @NotNull final String listenerName,
+                     @NotNull final SSLServerSocketFactory serverSocketFactory)
          throws LDAPException
   {
     return createLDAPSConfig(listenerName, null, 0, serverSocketFactory, null);
@@ -293,9 +299,10 @@ public final class InMemoryListenerConfig
    *
    * @throws  LDAPException  If the provided name is {@code null}.
    */
+  @NotNull()
   public static InMemoryListenerConfig createLDAPSConfig(
-                     final String listenerName, final int listenPort,
-                     final SSLServerSocketFactory serverSocketFactory)
+                     @NotNull final String listenerName, final int listenPort,
+                     @NotNull final SSLServerSocketFactory serverSocketFactory)
          throws LDAPException
   {
     return createLDAPSConfig(listenerName, null, listenPort,
@@ -334,11 +341,13 @@ public final class InMemoryListenerConfig
    *          {@code null}, or an error occurs while attempting to create a
    *          client socket factory.
    */
+  @NotNull()
   public static InMemoryListenerConfig createLDAPSConfig(
-                     final String listenerName, final InetAddress listenAddress,
+                     @NotNull final String listenerName,
+                     @Nullable final InetAddress listenAddress,
                      final int listenPort,
-                     final SSLServerSocketFactory serverSocketFactory,
-                     final SSLSocketFactory clientSocketFactory)
+                     @NotNull final SSLServerSocketFactory serverSocketFactory,
+                     @Nullable final SSLSocketFactory clientSocketFactory)
          throws LDAPException
   {
     if (serverSocketFactory == null)
@@ -380,6 +389,7 @@ public final class InMemoryListenerConfig
    *
    * @return  The name for this listener configuration.
    */
+  @NotNull()
   public String getListenerName()
   {
     return listenerName;
@@ -395,6 +405,7 @@ public final class InMemoryListenerConfig
    *          clients, or {@code null} if it should accept connections on all
    *          addresses on all interfaces.
    */
+  @Nullable()
   public InetAddress getListenAddress()
   {
     return listenAddress;
@@ -425,6 +436,7 @@ public final class InMemoryListenerConfig
    *          accepting client connections, or {@code null} if the JVM-default
    *          server socket factory should be used.
    */
+  @Nullable()
   public ServerSocketFactory getServerSocketFactory()
   {
     return serverSocketFactory;
@@ -440,6 +452,7 @@ public final class InMemoryListenerConfig
    *          connections to the server, or {@code null} if the JVM-default
    *          socket factory should be used.
    */
+  @Nullable()
   public SocketFactory getClientSocketFactory()
   {
     return clientSocketFactory;
@@ -455,6 +468,7 @@ public final class InMemoryListenerConfig
    *          to existing connections, or {@code null} if StartTLS should not be
    *          supported.
    */
+  @Nullable()
   public SSLSocketFactory getStartTLSSocketFactory()
   {
     return startTLSSocketFactory;
@@ -468,6 +482,7 @@ public final class InMemoryListenerConfig
    * @return  A string representation of this listener configuration.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -483,7 +498,7 @@ public final class InMemoryListenerConfig
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InMemoryListenerConfig(name='");
     buffer.append(listenerName);

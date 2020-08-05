@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -95,8 +97,9 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.31) for the get backup compatibility
    * descriptor extended result.
    */
-  public static final String GET_BACKUP_COMPATIBILITY_DESCRIPTOR_RESULT_OID =
-       "1.3.6.1.4.1.30221.2.6.31";
+  @NotNull public static final String
+       GET_BACKUP_COMPATIBILITY_DESCRIPTOR_RESULT_OID =
+            "1.3.6.1.4.1.30221.2.6.31";
 
 
 
@@ -122,11 +125,11 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
 
 
   // The backup compatibility descriptor token.
-  private final ASN1OctetString descriptor;
+  @Nullable private final ASN1OctetString descriptor;
 
   // A list of properties providing information about the backup compatibility
   // descriptor.
-  private final List<String> properties;
+  @NotNull private final List<String> properties;
 
 
 
@@ -142,8 +145,8 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    *                        extended result.
    */
   public GetBackupCompatibilityDescriptorExtendedResult(
-       final ExtendedResult result)
-       throws LDAPException
+              @NotNull final ExtendedResult result)
+         throws LDAPException
   {
     super(result);
 
@@ -211,11 +214,13 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    *                            available.
    */
   public GetBackupCompatibilityDescriptorExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final ASN1OctetString descriptor,
-              final Collection<String> properties,
-              final Control... responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final ASN1OctetString descriptor,
+              @Nullable final Collection<String> properties,
+              @Nullable final Control... responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          ((descriptor == null) ? null :
@@ -262,8 +267,10 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    *          or {@code null} if a result with the provided information should
    *          not have a value.
    */
-  public static ASN1OctetString encodeValue(final ASN1OctetString descriptor,
-                                            final Collection<String> properties)
+  @Nullable()
+  public static ASN1OctetString encodeValue(
+              @Nullable final ASN1OctetString descriptor,
+              @Nullable final Collection<String> properties)
   {
     if (descriptor == null)
     {
@@ -297,6 +304,7 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    * @return  The backup compatibility descriptor value, or {@code null} if none
    *          was provided.
    */
+  @Nullable()
   public ASN1OctetString getDescriptor()
   {
     return descriptor;
@@ -312,6 +320,7 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    *          descriptor may be used, or an empty list if no properties were
    *          provided.
    */
+  @NotNull()
   public List<String> getProperties()
   {
     return properties;
@@ -323,6 +332,7 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_GET_BACKUP_COMPAT.get();
@@ -334,7 +344,7 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetBackupCompatibilityDescriptorExtendedResult(resultCode=");
     buffer.append(getResultCode());

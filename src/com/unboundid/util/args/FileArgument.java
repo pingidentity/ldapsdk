@@ -48,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,17 +88,17 @@ public final class FileArgument
   private final boolean parentMustExist;
 
   // The set of values assigned to this argument.
-  private final ArrayList<File> values;
+  @NotNull private final ArrayList<File> values;
 
   // The path to the directory that will serve as the base directory for
   // relative paths.
-  private File relativeBaseDirectory;
+  @Nullable private File relativeBaseDirectory;
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The list of default values for this argument.
-  private final List<File> defaultValues;
+  @Nullable private final List<File> defaultValues;
 
 
 
@@ -118,8 +120,9 @@ public final class FileArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FileArgument(final Character shortIdentifier,
-                      final String longIdentifier, final String description)
+  public FileArgument(@Nullable final Character shortIdentifier,
+                      @Nullable final String longIdentifier,
+                      @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 1, null, description);
@@ -153,10 +156,11 @@ public final class FileArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FileArgument(final Character shortIdentifier,
-                      final String longIdentifier, final boolean isRequired,
-                      final int maxOccurrences, final String valuePlaceholder,
-                      final String description)
+  public FileArgument(@Nullable final Character shortIdentifier,
+                      @Nullable final String longIdentifier,
+                      final boolean isRequired, final int maxOccurrences,
+                      @Nullable final String valuePlaceholder,
+                      @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -199,10 +203,12 @@ public final class FileArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FileArgument(final Character shortIdentifier,
-                      final String longIdentifier, final boolean isRequired,
-                      final int maxOccurrences, final String valuePlaceholder,
-                      final String description, final boolean fileMustExist,
+  public FileArgument(@Nullable final Character shortIdentifier,
+                      @Nullable final String longIdentifier,
+                      final boolean isRequired, final int maxOccurrences,
+                      @Nullable final String valuePlaceholder,
+                      @NotNull final String description,
+                      final boolean fileMustExist,
                       final boolean parentMustExist, final boolean mustBeFile,
                       final boolean mustBeDirectory)
          throws ArgumentException
@@ -249,13 +255,15 @@ public final class FileArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FileArgument(final Character shortIdentifier,
-                      final String longIdentifier, final boolean isRequired,
-                      final int maxOccurrences, final String valuePlaceholder,
-                      final String description, final boolean fileMustExist,
+  public FileArgument(@Nullable final Character shortIdentifier,
+                      @Nullable final String longIdentifier,
+                      final boolean isRequired, final int maxOccurrences,
+                      @Nullable final String valuePlaceholder,
+                      @NotNull final String description,
+                      final boolean fileMustExist,
                       final boolean parentMustExist, final boolean mustBeFile,
                       final boolean mustBeDirectory,
-                      final List<File> defaultValues)
+                      @Nullable final List<File> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -297,7 +305,7 @@ public final class FileArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private FileArgument(final FileArgument source)
+  private FileArgument(@NotNull final FileArgument source)
   {
     super(source);
 
@@ -374,6 +382,7 @@ public final class FileArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
+  @Nullable()
   public List<File> getDefaultValues()
   {
     return defaultValues;
@@ -389,6 +398,7 @@ public final class FileArgument
    *          paths, or {@code null} if relative paths will be relative to the
    *          current working directory.
    */
+  @Nullable()
   public File getRelativeBaseDirectory()
   {
     return relativeBaseDirectory;
@@ -405,7 +415,8 @@ public final class FileArgument
    *                                {@code null} if relative paths should be
    *                                relative to the current working directory.
    */
-  public void setRelativeBaseDirectory(final File relativeBaseDirectory)
+  public void setRelativeBaseDirectory(
+                   @Nullable final File relativeBaseDirectory)
   {
     this.relativeBaseDirectory = relativeBaseDirectory;
   }
@@ -420,7 +431,7 @@ public final class FileArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -431,7 +442,7 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     // NOTE:  java.io.File has an extremely weird behavior.  When a File object
@@ -516,6 +527,7 @@ public final class FileArgument
    *          provided, or {@code null} if there is no value and no default
    *          value.
    */
+  @Nullable()
   public File getValue()
   {
     if (values.isEmpty())
@@ -542,6 +554,7 @@ public final class FileArgument
    *
    * @return  The set of values for this argument.
    */
+  @NotNull()
   public List<File> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
@@ -566,6 +579,7 @@ public final class FileArgument
    * @throws  IOException  If the specified file does not exist or a problem
    *                       occurs while reading the contents of the file.
    */
+  @Nullable()
   public List<String> getFileLines()
          throws IOException
   {
@@ -608,6 +622,7 @@ public final class FileArgument
    * @throws  IOException  If the specified file does not exist or a problem
    *                       occurs while reading the contents of the file.
    */
+  @Nullable()
   public List<String> getNonBlankFileLines()
          throws IOException
   {
@@ -652,6 +667,7 @@ public final class FileArgument
    * @throws  IOException  If the specified file does not exist or a problem
    *                       occurs while reading the contents of the file.
    */
+  @Nullable()
   public byte[] getFileBytes()
          throws IOException
   {
@@ -695,6 +711,7 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     final List<File> files;
@@ -744,6 +761,7 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     if (mustBeDirectory)
@@ -762,6 +780,7 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -825,6 +844,7 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public FileArgument getCleanCopy()
   {
     return new FileArgument(this);
@@ -836,21 +856,18 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (values != null)
+    for (final File f : values)
     {
-      for (final File f : values)
+      argStrings.add(getIdentifierString());
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED***");
-        }
-        else
-        {
-          argStrings.add(f.getAbsolutePath());
-        }
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(f.getAbsolutePath());
       }
     }
   }
@@ -861,7 +878,7 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("FileArgument(");
     appendBasicToStringInfo(buffer);

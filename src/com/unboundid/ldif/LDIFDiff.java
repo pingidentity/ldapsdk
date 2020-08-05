@@ -71,6 +71,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
@@ -102,7 +104,7 @@ public final class LDIFDiff
    * related Ping Identity server product) that contains this tool, if
    * applicable.
    */
-  private static final File PING_SERVER_ROOT =
+  @Nullable private static final File PING_SERVER_ROOT =
        InternalSDKHelper.getPingIdentityServerRoot();
 
 
@@ -127,6 +129,7 @@ public final class LDIFDiff
    * The change type name used to indicate that add operations should be
    * included in the output.
    */
+  @NotNull
   private static final String CHANGE_TYPE_ADD = "add";
 
 
@@ -135,7 +138,7 @@ public final class LDIFDiff
    * The change type name used to indicate that delete operations should be
    * included in the output.
    */
-  private static final String CHANGE_TYPE_DELETE = "delete";
+  @NotNull private static final String CHANGE_TYPE_DELETE = "delete";
 
 
 
@@ -143,37 +146,37 @@ public final class LDIFDiff
    * The change type name used to indicate that modify operations should be
    * included in the output.
    */
-  private static final String CHANGE_TYPE_MODIFY = "modify";
+  @NotNull private static final String CHANGE_TYPE_MODIFY = "modify";
 
 
 
   // The completion message for this tool.
-  private final AtomicReference<String> completionMessage;
+  @NotNull private final AtomicReference<String> completionMessage;
 
   // Encryption passphrases used thus far.
-  private final List<char[]> encryptionPassphrases;
+  @NotNull private final List<char[]> encryptionPassphrases;
 
   // The command-line arguments supported by this tool.
-  private BooleanArgument compressOutput;
-  private BooleanArgument encryptOutput;
-  private BooleanArgument excludeNoUserModificationAttributes;
-  private BooleanArgument includeOperationalAttributes;
-  private BooleanArgument nonReversibleModifications;
-  private BooleanArgument overwriteExistingOutputLDIF;
-  private BooleanArgument singleValueChanges;
-  private BooleanArgument stripTrailingSpaces;
-  private FileArgument outputEncryptionPassphraseFile;
-  private FileArgument outputLDIF;
-  private FileArgument schemaPath;
-  private FileArgument sourceEncryptionPassphraseFile;
-  private FileArgument sourceLDIF;
-  private FileArgument targetEncryptionPassphraseFile;
-  private FileArgument targetLDIF;
-  private FilterArgument excludeFilter;
-  private FilterArgument includeFilter;
-  private StringArgument changeType;
-  private StringArgument excludeAttribute;
-  private StringArgument includeAttribute;
+  @Nullable private BooleanArgument compressOutput;
+  @Nullable private BooleanArgument encryptOutput;
+  @Nullable private BooleanArgument excludeNoUserModificationAttributes;
+  @Nullable private BooleanArgument includeOperationalAttributes;
+  @Nullable private BooleanArgument nonReversibleModifications;
+  @Nullable private BooleanArgument overwriteExistingOutputLDIF;
+  @Nullable private BooleanArgument singleValueChanges;
+  @Nullable private BooleanArgument stripTrailingSpaces;
+  @Nullable private FileArgument outputEncryptionPassphraseFile;
+  @Nullable private FileArgument outputLDIF;
+  @Nullable private FileArgument schemaPath;
+  @Nullable private FileArgument sourceEncryptionPassphraseFile;
+  @Nullable private FileArgument sourceLDIF;
+  @Nullable private FileArgument targetEncryptionPassphraseFile;
+  @Nullable private FileArgument targetLDIF;
+  @Nullable private FilterArgument excludeFilter;
+  @Nullable private FilterArgument includeFilter;
+  @Nullable private StringArgument changeType;
+  @Nullable private StringArgument excludeAttribute;
+  @Nullable private StringArgument includeAttribute;
 
 
 
@@ -183,7 +186,7 @@ public final class LDIFDiff
    * @param  args  The set of arguments provided to this tool.  It may be
    *               empty but must not be {@code null}.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -209,8 +212,10 @@ public final class LDIFDiff
    *          code other than {@link ResultCode#SUCCESS} should be considered
    *          an error.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  @NotNull()
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDIFDiff tool = new LDIFDiff(out, err);
     return tool.runTool(args);
@@ -227,7 +232,8 @@ public final class LDIFDiff
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public LDIFDiff(final OutputStream out, final OutputStream err)
+  public LDIFDiff(@Nullable final OutputStream out,
+                  @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -262,6 +268,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldif-diff";
@@ -273,6 +280,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_LDIF_DIFF_TOOL_DESCRIPTION_1.get();
@@ -284,6 +292,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getAdditionalDescriptionParagraphs()
   {
     final List<String> messages = new ArrayList<>(3);
@@ -310,6 +319,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -354,6 +364,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return completionMessage.get();
@@ -365,7 +376,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     sourceLDIF = new FileArgument('s', "sourceLDIF", true, 1, null,
@@ -722,6 +733,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Get the change types to use for processing.
@@ -994,6 +1006,7 @@ public final class LDIFDiff
    *
    * @throws  Exception  If a problem is encountered while loading the schema.
    */
+  @NotNull()
   private static Schema getSchema(final List<File> paths)
           throws Exception
   {
@@ -1044,9 +1057,10 @@ public final class LDIFDiff
    * @throws  LDAPException  If a problem occurs while attempting to read the
    *                         entries.
    */
-  private TreeMap<DN,Entry> readEntries(final File ldifFile,
-                                        final File encPWFile,
-                                        final Schema schema)
+  @NotNull()
+  private TreeMap<DN,Entry> readEntries(@NotNull final File ldifFile,
+                                        @Nullable final File encPWFile,
+                                        @NotNull final Schema schema)
           throws LDAPException
   {
     if (encPWFile != null)
@@ -1175,7 +1189,7 @@ public final class LDIFDiff
    * @param  passphrase  The passphrase to be added.  It may optionally be
    *                     {@code null} (in which case no action will be taken).
    */
-  private void addPassphrase(final char[] passphrase)
+  private void addPassphrase(@Nullable final char[] passphrase)
   {
     if (passphrase == null)
     {
@@ -1203,6 +1217,7 @@ public final class LDIFDiff
    * @throws  LDAPException  If a problem is encountered while opening the
    *                         output stream.
    */
+  @NotNull()
   private OutputStream openOutputStream()
           throws LDAPException
   {
@@ -1327,11 +1342,12 @@ public final class LDIFDiff
    * @throws  LDAPException  If a problem is encountered while writing the ad
    *                         change records.
    */
-  private long writeAdds(final TreeMap<DN,Entry> sourceEntries,
-                         final TreeMap<DN,Entry> targetEntries,
-                         final LDIFWriter writer, final Schema schema,
-                         final Set<String> includeAttrs,
-                         final Set<String> excludeAttrs)
+  private long writeAdds(@NotNull final TreeMap<DN,Entry> sourceEntries,
+                         @NotNull final TreeMap<DN,Entry> targetEntries,
+                         @NotNull final LDIFWriter writer,
+                         @NotNull final Schema schema,
+                         @NotNull final Set<String> includeAttrs,
+                         @NotNull final Set<String> excludeAttrs)
           throws LDAPException
   {
     long addCount = 0L;
@@ -1388,8 +1404,8 @@ public final class LDIFDiff
    * @return  {@code true} if the entry should be included, or {@code false} if]
    *          not.
    */
-  private boolean includeEntryByFilter(final Schema schema,
-                                       final Entry... entries)
+  private boolean includeEntryByFilter(@NotNull final Schema schema,
+                                       @NotNull final Entry... entries)
   {
     for (final Entry entry : entries)
     {
@@ -1457,9 +1473,11 @@ public final class LDIFDiff
    * @return  A pared-down copy of the provided entry, or {@code null} if the
    *          pared-down entry would not include any attributes.
    */
-  private Entry pareEntry(final Entry entry, final Schema schema,
-                          final Set<String> includeAttrs,
-                          final Set<String> excludeAttrs)
+  @Nullable()
+  private Entry pareEntry(@NotNull final Entry entry,
+                          @NotNull final Schema schema,
+                          @NotNull final Set<String> includeAttrs,
+                          @NotNull final Set<String> excludeAttrs)
   {
     final List<Attribute> paredAttributeList = new ArrayList<>();
     for (final Attribute a : entry.getAttributes())
@@ -1532,11 +1550,13 @@ public final class LDIFDiff
    * @throws  LDAPException  If a problem is encountered while writing
    *                         modified entries.
    */
-  private long writeModifications(final TreeMap<DN,Entry> sourceEntries,
-                                  final TreeMap<DN,Entry> targetEntries,
-                                  final LDIFWriter writer, final Schema schema,
-                                  final Set<String> includeAttrs,
-                                  final Set<String> excludeAttrs)
+  private long writeModifications(
+                    @NotNull final TreeMap<DN,Entry> sourceEntries,
+                    @NotNull final TreeMap<DN,Entry> targetEntries,
+                    @NotNull final LDIFWriter writer,
+                    @NotNull final Schema schema,
+                    @NotNull final Set<String> includeAttrs,
+                    @NotNull final Set<String> excludeAttrs)
           throws LDAPException
   {
     long modCount = 0L;
@@ -1599,11 +1619,12 @@ public final class LDIFDiff
    * @throws  LDAPException  If a problem occurs while trying to write the
    *                         modifications.
    */
-  private boolean writeModifiedEntry(final DN dn, final List<Modification> mods,
-                                     final LDIFWriter writer,
-                                     final Schema schema,
-                                     final Set<String> includeAttrs,
-                                     final Set<String> excludeAttrs)
+  private boolean writeModifiedEntry(@NotNull final DN dn,
+                                     @NotNull final List<Modification> mods,
+                                     @NotNull final LDIFWriter writer,
+                                     @NotNull final Schema schema,
+                                     @NotNull final Set<String> includeAttrs,
+                                     @NotNull final Set<String> excludeAttrs)
           throws LDAPException
   {
     if (mods.isEmpty())
@@ -1729,11 +1750,12 @@ public final class LDIFDiff
    * @throws  LDAPException  If a problem is encountered while writing the
    *                         delete change records.
    */
-  private long writeDeletes(final TreeMap<DN,Entry> sourceEntries,
-                            final TreeMap<DN,Entry> targetEntries,
-                            final LDIFWriter writer, final Schema schema,
-                            final Set<String> includeAttrs,
-                            final Set<String> excludeAttrs)
+  private long writeDeletes(@NotNull final TreeMap<DN,Entry> sourceEntries,
+                            @NotNull final TreeMap<DN,Entry> targetEntries,
+                            @NotNull final LDIFWriter writer,
+                            @NotNull final Schema schema,
+                            @NotNull final Set<String> includeAttrs,
+                            @NotNull final Set<String> excludeAttrs)
           throws LDAPException
   {
     long deleteCount = 0L;
@@ -1787,7 +1809,8 @@ public final class LDIFDiff
    *                  standard error rather than standard output.
    * @param  message  The message to be written.
    */
-  private void logCompletionMessage(final boolean isError, final String message)
+  private void logCompletionMessage(final boolean isError,
+                                    @NotNull final String message)
   {
     completionMessage.compareAndSet(null, message);
 
@@ -1807,6 +1830,7 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();

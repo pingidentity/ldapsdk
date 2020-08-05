@@ -44,6 +44,8 @@ import java.util.StringTokenizer;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -78,10 +80,10 @@ public class ModifyRequestAccessLogMessage
 
 
   // The list of attributes to be modified.
-  private final List<String> attributeNames;
+  @Nullable private final List<String> attributeNames;
 
   // The DN of the entry to modify.
-  private final String dn;
+  @Nullable private final String dn;
 
 
 
@@ -94,7 +96,7 @@ public class ModifyRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ModifyRequestAccessLogMessage(final String s)
+  public ModifyRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -109,7 +111,7 @@ public class ModifyRequestAccessLogMessage
    * @param  m  The log message to be parsed as a modify request access log
    *            message.
    */
-  public ModifyRequestAccessLogMessage(final LogMessage m)
+  public ModifyRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -141,6 +143,7 @@ public class ModifyRequestAccessLogMessage
    * @return  The DN of the entry to modify, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getDN()
   {
     return dn;
@@ -154,6 +157,7 @@ public class ModifyRequestAccessLogMessage
    * @return  The names of the attributes to be modified, or {@code null} if
    *          that is not included in the log message.
    */
+  @Nullable()
   public final List<String> getAttributeNames()
   {
     return attributeNames;
@@ -165,6 +169,7 @@ public class ModifyRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.MODIFY;

@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -135,7 +137,7 @@ public final class LDAPEntrySource
   /**
    * The bogus entry that will be used to signify the end of the results.
    */
-  private static final String END_OF_RESULTS = "END OF RESULTS";
+  @NotNull private static final String END_OF_RESULTS = "END OF RESULTS";
 
 
 
@@ -147,22 +149,22 @@ public final class LDAPEntrySource
 
 
   // The request ID associated with the asynchronous search.
-  private final AsyncRequestID asyncRequestID;
+  @NotNull private final AsyncRequestID asyncRequestID;
 
   // Indicates whether this entry source has been closed.
-  private final AtomicBoolean closed;
+  @NotNull private final AtomicBoolean closed;
 
   // The search result for the search operation.
-  private final AtomicReference<SearchResult> searchResult;
+  @NotNull private final AtomicReference<SearchResult> searchResult;
 
   // Indicates whether to close the connection when this entry source is closed.
   private final boolean closeConnection;
 
   // The connection that will be used to read the entries.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
   // The queue from which entries will be read.
-  private final LinkedBlockingQueue<Object> queue;
+  @NotNull private final LinkedBlockingQueue<Object> queue;
 
 
 
@@ -184,8 +186,8 @@ public final class LDAPEntrySource
    *                         request or when trying to communicate with the
    *                         directory server over the provided connection.
    */
-  public LDAPEntrySource(final LDAPConnection connection,
-                         final SearchRequest searchRequest,
+  public LDAPEntrySource(@NotNull final LDAPConnection connection,
+                         @NotNull final SearchRequest searchRequest,
                          final boolean closeConnection)
          throws LDAPException
   {
@@ -216,8 +218,8 @@ public final class LDAPEntrySource
    *                         request or when trying to communicate with the
    *                         directory server over the provided connection.
    */
-  public LDAPEntrySource(final LDAPConnection connection,
-                         final SearchRequest searchRequest,
+  public LDAPEntrySource(@NotNull final LDAPConnection connection,
+                         @NotNull final SearchRequest searchRequest,
                          final boolean closeConnection,
                          final int queueSize)
          throws LDAPException
@@ -253,6 +255,7 @@ public final class LDAPEntrySource
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public Entry nextEntry()
          throws EntrySourceException
   {
@@ -347,6 +350,7 @@ public final class LDAPEntrySource
    * @return  The search result for the search operation, or {@code null} if it
    *          is not available (e.g., because the search has not yet completed).
    */
+  @Nullable()
   public SearchResult getSearchResult()
   {
     return searchResult.get();
@@ -360,7 +364,7 @@ public final class LDAPEntrySource
    */
   @InternalUseOnly()
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     addToQueue(searchEntry);
   }
@@ -374,7 +378,7 @@ public final class LDAPEntrySource
   @InternalUseOnly()
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     addToQueue(new SearchResultReferenceEntrySourceException(searchReference));
   }
@@ -387,8 +391,8 @@ public final class LDAPEntrySource
    */
   @InternalUseOnly()
   @Override()
-  public void searchResultReceived(final AsyncRequestID requestID,
-                                   final SearchResult searchResult)
+  public void searchResultReceived(@NotNull final AsyncRequestID requestID,
+                                   @NotNull final SearchResult searchResult)
   {
     this.searchResult.set(searchResult);
 
@@ -409,7 +413,7 @@ public final class LDAPEntrySource
    *
    * @param  o  The object to be added.  It must not be {@code null}.
    */
-  private void addToQueue(final Object o)
+  private void addToQueue(@NotNull final Object o)
   {
     while (true)
     {

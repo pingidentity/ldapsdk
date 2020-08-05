@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,16 +73,16 @@ public final class ConnectAccessLogMessage
 
 
   // The name of the client connection policy selected for the client.
-  private final String clientConnectionPolicy;
+  @Nullable private final String clientConnectionPolicy;
 
   // The name of the protocol used by the client.
-  private final String protocolName;
+  @Nullable private final String protocolName;
 
   // The source address for the client connection.
-  private final String sourceAddress;
+  @Nullable private final String sourceAddress;
 
   // The server address to which the client connection is established.
-  private final String targetAddress;
+  @Nullable private final String targetAddress;
 
 
 
@@ -92,7 +94,7 @@ public final class ConnectAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public ConnectAccessLogMessage(final String s)
+  public ConnectAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -105,7 +107,7 @@ public final class ConnectAccessLogMessage
    *
    * @param  m  The log message to be parsed as a connect access log message.
    */
-  public ConnectAccessLogMessage(final LogMessage m)
+  public ConnectAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -123,6 +125,7 @@ public final class ConnectAccessLogMessage
    * @return  The source address for the client connection, or {@code null} if
    *          it is not included in the log message.
    */
+  @Nullable()
   public String getSourceAddress()
   {
     return sourceAddress;
@@ -136,6 +139,7 @@ public final class ConnectAccessLogMessage
    * @return  The server address to which the client connection is established,
    *          or {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetAddress()
   {
     return targetAddress;
@@ -151,6 +155,7 @@ public final class ConnectAccessLogMessage
    *          the Directory Server, or {@code null} if it is not included in the
    *          log message.
    */
+  @Nullable()
   public String getProtocolName()
   {
     return protocolName;
@@ -166,6 +171,7 @@ public final class ConnectAccessLogMessage
    *          client connection, or {@code null} if it is not included in the
    *          log message.
    */
+  @Nullable()
   public String getClientConnectionPolicy()
   {
     return clientConnectionPolicy;
@@ -177,6 +183,7 @@ public final class ConnectAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.CONNECT;

@@ -42,6 +42,8 @@ import java.io.Serializable;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -144,8 +146,8 @@ public final class IPAddressArgumentValueValidator
    * {@inheritDoc}
    */
   @Override()
-  public void validateArgumentValue(final Argument argument,
-                                    final String valueString)
+  public void validateArgumentValue(@NotNull final Argument argument,
+                                    @NotNull final String valueString)
          throws ArgumentException
   {
     // Look at the provided value to determine whether it has any colons.  If
@@ -238,7 +240,7 @@ public final class IPAddressArgumentValueValidator
    * @return  {@code true} if the provided string represents a valid IPv4 or
    *          IPv6 address, or {@code false} if not.
    */
-  public static boolean isValidNumericIPAddress(final String s)
+  public static boolean isValidNumericIPAddress(@Nullable final String s)
   {
     return isValidNumericIPv4Address(s) ||
          isValidNumericIPv6Address(s);
@@ -254,7 +256,7 @@ public final class IPAddressArgumentValueValidator
    * @return  {@code true} if the provided string represents a valid IPv4
    *          address, or {@code false} if not.
    */
-  public static boolean isValidNumericIPv4Address(final String s)
+  public static boolean isValidNumericIPv4Address(@Nullable final String s)
   {
     if ((s == null) || (s.length() == 0))
     {
@@ -295,7 +297,7 @@ public final class IPAddressArgumentValueValidator
    * @return  {@code true} if the provided string represents a valid IPv6
    *          address, or {@code false} if not.
    */
-  public static boolean isValidNumericIPv6Address(final String s)
+  public static boolean isValidNumericIPv6Address(@Nullable final String s)
   {
     if ((s == null) || (s.length() == 0))
     {
@@ -346,6 +348,7 @@ public final class IPAddressArgumentValueValidator
    * @return  A string representation of this argument value validator.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -362,7 +365,7 @@ public final class IPAddressArgumentValueValidator
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull  final StringBuilder buffer)
   {
     buffer.append("IPAddressArgumentValueValidator(acceptIPv4Addresses=");
     buffer.append(acceptIPv4Addresses);

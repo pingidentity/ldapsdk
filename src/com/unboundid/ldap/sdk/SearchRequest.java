@@ -60,6 +60,8 @@ import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -215,7 +217,7 @@ public final class SearchRequest
    * The special value "*" that can be included in the set of requested
    * attributes to indicate that all user attributes should be returned.
    */
-  public static final String ALL_USER_ATTRIBUTES = "*";
+  @NotNull public static final String ALL_USER_ATTRIBUTES = "*";
 
 
 
@@ -223,7 +225,7 @@ public final class SearchRequest
    * The special value "+" that can be included in the set of requested
    * attributes to indicate that all operational attributes should be returned.
    */
-  public static final String ALL_OPERATIONAL_ATTRIBUTES = "+";
+  @NotNull public static final String ALL_OPERATIONAL_ATTRIBUTES = "+";
 
 
 
@@ -233,7 +235,7 @@ public final class SearchRequest
    * exception of any other attributes explicitly named in the set of requested
    * attributes.
    */
-  public static final String NO_ATTRIBUTES = "1.1";
+  @NotNull public static final String NO_ATTRIBUTES = "1.1";
 
 
 
@@ -241,7 +243,8 @@ public final class SearchRequest
    * The default set of requested attributes that will be used, which will
    * return all user attributes but no operational attributes.
    */
-  public static final String[] REQUEST_ATTRS_DEFAULT = StaticUtils.NO_STRINGS;
+  @NotNull public static final String[] REQUEST_ATTRS_DEFAULT =
+       StaticUtils.NO_STRINGS;
 
 
 
@@ -253,14 +256,14 @@ public final class SearchRequest
 
 
   // The set of requested attributes.
-  private String[] attributes;
+  @NotNull private String[] attributes;
 
   // Indicates whether to retrieve attribute types only or both types and
   // values.
   private boolean typesOnly;
 
   // The behavior to use when aliases are encountered.
-  private DereferencePolicy derefPolicy;
+  @NotNull private DereferencePolicy derefPolicy;
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
@@ -272,21 +275,21 @@ public final class SearchRequest
   private int timeLimit;
 
   // The parsed filter for this search request.
-  private Filter filter;
+  @NotNull private Filter filter;
 
   // The queue that will be used to receive response messages from the server.
-  private final LinkedBlockingQueue<LDAPResponse> responseQueue =
+  @NotNull private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<>(50);
 
   // The search result listener that should be used to return results
   // interactively to the requester.
-  private final SearchResultListener searchResultListener;
+  @Nullable private final SearchResultListener searchResultListener;
 
   // The scope for this search request.
-  private SearchScope scope;
+  @NotNull private SearchScope scope;
 
   // The base DN for this search request.
-  private String baseDN;
+  @NotNull private String baseDN;
 
 
 
@@ -310,8 +313,10 @@ public final class SearchRequest
    * @throws  LDAPException  If the provided filter string cannot be parsed as
    *                         an LDAP filter.
    */
-  public SearchRequest(final String baseDN, final SearchScope scope,
-                       final String filter, final String... attributes)
+  public SearchRequest(@NotNull final String baseDN,
+                       @NotNull final SearchScope scope,
+                       @NotNull final String filter,
+                       @Nullable final String... attributes)
          throws LDAPException
   {
     this(null, null, baseDN, scope, DereferencePolicy.NEVER, 0, 0, false,
@@ -337,8 +342,10 @@ public final class SearchRequest
    *                     the default attribute set (all user attributes) is to
    *                     be requested.
    */
-  public SearchRequest(final String baseDN, final SearchScope scope,
-                       final Filter filter, final String... attributes)
+  public SearchRequest(@NotNull final String baseDN,
+                       @NotNull final SearchScope scope,
+                       @NotNull final Filter filter,
+                       @Nullable final String... attributes)
   {
     this(null, null, baseDN, scope, DereferencePolicy.NEVER, 0, 0, false,
          filter, attributes);
@@ -369,9 +376,11 @@ public final class SearchRequest
    * @throws  LDAPException  If the provided filter string cannot be parsed as
    *                         an LDAP filter.
    */
-  public SearchRequest(final SearchResultListener searchResultListener,
-                       final String baseDN, final SearchScope scope,
-                       final String filter, final String... attributes)
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPException
   {
     this(searchResultListener, null, baseDN, scope, DereferencePolicy.NEVER, 0,
@@ -400,9 +409,11 @@ public final class SearchRequest
    *                               or empty if the default attribute set (all
    *                               user attributes) is to be requested.
    */
-  public SearchRequest(final SearchResultListener searchResultListener,
-                       final String baseDN, final SearchScope scope,
-                       final Filter filter, final String... attributes)
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
   {
     this(searchResultListener, null, baseDN, scope, DereferencePolicy.NEVER, 0,
          0, false, filter, attributes);
@@ -439,10 +450,12 @@ public final class SearchRequest
    * @throws  LDAPException  If the provided filter string cannot be parsed as
    *                         an LDAP filter.
    */
-  public SearchRequest(final String baseDN, final SearchScope scope,
-                       final DereferencePolicy derefPolicy, final int sizeLimit,
-                       final int timeLimit, final boolean typesOnly,
-                       final String filter, final String... attributes)
+  public SearchRequest(@NotNull final String baseDN,
+                       @NotNull final SearchScope scope,
+                       @NotNull final DereferencePolicy derefPolicy,
+                       final int sizeLimit, final int timeLimit,
+                       final boolean typesOnly, @NotNull final String filter,
+                       @Nullable final String... attributes)
          throws LDAPException
   {
     this(null, null, baseDN, scope, derefPolicy, sizeLimit, timeLimit,
@@ -477,10 +490,12 @@ public final class SearchRequest
    *                      the default attribute set (all user attributes) is to
    *                      be requested.
    */
-  public SearchRequest(final String baseDN, final SearchScope scope,
-                       final DereferencePolicy derefPolicy, final int sizeLimit,
-                       final int timeLimit, final boolean typesOnly,
-                       final Filter filter, final String... attributes)
+  public SearchRequest(@NotNull final String baseDN,
+                       @NotNull final SearchScope scope,
+                       @NotNull final DereferencePolicy derefPolicy,
+                       final int sizeLimit, final int timeLimit,
+                       final boolean typesOnly, @NotNull final Filter filter,
+                       @Nullable final String... attributes)
   {
     this(null, null, baseDN, scope, derefPolicy, sizeLimit, timeLimit,
          typesOnly, filter, attributes);
@@ -523,11 +538,13 @@ public final class SearchRequest
    * @throws  LDAPException  If the provided filter string cannot be parsed as
    *                         an LDAP filter.
    */
-  public SearchRequest(final SearchResultListener searchResultListener,
-                       final String baseDN, final SearchScope scope,
-                       final DereferencePolicy derefPolicy, final int sizeLimit,
-                       final int timeLimit, final boolean typesOnly,
-                       final String filter, final String... attributes)
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPException
   {
     this(searchResultListener, null, baseDN, scope, derefPolicy, sizeLimit,
@@ -568,11 +585,13 @@ public final class SearchRequest
    *                               or empty if the default attribute set (all
    *                               user attributes) is to be requested.
    */
-  public SearchRequest(final SearchResultListener searchResultListener,
-                       final String baseDN, final SearchScope scope,
-                       final DereferencePolicy derefPolicy, final int sizeLimit,
-                       final int timeLimit, final boolean typesOnly,
-                       final Filter filter, final String... attributes)
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
   {
     this(searchResultListener, null, baseDN, scope, derefPolicy, sizeLimit,
          timeLimit, typesOnly, filter, attributes);
@@ -619,12 +638,14 @@ public final class SearchRequest
    * @throws  LDAPException  If the provided filter string cannot be parsed as
    *                         an LDAP filter.
    */
-  public SearchRequest(final SearchResultListener searchResultListener,
-                       final Control[] controls, final String baseDN,
-                       final SearchScope scope,
-                       final DereferencePolicy derefPolicy, final int sizeLimit,
-                       final int timeLimit, final boolean typesOnly,
-                       final String filter, final String... attributes)
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @Nullable final Control[] controls, @NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPException
   {
     this(searchResultListener, controls, baseDN, scope, derefPolicy, sizeLimit,
@@ -669,12 +690,14 @@ public final class SearchRequest
    *                               or empty if the default attribute set (all
    *                               user attributes) is to be requested.
    */
-  public SearchRequest(final SearchResultListener searchResultListener,
-                       final Control[] controls, final String baseDN,
-                       final SearchScope scope,
-                       final DereferencePolicy derefPolicy, final int sizeLimit,
-                       final int timeLimit, final boolean typesOnly,
-                       final Filter filter, final String... attributes)
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @Nullable final Control[] controls, @NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
   {
     super(controls);
 
@@ -721,6 +744,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getBaseDN()
   {
     return baseDN;
@@ -734,7 +758,7 @@ public final class SearchRequest
    * @param  baseDN  The base DN for this search request.  It must not be
    *                 {@code null}.
    */
-  public void setBaseDN(final String baseDN)
+  public void setBaseDN(@NotNull final String baseDN)
   {
     Validator.ensureNotNull(baseDN);
 
@@ -749,7 +773,7 @@ public final class SearchRequest
    * @param  baseDN  The base DN for this search request.  It must not be
    *                 {@code null}.
    */
-  public void setBaseDN(final DN baseDN)
+  public void setBaseDN(@NotNull final DN baseDN)
   {
     Validator.ensureNotNull(baseDN);
 
@@ -762,6 +786,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SearchScope getScope()
   {
     return scope;
@@ -774,7 +799,7 @@ public final class SearchRequest
    *
    * @param  scope  The scope for this search request.
    */
-  public void setScope(final SearchScope scope)
+  public void setScope(@NotNull final SearchScope scope)
   {
     this.scope = scope;
   }
@@ -785,6 +810,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DereferencePolicy getDereferencePolicy()
   {
     return derefPolicy;
@@ -800,7 +826,7 @@ public final class SearchRequest
    *                      server for any aliases encountered during search
    *                      processing.
    */
-  public void setDerefPolicy(final DereferencePolicy derefPolicy)
+  public void setDerefPolicy(@NotNull final DereferencePolicy derefPolicy)
   {
     this.derefPolicy = derefPolicy;
   }
@@ -925,6 +951,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Filter getFilter()
   {
     return filter;
@@ -942,7 +969,7 @@ public final class SearchRequest
    * @throws  LDAPException  If the provided filter string cannot be parsed as a
    *                         search filter.
    */
-  public void setFilter(final String filter)
+  public void setFilter(@NotNull final String filter)
          throws LDAPException
   {
     Validator.ensureNotNull(filter);
@@ -958,7 +985,7 @@ public final class SearchRequest
    * @param  filter  The filter that should be used to identify matching
    *                 entries.  It must not be {@code null}.
    */
-  public void setFilter(final Filter filter)
+  public void setFilter(@NotNull final Filter filter)
   {
     Validator.ensureNotNull(filter);
 
@@ -975,6 +1002,7 @@ public final class SearchRequest
    *          an empty array if the default set of attributes (all user
    *          attributes but no operational attributes) should be requested.
    */
+  @NotNull()
   public String[] getAttributes()
   {
     return attributes;
@@ -986,6 +1014,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getAttributeList()
   {
     return Collections.unmodifiableList(Arrays.asList(attributes));
@@ -1001,7 +1030,7 @@ public final class SearchRequest
    *                     attributes (all user attributes but no operational
    *                     attributes) should be requested.
    */
-  public void setAttributes(final String... attributes)
+  public void setAttributes(@Nullable final String... attributes)
   {
     if (attributes == null)
     {
@@ -1023,7 +1052,7 @@ public final class SearchRequest
    *                     attributes (all user attributes but no operational
    *                     attributes) should be requested.
    */
-  public void setAttributes(final List<String> attributes)
+  public void setAttributes(@Nullable final List<String> attributes)
   {
     if (attributes == null)
     {
@@ -1047,6 +1076,7 @@ public final class SearchRequest
    * @return  The search result listener for this search request, or
    *          {@code null} if none has been configured.
    */
+  @Nullable()
   public SearchResultListener getSearchResultListener()
   {
     return searchResultListener;
@@ -1069,7 +1099,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer writer)
+  public void writeTo(@NotNull final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
          writer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST);
@@ -1098,6 +1128,7 @@ public final class SearchRequest
    * @return  The ASN.1 element with the encoded search request protocol op.
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     // Create the search request protocol op.
@@ -1146,7 +1177,8 @@ public final class SearchRequest
    *                         reading the response.
    */
   @Override()
-  protected SearchResult process(final LDAPConnection connection,
+  @NotNull()
+  protected SearchResult process(@NotNull final LDAPConnection connection,
                                  final int depth)
             throws LDAPException
   {
@@ -1383,8 +1415,9 @@ public final class SearchRequest
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncSearchResultListener resultListener)
+  @Nullable()
+  AsyncRequestID processAsync(@NotNull final LDAPConnection connection,
+                      @Nullable final AsyncSearchResultListener resultListener)
                  throws LDAPException
   {
     // Create the LDAP message.
@@ -1467,7 +1500,8 @@ public final class SearchRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private SearchResult processSync(final LDAPConnection connection,
+  @NotNull()
+  private SearchResult processSync(@NotNull final LDAPConnection connection,
                                    final int depth, final boolean allowRetry)
           throws LDAPException
   {
@@ -1723,11 +1757,13 @@ public final class SearchRequest
    * @return  The result from re-trying the search, or {@code null} if it could
    *          not be re-tried.
    */
-  private SearchResult reconnectAndRetry(final LDAPConnection connection,
-                                         final int depth,
-                                         final ResultCode resultCode,
-                                         final int numEntries,
-                                         final int numReferences)
+  @Nullable()
+  private SearchResult reconnectAndRetry(
+                            @NotNull final LDAPConnection connection,
+                            final int depth,
+                            @NotNull final ResultCode resultCode,
+                            final int numEntries,
+                            final int numReferences)
   {
     try
     {
@@ -1785,12 +1821,13 @@ public final class SearchRequest
    *
    * @throws  LDAPException  If a problem occurs.
    */
-  private SearchResult handleResponse(final LDAPConnection connection,
-               final LDAPResponse response, final long requestTime,
+  @NotNull()
+  private SearchResult handleResponse(@NotNull final LDAPConnection connection,
+               @NotNull final LDAPResponse response, final long requestTime,
                final int depth, final int numEntries, final int numReferences,
-               final List<SearchResultEntry> entryList,
-               final List<SearchResultReference> referenceList,
-               final ResultCode intermediateResultCode)
+               @Nullable final List<SearchResultEntry> entryList,
+               @Nullable final List<SearchResultReference> referenceList,
+               @NotNull final ResultCode intermediateResultCode)
           throws LDAPException
   {
     connection.getConnectionStatistics().incrementNumSearchResponses(
@@ -1853,9 +1890,11 @@ public final class SearchRequest
    *                         the referral connection, sending the request, or
    *                         reading the result.
    */
+  @NotNull()
   private LDAPResult followSearchReference(final int messageID,
-                          final SearchResultReference searchReference,
-                          final LDAPConnection connection, final int depth)
+                          @NotNull final SearchResultReference searchReference,
+                          @NotNull final LDAPConnection connection,
+                          final int depth)
           throws LDAPException
   {
     for (final String urlString : searchReference.getReferralURLs())
@@ -1957,9 +1996,11 @@ public final class SearchRequest
    *                         the referral connection, sending the request, or
    *                         reading the result.
    */
-  private SearchResult followReferral(final SearchResult referralResult,
-                                      final LDAPConnection connection,
-                                      final int depth)
+  @NotNull()
+  private SearchResult followReferral(
+                            @NotNull final SearchResult referralResult,
+                            @NotNull final LDAPConnection connection,
+                            final int depth)
           throws LDAPException
   {
     for (final String urlString : referralResult.getReferralURLs())
@@ -2047,7 +2088,7 @@ public final class SearchRequest
    */
   @InternalUseOnly()
   @Override()
-  public void responseReceived(final LDAPResponse response)
+  public void responseReceived(@NotNull final LDAPResponse response)
          throws LDAPException
   {
     try
@@ -2087,6 +2128,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public OperationType getOperationType()
   {
     return OperationType.SEARCH;
@@ -2098,6 +2140,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SearchRequest duplicate()
   {
     return duplicate(getControls());
@@ -2109,7 +2152,8 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
-  public SearchRequest duplicate(final Control[] controls)
+  @NotNull()
+  public SearchRequest duplicate(@Nullable final Control[] controls)
   {
     final SearchRequest r = new SearchRequest(searchResultListener, controls,
          baseDN, scope, derefPolicy, sizeLimit, timeLimit, typesOnly, filter,
@@ -2135,7 +2179,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SearchRequest(baseDN='");
     buffer.append(baseDN);
@@ -2187,7 +2231,8 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

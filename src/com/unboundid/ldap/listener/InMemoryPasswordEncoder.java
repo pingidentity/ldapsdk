@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -66,14 +68,14 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 public abstract class InMemoryPasswordEncoder
 {
   // The bytes that comprise the prefix.
-  private final byte[] prefixBytes;
+  @NotNull private final byte[] prefixBytes;
 
   // The output formatter that will be used to format the encoded representation
   // of clear-text passwords.
-  private final PasswordEncoderOutputFormatter outputFormatter;
+  @Nullable private final PasswordEncoderOutputFormatter outputFormatter;
 
   // The string that will appear at the beginning of encoded passwords.
-  private final String prefix;
+  @NotNull private final String prefix;
 
 
 
@@ -90,8 +92,8 @@ public abstract class InMemoryPasswordEncoder
    *                          special formatting should be applied to the raw
    *                          bytes.
    */
-  protected InMemoryPasswordEncoder(final String prefix,
-                 final PasswordEncoderOutputFormatter outputFormatter)
+  protected InMemoryPasswordEncoder(@NotNull final String prefix,
+                 @Nullable final PasswordEncoderOutputFormatter outputFormatter)
   {
     Validator.ensureNotNullOrEmpty(prefix,
          "The password encoder prefix must not be null or empty.");
@@ -110,6 +112,7 @@ public abstract class InMemoryPasswordEncoder
    *
    * @return  The string that will appear at the beginning of encoded passwords.
    */
+  @NotNull()
   public final String getPrefix()
   {
     return prefix;
@@ -125,6 +128,7 @@ public abstract class InMemoryPasswordEncoder
    *          representation of a password, or {@code nulL} if no output
    *          formatting will be applied.
    */
+  @Nullable()
   public final PasswordEncoderOutputFormatter getOutputFormatter()
   {
     return outputFormatter;
@@ -162,10 +166,11 @@ public abstract class InMemoryPasswordEncoder
    * @throws  LDAPException  If a problem is encountered while trying to encode
    *                         the provided clear-text password.
    */
+  @NotNull()
   public final ASN1OctetString encodePassword(
-                                    final ASN1OctetString clearPassword,
-                                    final ReadOnlyEntry userEntry,
-                                    final List<Modification> modifications)
+                    @NotNull final ASN1OctetString clearPassword,
+                    @NotNull final ReadOnlyEntry userEntry,
+                    @NotNull final List<Modification> modifications)
          throws LDAPException
   {
     if (clearPassword.getValueLength() == 0)
@@ -231,9 +236,10 @@ public abstract class InMemoryPasswordEncoder
    * @throws  LDAPException  If a problem is encountered while trying to encode
    *                         the provided clear-text password.
    */
-  protected abstract byte[] encodePassword(byte[] clearPassword,
-                                           ReadOnlyEntry userEntry,
-                                           List<Modification> modifications)
+  @NotNull()
+  protected abstract byte[] encodePassword(@NotNull byte[] clearPassword,
+                                 @NotNull ReadOnlyEntry userEntry,
+                                 @NotNull List<Modification> modifications)
             throws LDAPException;
 
 
@@ -271,9 +277,9 @@ public abstract class InMemoryPasswordEncoder
    *                         making the determination.
    */
   public final void ensurePreEncodedPasswordAppearsValid(
-              final ASN1OctetString prefixedFormattedEncodedPassword,
-              final ReadOnlyEntry userEntry,
-              final List<Modification> modifications)
+              @NotNull final ASN1OctetString prefixedFormattedEncodedPassword,
+              @NotNull final ReadOnlyEntry userEntry,
+              @NotNull final List<Modification> modifications)
          throws LDAPException
   {
     // Strip the prefix off the encoded password.
@@ -354,9 +360,9 @@ public abstract class InMemoryPasswordEncoder
    *                         making the determination.
    */
   protected abstract void ensurePreEncodedPasswordAppearsValid(
-                               byte[] unPrefixedUnFormattedEncodedPasswordBytes,
-                               ReadOnlyEntry userEntry,
-                               List<Modification> modifications)
+                 @NotNull byte[] unPrefixedUnFormattedEncodedPasswordBytes,
+                 @NotNull ReadOnlyEntry userEntry,
+                 @NotNull List<Modification> modifications)
             throws LDAPException;
 
 
@@ -386,9 +392,9 @@ public abstract class InMemoryPasswordEncoder
    *                         determination.
    */
   public final boolean clearPasswordMatchesEncodedPassword(
-                    final ASN1OctetString clearPassword,
-                    final ASN1OctetString prefixedFormattedEncodedPassword,
-                    final ReadOnlyEntry userEntry)
+              @NotNull final ASN1OctetString clearPassword,
+              @NotNull final ASN1OctetString prefixedFormattedEncodedPassword,
+              @NotNull final ReadOnlyEntry userEntry)
          throws LDAPException
   {
     // Make sure that the provided clear-text password is not null or empty.
@@ -472,9 +478,9 @@ public abstract class InMemoryPasswordEncoder
    *                         make the determination.
    */
   protected abstract boolean passwordMatches(
-                          byte[] clearPasswordBytes,
-                          byte[] unPrefixedUnFormattedEncodedPasswordBytes,
-                          ReadOnlyEntry userEntry)
+                 @NotNull byte[] clearPasswordBytes,
+                 @NotNull byte[] unPrefixedUnFormattedEncodedPasswordBytes,
+                 @NotNull ReadOnlyEntry userEntry)
             throws LDAPException;
 
 
@@ -502,9 +508,10 @@ public abstract class InMemoryPasswordEncoder
    *                         clear-text representation from the provided encoded
    *                         password.
    */
+  @NotNull()
   public final ASN1OctetString extractClearPasswordFromEncodedPassword(
-              final ASN1OctetString prefixedFormattedEncodedPassword,
-              final ReadOnlyEntry userEntry)
+              @NotNull final ASN1OctetString prefixedFormattedEncodedPassword,
+              @NotNull final ReadOnlyEntry userEntry)
          throws LDAPException
   {
     // Strip the prefix off the encoded password.
@@ -568,9 +575,10 @@ public abstract class InMemoryPasswordEncoder
    *                         clear-text representation from the provided encoded
    *                         password.
    */
+  @NotNull()
   protected abstract byte[] extractClearPassword(
-                 byte[] unPrefixedUnFormattedEncodedPasswordBytes,
-                 ReadOnlyEntry userEntry)
+                 @NotNull byte[] unPrefixedUnFormattedEncodedPasswordBytes,
+                 @NotNull ReadOnlyEntry userEntry)
             throws LDAPException;
 
 
@@ -584,7 +592,8 @@ public abstract class InMemoryPasswordEncoder
    * @return  {@code true} if the provided password starts with the encoded
    *          password prefix, or {@code false} if not.
    */
-  public final boolean passwordStartsWithPrefix(final ASN1OctetString password)
+  public final boolean passwordStartsWithPrefix(
+                            @NotNull final ASN1OctetString password)
   {
     return passwordStartsWithPrefix(password.getValue());
   }
@@ -600,7 +609,7 @@ public abstract class InMemoryPasswordEncoder
    * @return  {@code true} if the provided byte array starts with the encoded
    *          password prefix, or {@code false} if not.
    */
-  private boolean passwordStartsWithPrefix(final byte[] b)
+  private boolean passwordStartsWithPrefix(@NotNull final byte[] b)
   {
     if (b.length < prefixBytes.length)
     {
@@ -626,6 +635,7 @@ public abstract class InMemoryPasswordEncoder
    * @return  A string representation of this password encoder.
    */
   @Override()
+  @NotNull()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -641,5 +651,5 @@ public abstract class InMemoryPasswordEncoder
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(StringBuilder buffer);
+  public abstract void toString(@NotNull StringBuilder buffer);
 }

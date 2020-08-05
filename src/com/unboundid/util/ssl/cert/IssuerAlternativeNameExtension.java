@@ -38,6 +38,7 @@ package com.unboundid.util.ssl.cert;
 
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.OID;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,7 +91,7 @@ public final class IssuerAlternativeNameExtension
    *                         value.
    */
   IssuerAlternativeNameExtension(final boolean isCritical,
-                                 final GeneralNames generalNames)
+                                 @NotNull final GeneralNames generalNames)
        throws CertException
   {
     super(ISSUER_ALTERNATIVE_NAME_OID, isCritical, generalNames);
@@ -108,7 +109,8 @@ public final class IssuerAlternativeNameExtension
    * @throws  CertException  If the provided extension cannot be decoded as a
    *                         issuer alternative name extension.
    */
-  IssuerAlternativeNameExtension(final X509CertificateExtension extension)
+  IssuerAlternativeNameExtension(
+       @NotNull final X509CertificateExtension extension)
        throws CertException
   {
     super(extension);
@@ -120,6 +122,7 @@ public final class IssuerAlternativeNameExtension
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtensionName()
   {
     return INFO_ISSUER_ALT_NAME_EXTENSION_NAME.get();
@@ -131,7 +134,7 @@ public final class IssuerAlternativeNameExtension
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     toString("IssuerAlternativeNameExtension", buffer);
   }

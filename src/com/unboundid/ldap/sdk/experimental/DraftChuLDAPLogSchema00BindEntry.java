@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -64,7 +66,7 @@ public final class DraftChuLDAPLogSchema00BindEntry
   /**
    * The name of the attribute used to hold the bind request method.
    */
-  public static final String ATTR_BIND_METHOD = "reqMethod";
+  @NotNull public static final String ATTR_BIND_METHOD = "reqMethod";
 
 
 
@@ -72,7 +74,7 @@ public final class DraftChuLDAPLogSchema00BindEntry
    * The name of the attribute used to hold the LDAP protocol version specified
    * in the bind request.
    */
-  public static final String ATTR_PROTOCOL_VERSION = "reqVersion";
+  @NotNull public static final String ATTR_PROTOCOL_VERSION = "reqVersion";
 
 
 
@@ -87,10 +89,10 @@ public final class DraftChuLDAPLogSchema00BindEntry
   private final int protocolVersion;
 
   // The base name of the bind request method.
-  private final String bindMethod;
+  @NotNull private final String bindMethod;
 
   // The name of the SASL mechanism, if available.
-  private final String saslMechanism;
+  @Nullable private final String saslMechanism;
 
 
 
@@ -104,7 +106,7 @@ public final class DraftChuLDAPLogSchema00BindEntry
    *                         bind access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00BindEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00BindEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.BIND);
@@ -187,6 +189,7 @@ public final class DraftChuLDAPLogSchema00BindEntry
    * @return  The name of the bind method for the bind request described by this
    *          bind access log entry.
    */
+  @NotNull()
   public String getBindMethod()
   {
     return bindMethod;
@@ -202,6 +205,7 @@ public final class DraftChuLDAPLogSchema00BindEntry
    *          this bind access log entry, or {@code null} if the bind method is
    *          not "SASL".
    */
+  @Nullable()
   public String getSASLMechanism()
   {
     return saslMechanism;

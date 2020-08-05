@@ -60,7 +60,7 @@ public final class TeeOutputStream
 {
   // The set of target output streams to which any data received will be
   // written.
-  private final List<OutputStream> streams;
+  @NotNull private final List<OutputStream> streams;
 
 
 
@@ -72,7 +72,7 @@ public final class TeeOutputStream
    *                        will be written.  If it is {@code null} or empty,
    *                        then any data received will simply be discarded.
    */
-  public TeeOutputStream(final OutputStream... targetStreams)
+  public TeeOutputStream(@Nullable final OutputStream... targetStreams)
   {
     if (targetStreams == null)
     {
@@ -95,7 +95,8 @@ public final class TeeOutputStream
    *                        will be written.  If it is {@code null} or empty,
    *                        then any data received will simply be discarded.
    */
-  public TeeOutputStream(final Collection<? extends OutputStream> targetStreams)
+  public TeeOutputStream(
+              @Nullable final Collection<? extends OutputStream> targetStreams)
   {
     if (targetStreams == null)
     {
@@ -140,7 +141,7 @@ public final class TeeOutputStream
    *                       to any of the target output streams.
    */
   @Override()
-  public void write(final byte[] b)
+  public void write(@NotNull final byte[] b)
          throws IOException
   {
     for (final OutputStream s : streams)
@@ -164,7 +165,7 @@ public final class TeeOutputStream
    *                       to any of the target output streams.
    */
   @Override()
-  public void write(final byte[] b, final int off, final int len)
+  public void write(@NotNull final byte[] b, final int off, final int len)
          throws IOException
   {
     for (final OutputStream s : streams)

@@ -36,8 +36,10 @@
 package com.unboundid.util.ssl.cert;
 
 
+
 import java.security.Permission;
 
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -64,7 +66,7 @@ final class ManageCertificatesSecurityManager
   private volatile boolean exitCalledWithZeroStatus;
 
   // The security manager to which all non-exit decisions will be delegated.
-  private final SecurityManager delegateSecurityManager;
+  @Nullable private final SecurityManager delegateSecurityManager;
 
 
 
@@ -116,7 +118,7 @@ final class ManageCertificatesSecurityManager
    * @throws  SecurityException  If the exit attempt should be blocked.
    */
   @Override()
-  public void checkPermission(final Permission permission)
+  public void checkPermission(@Nullable final Permission permission)
          throws SecurityException
   {
     if ((permission == null) || (permission.getName() == null))

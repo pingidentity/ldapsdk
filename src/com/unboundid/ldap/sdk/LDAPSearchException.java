@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -65,7 +67,7 @@ public final class LDAPSearchException
 
 
   // The search result with information from this exception.
-  private final SearchResult searchResult;
+  @NotNull private final SearchResult searchResult;
 
 
 
@@ -75,8 +77,8 @@ public final class LDAPSearchException
    * @param  resultCode    The result code for this LDAP search exception.
    * @param  errorMessage  The error message for this LDAP search exception.
    */
-  public LDAPSearchException(final ResultCode resultCode,
-                             final String errorMessage)
+  public LDAPSearchException(@NotNull final ResultCode resultCode,
+                             @NotNull final String errorMessage)
   {
     super(resultCode, errorMessage);
 
@@ -94,8 +96,9 @@ public final class LDAPSearchException
    * @param  cause         The underlying exception that triggered this LDAP
    *                       search exception.
    */
-  public LDAPSearchException(final ResultCode resultCode,
-                             final String errorMessage, final Throwable cause)
+  public LDAPSearchException(@NotNull final ResultCode resultCode,
+                             @NotNull final String errorMessage,
+                             @Nullable final Throwable cause)
   {
     super(resultCode, errorMessage, cause);
 
@@ -111,7 +114,7 @@ public final class LDAPSearchException
    * @param  ldapException  The LDAP exception with the information to include
    *                        in this LDAP search exception.
    */
-  public LDAPSearchException(final LDAPException ldapException)
+  public LDAPSearchException(@NotNull final LDAPException ldapException)
   {
     super(ldapException.getResultCode(), ldapException.getMessage(),
           ldapException.getMatchedDN(), ldapException.getReferralURLs(),
@@ -140,7 +143,7 @@ public final class LDAPSearchException
    * @param  searchResult  The search result to use to create this LDAP search
    *                       exception.
    */
-  public LDAPSearchException(final SearchResult searchResult)
+  public LDAPSearchException(@NotNull final SearchResult searchResult)
   {
     super(searchResult);
 
@@ -156,6 +159,7 @@ public final class LDAPSearchException
    * @return  The search result object associated with this LDAP search
    *          exception.
    */
+  @NotNull()
   public SearchResult getSearchResult()
   {
     return searchResult;
@@ -200,6 +204,7 @@ public final class LDAPSearchException
    *          operation before this exception was thrown, or {@code null} if a
    *          {@code SearchResultListener} was used during the search.
    */
+  @Nullable()
   public List<SearchResultEntry> getSearchEntries()
   {
     return searchResult.getSearchEntries();
@@ -216,6 +221,7 @@ public final class LDAPSearchException
    *          operation before this exception was thrown, or {@code null} if a
    *          {@code SearchResultListener} was used during the search.
    */
+  @Nullable()
   public List<SearchResultReference> getSearchReferences()
   {
     return searchResult.getSearchReferences();
@@ -229,6 +235,7 @@ public final class LDAPSearchException
    * @return  The {@code SearchResult} object created from this exception.
    */
   @Override()
+  @NotNull()
   public SearchResult toLDAPResult()
   {
     return searchResult;
@@ -244,7 +251,7 @@ public final class LDAPSearchException
    *                 this LDAP exception.
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     super.toString(buffer);
   }

@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -65,21 +67,21 @@ public final class DraftChuLDAPLogSchema00ModifyDNEntry
    * The name of the attribute used to hold the value of the delete old RDN
    * flag.
    */
-  public static final String ATTR_DELETE_OLD_RDN = "reqDeleteOldRDN";
+  @NotNull public static final String ATTR_DELETE_OLD_RDN = "reqDeleteOldRDN";
 
 
 
   /**
    * The name of the attribute used to hold the new RDN value.
    */
-  public static final String ATTR_NEW_RDN = "reqNewRDN";
+  @NotNull public static final String ATTR_NEW_RDN = "reqNewRDN";
 
 
 
   /**
    * The name of the attribute used to hold the new superior DN value.
    */
-  public static final String ATTR_NEW_SUPERIOR_DN = "reqNewSuperior";
+  @NotNull public static final String ATTR_NEW_SUPERIOR_DN = "reqNewSuperior";
 
 
 
@@ -94,10 +96,10 @@ public final class DraftChuLDAPLogSchema00ModifyDNEntry
   private final boolean deleteOldRDN;
 
   // The new RDN.
-  private final String newRDN;
+  @NotNull private final String newRDN;
 
   // The new superior DN.
-  private final String newSuperiorDN;
+  @Nullable private final String newSuperiorDN;
 
 
 
@@ -111,7 +113,7 @@ public final class DraftChuLDAPLogSchema00ModifyDNEntry
    *                         modify DN access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00ModifyDNEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00ModifyDNEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.MODIFY_DN);
@@ -168,6 +170,7 @@ public final class DraftChuLDAPLogSchema00ModifyDNEntry
    * @return  The new RDN for the modify DN request described by this modify DN
    *          access log entry.
    */
+  @NotNull()
   public String getNewRDN()
   {
     return newRDN;
@@ -198,6 +201,7 @@ public final class DraftChuLDAPLogSchema00ModifyDNEntry
    *          modify DN access log entry, or {@code null} if there is no new
    *          superior DN.
    */
+  @Nullable()
   public String getNewSuperiorDN()
   {
     return newSuperiorDN;
@@ -212,6 +216,7 @@ public final class DraftChuLDAPLogSchema00ModifyDNEntry
    * @return  The {@code ModifyDNRequest} created from this modify DN access log
    *          entry.
    */
+  @NotNull()
   public ModifyDNRequest toModifyDNRequest()
   {
     return new ModifyDNRequest(getTargetEntryDN(), newRDN, deleteOldRDN,

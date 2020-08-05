@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -82,28 +84,28 @@ public class SearchRequestAccessLogMessage
 
 
   // The typesOnly value for the search request.
-  private final Boolean typesOnly;
+  @Nullable private final Boolean typesOnly;
 
   // The alias dereferencing policy for the search request.
-  private final DereferencePolicy derefPolicy;
+  @Nullable private final DereferencePolicy derefPolicy;
 
   // The size limit for the search request.
-  private final Integer sizeLimit;
+  @Nullable private final Integer sizeLimit;
 
   // The time limit for the search request.
-  private final Integer timeLimit;
+  @Nullable private final Integer timeLimit;
 
   // The list of requested attributes for the search request.
-  private final List<String> requestedAttributes;
+  @Nullable private final List<String> requestedAttributes;
 
   // The scope for the search request.
-  private final SearchScope scope;
+  @Nullable private final SearchScope scope;
 
   // The base DN for the search request.
-  private final String baseDN;
+  @Nullable private final String baseDN;
 
   // The string representation of the filter for the search request.
-  private final String filter;
+  @Nullable private final String filter;
 
 
 
@@ -116,7 +118,7 @@ public class SearchRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public SearchRequestAccessLogMessage(final String s)
+  public SearchRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -131,7 +133,7 @@ public class SearchRequestAccessLogMessage
    * @param  m  The log message to be parsed as a search request access log
    *            message.
    */
-  public SearchRequestAccessLogMessage(final LogMessage m)
+  public SearchRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -196,6 +198,7 @@ public class SearchRequestAccessLogMessage
    * @return  The base DN for the search request, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getBaseDN()
   {
     return baseDN;
@@ -209,6 +212,7 @@ public class SearchRequestAccessLogMessage
    * @return  The scope for the search request, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final SearchScope getScope()
   {
     return scope;
@@ -222,6 +226,7 @@ public class SearchRequestAccessLogMessage
    * @return  A string representation of the filter for the search request, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final String getFilter()
   {
     return filter;
@@ -236,6 +241,7 @@ public class SearchRequestAccessLogMessage
    *          {@code null} if it is not included in the log message or the
    *          filter string cannot be parsed as a filter.
    */
+  @Nullable()
   public final Filter getParsedFilter()
   {
     try
@@ -265,6 +271,7 @@ public class SearchRequestAccessLogMessage
    *          it is not included in the log message or the value cannot be
    *          parsed as a valid {@code DereferencePolicy} value.
    */
+  @Nullable()
   public final DereferencePolicy getDereferencePolicy()
   {
     return derefPolicy;
@@ -279,6 +286,7 @@ public class SearchRequestAccessLogMessage
    *          not included in the log message or the value cannot be parsed as
    *          an integer.
    */
+  @Nullable()
   public final Integer getSizeLimit()
   {
     return sizeLimit;
@@ -293,6 +301,7 @@ public class SearchRequestAccessLogMessage
    *          not included in the log message or the value cannot be parsed as
    *          an integer.
    */
+  @Nullable()
   public final Integer getTimeLimit()
   {
     return timeLimit;
@@ -308,6 +317,7 @@ public class SearchRequestAccessLogMessage
    *          and values should be returned, or {@code null} if is not included
    *          in the log message or cannot be parsed as a Boolean.
    */
+  @Nullable()
   public final Boolean typesOnly()
   {
     return typesOnly;
@@ -322,6 +332,7 @@ public class SearchRequestAccessLogMessage
    *          list if the client did not explicitly request any attributes, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final List<String> getRequestedAttributes()
   {
     return requestedAttributes;
@@ -333,6 +344,7 @@ public class SearchRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.SEARCH;

@@ -70,7 +70,7 @@ final class UUIDValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     buffer.append(UUID.randomUUID().toString());
   }

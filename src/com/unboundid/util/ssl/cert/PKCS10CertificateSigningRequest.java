@@ -61,6 +61,8 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
@@ -135,7 +137,7 @@ public final class PKCS10CertificateSigningRequest
    * The OID for the request attribute that holds the set of requested
    * certificate extensions.
    */
-  private static final OID  ATTRIBUTE_OID_EXTENSIONS =
+  @NotNull private static final OID  ATTRIBUTE_OID_EXTENSIONS =
        new OID("1.2.840.113549.1.9.14");
 
 
@@ -148,49 +150,49 @@ public final class PKCS10CertificateSigningRequest
 
 
   // The signature value for the request.
-  private final ASN1BitString signatureValue;
+  @NotNull private final ASN1BitString signatureValue;
 
   // The encoded public key for the request.
-  private final ASN1BitString encodedPublicKey;
+  @NotNull private final ASN1BitString encodedPublicKey;
 
   // The ASN.1 element with the encoded public key algorithm parameters.
-  private final ASN1Element publicKeyAlgorithmParameters;
+  @Nullable private final ASN1Element publicKeyAlgorithmParameters;
 
   // The ASN.1 element with the encoded signature algorithm parameters.
-  private final ASN1Element signatureAlgorithmParameters;
+  @Nullable private final ASN1Element signatureAlgorithmParameters;
 
   // The bytes that comprise the encoded representation of the PKCS #10
   // certificate signing request.
-  private final byte[] pkcs10CertificateSigningRequestBytes;
+  @NotNull private final byte[] pkcs10CertificateSigningRequestBytes;
 
   // The decoded public key for this request, if available.
-  private final DecodedPublicKey decodedPublicKey;
+  @Nullable private final DecodedPublicKey decodedPublicKey;
 
   // The subject DN for the request.
-  private final DN subjectDN;
+  @NotNull private final DN subjectDN;
 
   // The list of attributes for the request.
-  private final List<ObjectPair<OID,ASN1Set>> requestAttributes;
+  @NotNull private final List<ObjectPair<OID,ASN1Set>> requestAttributes;
 
   // The list of extensions for the request.
-  private final List<X509CertificateExtension> extensions;
+  @NotNull private final List<X509CertificateExtension> extensions;
 
   // The OID for the public key algorithm.
-  private final OID publicKeyAlgorithmOID;
+  @NotNull private final OID publicKeyAlgorithmOID;
 
   // The OID for the signature algorithm.
-  private final OID signatureAlgorithmOID;
+  @NotNull private final OID signatureAlgorithmOID;
 
   // The PKCS #10 certificate signing request version.
-  private final PKCS10CertificateSigningRequestVersion version;
+  @NotNull private final PKCS10CertificateSigningRequestVersion version;
 
   // The public key algorithm name that corresponds with the public key
   // algorithm OID, if available.
-  private final String publicKeyAlgorithmName;
+  @Nullable private final String publicKeyAlgorithmName;
 
   // The signature algorithm name that corresponds with the signature algorithm
   // OID, if available.
-  private final String signatureAlgorithmName;
+  @Nullable private final String signatureAlgorithmName;
 
 
 
@@ -239,16 +241,16 @@ public final class PKCS10CertificateSigningRequest
    *                         certificate signing request.
    */
   PKCS10CertificateSigningRequest(
-       final PKCS10CertificateSigningRequestVersion version,
-       final OID signatureAlgorithmOID,
-       final ASN1Element signatureAlgorithmParameters,
-       final ASN1BitString signatureValue,
-       final DN subjectDN, final OID publicKeyAlgorithmOID,
-       final ASN1Element publicKeyAlgorithmParameters,
-       final ASN1BitString encodedPublicKey,
-       final DecodedPublicKey decodedPublicKey,
-       final List<ObjectPair<OID,ASN1Set>> nonExtensionAttributes,
-       final X509CertificateExtension... extensions)
+       @NotNull final PKCS10CertificateSigningRequestVersion version,
+       @NotNull final OID signatureAlgorithmOID,
+       @Nullable final ASN1Element signatureAlgorithmParameters,
+       @NotNull final ASN1BitString signatureValue,
+       @NotNull final DN subjectDN, @NotNull final OID publicKeyAlgorithmOID,
+       @Nullable final ASN1Element publicKeyAlgorithmParameters,
+       @NotNull final ASN1BitString encodedPublicKey,
+       @Nullable final DecodedPublicKey decodedPublicKey,
+       @Nullable final List<ObjectPair<OID,ASN1Set>> nonExtensionAttributes,
+       @NotNull final X509CertificateExtension... extensions)
        throws CertException
   {
     this.version = version;
@@ -323,7 +325,8 @@ public final class PKCS10CertificateSigningRequest
    *                         not be decoded as a valid PKCS #10 certificate
    *                         signing request.
    */
-  public PKCS10CertificateSigningRequest(final byte[] encodedRequest)
+  public PKCS10CertificateSigningRequest(
+              @NotNull final byte[] encodedRequest)
          throws CertException
   {
     pkcs10CertificateSigningRequestBytes = encodedRequest;
@@ -591,6 +594,7 @@ public final class PKCS10CertificateSigningRequest
    * @throws  CertException  If a problem is encountered while trying to encode
    *                         the PKCS #10 certificate signing request.
    */
+  @NotNull()
   private ASN1Element encode()
           throws CertException
   {
@@ -681,11 +685,12 @@ public final class PKCS10CertificateSigningRequest
    * @throws  CertException  If a problem is encountered while creating the
    *                         certificate signing request.
    */
+  @NotNull()
   public static PKCS10CertificateSigningRequest
-              generateCertificateSigningRequest(
-                   final SignatureAlgorithmIdentifier signatureAlgorithm,
-                   final KeyPair keyPair, final DN subjectDN,
-                   final X509CertificateExtension... extensions)
+                     generateCertificateSigningRequest(
+              @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
+              @NotNull final KeyPair keyPair, @NotNull final DN subjectDN,
+              @Nullable final X509CertificateExtension... extensions)
          throws CertException
   {
     // Extract the parameters and encoded public key from the generated key
@@ -816,12 +821,13 @@ public final class PKCS10CertificateSigningRequest
    *                         certificate.
    */
   private static ASN1BitString generateSignature(
-                      final SignatureAlgorithmIdentifier signatureAlgorithm,
-                      final PrivateKey privateKey, final DN subjectDN,
-                      final OID publicKeyAlgorithmOID,
-                      final ASN1Element publicKeyAlgorithmParameters,
-                      final ASN1BitString encodedPublicKey,
-                      final X509CertificateExtension... extensions)
+               @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
+               @NotNull final PrivateKey privateKey,
+               @NotNull final DN subjectDN,
+               @NotNull final OID publicKeyAlgorithmOID,
+               @Nullable final ASN1Element publicKeyAlgorithmParameters,
+               @NotNull final ASN1BitString encodedPublicKey,
+               @NotNull final X509CertificateExtension... extensions)
           throws CertException
   {
     // Get and initialize the signature generator.
@@ -923,6 +929,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  The bytes that comprise the encoded representation of this
    *          PKCS #10 certificate signing request.
    */
+  @NotNull()
   public byte[] getPKCS10CertificateSigningRequestBytes()
   {
     return pkcs10CertificateSigningRequestBytes;
@@ -935,6 +942,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The certificate signing request version.
    */
+  @NotNull()
   public PKCS10CertificateSigningRequestVersion getVersion()
   {
     return version;
@@ -947,6 +955,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The certificate signing request signature algorithm OID.
    */
+  @NotNull()
   public OID getSignatureAlgorithmOID()
   {
     return signatureAlgorithmOID;
@@ -962,6 +971,7 @@ public final class PKCS10CertificateSigningRequest
    *          {@code null} if the signature algorithm OID does not correspond to
    *          any known algorithm name.
    */
+  @Nullable()
   public String getSignatureAlgorithmName()
   {
     return signatureAlgorithmName;
@@ -975,6 +985,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The signature algorithm name or OID.
    */
+  @NotNull()
   public String getSignatureAlgorithmNameOrOID()
   {
     if (signatureAlgorithmName != null)
@@ -995,6 +1006,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  The encoded signature algorithm parameters, or {@code null} if
    *          there are no signature algorithm parameters.
    */
+  @Nullable()
   public ASN1Element getSignatureAlgorithmParameters()
   {
     return signatureAlgorithmParameters;
@@ -1007,6 +1019,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The certificate signing request subject DN.
    */
+  @NotNull()
   public DN getSubjectDN()
   {
     return subjectDN;
@@ -1019,6 +1032,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The certificate signing request public key algorithm OID.
    */
+  @NotNull()
   public OID getPublicKeyAlgorithmOID()
   {
     return publicKeyAlgorithmOID;
@@ -1034,6 +1048,7 @@ public final class PKCS10CertificateSigningRequest
    *          {@code null} if the public key algorithm OID does not correspond
    *          to any known algorithm name.
    */
+  @Nullable()
   public String getPublicKeyAlgorithmName()
   {
     return publicKeyAlgorithmName;
@@ -1047,6 +1062,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The signature algorithm name or OID.
    */
+  @NotNull()
   public String getPublicKeyAlgorithmNameOrOID()
   {
     if (publicKeyAlgorithmName != null)
@@ -1067,6 +1083,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  The encoded public key algorithm parameters, or {@code null} if
    *          there are no public key algorithm parameters.
    */
+  @Nullable()
   public ASN1Element getPublicKeyAlgorithmParameters()
   {
     return publicKeyAlgorithmParameters;
@@ -1079,6 +1096,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The encoded public key as a bit string.
    */
+  @NotNull()
   public ASN1BitString getEncodedPublicKey()
   {
     return encodedPublicKey;
@@ -1092,6 +1110,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  A decoded representation of the public key, or {@code null} if the
    *          public key could not be decoded.
    */
+  @Nullable()
   public DecodedPublicKey getDecodedPublicKey()
   {
     return decodedPublicKey;
@@ -1106,6 +1125,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  The encoded request attributes included in the certificate signing
    *          request.
    */
+  @NotNull()
   public List<ObjectPair<OID,ASN1Set>> getRequestAttributes()
   {
     return requestAttributes;
@@ -1120,6 +1140,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  The list of certificate extensions included in the certificate
    *          signing request.
    */
+  @NotNull()
   public List<X509CertificateExtension> getExtensions()
   {
     return extensions;
@@ -1132,6 +1153,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @return  The signature value for the certificate signing request.
    */
+  @NotNull()
   public ASN1BitString getSignatureValue()
   {
     return signatureValue;
@@ -1254,6 +1276,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  A string representation of the decoded X.509 certificate.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1269,7 +1292,7 @@ public final class PKCS10CertificateSigningRequest
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PKCS10CertificateSigningRequest(version='");
     buffer.append(version.getName());
@@ -1376,6 +1399,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  A list of the lines that comprise a PEM representation of this
    *          PKCS #10 certificate signing request.
    */
+  @NotNull()
   public List<String> toPEM()
   {
     final ArrayList<String> lines = new ArrayList<>(10);
@@ -1399,6 +1423,7 @@ public final class PKCS10CertificateSigningRequest
    * @return  A multi-line string containing a PEM representation of this
    *          PKCS #10 certificate signing request.
    */
+  @NotNull()
   public String toPEMString()
   {
     final StringBuilder buffer = new StringBuilder();

@@ -58,6 +58,8 @@ import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -97,21 +99,21 @@ public final class PromptTrustManager
   // mapped from an all-lowercase hexadecimal string representation of the
   // certificate signature to a flag that indicates whether the certificate has
   // already been manually trusted even if it is outside of the validity window.
-  private final ConcurrentHashMap<String,Boolean> acceptedCerts;
+  @NotNull private final ConcurrentHashMap<String,Boolean> acceptedCerts;
 
   // The input stream from which the user input will be read.
-  private final InputStream in;
+  @NotNull private final InputStream in;
 
   // A list of the addresses that the client is expected to use to connect to
   // one of the target servers.
-  private final List<String> expectedAddresses;
+  @NotNull private final List<String> expectedAddresses;
 
   // The print stream that will be used to display the prompt.
-  private final PrintStream out;
+  @NotNull private final PrintStream out;
 
   // The path to the file to which the set of accepted certificates should be
   // persisted.
-  private final String acceptedCertsFile;
+  @Nullable private final String acceptedCertsFile;
 
 
 
@@ -135,7 +137,7 @@ public final class PromptTrustManager
    *                            cached.  It may be {@code null} if the cache
    *                            should only be maintained in memory.
    */
-  public PromptTrustManager(final String acceptedCertsFile)
+  public PromptTrustManager(@Nullable final String acceptedCertsFile)
   {
     this(acceptedCertsFile, true, null, null);
   }
@@ -161,9 +163,10 @@ public final class PromptTrustManager
    *                               the prompt to the user.  If this is
    *                               {@code null} then System.out will be used.
    */
-  public PromptTrustManager(final String acceptedCertsFile,
+  public PromptTrustManager(@Nullable final String acceptedCertsFile,
                             final boolean examineValidityDates,
-                            final InputStream in, final PrintStream out)
+                            @Nullable final InputStream in,
+                            @Nullable final PrintStream out)
   {
     this(acceptedCertsFile, examineValidityDates,
          Collections.<String>emptyList(), in, out);
@@ -200,10 +203,11 @@ public final class PromptTrustManager
    *                               the prompt to the user.  If this is
    *                               {@code null} then System.out will be used.
    */
-  public PromptTrustManager(final String acceptedCertsFile,
+  public PromptTrustManager(@Nullable final String acceptedCertsFile,
                             final boolean examineValidityDates,
-                            final String expectedAddress, final InputStream in,
-                            final PrintStream out)
+                            @Nullable final String expectedAddress,
+                            @Nullable final InputStream in,
+                            @Nullable final PrintStream out)
   {
     this(acceptedCertsFile, examineValidityDates,
          (expectedAddress == null)
@@ -245,10 +249,11 @@ public final class PromptTrustManager
    *                               the prompt to the user.  If this is
    *                               {@code null} then System.out will be used.
    */
-  public PromptTrustManager(final String acceptedCertsFile,
-                            final boolean examineValidityDates,
-                            final Collection<String> expectedAddresses,
-                            final InputStream in, final PrintStream out)
+  public PromptTrustManager(@Nullable final String acceptedCertsFile,
+              final boolean examineValidityDates,
+              @Nullable final Collection<String> expectedAddresses,
+              @Nullable final InputStream in,
+              @Nullable final PrintStream out)
   {
     this.acceptedCertsFile    = acceptedCertsFile;
     this.examineValidityDates = examineValidityDates;
@@ -384,7 +389,8 @@ public final class PromptTrustManager
    *          {@code false} if not (e.g., because the certificate is already
    *          known to be trusted).
    */
-  public synchronized boolean wouldPrompt(final X509Certificate[] chain)
+  public synchronized boolean wouldPrompt(
+                                   @NotNull final X509Certificate[] chain)
   {
     try
     {
@@ -413,8 +419,9 @@ public final class PromptTrustManager
    * @throws  CertificateException  If the provided certificate chain should not
    *                                be trusted.
    */
-  private synchronized void checkCertificateChain(final X509Certificate[] chain,
-                                                  final boolean serverCert)
+  private synchronized void checkCertificateChain(
+                                 @NotNull final X509Certificate[] chain,
+                                 final boolean serverCert)
           throws CertificateException
   {
     final com.unboundid.util.ssl.cert.X509Certificate[] convertedChain =
@@ -614,6 +621,7 @@ public final class PromptTrustManager
    *          communicate with the server, or an empty list if this is not
    *          available or applicable.
    */
+  @NotNull()
   public List<String> getExpectedAddresses()
   {
     return expectedAddresses;
@@ -633,8 +641,8 @@ public final class PromptTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     checkCertificateChain(chain, false);
@@ -654,8 +662,8 @@ public final class PromptTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     checkCertificateChain(chain, true);
@@ -670,6 +678,7 @@ public final class PromptTrustManager
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;
@@ -685,7 +694,8 @@ public final class PromptTrustManager
    *
    * @return  The generated cache key.
    */
-  static String getCacheKey(final Certificate certificate)
+  @NotNull()
+  static String getCacheKey(@NotNull final Certificate certificate)
   {
     final X509Certificate x509Certificate = (X509Certificate) certificate;
     return StaticUtils.toLowerCase(
@@ -705,8 +715,9 @@ public final class PromptTrustManager
    * @throws  CertificateException  If a problem occurs while performing the
    *                                conversion.
    */
-  static com.unboundid.util.ssl.cert.X509Certificate[]
-             convertChain(final Certificate[] chain)
+  @NotNull()
+  static com.unboundid.util.ssl.cert.X509Certificate[] convertChain(
+              @NotNull final Certificate[] chain)
          throws CertificateException
   {
     final com.unboundid.util.ssl.cert.X509Certificate[] convertedChain =

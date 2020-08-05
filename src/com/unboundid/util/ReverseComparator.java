@@ -62,7 +62,7 @@ public final class ReverseComparator<T>
 
 
   // The comparator that will be used to make the underlying determination.
-  private final Comparator<T> baseComparator;
+  @Nullable private final Comparator<T> baseComparator;
 
 
 
@@ -85,7 +85,7 @@ public final class ReverseComparator<T>
    * @param  baseComparator  The base comparator that will be used to make the
    *                         determination.
    */
-  public ReverseComparator(final Comparator<T> baseComparator)
+  public ReverseComparator(@NotNull final Comparator<T> baseComparator)
   {
     this.baseComparator = baseComparator;
   }
@@ -106,7 +106,7 @@ public final class ReverseComparator<T>
    */
   @SuppressWarnings("unchecked")
   @Override()
-  public int compare(final T o1, final T o2)
+  public int compare(@NotNull final T o1, @NotNull final T o2)
   {
     final int baseValue;
     if (baseComparator == null)
@@ -165,7 +165,7 @@ public final class ReverseComparator<T>
    */
   @Override()
   @SuppressWarnings("unchecked")
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {

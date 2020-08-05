@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -77,23 +79,23 @@ public abstract class OperationRequestAccessLogMessage
 
   // Indicates whether the request is being processed using a worker thread from
   // the dedicated administrative session pool.
-  private final Boolean usingAdminSessionWorkerThread;
+  @Nullable private final Boolean usingAdminSessionWorkerThread;
 
   // The OIDs of the request controls contained in the request.
-  private final List<String> requestControlOIDs;
+  @NotNull private final List<String> requestControlOIDs;
 
   // Information from the intermediate client request control contained in the
   // request.
-  private final String intermediateClientRequest;
+  @Nullable private final String intermediateClientRequest;
 
   // Information from the operation purpose control contained in the request.
-  private final String operationPurpose;
+  @Nullable private final String operationPurpose;
 
   // The DN of the user that requested the message.
-  private final String requesterDN;
+  @Nullable private final String requesterDN;
 
   // The IP address of the client that requested the message.
-  private final String requesterIP;
+  @Nullable private final String requesterIP;
 
 
 
@@ -104,7 +106,7 @@ public abstract class OperationRequestAccessLogMessage
    * @param  m  The log message to be parsed as an operation request access log
    *            message.
    */
-  protected OperationRequestAccessLogMessage(final LogMessage m)
+  protected OperationRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -141,6 +143,7 @@ public abstract class OperationRequestAccessLogMessage
    * @return  The DN of the user that requested the operation, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   public final String getRequesterDN()
   {
     return requesterDN;
@@ -154,6 +157,7 @@ public abstract class OperationRequestAccessLogMessage
    * @return  The IP address of the client that requested the operation, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public final String getRequesterIPAddress()
   {
     return requesterIP;
@@ -169,6 +173,7 @@ public abstract class OperationRequestAccessLogMessage
    *          in the request, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public final String getIntermediateClientRequest()
   {
     return intermediateClientRequest;
@@ -184,6 +189,7 @@ public abstract class OperationRequestAccessLogMessage
    *          the request, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public final String getOperationPurpose()
   {
     return operationPurpose;
@@ -197,6 +203,7 @@ public abstract class OperationRequestAccessLogMessage
    * @return  The OIDs of any request controls contained in the log message, or
    *          an empty list if it is not included in the log message.
    */
+  @NotNull()
   public final List<String> getRequestControlOIDs()
   {
     return requestControlOIDs;
@@ -213,6 +220,7 @@ public abstract class OperationRequestAccessLogMessage
    *          {@code false} if it was not, or {@code null} if that information
    *          was not included in the log message.
    */
+  @Nullable()
   public final Boolean usingAdminSessionWorkerThread()
   {
     return usingAdminSessionWorkerThread;
@@ -224,6 +232,7 @@ public abstract class OperationRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.REQUEST;

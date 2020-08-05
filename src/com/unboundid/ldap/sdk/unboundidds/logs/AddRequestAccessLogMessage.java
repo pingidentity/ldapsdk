@@ -44,6 +44,8 @@ import java.util.StringTokenizer;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -78,10 +80,10 @@ public class AddRequestAccessLogMessage
 
 
   // The list of attributes included in the entry.
-  private final List<String> attributeNames;
+  @Nullable private final List<String> attributeNames;
 
   // The DN of the entry to add.
-  private final String dn;
+  @Nullable private final String dn;
 
 
 
@@ -94,7 +96,7 @@ public class AddRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public AddRequestAccessLogMessage(final String s)
+  public AddRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -109,7 +111,7 @@ public class AddRequestAccessLogMessage
    * @param  m  The log message to be parsed as an add request access log
    *            message.
    */
-  public AddRequestAccessLogMessage(final LogMessage m)
+  public AddRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -141,6 +143,7 @@ public class AddRequestAccessLogMessage
    * @return  The DN of the entry to add, or {@code null} if it is not included
    *          in the log message.
    */
+  @Nullable()
   public final String getDN()
   {
     return dn;
@@ -154,6 +157,7 @@ public class AddRequestAccessLogMessage
    * @return  The names of the attributes included in the add request, or
    *          {@code null} if that is not included in the log message.
    */
+  @Nullable()
   public final List<String> getAttributeNames()
   {
     return attributeNames;
@@ -165,6 +169,7 @@ public class AddRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.ADD;

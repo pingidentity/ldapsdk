@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -87,10 +89,10 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
 
   // An ASN.1 element that provides an encoded representation of this time
   // window collect support data log capture window.
-  private final ASN1Element encodedWindow;
+  @NotNull private final ASN1Element encodedWindow;
 
   // The end time for the window.
-  private final Long endTimeMillis;
+  @Nullable private final Long endTimeMillis;
 
   // The start time for the window.
   private final long startTimeMillis;
@@ -113,8 +115,9 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    *                    it must represent a time no earlier than the provided
    *                    start time.
    */
-  public TimeWindowCollectSupportDataLogCaptureWindow(final Date startTime,
-                                                      final Date endTime)
+  public TimeWindowCollectSupportDataLogCaptureWindow(
+              @NotNull final Date startTime,
+              @Nullable final Date endTime)
   {
     this(startTime.getTime(), (endTime == null ? null : endTime.getTime()));
   }
@@ -142,7 +145,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    *                          equal to the provided start time.
    */
   public TimeWindowCollectSupportDataLogCaptureWindow(
-              final long startTimeMillis, final Long endTimeMillis)
+              final long startTimeMillis, @Nullable final Long endTimeMillis)
   {
     Validator.ensureTrue((startTimeMillis > 0),
          "TimeWindowCollectSupportDataLogCaptureWindow.startTimeMillis must " +
@@ -184,6 +187,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    * @return  The time of the oldest log messages to include in the support data
    *          archive.
    */
+  @NotNull()
   public Date getStartTime()
   {
     return new Date(startTimeMillis);
@@ -217,6 +221,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    *          set to the time the {@link CollectSupportDataExtendedRequest} was
    *          received by the server.
    */
+  @Nullable()
   public Date getEndTime()
   {
     if (endTimeMillis == null)
@@ -242,6 +247,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    *          set to the time the {@link CollectSupportDataExtendedRequest} was
    *          received by the server.
    */
+  @Nullable()
   public Long getEndTimeMillis()
   {
     return endTimeMillis;
@@ -262,8 +268,9 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    *                         a valid time window collect support data log
    *                         capture window object.
    */
-  static TimeWindowCollectSupportDataLogCaptureWindow
-              decodeInternal(final ASN1Element e)
+  @NotNull()
+  static TimeWindowCollectSupportDataLogCaptureWindow decodeInternal(
+              @NotNull final ASN1Element e)
          throws LDAPException
   {
     try
@@ -319,7 +326,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    * @throws  LDAPException  If the element value cannot be parsed as a valid
    *                         timestamp in the generalized time format.
    */
-  private static long decodeGeneralizedTimeString(final ASN1Element e)
+  private static long decodeGeneralizedTimeString(@NotNull final ASN1Element e)
           throws LDAPException
   {
     final String timestampString =
@@ -344,6 +351,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return encodedWindow;
@@ -355,7 +363,7 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("TimeWindowCollectSupportDataLogCaptureWindow(startTime='");
     buffer.append(StaticUtils.encodeGeneralizedTime(startTimeMillis));

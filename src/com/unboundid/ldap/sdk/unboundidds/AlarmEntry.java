@@ -42,6 +42,8 @@ import java.util.Date;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,74 +78,74 @@ public final class AlarmEntry
 
 
   // The current severity for this alarm entry.
-  private final AlarmSeverity currentSeverity;
+  @Nullable private final AlarmSeverity currentSeverity;
 
   // The previous severity for this alarm entry.
-  private final AlarmSeverity previousSeverity;
+  @Nullable private final AlarmSeverity previousSeverity;
 
   // The last time the alarm severity was set to critical.
-  private final Date lastCriticalTime;
+  @Nullable private final Date lastCriticalTime;
 
   // The last time the alarm severity was set to indeterminate.
-  private final Date lastIndeterminateTime;
+  @Nullable private final Date lastIndeterminateTime;
 
   // The last time the alarm severity was set to major.
-  private final Date lastMajorTime;
+  @Nullable private final Date lastMajorTime;
 
   // The last time the alarm severity was set to minor.
-  private final Date lastMinorTime;
+  @Nullable private final Date lastMinorTime;
 
   // The last time the alarm severity was set to normal.
-  private final Date lastNormalTime;
+  @Nullable private final Date lastNormalTime;
 
   // The last time the alarm severity was set to warning.
-  private final Date lastWarningTime;
+  @Nullable private final Date lastWarningTime;
 
   // The start time for this alarm entry.
-  private final Date startTime;
+  @Nullable private final Date startTime;
 
   // The X.733 event type for the alarm.
-  private final Integer eventType;
+  @Nullable private final Integer eventType;
 
   // The X.733 probable cause for the alarm.
-  private final Integer probableCause;
+  @Nullable private final Integer probableCause;
 
   // The total length of time in milliseconds spent at the critical severity.
-  private final Long totalDurationCriticalMillis;
+  @Nullable private final Long totalDurationCriticalMillis;
 
   // The total length of time in milliseconds spent at the indeterminate
   // severity.
-  private final Long totalDurationIndeterminateMillis;
+  @Nullable private final Long totalDurationIndeterminateMillis;
 
   // The total length of time in milliseconds spent at the major severity.
-  private final Long totalDurationMajorMillis;
+  @Nullable private final Long totalDurationMajorMillis;
 
   // The total length of time in milliseconds spent at the minor severity.
-  private final Long totalDurationMinorMillis;
+  @Nullable private final Long totalDurationMinorMillis;
 
   // The total length of time in milliseconds spent at the normal severity.
-  private final Long totalDurationNormalMillis;
+  @Nullable private final Long totalDurationNormalMillis;
 
   // The total length of time in milliseconds spent at the warning severity.
-  private final Long totalDurationWarningMillis;
+  @Nullable private final Long totalDurationWarningMillis;
 
   // The additional text for this alarm entry.
-  private final String additionalText;
+  @Nullable private final String additionalText;
 
   // The condition for this alarm entry.
-  private final String condition;
+  @Nullable private final String condition;
 
   // The details for this alarm entry.
-  private final String details;
+  @Nullable private final String details;
 
   // The identifier for this alarm entry.
-  private final String id;
+  @Nullable private final String id;
 
   // The specific resource for this alarm entry.
-  private final String specificResource;
+  @Nullable private final String specificResource;
 
   // The specific resource type for this alarm entry.
-  private final String specificResourceType;
+  @Nullable private final String specificResourceType;
 
 
 
@@ -152,7 +154,7 @@ public final class AlarmEntry
    *
    * @param  entry  The entry to use to create this alarm entry.
    */
-  public AlarmEntry(final Entry entry)
+  public AlarmEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -219,6 +221,7 @@ public final class AlarmEntry
    * @return  The identifier for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public String getAlarmID()
   {
     return id;
@@ -232,6 +235,7 @@ public final class AlarmEntry
    * @return  The condition for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public String getAlarmCondition()
   {
     return condition;
@@ -245,6 +249,7 @@ public final class AlarmEntry
    * @return  The current severity for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public AlarmSeverity getCurrentAlarmSeverity()
   {
     return currentSeverity;
@@ -258,6 +263,7 @@ public final class AlarmEntry
    * @return  The previous severity for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public AlarmSeverity getPreviousAlarmSeverity()
   {
     return previousSeverity;
@@ -271,6 +277,7 @@ public final class AlarmEntry
    * @return  The start time for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public Date getAlarmStartTime()
   {
     return startTime;
@@ -284,6 +291,7 @@ public final class AlarmEntry
    * @return  The specific resource for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public String getAlarmSpecificResource()
   {
     return specificResource;
@@ -297,6 +305,7 @@ public final class AlarmEntry
    * @return  The specific resource type for the alarm, or {@code null} if it
    *          was not included in the alarm entry.
    */
+  @Nullable()
   public String getAlarmSpecificResourceType()
   {
     return specificResourceType;
@@ -310,6 +319,7 @@ public final class AlarmEntry
    * @return  The details message for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public String getAlarmDetails()
   {
     return details;
@@ -323,6 +333,7 @@ public final class AlarmEntry
    * @return  The additional text for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public String getAlarmAdditionalText()
   {
     return additionalText;
@@ -337,6 +348,7 @@ public final class AlarmEntry
    * @return  The time that the alarm last transitioned to a normal severity, or
    *          {@code null} if it was not included in the alarm entry.
    */
+  @Nullable()
   public Date getAlarmLastNormalTime()
   {
     return lastNormalTime;
@@ -351,6 +363,7 @@ public final class AlarmEntry
    * @return  The time that the alarm last transitioned to a warning severity,
    *          or {@code null} if it was not included in the alarm entry.
    */
+  @Nullable()
   public Date getAlarmLastWarningTime()
   {
     return lastWarningTime;
@@ -365,6 +378,7 @@ public final class AlarmEntry
    * @return  The time that the alarm last transitioned to a minor severity, or
    *          {@code null} if it was not included in the alarm entry.
    */
+  @Nullable()
   public Date getAlarmLastMinorTime()
   {
     return lastMinorTime;
@@ -379,6 +393,7 @@ public final class AlarmEntry
    * @return  The time that the alarm last transitioned to a major severity, or
    *          {@code null} if it was not included in the alarm entry.
    */
+  @Nullable()
   public Date getAlarmLastMajorTime()
   {
     return lastMajorTime;
@@ -393,6 +408,7 @@ public final class AlarmEntry
    * @return  The time that the alarm last transitioned to a critical severity,
    *          or {@code null} if it was not included in the alarm entry.
    */
+  @Nullable()
   public Date getAlarmLastCriticalTime()
   {
     return lastCriticalTime;
@@ -408,6 +424,7 @@ public final class AlarmEntry
    *          severity, or {@code null} if it was not included in the alarm
    *          entry.
    */
+  @Nullable()
   public Date getAlarmLastIndeterminateTime()
   {
     return lastIndeterminateTime;
@@ -423,6 +440,7 @@ public final class AlarmEntry
    *          normal severity, or {@code null} if it was not included in the
    *          alarm entry.
    */
+  @Nullable()
   public Long getAlarmTotalDurationNormalMillis()
   {
     return totalDurationNormalMillis;
@@ -438,6 +456,7 @@ public final class AlarmEntry
    *          warning severity, or {@code null} if it was not included in the
    *          alarm entry.
    */
+  @Nullable()
   public Long getAlarmTotalDurationWarningMillis()
   {
     return totalDurationWarningMillis;
@@ -453,6 +472,7 @@ public final class AlarmEntry
    *          minor severity, or {@code null} if it was not included in the
    *          alarm entry.
    */
+  @Nullable()
   public Long getAlarmTotalDurationMinorMillis()
   {
     return totalDurationMinorMillis;
@@ -468,6 +488,7 @@ public final class AlarmEntry
    *          major severity, or {@code null} if it was not included in the
    *          alarm entry.
    */
+  @Nullable()
   public Long getAlarmTotalDurationMajorMillis()
   {
     return totalDurationMajorMillis;
@@ -483,6 +504,7 @@ public final class AlarmEntry
    *          critical severity, or {@code null} if it was not included in the
    *          alarm entry.
    */
+  @Nullable()
   public Long getAlarmTotalDurationCriticalMillis()
   {
     return totalDurationCriticalMillis;
@@ -498,6 +520,7 @@ public final class AlarmEntry
    *          indeterminate severity, or {@code null} if it was not included in
    *          the alarm entry.
    */
+  @Nullable()
   public Long getAlarmTotalDurationIndeterminateMillis()
   {
     return totalDurationIndeterminateMillis;
@@ -511,6 +534,7 @@ public final class AlarmEntry
    * @return  The X.733 event type for the alarm, or {@code null} if it was not
    *          included in the alarm entry.
    */
+  @Nullable()
   public Integer getAlarmEventType()
   {
     return eventType;
@@ -524,6 +548,7 @@ public final class AlarmEntry
    * @return  The X.733 probable cause for the alarm, or {@code null} if it was
    *          not included in the alarm entry.
    */
+  @Nullable()
   public Integer getAlarmProbableCause()
   {
     return probableCause;

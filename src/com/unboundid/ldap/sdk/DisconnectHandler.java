@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -87,7 +89,9 @@ public interface DisconnectHandler
    *                         disconnect was not triggered by a client-side
    *                         exception or error.
    */
-  void handleDisconnect(LDAPConnection connection, String host, int port,
-                        DisconnectType disconnectType, String message,
-                        Throwable cause);
+  void handleDisconnect(@NotNull LDAPConnection connection,
+                        @NotNull String host, int port,
+                        @NotNull DisconnectType disconnectType,
+                        @Nullable String message,
+                        @Nullable Throwable cause);
 }

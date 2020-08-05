@@ -45,6 +45,7 @@ import com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheck;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -121,7 +122,7 @@ public final class ReportBindResultLDAPConnectionPoolHealthCheck
    *                                              response controls.
    */
   public ReportBindResultLDAPConnectionPoolHealthCheck(
-              final CommandLineTool tool,
+              @NotNull final CommandLineTool tool,
               final boolean displaySuccessResultWithControls,
               final boolean displaySuccessResultWithoutControls)
   {
@@ -140,8 +141,8 @@ public final class ReportBindResultLDAPConnectionPoolHealthCheck
    */
   @Override()
   public void ensureConnectionValidAfterAuthentication(
-                   final LDAPConnection connection,
-                   final BindResult bindResult)
+                   @NotNull final LDAPConnection connection,
+                   @NotNull final BindResult bindResult)
          throws LDAPException
   {
     if (bindResult.getResultCode() == ResultCode.SUCCESS)
@@ -189,7 +190,7 @@ public final class ReportBindResultLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ReportBindResultLDAPConnectionPoolHealthCheck(" +
          "displaySuccessResultWithControls=");

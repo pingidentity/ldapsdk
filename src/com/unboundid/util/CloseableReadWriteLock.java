@@ -93,13 +93,13 @@ import static com.unboundid.util.UtilityMessages.*;
 public final class CloseableReadWriteLock
 {
   // The closeable read lock.
-  private final ReadLock readLock;
+  @NotNull private final ReadLock readLock;
 
   // The Java lock that is used behind the scenes for all locking functionality.
-  private final ReentrantReadWriteLock readWriteLock;
+  @NotNull private final ReentrantReadWriteLock readWriteLock;
 
   // The closeable write lock.
-  private final WriteLock writeLock;
+  @NotNull private final WriteLock writeLock;
 
 
 
@@ -140,6 +140,7 @@ public final class CloseableReadWriteLock
    * @return  The {@link WriteLock} instance that may be used to perform the
    *          unlock via the try-with-resources facility.
    */
+  @NotNull()
   public WriteLock lockWrite()
   {
     readWriteLock.writeLock().lock();
@@ -157,6 +158,7 @@ public final class CloseableReadWriteLock
    * @throws  InterruptedException  If the thread is interrupted while waiting
    *                                to acquire the lock.
    */
+  @NotNull()
   public WriteLock lockWriteInterruptibly()
          throws InterruptedException
   {
@@ -184,7 +186,9 @@ public final class CloseableReadWriteLock
    * @throws  TimeoutException  If the lock could not be acquired within the
    *                            specified length of time.
    */
-  public WriteLock tryLockWrite(final long waitTime, final TimeUnit timeUnit)
+  @NotNull()
+  public WriteLock tryLockWrite(final long waitTime,
+                                @NotNull final TimeUnit timeUnit)
          throws InterruptedException, TimeoutException
   {
     if (waitTime <= 0)
@@ -215,6 +219,7 @@ public final class CloseableReadWriteLock
    * @return  The {@link ReadLock} instance that may be used to perform the
    *          unlock via the try-with-resources facility.
    */
+  @NotNull()
   public ReadLock lockRead()
   {
     readWriteLock.readLock().lock();
@@ -232,6 +237,7 @@ public final class CloseableReadWriteLock
    * @throws  InterruptedException  If the thread is interrupted while waiting
    *                                to acquire the lock.
    */
+  @NotNull()
   public ReadLock lockReadInterruptibly()
          throws InterruptedException
   {
@@ -259,7 +265,9 @@ public final class CloseableReadWriteLock
    * @throws  TimeoutException  If the lock could not be acquired within the
    *                            specified length of time.
    */
-  public ReadLock tryLockRead(final long waitTime, final TimeUnit timeUnit)
+  @NotNull()
+  public ReadLock tryLockRead(final long waitTime,
+                              @NotNull final TimeUnit timeUnit)
          throws InterruptedException, TimeoutException
   {
     if (waitTime <= 0)
@@ -384,7 +392,7 @@ public final class CloseableReadWriteLock
    * @return  {@code true} if the specified thread is currently waiting to
    *          acquire either the write or read lock, or {@code false} if not.
    */
-  public boolean hasQueuedThread(final Thread thread)
+  public boolean hasQueuedThread(@NotNull final Thread thread)
   {
     return readWriteLock.hasQueuedThread(thread);
   }
@@ -411,6 +419,7 @@ public final class CloseableReadWriteLock
    * @return  A string representation of this read-write lock.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return "CloseableReadWriteLock(lock=" + readWriteLock.toString() + ')';
@@ -427,7 +436,7 @@ public final class CloseableReadWriteLock
          implements Closeable
   {
     // The associated read lock.
-    private final ReentrantReadWriteLock.ReadLock lock;
+    @NotNull private final ReentrantReadWriteLock.ReadLock lock;
 
 
 
@@ -437,7 +446,7 @@ public final class CloseableReadWriteLock
      * @param  lock  The lock that will be unlocked when the [@link #close()}
      *               method is called.  This must not be {@code null}.
      */
-    private ReadLock(final ReentrantReadWriteLock.ReadLock lock)
+    private ReadLock(@NotNull final ReentrantReadWriteLock.ReadLock lock)
     {
       this.lock = lock;
     }
@@ -478,7 +487,7 @@ public final class CloseableReadWriteLock
          implements Closeable
   {
     // The associated read lock.
-    private final ReentrantReadWriteLock.WriteLock lock;
+    @NotNull private final ReentrantReadWriteLock.WriteLock lock;
 
 
 
@@ -488,7 +497,7 @@ public final class CloseableReadWriteLock
      * @param  lock  The lock that will be unlocked when the [@link #close()}
      *               method is called.  This must not be {@code null}.
      */
-    private WriteLock(final ReentrantReadWriteLock.WriteLock lock)
+    private WriteLock(@NotNull final ReentrantReadWriteLock.WriteLock lock)
     {
       this.lock = lock;
     }

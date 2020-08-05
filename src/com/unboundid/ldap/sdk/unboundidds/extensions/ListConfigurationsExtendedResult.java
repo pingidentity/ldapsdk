@@ -52,6 +52,8 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -97,7 +99,7 @@ public final class ListConfigurationsExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.27) for the list configurations extended
    * result.
    */
-  public static final String LIST_CONFIGS_RESULT_OID =
+  @NotNull public static final String LIST_CONFIGS_RESULT_OID =
        "1.3.6.1.4.1.30221.2.6.27";
 
 
@@ -134,13 +136,13 @@ public final class ListConfigurationsExtendedResult
 
 
   // The names of the archived configuration files.
-  private final List<String> archivedFileNames;
+  @Nullable private final List<String> archivedFileNames;
 
   // The name of the baseline configuration file.
-  private final List<String> baselineFileNames;
+  @Nullable private final List<String> baselineFileNames;
 
   // The name of the active configuration file.
-  private final String activeFileName;
+  @Nullable private final String activeFileName;
 
 
 
@@ -154,7 +156,7 @@ public final class ListConfigurationsExtendedResult
    * @throws LDAPException  If the provided extended result cannot be parsed as
    *                         a valid list configurations extended result.
    */
-  public ListConfigurationsExtendedResult(final ExtendedResult result)
+  public ListConfigurationsExtendedResult(@NotNull final ExtendedResult result)
        throws LDAPException
   {
     super(result);
@@ -263,12 +265,14 @@ public final class ListConfigurationsExtendedResult
    *                            available.
    */
   public ListConfigurationsExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final String activeFileName,
-              final Collection<String> baselineFileNames,
-              final Collection<String> archivedFileNames,
-              final Control... responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final String activeFileName,
+              @Nullable final Collection<String> baselineFileNames,
+              @Nullable final Collection<String> archivedFileNames,
+              @Nullable final Control... responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          ((activeFileName == null) ? null : LIST_CONFIGS_RESULT_OID),
@@ -319,9 +323,11 @@ public final class ListConfigurationsExtendedResult
    *          value for a list configurations extended result, or {@code null}
    *          if a result with the provided information should not have a value.
    */
-  public static ASN1OctetString encodeValue(final String activeFileName,
-                     final Collection<String> baselineFileNames,
-                     final Collection<String> archivedFileNames)
+  @Nullable()
+  public static ASN1OctetString encodeValue(
+              @Nullable final String activeFileName,
+              @Nullable final Collection<String> baselineFileNames,
+              @Nullable final Collection<String> archivedFileNames)
   {
     if (activeFileName == null)
     {
@@ -379,6 +385,7 @@ public final class ListConfigurationsExtendedResult
    * @return  The name of the active configuration file the server is
    *          currently using, or {@code null} this is not available.
    */
+  @Nullable()
   public String getActiveFileName()
   {
     return activeFileName;
@@ -394,6 +401,7 @@ public final class ListConfigurationsExtendedResult
    * @return  A list containing the names of the baseline configuration files,
    *          or an empty list if this is not available.
    */
+  @Nullable()
   public List<String> getBaselineFileNames()
   {
     return baselineFileNames;
@@ -408,6 +416,7 @@ public final class ListConfigurationsExtendedResult
    * @return  A list containing the names of the archived configuration files,
    *          or an empty list if this is not available.
    */
+  @Nullable()
   public List<String> getArchivedFileNames()
   {
     return archivedFileNames;
@@ -419,6 +428,7 @@ public final class ListConfigurationsExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_LIST_CONFIGS.get();
@@ -430,7 +440,7 @@ public final class ListConfigurationsExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ListConfigurationsExtendedResult(resultCode=");
     buffer.append(getResultCode());

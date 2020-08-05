@@ -44,6 +44,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -80,9 +82,10 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    * The fully-qualified name of the Java class in the server that is used for
    * the reload HTTP connection handler certificates task.
    */
-  static final String RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK_CLASS =
-       "com.unboundid.directory.server.tasks." +
-            "ReloadHTTPConnectionHandlerCertificatesTask";
+  @NotNull static final String
+       RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK_CLASS =
+            "com.unboundid.directory.server.tasks." +
+                 "ReloadHTTPConnectionHandlerCertificatesTask";
 
 
 
@@ -90,7 +93,7 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    * The name of the object class used in reload HTTP connection handler
    * certificates task entries.
    */
-  private static final String
+  @NotNull private static final String
        OC_RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK =
             "ds-task-reload-http-connection-handler-certificates";
 
@@ -124,7 +127,8 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    *                        {@code null} then a UUID will be generated for use
    *                        as the task ID.
    */
-  public ReloadHTTPConnectionHandlerCertificatesTask(final String taskID)
+  public ReloadHTTPConnectionHandlerCertificatesTask(
+              @Nullable final String taskID)
   {
     this(taskID, null, null, null, null, null);
   }
@@ -153,11 +157,13 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    *                                 that should be notified if this task does
    *                                 not complete successfully.
    */
-  public ReloadHTTPConnectionHandlerCertificatesTask(final String taskID,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnError)
+  public ReloadHTTPConnectionHandlerCertificatesTask(
+              @Nullable final String taskID,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnError)
   {
     this(taskID, scheduledStartTime, dependencyIDs, failedDependencyAction,
          null, notifyOnCompletion, null, notifyOnError, null, null, null);
@@ -201,14 +207,18 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    *                                 alert notification if this task fails to
    *                                 complete successfully.
    */
-  public ReloadHTTPConnectionHandlerCertificatesTask(final String taskID,
-              final Date scheduledStartTime, final List<String> dependencyIDs,
-              final FailedDependencyAction failedDependencyAction,
-              final List<String> notifyOnStart,
-              final List<String> notifyOnCompletion,
-              final List<String> notifyOnSuccess,
-              final List<String> notifyOnError, final Boolean alertOnStart,
-              final Boolean alertOnSuccess, final Boolean alertOnError)
+  public ReloadHTTPConnectionHandlerCertificatesTask(
+              @Nullable final String taskID,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
   {
     super(taskID, RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK_CLASS,
          scheduledStartTime, dependencyIDs, failedDependencyAction,
@@ -228,7 +238,8 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    * @throws  TaskException  If the provided entry cannot be parsed as a reload
    *                         HTTP connection handler certificates task entry.
    */
-  public ReloadHTTPConnectionHandlerCertificatesTask(final Entry entry)
+  public ReloadHTTPConnectionHandlerCertificatesTask(
+              @NotNull final Entry entry)
          throws TaskException
   {
     super(entry);
@@ -249,7 +260,7 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    *                         certificates task.
    */
   public ReloadHTTPConnectionHandlerCertificatesTask(
-              final Map<TaskProperty,List<Object>> properties)
+              @NotNull final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
     super(RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK_CLASS, properties);
@@ -261,6 +272,7 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskName()
   {
     return INFO_TASK_NAME_RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES.get();
@@ -272,6 +284,7 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getTaskDescription()
   {
     return INFO_TASK_DESCRIPTION_RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES.
@@ -284,6 +297,7 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   protected List<String> getAdditionalObjectClasses()
   {
     return Collections.singletonList(

@@ -63,13 +63,13 @@ public final class FilterFileReader
 {
   // A counter used to keep track of the line number for information read from
   // the file.
-  private final AtomicLong lineNumberCounter;
+  @NotNull private final AtomicLong lineNumberCounter;
 
   // The reader to use to read the filters.
-  private final BufferedReader reader;
+  @NotNull private final BufferedReader reader;
 
   // The file from which the filters are being read.
-  private final File filterFile;
+  @NotNull private final File filterFile;
 
 
 
@@ -83,7 +83,7 @@ public final class FilterFileReader
    * @throws  IOException  If a problem is encountered while opening the file
    *                       for reading.
    */
-  public FilterFileReader(final String path)
+  public FilterFileReader(@NotNull final String path)
          throws IOException
   {
     this(new File(path));
@@ -100,7 +100,7 @@ public final class FilterFileReader
    * @throws  IOException  If a problem is encountered while opening the file
    *                       for reading.
    */
-  public FilterFileReader(final File filterFile)
+  public FilterFileReader(@NotNull final File filterFile)
          throws IOException
   {
     this.filterFile = filterFile;
@@ -123,6 +123,7 @@ public final class FilterFileReader
    * @throws  LDAPException  If data read from the file can't be parsed as an
    *                         LDAP search filter.
    */
+  @Nullable()
   public Filter readFilter()
          throws IOException, LDAPException
   {

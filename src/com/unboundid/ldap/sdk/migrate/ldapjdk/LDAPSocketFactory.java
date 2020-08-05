@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 import java.net.Socket;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,6 +75,7 @@ public interface LDAPSocketFactory
    * @throws  LDAPException  If a problem occurs while establishing the
    *                         connection.
    */
-  Socket makeSocket(String host, int port)
+  @NotNull()
+  Socket makeSocket(@NotNull String host, int port)
          throws LDAPException;
 }

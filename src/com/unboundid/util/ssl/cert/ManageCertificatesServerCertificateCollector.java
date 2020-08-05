@@ -57,6 +57,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.tools.ResultUtils;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -91,7 +92,7 @@ final class ManageCertificatesServerCertificateCollector
   /**
    * A pre-allocated empty certificate array.
    */
-  private static final X509Certificate[] NO_CERTIFICATES =
+  @NotNull private static final X509Certificate[] NO_CERTIFICATES =
        new X509Certificate[0];
 
 
@@ -111,13 +112,13 @@ final class ManageCertificatesServerCertificateCollector
 
   // The queue that will be used to transfer the server certificate chain to the
   // caller.
-  private final LinkedBlockingQueue<Object> queue;
+  @NotNull private final LinkedBlockingQueue<Object> queue;
 
   // The associated manage-certificates tool instance.
-  private final ManageCertificates manageCertificates;
+  @NotNull private final ManageCertificates manageCertificates;
 
   // The address of the server to which the connection will be established.
-  private final String hostname;
+  @NotNull private final String hostname;
 
 
 
@@ -147,9 +148,10 @@ final class ManageCertificatesServerCertificateCollector
    *              {@link CertException} may be placed on the queue instead.
    */
   ManageCertificatesServerCertificateCollector(
-       final ManageCertificates manageCertificates, final String hostname,
-       final int port, final boolean useLDAPStartTLS, final boolean verbose,
-       final LinkedBlockingQueue<Object> queue)
+       @NotNull final ManageCertificates manageCertificates,
+       @NotNull final String hostname, final int port,
+       final boolean useLDAPStartTLS, final boolean verbose,
+       @NotNull final LinkedBlockingQueue<Object> queue)
   {
     setName("ManageCertificatesServerCertificateCollector background thread " +
          "for " + hostname + ':' + port);
@@ -406,8 +408,8 @@ final class ManageCertificatesServerCertificateCollector
    *                                should not be trusted.
    */
   @Override()
-  public void checkClientTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkClientTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     // No implementation is required.  We only care about server certificates,
@@ -425,8 +427,8 @@ final class ManageCertificatesServerCertificateCollector
    * @param  authType  The key exchange algorithm used.
    */
   @Override()
-  public void checkServerTrusted(final X509Certificate[] chain,
-                                 final String authType)
+  public void checkServerTrusted(@NotNull final X509Certificate[] chain,
+                                 @NotNull final String authType)
          throws CertificateException
   {
     try
@@ -486,6 +488,7 @@ final class ManageCertificatesServerCertificateCollector
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
+  @NotNull()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

@@ -39,6 +39,8 @@ package com.unboundid.ldif;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -71,6 +73,7 @@ public interface LDIFReaderEntryTranslator
    *                         exception will be re-thrown to the caller of
    *                         readEntry.
    */
-  Entry translate(Entry original, long firstLineNumber)
+  @Nullable()
+  Entry translate(@NotNull Entry original, long firstLineNumber)
        throws LDIFException;
 }

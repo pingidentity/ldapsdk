@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -104,14 +106,14 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
 
   // An ASN.1 element that provides an encoded representation of this head and
   // tail size collect support data log capture window.
-  private final ASN1Element encodedWindow;
+  @NotNull private final ASN1Element encodedWindow;
 
   // The amount of data in kilobytes to capture from the beginning of each log
   // file.
-  private final Integer headSizeKB;
+  @Nullable private final Integer headSizeKB;
 
   // The amount of data in kilobytes to capture from the end of each log file.
-  private final Integer tailSizeKB;
+  @Nullable private final Integer tailSizeKB;
 
 
 
@@ -128,7 +130,8 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
    *                     server should select an appropriate value.
    */
   public HeadAndTailSizeCollectSupportDataLogCaptureWindow(
-              final Integer headSizeKB, final Integer tailSizeKB)
+              @Nullable final Integer headSizeKB,
+              @Nullable final Integer tailSizeKB)
   {
     if (headSizeKB != null)
     {
@@ -171,6 +174,7 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
    *          each log file, or {@code null} if the server should select an
    *          appropriate value.
    */
+  @Nullable()
   public Integer getHeadSizeKB()
   {
     return headSizeKB;
@@ -186,6 +190,7 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
    *          log file, or {@code null} if the server should select an
    *          appropriate value.
    */
+  @Nullable()
   public Integer getTailSizeKB()
   {
     return tailSizeKB;
@@ -206,8 +211,9 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
    *                         a valid head and tail size collect support data log
    *                         capture window object.
    */
+  @NotNull()
   static HeadAndTailSizeCollectSupportDataLogCaptureWindow decodeInternal(
-              final ASN1Element e)
+              @NotNull final ASN1Element e)
          throws LDAPException
   {
     try
@@ -268,6 +274,7 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return encodedWindow;
@@ -279,7 +286,7 @@ public final class HeadAndTailSizeCollectSupportDataLogCaptureWindow
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("HeadAndTailSizeCollectSupportDataLogCaptureWindow(");
 

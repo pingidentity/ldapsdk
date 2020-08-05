@@ -49,6 +49,8 @@ import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -69,30 +71,30 @@ public final class ServerSetBlacklistManager
 {
   // A reference to a timer that is used to periodically check the status of
   // blacklisted servers.
-  private final AtomicReference<Timer> timerReference;
+  @NotNull private final AtomicReference<Timer> timerReference;
 
   // The bind request to use to authenticate newly created connections.
-  private final BindRequest bindRequest;
+  @Nullable private final BindRequest bindRequest;
 
   // The connection options to use when creating connections.
-  private final LDAPConnectionOptions connectionOptions;
+  @NotNull private final LDAPConnectionOptions connectionOptions;
 
   // The length of time, in milliseconds, between checks to determine whether
   // a server should be removed from the blacklist.
   private final long checkIntervalMillis;
 
   // A map of currently blacklisted servers.
-  private final Map<ObjectPair<String,Integer>,
+  @NotNull private final Map<ObjectPair<String,Integer>,
        LDAPConnectionPoolHealthCheck> blacklistedServers;
 
   // The post-connect processor to use for newly created connections.
-  private final PostConnectProcessor postConnectProcessor;
+  @Nullable private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use when creating connections.
-  private final SocketFactory socketFactory;
+  @NotNull private final SocketFactory socketFactory;
 
   // A string representation of the associated server set.
-  private final String serverSetString;
+  @NotNull private final String serverSetString;
 
 
 
@@ -121,12 +123,12 @@ public final class ServerSetBlacklistManager
    *                               checks to determine whether a server should
    *                               be removed from the blacklist.
    */
-  ServerSetBlacklistManager(final ServerSet serverSet,
-                            final SocketFactory socketFactory,
-                            final LDAPConnectionOptions connectionOptions,
-                            final BindRequest bindRequest,
-                            final PostConnectProcessor postConnectProcessor,
-                            final long checkIntervalMillis)
+  ServerSetBlacklistManager(@NotNull final ServerSet serverSet,
+       @Nullable final SocketFactory socketFactory,
+       @Nullable final LDAPConnectionOptions connectionOptions,
+       @Nullable final BindRequest bindRequest,
+       @Nullable final PostConnectProcessor postConnectProcessor,
+       final long checkIntervalMillis)
   {
     Validator.ensureTrue((checkIntervalMillis > 0L),
          "ServerSetBlacklistManager.checkIntervalMillis must be greater " +
@@ -209,6 +211,7 @@ public final class ServerSetBlacklistManager
    *
    * @return  A list of the servers currently on the blacklist.
    */
+  @NotNull()
   public Set<ObjectPair<String,Integer>> getBlacklistedServers()
   {
     if (! blacklistedServers.isEmpty())
@@ -233,7 +236,7 @@ public final class ServerSetBlacklistManager
    * @return  {@code true} if the server is on the blacklist, or {@code false}
    *          if not.
    */
-  public boolean isBlacklisted(final String host, final int port)
+  public boolean isBlacklisted(@NotNull final String host, final int port)
   {
     if (blacklistedServers.isEmpty())
     {
@@ -258,7 +261,8 @@ public final class ServerSetBlacklistManager
    * @return  {@code true} if the server is on the blacklist, or {@code false}
    *          if not.
    */
-  public boolean isBlacklisted(final ObjectPair<String,Integer> hostPort)
+  public boolean isBlacklisted(
+                      @NotNull final ObjectPair<String,Integer> hostPort)
   {
     if (blacklistedServers.isEmpty())
     {
@@ -284,8 +288,8 @@ public final class ServerSetBlacklistManager
    *                      the server can be removed from the blacklist.  It may
    *                      be {@code null} if no health checking is required.
    */
-  void addToBlacklist(final String host, final int port,
-                      final LDAPConnectionPoolHealthCheck healthCheck)
+  void addToBlacklist(@NotNull final String host, final int port,
+                      @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
   {
     addToBlacklist(new ObjectPair<>(host, port), healthCheck);
   }
@@ -302,8 +306,8 @@ public final class ServerSetBlacklistManager
    *                      the server can be removed from the blacklist.  It may
    *                      be {@code null} if no health checking is required.
    */
-  void addToBlacklist(final ObjectPair<String,Integer> hostPort,
-                      final LDAPConnectionPoolHealthCheck healthCheck)
+  void addToBlacklist(@NotNull final ObjectPair<String,Integer> hostPort,
+                      @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
   {
     if (healthCheck == null)
     {
@@ -326,7 +330,7 @@ public final class ServerSetBlacklistManager
    * @param  port  The port of the server to be removed.  It must be between 1
    *               and 65535, inclusive.
    */
-  void removeFromBlacklist(final String host, final int port)
+  void removeFromBlacklist(@NotNull final String host, final int port)
   {
     removeFromBlacklist(new ObjectPair<>(host, port));
   }
@@ -339,7 +343,7 @@ public final class ServerSetBlacklistManager
    * @param  hostPort  An {@code ObjectPair} containing the address and port of
    *                   the server to be removed.  It must not be {@code null}.
    */
-  void removeFromBlacklist(final ObjectPair<String,Integer> hostPort)
+  void removeFromBlacklist(@NotNull final ObjectPair<String,Integer> hostPort)
   {
     blacklistedServers.remove(hostPort);
     if (! blacklistedServers.isEmpty())
@@ -440,6 +444,7 @@ public final class ServerSetBlacklistManager
    * @return  A string representation of this server set blacklist manager.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -455,7 +460,7 @@ public final class ServerSetBlacklistManager
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ServerSetBlacklistManager(serverSet='");
     buffer.append(serverSetString);

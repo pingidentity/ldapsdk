@@ -42,6 +42,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -126,13 +128,13 @@ public final class DNEntrySource
 {
   // The iterator to use to access the DNs.  It will either be across DN or
   // String objects.
-  private final Iterator<?> dnIterator;
+  @NotNull private final Iterator<?> dnIterator;
 
   // The connection to use to communicate with the directory server.
-  private final LDAPInterface connection;
+  @NotNull private final LDAPInterface connection;
 
   // The set of attributes to include in entries that are returned.
-  private final String[] attributes;
+  @NotNull private final String[] attributes;
 
 
 
@@ -147,8 +149,9 @@ public final class DNEntrySource
    *                     returned.  If this is empty or {@code null}, then all
    *                     user attributes will be requested.
    */
-  public DNEntrySource(final LDAPInterface connection, final DN[] dns,
-                       final String... attributes)
+  public DNEntrySource(@NotNull final LDAPInterface connection,
+                       @NotNull final DN[] dns,
+                       @Nullable final String... attributes)
   {
     Validator.ensureNotNull(connection, dns);
 
@@ -178,8 +181,9 @@ public final class DNEntrySource
    *                     returned.  If this is empty or {@code null}, then all
    *                     user attributes will be requested.
    */
-  public DNEntrySource(final LDAPInterface connection, final String[] dns,
-                       final String... attributes)
+  public DNEntrySource(@NotNull final LDAPInterface connection,
+                       @NotNull final String[] dns,
+                       @Nullable final String... attributes)
   {
     this(connection, Arrays.asList(dns), attributes);
   }
@@ -197,8 +201,9 @@ public final class DNEntrySource
    *                     returned.  If this is empty or {@code null}, then all
    *                     user attributes will be requested.
    */
-  public DNEntrySource(final LDAPInterface connection,
-                       final Collection<String> dns, final String... attributes)
+  public DNEntrySource(@NotNull final LDAPInterface connection,
+                       @NotNull final Collection<String> dns,
+                       @Nullable final String... attributes)
   {
     Validator.ensureNotNull(connection, dns);
 
@@ -221,6 +226,7 @@ public final class DNEntrySource
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public Entry nextEntry()
          throws EntrySourceException
   {

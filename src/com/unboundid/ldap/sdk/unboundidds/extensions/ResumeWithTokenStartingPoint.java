@@ -41,6 +41,7 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -84,7 +85,7 @@ public final class ResumeWithTokenStartingPoint
 
 
   // The content of the token to use when resuming a batch.
-  private final ASN1OctetString resumeToken;
+  @NotNull private final ASN1OctetString resumeToken;
 
 
 
@@ -96,7 +97,8 @@ public final class ResumeWithTokenStartingPoint
    *                      at the point where it previously ended.  It must not
    *                      be {@code null}.
    */
-  public ResumeWithTokenStartingPoint(final ASN1OctetString resumeToken)
+  public ResumeWithTokenStartingPoint(
+              @NotNull final ASN1OctetString resumeToken)
   {
     Validator.ensureNotNull(resumeToken);
 
@@ -112,6 +114,7 @@ public final class ResumeWithTokenStartingPoint
    * @return  The token which may be used to resume changelog access at the
    *          point where it previously ended.
    */
+  @NotNull()
   public ASN1OctetString getResumeToken()
   {
     return resumeToken;
@@ -123,6 +126,7 @@ public final class ResumeWithTokenStartingPoint
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encode()
   {
     return new ASN1OctetString(TYPE, resumeToken.getValue());
@@ -134,7 +138,7 @@ public final class ResumeWithTokenStartingPoint
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ResumeWithTokenStartingPoint(token='");
     Base64.encode(resumeToken.getValue(), buffer);

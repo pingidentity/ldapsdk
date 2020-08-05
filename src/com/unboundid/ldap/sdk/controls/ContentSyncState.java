@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 
 
@@ -122,6 +124,7 @@ public enum ContentSyncState
    *          value, or {@code null} if the given value does not correspond with
    *          any defined state.
    */
+  @Nullable()
   public static ContentSyncState valueOf(final int intValue)
   {
     if (intValue == PRESENT.intValue())
@@ -157,7 +160,8 @@ public enum ContentSyncState
    * @return  The requested content synchronization state, or {@code null} if no
    *          such state is defined.
    */
-  public static ContentSyncState forName(final String name)
+  @Nullable()
+  public static ContentSyncState forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

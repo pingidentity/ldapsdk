@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,10 +70,10 @@ final class InterceptedSearchOperation
                  InMemoryInterceptedSearchResult
 {
   // The search request for this operation.
-  private SearchRequest searchRequest;
+  @NotNull private SearchRequest searchRequest;
 
   // The search result for this operation.
-  private LDAPResult searchResult;
+  @Nullable private LDAPResult searchResult;
 
 
 
@@ -88,9 +90,9 @@ final class InterceptedSearchOperation
    *                           client.
    */
   InterceptedSearchOperation(
-       final LDAPListenerClientConnection clientConnection, final int messageID,
-       final SearchRequestProtocolOp requestOp,
-       final Control... requestControls)
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID, @NotNull final SearchRequestProtocolOp requestOp,
+       @Nullable final Control... requestControls)
   {
     super(clientConnection, messageID);
 
@@ -104,6 +106,7 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReadOnlySearchRequest getRequest()
   {
     return searchRequest;
@@ -115,7 +118,7 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setRequest(final SearchRequest searchRequest)
+  public void setRequest(@NotNull final SearchRequest searchRequest)
   {
     this.searchRequest = searchRequest;
   }
@@ -126,6 +129,7 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public LDAPResult getResult()
   {
     return searchResult;
@@ -137,7 +141,7 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setResult(final LDAPResult searchResult)
+  public void setResult(@NotNull final LDAPResult searchResult)
   {
     this.searchResult = searchResult;
   }
@@ -148,7 +152,7 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void sendSearchEntry(final Entry entry)
+  public void sendSearchEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     final Control[] controls;
@@ -171,7 +175,8 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void sendSearchReference(final SearchResultReference reference)
+  public void sendSearchReference(
+                   @NotNull final SearchResultReference reference)
          throws LDAPException
   {
     getClientConnection().sendSearchResultReference(getMessageID(),
@@ -185,7 +190,7 @@ final class InterceptedSearchOperation
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedSearchOperation(");
     appendCommonToString(buffer);

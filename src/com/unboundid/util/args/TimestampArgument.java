@@ -47,6 +47,8 @@ import java.util.List;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -79,13 +81,13 @@ public final class TimestampArgument
 
 
   // The argument value validators that have been registered for this argument.
-  private final List<ArgumentValueValidator> validators;
+  @NotNull private final List<ArgumentValueValidator> validators;
 
   // The list of default values for this argument.
-  private final List<Date> defaultValues;
+  @Nullable private final List<Date> defaultValues;
 
   // The set of values assigned to this argument.
-  private final List<ObjectPair<Date,String>> values;
+  @NotNull private final List<ObjectPair<Date,String>> values;
 
 
 
@@ -106,9 +108,9 @@ public final class TimestampArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public TimestampArgument(final Character shortIdentifier,
-                           final String longIdentifier,
-                           final String description)
+  public TimestampArgument(@Nullable final Character shortIdentifier,
+                           @Nullable final String longIdentifier,
+                           @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, false, 1, null, description);
@@ -142,11 +144,11 @@ public final class TimestampArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public TimestampArgument(final Character shortIdentifier,
-                           final String longIdentifier,
+  public TimestampArgument(@Nullable final Character shortIdentifier,
+                           @Nullable final String longIdentifier,
                            final boolean isRequired, final int maxOccurrences,
-                           final String valuePlaceholder,
-                           final String description)
+                           @Nullable final String valuePlaceholder,
+                           @NotNull final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -182,11 +184,12 @@ public final class TimestampArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public TimestampArgument(final Character shortIdentifier,
-                           final String longIdentifier,
+  public TimestampArgument(@Nullable final Character shortIdentifier,
+                           @Nullable final String longIdentifier,
                            final boolean isRequired, final int maxOccurrences,
-                           final String valuePlaceholder,
-                           final String description, final Date defaultValue)
+                           @Nullable final String valuePlaceholder,
+                           @NotNull final String description,
+                           @Nullable final Date defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
@@ -225,12 +228,12 @@ public final class TimestampArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public TimestampArgument(final Character shortIdentifier,
-                           final String longIdentifier,
+  public TimestampArgument(@Nullable final Character shortIdentifier,
+                           @Nullable final String longIdentifier,
                            final boolean isRequired, final int maxOccurrences,
-                           final String valuePlaceholder,
-                           final String description,
-                           final List<Date> defaultValues)
+                           @Nullable final String valuePlaceholder,
+                           @NotNull final String description,
+                           @Nullable final List<Date> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
@@ -260,7 +263,7 @@ public final class TimestampArgument
    *
    * @param  source  The source argument to use for this argument.
    */
-  private TimestampArgument(final TimestampArgument source)
+  private TimestampArgument(@NotNull final TimestampArgument source)
   {
     super(source);
 
@@ -278,6 +281,7 @@ public final class TimestampArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
+  @Nullable()
   public List<Date> getDefaultValues()
   {
     return defaultValues;
@@ -293,7 +297,7 @@ public final class TimestampArgument
    * @param  validator  The argument value validator to be invoked.  It must not
    *                    be {@code null}.
    */
-  public void addValueValidator(final ArgumentValueValidator validator)
+  public void addValueValidator(@NotNull final ArgumentValueValidator validator)
   {
     validators.add(validator);
   }
@@ -304,7 +308,7 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addValue(final String valueString)
+  protected void addValue(@NotNull final String valueString)
             throws ArgumentException
   {
     final Date d;
@@ -350,7 +354,7 @@ public final class TimestampArgument
    * @throws  ParseException  If the provided string cannot be parsed as a
    *                          timestamp.
    */
-  public static Date parseTimestamp(final String s)
+  public static Date parseTimestamp(@NotNull final String s)
          throws ParseException
   {
     // First, try to parse the value as a generalized time.
@@ -401,6 +405,7 @@ public final class TimestampArgument
    *          provided, or {@code null} if there is no value and no default
    *          value.
    */
+  @Nullable()
   public Date getValue()
   {
     if (values.isEmpty())
@@ -427,6 +432,7 @@ public final class TimestampArgument
    *
    * @return  The set of values for this argument.
    */
+  @NotNull()
   public List<Date> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
@@ -454,6 +460,7 @@ public final class TimestampArgument
    *          string representation of the default value if none was provided,
    *          or {@code null} if there is no value and no default value.
    */
+  @Nullable()
   public String getStringValue()
   {
     if (! values.isEmpty())
@@ -475,6 +482,7 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
     if (! values.isEmpty())
@@ -520,6 +528,7 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDataTypeName()
   {
     return INFO_TIMESTAMP_TYPE_NAME.get();
@@ -531,6 +540,7 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getValueConstraints()
   {
     return INFO_TIMESTAMP_CONSTRAINTS.get();
@@ -554,6 +564,7 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public TimestampArgument getCleanCopy()
   {
     return new TimestampArgument(this);
@@ -565,21 +576,18 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
-  protected void addToCommandLine(final List<String> argStrings)
+  protected void addToCommandLine(@NotNull final List<String> argStrings)
   {
-    if (values != null)
+    for (final ObjectPair<Date,String> p : values)
     {
-      for (final ObjectPair<Date,String> p : values)
+      argStrings.add(getIdentifierString());
+      if (isSensitive())
       {
-        argStrings.add(getIdentifierString());
-        if (isSensitive())
-        {
-          argStrings.add("***REDACTED***");
-        }
-        else
-        {
-          argStrings.add(p.getSecond());
-        }
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(p.getSecond());
       }
     }
   }
@@ -590,7 +598,7 @@ public final class TimestampArgument
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("TimestampArgument(");
     appendBasicToStringInfo(buffer);

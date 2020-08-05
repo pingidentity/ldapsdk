@@ -42,6 +42,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1BitString;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -143,7 +145,7 @@ public enum CRLDistributionPointRevocationReason
    * @param  bitPosition  The bit string index of the bit that indicates whether
    *                      this reason applies.
    */
-  CRLDistributionPointRevocationReason(final String name,
+  CRLDistributionPointRevocationReason(@NotNull final String name,
                                        final int bitPosition)
   {
     this.name = name;
@@ -159,6 +161,7 @@ public enum CRLDistributionPointRevocationReason
    * @return  A human-readable name for this CRL distribution point revocation
    *          reason.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -189,8 +192,9 @@ public enum CRLDistributionPointRevocationReason
    * @return  A set that contains all of the revocation reasons that are set in
    *          the provided bit string.
    */
+  @NotNull()
   static Set<CRLDistributionPointRevocationReason>
-              getReasonSet(final ASN1BitString bitString)
+              getReasonSet(@NotNull final ASN1BitString bitString)
   {
     final boolean[] bits = bitString.getBits();
 
@@ -217,8 +221,9 @@ public enum CRLDistributionPointRevocationReason
    *
    * @return  The bit string that represents the encoded set of reasons.
    */
+  @NotNull()
   static ASN1BitString toBitString(final byte type,
-              final Set<CRLDistributionPointRevocationReason> reasons)
+              @NotNull final Set<CRLDistributionPointRevocationReason> reasons)
   {
     final CRLDistributionPointRevocationReason[] values = values();
     final boolean[] bits = new boolean[values.length];
@@ -242,7 +247,9 @@ public enum CRLDistributionPointRevocationReason
    * @return  The requested CRL distribution point revocation reason, or
    *          {@code null} if no such reason is defined.
    */
-  public static CRLDistributionPointRevocationReason forName(final String name)
+  @Nullable()
+  public static CRLDistributionPointRevocationReason
+                     forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

@@ -39,6 +39,8 @@ package com.unboundid.asn1;
 
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -65,7 +67,7 @@ public final class ASN1Exception
    *
    * @param  message  A message explaining the problem that occurred.
    */
-  public ASN1Exception(final String message)
+  public ASN1Exception(@NotNull final String message)
   {
     super(message);
   }
@@ -78,7 +80,8 @@ public final class ASN1Exception
    * @param  message  A message explaining the problem that occurred.
    * @param  cause    The underlying cause for this exception.
    */
-  public ASN1Exception(final String message, final Throwable cause)
+  public ASN1Exception(@NotNull final String message,
+                       @Nullable final Throwable cause)
   {
     super(message, cause);
   }

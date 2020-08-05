@@ -69,6 +69,8 @@ import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.RateAdjustor;
@@ -216,107 +218,107 @@ public final class SearchRate
 
 
   // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
+  @NotNull private final AtomicBoolean stopRequested;
 
   // The number of searchrate threads that are currently running.
-  private final AtomicInteger runningThreads;
+  @NotNull private final AtomicInteger runningThreads;
 
   // The argument used to indicate whether to operate in asynchronous mode.
-  private BooleanArgument asynchronousMode;
+  @Nullable private BooleanArgument asynchronousMode;
 
   // The argument used to indicate whether to generate output in CSV format.
-  private BooleanArgument csvFormat;
+  @Nullable private BooleanArgument csvFormat;
 
   // The argument used to indicate whether to suppress information about error
   // result codes.
-  private BooleanArgument suppressErrors;
+  @Nullable private BooleanArgument suppressErrors;
 
   // The argument used to indicate whether to set the typesOnly flag to true in
   // search requests.
-  private BooleanArgument typesOnly;
+  @Nullable private BooleanArgument typesOnly;
 
   // The argument used to indicate that a generic control should be included in
   // the request.
-  private ControlArgument control;
+  @Nullable private ControlArgument control;
 
   // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
+  @Nullable private FileArgument sampleRateFile;
 
   // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
+  @Nullable private FileArgument variableRateData;
 
   // Indicates that search requests should include the assertion request control
   // with the specified filter.
-  private FilterArgument assertionFilter;
+  @Nullable private FilterArgument assertionFilter;
 
   // The argument used to specify the collection interval.
-  private IntegerArgument collectionInterval;
+  @Nullable private IntegerArgument collectionInterval;
 
   // The argument used to specify the number of search iterations on a
   // connection before it is closed and re-established.
-  private IntegerArgument iterationsBeforeReconnect;
+  @Nullable private IntegerArgument iterationsBeforeReconnect;
 
   // The argument used to specify the maximum number of outstanding asynchronous
   // requests.
-  private IntegerArgument maxOutstandingRequests;
+  @Nullable private IntegerArgument maxOutstandingRequests;
 
   // The argument used to specify the number of intervals.
-  private IntegerArgument numIntervals;
+  @Nullable private IntegerArgument numIntervals;
 
   // The argument used to specify the number of threads.
-  private IntegerArgument numThreads;
+  @Nullable private IntegerArgument numThreads;
 
   // The argument used to specify the seed to use for the random number
   // generator.
-  private IntegerArgument randomSeed;
+  @Nullable private IntegerArgument randomSeed;
 
   // The target rate of searches per second.
-  private IntegerArgument ratePerSecond;
+  @Nullable private IntegerArgument ratePerSecond;
 
   // The argument used to indicate that the search should use the simple paged
   // results control with the specified page size.
-  private IntegerArgument simplePageSize;
+  @Nullable private IntegerArgument simplePageSize;
 
   // The argument used to specify the search request size limit.
-  private IntegerArgument sizeLimit;
+  @Nullable private IntegerArgument sizeLimit;
 
   // The argument used to specify the search request time limit, in seconds.
-  private IntegerArgument timeLimitSeconds;
+  @Nullable private IntegerArgument timeLimitSeconds;
 
   // The number of warm-up intervals to perform.
-  private IntegerArgument warmUpIntervals;
+  @Nullable private IntegerArgument warmUpIntervals;
 
   // The argument used to specify the scope for the searches.
-  private ScopeArgument scope;
+  @Nullable private ScopeArgument scope;
 
   // The argument used to specify the attributes to return.
-  private StringArgument attributes;
+  @Nullable private StringArgument attributes;
 
   // The argument used to specify the base DNs for the searches.
-  private StringArgument baseDN;
+  @Nullable private StringArgument baseDN;
 
   // The argument used to specify the alias dereferencing policy for the search
   // requests.
-  private StringArgument dereferencePolicy;
+  @Nullable private StringArgument dereferencePolicy;
 
   // The argument used to specify the filters for the searches.
-  private StringArgument filter;
+  @Nullable private StringArgument filter;
 
   // The argument used to specify the LDAP URLs for the searches.
-  private StringArgument ldapURL;
+  @Nullable private StringArgument ldapURL;
 
   // The argument used to specify the proxied authorization identity.
-  private StringArgument proxyAs;
+  @Nullable private StringArgument proxyAs;
 
   // The argument used to request that the server sort the results with the
   // specified order.
-  private StringArgument sortOrder;
+  @Nullable private StringArgument sortOrder;
 
   // The argument used to specify the timestamp format.
-  private StringArgument timestampFormat;
+  @Nullable private StringArgument timestampFormat;
 
   // A wakeable sleeper that will be used to sleep between reporting intervals.
-  private final WakeableSleeper sleeper;
+  @NotNull private final WakeableSleeper sleeper;
 
 
 
@@ -326,7 +328,7 @@ public final class SearchRate
    *
    * @param  args  The command line arguments provided to this program.
    */
-  public static void main(final String[] args)
+  public static void main(@NotNull final String[] args)
   {
     final ResultCode resultCode = main(args, System.out, System.err);
     if (resultCode != ResultCode.SUCCESS)
@@ -351,9 +353,9 @@ public final class SearchRate
    *
    * @return  A result code indicating whether the processing was successful.
    */
-  public static ResultCode main(final String[] args,
-                                final OutputStream outStream,
-                                final OutputStream errStream)
+  public static ResultCode main(@NotNull final String[] args,
+                                @Nullable final OutputStream outStream,
+                                @Nullable final OutputStream errStream)
   {
     final SearchRate searchRate = new SearchRate(outStream, errStream);
     return searchRate.runTool(args);
@@ -371,7 +373,8 @@ public final class SearchRate
    *                    written.  It may be {@code null} if error messages
    *                    should be suppressed.
    */
-  public SearchRate(final OutputStream outStream, final OutputStream errStream)
+  public SearchRate(@Nullable final OutputStream outStream,
+                    @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -388,6 +391,7 @@ public final class SearchRate
    * @return  The name for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "searchrate";
@@ -401,6 +405,7 @@ public final class SearchRate
    * @return  The description for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return "Perform repeated searches against an " +
@@ -415,6 +420,7 @@ public final class SearchRate
    * @return  The version string for this tool.
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -539,7 +545,7 @@ public final class SearchRate
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
-  public void addNonLDAPArguments(final ArgumentParser parser)
+  public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     String description = "The base DN to use for the searches.  It may be a " +
@@ -878,6 +884,7 @@ public final class SearchRate
    *          for use with this tool.
    */
   @Override()
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -895,6 +902,7 @@ public final class SearchRate
    * @return  The result code for the processing that was performed.
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // If the sample rate file argument was specified, then generate the sample
@@ -1515,6 +1523,7 @@ public final class SearchRate
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =

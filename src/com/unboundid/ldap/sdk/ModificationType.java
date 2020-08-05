@@ -41,6 +41,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -100,7 +102,7 @@ public final class ModificationType
    * least one value must be provided with the {@code ADD} modification type,
    * and none of those values will be allowed to exist in the entry.
    */
-  public static final ModificationType ADD =
+  @NotNull public static final ModificationType ADD =
        new ModificationType("ADD", ADD_INT_VALUE);
 
 
@@ -120,7 +122,7 @@ public final class ModificationType
    * values are provided, then all of those values must exist in the target
    * entry.
    */
-  public static final ModificationType DELETE =
+  @NotNull public static final ModificationType DELETE =
        new ModificationType("DELETE", DELETE_INT_VALUE);
 
 
@@ -141,7 +143,7 @@ public final class ModificationType
    * values if the attribute already exists, or a new attribute will be added
    * with those values if there was previously no such attribute in the entry.
    */
-  public static final ModificationType REPLACE =
+  @NotNull public static final ModificationType REPLACE =
        new ModificationType("REPLACE", REPLACE_INT_VALUE);
 
 
@@ -161,7 +163,7 @@ public final class ModificationType
    * which specifies the amount by which the existing value is to be incremented
    * (or decremented, if the provided value is negative).
    */
-  public static final ModificationType INCREMENT =
+  @NotNull public static final ModificationType INCREMENT =
        new ModificationType("INCREMENT", INCREMENT_INT_VALUE);
 
 
@@ -170,8 +172,8 @@ public final class ModificationType
    * The set of result code objects created with undefined int result code
    * values.
    */
-  private static final HashMap<Integer,ModificationType> UNDEFINED_MOD_TYPES =
-       new HashMap<>(StaticUtils.computeMapCapacity(10));
+  @NotNull private static final HashMap<Integer,ModificationType>
+       UNDEFINED_MOD_TYPES = new HashMap<>(StaticUtils.computeMapCapacity(10));
 
 
 
@@ -186,7 +188,7 @@ public final class ModificationType
   private final int intValue;
 
   // The name to use for this modification type.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -210,7 +212,7 @@ public final class ModificationType
    * @param  name      The name to use for this modification type.
    * @param  intValue  The integer value to use for this modification type.
    */
-  private ModificationType(final String name, final int intValue)
+  private ModificationType(@NotNull final String name, final int intValue)
   {
     this.name     = name;
     this.intValue = intValue;
@@ -223,6 +225,7 @@ public final class ModificationType
    *
    * @return  The name for this modification type.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -252,6 +255,7 @@ public final class ModificationType
    *          modification type if the provided value does not match any of the
    *          predefined modification types.
    */
+  @NotNull()
   public static ModificationType valueOf(final int intValue)
   {
     switch (intValue)
@@ -292,6 +296,7 @@ public final class ModificationType
    *          {@code null} if the provided integer value does not represent a
    *          defined modification type.
    */
+  @Nullable()
   public static ModificationType definedValueOf(final int intValue)
   {
     switch (intValue)
@@ -316,6 +321,7 @@ public final class ModificationType
    *
    * @return  An array of all modification types defined in the LDAP SDK.
    */
+  @NotNull()
   public static ModificationType[] values()
   {
     return new ModificationType[]
@@ -351,7 +357,7 @@ public final class ModificationType
    *          equal to this modification type, or {@code false} if not.
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -379,6 +385,7 @@ public final class ModificationType
    * @return  A string representation of this modification type.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

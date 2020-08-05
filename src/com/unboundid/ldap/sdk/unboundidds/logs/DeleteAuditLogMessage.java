@@ -51,6 +51,8 @@ import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -85,29 +87,29 @@ public final class DeleteAuditLogMessage
 
 
   // Indicates whether the entry was deleted as part of a subtree delete.
-  private final Boolean deletedAsPartOfSubtreeDelete;
+  @Nullable private final Boolean deletedAsPartOfSubtreeDelete;
 
   // Indicates whether the delete operation represents a subtree delete.
-  private final Boolean isSubtreeDelete;
+  @Nullable private final Boolean isSubtreeDelete;
 
   // Indicates whether the delete operation represents a soft delete.
-  private final Boolean isSoftDelete;
+  @Nullable private final Boolean isSoftDelete;
 
   // Indicates whether the delete operation targets a soft-deleted entry.
-  private final Boolean isSoftDeletedEntry;
+  @Nullable private final Boolean isSoftDeletedEntry;
 
   // An LDIF change record that encapsulates the change represented by this
   // delete audit log message.
-  private final LDIFDeleteChangeRecord deleteChangeRecord;
+  @NotNull private final LDIFDeleteChangeRecord deleteChangeRecord;
 
   // A list of the virtual attributes from the entry that was deleted.
-  private final List<Attribute> deletedEntryVirtualAttributes;
+  @Nullable private final List<Attribute> deletedEntryVirtualAttributes;
 
   // A read-only copy of the entry that was deleted.
-  private final ReadOnlyEntry deletedEntry;
+  @Nullable private final ReadOnlyEntry deletedEntry;
 
   // The resulting DN of the soft-deleted entry.
-  private final String softDeletedEntryDN;
+  @Nullable private final String softDeletedEntryDN;
 
 
 
@@ -125,7 +127,7 @@ public final class DeleteAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  public DeleteAuditLogMessage(final String... logMessageLines)
+  public DeleteAuditLogMessage(@NotNull final String... logMessageLines)
          throws AuditLogException
   {
     this(StaticUtils.toList(logMessageLines), logMessageLines);
@@ -147,7 +149,7 @@ public final class DeleteAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  public DeleteAuditLogMessage(final List<String> logMessageLines)
+  public DeleteAuditLogMessage(@NotNull final List<String> logMessageLines)
          throws AuditLogException
   {
     this(logMessageLines, StaticUtils.toArray(logMessageLines, String.class));
@@ -166,8 +168,8 @@ public final class DeleteAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  private DeleteAuditLogMessage(final List<String> logMessageLineList,
-                                final String[] logMessageLineArray)
+  private DeleteAuditLogMessage(@NotNull final List<String> logMessageLineList,
+                                @NotNull final String[] logMessageLineArray)
           throws AuditLogException
   {
     super(logMessageLineList);
@@ -240,9 +242,9 @@ public final class DeleteAuditLogMessage
    * @throws  AuditLogException  If a problem is encountered while processing
    *                             the provided list of log message lines.
    */
-  DeleteAuditLogMessage(final List<String> logMessageLines,
-                        final LDIFDeleteChangeRecord deleteChangeRecord)
-         throws AuditLogException
+  DeleteAuditLogMessage(@NotNull final List<String> logMessageLines,
+       @NotNull final LDIFDeleteChangeRecord deleteChangeRecord)
+       throws AuditLogException
   {
     super(logMessageLines);
 
@@ -280,6 +282,7 @@ public final class DeleteAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getDN()
   {
     return deleteChangeRecord.getDN();
@@ -297,6 +300,7 @@ public final class DeleteAuditLogMessage
    *          operation was not a subtree delete, or {@code null} if this is not
    *          available.
    */
+  @Nullable()
   public Boolean getIsSubtreeDelete()
   {
     return isSubtreeDelete;
@@ -314,6 +318,7 @@ public final class DeleteAuditLogMessage
    *          that the entry was not deleted as part of a subtree delete, or
    *          {@code null} if this is not available.
    */
+  @Nullable()
   public Boolean getDeletedAsPartOfSubtreeDelete()
   {
     return deletedAsPartOfSubtreeDelete;
@@ -329,6 +334,7 @@ public final class DeleteAuditLogMessage
    *          delete, {@code Boolean.FALSE} if it is known that the operation
    *          was not a soft delete, or {@code null} if this is not available.
    */
+  @Nullable()
   public Boolean getIsSoftDelete()
   {
     return isSoftDelete;
@@ -342,6 +348,7 @@ public final class DeleteAuditLogMessage
    * @return  The DN of the entry after it was soft deleted, or {@code null} if
    *          this is not available.
    */
+  @Nullable()
   public String getSoftDeletedEntryDN()
   {
     return softDeletedEntryDN;
@@ -359,6 +366,7 @@ public final class DeleteAuditLogMessage
    *          operation did not target a soft-deleted entry, or {@code null} if
    *          this is not available.
    */
+  @Nullable()
   public Boolean getIsSoftDeletedEntry()
   {
     return isSoftDeletedEntry;
@@ -372,6 +380,7 @@ public final class DeleteAuditLogMessage
    * @return  A read-only copy of the entry that was deleted, or {@code null} if
    *          it is not available.
    */
+  @Nullable()
   public ReadOnlyEntry getDeletedEntry()
   {
     return deletedEntry;
@@ -386,6 +395,7 @@ public final class DeleteAuditLogMessage
    * @return  A list of the virtual attributes from the entry that was deleted,
    *          or {@code null} if it is not available.
    */
+  @Nullable()
   public List<Attribute> getDeletedEntryVirtualAttributes()
   {
     return deletedEntryVirtualAttributes;
@@ -397,6 +407,7 @@ public final class DeleteAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ChangeType getChangeType()
   {
     return ChangeType.DELETE;
@@ -408,6 +419,7 @@ public final class DeleteAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDIFDeleteChangeRecord getChangeRecord()
   {
     return deleteChangeRecord;
@@ -457,6 +469,7 @@ public final class DeleteAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<LDIFChangeRecord> getRevertChangeRecords()
          throws AuditLogException
   {
@@ -514,7 +527,7 @@ public final class DeleteAuditLogMessage
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append(getUncommentedHeaderLine());
     buffer.append("; changeType=delete; dn=\"");

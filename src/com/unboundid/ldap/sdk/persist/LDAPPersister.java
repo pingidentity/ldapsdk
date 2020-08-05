@@ -74,6 +74,8 @@ import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -110,20 +112,20 @@ public final class LDAPPersister<T>
   /**
    * An empty array of controls that will be used if none are specified.
    */
-  private static final Control[] NO_CONTROLS = new Control[0];
+  @NotNull private static final Control[] NO_CONTROLS = new Control[0];
 
 
 
   /**
    * The map of instances created so far.
    */
-  private static final ConcurrentHashMap<Class<?>,LDAPPersister<?>> INSTANCES =
-       new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
+  @NotNull private static final ConcurrentHashMap<Class<?>,LDAPPersister<?>>
+       INSTANCES = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
 
 
 
   // The LDAP object handler that will be used for this class.
-  private final LDAPObjectHandler<T> handler;
+  @NotNull private final LDAPObjectHandler<T> handler;
 
 
 
@@ -138,7 +140,7 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If the provided class is not suitable for
    *                                persisting in an LDAP directory server.
    */
-  private LDAPPersister(final Class<T> type)
+  private LDAPPersister(@NotNull final Class<T> type)
           throws LDAPPersistException
   {
     handler = new LDAPObjectHandler<>(type);
@@ -162,7 +164,8 @@ public final class LDAPPersister<T>
    *                                persisting in an LDAP directory server.
    */
   @SuppressWarnings("unchecked")
-  public static <T> LDAPPersister<T> getInstance(final Class<T> type)
+  @NotNull()
+  public static <T> LDAPPersister<T> getInstance(@NotNull final Class<T> type)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(type);
@@ -186,6 +189,7 @@ public final class LDAPPersister<T>
    * @return  The {@code LDAPObject} annotation of the class used for objects of
    *          the associated type.
    */
+  @NotNull()
   public LDAPObject getLDAPObjectAnnotation()
   {
     return handler.getLDAPObjectAnnotation();
@@ -202,6 +206,7 @@ public final class LDAPPersister<T>
    * @return  The {@code LDAPObjectHandler} instance associated with this LDAP
    *          persister class.
    */
+  @NotNull()
   public LDAPObjectHandler<T> getObjectHandler()
   {
     return handler;
@@ -222,6 +227,7 @@ public final class LDAPPersister<T>
    *                                generate the list of attribute type
    *                                definitions.
    */
+  @NotNull()
   public List<AttributeTypeDefinition> constructAttributeTypes()
          throws LDAPPersistException
   {
@@ -246,8 +252,9 @@ public final class LDAPPersister<T>
    *                                generate the list of attribute type
    *                                definitions.
    */
+  @NotNull()
   public List<AttributeTypeDefinition> constructAttributeTypes(
-                                            final OIDAllocator a)
+                                            @NotNull final OIDAllocator a)
          throws LDAPPersistException
   {
     final LinkedList<AttributeTypeDefinition> attrList = new LinkedList<>();
@@ -280,6 +287,7 @@ public final class LDAPPersister<T>
    *                                generate the list of object class
    *                                definitions.
    */
+  @NotNull()
   public List<ObjectClassDefinition> constructObjectClasses()
          throws LDAPPersistException
   {
@@ -304,8 +312,9 @@ public final class LDAPPersister<T>
    *                                generate the list of object class
    *                                definitions.
    */
+  @NotNull()
   public List<ObjectClassDefinition> constructObjectClasses(
-                                          final OIDAllocator a)
+                                          @NotNull final OIDAllocator a)
          throws LDAPPersistException
   {
     return handler.constructObjectClasses(a);
@@ -328,7 +337,7 @@ public final class LDAPPersister<T>
    * @throws  LDAPException  If an error occurs while attempting to update the
    *                         server schema.
    */
-  public boolean updateSchema(final LDAPInterface i)
+  public boolean updateSchema(@NotNull final LDAPInterface i)
          throws LDAPException
   {
     return updateSchema(i, DefaultOIDAllocator.getInstance());
@@ -364,7 +373,8 @@ public final class LDAPPersister<T>
    * @throws  LDAPException  If an error occurs while attempting to update the
    *                         server schema.
    */
-  public boolean updateSchema(final LDAPInterface i, final OIDAllocator a)
+  public boolean updateSchema(@NotNull final LDAPInterface i,
+                              @NotNull final OIDAllocator a)
          throws LDAPException
   {
     final Schema s = i.getSchema();
@@ -463,10 +473,10 @@ public final class LDAPPersister<T>
    * @param  optional  The existing optional definitions.
    * @param  missing   The set to which any missing names should be added.
    */
-  private static void addMissingAttrs(final String[] names,
-                           final Set<AttributeTypeDefinition> required,
-                           final Set<AttributeTypeDefinition> optional,
-                           final Set<String> missing)
+  private static void addMissingAttrs(@NotNull final String[] names,
+                           @NotNull final Set<AttributeTypeDefinition> required,
+                           @NotNull final Set<AttributeTypeDefinition> optional,
+                           @NotNull final Set<String> missing)
   {
     for (final String name : names)
     {
@@ -524,7 +534,8 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                encode the provided object.
    */
-  public Entry encode(final T o, final String parentDN)
+  @NotNull()
+  public Entry encode(@NotNull final T o, @Nullable final String parentDN)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o);
@@ -546,7 +557,8 @@ public final class LDAPPersister<T>
    *                                create or initialize the object from the
    *                                provided entry.
    */
-  public T decode(final Entry entry)
+  @NotNull()
+  public T decode(@NotNull final Entry entry)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(entry);
@@ -570,7 +582,7 @@ public final class LDAPPersister<T>
    *                                provided object may or may not have been
    *                                altered.
    */
-  public void decode(final T o, final Entry entry)
+  public void decode(@NotNull final T o, @NotNull final Entry entry)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, entry);
@@ -605,8 +617,10 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while encoding or adding
    *                                the entry.
    */
-  public LDAPResult add(final T o, final LDAPInterface i, final String parentDN,
-                        final Control... controls)
+  @NotNull()
+  public LDAPResult add(@NotNull final T o, @NotNull final LDAPInterface i,
+                        @Nullable final String parentDN,
+                        @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, i);
@@ -648,8 +662,9 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                delete the entry.
    */
-  public LDAPResult delete(final T o, final LDAPInterface i,
-                           final Control... controls)
+  @NotNull()
+  public LDAPResult delete(@NotNull final T o, @NotNull final LDAPInterface i,
+                           @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, i);
@@ -707,9 +722,10 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  public List<Modification> getModifications(final T o,
-                                             final boolean deleteNullValues,
-                                             final String... attributes)
+  @NotNull()
+  public List<Modification> getModifications(@NotNull final T o,
+                                 final boolean deleteNullValues,
+                                 @Nullable final String... attributes)
          throws LDAPPersistException
   {
     return getModifications(o, deleteNullValues, false, attributes);
@@ -755,10 +771,11 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  public List<Modification> getModifications(final T o,
-                                             final boolean deleteNullValues,
-                                             final boolean byteForByte,
-                                             final String... attributes)
+  @NotNull()
+  public List<Modification> getModifications(@NotNull final T o,
+                                 final boolean deleteNullValues,
+                                 final boolean byteForByte,
+                                 @Nullable final String... attributes)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o);
@@ -805,9 +822,11 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  public LDAPResult modify(final T o, final LDAPInterface i, final String dn,
+  @NotNull()
+  public LDAPResult modify(@NotNull final T o, @NotNull final LDAPInterface i,
+                           @Nullable final String dn,
                            final boolean deleteNullValues,
-                           final String... attributes)
+                           @Nullable final String... attributes)
          throws LDAPPersistException
   {
     return modify(o, i, dn, deleteNullValues, attributes, NO_CONTROLS);
@@ -854,9 +873,12 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  public LDAPResult modify(final T o, final LDAPInterface i, final String dn,
+  @NotNull()
+  public LDAPResult modify(@NotNull final T o, @NotNull final LDAPInterface i,
+                           @Nullable final String dn,
                            final boolean deleteNullValues,
-                           final String[] attributes, final Control... controls)
+                           @Nullable final String[] attributes,
+                           @Nullable final Control... controls)
          throws LDAPPersistException
   {
     return modify(o, i, dn, deleteNullValues, false, attributes, controls);
@@ -912,10 +934,13 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  public LDAPResult modify(final T o, final LDAPInterface i, final String dn,
+  @Nullable()
+  public LDAPResult modify(@NotNull final T o, @NotNull final LDAPInterface i,
+                           @Nullable final String dn,
                            final boolean deleteNullValues,
-                           final boolean byteForByte, final String[] attributes,
-                           final Control... controls)
+                           final boolean byteForByte,
+                           @Nullable final String[] attributes,
+                           @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, i);
@@ -988,8 +1013,11 @@ public final class LDAPPersister<T>
    * @throws  LDAPException  If a problem occurs while attempting to process the
    *                         search or bind operation.
    */
-  public BindResult bind(final T o, final String baseDN, final String password,
-                         final LDAPConnection c, final Control... controls)
+  @NotNull()
+  public BindResult bind(@NotNull final T o, @Nullable final String baseDN,
+                         @NotNull final String password,
+                         @NotNull final LDAPConnection c,
+                         @Nullable final Control... controls)
          throws LDAPException
   {
     Validator.ensureNotNull(o, password, c);
@@ -1055,7 +1083,9 @@ public final class LDAPPersister<T>
    *                                corresponding entry or decode it as an
    *                                object.
    */
-  public T get(final T o, final LDAPInterface i, final String parentDN)
+  @Nullable()
+  public T get(@NotNull final T o, @NotNull final LDAPInterface i,
+               @Nullable final String parentDN)
          throws LDAPPersistException
   {
     final String dn = handler.constructDN(o, parentDN);
@@ -1095,7 +1125,8 @@ public final class LDAPPersister<T>
    *                                retrieve the specified entry or decode it
    *                                as an object.
    */
-  public T get(final String dn, final LDAPInterface i)
+  @Nullable()
+  public T get(@NotNull final String dn, @NotNull final LDAPInterface i)
          throws LDAPPersistException
   {
     final Entry entry;
@@ -1137,8 +1168,8 @@ public final class LDAPPersister<T>
    *                                lazily-loaded fields may have been
    *                                initialized.
    */
-  public void lazilyLoad(final T o, final LDAPInterface i,
-                         final FieldInfo... fields)
+  public void lazilyLoad(@NotNull final T o, @NotNull final LDAPInterface i,
+                         @Nullable final FieldInfo... fields)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, i);
@@ -1242,7 +1273,9 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public PersistedObjects<T> search(final T o, final LDAPConnection c)
+  @NotNull()
+  public PersistedObjects<T> search(@NotNull final T o,
+                                    @NotNull final LDAPConnection c)
          throws LDAPPersistException
   {
     return search(o, c, null, SearchScope.SUB, DereferencePolicy.NEVER, 0, 0,
@@ -1282,9 +1315,11 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public PersistedObjects<T> search(final T o, final LDAPConnection c,
-                                    final String baseDN,
-                                    final SearchScope scope)
+  @NotNull()
+  public PersistedObjects<T> search(@NotNull final T o,
+                                    @NotNull final LDAPConnection c,
+                                    @Nullable final String baseDN,
+                                    @NotNull final SearchScope scope)
          throws LDAPPersistException
   {
     return search(o, c, baseDN, scope, DereferencePolicy.NEVER, 0, 0, null,
@@ -1341,13 +1376,15 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public PersistedObjects<T> search(final T o, final LDAPConnection c,
-                                    final String baseDN,
-                                    final SearchScope scope,
-                                    final DereferencePolicy derefPolicy,
-                                    final int sizeLimit, final int timeLimit,
-                                    final Filter extraFilter,
-                                    final Control... controls)
+  @NotNull()
+  public PersistedObjects<T> search(@NotNull final T o,
+              @NotNull final LDAPConnection c,
+              @Nullable final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy,
+              final int sizeLimit, final int timeLimit,
+              @Nullable final Filter extraFilter,
+              @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, c, scope, derefPolicy);
@@ -1420,8 +1457,10 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public SearchResult search(final T o, final LDAPInterface i,
-                             final ObjectSearchListener<T> l)
+  @NotNull()
+  public SearchResult search(@NotNull final T o,
+                             @NotNull final LDAPInterface i,
+                             @NotNull final ObjectSearchListener<T> l)
          throws LDAPPersistException
   {
     return search(o, i, null, SearchScope.SUB, DereferencePolicy.NEVER, 0, 0,
@@ -1455,9 +1494,11 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public SearchResult search(final T o, final LDAPInterface i,
-                             final String baseDN, final SearchScope scope,
-                             final ObjectSearchListener<T> l)
+  @NotNull()
+  public SearchResult search(@NotNull final T o, @NotNull final LDAPInterface i,
+                             @Nullable final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final ObjectSearchListener<T> l)
          throws LDAPPersistException
   {
     return search(o, i, baseDN, scope, DereferencePolicy.NEVER, 0, 0, null, l,
@@ -1508,13 +1549,15 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public SearchResult search(final T o, final LDAPInterface i,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final T o, @NotNull final LDAPInterface i,
+                             @Nullable final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final Filter extraFilter,
-                             final ObjectSearchListener<T> l,
-                             final Control... controls)
+                             @Nullable final Filter extraFilter,
+                             @NotNull final ObjectSearchListener<T> l,
+                             @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, i, scope, derefPolicy, l);
@@ -1597,12 +1640,14 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public PersistedObjects<T> search(final LDAPConnection c, final String baseDN,
-                                    final SearchScope scope,
-                                    final DereferencePolicy derefPolicy,
-                                    final int sizeLimit, final int timeLimit,
-                                    final Filter filter,
-                                    final Control... controls)
+  @NotNull()
+  public PersistedObjects<T> search(@NotNull final LDAPConnection c,
+              @Nullable final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy,
+              final int sizeLimit, final int timeLimit,
+              @NotNull final Filter filter,
+              @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(c, scope, derefPolicy, filter);
@@ -1680,13 +1725,15 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public SearchResult search(final LDAPInterface i, final String baseDN,
-                             final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final LDAPInterface i,
+                             @Nullable final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final Filter filter,
-                             final ObjectSearchListener<T> l,
-                             final Control... controls)
+                             @NotNull final Filter filter,
+                             @NotNull final ObjectSearchListener<T> l,
+                             @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(i, scope, derefPolicy, filter, l);
@@ -1755,7 +1802,8 @@ public final class LDAPPersister<T>
    *                                sending the search request or decoding the
    *                                entry that was returned.
    */
-  public T searchForObject(final T o, final LDAPInterface i)
+  @Nullable()
+  public T searchForObject(@NotNull final T o, @NotNull final LDAPInterface i)
          throws LDAPPersistException
   {
     return searchForObject(o, i, null, SearchScope.SUB, DereferencePolicy.NEVER,
@@ -1794,8 +1842,10 @@ public final class LDAPPersister<T>
    *                                sending the search request or decoding the
    *                                entry that was returned.
    */
-  public T searchForObject(final T o, final LDAPInterface i,
-                           final String baseDN, final SearchScope scope)
+  @Nullable()
+  public T searchForObject(@NotNull final T o, @NotNull final LDAPInterface i,
+                           @Nullable final String baseDN,
+                           @NotNull final SearchScope scope)
          throws LDAPPersistException
   {
     return searchForObject(o, i, baseDN, scope, DereferencePolicy.NEVER, 0, 0,
@@ -1851,11 +1901,14 @@ public final class LDAPPersister<T>
    *                                sending the search request or decoding the
    *                                entry that was returned.
    */
-  public T searchForObject(final T o, final LDAPInterface i,
-                           final String baseDN, final SearchScope scope,
-                           final DereferencePolicy derefPolicy,
+  @Nullable()
+  public T searchForObject(@NotNull final T o, @NotNull final LDAPInterface i,
+                           @Nullable final String baseDN,
+                           @NotNull final SearchScope scope,
+                           @NotNull final DereferencePolicy derefPolicy,
                            final int sizeLimit, final int timeLimit,
-                           final Filter extraFilter, final Control... controls)
+                           @Nullable final Filter extraFilter,
+                           @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(o, i, scope, derefPolicy);
@@ -1940,9 +1993,11 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
    */
-  public SearchResult getAll(final LDAPInterface i, final String baseDN,
-                             final ObjectSearchListener<T> l,
-                             final Control... controls)
+  @NotNull()
+  public SearchResult getAll(@NotNull final LDAPInterface i,
+                             @Nullable final String baseDN,
+                             @NotNull final ObjectSearchListener<T> l,
+                             @Nullable final Control... controls)
          throws LDAPPersistException
   {
     Validator.ensureNotNull(i, l);

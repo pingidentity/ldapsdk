@@ -43,6 +43,8 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -69,13 +71,13 @@ public final class GenericSASLBindRequest
 
 
   // The SASL credentials that should be used for the bind request.
-  private final ASN1OctetString credentials;
+  @Nullable private final ASN1OctetString credentials;
 
   // The bind DN to use for the bind request.
-  private final String bindDN;
+  @Nullable private final String bindDN;
 
   // The name of the SASL mechanism that should be used for the bind request.
-  private final String mechanism;
+  @NotNull private final String mechanism;
 
 
 
@@ -94,9 +96,10 @@ public final class GenericSASLBindRequest
    *                      request.  It may be {@code null} or empty if no
    *                      request controls are needed.
    */
-  public GenericSASLBindRequest(final String bindDN, final String mechanism,
-                                final ASN1OctetString credentials,
-                                final Control... controls)
+  public GenericSASLBindRequest(@Nullable final String bindDN,
+                                @NotNull final String mechanism,
+                                @Nullable final ASN1OctetString credentials,
+                                @Nullable final Control... controls)
   {
     super(controls);
 
@@ -116,6 +119,7 @@ public final class GenericSASLBindRequest
    *          target identity should be determined from the credentials or some
    *          other mechanism.
    */
+  @Nullable()
   public String getBindDN()
   {
     return bindDN;
@@ -127,6 +131,7 @@ public final class GenericSASLBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getSASLMechanismName()
   {
     return mechanism;
@@ -140,6 +145,7 @@ public final class GenericSASLBindRequest
    * @return  The credentials for the SASL bind request, or {@code null} if
    *          there are none.
    */
+  @Nullable()
   public ASN1OctetString getCredentials()
   {
     return credentials;
@@ -151,7 +157,9 @@ public final class GenericSASLBindRequest
    * {@inheritDoc}
    */
   @Override()
-  protected BindResult process(final LDAPConnection connection, final int depth)
+  @NotNull()
+  protected BindResult process(@NotNull final LDAPConnection connection,
+                               final int depth)
             throws LDAPException
   {
     return sendBindRequest(connection, bindDN, credentials, getControls(),
@@ -164,6 +172,7 @@ public final class GenericSASLBindRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GenericSASLBindRequest duplicate()
   {
     return duplicate(getControls());
@@ -175,7 +184,8 @@ public final class GenericSASLBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public GenericSASLBindRequest duplicate(final Control[] controls)
+  @NotNull()
+  public GenericSASLBindRequest duplicate(@Nullable final Control[] controls)
   {
     return new GenericSASLBindRequest(bindDN, mechanism, credentials,
          controls);
@@ -187,7 +197,7 @@ public final class GenericSASLBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GenericSASLBindRequest(mechanism='");
     buffer.append(mechanism);
@@ -232,7 +242,8 @@ public final class GenericSASLBindRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toCode(final List<String> lineList, final String requestID,
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.

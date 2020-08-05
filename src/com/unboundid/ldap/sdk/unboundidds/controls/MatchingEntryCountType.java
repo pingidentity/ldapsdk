@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -149,7 +151,7 @@ public enum MatchingEntryCountType
    *          {@code false} if the provided count type is the same as or less
    *          specific than this count type.
    */
-  public boolean isMoreSpecificThan(final MatchingEntryCountType t)
+  public boolean isMoreSpecificThan(@NotNull final MatchingEntryCountType t)
   {
     switch (this)
     {
@@ -190,7 +192,7 @@ public enum MatchingEntryCountType
    *          {@code false} if the provided count type is the same as or more
    *          specific than this count type.
    */
-  public boolean isLessSpecificThan(final MatchingEntryCountType t)
+  public boolean isLessSpecificThan(@NotNull final MatchingEntryCountType t)
   {
     switch (this)
     {
@@ -220,6 +222,7 @@ public enum MatchingEntryCountType
    * @return  The count type value that corresponds to the provided BER type, or
    *          {@code null} if there is no corresponding count type value.
    */
+  @Nullable()
   public static MatchingEntryCountType valueOf(final byte berType)
   {
     for (final MatchingEntryCountType t : values())
@@ -244,7 +247,8 @@ public enum MatchingEntryCountType
    * @return  The requested matching entry count type, or {@code null} if no
    *          such type is defined.
    */
-  public static MatchingEntryCountType forName(final String name)
+  @Nullable()
+  public static MatchingEntryCountType forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

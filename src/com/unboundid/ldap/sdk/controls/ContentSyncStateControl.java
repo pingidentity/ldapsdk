@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -81,7 +83,8 @@ public final class ContentSyncStateControl
   /**
    * The OID (1.3.6.1.4.1.4203.1.9.1.2) for the sync state control.
    */
-  public static final String SYNC_STATE_OID = "1.3.6.1.4.1.4203.1.9.1.2";
+  @NotNull public static final String SYNC_STATE_OID =
+       "1.3.6.1.4.1.4203.1.9.1.2";
 
 
 
@@ -93,13 +96,13 @@ public final class ContentSyncStateControl
 
 
   // The synchronization state cookie.
-  private final ASN1OctetString cookie;
+  @Nullable private final ASN1OctetString cookie;
 
   // The synchronization state for the associated entry.
-  private final ContentSyncState state;
+  @NotNull private final ContentSyncState state;
 
   // The entryUUID value for the associated entry.
-  private final UUID entryUUID;
+  @NotNull private final UUID entryUUID;
 
 
 
@@ -128,9 +131,9 @@ public final class ContentSyncStateControl
    * @param  cookie     A cookie with an updated synchronization state.  It may
    *                    be {@code null} if no updated state is available.
    */
-  public ContentSyncStateControl(final ContentSyncState state,
-                                 final UUID entryUUID,
-                                 final ASN1OctetString cookie)
+  public ContentSyncStateControl(@NotNull final ContentSyncState state,
+                                 @NotNull final UUID entryUUID,
+                                 @Nullable final ASN1OctetString cookie)
   {
     super(SYNC_STATE_OID, false, encodeValue(state, entryUUID, cookie));
 
@@ -152,8 +155,9 @@ public final class ContentSyncStateControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         content synchronization state control.
    */
-  public ContentSyncStateControl(final String oid, final boolean isCritical,
-                                 final ASN1OctetString value)
+  public ContentSyncStateControl(@NotNull final String oid,
+                                 final boolean isCritical,
+                                 @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -226,9 +230,10 @@ public final class ContentSyncStateControl
    *
    * @return  An ASN.1 octet string containing the encoded control value.
    */
-  private static ASN1OctetString encodeValue(final ContentSyncState state,
-                                             final UUID entryUUID,
-                                             final ASN1OctetString cookie)
+  private static ASN1OctetString encodeValue(
+                      @NotNull final ContentSyncState state,
+                      @NotNull final UUID entryUUID,
+                      @Nullable final ASN1OctetString cookie)
   {
     Validator.ensureNotNull(state, entryUUID);
 
@@ -250,9 +255,10 @@ public final class ContentSyncStateControl
    * {@inheritDoc}
    */
   @Override()
-  public ContentSyncStateControl decodeControl(final String oid,
-                                               final boolean isCritical,
-                                               final ASN1OctetString value)
+  @NotNull()
+  public ContentSyncStateControl decodeControl(@NotNull final String oid,
+                                      final boolean isCritical,
+                                      @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new ContentSyncStateControl(oid, isCritical, value);
@@ -275,7 +281,9 @@ public final class ContentSyncStateControl
    *                         decode the content sync state control contained in
    *                         the provided search result entry.
    */
-  public static ContentSyncStateControl get(final SearchResultEntry entry)
+  @Nullable()
+  public static ContentSyncStateControl get(
+                     @NotNull final SearchResultEntry entry)
          throws LDAPException
   {
     final Control c = entry.getControl(SYNC_STATE_OID);
@@ -312,7 +320,9 @@ public final class ContentSyncStateControl
    *                         decode the content sync state control contained in
    *                         the provided search result reference.
    */
-  public static ContentSyncStateControl get(final SearchResultReference ref)
+  @Nullable()
+  public static ContentSyncStateControl get(
+                     @NotNull final SearchResultReference ref)
          throws LDAPException
   {
     final Control c = ref.getControl(SYNC_STATE_OID);
@@ -341,6 +351,7 @@ public final class ContentSyncStateControl
    *
    * @return  The state value for this content synchronization state control.
    */
+  @NotNull()
   public ContentSyncState getState()
   {
     return state;
@@ -355,6 +366,7 @@ public final class ContentSyncStateControl
    * @return  The entryUUID for the associated search result entry or
    *          reference.
    */
+  @NotNull()
   public UUID getEntryUUID()
   {
     return entryUUID;
@@ -370,6 +382,7 @@ public final class ContentSyncStateControl
    *          synchronization session, or {@code null} if none was included in
    *          the control.
    */
+  @Nullable()
   public ASN1OctetString getCookie()
   {
     return cookie;
@@ -381,6 +394,7 @@ public final class ContentSyncStateControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_CONTENT_SYNC_STATE.get();
@@ -392,7 +406,7 @@ public final class ContentSyncStateControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ContentSyncStateControl(state='");
     buffer.append(state.name());

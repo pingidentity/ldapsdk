@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,7 +75,7 @@ public class DeleteRequestAccessLogMessage
 
 
   // The DN of the entry to delete.
-  private final String dn;
+  @Nullable private final String dn;
 
 
 
@@ -86,7 +88,7 @@ public class DeleteRequestAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public DeleteRequestAccessLogMessage(final String s)
+  public DeleteRequestAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -101,7 +103,7 @@ public class DeleteRequestAccessLogMessage
    * @param  m  The log message to be parsed as a delete request access log
    *            message.
    */
-  public DeleteRequestAccessLogMessage(final LogMessage m)
+  public DeleteRequestAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -116,6 +118,7 @@ public class DeleteRequestAccessLogMessage
    * @return  The DN of the entry to delete, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   public final String getDN()
   {
     return dn;
@@ -127,6 +130,7 @@ public class DeleteRequestAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public final AccessLogOperationType getOperationType()
   {
     return AccessLogOperationType.DELETE;

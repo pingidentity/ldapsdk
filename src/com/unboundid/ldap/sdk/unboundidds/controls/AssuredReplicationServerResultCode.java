@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -150,6 +152,7 @@ public enum AssuredReplicationServerResultCode
    *          {@code null} if there is no server result code with the specified
    *          integer value.
    */
+  @Nullable()
   public static AssuredReplicationServerResultCode valueOf(final int intValue)
   {
     for (final AssuredReplicationServerResultCode rc : values())
@@ -175,7 +178,9 @@ public enum AssuredReplicationServerResultCode
    * @return  The requested assured replication server result code, or
    *          {@code null} if no such result code is defined.
    */
-  public static AssuredReplicationServerResultCode forName(final String name)
+  @Nullable()
+  public static AssuredReplicationServerResultCode forName(
+                     @NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {

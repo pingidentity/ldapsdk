@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -94,25 +96,25 @@ import static com.unboundid.util.args.ArgsMessages.*;
 public final class SubCommand
 {
   // The global argument parser with which this subcommand is associated.
-  private volatile ArgumentParser globalArgumentParser;
+  @Nullable private volatile ArgumentParser globalArgumentParser;
 
   // The argument parser for the arguments specific to this subcommand.
-  private final ArgumentParser subcommandArgumentParser;
+  @NotNull private final ArgumentParser subcommandArgumentParser;
 
   // Indicates whether this subcommand was provided in the set of command-line
   // arguments.
   private volatile boolean isPresent;
 
   // The set of example usages for this subcommand.
-  private final LinkedHashMap<String[],String> exampleUsages;
+  @NotNull private final LinkedHashMap<String[],String> exampleUsages;
 
   // The names for this subcommand, mapped from an all-lowercase representation
   // to an object pair that has the name in the desired case and an indicate
   // as to whether the name is hidden.
-  private final Map<String,ObjectPair<String,Boolean>> names;
+  @NotNull private final Map<String,ObjectPair<String,Boolean>> names;
 
   // The description for this subcommand.
-  private final String description;
+  @NotNull private final String description;
 
 
 
@@ -140,9 +142,10 @@ public final class SubCommand
    * @throws  ArgumentException  If there is a problem with the provided name,
    *                             description, or argument parser.
    */
-  public SubCommand(final String name, final String description,
-                    final ArgumentParser parser,
-                    final LinkedHashMap<String[],String> exampleUsages)
+  public SubCommand(@NotNull final String name,
+                    @NotNull final String description,
+                    @NotNull final ArgumentParser parser,
+                    @NotNull final LinkedHashMap<String[],String> exampleUsages)
          throws ArgumentException
   {
     names = new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
@@ -192,7 +195,7 @@ public final class SubCommand
    *
    * @param  source  The source subcommand to use for this subcommand.
    */
-  private SubCommand(final SubCommand source)
+  private SubCommand(@NotNull final SubCommand source)
   {
     names = new LinkedHashMap<>(source.names);
     description = source.description;
@@ -211,6 +214,7 @@ public final class SubCommand
    *
    * @return  The primary name for this subcommand.
    */
+  @NotNull()
   public String getPrimaryName()
   {
     return names.values().iterator().next().getFirst();
@@ -224,6 +228,7 @@ public final class SubCommand
    *
    * @return  The list of all names for this subcommand.
    */
+  @NotNull()
   public List<String> getNames()
   {
     return getNames(true);
@@ -240,6 +245,7 @@ public final class SubCommand
    *
    * @return  A list of the non-hidden names for this subcommand.
    */
+  @NotNull()
   public List<String> getNames(final boolean includeHidden)
   {
     final ArrayList<String> nameList = new ArrayList<>(names.size());
@@ -265,7 +271,7 @@ public final class SubCommand
    * @return  {@code true} if the provided name is assigned to this subcommand,
    *          or {@code false} if not.
    */
-  public boolean hasName(final String name)
+  public boolean hasName(@NotNull final String name)
   {
     return names.containsKey(StaticUtils.toLowerCase(name));
   }
@@ -285,7 +291,7 @@ public final class SubCommand
    *                             also registered with the global argument
    *                             parser.
    */
-  public void addName(final String name)
+  public void addName(@NotNull final String name)
          throws ArgumentException
   {
     addName(name, false);
@@ -308,7 +314,7 @@ public final class SubCommand
    *                             also registered with the global argument
    *                             parser.
    */
-  public void addName(final String name, final boolean isHidden)
+  public void addName(@NotNull final String name, final boolean isHidden)
          throws ArgumentException
   {
     if ((name == null) || name.isEmpty())
@@ -337,6 +343,7 @@ public final class SubCommand
    *
    * @return  The description for this subcommand.
    */
+  @NotNull()
   public String getDescription()
   {
     return description;
@@ -351,6 +358,7 @@ public final class SubCommand
    * @return  The argument parser that will be used to process arguments
    *          specific to this subcommand.
    */
+  @NotNull()
   public ArgumentParser getArgumentParser()
   {
     return subcommandArgumentParser;
@@ -390,6 +398,7 @@ public final class SubCommand
    * @return  The global argument parser with which this subcommand is
    *          registered.
    */
+  @Nullable()
   ArgumentParser getGlobalArgumentParser()
   {
     return globalArgumentParser;
@@ -403,7 +412,8 @@ public final class SubCommand
    * @param  globalArgumentParser  The global argument parser for this
    *                               subcommand.
    */
-  void setGlobalArgumentParser(final ArgumentParser globalArgumentParser)
+  void setGlobalArgumentParser(
+            @NotNull final ArgumentParser globalArgumentParser)
   {
     this.globalArgumentParser = globalArgumentParser;
   }
@@ -420,6 +430,7 @@ public final class SubCommand
    * @return  A set of information that may be used to generate example usage
    *          information, or an empty map if no example usages are available.
    */
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     return exampleUsages;
@@ -434,6 +445,7 @@ public final class SubCommand
    *
    * @return  The "clean" copy of this subcommand.
    */
+  @NotNull()
   public SubCommand getCleanCopy()
   {
     return new SubCommand(this);
@@ -447,6 +459,7 @@ public final class SubCommand
    * @return  A string representation of this subcommand.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -461,7 +474,7 @@ public final class SubCommand
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SubCommand(");
 

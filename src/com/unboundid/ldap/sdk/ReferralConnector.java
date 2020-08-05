@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,7 +74,8 @@ public interface ReferralConnector
    *                         connection should be terminated before the
    *                         exception is thrown.
    */
-  LDAPConnection getReferralConnection(LDAPURL referralURL,
-                                       LDAPConnection connection)
+  @NotNull()
+  LDAPConnection getReferralConnection(@NotNull LDAPURL referralURL,
+                                       @NotNull LDAPConnection connection)
                  throws LDAPException;
 }

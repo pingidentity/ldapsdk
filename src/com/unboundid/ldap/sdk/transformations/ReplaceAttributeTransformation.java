@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -65,10 +67,10 @@ public final class ReplaceAttributeTransformation
        implements EntryTransformation
 {
   // The schema to use when processing.
-  private final Schema schema;
+  @Nullable private final Schema schema;
 
   // The set of attributes to replace in entries.
-  private final Map<String,Attribute> attributes;
+  @NotNull private final Map<String,Attribute> attributes;
 
 
 
@@ -85,9 +87,9 @@ public final class ReplaceAttributeTransformation
    * @param  newValues      The new values to use in place of the existing
    *                        values for the specified attribute.
    */
-  public ReplaceAttributeTransformation(final Schema schema,
-                                        final String attributeName,
-                                        final String... newValues)
+  public ReplaceAttributeTransformation(@Nullable final Schema schema,
+                                        @NotNull final String attributeName,
+                                        @NotNull final String... newValues)
   {
     this(schema, new Attribute(attributeName, schema, newValues));
   }
@@ -107,9 +109,9 @@ public final class ReplaceAttributeTransformation
    * @param  newValues      The new values to use in place of the existing
    *                        values for the specified attribute.
    */
-  public ReplaceAttributeTransformation(final Schema schema,
-                                        final String attributeName,
-                                        final Collection<String> newValues)
+  public ReplaceAttributeTransformation(@Nullable final Schema schema,
+              @NotNull final String attributeName,
+              @NotNull final Collection<String> newValues)
   {
     this(schema, new Attribute(attributeName, schema, newValues));
   }
@@ -127,8 +129,8 @@ public final class ReplaceAttributeTransformation
    *                     attributes of the same type.  It must not be
    *                     {@code null} or empty.
    */
-  public ReplaceAttributeTransformation(final Schema schema,
-                                        final Attribute... attributes)
+  public ReplaceAttributeTransformation(@Nullable final Schema schema,
+              @NotNull final Attribute... attributes)
   {
     this(schema, StaticUtils.toList(attributes));
   }
@@ -146,8 +148,8 @@ public final class ReplaceAttributeTransformation
    *                     attributes of the same type.  It must not be
    *                     {@code null} or empty.
    */
-  public ReplaceAttributeTransformation(final Schema schema,
-                                        final Collection<Attribute> attributes)
+  public ReplaceAttributeTransformation(@Nullable final Schema schema,
+              @NotNull final Collection<Attribute> attributes)
   {
     // If a schema was provided, then use it.  Otherwise, use the default
     // standard schema.
@@ -203,7 +205,8 @@ public final class ReplaceAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry transformEntry(final Entry e)
+  @Nullable()
+  public Entry transformEntry(@NotNull final Entry e)
   {
     if (e == null)
     {
@@ -265,7 +268,9 @@ public final class ReplaceAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translate(final Entry original, final long firstLineNumber)
+  @Nullable()
+  public Entry translate(@NotNull final Entry original,
+                         final long firstLineNumber)
   {
     return transformEntry(original);
   }
@@ -276,7 +281,8 @@ public final class ReplaceAttributeTransformation
    * {@inheritDoc}
    */
   @Override()
-  public Entry translateEntryToWrite(final Entry original)
+  @Nullable()
+  public Entry translateEntryToWrite(@NotNull final Entry original)
   {
     return transformEntry(original);
   }

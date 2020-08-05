@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -77,7 +79,7 @@ public final class LDIFModifyChangeRecord
    * representation of a modify change record.  By default, the dash will always
    * be included.
    */
-  public static final  String PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH =
+  @NotNull public static final  String PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH =
        "com.unboundid.ldif.modify.alwaysIncludeTrailingDash";
 
 
@@ -110,7 +112,7 @@ public final class LDIFModifyChangeRecord
 
 
   // The set of modifications for this modify change record.
-  private final Modification[] modifications;
+  @NotNull private final Modification[] modifications;
 
 
 
@@ -123,8 +125,8 @@ public final class LDIFModifyChangeRecord
    * @param  modifications  The set of modifications for this LDIF modify change
    *                        record.  It must not be {@code null} or empty.
    */
-  public LDIFModifyChangeRecord(final String dn,
-                                final Modification... modifications)
+  public LDIFModifyChangeRecord(@NotNull final String dn,
+                                @NotNull final Modification... modifications)
   {
     this(dn, modifications, null);
   }
@@ -143,9 +145,9 @@ public final class LDIFModifyChangeRecord
    *                        record.  It may be {@code null} or empty if there
    *                        are no controls.
    */
-  public LDIFModifyChangeRecord(final String dn,
-                                final Modification[] modifications,
-                                final List<Control> controls)
+  public LDIFModifyChangeRecord(@NotNull final String dn,
+                                @NotNull final Modification[] modifications,
+                                @Nullable final List<Control> controls)
   {
     super(dn, controls);
 
@@ -167,8 +169,8 @@ public final class LDIFModifyChangeRecord
    * @param  modifications  The set of modifications for this LDIF modify change
    *                        record.  It must not be {@code null} or empty.
    */
-  public LDIFModifyChangeRecord(final String dn,
-                                final List<Modification> modifications)
+  public LDIFModifyChangeRecord(@NotNull final String dn,
+                                @NotNull final List<Modification> modifications)
   {
     this(dn, modifications, null);
   }
@@ -187,9 +189,9 @@ public final class LDIFModifyChangeRecord
    *                        record.  It may be {@code null} or empty if there
    *                        are no controls.
    */
-  public LDIFModifyChangeRecord(final String dn,
-                                final List<Modification> modifications,
-                                final List<Control> controls)
+  public LDIFModifyChangeRecord(@NotNull final String dn,
+                                @NotNull final List<Modification> modifications,
+                                @Nullable final List<Control> controls)
   {
     super(dn, controls);
 
@@ -209,7 +211,7 @@ public final class LDIFModifyChangeRecord
    * @param  modifyRequest  The modify request to use to create this LDIF modify
    *                        change record.  It must not be {@code null}.
    */
-  public LDIFModifyChangeRecord(final ModifyRequest modifyRequest)
+  public LDIFModifyChangeRecord(@NotNull final ModifyRequest modifyRequest)
   {
     super(modifyRequest.getDN(), modifyRequest.getControlList());
 
@@ -263,6 +265,7 @@ public final class LDIFModifyChangeRecord
    *
    * @return  The set of modifications for this modify change record.
    */
+  @NotNull()
   public Modification[] getModifications()
   {
     return modifications;
@@ -276,6 +279,7 @@ public final class LDIFModifyChangeRecord
    *
    * @return  The modify request created from this LDIF modify change record.
    */
+  @NotNull()
   public ModifyRequest toModifyRequest()
   {
     return toModifyRequest(true);
@@ -292,6 +296,7 @@ public final class LDIFModifyChangeRecord
    *
    * @return  The modify request created from this LDIF modify change record.
    */
+  @NotNull()
   public ModifyRequest toModifyRequest(final boolean includeControls)
   {
     final ModifyRequest modifyRequest =
@@ -310,6 +315,7 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ChangeType getChangeType()
   {
     return ChangeType.MODIFY;
@@ -321,7 +327,8 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDIFModifyChangeRecord duplicate(final Control... controls)
+  @NotNull()
+  public LDIFModifyChangeRecord duplicate(@Nullable final Control... controls)
   {
     return new LDIFModifyChangeRecord(getDN(), modifications,
          StaticUtils.toList(controls));
@@ -333,7 +340,8 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult processChange(final LDAPInterface connection,
+  @NotNull()
+  public LDAPResult processChange(@NotNull final LDAPInterface connection,
                                   final boolean includeControls)
          throws LDAPException
   {
@@ -346,6 +354,7 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<>(modifications.length*4);
@@ -408,7 +417,8 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
+  public void toLDIF(@NotNull final ByteStringBuffer buffer,
+                     final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
@@ -478,7 +488,8 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toLDIFString(final StringBuilder buffer, final int wrapColumn)
+  public void toLDIFString(@NotNull final StringBuilder buffer,
+                           final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
@@ -575,7 +586,7 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public boolean equals(final Object o)
+  public boolean equals(@Nullable final Object o)
   {
     if (o == null)
     {
@@ -640,7 +651,7 @@ public final class LDIFModifyChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDIFModifyChangeRecord(dn='");
     buffer.append(getDN());

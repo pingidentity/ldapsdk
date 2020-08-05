@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,7 +75,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * @param  config  The configuration to use for this read-only representation.
    */
   public ReadOnlyInMemoryDirectoryServerConfig(
-              final InMemoryDirectoryServerConfig config)
+              @NotNull final InMemoryDirectoryServerConfig config)
   {
     super(config);
   }
@@ -84,6 +86,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DN[] getBaseDNs()
   {
     final DN[] origBaseDNs = super.getBaseDNs();
@@ -104,7 +107,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setBaseDNs(final String... baseDNs)
+  public void setBaseDNs(@NotNull final String... baseDNs)
          throws LDAPException, UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -120,7 +123,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setBaseDNs(final DN... baseDNs)
+  public void setBaseDNs(@NotNull final DN... baseDNs)
          throws LDAPException, UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -132,6 +135,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned list will not be modifiable.
    */
   @Override()
+  @NotNull()
   public List<InMemoryListenerConfig> getListenerConfigs()
   {
     return Collections.unmodifiableList(super.getListenerConfigs());
@@ -148,7 +152,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setListenerConfigs(
-                   final InMemoryListenerConfig... listenerConfigs)
+                   @NotNull final InMemoryListenerConfig... listenerConfigs)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -164,8 +168,9 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
+  @NotNull()
   public void setListenerConfigs(
-                   final Collection<InMemoryListenerConfig> listenerConfigs)
+              @NotNull final Collection<InMemoryListenerConfig> listenerConfigs)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -177,6 +182,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned set will not be modifiable.
    */
   @Override()
+  @NotNull()
   public Set<OperationType> getAllowedOperationTypes()
   {
     return Collections.unmodifiableSet(super.getAllowedOperationTypes());
@@ -192,7 +198,8 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setAllowedOperationTypes(final OperationType... operationTypes)
+  public void setAllowedOperationTypes(
+                   @Nullable final OperationType... operationTypes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -209,7 +216,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setAllowedOperationTypes(
-                   final Collection<OperationType> operationTypes)
+                   @Nullable final Collection<OperationType> operationTypes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -221,6 +228,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned set will not be modifiable.
    */
   @Override()
+  @NotNull()
   public Set<OperationType> getAuthenticationRequiredOperationTypes()
   {
     return Collections.unmodifiableSet(
@@ -238,7 +246,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setAuthenticationRequiredOperationTypes(
-                   final OperationType... operationTypes)
+                   @Nullable final OperationType... operationTypes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -255,7 +263,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setAuthenticationRequiredOperationTypes(
-                   final Collection<OperationType> operationTypes)
+                   @Nullable final Collection<OperationType> operationTypes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -267,6 +275,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned map will not be modifiable.
    */
   @Override()
+  @NotNull()
   public Map<DN,byte[]> getAdditionalBindCredentials()
   {
     return Collections.unmodifiableMap(super.getAdditionalBindCredentials());
@@ -282,8 +291,8 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void addAdditionalBindCredentials(final String dn,
-                                           final String password)
+  public void addAdditionalBindCredentials(@NotNull final String dn,
+                                           @NotNull final String password)
          throws LDAPException, UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -299,8 +308,8 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void addAdditionalBindCredentials(final String dn,
-                                           final byte[] password)
+  public void addAdditionalBindCredentials(@NotNull final String dn,
+                                           @NotNull final byte[] password)
          throws LDAPException, UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -317,7 +326,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setListenerExceptionHandler(
-                   final LDAPListenerExceptionHandler exceptionHandler)
+                   @NotNull final LDAPListenerExceptionHandler exceptionHandler)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -333,7 +342,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setSchema(final Schema schema)
+  public void setSchema(@Nullable final Schema schema)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -375,7 +384,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setAccessLogHandler(final Handler accessLogHandler)
+  public void setAccessLogHandler(@Nullable final Handler accessLogHandler)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -391,7 +400,8 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setLDAPDebugLogHandler(final Handler ldapDebugLogHandler)
+  public void setLDAPDebugLogHandler(
+                   @Nullable final Handler ldapDebugLogHandler)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -403,6 +413,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned list will not be modifiable.
    */
   @Override()
+  @NotNull()
   public List<InMemoryExtendedOperationHandler> getExtendedOperationHandlers()
   {
     return Collections.unmodifiableList(super.getExtendedOperationHandlers());
@@ -419,7 +430,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void addExtendedOperationHandler(
-                   final InMemoryExtendedOperationHandler handler)
+                   @NotNull final InMemoryExtendedOperationHandler handler)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -431,6 +442,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned list will not be modifiable.
    */
   @Override()
+  @NotNull()
   public List<InMemorySASLBindHandler> getSASLBindHandlers()
   {
     return Collections.unmodifiableList(super.getSASLBindHandlers());
@@ -446,7 +458,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void addSASLBindHandler(final InMemorySASLBindHandler handler)
+  public void addSASLBindHandler(@NotNull final InMemorySASLBindHandler handler)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -491,6 +503,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned list will not be modifiable.
    */
   @Override()
+  @NotNull()
   public List<String> getEqualityIndexAttributes()
   {
     return Collections.unmodifiableList(super.getEqualityIndexAttributes());
@@ -507,7 +520,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setEqualityIndexAttributes(
-                   final String... equalityIndexAttributes)
+                   @Nullable final String... equalityIndexAttributes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -524,7 +537,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setEqualityIndexAttributes(
-                   final Collection<String> equalityIndexAttributes)
+                   @Nullable final Collection<String> equalityIndexAttributes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -536,6 +549,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    * {@inheritDoc}  The returned set will not be modifiable.
    */
   @Override()
+  @NotNull()
   public Set<String> getReferentialIntegrityAttributes()
   {
     return Collections.unmodifiableSet(
@@ -553,7 +567,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setReferentialIntegrityAttributes(
-                   final String... referentialIntegrityAttributes)
+                   @Nullable final String... referentialIntegrityAttributes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -570,7 +584,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setReferentialIntegrityAttributes(
-                   final Collection<String> referentialIntegrityAttributes)
+              @Nullable final Collection<String> referentialIntegrityAttributes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -586,7 +600,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setVendorName(final String vendorName)
+  public void setVendorName(@Nullable final String vendorName)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -602,7 +616,7 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setVendorVersion(final String vendorVersion)
+  public void setVendorVersion(@Nullable final String vendorVersion)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();

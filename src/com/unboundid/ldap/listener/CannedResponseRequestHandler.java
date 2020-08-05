@@ -69,6 +69,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -94,20 +96,21 @@ public final class CannedResponseRequestHandler
 
 
   // The protocol ops that will be used in responses.
-  private final AddResponseProtocolOp addResponseProtocolOp;
-  private final BindResponseProtocolOp bindResponseProtocolOp;
-  private final CompareResponseProtocolOp compareResponseProtocolOp;
-  private final DeleteResponseProtocolOp deleteResponseProtocolOp;
-  private final ExtendedResponseProtocolOp extendedResponseProtocolOp;
-  private final ModifyResponseProtocolOp modifyResponseProtocolOp;
-  private final ModifyDNResponseProtocolOp modifyDNResponseProtocolOp;
-  private final List<SearchResultEntryProtocolOp> searchEntryProtocolOps;
-  private final List<SearchResultReferenceProtocolOp>
+  @NotNull private final AddResponseProtocolOp addResponseProtocolOp;
+  @NotNull private final BindResponseProtocolOp bindResponseProtocolOp;
+  @NotNull private final CompareResponseProtocolOp compareResponseProtocolOp;
+  @NotNull private final DeleteResponseProtocolOp deleteResponseProtocolOp;
+  @NotNull private final ExtendedResponseProtocolOp extendedResponseProtocolOp;
+  @NotNull private final ModifyResponseProtocolOp modifyResponseProtocolOp;
+  @NotNull private final ModifyDNResponseProtocolOp modifyDNResponseProtocolOp;
+  @NotNull private final List<SearchResultEntryProtocolOp>
+       searchEntryProtocolOps;
+  @NotNull private final List<SearchResultReferenceProtocolOp>
        searchReferenceProtocolOps;
-  private final SearchResultDoneProtocolOp searchResultDoneProtocolOp;
+  @NotNull private final SearchResultDoneProtocolOp searchResultDoneProtocolOp;
 
   // The connection that will be used to communicate with the client.
-  private final LDAPListenerClientConnection clientConnection;
+  @Nullable private final LDAPListenerClientConnection clientConnection;
 
 
 
@@ -139,10 +142,10 @@ public final class CannedResponseRequestHandler
    *                            may be empty or {@code null} if no referral URLs
    *                            should be included.
    */
-  public CannedResponseRequestHandler(final ResultCode resultCode,
-                                      final String matchedDN,
-                                      final String diagnosticMessage,
-                                      final List<String> referralURLs)
+  public CannedResponseRequestHandler(@NotNull final ResultCode resultCode,
+                                      @Nullable final String matchedDN,
+                                      @Nullable final String diagnosticMessage,
+                                      @Nullable final List<String> referralURLs)
   {
     this(resultCode, matchedDN, diagnosticMessage, referralURLs, null, null);
   }
@@ -174,11 +177,12 @@ public final class CannedResponseRequestHandler
    *                            {@code null} or empty if no references are
    *                            required.
    */
-  public CannedResponseRequestHandler(final ResultCode resultCode,
-              final String matchedDN, final String diagnosticMessage,
-              final List<String> referralURLs,
-              final Collection<? extends Entry> searchEntries,
-              final Collection<SearchResultReference> searchReferences)
+  public CannedResponseRequestHandler(@NotNull final ResultCode resultCode,
+       @Nullable final String matchedDN,
+       @Nullable final String diagnosticMessage,
+       @Nullable final List<String> referralURLs,
+       @Nullable final Collection<? extends Entry> searchEntries,
+       @Nullable final Collection<SearchResultReference> searchReferences)
   {
     Validator.ensureNotNull(resultCode);
 
@@ -244,8 +248,9 @@ public final class CannedResponseRequestHandler
    * @param  h  The request handler from which to take the canned responses.
    * @param  c  The connection to use to communicate with the client.
    */
-  private CannedResponseRequestHandler(final CannedResponseRequestHandler h,
-               final LDAPListenerClientConnection c)
+  private CannedResponseRequestHandler(
+               @NotNull final CannedResponseRequestHandler h,
+               @NotNull final LDAPListenerClientConnection c)
   {
     addResponseProtocolOp      = h.addResponseProtocolOp;
     bindResponseProtocolOp     = h.bindResponseProtocolOp;
@@ -267,8 +272,9 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public CannedResponseRequestHandler newInstance(
-              final LDAPListenerClientConnection connection)
+              @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException
   {
     return new CannedResponseRequestHandler(this, connection);
@@ -280,9 +286,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processAddRequest(final int messageID,
-                                       final AddRequestProtocolOp request,
-                                       final List<Control> controls)
+                          @NotNull final AddRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, addResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -294,9 +301,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processBindRequest(final int messageID,
-                                        final BindRequestProtocolOp request,
-                                        final List<Control> controls)
+                          @NotNull final BindRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, bindResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -308,9 +316,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processCompareRequest(final int messageID,
-                          final CompareRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final CompareRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, compareResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -322,9 +331,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processDeleteRequest(final int messageID,
-                                          final DeleteRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final DeleteRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, deleteResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -336,9 +346,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ExtendedRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, extendedResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -350,9 +361,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyRequest(final int messageID,
-                                          final ModifyRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final ModifyRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, modifyResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -364,9 +376,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processModifyDNRequest(final int messageID,
-                          final ModifyDNRequestProtocolOp request,
-                          final List<Control> controls)
+                          @NotNull final ModifyDNRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     return new LDAPMessage(messageID, modifyDNResponseProtocolOp,
          Collections.<Control>emptyList());
@@ -378,9 +391,10 @@ public final class CannedResponseRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPMessage processSearchRequest(final int messageID,
-                                          final SearchRequestProtocolOp request,
-                                          final List<Control> controls)
+                          @NotNull final SearchRequestProtocolOp request,
+                          @NotNull final List<Control> controls)
   {
     for (final SearchResultEntryProtocolOp e : searchEntryProtocolOps)
     {

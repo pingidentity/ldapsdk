@@ -41,6 +41,7 @@ import java.io.Serializable;
 
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -84,7 +85,8 @@ public class LDAPRebindAuth
    * @param  dn        The DN to use when authenticating.
    * @param  password  The password to use when authenticating.
    */
-  public LDAPRebindAuth(final String dn, final String password)
+  public LDAPRebindAuth(@Nullable final String dn,
+                        @Nullable final String password)
   {
     this.dn       = dn;
     this.password = password;
@@ -97,6 +99,7 @@ public class LDAPRebindAuth
    *
    * @return  The DN to use when authenticating.
    */
+  @Nullable()
   public String getDN()
   {
     return dn;
@@ -109,6 +112,7 @@ public class LDAPRebindAuth
    *
    * @return  The password to use when authenticating.
    */
+  @Nullable()
   public String getPassword()
   {
     return password;

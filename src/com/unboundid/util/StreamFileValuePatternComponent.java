@@ -71,17 +71,18 @@ final class StreamFileValuePatternComponent
 
   // A value that tracks the position at which the next line of data should be
   // read from the file.
-  private final AtomicLong nextReadPosition;
+  @NotNull private final AtomicLong nextReadPosition;
 
   // A reference that holds this thread and makes it available to the associated
   // StreamFileValuePatternComponent.
-  private final AtomicReference<StreamFileValuePatternReaderThread> threadRef;
+  @NotNull private final AtomicReference<StreamFileValuePatternReaderThread>
+       threadRef;
 
   // The file from which the data will be read.
-  private final File file;
+  @NotNull private final File file;
 
   // The queue that will be used to hold the lines of data read from the file.
-  private final LinkedBlockingQueue<String> lineQueue;
+  @NotNull private final LinkedBlockingQueue<String> lineQueue;
 
   // The maximum length of time in milliseconds that an attempt to offer a
   // string to the queue will be allowed to block before the associated reader
@@ -100,7 +101,7 @@ final class StreamFileValuePatternComponent
    * @throws  IOException  If a problem is encountered while trying to open the
    *                       specified file for reading.
    */
-  StreamFileValuePatternComponent(final String path)
+  StreamFileValuePatternComponent(@NotNull final String path)
        throws IOException
   {
     this(path, 10_000, 60_000L);
@@ -127,7 +128,8 @@ final class StreamFileValuePatternComponent
    * @throws  IOException  If a problem is encountered while trying to open the
    *                       specified file for reading.
    */
-  StreamFileValuePatternComponent(final String path, final int queueSize,
+  StreamFileValuePatternComponent(@NotNull final String path,
+                                  final int queueSize,
                                   final long maxOfferBlockTimeMillis)
        throws IOException
   {
@@ -173,7 +175,7 @@ final class StreamFileValuePatternComponent
    * {@inheritDoc}
    */
   @Override()
-  void append(final StringBuilder buffer)
+  void append(@NotNull final StringBuilder buffer)
   {
     String line = lineQueue.poll();
     if (line != null)

@@ -45,6 +45,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadLocalRandom;
@@ -70,23 +72,27 @@ public final class CachingNameResolver
 
 
   // A cached version of the address of the local host system.
-  private final AtomicReference<ObjectPair<Long,InetAddress>> localHostAddress;
+  @NotNull private final AtomicReference<ObjectPair<Long,InetAddress>>
+       localHostAddress;
 
   // A cached version of the loopback address.
-  private final AtomicReference<ObjectPair<Long,InetAddress>> loopbackAddress;
+  @NotNull private final AtomicReference<ObjectPair<Long,InetAddress>>
+       loopbackAddress;
 
   // A map that associates IP addresses with their canonical host names.  The
   // key will be the IP address, and the value will be an object pair that
   // associates the time that the cache record expires with the cached canonical
   // host name for the IP address.
-  private final Map<InetAddress,ObjectPair<Long,String>> addressToNameMap;
+  @NotNull private final Map<InetAddress,ObjectPair<Long,String>>
+       addressToNameMap;
 
   // A map that associates host names with the set of all associated IP
   // addresses.  The key will be an all-lowercase representation of the host
   // name, and the value will be an object pair that associates the time that
   // the cache record expires with the cached set of IP addresses for the host
   // name.
-  private final Map<String,ObjectPair<Long,InetAddress[]>> nameToAddressMap;
+  @NotNull private final Map<String,ObjectPair<Long,InetAddress[]>>
+       nameToAddressMap;
 
   // The length of time, in milliseconds, that a cached record should be
   // considered valid.
@@ -153,7 +159,8 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
-  public InetAddress getByName(final String host)
+  @NotNull()
+  public InetAddress getByName(@Nullable final String host)
          throws UnknownHostException, SecurityException
   {
     // Use the getAllByNameInternal method to get all addresses associated with
@@ -175,7 +182,8 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
-  public InetAddress[] getAllByName(final String host)
+  @NotNull()
+  public InetAddress[] getAllByName(@Nullable final String host)
          throws UnknownHostException, SecurityException
   {
     // Create a defensive copy of the address array so that the caller cannot
@@ -208,7 +216,8 @@ public final class CachingNameResolver
    * @throws  SecurityException  If a security manager prevents the name
    *                             resolution attempt.
    */
-  public InetAddress[] getAllByNameInternal(final String host)
+  @NotNull()
+  public InetAddress[] getAllByNameInternal(@Nullable final String host)
          throws UnknownHostException, SecurityException
   {
     // Get an all-lowercase representation of the provided host name.  Note that
@@ -287,8 +296,9 @@ public final class CachingNameResolver
    * @throws  SecurityException  If a security manager prevents the name
    *                             resolution attempt.
    */
-  private InetAddress[] lookUpAndCache(final String host,
-                                       final String lowerHost)
+  @NotNull()
+  private InetAddress[] lookUpAndCache(@Nullable final String host,
+                                       @NotNull final String lowerHost)
          throws UnknownHostException, SecurityException
   {
     final InetAddress[] addresses = InetAddress.getAllByName(host);
@@ -306,7 +316,8 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
-  public String getHostName(final InetAddress inetAddress)
+  @NotNull()
+  public String getHostName(@NotNull final InetAddress inetAddress)
   {
     // The default InetAddress.getHostName() method has the potential to perform
     // a name service lookup, which we want to avoid if at all possible.
@@ -334,7 +345,8 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
-  public String getCanonicalHostName(final InetAddress inetAddress)
+  @NotNull()
+  public String getCanonicalHostName(@NotNull final InetAddress inetAddress)
   {
     // Get the appropriate record from the cache.  If there isn't a cached
     // then do perform a name service lookup and cache the result before
@@ -384,8 +396,9 @@ public final class CachingNameResolver
    *          non-{@code null}, or a textual representation of the IP address as
    *          a last resort.
    */
-  private String lookUpAndCache(final InetAddress inetAddress,
-                                final String cachedName)
+  @NotNull()
+  private String lookUpAndCache(@NotNull final InetAddress inetAddress,
+                                @Nullable final String cachedName)
   {
     final String canonicalHostName = inetAddress.getCanonicalHostName();
     if (canonicalHostName.equals(inetAddress.getHostAddress()))
@@ -424,6 +437,7 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public InetAddress getLocalHost()
          throws UnknownHostException, SecurityException
   {
@@ -475,6 +489,7 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public InetAddress getLoopbackAddress()
   {
     // If we don't have a cached version of the loopback address, then make a
@@ -540,6 +555,7 @@ public final class CachingNameResolver
    *
    * @return  A handle to the address-to-name map.
    */
+  @NotNull()
   Map<InetAddress,ObjectPair<Long,String>> getAddressToNameMap()
   {
     return addressToNameMap;
@@ -553,6 +569,7 @@ public final class CachingNameResolver
    *
    * @return  A handle to the name-to-address map.
    */
+  @NotNull()
   Map<String,ObjectPair<Long,InetAddress[]>> getNameToAddressMap()
   {
     return nameToAddressMap;
@@ -567,6 +584,7 @@ public final class CachingNameResolver
    * @return  A handle to the {@code AtomicReference} used to cache the local
    *          host address.
    */
+  @NotNull()
   AtomicReference<ObjectPair<Long,InetAddress>> getLocalHostAddressReference()
   {
     return localHostAddress;
@@ -581,6 +599,7 @@ public final class CachingNameResolver
    * @return  A handle to the {@code AtomicReference} used to cache the
    *          loopback address.
    */
+  @NotNull()
   AtomicReference<ObjectPair<Long,InetAddress>> getLoopbackAddressReference()
   {
     return loopbackAddress;
@@ -592,7 +611,7 @@ public final class CachingNameResolver
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("CachingNameResolver(timeoutMillis=");
     buffer.append(timeoutMillis);

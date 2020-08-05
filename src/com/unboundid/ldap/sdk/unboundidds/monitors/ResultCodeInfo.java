@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -91,10 +93,10 @@ public final class ResultCodeInfo
 
   // The operation type for which this information is maintained, or null if
   // it applies to all types of operations.
-  private final OperationType operationType;
+  @Nullable private final OperationType operationType;
 
   // The name for this result code.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -118,8 +120,8 @@ public final class ResultCodeInfo
    *                                    milliseconds, for operations of the
    *                                    specified type with this result code.
    */
-  ResultCodeInfo(final int intValue, final String name,
-                 final OperationType operationType, final long count,
+  ResultCodeInfo(final int intValue, @NotNull final String name,
+                 @Nullable final OperationType operationType, final long count,
                  final double percent, final double totalResponseTimeMillis,
                  final double averageResponseTimeMillis)
   {
@@ -151,6 +153,7 @@ public final class ResultCodeInfo
    *
    * @return  The name for this result code.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -166,6 +169,7 @@ public final class ResultCodeInfo
    *          associated, or {@code null} if the statistics apply to all types
    *          of operations.
    */
+  @Nullable()
   public OperationType getOperationType()
   {
     return operationType;

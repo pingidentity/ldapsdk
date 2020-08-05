@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Base64;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONBuffer;
@@ -73,13 +75,13 @@ final class JSONLDAPSearchOutputHandler
       extends LDAPSearchOutputHandler
 {
   // A list that may be used in the course of formatting result lines.
-  private final ArrayList<String> formattedLines;
+  @NotNull private final ArrayList<String> formattedLines;
 
   // The JSON buffer used to construct the formatted output.
-  private final JSONBuffer jsonBuffer;
+  @NotNull private final JSONBuffer jsonBuffer;
 
   // The associated LDAPSearch tool instance.
-  private final LDAPSearch ldapSearch;
+  @NotNull private final LDAPSearch ldapSearch;
 
 
 
@@ -88,7 +90,7 @@ final class JSONLDAPSearchOutputHandler
    *
    * @param  ldapSearch  The {@link LDAPSearch} tool instance.
    */
-  JSONLDAPSearchOutputHandler(final LDAPSearch ldapSearch)
+  JSONLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch)
   {
     this.ldapSearch = ldapSearch;
 
@@ -113,7 +115,7 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(final SearchResultEntry entry)
+  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();
@@ -149,7 +151,8 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(final SearchResultReference ref)
+  public void formatSearchResultReference(
+                   @NotNull final SearchResultReference ref)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();
@@ -175,7 +178,7 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(final LDAPResult result)
+  public void formatResult(@NotNull final LDAPResult result)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();
@@ -237,8 +240,9 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public void formatUnsolicitedNotification(
+                   @NotNull final LDAPConnection connection,
+                   final ExtendedResult notification)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();
@@ -309,7 +313,7 @@ final class JSONLDAPSearchOutputHandler
    *
    * @param  controls  The controls to be processed.
    */
-  private void handleControls(final Control[] controls)
+  private void handleControls(@Nullable final Control[] controls)
   {
     if ((controls == null) || (controls.length == 0))
     {

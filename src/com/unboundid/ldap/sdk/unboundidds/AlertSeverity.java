@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -93,7 +95,7 @@ public enum AlertSeverity
 
 
   // The name for this alert severity.
-  private final String name;
+  @NotNull private final String name;
 
 
 
@@ -102,7 +104,7 @@ public enum AlertSeverity
    *
    * @param  name  The name for this alert severity.
    */
-  AlertSeverity(final String name)
+  AlertSeverity(@NotNull final String name)
   {
     this.name = name;
   }
@@ -114,6 +116,7 @@ public enum AlertSeverity
    *
    * @return  The name for this alert severity.
    */
+  @NotNull()
   public String getName()
   {
     return name;
@@ -129,7 +132,8 @@ public enum AlertSeverity
    * @return  The alert severity with the specified name, or {@code null} if
    *          there is no alert severity with the given name.
    */
-  public static AlertSeverity forName(final String name)
+  @Nullable()
+  public static AlertSeverity forName(@NotNull final String name)
   {
     switch (StaticUtils.toLowerCase(name))
     {
@@ -154,6 +158,7 @@ public enum AlertSeverity
    * @return  A string representation of this alert severity.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return name;

@@ -44,6 +44,8 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -75,7 +77,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * The structural object class used in host system recent CPU and memory
    * monitor entries.
    */
-  static final String HOST_SYSTEM_RECENT_CPU_AND_MEMORY_MONITOR_OC =
+  @NotNull static final String HOST_SYSTEM_RECENT_CPU_AND_MEMORY_MONITOR_OC =
        "ds-host-system-cpu-memory-monitor-entry";
 
 
@@ -83,21 +85,23 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
   /**
    * The name of the attribute that contains the recent CPU idle percentage.
    */
-  private static final String ATTR_RECENT_CPU_IDLE = "recent-cpu-idle";
+  @NotNull private static final String ATTR_RECENT_CPU_IDLE = "recent-cpu-idle";
 
 
 
   /**
    * The name of the attribute that contains the recent CPU I/O wait percentage.
    */
-  private static final String ATTR_RECENT_CPU_IOWAIT = "recent-cpu-iowait";
+  @NotNull private static final String ATTR_RECENT_CPU_IOWAIT =
+       "recent-cpu-iowait";
 
 
 
   /**
    * The name of the attribute that contains the recent CPU system percentage.
    */
-  private static final String ATTR_RECENT_CPU_SYSTEM = "recent-cpu-system";
+  @NotNull private static final String ATTR_RECENT_CPU_SYSTEM =
+       "recent-cpu-system";
 
 
 
@@ -105,14 +109,15 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * The name of the attribute that contains the recent CPU total busy
    * percentage.
    */
-  private static final String ATTR_RECENT_TOTAL_CPU_BUSY = "recent-cpu-used";
+  @NotNull private static final String ATTR_RECENT_TOTAL_CPU_BUSY =
+       "recent-cpu-used";
 
 
 
   /**
    * The name of the attribute that contains the recent CPU user percentage.
    */
-  private static final String ATTR_RECENT_CPU_USER = "recent-cpu-user";
+  @NotNull private static final String ATTR_RECENT_CPU_USER = "recent-cpu-user";
 
 
 
@@ -120,7 +125,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * The name of the attribute that contains the recent amount of free system
    * memory, in gigabytes.
    */
-  private static final String ATTR_RECENT_MEMORY_FREE_GB =
+  @NotNull private static final String ATTR_RECENT_MEMORY_FREE_GB =
        "recent-memory-free-gb";
 
 
@@ -129,7 +134,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * The name of the attribute that contains the recent percent of system memory
    * that is currently free.
    */
-  private static final String ATTR_RECENT_MEMORY_FREE_PCT =
+  @NotNull private static final String ATTR_RECENT_MEMORY_FREE_PCT =
        "recent-memory-pct-free";
 
 
@@ -138,7 +143,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * The name of the attribute that contains the time the information was
    * last updated.
    */
-  private static final String ATTR_TIMESTAMP = "timestamp";
+  @NotNull private static final String ATTR_TIMESTAMP = "timestamp";
 
 
 
@@ -146,7 +151,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * The name of the attribute that contains the total amount of system memory,
    * in gigabytes.
    */
-  private static final String ATTR_TOTAL_MEMORY_GB = "total-memory-gb";
+  @NotNull private static final String ATTR_TOTAL_MEMORY_GB = "total-memory-gb";
 
 
 
@@ -158,31 +163,31 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
 
 
   // The time the CPU and memory usage information was last updated.
-  private final Date timestamp;
+  @Nullable private final Date timestamp;
 
   // The recent CPU idle percent.
-  private final Double recentCPUIdle;
+  @Nullable private final Double recentCPUIdle;
 
   // The recent CPU I/O wait percent.
-  private final Double recentCPUIOWait;
+  @Nullable private final Double recentCPUIOWait;
 
   // The recent CPU system percent.
-  private final Double recentCPUSystem;
+  @Nullable private final Double recentCPUSystem;
 
   // The recent CPU total percent busy.
-  private final Double recentCPUTotalBusy;
+  @Nullable private final Double recentCPUTotalBusy;
 
   // The recent CPU user percent.
-  private final Double recentCPUUser;
+  @Nullable private final Double recentCPUUser;
 
   // The recent free memory, in gigabytes.
-  private final Double recentMemoryFreeGB;
+  @Nullable private final Double recentMemoryFreeGB;
 
   // The recent free memory percent..
-  private final Double recentMemoryPercentFree;
+  @Nullable private final Double recentMemoryPercentFree;
 
   // The total amount of system memory, in gigabytes.
-  private final Double totalMemoryGB;
+  @Nullable private final Double totalMemoryGB;
 
 
 
@@ -193,7 +198,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @param  entry  The entry to be parsed as a host system recent CPU and
    *                memory monitor entry.  It must not be {@code null}.
    */
-  public HostSystemRecentCPUAndMemoryMonitorEntry(final Entry entry)
+  public HostSystemRecentCPUAndMemoryMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -218,6 +223,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    *          last updated, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Date getUpdateTime()
   {
     return timestamp;
@@ -233,6 +239,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    *          I/O wait states, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Double getRecentCPUTotalBusyPercent()
   {
     return recentCPUTotalBusy;
@@ -247,6 +254,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The percentage of recent CPU time spent in the user state, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Double getRecentCPUUserPercent()
   {
     return recentCPUUser;
@@ -261,6 +269,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The percentage of recent CPU time spent in the system state, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Double getRecentCPUSystemPercent()
   {
     return recentCPUSystem;
@@ -275,6 +284,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The percentage of recent CPU time spent in the I/O wait state, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Double getRecentCPUIOWaitPercent()
   {
     return recentCPUIOWait;
@@ -288,6 +298,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The percentage of recent CPU idle time, or {@code null} if it was
    *          not included in the monitor entry.
    */
+  @Nullable()
   public Double getRecentCPUIdlePercent()
   {
     return recentCPUIdle;
@@ -301,6 +312,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The total amount of system memory in gigabytes, or {@code null} if
    *          it was not included in the monitor entry.
    */
+  @Nullable()
   public Double getTotalSystemMemoryGB()
   {
     return totalMemoryGB;
@@ -315,6 +327,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The recent amount of free system memory in gigabytes, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Double getRecentSystemMemoryFreeGB()
   {
     return recentMemoryFreeGB;
@@ -328,6 +341,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * @return  The recent percentage of free system memory, or {@code null} if it
    *          was not included in the monitor entry.
    */
+  @Nullable()
   public Double getRecentSystemMemoryPercentFree()
   {
     return recentMemoryPercentFree;
@@ -339,6 +353,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_CPU_MEM_MONITOR_DISPNAME.get();
@@ -350,6 +365,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_CPU_MEM_MONITOR_DESC.get();
@@ -361,6 +377,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

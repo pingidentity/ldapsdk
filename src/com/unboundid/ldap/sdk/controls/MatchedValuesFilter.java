@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -165,21 +167,23 @@ public final class MatchedValuesFilter
   /**
    * An empty array that will be used if there are no subAny elements.
    */
-  private static final ASN1OctetString[] NO_SUB_ANY = new ASN1OctetString[0];
+  @NotNull private static final ASN1OctetString[] NO_SUB_ANY =
+       new ASN1OctetString[0];
 
 
 
   /**
    * An empty array that will be used if there are no subAny elements.
    */
-  private static final String[] NO_SUB_ANY_STRINGS = StaticUtils.NO_STRINGS;
+  @NotNull private static final String[] NO_SUB_ANY_STRINGS =
+       StaticUtils.NO_STRINGS;
 
 
 
   /**
    * An empty array that will be used if there are no subAny elements.
    */
-  private static final byte[][] NO_SUB_ANY_BYTES = new byte[0][];
+  @NotNull private static final byte[][] NO_SUB_ANY_BYTES = new byte[0][];
 
 
 
@@ -190,26 +194,26 @@ public final class MatchedValuesFilter
 
 
 
-  // The name of the attribute type to include in this filter, if appropriate.
-  private final ASN1OctetString assertionValue;
+  // The assertion value to include in this filter, if appropriate.
+  @Nullable private final ASN1OctetString assertionValue;
 
   // The subFinal value for this filter, if appropriate.
-  private final ASN1OctetString subFinalValue;
+  @Nullable private final ASN1OctetString subFinalValue;
 
   // The subInitial value for this filter, if appropriate.
-  private final ASN1OctetString subInitialValue;
+  @Nullable private final ASN1OctetString subInitialValue;
 
   // The subAny values for this filter, if appropriate.
-  private final ASN1OctetString[] subAnyValues;
+  @NotNull private final ASN1OctetString[] subAnyValues;
 
   // The filter type for this filter.
   private final byte matchType;
 
   // The name of the attribute type to include in this filter, if appropriate.
-  private final String attributeType;
+  @Nullable private final String attributeType;
 
   // The matching rule ID for this filter, if appropriate.
-  private final String matchingRuleID;
+  @Nullable private final String matchingRuleID;
 
 
 
@@ -233,12 +237,13 @@ public final class MatchedValuesFilter
    * @param  matchingRuleID   The matching rule ID for this filter.  It may only
    *                          be provided for extensible match filters.
    */
-  private MatchedValuesFilter(final byte matchType, final String attributeType,
-                              final ASN1OctetString assertionValue,
-                              final ASN1OctetString subInitialValue,
-                              final ASN1OctetString[] subAnyValues,
-                              final ASN1OctetString subFinalValue,
-                              final String matchingRuleID)
+  private MatchedValuesFilter(final byte matchType,
+                              @Nullable final String attributeType,
+                              @Nullable final ASN1OctetString assertionValue,
+                              @Nullable final ASN1OctetString subInitialValue,
+                              @NotNull final ASN1OctetString[] subAnyValues,
+                              @Nullable final ASN1OctetString subFinalValue,
+                              @Nullable final String matchingRuleID)
   {
     this.matchType       = matchType;
     this.attributeType   = attributeType;
@@ -262,9 +267,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created equality match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createEqualityFilter(
-                                         final String attributeType,
-                                         final String assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -285,9 +291,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created equality match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createEqualityFilter(
-                                         final String attributeType,
-                                         final byte[] assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -313,11 +320,12 @@ public final class MatchedValuesFilter
    *
    * @return  The created equality match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createSubstringFilter(
-                                         final String attributeType,
-                                         final String subInitialValue,
-                                         final String[] subAnyValues,
-                                         final String subFinalValue)
+                                         @NotNull final String attributeType,
+                                         @Nullable final String subInitialValue,
+                                         @Nullable final String[] subAnyValues,
+                                         @Nullable final String subFinalValue)
   {
     Validator.ensureNotNull(attributeType);
     Validator.ensureTrue((subInitialValue != null) ||
@@ -382,11 +390,12 @@ public final class MatchedValuesFilter
    *
    * @return  The created equality match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createSubstringFilter(
-                                         final String attributeType,
-                                         final byte[] subInitialValue,
-                                         final byte[][] subAnyValues,
-                                         final byte[] subFinalValue)
+                                         @NotNull final String attributeType,
+                                         @Nullable final byte[] subInitialValue,
+                                         @Nullable final byte[][] subAnyValues,
+                                         @Nullable final byte[] subFinalValue)
   {
     Validator.ensureNotNull(attributeType);
     Validator.ensureTrue((subInitialValue != null) ||
@@ -446,9 +455,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created greater-or-equal match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createGreaterOrEqualFilter(
-                                         final String attributeType,
-                                         final String assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -470,9 +480,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created greater-or-equal match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createGreaterOrEqualFilter(
-                                         final String attributeType,
-                                         final byte[] assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -494,9 +505,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created less-or-equal match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createLessOrEqualFilter(
-                                         final String attributeType,
-                                         final String assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -518,9 +530,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created less-or-equal match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createLessOrEqualFilter(
-                                         final String attributeType,
-                                         final byte[] assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -540,8 +553,9 @@ public final class MatchedValuesFilter
    *
    * @return  The created present match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createPresentFilter(
-                                         final String attributeType)
+                                         @NotNull final String attributeType)
   {
     Validator.ensureNotNull(attributeType);
 
@@ -562,9 +576,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created approximate match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createApproximateFilter(
-                                         final String attributeType,
-                                         final String assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -586,9 +601,10 @@ public final class MatchedValuesFilter
    *
    * @return  The created greater-or-equal match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createApproximateFilter(
-                                         final String attributeType,
-                                         final byte[] assertionValue)
+                                         @NotNull final String attributeType,
+                                         @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(attributeType, assertionValue);
 
@@ -613,10 +629,11 @@ public final class MatchedValuesFilter
    *
    * @return  The created extensible match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createExtensibleMatchFilter(
-                                         final String attributeType,
-                                         final String matchingRuleID,
-                                         final String assertionValue)
+                                         @Nullable final String attributeType,
+                                         @Nullable final String matchingRuleID,
+                                         @NotNull final String assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
     Validator.ensureTrue((attributeType != null) || (matchingRuleID != null));
@@ -645,10 +662,11 @@ public final class MatchedValuesFilter
    *
    * @return  The created extensible match filter.
    */
+  @NotNull()
   public static MatchedValuesFilter createExtensibleMatchFilter(
-                                         final String attributeType,
-                                         final String matchingRuleID,
-                                         final byte[] assertionValue)
+                                         @Nullable final String attributeType,
+                                         @Nullable final String matchingRuleID,
+                                         @NotNull final byte[] assertionValue)
   {
     Validator.ensureNotNull(assertionValue);
     Validator.ensureTrue((attributeType != null) || (matchingRuleID != null));
@@ -675,7 +693,8 @@ public final class MatchedValuesFilter
    * @throws  LDAPException  If the provided search filter cannot be represented
    *                         as a matched values filter.
    */
-  public static MatchedValuesFilter create(final Filter filter)
+  @NotNull()
+  public static MatchedValuesFilter create(@NotNull final Filter filter)
          throws LDAPException
   {
     switch (filter.getFilterType())
@@ -756,6 +775,7 @@ public final class MatchedValuesFilter
    * @return  The name of the attribute type for this matched values filter, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public String getAttributeType()
   {
     return attributeType;
@@ -770,6 +790,7 @@ public final class MatchedValuesFilter
    * @return  The string representation of the assertion value for this matched
    *          values filter, or {@code null} if there is none.
    */
+  @Nullable()
   public String getAssertionValue()
   {
     if (assertionValue == null)
@@ -791,6 +812,7 @@ public final class MatchedValuesFilter
    * @return  The binary representation of the assertion value for this matched
    *          values filter, or {@code null} if there is none.
    */
+  @Nullable()
   public byte[] getAssertionValueBytes()
   {
     if (assertionValue == null)
@@ -811,6 +833,7 @@ public final class MatchedValuesFilter
    * @return  The raw assertion value for this matched values filter, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public ASN1OctetString getRawAssertionValue()
   {
     return assertionValue;
@@ -825,6 +848,7 @@ public final class MatchedValuesFilter
    * @return  The string representation of the subInitial element for this
    *          matched values filter, or {@code null} if there is none.
    */
+  @Nullable()
   public String getSubInitialValue()
   {
     if (subInitialValue == null)
@@ -846,6 +870,7 @@ public final class MatchedValuesFilter
    * @return  The binary representation of the subInitial element for this
    *          matched values filter, or {@code null} if there is none.
    */
+  @Nullable()
   public byte[] getSubInitialValueBytes()
   {
     if (subInitialValue == null)
@@ -867,6 +892,7 @@ public final class MatchedValuesFilter
    * @return  The raw subInitial element for this matched values filter, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public ASN1OctetString getRawSubInitialValue()
   {
     return subInitialValue;
@@ -881,6 +907,7 @@ public final class MatchedValuesFilter
    * @return  The string representations of the subAny element for this matched
    *          values filter, or an empty array if there are none.
    */
+  @NotNull()
   public String[] getSubAnyValues()
   {
     if (subAnyValues.length == 0)
@@ -908,6 +935,7 @@ public final class MatchedValuesFilter
    * @return  The binary representations of the subAny element for this matched
    *          values filter, or an empty array if there are none.
    */
+  @NotNull()
   public byte[][] getSubAnyValueBytes()
   {
     if (subAnyValues.length == 0)
@@ -935,6 +963,7 @@ public final class MatchedValuesFilter
    * @return  The raw subAny element for this matched values filter, or an empty
    *          array if there are none.
    */
+  @NotNull()
   public ASN1OctetString[] getRawSubAnyValues()
   {
     return subAnyValues;
@@ -949,6 +978,7 @@ public final class MatchedValuesFilter
    * @return  The string representation of the subFinal element for this
    *          matched values filter, or {@code null} if there is none.
    */
+  @Nullable()
   public String getSubFinalValue()
   {
     if (subFinalValue == null)
@@ -970,6 +1000,7 @@ public final class MatchedValuesFilter
    * @return  The binary representation of the subFinal element for this matched
    *          values filter, or {@code null} if there is none.
    */
+  @Nullable()
   public byte[] getSubFinalValueBytes()
   {
     if (subFinalValue == null)
@@ -991,6 +1022,7 @@ public final class MatchedValuesFilter
    * @return  The raw subFinal element for this matched values filter, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public ASN1OctetString getRawSubFinalValue()
   {
     return subFinalValue;
@@ -1005,6 +1037,7 @@ public final class MatchedValuesFilter
    * @return  The matching rule ID for this matched values filter, or
    *          {@code null} if there is none.
    */
+  @Nullable()
   public String getMatchingRuleID()
   {
     return matchingRuleID;
@@ -1018,6 +1051,7 @@ public final class MatchedValuesFilter
    * @return  The ASN.1 element containing the encoded representation of this
    *          matched values filter.
    */
+  @NotNull()
   public ASN1Element encode()
   {
     switch (matchType)
@@ -1095,7 +1129,8 @@ public final class MatchedValuesFilter
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a matched values filter.
    */
-  public static MatchedValuesFilter decode(final ASN1Element element)
+  @NotNull()
+  public static MatchedValuesFilter decode(@NotNull final ASN1Element element)
          throws LDAPException
   {
     ASN1OctetString   assertionValue  = null;
@@ -1314,6 +1349,7 @@ public final class MatchedValuesFilter
    * @return  A search filter that is the equivalent of this matched values
    *          filter.
    */
+  @NotNull()
   public Filter toFilter()
   {
     switch (matchType)
@@ -1360,6 +1396,7 @@ public final class MatchedValuesFilter
    * @return  A string representation of this matched values filter.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -1376,7 +1413,7 @@ public final class MatchedValuesFilter
    * @param  buffer  The buffer to which to append the string representation of
    *                 this matched values filter.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append('(');
 

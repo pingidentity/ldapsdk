@@ -48,6 +48,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationRemoteLevel;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -83,92 +85,94 @@ public class AddResultAccessLogMessage
 
 
   // The assured replication level to use for local servers.
-  private final AssuredReplicationLocalLevel assuredReplicationLocalLevel;
+  @Nullable private final AssuredReplicationLocalLevel
+       assuredReplicationLocalLevel;
 
   // The assured replication level to use for remote servers.
-  private final AssuredReplicationRemoteLevel assuredReplicationRemoteLevel;
+  @Nullable private final AssuredReplicationRemoteLevel
+       assuredReplicationRemoteLevel;
 
   // Indicates whether the response was known to be delayed by replication
   // assurance processing.
-  private final Boolean responseDelayedByAssurance;
+  @Nullable private final Boolean responseDelayedByAssurance;
 
   // Indicates whether the any uncached data was accessed in the course of
   // processing this operation.
-  private final Boolean uncachedDataAccessed;
+  @Nullable private final Boolean uncachedDataAccessed;
 
   // The processing time for the operation.
-  private final Double processingTime;
+  @Nullable private final Double processingTime;
 
   // The queue time for the operation.
-  private final Double queueTime;
+  @Nullable private final Double queueTime;
 
   // The port of the backend server to which the request has been forwarded.
-  private final Integer targetPort;
+  @Nullable private final Integer targetPort;
 
   // The list of indexes for which keys near the index entry limit were accessed
   // while processing the operation.
-  private final List<String> indexesWithKeysAccessedNearEntryLimit;
+  @NotNull private final List<String> indexesWithKeysAccessedNearEntryLimit;
 
   // The list of indexes for which keys over the index entry limit were accessed
   // while processing the operation.
-  private final List<String> indexesWithKeysAccessedOverEntryLimit;
+  @NotNull private final List<String> indexesWithKeysAccessedOverEntryLimit;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
-  private final List<String> missingPrivileges;
+  @NotNull private final List<String> missingPrivileges;
 
   // The list of privileges used during the course of processing the operation
   // before an alternate authorization identity was assigned.
-  private final List<String> preAuthZUsedPrivileges;
+  @NotNull private final List<String> preAuthZUsedPrivileges;
 
   // The list of referral URLs for the operation.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
   // The list of response control OIDs for the operation.
-  private final List<String> responseControlOIDs;
+  @NotNull private final List<String> responseControlOIDs;
 
   // The list of servers accessed while processing the operation.
-  private final List<String> serversAccessed;
+  @NotNull private final List<String> serversAccessed;
 
   // The list of privileges used during the course of processing the operation.
-  private final List<String> usedPrivileges;
+  @NotNull private final List<String> usedPrivileges;
 
   // The assured replication timeout, in milliseconds.
-  private final Long assuredReplicationTimeoutMillis;
+  @Nullable private final Long assuredReplicationTimeoutMillis;
 
   // The number of intermediate response messages returned to the client.
-  private final Long intermediateResponsesReturned;
+  @Nullable private final Long intermediateResponsesReturned;
 
   // The result code for the operation.
-  private final ResultCode resultCode;
+  @Nullable private final ResultCode resultCode;
 
   // Additional information about the operation result.
-  private final String additionalInformation;
+  @Nullable private final String additionalInformation;
 
   // The alternate authorization DN for the operation.
-  private final String authzDN;
+  @Nullable private final String authzDN;
 
   // The diagnostic message for the operation.
-  private final String diagnosticMessage;
+  @Nullable private final String diagnosticMessage;
 
   // The intermediate client result for the operation.
-  private final String intermediateClientResult;
+  @Nullable private final String intermediateClientResult;
 
   // The matched DN for the operation.
-  private final String matchedDN;
+  @Nullable private final String matchedDN;
 
   // The replication change ID for the operation.
-  private final String replicationChangeID;
+  @Nullable private final String replicationChangeID;
 
   // The address of the backend server to which the request has been forwarded.
-  private final String targetHost;
+  @Nullable private final String targetHost;
 
   // The protocol used to forward the request to the backend server.
-  private final String targetProtocol;
+  @Nullable private final String targetProtocol;
 
   // The DN of the soft-deleted entry from which the resulting entry was
   // undeleted.
-  private final String undeleteFromDN;
+  @Nullable private final String undeleteFromDN;
 
 
 
@@ -181,7 +185,7 @@ public class AddResultAccessLogMessage
    * @throws  LogException  If the provided string cannot be parsed as a valid
    *                        log message.
    */
-  public AddResultAccessLogMessage(final String s)
+  public AddResultAccessLogMessage(@NotNull final String s)
          throws LogException
   {
     this(new LogMessage(s));
@@ -196,7 +200,7 @@ public class AddResultAccessLogMessage
    * @param  m  The log message to be parsed as an add result access log
    *            message.
    */
-  public AddResultAccessLogMessage(final LogMessage m)
+  public AddResultAccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 
@@ -416,6 +420,7 @@ public class AddResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -430,6 +435,7 @@ public class AddResultAccessLogMessage
    *          not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -446,6 +452,7 @@ public class AddResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public String getAdditionalInformation()
   {
     return additionalInformation;
@@ -460,6 +467,7 @@ public class AddResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @Nullable()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -474,6 +482,7 @@ public class AddResultAccessLogMessage
    *          it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -490,6 +499,7 @@ public class AddResultAccessLogMessage
    *          if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public Long getIntermediateResponsesReturned()
   {
     return intermediateResponsesReturned;
@@ -506,6 +516,7 @@ public class AddResultAccessLogMessage
    *          message.
    */
   @Override()
+  @Nullable()
   public Double getProcessingTimeMillis()
   {
     return processingTime;
@@ -522,6 +533,7 @@ public class AddResultAccessLogMessage
    *          the log message.
    */
   @Override()
+  @Nullable()
   public Double getQueueTimeMillis()
   {
     return queueTime;
@@ -536,6 +548,7 @@ public class AddResultAccessLogMessage
    *          an empty list if it is not included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -554,6 +567,7 @@ public class AddResultAccessLogMessage
    *          included in the log message.
    */
   @Override()
+  @NotNull()
   public List<String> getServersAccessed()
   {
     return serversAccessed;
@@ -571,6 +585,7 @@ public class AddResultAccessLogMessage
    *          it is not included in the log message (and the server likely did
    *          not access uncached data).
    */
+  @Nullable()
   public Boolean getUncachedDataAccessed()
   {
     return uncachedDataAccessed;
@@ -586,6 +601,7 @@ public class AddResultAccessLogMessage
    *          or {@code null} if it is not included in the log message.
    */
   @Override()
+  @Nullable()
   public String getIntermediateClientResult()
   {
     return intermediateClientResult;
@@ -599,6 +615,7 @@ public class AddResultAccessLogMessage
    * @return  The alternate authorization DN for the operation, or {@code null}
    *          if it is not included in the log message.
    */
+  @Nullable()
   public String getAlternateAuthorizationDN()
   {
     return authzDN;
@@ -612,6 +629,7 @@ public class AddResultAccessLogMessage
    * @return  The replication change ID for the operation, or {@code null} if it
    *          is not included in the log message.
    */
+  @Nullable()
   public String getReplicationChangeID()
   {
     return replicationChangeID;
@@ -627,6 +645,7 @@ public class AddResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public String getTargetHost()
   {
     return targetHost;
@@ -642,6 +661,7 @@ public class AddResultAccessLogMessage
    *          forwarded, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   public Integer getTargetPort()
   {
     return targetPort;
@@ -655,6 +675,7 @@ public class AddResultAccessLogMessage
    * @return  The protocol used to forward the request to the backend server, or
    *          {@code null} if it is not included in the log message.
    */
+  @Nullable()
   public String getTargetProtocol()
   {
     return targetProtocol;
@@ -671,6 +692,7 @@ public class AddResultAccessLogMessage
    *          in the log message (e.g., because the operation was a normal add
    *          rather than an undelete).
    */
+  @Nullable()
   public String getUndeleteFromDN()
   {
     return undeleteFromDN;
@@ -687,6 +709,7 @@ public class AddResultAccessLogMessage
    *          message (e.g., because assured replication will not be performed
    *          for the operation).
    */
+  @Nullable()
   public AssuredReplicationLocalLevel getAssuredReplicationLocalLevel()
   {
     return assuredReplicationLocalLevel;
@@ -703,6 +726,7 @@ public class AddResultAccessLogMessage
    *          message (e.g., because assured replication will not be performed
    *          for the operation).
    */
+  @Nullable()
   public AssuredReplicationRemoteLevel getAssuredReplicationRemoteLevel()
   {
     return assuredReplicationRemoteLevel;
@@ -721,6 +745,7 @@ public class AddResultAccessLogMessage
    *          not included in the log message (e.g., because assured replication
    *          will not be performed for the operation).
    */
+  @Nullable()
   public Long getAssuredReplicationTimeoutMillis()
   {
     return assuredReplicationTimeoutMillis;
@@ -739,6 +764,7 @@ public class AddResultAccessLogMessage
    *          log message (e.g., because assured replication will not be
    *          performed for the operation)
    */
+  @Nullable()
   public Boolean getResponseDelayedByAssurance()
   {
     return responseDelayedByAssurance;
@@ -754,6 +780,7 @@ public class AddResultAccessLogMessage
    *          the operation, or an empty list if no privileges were used or this
    *          is not included in the log message.
    */
+  @NotNull()
   public List<String> getUsedPrivileges()
   {
     return usedPrivileges;
@@ -770,6 +797,7 @@ public class AddResultAccessLogMessage
    *          assigned, or an empty list if no privileges were used or this is
    *          not included in the log message.
    */
+  @NotNull()
   public List<String> getPreAuthorizationUsedPrivileges()
   {
     return preAuthZUsedPrivileges;
@@ -786,6 +814,7 @@ public class AddResultAccessLogMessage
    *          an empty list if there were no missing privileges or this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
@@ -803,6 +832,7 @@ public class AddResultAccessLogMessage
    *          empty list if no such index keys were accessed, or if this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getIndexesWithKeysAccessedNearEntryLimit()
   {
     return indexesWithKeysAccessedNearEntryLimit;
@@ -819,6 +849,7 @@ public class AddResultAccessLogMessage
    *          empty list if no such index keys were accessed, or if this is not
    *          included in the log message.
    */
+  @NotNull()
   public List<String> getIndexesWithKeysAccessedOverEntryLimit()
   {
     return indexesWithKeysAccessedOverEntryLimit;
@@ -830,6 +861,7 @@ public class AddResultAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogMessageType getMessageType()
   {
     return AccessLogMessageType.RESULT;

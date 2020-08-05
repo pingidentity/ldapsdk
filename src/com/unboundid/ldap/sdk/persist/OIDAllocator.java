@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.io.Serializable;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -75,7 +76,8 @@ public abstract class OIDAllocator
    *
    * @return  The OID to use for the attribute type definition.
    */
-  public abstract String allocateAttributeTypeOID(String name);
+  @NotNull()
+  public abstract String allocateAttributeTypeOID(@NotNull String name);
 
 
 
@@ -87,5 +89,6 @@ public abstract class OIDAllocator
    *
    * @return  The OID to use for the object class definition.
    */
-  public abstract String allocateObjectClassOID(String name);
+  @NotNull()
+  public abstract String allocateObjectClassOID(@NotNull String name);
 }

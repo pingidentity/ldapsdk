@@ -62,6 +62,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -98,32 +100,32 @@ final class MoveSubtreeTxnSearchListener
 
 
   // Indicates whether the target transaction should be considered valid.
-  private final AtomicBoolean targetTxnValid;
+  @NotNull private final AtomicBoolean targetTxnValid;
 
   // The counter for the number of entries added to the target server.
-  private final AtomicInteger entriesAddedToTarget;
+  @NotNull private final AtomicInteger entriesAddedToTarget;
 
   // The counter for the number of entries read from the source server.
-  private final AtomicInteger entriesReadFromSource;
+  @NotNull private final AtomicInteger entriesReadFromSource;
 
   // A reference to the result code for move subtree processing.
-  private final AtomicReference<ResultCode> resultCode;
+  @NotNull private final AtomicReference<ResultCode> resultCode;
 
   // The set of controls to include in add requests to the target server.
-  private final Control[] addControls;
+  @NotNull private final Control[] addControls;
 
   // An LDAP connection that may be used to communicate with the target server.
-  private final LDAPConnection targetConnection;
+  @NotNull private final LDAPConnection targetConnection;
 
   // A listener that should be used to perform any processing before and after
   // add operations in the target server.
-  private final MoveSubtreeListener moveListener;
+  @Nullable private final MoveSubtreeListener moveListener;
 
   // A buffer to which any error messages encountered should be appended.
-  private final StringBuilder errorMessage;
+  @NotNull private final StringBuilder errorMessage;
 
   // The DNs of the entries read from the source server.
-  private final TreeSet<DN> sourceEntryDNs;
+  @NotNull private final TreeSet<DN> sourceEntryDNs;
 
 
 
@@ -154,15 +156,16 @@ final class MoveSubtreeTxnSearchListener
    *                                It may be {@code null} if no move listener
    *                                is required.
    */
-  MoveSubtreeTxnSearchListener(final LDAPConnection targetConnection,
-       final AtomicReference<ResultCode> resultCode,
-       final StringBuilder errorMessage,
-       final AtomicInteger entriesReadFromSource,
-       final AtomicInteger entriesAddedToTarget,
-       final TreeSet<DN> sourceEntryDNs,
-       final InteractiveTransactionSpecificationRequestControl targetTxnControl,
-       final OperationPurposeRequestControl opPurposeControl,
-       final MoveSubtreeListener moveListener)
+  MoveSubtreeTxnSearchListener(@NotNull final LDAPConnection targetConnection,
+       @NotNull final AtomicReference<ResultCode> resultCode,
+       @NotNull final StringBuilder errorMessage,
+       @NotNull final AtomicInteger entriesReadFromSource,
+       @NotNull final AtomicInteger entriesAddedToTarget,
+       @NotNull final TreeSet<DN> sourceEntryDNs,
+       @NotNull final InteractiveTransactionSpecificationRequestControl
+            targetTxnControl,
+       @Nullable final OperationPurposeRequestControl opPurposeControl,
+       @Nullable final MoveSubtreeListener moveListener)
   {
     this.targetConnection      = targetConnection;
     this.resultCode            = resultCode;
@@ -199,7 +202,7 @@ final class MoveSubtreeTxnSearchListener
    * {@inheritDoc}
    */
   @Override()
-  public void searchEntryReturned(final SearchResultEntry searchEntry)
+  public void searchEntryReturned(@NotNull final SearchResultEntry searchEntry)
   {
     // Increment the number of entries read from the source server and add its
     // DN to the source DN set.
@@ -364,7 +367,7 @@ final class MoveSubtreeTxnSearchListener
    */
   @Override()
   public void searchReferenceReturned(
-                   final SearchResultReference searchReference)
+                   @NotNull final SearchResultReference searchReference)
   {
     // Don't do anything if we've already encountered one or more errors.
     if (errorMessage.length() > 0)

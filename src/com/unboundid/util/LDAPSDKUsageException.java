@@ -59,7 +59,7 @@ public final class LDAPSDKUsageException
    *
    * @param  message  The message to use for this exception.
    */
-  public LDAPSDKUsageException(final String message)
+  public LDAPSDKUsageException(@NotNull final String message)
   {
     super(message);
   }
@@ -74,7 +74,8 @@ public final class LDAPSDKUsageException
    * @param  cause    The underlying cause for this exception.  It may be
    *                  {@code null} if no cause is available.
    */
-  public LDAPSDKUsageException(final String message, final Throwable cause)
+  public LDAPSDKUsageException(@NotNull final String message,
+                               @Nullable final Throwable cause)
   {
     super(message, cause);
   }
@@ -85,7 +86,7 @@ public final class LDAPSDKUsageException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("LDAPSDKUsageException(message='");
     buffer.append(getMessage());

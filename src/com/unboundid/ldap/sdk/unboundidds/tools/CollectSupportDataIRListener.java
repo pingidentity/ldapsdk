@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             CollectSupportDataOutputStream;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,21 +92,21 @@ final class CollectSupportDataIRListener
 
 
   // A reference to the output file that is being written.
-  private final AtomicReference<File> outputFileReference;
+  @NotNull private final AtomicReference<File> outputFileReference;
 
   // A reference to the first IOException caught while attempting to write the
   // support data archive.
-  private final AtomicReference<IOException> firstIOExceptionReference;
+  @NotNull private final AtomicReference<IOException> firstIOExceptionReference;
 
   // A reference to the output stream used to write the support data archive.
-  private final AtomicReference<OutputStream> outputStreamReference;
+  @NotNull private final AtomicReference<OutputStream> outputStreamReference;
 
   // The associated collect-support-data command-line tool.
-  private final CollectSupportData collectSupportData;
+  @NotNull private final CollectSupportData collectSupportData;
 
   // The output path that should be used when writing the support data archive
   // file.
-  private final File outputPath;
+  @Nullable private final File outputPath;
 
   // The total number of bytes of the support data archive that have been
   // written to the output file.
@@ -133,8 +135,9 @@ final class CollectSupportDataIRListener
    *                             path to a file, then at least the parent
    *                             directory must already exist.
    */
-  CollectSupportDataIRListener(final CollectSupportData collectSupportData,
-                               final File outputPath)
+  CollectSupportDataIRListener(
+       @NotNull final CollectSupportData collectSupportData,
+       @Nullable final File outputPath)
   {
     this.collectSupportData = collectSupportData;
     this.outputPath = outputPath;
@@ -152,7 +155,7 @@ final class CollectSupportDataIRListener
    */
   @Override()
   public synchronized void handleOutputIntermediateResponse(
-       final CollectSupportDataOutputIntermediateResponse response)
+       @NotNull final CollectSupportDataOutputIntermediateResponse response)
   {
     if (response.getOutputStream() ==
          CollectSupportDataOutputStream.STANDARD_OUTPUT)
@@ -172,7 +175,8 @@ final class CollectSupportDataIRListener
    */
   @Override()
   public synchronized void handleArchiveFragmentIntermediateResponse(
-       final CollectSupportDataArchiveFragmentIntermediateResponse response)
+       @NotNull final CollectSupportDataArchiveFragmentIntermediateResponse
+            response)
   {
     File outputFile = outputFileReference.get();
     if (outputFile == null)
@@ -268,7 +272,7 @@ final class CollectSupportDataIRListener
    */
   @Override()
   public synchronized void handleOtherIntermediateResponse(
-       final IntermediateResponse response)
+       @NotNull final IntermediateResponse response)
   {
     collectSupportData.err();
     collectSupportData.wrapErr(0, WRAP_COLUMN,
@@ -327,6 +331,7 @@ final class CollectSupportDataIRListener
    *
    * @return  A reference to the output stream.
    */
+  @NotNull()
   AtomicReference<OutputStream> getOutputStreamReference()
   {
     return outputStreamReference;
@@ -341,6 +346,7 @@ final class CollectSupportDataIRListener
    * @return  A reference to the first {@code IOException} instance caught by
    *          this listener.
    */
+  @NotNull()
   AtomicReference<IOException> getFirstIOExceptionReference()
   {
     return firstIOExceptionReference;

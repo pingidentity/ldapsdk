@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -106,28 +108,28 @@ public final class FieldInfo
   private final boolean supportsMultipleValues;
 
   // The class that contains the associated field.
-  private final Class<?> containingClass;
+  @NotNull private final Class<?> containingClass;
 
   // The field with which this object is associated.
-  private final Field field;
+  @NotNull private final Field field;
 
   // The filter usage for the associated field.
-  private final FilterUsage filterUsage;
+  @NotNull private final FilterUsage filterUsage;
 
   // The encoder used for this field.
-  private final ObjectEncoder encoder;
+  @NotNull private final ObjectEncoder encoder;
 
   // The name of the associated attribute type.
-  private final String attributeName;
+  @NotNull private final String attributeName;
 
   // The default values for the field to use for object instantiation.
-  private final String[] defaultDecodeValues;
+  @NotNull private final String[] defaultDecodeValues;
 
   // The default values for the field to use for add operations.
-  private final String[] defaultEncodeValues;
+  @NotNull private final String[] defaultEncodeValues;
 
   // The names of the object classes for the associated attribute.
-  private final String[] objectClasses;
+  @NotNull private final String[] objectClasses;
 
 
 
@@ -143,7 +145,7 @@ public final class FieldInfo
    * @throws  LDAPPersistException  If a problem occurs while processing the
    *                                given field.
    */
-  FieldInfo(final Field f, final Class<?> c)
+  FieldInfo(@NotNull final Field f, @NotNull final Class<?> c)
        throws LDAPPersistException
   {
     Validator.ensureNotNull(f, c);
@@ -323,6 +325,7 @@ public final class FieldInfo
    *
    * @return  The field with which this object is associated.
    */
+  @NotNull()
   public Field getField()
   {
     return field;
@@ -336,6 +339,7 @@ public final class FieldInfo
    *
    * @return  The class that contains the associated field.
    */
+  @NotNull()
   public Class<?> getContainingClass()
   {
     return containingClass;
@@ -429,6 +433,7 @@ public final class FieldInfo
    *
    * @return  The filter usage for the associated field.
    */
+  @NotNull()
   public FilterUsage getFilterUsage()
   {
     return filterUsage;
@@ -485,6 +490,7 @@ public final class FieldInfo
    *
    * @return  The encoder that should be used for the associated field.
    */
+  @NotNull()
   public ObjectEncoder getEncoder()
   {
     return encoder;
@@ -499,6 +505,7 @@ public final class FieldInfo
    * @return  The name of the LDAP attribute used to hold values for the
    *          associated field.
    */
+  @NotNull()
   public String getAttributeName()
   {
     return attributeName;
@@ -514,6 +521,7 @@ public final class FieldInfo
    * @return  The set of default values for use when instantiating the object,
    *          or an empty array if no default values are defined.
    */
+  @NotNull()
   public String[] getDefaultDecodeValues()
   {
     return defaultDecodeValues;
@@ -529,6 +537,7 @@ public final class FieldInfo
    * @return  The set of default values for use in add operations, or an empty
    *          array if no default values are defined.
    */
+  @NotNull()
   public String[] getDefaultEncodeValues()
   {
     return defaultEncodeValues;
@@ -543,6 +552,7 @@ public final class FieldInfo
    * @return  The names of the object classes containing the associated
    *          attribute.
    */
+  @NotNull()
   public String[] getObjectClasses()
   {
     return objectClasses;
@@ -575,6 +585,7 @@ public final class FieldInfo
    *                                encoding values for the associated field
    *                                type.
    */
+  @NotNull()
   AttributeTypeDefinition constructAttributeType()
        throws LDAPPersistException
   {
@@ -598,6 +609,7 @@ public final class FieldInfo
    *                                encoding values for the associated field
    *                                type.
    */
+  @NotNull()
   AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
        throws LDAPPersistException
   {
@@ -630,7 +642,8 @@ public final class FieldInfo
    *                                as required but is {@code null} and does not
    *                                have any default add values.
    */
-  Attribute encode(final Object o, final boolean ignoreRequiredFlag)
+  @Nullable()
+  Attribute encode(@NotNull final Object o, final boolean ignoreRequiredFlag)
             throws LDAPPersistException
   {
     try
@@ -685,8 +698,8 @@ public final class FieldInfo
    * @return  {@code true} if the decode process was completely successful, or
    *          {@code false} if there were one or more failures.
    */
-  boolean decode(final Object o, final Entry e,
-                 final List<String> failureReasons)
+  boolean decode(@NotNull final Object o, @NotNull final Entry e,
+                 @NotNull final List<String> failureReasons)
   {
     boolean successful = true;
 

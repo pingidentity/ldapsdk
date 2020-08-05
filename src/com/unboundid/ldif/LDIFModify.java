@@ -69,6 +69,8 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
@@ -98,7 +100,7 @@ public final class LDIFModify
    * related Ping Identity server product) that contains this tool, if
    * applicable.
    */
-  private static final File PING_SERVER_ROOT =
+  @NotNull private static final File PING_SERVER_ROOT =
        InternalSDKHelper.getPingIdentityServerRoot();
 
 
@@ -120,32 +122,32 @@ public final class LDIFModify
 
 
   // The completion message for this tool.
-  private final AtomicReference<String> completionMessage;
+  @NotNull private final AtomicReference<String> completionMessage;
 
   // Encryption passphrases used thus far.
-  private final List<char[]> inputEncryptionPassphrases;
+  @NotNull private final List<char[]> inputEncryptionPassphrases;
 
   // The command-line arguments supported by this tool.
-  private BooleanArgument compressTarget;
-  private BooleanArgument doNotWrap;
-  private BooleanArgument encryptTarget;
-  private BooleanArgument lenientModifications;
-  private BooleanArgument noSchemaCheck;
-  private BooleanArgument stripTrailingSpaces;
-  private BooleanArgument suppressComments;
-  private FileArgument changesEncryptionPassphraseFile;
-  private FileArgument changesLDIF;
-  private FileArgument sourceEncryptionPassphraseFile;
-  private FileArgument sourceLDIF;
-  private FileArgument targetEncryptionPassphraseFile;
-  private FileArgument targetLDIF;
-  private IntegerArgument wrapColumn;
+  @Nullable private BooleanArgument compressTarget;
+  @Nullable private BooleanArgument doNotWrap;
+  @Nullable private BooleanArgument encryptTarget;
+  @Nullable private BooleanArgument lenientModifications;
+  @Nullable private BooleanArgument noSchemaCheck;
+  @Nullable private BooleanArgument stripTrailingSpaces;
+  @Nullable private BooleanArgument suppressComments;
+  @Nullable private FileArgument changesEncryptionPassphraseFile;
+  @Nullable private FileArgument changesLDIF;
+  @Nullable private FileArgument sourceEncryptionPassphraseFile;
+  @Nullable private FileArgument sourceLDIF;
+  @Nullable private FileArgument targetEncryptionPassphraseFile;
+  @Nullable private FileArgument targetLDIF;
+  @Nullable private IntegerArgument wrapColumn;
 
   // Variables that may be used by support for a legacy implementation.
-  private LDIFReader changesReader;
-  private LDIFReader sourceReader;
-  private LDIFWriter targetWriter;
-  private List<String> errorMessages;
+  @Nullable private LDIFReader changesReader;
+  @Nullable private LDIFReader sourceReader;
+  @Nullable private LDIFWriter targetWriter;
+  @Nullable private List<String> errorMessages;
 
 
 
@@ -155,7 +157,7 @@ public final class LDIFModify
    * @param  args  The set of arguments provided to this tool.  It may be
    *               empty but must not be {@code null}.
    */
-  public static void main(final String... args)
+  public static void main(@NotNull final String... args)
   {
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
@@ -181,8 +183,9 @@ public final class LDIFModify
    *          code other than {@link ResultCode#SUCCESS} should be considered
    *          an error.
    */
-  public static ResultCode main(final OutputStream out, final OutputStream err,
-                                final String... args)
+  public static ResultCode main(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                @NotNull final String... args)
   {
     final LDIFModify tool = new LDIFModify(out, err);
     return tool.runTool(args);
@@ -213,10 +216,10 @@ public final class LDIFModify
    * @return  {@code true} if processing completed successfully, or
    *          {@code false} if one or more errors were encountered.
    */
-  public static boolean main(final LDIFReader sourceReader,
-                             final LDIFReader changesReader,
-                             final LDIFWriter targetWriter,
-                             final List<String> errorMessages)
+  public static boolean main(@NotNull final LDIFReader sourceReader,
+                             @NotNull final LDIFReader changesReader,
+                             @NotNull final LDIFWriter targetWriter,
+                             @NotNull final List<String> errorMessages)
   {
     Validator.ensureNotNull(sourceReader, changesReader, targetWriter,
          errorMessages);
@@ -275,7 +278,8 @@ public final class LDIFModify
    * @param  err  The output stream to use for standard error.  It may be
    *              {@code null} if standard error should be suppressed.
    */
-  public LDIFModify(final OutputStream out, final OutputStream err)
+  public LDIFModify(@Nullable final OutputStream out,
+                    @Nullable final OutputStream err)
   {
     super(out, err);
 
@@ -309,6 +313,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolName()
   {
     return "ldifmodify";
@@ -320,6 +325,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_LDIFMODIFY_TOOL_DESCRIPTION.get();
@@ -331,6 +337,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public List<String> getAdditionalDescriptionParagraphs()
   {
     return Arrays.asList(
@@ -346,6 +353,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolVersion()
   {
     return Version.NUMERIC_VERSION_STRING;
@@ -390,6 +398,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   protected String getToolCompletionMessage()
   {
     return completionMessage.get();
@@ -401,7 +410,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
-  public void addToolArguments(final ArgumentParser parser)
+  public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     sourceLDIF = new FileArgument('s', "sourceLDIF", (sourceReader == null), 1,
@@ -725,6 +734,7 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ResultCode doToolProcessing()
   {
     // Read all of the changes into memory.
@@ -1114,12 +1124,13 @@ public final class LDIFModify
    * @throws  LDAPException  If an unrecoverable error occurs during processing.
    */
   private void readChangeRecords(
-       final Map<DN,List<LDIFChangeRecord>> addAndSubsequentChangeRecords,
-       final Map<DN,Boolean> deletedEntryDNs,
-       final Map<DN,List<LDIFModifyChangeRecord>> modifyChangeRecords,
-       final Map<DN,ObjectPair<DN,List<LDIFChangeRecord>>>
+       @NotNull final Map<DN,List<LDIFChangeRecord>>
+            addAndSubsequentChangeRecords,
+       @NotNull final Map<DN,Boolean> deletedEntryDNs,
+       @NotNull final Map<DN,List<LDIFModifyChangeRecord>> modifyChangeRecords,
+       @NotNull final Map<DN,ObjectPair<DN,List<LDIFChangeRecord>>>
             modifyDNAndSubsequentChangeRecords,
-       final AtomicReference<ResultCode> resultCode)
+       @NotNull final AtomicReference<ResultCode> resultCode)
        throws LDAPException
   {
     LDIFException firstRecoverableException = null;
@@ -1610,9 +1621,10 @@ changeRecordLoop:
    *
    * @throws  LDAPException  If a problem occurs while creating the LDIF reader.
    */
-  private LDIFReader getLDIFReader(final LDIFReader existingReader,
-                                   final File ldifFile,
-                                   final File passphraseFile)
+  @NotNull()
+  private LDIFReader getLDIFReader(@Nullable final LDIFReader existingReader,
+                                   @Nullable final File ldifFile,
+                                   @Nullable final File passphraseFile)
           throws LDAPException
   {
     if (existingReader != null)
@@ -1695,7 +1707,7 @@ changeRecordLoop:
    * @throws  LDAPException  If a problem is encountered while trying to read
    *                         the passphrase from the provided file.
    */
-  private void readPassphraseFile(final File f)
+  private void readPassphraseFile(@NotNull final File f)
           throws LDAPException
   {
     try
@@ -1721,7 +1733,7 @@ changeRecordLoop:
    * @param  passphrase  The passphrase to be added.  It may optionally be
    *                     {@code null} (in which case no action will be taken).
    */
-  private void addPassphrase(final char[] passphrase)
+  private void addPassphrase(@Nullable final char[] passphrase)
   {
     if (passphrase == null)
     {
@@ -1753,7 +1765,8 @@ changeRecordLoop:
    *
    * @throws  LDAPException  If a problem occurs while creating the LDIF writer.
    */
-  private LDIFWriter getLDIFWriter(final LDIFWriter existingWriter)
+  @NotNull()
+  private LDIFWriter getLDIFWriter(@Nullable final LDIFWriter existingWriter)
           throws LDAPException
   {
     if (existingWriter != null)
@@ -1911,15 +1924,17 @@ changeRecordLoop:
    *          updated entry if changes are applied, or {@code null} if the entry
    *          should be deleted and therefore omitted from the target LDIF file.
    */
-  private Entry updateEntry(final Entry entry,
-       final Map<DN,List<LDIFChangeRecord>> addAndSubsequentChangeRecords,
-       final Map<DN,Boolean> deletedEntryDNs,
-       final Map<DN,List<LDIFModifyChangeRecord>> modifyChangeRecords,
-       final Map<DN,ObjectPair<DN,List<LDIFChangeRecord>>>
+  @Nullable()
+  private Entry updateEntry(@NotNull final Entry entry,
+       @NotNull final Map<DN,List<LDIFChangeRecord>>
+            addAndSubsequentChangeRecords,
+       @NotNull final Map<DN,Boolean> deletedEntryDNs,
+       @NotNull final Map<DN,List<LDIFModifyChangeRecord>> modifyChangeRecords,
+       @NotNull final Map<DN,ObjectPair<DN,List<LDIFChangeRecord>>>
             modifyDNAndSubsequentChangeRecords,
-       final StringBuilder comment,
-       final AtomicReference<ResultCode> resultCode,
-       final AtomicLong entriesUpdated)
+       @NotNull final StringBuilder comment,
+       @NotNull final AtomicReference<ResultCode> resultCode,
+       @NotNull final AtomicLong entriesUpdated)
   {
     // Get the parsed DN for the entry.  If that fails, then we'll just return
     // the provided entry along with a comment explaining that its DN could not
@@ -2081,11 +2096,12 @@ changeRecordLoop:
    * @return  The entry with the modifications applied, or the original entry if
    *          an error occurred while applying the change.
    */
-  private Entry applyModification(final Entry entry,
-                     final LDIFModifyChangeRecord modifyChangeRecord,
-                     final AtomicBoolean isUpdated,
-                     final AtomicReference<ResultCode> resultCode,
-                     final StringBuilder comment)
+  @NotNull()
+  private Entry applyModification(@NotNull final Entry entry,
+                     @NotNull final LDIFModifyChangeRecord modifyChangeRecord,
+                     @NotNull final AtomicBoolean isUpdated,
+                     @NotNull final AtomicReference<ResultCode> resultCode,
+                     @NotNull final StringBuilder comment)
   {
     try
     {
@@ -2126,8 +2142,11 @@ changeRecordLoop:
    * @return  The updated entry with the new DN and any other associated
    *          changes.
    */
-  private Entry applyModifyDN(final Entry entry, final DN originalDN,
-                              final DN newDN, final boolean deleteOldRDN)
+  @NotNull()
+  private Entry applyModifyDN(@NotNull final Entry entry,
+                              @NotNull final DN originalDN,
+                              @NotNull final DN newDN,
+                              final boolean deleteOldRDN)
   {
     final Entry copy = entry.duplicate();
     copy.setDN(newDN);
@@ -2175,9 +2194,9 @@ changeRecordLoop:
    * @throws  IOException  If an error occurs while attempting to write to the
    *                       LDIF writer.
    */
-  private void writeLDIFRecord(final LDIFWriter ldifWriter,
-                               final LDIFRecord ldifRecord,
-                               final CharSequence comment)
+  private void writeLDIFRecord(@NotNull final LDIFWriter ldifWriter,
+                               @NotNull final LDIFRecord ldifRecord,
+                               @Nullable final CharSequence comment)
           throws IOException
   {
     if (suppressComments.isPresent() || (comment == null) ||
@@ -2205,8 +2224,9 @@ changeRecordLoop:
    *                  messages (e.g., because a message will be added through
    *                  some other means).
    */
-  private void appendComment(final StringBuilder buffer,
-                             final String comment, final boolean isError)
+  private void appendComment(@NotNull final StringBuilder buffer,
+                             @NotNull final String comment,
+                             final boolean isError)
   {
     buffer.append(comment);
     if (isError && (errorMessages != null))
@@ -2234,8 +2254,8 @@ changeRecordLoop:
    * @throws  IOException  If an error occurs while attempting to write to the
    *                       LDIF writer.
    */
-  private void writeLDIFComment(final LDIFWriter ldifWriter,
-                                final CharSequence comment,
+  private void writeLDIFComment(@NotNull final LDIFWriter ldifWriter,
+                                @Nullable final CharSequence comment,
                                 final boolean isError)
           throws IOException
   {
@@ -2268,9 +2288,9 @@ changeRecordLoop:
    *                  messages (e.g., because a message will be added through
    *                  some other means).
    */
-  private void createChangeRecordComment(final StringBuilder buffer,
-                                         final String message,
-                                         final LDIFRecord record,
+  private void createChangeRecordComment(@NotNull final StringBuilder buffer,
+                                         @NotNull final String message,
+                                         @NotNull final LDIFRecord record,
                                          final boolean isError)
   {
     final int initialLength = buffer.length();
@@ -2323,7 +2343,7 @@ changeRecordLoop:
    *
    * @param  message  The message to be written.  It must not be {@code null].
    */
-  private void wrapErr(final String message)
+  private void wrapErr(@NotNull final String message)
   {
     wrapErr(0, WRAP_COLUMN, message);
     if (errorMessages != null)
@@ -2341,7 +2361,8 @@ changeRecordLoop:
    *                  standard error rather than standard output.
    * @param  message  The message to be written.
    */
-  private void logCompletionMessage(final boolean isError, final String message)
+  private void logCompletionMessage(final boolean isError,
+                                    @NotNull final String message)
   {
     completionMessage.compareAndSet(null, message);
 
@@ -2361,6 +2382,7 @@ changeRecordLoop:
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();

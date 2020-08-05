@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -57,7 +58,7 @@ final class DiscardAsyncListener
   /**
    * The singleton instance of this async listener.
    */
-  private static final DiscardAsyncListener INSTANCE =
+  @NotNull private static final DiscardAsyncListener INSTANCE =
        new DiscardAsyncListener();
 
 
@@ -77,6 +78,7 @@ final class DiscardAsyncListener
    *
    * @return The singleton instance of this async listener.
    */
+  @NotNull()
   static DiscardAsyncListener getInstance()
   {
     return INSTANCE;
@@ -88,8 +90,8 @@ final class DiscardAsyncListener
    * {@inheritDoc}
    */
   @Override()
-  public void ldapResultReceived(final AsyncRequestID requestID,
-                                 final LDAPResult ldapResult)
+  public void ldapResultReceived(@NotNull final AsyncRequestID requestID,
+                                 @NotNull final LDAPResult ldapResult)
   {
     // No  implementation is required.
   }
@@ -100,8 +102,8 @@ final class DiscardAsyncListener
    * {@inheritDoc}
    */
   @Override()
-  public void compareResultReceived(final AsyncRequestID requestID,
-                                    final CompareResult compareResult)
+  public void compareResultReceived(@NotNull final AsyncRequestID requestID,
+                                    @NotNull final CompareResult compareResult)
   {
     // No implementation is required.
   }

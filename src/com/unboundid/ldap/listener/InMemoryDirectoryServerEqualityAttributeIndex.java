@@ -54,6 +54,7 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -71,16 +72,16 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 final class InMemoryDirectoryServerEqualityAttributeIndex
 {
   // The attribute type with which this index is associated.
-  private final AttributeTypeDefinition attributeType;
+  @NotNull private final AttributeTypeDefinition attributeType;
 
   // A map from normalized values to the DNs of entries with those values.
-  private final Map<ASN1OctetString,TreeSet<DN>> indexMap;
+  @NotNull private final Map<ASN1OctetString,TreeSet<DN>> indexMap;
 
   // The matching rule used to normalize values.
-  private final MatchingRule matchingRule;
+  @NotNull private final MatchingRule matchingRule;
 
   // The schema for the server.
-  private final Schema schema;
+  @NotNull private final Schema schema;
 
 
 
@@ -96,8 +97,8 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
    * @throws  LDAPException  If the specified attribute type is not defined in
    *                         the schema.
    */
-  InMemoryDirectoryServerEqualityAttributeIndex(final String attributeType,
-                                                final Schema schema)
+  InMemoryDirectoryServerEqualityAttributeIndex(
+       @NotNull final String attributeType, @NotNull final Schema schema)
        throws LDAPException
   {
     this.schema = schema;
@@ -127,6 +128,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
    *
    * @return  The attribute type definition for this index.
    */
+  @NotNull()
   AttributeTypeDefinition getAttributeType()
   {
     return attributeType;
@@ -151,6 +153,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
    * @return  A copy of the internal map used by this index.
    */
   @InternalUseOnly()
+  @NotNull()
   synchronized Map<ASN1OctetString,TreeSet<DN>> copyMap()
   {
     final HashMap<ASN1OctetString,TreeSet<DN>> m =
@@ -178,7 +181,8 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
    *                         make the determination (e.g., if the given value is
    *                         not acceptable for the associated attribute type).
    */
-  synchronized Set<DN> getMatchingEntries(final ASN1OctetString value)
+  @NotNull()
+  synchronized Set<DN> getMatchingEntries(@NotNull final ASN1OctetString value)
                throws LDAPException
   {
     final TreeSet<DN> dnSet = indexMap.get(matchingRule.normalize(value));
@@ -203,7 +207,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
    *                         one or more values that are not acceptable for the
    *                         associated attribute type).
    */
-  synchronized void processAdd(final Entry entry)
+  synchronized void processAdd(@NotNull final Entry entry)
                throws LDAPException
   {
     final Attribute a =
@@ -244,7 +248,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
    *                         one or more values that are not acceptable for the
    *                         associated attribute type).
    */
-  synchronized void processDelete(final Entry entry)
+  synchronized void processDelete(@NotNull final Entry entry)
                throws LDAPException
   {
     final Attribute a =

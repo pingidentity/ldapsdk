@@ -44,6 +44,7 @@ import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -69,7 +70,7 @@ public final class JavaToLDAPSocketFactory
        implements LDAPSocketFactory
 {
   // The socket factory that will be used.
-  private final SocketFactory f;
+  @NotNull private final SocketFactory f;
 
 
 
@@ -79,7 +80,7 @@ public final class JavaToLDAPSocketFactory
    *
    * @param  f  The socket factory to use to create the LDAP socket factory.
    */
-  public JavaToLDAPSocketFactory(final SocketFactory f)
+  public JavaToLDAPSocketFactory(@NotNull final SocketFactory f)
   {
     this.f = f;
   }
@@ -97,7 +98,8 @@ public final class JavaToLDAPSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port)
          throws IOException
   {
     synchronized (f)
@@ -125,8 +127,9 @@ public final class JavaToLDAPSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final String host, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final String host, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {
@@ -149,7 +152,8 @@ public final class JavaToLDAPSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port)
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port)
          throws IOException
   {
     synchronized (f)
@@ -177,8 +181,9 @@ public final class JavaToLDAPSocketFactory
    * @throws  IOException  If a problem occurs while creating the socket.
    */
   @Override()
-  public Socket createSocket(final InetAddress address, final int port,
-                             final InetAddress localAddress,
+  @NotNull()
+  public Socket createSocket(@NotNull final InetAddress address, final int port,
+                             @NotNull final InetAddress localAddress,
                              final int localPort)
          throws IOException
   {
@@ -194,7 +199,8 @@ public final class JavaToLDAPSocketFactory
    * {@inheritDoc}
    */
   @Override()
-  public Socket makeSocket(final String host, final int port)
+  @NotNull()
+  public Socket makeSocket(@NotNull final String host, final int port)
          throws LDAPException
   {
     try

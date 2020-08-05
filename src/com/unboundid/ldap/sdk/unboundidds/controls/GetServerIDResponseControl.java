@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -85,7 +87,7 @@ public final class GetServerIDResponseControl
   /**
    * The OID (1.3.6.1.4.1.30221.2.5.15) for the get server ID response control.
    */
-  public static final String GET_SERVER_ID_RESPONSE_OID =
+  @NotNull public static final String GET_SERVER_ID_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.15";
 
 
@@ -97,7 +99,7 @@ public final class GetServerIDResponseControl
 
 
   // The server ID of the server that processed the associated request.
-  private final String serverID;
+  @NotNull private final String serverID;
 
 
 
@@ -118,7 +120,7 @@ public final class GetServerIDResponseControl
    * @param  serverID  The server ID of the server that processed the associated
    *                   request.  It must not be {@code null}.
    */
-  public GetServerIDResponseControl(final String serverID)
+  public GetServerIDResponseControl(@NotNull final String serverID)
   {
     super(GET_SERVER_ID_RESPONSE_OID, false, new ASN1OctetString(serverID));
 
@@ -143,8 +145,9 @@ public final class GetServerIDResponseControl
    *                         generic control as a get server ID response
    *                         control.
    */
-  public GetServerIDResponseControl(final String oid, final boolean isCritical,
-                                    final ASN1OctetString value)
+  public GetServerIDResponseControl(@NotNull final String oid,
+                                    final boolean isCritical,
+                                    @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     super(oid, isCritical, value);
@@ -164,9 +167,10 @@ public final class GetServerIDResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public GetServerIDResponseControl decodeControl(final String oid,
-                                                  final boolean isCritical,
-                                                  final ASN1OctetString value)
+  @NotNull()
+  public GetServerIDResponseControl decodeControl(@NotNull final String oid,
+              final boolean isCritical,
+              @Nullable final ASN1OctetString value)
          throws LDAPException
   {
     return new GetServerIDResponseControl(oid, isCritical, value);
@@ -188,7 +192,8 @@ public final class GetServerIDResponseControl
    *                         decode the get server ID response control contained
    *                         in the provided result.
    */
-  public static GetServerIDResponseControl get(final LDAPResult result)
+  @Nullable()
+  public static GetServerIDResponseControl get(@NotNull final LDAPResult result)
          throws LDAPException
   {
     final Control c = result.getResponseControl(GET_SERVER_ID_RESPONSE_OID);
@@ -225,7 +230,9 @@ public final class GetServerIDResponseControl
    *                         decode the get server ID response control contained
    *                         in the provided entry.
    */
-  public static GetServerIDResponseControl get(final SearchResultEntry entry)
+  @Nullable()
+  public static GetServerIDResponseControl get(
+                     @NotNull final SearchResultEntry entry)
          throws LDAPException
   {
     final Control c = entry.getControl(GET_SERVER_ID_RESPONSE_OID);
@@ -262,7 +269,9 @@ public final class GetServerIDResponseControl
    *                         decode the get server ID response control contained
    *                         in the provided reference.
    */
-  public static GetServerIDResponseControl get(final SearchResultReference ref)
+  @Nullable()
+  public static GetServerIDResponseControl get(
+                     @NotNull final SearchResultReference ref)
          throws LDAPException
   {
     final Control c = ref.getControl(GET_SERVER_ID_RESPONSE_OID);
@@ -291,6 +300,7 @@ public final class GetServerIDResponseControl
    * @return  The server ID of the server that actually processed the associated
    *          request.
    */
+  @NotNull()
   public String getServerID()
   {
     return serverID;
@@ -302,6 +312,7 @@ public final class GetServerIDResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_SERVER_ID_RESPONSE.get();
@@ -313,7 +324,7 @@ public final class GetServerIDResponseControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("GetServerIDResponseControl(serverID='");
     buffer.append(serverID);

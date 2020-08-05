@@ -51,6 +51,8 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -96,8 +98,9 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.33) for the identify backup compatibility
    * problems extended request.
    */
-  public static final String IDENTIFY_BACKUP_COMPATIBILITY_PROBLEMS_RESULT_OID =
-       "1.3.6.1.4.1.30221.2.6.33";
+  @NotNull public static final String
+       IDENTIFY_BACKUP_COMPATIBILITY_PROBLEMS_RESULT_OID =
+            "1.3.6.1.4.1.30221.2.6.33";
 
 
 
@@ -123,10 +126,10 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
 
 
   // The compatibility error messages.
-  private final List<String> errorMessages;
+  @NotNull private final List<String> errorMessages;
 
   // The compatibility warning messages.
-  private final List<String> warningMessages;
+  @NotNull private final List<String> warningMessages;
 
 
 
@@ -142,7 +145,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    *                        extended result.
    */
   public IdentifyBackupCompatibilityProblemsExtendedResult(
-              final ExtendedResult result)
+              @NotNull final ExtendedResult result)
          throws LDAPException
   {
     super(result);
@@ -240,11 +243,13 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    *                            available.
    */
   public IdentifyBackupCompatibilityProblemsExtendedResult(final int messageID,
-              final ResultCode resultCode, final String diagnosticMessage,
-              final String matchedDN, final String[] referralURLs,
-              final Collection<String> errorMessages,
-              final Collection<String> warningMessages,
-              final Control... responseControls)
+              @NotNull final ResultCode resultCode,
+              @Nullable final String diagnosticMessage,
+              @Nullable final String matchedDN,
+              @Nullable final String[] referralURLs,
+              @Nullable final Collection<String> errorMessages,
+              @Nullable final Collection<String> warningMessages,
+              @Nullable final Control... responseControls)
   {
     super(messageID, resultCode, diagnosticMessage, matchedDN, referralURLs,
          ((resultCode == ResultCode.SUCCESS)
@@ -294,9 +299,11 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    *          result, or {@code null} if a result with the provided information
    *          should not have a value.
    */
-  public static ASN1OctetString encodeValue(final ResultCode resultCode,
-                                     final Collection<String> errorMessages,
-                                     final Collection<String> warningMessages)
+  @Nullable()
+  public static ASN1OctetString encodeValue(
+              @NotNull final ResultCode resultCode,
+              @Nullable final Collection<String> errorMessages,
+              @Nullable final Collection<String> warningMessages)
   {
     if (resultCode != ResultCode.SUCCESS)
     {
@@ -345,6 +352,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    * @return  A list of messages for any compatibility errors that have been
    *          identified, or an empty list if there are no compatibility errors.
    */
+  @NotNull()
   public List<String> getErrorMessages()
   {
     return errorMessages;
@@ -361,6 +369,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    *          identified, or an empty list if there are no compatibility
    *          warnings.
    */
+  @NotNull()
   public List<String> getWarningMessages()
   {
     return warningMessages;
@@ -372,6 +381,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_EXTENDED_RESULT_NAME_IDENTIFY_BACKUP_COMPAT_PROBLEMS.get();
@@ -383,7 +393,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("IdentifyBackupCompatibilityProblemsExtendedResult(" +
          "resultCode=");

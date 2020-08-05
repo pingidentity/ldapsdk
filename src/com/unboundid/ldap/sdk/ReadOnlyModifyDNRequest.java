@@ -39,6 +39,8 @@ package com.unboundid.ldap.sdk;
 
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,6 +69,7 @@ public interface ReadOnlyModifyDNRequest
    *
    * @return  The current DN of the entry to move/rename.
    */
+  @NotNull()
   String getDN();
 
 
@@ -76,6 +79,7 @@ public interface ReadOnlyModifyDNRequest
    *
    * @return  The new RDN for the entry.
    */
+  @NotNull()
   String getNewRDN();
 
 
@@ -96,6 +100,7 @@ public interface ReadOnlyModifyDNRequest
    * @return  The new superior DN for the entry, or {@code null} if the entry is
    *          not to be moved below a new parent.
    */
+  @Nullable()
   String getNewSuperiorDN();
 
 
@@ -104,6 +109,7 @@ public interface ReadOnlyModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   ModifyDNRequest duplicate();
 
 
@@ -112,7 +118,8 @@ public interface ReadOnlyModifyDNRequest
    * {@inheritDoc}
    */
   @Override()
-  ModifyDNRequest duplicate(Control[] controls);
+  @NotNull()
+  ModifyDNRequest duplicate(@Nullable Control[] controls);
 
 
 
@@ -123,6 +130,7 @@ public interface ReadOnlyModifyDNRequest
    * @return  An LDIF modify DN change record with the contents of this modify
    *          DN request.
    */
+  @NotNull()
   LDIFModifyDNChangeRecord toLDIFChangeRecord();
 
 
@@ -134,6 +142,7 @@ public interface ReadOnlyModifyDNRequest
    * @return  A string array whose lines contain an LDIF representation of the
    *          corresponding modify DN change record.
    */
+  @NotNull()
   String[] toLDIF();
 
 
@@ -143,5 +152,6 @@ public interface ReadOnlyModifyDNRequest
    *
    * @return  An LDIF string representation of this modify DN request.
    */
+  @NotNull()
   String toLDIFString();
 }

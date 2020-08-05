@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,7 +71,7 @@ public interface PostConnectProcessor
    *                         exception is thrown, then the connection will be
    *                         terminated and not used in the pool.
    */
-  void processPreAuthenticatedConnection(LDAPConnection connection)
+  void processPreAuthenticatedConnection(@NotNull LDAPConnection connection)
        throws LDAPException;
 
 
@@ -88,6 +89,6 @@ public interface PostConnectProcessor
    *                         exception is thrown, then the connection will be
    *                         terminated and not used in the pool.
    */
-  void processPostAuthenticatedConnection(LDAPConnection connection)
+  void processPostAuthenticatedConnection(@NotNull LDAPConnection connection)
        throws LDAPException;
 }

@@ -211,42 +211,43 @@ public abstract class LDAPCommandLineTool
        extends CommandLineTool
 {
   // Arguments used to communicate with an LDAP directory server.
-  private BooleanArgument helpSASL                    = null;
-  private BooleanArgument enableSSLDebugging          = null;
-  private BooleanArgument promptForBindPassword       = null;
-  private BooleanArgument promptForKeyStorePassword   = null;
-  private BooleanArgument promptForTrustStorePassword = null;
-  private BooleanArgument trustAll                    = null;
-  private BooleanArgument useSASLExternal             = null;
-  private BooleanArgument useSSL                      = null;
-  private BooleanArgument useStartTLS                 = null;
-  private DNArgument      bindDN                      = null;
-  private FileArgument    bindPasswordFile            = null;
-  private FileArgument    keyStorePasswordFile        = null;
-  private FileArgument    trustStorePasswordFile      = null;
-  private IntegerArgument port                        = null;
-  private StringArgument  bindPassword                = null;
-  private StringArgument  certificateNickname         = null;
-  private StringArgument  host                        = null;
-  private StringArgument  keyStoreFormat              = null;
-  private StringArgument  keyStorePath                = null;
-  private StringArgument  keyStorePassword            = null;
-  private StringArgument  saslOption                  = null;
-  private StringArgument  trustStoreFormat            = null;
-  private StringArgument  trustStorePath              = null;
-  private StringArgument  trustStorePassword          = null;
+  @Nullable private BooleanArgument helpSASL                    = null;
+  @Nullable private BooleanArgument enableSSLDebugging          = null;
+  @Nullable private BooleanArgument promptForBindPassword       = null;
+  @Nullable private BooleanArgument promptForKeyStorePassword   = null;
+  @Nullable private BooleanArgument promptForTrustStorePassword = null;
+  @Nullable private BooleanArgument trustAll                    = null;
+  @Nullable private BooleanArgument useSASLExternal             = null;
+  @Nullable private BooleanArgument useSSL                      = null;
+  @Nullable private BooleanArgument useStartTLS                 = null;
+  @Nullable private DNArgument      bindDN                      = null;
+  @Nullable private FileArgument    bindPasswordFile            = null;
+  @Nullable private FileArgument    keyStorePasswordFile        = null;
+  @Nullable private FileArgument    trustStorePasswordFile      = null;
+  @Nullable private IntegerArgument port                        = null;
+  @Nullable private StringArgument  bindPassword                = null;
+  @Nullable private StringArgument  certificateNickname         = null;
+  @Nullable private StringArgument  host                        = null;
+  @Nullable private StringArgument  keyStoreFormat              = null;
+  @Nullable private StringArgument  keyStorePath                = null;
+  @Nullable private StringArgument  keyStorePassword            = null;
+  @Nullable private StringArgument  saslOption                  = null;
+  @Nullable private StringArgument  trustStoreFormat            = null;
+  @Nullable private StringArgument  trustStorePath              = null;
+  @Nullable private StringArgument  trustStorePassword          = null;
 
   // Variables used when creating and authenticating connections.
-  private BindRequest      bindRequest           = null;
-  private ServerSet        serverSet             = null;
-  private SSLSocketFactory startTLSSocketFactory = null;
+  @Nullable private BindRequest      bindRequest           = null;
+  @Nullable private ServerSet        serverSet             = null;
+  @Nullable private SSLSocketFactory startTLSSocketFactory = null;
 
   // An atomic reference to an aggregate trust manager that will check a
   // JVM-default set of trusted issuers, and then its own cache, before
   // prompting the user about whether to trust the presented certificate chain.
   // Re-using this trust manager will allow the tool to benefit from a common
   // cache if multiple connections are needed.
-  private final AtomicReference<AggregateTrustManager> promptTrustManager;
+  @NotNull private final AtomicReference<AggregateTrustManager>
+       promptTrustManager;
 
 
 
@@ -265,8 +266,8 @@ public abstract class LDAPCommandLineTool
    *                    or a custom output stream if the output should be sent
    *                    to an alternate location.
    */
-  public LDAPCommandLineTool(final OutputStream outStream,
-                             final OutputStream errStream)
+  public LDAPCommandLineTool(@Nullable final OutputStream outStream,
+                             @Nullable final OutputStream errStream)
   {
     super(outStream, errStream);
 
@@ -284,8 +285,9 @@ public abstract class LDAPCommandLineTool
    * @return  A set containing the long identifiers used for LDAP-related
    *          arguments injected by this class.
    */
+  @NotNull()
   static Set<String> getLongLDAPArgumentIdentifiers(
-                          final LDAPCommandLineTool tool)
+                          @NotNull final LDAPCommandLineTool tool)
   {
     final LinkedHashSet<String> ids =
          new LinkedHashSet<>(StaticUtils.computeMapCapacity(21));
@@ -338,6 +340,7 @@ public abstract class LDAPCommandLineTool
    *          tool-specific argument instead.  It may be empty but must not be
    *          {@code null}.
    */
+  @NotNull()
   protected Set<Character> getSuppressedShortIdentifiers()
   {
     return Collections.emptySet();
@@ -355,7 +358,9 @@ public abstract class LDAPCommandLineTool
    * @return  The provided character, or {@code null} if it is in the set of
    *          suppressed short identifiers.
    */
-  private Character getShortIdentifierIfNotSuppressed(final Character id)
+  @Nullable()
+  private Character getShortIdentifierIfNotSuppressed(
+                         @NotNull final Character id)
   {
     if (getSuppressedShortIdentifiers().contains(id))
     {
@@ -373,7 +378,7 @@ public abstract class LDAPCommandLineTool
    * {@inheritDoc}
    */
   @Override()
-  public final void addToolArguments(final ArgumentParser parser)
+  public final void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
     final String argumentGroup;
@@ -755,7 +760,7 @@ public abstract class LDAPCommandLineTool
    *
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
-  public abstract void addNonLDAPArguments(ArgumentParser parser)
+  public abstract void addNonLDAPArguments(@NotNull ArgumentParser parser)
          throws ArgumentException;
 
 
@@ -854,6 +859,7 @@ public abstract class LDAPCommandLineTool
    *          generated by this tool.  It may be {@code null} or empty if no
    *          controls should be included in the bind request.
    */
+  @Nullable()
   protected List<Control> getBindControls()
   {
     return null;
@@ -921,6 +927,7 @@ public abstract class LDAPCommandLineTool
    * @return  The connection options that should be used for connections that
    *          are created with this command line tool.
    */
+  @NotNull()
   public LDAPConnectionOptions getConnectionOptions()
   {
     return new LDAPConnectionOptions();
@@ -942,6 +949,7 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the connection.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnection getConnection()
          throws LDAPException
   {
@@ -980,6 +988,7 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the connection.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnection getUnauthenticatedConnection()
          throws LDAPException
   {
@@ -1038,6 +1047,7 @@ public abstract class LDAPCommandLineTool
    *                         pool.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnectionPool getConnectionPool(
                                        final int initialConnections,
                                        final int maxConnections)
@@ -1102,13 +1112,14 @@ public abstract class LDAPCommandLineTool
    *                         pool.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  @NotNull()
   public final LDAPConnectionPool getConnectionPool(
-                    final int initialConnections, final int maxConnections,
-                    final int initialConnectThreads,
-                    final PostConnectProcessor beforeStartTLSProcessor,
-                    final PostConnectProcessor afterStartTLSProcessor,
-                    final boolean throwOnConnectFailure,
-                    final LDAPConnectionPoolHealthCheck healthCheck)
+              final int initialConnections, final int maxConnections,
+              final int initialConnectThreads,
+              @Nullable final PostConnectProcessor beforeStartTLSProcessor,
+              @Nullable final PostConnectProcessor afterStartTLSProcessor,
+              final boolean throwOnConnectFailure,
+              @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
             throws LDAPException
   {
     // Create the server set and bind request, if necessary.
@@ -1166,6 +1177,7 @@ public abstract class LDAPCommandLineTool
    *
    * @throws  LDAPException  If a problem occurs while creating the server set.
    */
+  @NotNull()
   public ServerSet createServerSet()
          throws LDAPException
   {
@@ -1238,6 +1250,7 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the SSLUtil
    *                         instance.
    */
+  @Nullable()
   public SSLUtil createSSLUtil()
          throws LDAPException
   {
@@ -1262,6 +1275,7 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the SSLUtil
    *                         instance.
    */
+  @Nullable()
   public SSLUtil createSSLUtil(final boolean force)
          throws LDAPException
   {
@@ -1396,6 +1410,7 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the bind
    *                         request.
    */
+  @Nullable()
   public BindRequest createBindRequest()
          throws LDAPException
   {
@@ -1518,7 +1533,7 @@ public abstract class LDAPCommandLineTool
    * @return  {@code true} if at least one of the provided arguments was
    *          provided on the command line, or {@code false} if not.
    */
-  private static boolean isAnyPresent(final Argument... args)
+  private static boolean isAnyPresent(@NotNull final Argument... args)
   {
     for (final Argument a : args)
     {

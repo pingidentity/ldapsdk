@@ -47,6 +47,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.Debug;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.args.IPAddressArgumentValueValidator;
@@ -95,6 +97,11 @@ final class PromptTrustManagerProcessor
    *                                  chain was provided by a server (if
    *                                  {@code true}) or a client (if
    *                                  {@code false}).
+   * @param  examineValidityDates     Indicates whether to examine the
+   *                                  certificate's validity dates in the course
+   *                                  of determining about whether to prompt
+   *                                  about whether to trust the given
+   *                                  certificate chain.
    * @param  acceptedCertificates     A cache of the certificates that have
    *                                  already been accepted.  The entries in the
    *                                  cache will be mapped from an all-lowercase
@@ -104,11 +111,6 @@ final class PromptTrustManagerProcessor
    *                                  been declared trusted even if the
    *                                  certificate is outside the validity
    *                                  window.
-   * @param  examineValidityDates     Indicates whether to examine the
-   *                                  certificate's validity dates in the course
-   *                                  of determining about whether to prompt
-   *                                  about whether to trust the given
-   *                                  certificate chain.
    * @param  expectedServerAddresses  A list containing the addresses that the
    *                                  client is expected to use to connect to a
    *                                  target server.  If this is {@code null} or
@@ -123,11 +125,14 @@ final class PromptTrustManagerProcessor
    *          chain that should be displayed to the user if they should be
    *          prompted.
    */
-  static ObjectPair<Boolean,List<String>> shouldPrompt(final String cacheKey,
-              final X509Certificate[] chain, final boolean isServerChain,
+  @NotNull()
+  static ObjectPair<Boolean,List<String>> shouldPrompt(
+              @NotNull final String cacheKey,
+              @NotNull final X509Certificate[] chain,
+              final boolean isServerChain,
               final boolean examineValidityDates,
-              final Map<String,Boolean> acceptedCertificates,
-              final List<String> expectedServerAddresses)
+              @NotNull final Map<String,Boolean> acceptedCertificates,
+              @Nullable final List<String> expectedServerAddresses)
   {
     // See if any of the certificates is outside the validity window.
     boolean outsideValidityWindow = false;
@@ -458,7 +463,8 @@ final class PromptTrustManagerProcessor
    *
    * @return  The user-friendly string representation of the provided date.
    */
-  static String formatDate(final Date d)
+  @NotNull()
+  static String formatDate(@NotNull final Date d)
   {
     // Example:  Sunday, January 1, 2017
     final String dateFormatString = "EEEE, MMMM d, yyyy";
@@ -485,7 +491,7 @@ final class PromptTrustManagerProcessor
    * @return  {@code true} if the provided string appears to be a hostname, or
    *          {@code false] if not.
    */
-  static boolean isHostnameOrIPAddress(final String s)
+  static boolean isHostnameOrIPAddress(@NotNull final String s)
   {
     if (s.isEmpty())
     {
@@ -561,8 +567,8 @@ final class PromptTrustManagerProcessor
    * @return  {@code true} if the provided string represents an address in the
    *          set of expected addresses, or {@code false} if not.
    */
-  private static boolean isAllowedHostnameOrIPAddress(final String s,
-                              final List<String> expectedAddresses)
+  private static boolean isAllowedHostnameOrIPAddress(@NotNull final String s,
+                              @NotNull final List<String> expectedAddresses)
   {
     if (IPAddressArgumentValueValidator.isValidNumericIPAddress(s))
     {
@@ -629,8 +635,8 @@ final class PromptTrustManagerProcessor
    * @return  {@code true} if the provided address represents one that is in the
    *          set of expected addresses, or {@code false} if not.
    */
-  private static boolean isAllowedIPAddress(final InetAddress a,
-                              final List<String> expectedAddresses)
+  private static boolean isAllowedIPAddress(@NotNull final InetAddress a,
+                              @NotNull final List<String> expectedAddresses)
   {
     for (final String s : expectedAddresses)
     {
@@ -663,7 +669,8 @@ final class PromptTrustManagerProcessor
    * @param  b  The buffer to which the string should be appended.
    * @param  s  The string to append to the buffer.
    */
-  private static void commaAppend(final StringBuilder b, final String s)
+  private static void commaAppend(@NotNull final StringBuilder b,
+                                  @NotNull final String s)
   {
     if (b.length() > 0)
     {

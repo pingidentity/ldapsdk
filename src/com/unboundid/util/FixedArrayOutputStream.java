@@ -65,7 +65,7 @@ public final class FixedArrayOutputStream
 
 
   // The byte array used by this class.
-  private final byte[] array;
+  @NotNull private final byte[] array;
 
   // The initial position for this array.
   private final int initialPosition;
@@ -88,7 +88,7 @@ public final class FixedArrayOutputStream
    * @param  array  The array to which data will be written.  It must not be
    *                {@code null}.
    */
-  public FixedArrayOutputStream(final byte[] array)
+  public FixedArrayOutputStream(@NotNull final byte[] array)
   {
     this(array, 0, array.length);
   }
@@ -109,8 +109,8 @@ public final class FixedArrayOutputStream
    *                the difference between the length of the array and the
    *                provided {@code pos} value.
    */
-  public FixedArrayOutputStream(final byte[] array, final int pos,
-                                   final int len)
+  public FixedArrayOutputStream(@NotNull final byte[] array, final int pos,
+                                final int len)
   {
     this.array = array;
     this.pos   = pos;
@@ -134,6 +134,7 @@ public final class FixedArrayOutputStream
    *
    * @return  The backing array used by this output stream.
    */
+  @NotNull()
   public byte[] getBackingArray()
   {
     return array;
@@ -236,7 +237,7 @@ public final class FixedArrayOutputStream
    *                       array.
    */
   @Override()
-  public void write(final byte[] b)
+  public void write(@NotNull final byte[] b)
          throws IOException
   {
     write(b, 0, b.length);
@@ -260,7 +261,7 @@ public final class FixedArrayOutputStream
    *                       array.
    */
   @Override()
-  public void write(final byte[] b, final int off, final int len)
+  public void write(@NotNull final byte[] b, final int off, final int len)
          throws IOException
   {
     Validator.ensureTrue((off >= 0),

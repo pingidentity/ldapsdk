@@ -46,6 +46,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,8 +90,9 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.39) for the delete notification subscription
    * extended request.
    */
-  public static final String DELETE_NOTIFICATION_SUBSCRIPTION_REQUEST_OID =
-       "1.3.6.1.4.1.30221.2.6.39";
+  @NotNull public static final String
+       DELETE_NOTIFICATION_SUBSCRIPTION_REQUEST_OID =
+            "1.3.6.1.4.1.30221.2.6.39";
 
 
 
@@ -101,13 +104,13 @@ public final class DeleteNotificationSubscriptionExtendedRequest
 
 
   // The notification destination ID.
-  private final String destinationID;
+  @NotNull private final String destinationID;
 
   // The notification manager ID.
-  private final String managerID;
+  @NotNull private final String managerID;
 
   // The notification subscription ID.
-  private final String subscriptionID;
+  @NotNull private final String subscriptionID;
 
 
 
@@ -125,9 +128,11 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    *                            It may be {@code null} or empty if no controls
    *                            are needed.
    */
-  public DeleteNotificationSubscriptionExtendedRequest(final String managerID,
-              final String destinationID, final String subscriptionID,
-              final Control... controls)
+  public DeleteNotificationSubscriptionExtendedRequest(
+              @NotNull final String managerID,
+              @NotNull final String destinationID,
+              @NotNull final String subscriptionID,
+              @Nullable final Control... controls)
   {
     super(DELETE_NOTIFICATION_SUBSCRIPTION_REQUEST_OID,
          encodeValue(managerID, destinationID, subscriptionID), controls);
@@ -149,7 +154,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public DeleteNotificationSubscriptionExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -197,8 +202,10 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String managerID,
-                      final String destinationID, final String subscriptionID)
+  @NotNull()
+  private static ASN1OctetString encodeValue(@NotNull final String managerID,
+                      @NotNull final String destinationID,
+                      @NotNull final String subscriptionID)
   {
     Validator.ensureNotNull(managerID);
     Validator.ensureNotNull(destinationID);
@@ -218,6 +225,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    *
    * @return  The notification manager ID.
    */
+  @NotNull()
   public String getManagerID()
   {
     return managerID;
@@ -230,6 +238,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    *
    * @return  The notification destination ID.
    */
+  @NotNull()
   public String getDestinationID()
   {
     return destinationID;
@@ -242,6 +251,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    *
    * @return  The notification subscription ID.
    */
+  @NotNull()
   public String getSubscriptionID()
   {
     return subscriptionID;
@@ -253,6 +263,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DeleteNotificationSubscriptionExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -264,8 +275,9 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public DeleteNotificationSubscriptionExtendedRequest
-              duplicate(final Control[] controls)
+  @NotNull()
+  public DeleteNotificationSubscriptionExtendedRequest duplicate(
+              @Nullable final Control[] controls)
   {
     final DeleteNotificationSubscriptionExtendedRequest r =
          new DeleteNotificationSubscriptionExtendedRequest(managerID,
@@ -280,6 +292,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_DEL_NOTIFICATION_SUB.get();
@@ -291,7 +304,7 @@ public final class DeleteNotificationSubscriptionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeleteNotificationSubscriptionExtendedRequest(managerID='");
     buffer.append(managerID);

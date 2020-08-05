@@ -55,6 +55,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -119,7 +121,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.49) for the deliver single-use token
    * extended request.
    */
-  public static final String DELIVER_SINGLE_USE_TOKEN_REQUEST_OID =
+  @NotNull public static final String DELIVER_SINGLE_USE_TOKEN_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.49";
 
 
@@ -235,32 +237,33 @@ public final class DeliverSingleUseTokenExtendedRequest
   private final boolean deliverIfPasswordExpired;
 
   // An optional list of the preferred delivery mechanisms that should be used.
-  private final List<ObjectPair<String,String>> preferredDeliveryMechanisms;
+  @NotNull private final List<ObjectPair<String,String>>
+       preferredDeliveryMechanisms;
 
   // The maximum length of time, in milliseconds, that the token should be
   // considered valid.
-  private final Long validityDurationMillis;
+  @Nullable private final Long validityDurationMillis;
 
   // The text to include after the token in a compact message.
-  private final String compactTextAfterToken;
+  @Nullable private final String compactTextAfterToken;
 
   // The text to include before the token in a compact message.
-  private final String compactTextBeforeToken;
+  @Nullable private final String compactTextBeforeToken;
 
   // The text to include after the token in a message without size constraints.
-  private final String fullTextAfterToken;
+  @Nullable private final String fullTextAfterToken;
 
   // The text to include before the token in a message without size constraints.
-  private final String fullTextBeforeToken;
+  @Nullable private final String fullTextBeforeToken;
 
   // The text to use as the message subject.
-  private final String messageSubject;
+  @Nullable private final String messageSubject;
 
   // The identifier that will be used when consuming this token.
-  private final String tokenID;
+  @NotNull private final String tokenID;
 
   // The DN of the user for whom the token should be generated and delivered.
-  private final String userDN;
+  @NotNull private final String userDN;
 
 
 
@@ -357,17 +360,21 @@ public final class DeliverSingleUseTokenExtendedRequest
    *                                      {@code null} or empty if no controls
    *                                      are required.
    */
-  public DeliverSingleUseTokenExtendedRequest(final String userDN,
-              final String tokenID, final Long validityDurationMillis,
-              final String messageSubject, final String fullTextBeforeToken,
-              final String fullTextAfterToken,
-              final String compactTextBeforeToken,
-              final String compactTextAfterToken,
-              final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
-              final boolean deliverIfPasswordExpired,
-              final boolean deliverIfAccountLocked,
-              final boolean deliverIfAccountDisabled,
-              final boolean deliverIfAccountExpired, final Control... controls)
+  public DeliverSingleUseTokenExtendedRequest(@NotNull final String userDN,
+       @NotNull final String tokenID,
+       @Nullable final Long validityDurationMillis,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeToken,
+       @Nullable final String fullTextAfterToken,
+       @Nullable final String compactTextBeforeToken,
+       @Nullable final String compactTextAfterToken,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
+       final boolean deliverIfPasswordExpired,
+       final boolean deliverIfAccountLocked,
+       final boolean deliverIfAccountDisabled,
+       final boolean deliverIfAccountExpired,
+       @Nullable final Control... controls)
   {
     super(DELIVER_SINGLE_USE_TOKEN_REQUEST_OID,
          encodeValue(userDN, tokenID, validityDurationMillis, messageSubject,
@@ -413,7 +420,8 @@ public final class DeliverSingleUseTokenExtendedRequest
    * @throws  LDAPException  If the provided extended request cannot be decoded
    *                         as a deliver single-use token request.
    */
-  public DeliverSingleUseTokenExtendedRequest(final ExtendedRequest request)
+  public DeliverSingleUseTokenExtendedRequest(
+              @NotNull final ExtendedRequest request)
          throws LDAPException
   {
     super(request);
@@ -646,12 +654,16 @@ public final class DeliverSingleUseTokenExtendedRequest
    *
    * @return  An ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final String userDN,
-       final String tokenID, final Long validityDurationMillis,
-       final String messageSubject, final String fullTextBeforeToken,
-       final String fullTextAfterToken, final String compactTextBeforeToken,
-       final String compactTextAfterToken,
-       final List<ObjectPair<String,String>> preferredDeliveryMechanisms,
+  private static ASN1OctetString encodeValue(@NotNull final String userDN,
+       @NotNull final String tokenID,
+       @Nullable final Long validityDurationMillis,
+       @Nullable final String messageSubject,
+       @Nullable final String fullTextBeforeToken,
+       @Nullable final String fullTextAfterToken,
+       @Nullable final String compactTextBeforeToken,
+       @Nullable final String compactTextAfterToken,
+       @Nullable final List<ObjectPair<String,String>>
+            preferredDeliveryMechanisms,
        final boolean deliverIfPasswordExpired,
        final boolean deliverIfAccountLocked,
        final boolean deliverIfAccountDisabled,
@@ -757,6 +769,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    * @return  The DN of the user for whom the token should be generated and
    *          delivered.
    */
+  @NotNull()
   public String getUserDN()
   {
     return userDN;
@@ -772,6 +785,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *
    * @return  An identifier for the token.
    */
+  @NotNull()
   public String getTokenID()
   {
     return tokenID;
@@ -789,6 +803,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          did not specify a value and the token validity duration will be
    *          determined by the server.
    */
+  @Nullable()
   public Long getValidityDurationMillis()
   {
     return validityDurationMillis;
@@ -805,6 +820,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          subject should be used, or if the delivery mechanism should
    *          attempt to automatically determine a subject.
    */
+  @Nullable()
   public String getMessageSubject()
   {
     return messageSubject;
@@ -822,6 +838,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text before the token.
    */
+  @Nullable()
   public String getFullTextBeforeToken()
   {
     return fullTextBeforeToken;
@@ -839,6 +856,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text after the token.
    */
+  @Nullable()
   public String getFullTextAfterToken()
   {
     return fullTextAfterToken;
@@ -856,6 +874,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text before the token.
    */
+  @Nullable()
   public String getCompactTextBeforeToken()
   {
     return compactTextBeforeToken;
@@ -873,6 +892,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          significant constraints on message size, or {@code null} if there
    *          should not be any text after the token.
    */
+  @Nullable()
   public String getCompactTextAfterToken()
   {
     return compactTextAfterToken;
@@ -892,6 +912,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *          provide the generated token to the target user, or an empty list
    *          if the server should determine the delivery mechanisms to attempt.
    */
+  @NotNull()
   public List<ObjectPair<String,String>> getPreferredDeliveryMechanisms()
   {
     return preferredDeliveryMechanisms;
@@ -962,8 +983,9 @@ public final class DeliverSingleUseTokenExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public DeliverSingleUseTokenExtendedResult process(
-              final LDAPConnection connection, final int depth)
+              @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
@@ -976,6 +998,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public DeliverSingleUseTokenExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -987,8 +1010,9 @@ public final class DeliverSingleUseTokenExtendedRequest
    * {@inheritDoc}.
    */
   @Override()
+  @NotNull()
   public DeliverSingleUseTokenExtendedRequest duplicate(
-                                                   final Control[] controls)
+              @Nullable final Control[] controls)
   {
     final DeliverSingleUseTokenExtendedRequest r =
          new DeliverSingleUseTokenExtendedRequest(userDN, tokenID,
@@ -1007,6 +1031,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_DELIVER_SINGLE_USE_TOKEN.get();
@@ -1018,7 +1043,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("DeliverSingleUseTokenExtendedRequest(userDN='");
     buffer.append(userDN);

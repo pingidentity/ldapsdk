@@ -54,6 +54,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -138,7 +140,7 @@ public final class GetChangelogBatchExtendedResult
 
 
   // The resume token for this extended result.
-  private final ASN1OctetString resumeToken;
+  @Nullable private final ASN1OctetString resumeToken;
 
   // Indicates whether some changes in the requested batch may have already
   // been purged.
@@ -155,10 +157,10 @@ public final class GetChangelogBatchExtendedResult
   private final int entryCount;
 
   // A list of the entries returned to the client.
-  private final List<ChangelogEntryIntermediateResponse> entryList;
+  @Nullable private final List<ChangelogEntryIntermediateResponse> entryList;
 
   // A message with additional information about the result.
-  private final String additionalInfo;
+  @Nullable private final String additionalInfo;
 
 
 
@@ -169,7 +171,7 @@ public final class GetChangelogBatchExtendedResult
    * @param  r  An LDAP result with general details of the response.  It must
    *            not be {@code null}.
    */
-  public GetChangelogBatchExtendedResult(final LDAPResult r)
+  public GetChangelogBatchExtendedResult(@NotNull final LDAPResult r)
   {
     super(r.getMessageID(), r.getResultCode(), r.getDiagnosticMessage(),
          r.getMatchedDN(), r.getReferralURLs(), null, null,
@@ -212,8 +214,9 @@ public final class GetChangelogBatchExtendedResult
    *                               {@code null} if no additional message is
    *                               available.
    */
-  public GetChangelogBatchExtendedResult(final LDAPResult r,
-              final int entryCount, final ASN1OctetString resumeToken,
+  public GetChangelogBatchExtendedResult(@NotNull final LDAPResult r,
+              final int entryCount,
+              @Nullable final ASN1OctetString resumeToken,
               final boolean moreChangesAvailable,
               final boolean changesAlreadyPurged, final String additionalInfo)
   {
@@ -256,11 +259,13 @@ public final class GetChangelogBatchExtendedResult
    *                                    may be {@code null} if no additional
    *                                    message is available.
    */
-  public GetChangelogBatchExtendedResult(final LDAPResult r,
-              final int entryCount, final ASN1OctetString resumeToken,
+  public GetChangelogBatchExtendedResult(@NotNull final LDAPResult r,
+              final int entryCount,
+              @Nullable final ASN1OctetString resumeToken,
               final boolean moreChangesAvailable,
               final int estimatedChangesRemaining,
-              final boolean changesAlreadyPurged, final String additionalInfo)
+              final boolean changesAlreadyPurged,
+              @Nullable final String additionalInfo)
   {
     super(r.getMessageID(), r.getResultCode(), r.getDiagnosticMessage(),
          r.getMatchedDN(), r.getReferralURLs(), null,
@@ -309,8 +314,9 @@ public final class GetChangelogBatchExtendedResult
    * @throws  LDAPException  If the provided extended result cannot be parsed as
    *                         a get changelog batch result.
    */
-  public GetChangelogBatchExtendedResult(final ExtendedResult extendedResult,
-                                         final int entryCount)
+  public GetChangelogBatchExtendedResult(
+              @NotNull final ExtendedResult extendedResult,
+              final int entryCount)
          throws LDAPException
   {
     this(extendedResult, entryCount, null);
@@ -332,8 +338,9 @@ public final class GetChangelogBatchExtendedResult
    * @throws  LDAPException  If the provided extended result cannot be parsed as
    *                         a get changelog batch result.
    */
-  public GetChangelogBatchExtendedResult(final ExtendedResult extendedResult,
-              final List<ChangelogEntryIntermediateResponse> entryList)
+  public GetChangelogBatchExtendedResult(
+              @NotNull final ExtendedResult extendedResult,
+              @NotNull final List<ChangelogEntryIntermediateResponse> entryList)
          throws LDAPException
   {
     this(extendedResult, entryList.size(), entryList);
@@ -358,10 +365,10 @@ public final class GetChangelogBatchExtendedResult
    * @throws  LDAPException  If the provided extended result cannot be parsed as
    *                         a get changelog batch result.
    */
-  private GetChangelogBatchExtendedResult(final ExtendedResult r,
-              final int entryCount,
-              final List<ChangelogEntryIntermediateResponse> entryList)
-          throws LDAPException
+  private GetChangelogBatchExtendedResult(@NotNull final ExtendedResult r,
+       final int entryCount,
+       @Nullable final List<ChangelogEntryIntermediateResponse> entryList)
+       throws LDAPException
   {
     super(r);
 
@@ -515,11 +522,13 @@ public final class GetChangelogBatchExtendedResult
    * @return  The ASN.1 octet string to use as the result, or {@code null} if
    *          there should be no value.
    */
-  private static ASN1OctetString encodeValue(final ASN1OctetString resumeToken,
-                                      final boolean moreChangesAvailable,
-                                      final int estimatedChangesRemaining,
-                                      final boolean changesAlreadyPurged,
-                                      final String additionalInfo)
+  @Nullable()
+  private static ASN1OctetString encodeValue(
+               @Nullable final ASN1OctetString resumeToken,
+               final boolean moreChangesAvailable,
+               final int estimatedChangesRemaining,
+               final boolean changesAlreadyPurged,
+               @Nullable final String additionalInfo)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(5);
 
@@ -564,6 +573,7 @@ public final class GetChangelogBatchExtendedResult
    *          changes at the point after the last change received, or
    *          {@code null} if none is available.
    */
+  @Nullable()
   public ASN1OctetString getResumeToken()
   {
     return resumeToken;
@@ -625,6 +635,7 @@ public final class GetChangelogBatchExtendedResult
    * @return  A message with additional information about the processing that
    *          occurred, or {@code null} if none is available.
    */
+  @Nullable()
   public String getAdditionalInfo()
   {
     return additionalInfo;
@@ -659,6 +670,7 @@ public final class GetChangelogBatchExtendedResult
    *          the course of processing the extended operation, or {@code null}
    *          if an entry list is not available.
    */
+  @Nullable()
   public List<ChangelogEntryIntermediateResponse> getChangelogEntries()
   {
     return entryList;
@@ -670,6 +682,7 @@ public final class GetChangelogBatchExtendedResult
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedResultName()
   {
     return INFO_GET_CHANGELOG_BATCH_RES_NAME.get();
@@ -681,7 +694,7 @@ public final class GetChangelogBatchExtendedResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("ExtendedResult(resultCode=");
     buffer.append(getResultCode());

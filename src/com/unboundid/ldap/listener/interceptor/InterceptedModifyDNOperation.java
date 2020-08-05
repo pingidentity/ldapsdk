@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.ReadOnlyModifyDNRequest;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -62,10 +64,10 @@ final class InterceptedModifyDNOperation
                  InMemoryInterceptedModifyDNResult
 {
   // The modify DN request for this operation.
-  private ModifyDNRequest modifyDNRequest;
+  @NotNull private ModifyDNRequest modifyDNRequest;
 
   // The modify DN result for this operation.
-  private LDAPResult modifyDNResult;
+  @Nullable private LDAPResult modifyDNResult;
 
 
 
@@ -82,9 +84,9 @@ final class InterceptedModifyDNOperation
    *                           client.
    */
   InterceptedModifyDNOperation(
-       final LDAPListenerClientConnection clientConnection, final int messageID,
-       final ModifyDNRequestProtocolOp requestOp,
-       final Control... requestControls)
+       @NotNull final LDAPListenerClientConnection clientConnection,
+       final int messageID, @NotNull final ModifyDNRequestProtocolOp requestOp,
+       @Nullable final Control... requestControls)
   {
     super(clientConnection, messageID);
 
@@ -98,6 +100,7 @@ final class InterceptedModifyDNOperation
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ReadOnlyModifyDNRequest getRequest()
   {
     return modifyDNRequest;
@@ -109,7 +112,7 @@ final class InterceptedModifyDNOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setRequest(final ModifyDNRequest modifyDNRequest)
+  public void setRequest(@NotNull final ModifyDNRequest modifyDNRequest)
   {
     this.modifyDNRequest = modifyDNRequest;
   }
@@ -120,6 +123,7 @@ final class InterceptedModifyDNOperation
    * {@inheritDoc}
    */
   @Override()
+  @Nullable()
   public LDAPResult getResult()
   {
     return modifyDNResult;
@@ -131,7 +135,7 @@ final class InterceptedModifyDNOperation
    * {@inheritDoc}
    */
   @Override()
-  public void setResult(final LDAPResult modifyDNResult)
+  public void setResult(@NotNull final LDAPResult modifyDNResult)
   {
     this.modifyDNResult = modifyDNResult;
   }
@@ -142,7 +146,7 @@ final class InterceptedModifyDNOperation
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("InterceptedModifyDNOperation(");
     appendCommonToString(buffer);

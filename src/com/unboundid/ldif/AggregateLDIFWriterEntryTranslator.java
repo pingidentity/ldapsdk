@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -60,7 +62,7 @@ public final class AggregateLDIFWriterEntryTranslator
 {
   // The set of LDIF writer entry translators to be invoked for each entry to
   // process.
-  private final List<LDIFWriterEntryTranslator> translators;
+  @NotNull private final List<LDIFWriterEntryTranslator> translators;
 
 
 
@@ -72,7 +74,7 @@ public final class AggregateLDIFWriterEntryTranslator
    *                      for each entry to be processed.
    */
   public AggregateLDIFWriterEntryTranslator(
-              final LDIFWriterEntryTranslator... translators)
+              @Nullable final LDIFWriterEntryTranslator... translators)
   {
     this(StaticUtils.toList(translators));
   }
@@ -87,7 +89,8 @@ public final class AggregateLDIFWriterEntryTranslator
    *                      for each entry to be processed.
    */
   public AggregateLDIFWriterEntryTranslator(
-              final Collection<? extends LDIFWriterEntryTranslator> translators)
+       @Nullable final Collection<? extends LDIFWriterEntryTranslator>
+            translators)
   {
     if (translators == null)
     {
@@ -106,7 +109,8 @@ public final class AggregateLDIFWriterEntryTranslator
    * {@inheritDoc}
    */
   @Override()
-  public Entry translateEntryToWrite(final Entry original)
+  @Nullable()
+  public Entry translateEntryToWrite(@Nullable final Entry original)
   {
     if (original == null)
     {

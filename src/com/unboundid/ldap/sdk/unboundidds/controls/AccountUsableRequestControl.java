@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -108,7 +109,7 @@ public final class AccountUsableRequestControl
   /**
    * The OID (1.3.6.1.4.1.42.2.27.9.5.8) for the account usable request control.
    */
-  public static final String ACCOUNT_USABLE_REQUEST_OID =
+  @NotNull public static final String ACCOUNT_USABLE_REQUEST_OID =
        "1.3.6.1.4.1.42.2.27.9.5.8";
 
 
@@ -155,7 +156,7 @@ public final class AccountUsableRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         account usable request control.
    */
-  public AccountUsableRequestControl(final Control control)
+  public AccountUsableRequestControl(@NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -173,6 +174,7 @@ public final class AccountUsableRequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ACCOUNT_USABLE_REQUEST.get();
@@ -184,7 +186,7 @@ public final class AccountUsableRequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AccountUsableRequestControl(isCritical=");
     buffer.append(isCritical());

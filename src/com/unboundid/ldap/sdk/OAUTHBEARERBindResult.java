@@ -46,6 +46,8 @@ import java.util.StringTokenizer;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONObject;
@@ -67,7 +69,8 @@ public final class OAUTHBEARERBindResult
    * The name of the failure details field that holds the authorization error
    * code.
    */
-  private static final String FAILURE_DETAILS_FIELD_AUTHZ_ERROR_CODE = "status";
+  @NotNull private static final String FAILURE_DETAILS_FIELD_AUTHZ_ERROR_CODE =
+       "status";
 
 
 
@@ -75,7 +78,7 @@ public final class OAUTHBEARERBindResult
    * The name of the failure details field that holds the OpenID configuration
    * URL.
    */
-  private static final String FAILURE_DETAILS_FIELD_OPENID_CONFIG_URL =
+  @NotNull private static final String FAILURE_DETAILS_FIELD_OPENID_CONFIG_URL =
        "openid-configuration";
 
 
@@ -84,7 +87,7 @@ public final class OAUTHBEARERBindResult
    * The name of the failure details field that holds the space-delimited set of
    * scopes.
    */
-  private static final String FAILURE_DETAILS_FIELD_SCOPE = "scope";
+  @NotNull private static final String FAILURE_DETAILS_FIELD_SCOPE = "scope";
 
 
 
@@ -96,23 +99,23 @@ public final class OAUTHBEARERBindResult
 
 
   // The final bind result received during bind processing.
-  private final BindResult finalBindResult;
+  @Nullable private final BindResult finalBindResult;
 
   // The initial bind result received during bind processing.
-  private final BindResult initialBindResult;
+  @NotNull private final BindResult initialBindResult;
 
   // A JSON object with additional details about a failed authentication
   // attempt.
-  private final JSONObject failureDetailsObject;
+  @Nullable private final JSONObject failureDetailsObject;
 
   // The set of scopes included in the failure details object.
-  private final Set<String> scopes;
+  @NotNull private final Set<String> scopes;
 
   // The authorization error code included in the failure details object.
-  private final String authorizationErrorCode;
+  @Nullable private final String authorizationErrorCode;
 
   // The OpenID configuration URL included in the failure details object.
-  private final String openIDConfigurationURL;
+  @Nullable private final String openIDConfigurationURL;
 
 
 
@@ -125,7 +128,7 @@ public final class OAUTHBEARERBindResult
    * @param  bindResult  The bind result to use to create this OAUTHBEARER bind
    *                     result.  It must not be {@code null}.
    */
-  public OAUTHBEARERBindResult(final BindResult bindResult)
+  public OAUTHBEARERBindResult(@NotNull final BindResult bindResult)
   {
     this(bindResult, null);
   }
@@ -145,8 +148,8 @@ public final class OAUTHBEARERBindResult
    *                            {@code null} if the bind consisted of only a
    *                            single request.
    */
-  public OAUTHBEARERBindResult(final BindResult initialBindResult,
-                               final BindResult finalBindResult)
+  public OAUTHBEARERBindResult(@NotNull final BindResult initialBindResult,
+                               @Nullable final BindResult finalBindResult)
   {
     super((finalBindResult == null) ? initialBindResult : finalBindResult);
 
@@ -214,6 +217,7 @@ public final class OAUTHBEARERBindResult
    * @return  The result obtained from the initial bind attempt in the
    *          OAUTHBEARER authentication process.
    */
+  @NotNull()
   public BindResult getInitialBindResult()
   {
     return initialBindResult;
@@ -232,6 +236,7 @@ public final class OAUTHBEARERBindResult
    *          OAUTHBEARER authentication process, or {@code null} if the
    *          authentication process only included a single bind.
    */
+  @Nullable()
   public BindResult getFinalBindResult()
   {
     return finalBindResult;
@@ -246,6 +251,7 @@ public final class OAUTHBEARERBindResult
    * @return  A JSON object with additional information about a failed
    *          authentication attempt, or {@code null} this is not available.
    */
+  @Nullable()
   public JSONObject getFailureDetailsObject()
   {
     return failureDetailsObject;
@@ -261,6 +267,7 @@ public final class OAUTHBEARERBindResult
    *          object, or {@code null} if no failure details object was provided
    *          or if it did not include an authorization error code.
    */
+  @Nullable()
   public String getAuthorizationErrorCode()
   {
     return authorizationErrorCode;
@@ -276,6 +283,7 @@ public final class OAUTHBEARERBindResult
    *          empty set if no failure details object was provided or if it did
    *          not include any scopes.
    */
+  @NotNull()
   public Set<String> getScopes()
   {
     return scopes;
@@ -291,6 +299,7 @@ public final class OAUTHBEARERBindResult
    *          object, or {@code null} if no failure details object was provided
    *          or if it did not include an OpenID configuration URL.
    */
+  @Nullable()
   public String getOpenIDConfigurationURL()
   {
     return openIDConfigurationURL;
@@ -302,7 +311,7 @@ public final class OAUTHBEARERBindResult
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("OAUTHBEARERBindResult(resultCode=");
     buffer.append(getResultCode());

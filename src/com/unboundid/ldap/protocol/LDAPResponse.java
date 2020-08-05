@@ -40,6 +40,7 @@ package com.unboundid.ldap.protocol;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -59,7 +60,7 @@ public interface LDAPResponse
   /**
    * An empty set of controls.
    */
-  Control[] NO_CONTROLS = new Control[0];
+  @NotNull Control[] NO_CONTROLS = new Control[0];
 
 
 
@@ -78,5 +79,5 @@ public interface LDAPResponse
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  void toString(StringBuilder buffer);
+  void toString(@NotNull StringBuilder buffer);
 }

@@ -56,6 +56,8 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -82,7 +84,7 @@ public final class SearchResultReferenceProtocolOp
 
 
   // The list of referral URLs for this search result reference.
-  private final List<String> referralURLs;
+  @NotNull private final List<String> referralURLs;
 
 
 
@@ -93,7 +95,8 @@ public final class SearchResultReferenceProtocolOp
    * @param  referralURLs  The list of referral URLs for this search result
    *                       reference.
    */
-  public SearchResultReferenceProtocolOp(final List<String> referralURLs)
+  public SearchResultReferenceProtocolOp(
+              @NotNull final List<String> referralURLs)
   {
     this.referralURLs = Collections.unmodifiableList(referralURLs);
   }
@@ -107,7 +110,8 @@ public final class SearchResultReferenceProtocolOp
    * @param  reference  The search result reference to use to create this
    *                    protocol op.
    */
-  public SearchResultReferenceProtocolOp(final SearchResultReference reference)
+  public SearchResultReferenceProtocolOp(
+              @NotNull final SearchResultReference reference)
   {
     referralURLs = StaticUtils.toList(reference.getReferralURLs());
   }
@@ -124,7 +128,7 @@ public final class SearchResultReferenceProtocolOp
    * @throws  LDAPException  If a problem occurs while reading or parsing the
    *                         search result reference.
    */
-  SearchResultReferenceProtocolOp(final ASN1StreamReader reader)
+  SearchResultReferenceProtocolOp(@NotNull final ASN1StreamReader reader)
        throws LDAPException
   {
     try
@@ -156,6 +160,7 @@ public final class SearchResultReferenceProtocolOp
    *
    * @return  The list of referral URLs for this search result reference.
    */
+  @NotNull()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -178,6 +183,7 @@ public final class SearchResultReferenceProtocolOp
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> urlElements =
@@ -205,8 +211,9 @@ public final class SearchResultReferenceProtocolOp
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
    *                         a search result reference protocol op.
    */
+  @NotNull()
   public static SearchResultReferenceProtocolOp decodeProtocolOp(
-                                                     final ASN1Element element)
+                     @NotNull final ASN1Element element)
          throws LDAPException
   {
     try
@@ -238,7 +245,7 @@ public final class SearchResultReferenceProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void writeTo(final ASN1Buffer buffer)
+  public void writeTo(@NotNull final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence = buffer.beginSequence(
          LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE);
@@ -260,8 +267,9 @@ public final class SearchResultReferenceProtocolOp
    *
    * @return  The search result reference that was created.
    */
+  @NotNull()
   public SearchResultReference toSearchResultReference(
-                                    final Control... controls)
+                                    @Nullable final Control... controls)
   {
     final String[] referralArray = new String[referralURLs.size()];
     referralURLs.toArray(referralArray);
@@ -277,6 +285,7 @@ public final class SearchResultReferenceProtocolOp
    * @return  A string representation of this protocol op.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -290,7 +299,7 @@ public final class SearchResultReferenceProtocolOp
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SearchResultReferenceProtocolOp(referralURLs={");
 

@@ -42,6 +42,7 @@ import java.util.List;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -60,6 +61,7 @@ public abstract class InMemoryExtendedOperationHandler
    *
    * @return  The name that should be used for this extended operation handler.
    */
+  @NotNull()
   public abstract String getExtendedOperationHandlerName();
 
 
@@ -71,6 +73,7 @@ public abstract class InMemoryExtendedOperationHandler
    * @return  A list of the extended request OIDs supported by this extended
    *          operation handler.
    */
+  @NotNull()
   public abstract List<String> getSupportedExtendedRequestOIDs();
 
 
@@ -92,10 +95,11 @@ public abstract class InMemoryExtendedOperationHandler
    * @return  The result that should be returned to the client in response to
    *          the provided request.
    */
+  @NotNull()
   public abstract ExtendedResult processExtendedOperation(
-                                      InMemoryRequestHandler handler,
+                                      @NotNull InMemoryRequestHandler handler,
                                       int messageID,
-                                      ExtendedRequest request);
+                                      @NotNull ExtendedRequest request);
 
 
 
@@ -105,6 +109,7 @@ public abstract class InMemoryExtendedOperationHandler
    * @return  A string representation of this extended operation handler.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     return getExtendedOperationHandlerName();

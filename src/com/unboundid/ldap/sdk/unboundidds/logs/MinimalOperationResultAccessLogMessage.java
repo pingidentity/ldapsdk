@@ -41,6 +41,8 @@ import java.util.List;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -70,6 +72,7 @@ public interface MinimalOperationResultAccessLogMessage
    * @return  The result code for the operation, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   ResultCode getResultCode();
 
 
@@ -80,6 +83,7 @@ public interface MinimalOperationResultAccessLogMessage
    * @return  The diagnostic message for the operation, or {@code null} if it is
    *          not included in the log message.
    */
+  @Nullable()
   String getDiagnosticMessage();
 
 
@@ -92,6 +96,7 @@ public interface MinimalOperationResultAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   String getAdditionalInformation();
 
 
@@ -102,6 +107,7 @@ public interface MinimalOperationResultAccessLogMessage
    * @return  The matched DN for the operation, or {@code null} if it is not
    *          included in the log message.
    */
+  @Nullable()
   String getMatchedDN();
 
 
@@ -112,6 +118,7 @@ public interface MinimalOperationResultAccessLogMessage
    * @return  The list of referral URLs for the operation, or an empty list if
    *          it is not included in the log message.
    */
+  @NotNull()
   List<String> getReferralURLs();
 
 
@@ -124,6 +131,7 @@ public interface MinimalOperationResultAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Nullable()
   Double getProcessingTimeMillis();
 
 
@@ -136,5 +144,6 @@ public interface MinimalOperationResultAccessLogMessage
    *          wait on the work queue, or {@code null} if it is not included in
    *          the log message.
    */
+  @Nullable()
   Double getQueueTimeMillis();
 }

@@ -50,6 +50,8 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -71,56 +73,57 @@ public final class DraftChuLDAPLogSchema00SearchEntry
   /**
    * The name of the attribute used to hold the alias dereference policy.
    */
-  public static final String ATTR_DEREFERENCE_POLICY = "reqDerefAliases";
+  @NotNull public static final String ATTR_DEREFERENCE_POLICY =
+       "reqDerefAliases";
 
 
 
   /**
    * The name of the attribute used to hold the number of entries returned.
    */
-  public static final String ATTR_ENTRIES_RETURNED = "reqEntries";
+  @NotNull public static final String ATTR_ENTRIES_RETURNED = "reqEntries";
 
 
 
   /**
    * The name of the attribute used to hold the search filter.
    */
-  public static final String ATTR_FILTER = "reqFilter";
+  @NotNull public static final String ATTR_FILTER = "reqFilter";
 
 
 
   /**
    * The name of the attribute used to hold a requested attribute.
    */
-  public static final String ATTR_REQUESTED_ATTRIBUTE = "reqAttr";
+  @NotNull public static final String ATTR_REQUESTED_ATTRIBUTE = "reqAttr";
 
 
 
   /**
    * The name of the attribute used to hold the search scope.
    */
-  public static final String ATTR_SCOPE = "reqScope";
+  @NotNull public static final String ATTR_SCOPE = "reqScope";
 
 
 
   /**
    * The name of the attribute used to hold the requested size limit.
    */
-  public static final String ATTR_SIZE_LIMIT = "reqSizeLimit";
+  @NotNull public static final String ATTR_SIZE_LIMIT = "reqSizeLimit";
 
 
 
   /**
    * The name of the attribute used to hold the requested time limit in seconds.
    */
-  public static final String ATTR_TIME_LIMIT_SECONDS = "reqTimeLimit";
+  @NotNull public static final String ATTR_TIME_LIMIT_SECONDS = "reqTimeLimit";
 
 
 
   /**
    * The name of the attribute used to hold the value of the typesOnly flag.
    */
-  public static final String ATTR_TYPES_ONLY = "reqAttrsOnly";
+  @NotNull public static final String ATTR_TYPES_ONLY = "reqAttrsOnly";
 
 
 
@@ -135,25 +138,25 @@ public final class DraftChuLDAPLogSchema00SearchEntry
   private final boolean typesOnly;
 
   // The alias dereference policy.
-  private final DereferencePolicy dereferencePolicy;
+  @NotNull private final DereferencePolicy dereferencePolicy;
 
   // The search filter.
-  private final Filter filter;
+  @Nullable private final Filter filter;
 
   // The number of entries returned.
-  private final Integer entriesReturned;
+  @Nullable private final Integer entriesReturned;
 
   // The requested size limit.
-  private final Integer requestedSizeLimit;
+  @Nullable private final Integer requestedSizeLimit;
 
   // The requested time limit in seconds.
-  private final Integer requestedTimeLimitSeconds;
+  @Nullable private final Integer requestedTimeLimitSeconds;
 
   // The list of requested attributes.
-  private final List<String> requestedAttributes;
+  @NotNull private final List<String> requestedAttributes;
 
   // The search scope.
-  private final SearchScope scope;
+  @NotNull private final SearchScope scope;
 
 
 
@@ -167,7 +170,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    *                         search access log entry as per the specification
    *                         contained in draft-chu-ldap-logschema-00.
    */
-  public DraftChuLDAPLogSchema00SearchEntry(final Entry entry)
+  public DraftChuLDAPLogSchema00SearchEntry(@NotNull final Entry entry)
          throws LDAPException
   {
     super(entry, OperationType.SEARCH);
@@ -385,6 +388,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    * @return  The scope for the search request described by this search access
    *          log entry.
    */
+  @NotNull()
   public SearchScope getScope()
   {
     return scope;
@@ -399,6 +403,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    * @return  The alias dereference policy for the search request described by
    *          this search access log entry.
    */
+  @NotNull()
   public DereferencePolicy getDereferencePolicy()
   {
     return dereferencePolicy;
@@ -428,6 +433,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    *          log entry, or {@code null} if no filter was included in the access
    *          log entry.
    */
+  @Nullable()
   public Filter getFilter()
   {
     return filter;
@@ -443,6 +449,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    *          search access log entry, or {@code null} if no size limit was
    *          included in the access log entry.
    */
+  @Nullable()
   public Integer getRequestedSizeLimit()
   {
     return requestedSizeLimit;
@@ -458,6 +465,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    *          described by this search access log entry, or {@code null} if no
    *          time limit was included in the access log entry.
    */
+  @Nullable()
   public Integer getRequestedTimeLimitSeconds()
   {
     return requestedTimeLimitSeconds;
@@ -473,6 +481,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    *          search access log entry, or an empty list if no requested
    *          attributes were included in the access log entry.
    */
+  @NotNull()
   public List<String> getRequestedAttributes()
   {
     return requestedAttributes;
@@ -489,6 +498,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    *          {@code null} if the number of entries returned was not included in
    *          the access log entry.
    */
+  @Nullable()
   public Integer getEntriesReturned()
   {
     return entriesReturned;
@@ -505,6 +515,7 @@ public final class DraftChuLDAPLogSchema00SearchEntry
    * @return  The {@code SearchRequest} created from this search access log
    *          entry.
    */
+  @NotNull()
   public SearchRequest toSearchRequest()
   {
     final int sizeLimit =

@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -121,7 +122,7 @@ public final class DraftBeheraLDAPPasswordPolicy10RequestControl
    * The OID (1.3.6.1.4.1.42.2.27.8.5.1) for the password policy request
    * control.
    */
-  public static final String PASSWORD_POLICY_REQUEST_OID =
+  @NotNull public static final String PASSWORD_POLICY_REQUEST_OID =
        "1.3.6.1.4.1.42.2.27.8.5.1";
 
 
@@ -167,7 +168,8 @@ public final class DraftBeheraLDAPPasswordPolicy10RequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         password policy request control.
    */
-  public DraftBeheraLDAPPasswordPolicy10RequestControl(final Control control)
+  public DraftBeheraLDAPPasswordPolicy10RequestControl(
+              @NotNull final Control control)
          throws LDAPException
   {
     super(control);
@@ -185,6 +187,7 @@ public final class DraftBeheraLDAPPasswordPolicy10RequestControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_POLICY_REQUEST.get();
@@ -196,7 +199,7 @@ public final class DraftBeheraLDAPPasswordPolicy10RequestControl
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PasswordPolicyRequestControl(isCritical=");
     buffer.append(isCritical());

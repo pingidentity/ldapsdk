@@ -109,6 +109,8 @@ import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -246,21 +248,21 @@ public final class InMemoryDirectoryServer
        implements FullLDAPInterface
 {
   // The in-memory request handler that will be used for the server.
-  private final InMemoryRequestHandler inMemoryHandler;
+  @NotNull private final InMemoryRequestHandler inMemoryHandler;
 
   // The set of listeners that have been configured for this server, mapped by
   // listener name.
-  private final Map<String,LDAPListener> listeners;
+  @NotNull private final Map<String,LDAPListener> listeners;
 
   // The set of configurations for all the LDAP listeners to be used.
-  private final Map<String,LDAPListenerConfig> ldapListenerConfigs;
+  @NotNull private final Map<String,LDAPListenerConfig> ldapListenerConfigs;
 
   // The set of client socket factories associated with each of the listeners.
-  private final Map<String,SocketFactory> clientSocketFactories;
+  @NotNull private final Map<String,SocketFactory> clientSocketFactories;
 
   // A read-only representation of the configuration used to create this
   // in-memory directory server.
-  private final ReadOnlyInMemoryDirectoryServerConfig config;
+  @NotNull private final ReadOnlyInMemoryDirectoryServerConfig config;
 
 
 
@@ -275,7 +277,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while attempting to initialize
    *                         the server.
    */
-  public InMemoryDirectoryServer(final String... baseDNs)
+  public InMemoryDirectoryServer(@NotNull final String... baseDNs)
          throws LDAPException
   {
     this(new InMemoryDirectoryServerConfig(baseDNs));
@@ -293,7 +295,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while trying to initialize the
    *                         directory server with the provided configuration.
    */
-  public InMemoryDirectoryServer(final InMemoryDirectoryServerConfig cfg)
+  public InMemoryDirectoryServer(
+              @NotNull final InMemoryDirectoryServerConfig cfg)
          throws LDAPException
   {
     Validator.ensureNotNull(cfg);
@@ -450,7 +453,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while attempting to start the
    *                         requested listener.
    */
-  public synchronized void startListening(final String listenerName)
+  public synchronized void startListening(@NotNull final String listenerName)
          throws LDAPException
   {
     // If the listener is already running, then there's nothing to do.
@@ -564,7 +567,7 @@ public final class InMemoryDirectoryServer
    *                                   connections, or merely to stop accepting
    *                                   new connections.
    */
-  public synchronized void shutDown(final String listenerName,
+  public synchronized void shutDown(@NotNull final String listenerName,
                                     final boolean closeExistingConnections)
   {
     final String name = StaticUtils.toLowerCase(listenerName);
@@ -619,7 +622,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while attempting to restart the
    *                         specified listener.
    */
-  public synchronized void restartListener(final String listenerName)
+  public synchronized void restartListener(@NotNull final String listenerName)
          throws LDAPException
   {
     shutDown(listenerName, true);
@@ -650,6 +653,7 @@ public final class InMemoryDirectoryServer
    * @return  A read-only representation of the configuration used to create
    *          this in-memory directory server instance.
    */
+  @NotNull()
   public ReadOnlyInMemoryDirectoryServerConfig getConfig()
   {
     return config;
@@ -664,6 +668,7 @@ public final class InMemoryDirectoryServer
    * @return  The in-memory request handler that is used to perform the real
    *          server processing.
    */
+  @NotNull()
   InMemoryRequestHandler getInMemoryRequestHandler()
   {
     return inMemoryHandler;
@@ -682,6 +687,7 @@ public final class InMemoryDirectoryServer
    * @return  The snapshot created based on the current content of this
    *          in-memory directory server instance.
    */
+  @NotNull()
   public InMemoryDirectoryServerSnapshot createSnapshot()
   {
     return inMemoryHandler.createSnapshot();
@@ -699,7 +705,8 @@ public final class InMemoryDirectoryServer
    * @param  snapshot  The snapshot to be restored.  It must not be
    *                   {@code null}.
    */
-  public void restoreSnapshot(final InMemoryDirectoryServerSnapshot snapshot)
+  public void restoreSnapshot(
+                   @NotNull final InMemoryDirectoryServerSnapshot snapshot)
   {
     inMemoryHandler.restoreSnapshot(snapshot);
   }
@@ -711,6 +718,7 @@ public final class InMemoryDirectoryServer
    *
    * @return  The list of base DNs configured for use by the server.
    */
+  @NotNull()
   public List<DN> getBaseDNs()
   {
     return inMemoryHandler.getBaseDNs();
@@ -728,6 +736,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         create the connection.
    */
+  @NotNull()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -748,7 +757,9 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         create the connection.
    */
-  public LDAPConnection getConnection(final LDAPConnectionOptions options)
+  @NotNull()
+  public LDAPConnection getConnection(
+                             @Nullable final LDAPConnectionOptions options)
          throws LDAPException
   {
     return getConnection(null, options);
@@ -769,7 +780,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         create the connection.
    */
-  public LDAPConnection getConnection(final String listenerName)
+  @NotNull()
+  public LDAPConnection getConnection(@Nullable final String listenerName)
          throws LDAPException
   {
     return getConnection(listenerName, null);
@@ -792,8 +804,10 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         create the connection.
    */
-  public synchronized LDAPConnection getConnection(final String listenerName,
-                                          final LDAPConnectionOptions options)
+  @NotNull()
+  public synchronized LDAPConnection getConnection(
+                           @Nullable final String listenerName,
+                           @Nullable final LDAPConnectionOptions options)
          throws LDAPException
   {
     final LDAPListenerConfig listenerConfig;
@@ -863,6 +877,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while attempting to create the
    *                         connection pool.
    */
+  @NotNull()
   public LDAPConnectionPool getConnectionPool(final int maxConnections)
          throws LDAPException
   {
@@ -894,8 +909,10 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while attempting to create the
    *                         connection pool.
    */
-  public LDAPConnectionPool getConnectionPool(final String listenerName,
-                                 final LDAPConnectionOptions options,
+  @NotNull()
+  public LDAPConnectionPool getConnectionPool(
+                                 @Nullable final String listenerName,
+                                 @Nullable final LDAPConnectionOptions options,
                                  final int initialConnections,
                                  final int maxConnections)
          throws LDAPException
@@ -915,6 +932,7 @@ public final class InMemoryDirectoryServer
    *          explicitly-configured listen address or there are no active
    *          listeners.
    */
+  @Nullable()
   public InetAddress getListenAddress()
   {
     return getListenAddress(null);
@@ -935,7 +953,9 @@ public final class InMemoryDirectoryServer
    *          {@code null} if there is no such listener or the listener does not
    *          have an explicitly-configured listen address.
    */
-  public synchronized InetAddress getListenAddress(final String listenerName)
+  @Nullable()
+  public synchronized InetAddress getListenAddress(
+                                       @Nullable final String listenerName)
   {
     final String name;
     if (listenerName == null)
@@ -985,7 +1005,7 @@ public final class InMemoryDirectoryServer
    * @return  The configured listen port for the specified listener, or -1 if
    *          there is no such listener or the listener is not active.
    */
-  public synchronized int getListenPort(final String listenerName)
+  public synchronized int getListenPort(@Nullable final String listenerName)
   {
     final String name;
     if (listenerName == null)
@@ -1019,6 +1039,7 @@ public final class InMemoryDirectoryServer
    *          explicitly-configured socket factory or there are no active
    *          listeners.
    */
+  @Nullable()
   public SocketFactory getClientSocketFactory()
   {
     return getClientSocketFactory(null);
@@ -1039,8 +1060,9 @@ public final class InMemoryDirectoryServer
    *          or {@code null} if there is no such listener or that listener does
    *          not have an explicitly-configured client socket factory.
    */
+  @Nullable()
   public synchronized SocketFactory getClientSocketFactory(
-                                         final String listenerName)
+                                         @Nullable final String listenerName)
   {
     final String name;
     if (listenerName == null)
@@ -1063,6 +1085,7 @@ public final class InMemoryDirectoryServer
    * @return  The name of the first running listener, or {@code null} if there
    *          are no active listeners.
    */
+  @Nullable()
   private String getFirstListenerName()
   {
     for (final Map.Entry<String,LDAPListenerConfig> e :
@@ -1162,7 +1185,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         DN.
    */
-  public int countEntriesBelow(final String baseDN)
+  public int countEntriesBelow(@NotNull final String baseDN)
          throws LDAPException
   {
     return inMemoryHandler.countEntriesBelow(baseDN);
@@ -1205,7 +1228,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading entries or adding
    *                         them to the server.
    */
-  public int importFromLDIF(final boolean clear, final String path)
+  public int importFromLDIF(final boolean clear, @NotNull final String path)
          throws LDAPException
   {
     return importFromLDIF(clear, new File(path));
@@ -1233,7 +1256,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading entries or adding
    *                         them to the server.
    */
-  public int importFromLDIF(final boolean clear, final File ldifFile)
+  public int importFromLDIF(final boolean clear, @NotNull final File ldifFile)
          throws LDAPException
   {
     final LDIFReader reader;
@@ -1281,7 +1304,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading entries or adding
    *                         them to the server.
    */
-  public int importFromLDIF(final boolean clear, final LDIFReader reader)
+  public int importFromLDIF(final boolean clear,
+                            @NotNull final LDIFReader reader)
          throws LDAPException
   {
     return inMemoryHandler.importFromLDIF(clear, reader);
@@ -1308,7 +1332,7 @@ public final class InMemoryDirectoryServer
    *
    * @throws  LDAPException  If a problem occurs while writing entries to LDIF.
    */
-  public int exportToLDIF(final String path,
+  public int exportToLDIF(@NotNull final String path,
                           final boolean excludeGeneratedAttrs,
                           final boolean excludeChangeLog)
          throws LDAPException
@@ -1354,7 +1378,7 @@ public final class InMemoryDirectoryServer
    *
    * @throws  LDAPException  If a problem occurs while writing entries to LDIF.
    */
-  public int exportToLDIF(final LDIFWriter ldifWriter,
+  public int exportToLDIF(@NotNull final LDIFWriter ldifWriter,
                           final boolean excludeGeneratedAttrs,
                           final boolean excludeChangeLog,
                           final boolean closeWriter)
@@ -1385,7 +1409,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading change records
    *                         or applying them to the server.
    */
-  public int applyChangesFromLDIF(final String path)
+  public int applyChangesFromLDIF(@NotNull final String path)
          throws LDAPException
   {
     return applyChangesFromLDIF(new File(path));
@@ -1412,7 +1436,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading change records
    *                         or applying them to the server.
    */
-  public int applyChangesFromLDIF(final File ldifFile)
+  public int applyChangesFromLDIF(@NotNull final File ldifFile)
          throws LDAPException
   {
     final LDIFReader reader;
@@ -1459,7 +1483,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading change records
    *                         or applying them to the server.
    */
-  public int applyChangesFromLDIF(final LDIFReader reader)
+  public int applyChangesFromLDIF(@NotNull final LDIFReader reader)
          throws LDAPException
   {
     return inMemoryHandler.applyChangesFromLDIF(reader);
@@ -1474,6 +1498,7 @@ public final class InMemoryDirectoryServer
    * client connections.
    */
   @Override()
+  @Nullable()
   public RootDSE getRootDSE()
          throws LDAPException
   {
@@ -1489,6 +1514,7 @@ public final class InMemoryDirectoryServer
    * client connections.
    */
   @Override()
+  @Nullable()
   public Schema getSchema()
          throws LDAPException
   {
@@ -1504,7 +1530,7 @@ public final class InMemoryDirectoryServer
    * client connections.
    */
   @Override()
-  public Schema getSchema(final String entryDN)
+  public Schema getSchema(@Nullable final String entryDN)
          throws LDAPException
   {
     return inMemoryHandler.getSchema();
@@ -1519,7 +1545,8 @@ public final class InMemoryDirectoryServer
    * client connections.
    */
   @Override()
-  public SearchResultEntry getEntry(final String dn)
+  @Nullable()
+  public SearchResultEntry getEntry(@NotNull final String dn)
          throws LDAPException
   {
     return searchForEntry(dn, SearchScope.BASE,
@@ -1536,7 +1563,9 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public SearchResultEntry getEntry(final String dn, final String... attributes)
+  @Nullable()
+  public SearchResultEntry getEntry(@NotNull final String dn,
+                                    @Nullable final String... attributes)
          throws LDAPException
   {
     return searchForEntry(dn, SearchScope.BASE,
@@ -1553,7 +1582,9 @@ public final class InMemoryDirectoryServer
    * the server.
    */
   @Override()
-  public LDAPResult add(final String dn, final Attribute... attributes)
+  @NotNull()
+  public LDAPResult add(@NotNull final String dn,
+                        @NotNull final Attribute... attributes)
          throws LDAPException
   {
     return add(new AddRequest(dn, attributes));
@@ -1569,7 +1600,9 @@ public final class InMemoryDirectoryServer
    * the server.
    */
   @Override()
-  public LDAPResult add(final String dn, final Collection<Attribute> attributes)
+  @NotNull()
+  public LDAPResult add(@NotNull final String dn,
+                        @NotNull final Collection<Attribute> attributes)
          throws LDAPException
   {
     return add(new AddRequest(dn, attributes));
@@ -1585,7 +1618,8 @@ public final class InMemoryDirectoryServer
    * the server.
    */
   @Override()
-  public LDAPResult add(final Entry entry)
+  @NotNull()
+  public LDAPResult add(@NotNull final Entry entry)
          throws LDAPException
   {
     return add(new AddRequest(entry));
@@ -1601,7 +1635,8 @@ public final class InMemoryDirectoryServer
    * the server.
    */
   @Override()
-  public LDAPResult add(final String... ldifLines)
+  @NotNull()
+  public LDAPResult add(@NotNull final String... ldifLines)
          throws LDIFException, LDAPException
   {
     return add(new AddRequest(ldifLines));
@@ -1617,7 +1652,8 @@ public final class InMemoryDirectoryServer
    * the server.
    */
   @Override()
-  public LDAPResult add(final AddRequest addRequest)
+  @NotNull()
+  public LDAPResult add(@NotNull final AddRequest addRequest)
          throws LDAPException
   {
     return inMemoryHandler.add(addRequest);
@@ -1633,7 +1669,8 @@ public final class InMemoryDirectoryServer
    * the server.
    */
   @Override()
-  public LDAPResult add(final ReadOnlyAddRequest addRequest)
+  @NotNull()
+  public LDAPResult add(@NotNull final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
     return add(addRequest.duplicate());
@@ -1656,7 +1693,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to add
    *                         any of the provided entries.
    */
-  public void addEntries(final Entry... entries)
+  public void addEntries(@NotNull final Entry... entries)
          throws LDAPException
   {
     addEntries(Arrays.asList(entries));
@@ -1679,7 +1716,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to add
    *                         any of the provided entries.
    */
-  public void addEntries(final List<? extends Entry> entries)
+  public void addEntries(@NotNull final List<? extends Entry> entries)
          throws LDAPException
   {
     inMemoryHandler.addEntries(entries);
@@ -1705,7 +1742,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to add
    *                         any of the provided entries.
    */
-  public void addEntries(final String... ldifEntryLines)
+  public void addEntries(@NotNull final String... ldifEntryLines)
          throws LDAPException
   {
     final ByteStringBuffer buffer = new ByteStringBuffer();
@@ -1767,7 +1804,9 @@ public final class InMemoryDirectoryServer
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bind(final String bindDN, final String password)
+  @NotNull()
+  public BindResult bind(@Nullable final String bindDN,
+                         @Nullable final String password)
          throws LDAPException
   {
     return bind(new SimpleBindRequest(bindDN, password));
@@ -1790,7 +1829,8 @@ public final class InMemoryDirectoryServer
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bind(final BindRequest bindRequest)
+  @NotNull()
+  public BindResult bind(@NotNull final BindRequest bindRequest)
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
@@ -1863,8 +1903,10 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public CompareResult compare(final String dn, final String attributeName,
-                        final String assertionValue)
+  @NotNull()
+  public CompareResult compare(@NotNull final String dn,
+                               @NotNull final String attributeName,
+                               @NotNull final String assertionValue)
          throws LDAPException
   {
     return compare(new CompareRequest(dn, attributeName, assertionValue));
@@ -1880,7 +1922,8 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public CompareResult compare(final CompareRequest compareRequest)
+  @NotNull()
+  public CompareResult compare(@NotNull final CompareRequest compareRequest)
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
@@ -1923,7 +1966,9 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
+  @NotNull()
+  public CompareResult compare(
+              @NotNull final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
   {
     return compare(compareRequest.duplicate());
@@ -1939,7 +1984,8 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult delete(final String dn)
+  @NotNull()
+  public LDAPResult delete(@NotNull final String dn)
          throws LDAPException
   {
     return delete(new DeleteRequest(dn));
@@ -1955,7 +2001,8 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult delete(final DeleteRequest deleteRequest)
+  @NotNull()
+  public LDAPResult delete(@NotNull final DeleteRequest deleteRequest)
          throws LDAPException
   {
     return inMemoryHandler.delete(deleteRequest);
@@ -1971,7 +2018,8 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
+  @NotNull()
+  public LDAPResult delete(@NotNull final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
     return delete(deleteRequest.duplicate());
@@ -1996,7 +2044,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         remove the entries.
    */
-  public int deleteSubtree(final String baseDN)
+  public int deleteSubtree(@NotNull final String baseDN)
          throws LDAPException
   {
     return inMemoryHandler.deleteSubtree(baseDN);
@@ -2031,7 +2079,9 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public ExtendedResult processExtendedOperation(final String requestOID)
+  @NotNull()
+  public ExtendedResult processExtendedOperation(
+                             @NotNull final String requestOID)
          throws LDAPException
   {
     Validator.ensureNotNull(requestOID);
@@ -2071,8 +2121,10 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public ExtendedResult processExtendedOperation(final String requestOID,
-                             final ASN1OctetString requestValue)
+  @NotNull()
+  public ExtendedResult processExtendedOperation(
+                             @NotNull final String requestOID,
+                             @Nullable final ASN1OctetString requestValue)
          throws LDAPException
   {
     Validator.ensureNotNull(requestOID);
@@ -2109,8 +2161,9 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @NotNull()
   public ExtendedResult processExtendedOperation(
-                               final ExtendedRequest extendedRequest)
+                               @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     Validator.ensureNotNull(extendedRequest);
@@ -2197,7 +2250,9 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public LDAPResult modify(final String dn, final Modification mod)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final Modification mod)
          throws LDAPException
   {
     return modify(new ModifyRequest(dn, mod));
@@ -2213,7 +2268,9 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public LDAPResult modify(final String dn, final Modification... mods)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final Modification... mods)
          throws LDAPException
   {
     return modify(new ModifyRequest(dn, mods));
@@ -2229,7 +2286,9 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public LDAPResult modify(final String dn, final List<Modification> mods)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String dn,
+                           @NotNull final List<Modification> mods)
          throws LDAPException
   {
     return modify(new ModifyRequest(dn, mods));
@@ -2245,7 +2304,8 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public LDAPResult modify(final String... ldifModificationLines)
+  @NotNull()
+  public LDAPResult modify(@NotNull final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
     return modify(new ModifyRequest(ldifModificationLines));
@@ -2261,7 +2321,8 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public LDAPResult modify(final ModifyRequest modifyRequest)
+  @NotNull()
+  public LDAPResult modify(@NotNull final ModifyRequest modifyRequest)
          throws LDAPException
   {
     return inMemoryHandler.modify(modifyRequest);
@@ -2277,7 +2338,8 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
+  @NotNull()
+  public LDAPResult modify(@NotNull final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
     return modify(modifyRequest.duplicate());
@@ -2293,7 +2355,9 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult modifyDN(final String dn, final String newRDN,
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final String dn,
+                             @NotNull final String newRDN,
                              final boolean deleteOldRDN)
          throws LDAPException
   {
@@ -2310,9 +2374,11 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult modifyDN(final String dn, final String newRDN,
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final String dn,
+                             @NotNull final String newRDN,
                              final boolean deleteOldRDN,
-                             final String newSuperiorDN)
+                             @Nullable final String newSuperiorDN)
          throws LDAPException
   {
     return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN,
@@ -2329,7 +2395,8 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+  @NotNull()
+  public LDAPResult modifyDN(@NotNull final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return inMemoryHandler.modifyDN(modifyDNRequest);
@@ -2345,7 +2412,9 @@ public final class InMemoryDirectoryServer
    * allowed in the server.
    */
   @Override()
-  public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
+  @NotNull()
+  public LDAPResult modifyDN(
+              @NotNull final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return modifyDN(modifyDNRequest.duplicate());
@@ -2361,8 +2430,11 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final String filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(baseDN, scope, parseFilter(filter),
@@ -2379,8 +2451,11 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final Filter filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(baseDN, scope, filter, attributes));
@@ -2396,9 +2471,12 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(
+               @Nullable final SearchResultListener searchResultListener,
+               @NotNull final String baseDN, @NotNull final SearchScope scope,
+               @NotNull final String filter,
+               @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(searchResultListener, baseDN, scope,
@@ -2415,9 +2493,12 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(searchResultListener, baseDN, scope,
@@ -2434,11 +2515,14 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+                             final boolean typesOnly,
+                             @NotNull final String filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
@@ -2455,11 +2539,14 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
+  @NotNull()
+  public SearchResult search(@NotNull final String baseDN,
+                             @NotNull final SearchScope scope,
+                             @NotNull final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+                             final boolean typesOnly,
+                             @NotNull final Filter filter,
+                             @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
@@ -2476,12 +2563,14 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(searchResultListener, baseDN, scope,
@@ -2499,12 +2588,14 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+  @NotNull()
+  public SearchResult search(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final String baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return search(new SearchRequest(searchResultListener, baseDN, scope,
@@ -2521,7 +2612,8 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final SearchRequest searchRequest)
+  @NotNull()
+  public SearchResult search(@NotNull final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     final ArrayList<Control> requestControlList =
@@ -2624,7 +2716,8 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResult search(final ReadOnlySearchRequest searchRequest)
+  @NotNull()
+  public SearchResult search(@NotNull final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return search(searchRequest.duplicate());
@@ -2640,10 +2733,11 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final String filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                          @NotNull final SearchScope scope,
+                                          @NotNull final String filter,
+                                          @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return searchForEntry(new SearchRequest(baseDN, scope, parseFilter(filter),
@@ -2660,10 +2754,11 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final Filter filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+                                          @NotNull final SearchScope scope,
+                                          @NotNull final Filter filter,
+                                          @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return searchForEntry(new SearchRequest(baseDN, scope, filter, attributes));
@@ -2679,13 +2774,13 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final String filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final String filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
@@ -2702,13 +2797,13 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final Filter filter,
-                                          final String... attributes)
+  @Nullable()
+  public SearchResultEntry searchForEntry(@NotNull final String baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
          throws LDAPSearchException
   {
     return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
@@ -2725,7 +2820,9 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
-  public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+  @Nullable()
+  public SearchResultEntry searchForEntry(
+                                @NotNull final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     final ArrayList<Control> requestControlList =
@@ -2789,8 +2886,9 @@ public final class InMemoryDirectoryServer
    * in the server.
    */
   @Override()
+  @Nullable()
   public SearchResultEntry searchForEntry(
-                                final ReadOnlySearchRequest searchRequest)
+              @NotNull final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return searchForEntry(searchRequest.duplicate());
@@ -2803,6 +2901,7 @@ public final class InMemoryDirectoryServer
    *
    * @return  The configured list of password attributes.
    */
+  @NotNull()
   public List<String> getPasswordAttributes()
   {
     return inMemoryHandler.getPasswordAttributes();
@@ -2817,6 +2916,7 @@ public final class InMemoryDirectoryServer
    * @return  The primary password encoder that has been configured for the
    *          server.
    */
+  @Nullable()
   public InMemoryPasswordEncoder getPrimaryPasswordEncoder()
   {
     return inMemoryHandler.getPrimaryPasswordEncoder();
@@ -2829,6 +2929,7 @@ public final class InMemoryDirectoryServer
    *
    * @return  A list of all password encoders configured for the server.
    */
+  @NotNull()
   public List<InMemoryPasswordEncoder> getAllPasswordEncoders()
   {
     return inMemoryHandler.getAllPasswordEncoders();
@@ -2854,8 +2955,10 @@ public final class InMemoryDirectoryServer
    *          password, or an empty list if the entry does not contain any
    *          passwords.
    */
+  @NotNull()
   public List<InMemoryDirectoryServerPassword> getPasswordsInEntry(
-              final Entry entry, final ASN1OctetString clearPasswordToMatch)
+              @NotNull final Entry entry,
+              @Nullable final ASN1OctetString clearPasswordToMatch)
   {
     return inMemoryHandler.getPasswordsInEntry(entry, clearPasswordToMatch);
   }
@@ -2872,7 +2975,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPSearchException  If the provided string could not be parsed as
    *                               a valid search filter.
    */
-  private static Filter parseFilter(final String s)
+  @NotNull()
+  private static Filter parseFilter(@NotNull final String s)
           throws LDAPSearchException
   {
     try
@@ -2900,7 +3004,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final String dn)
+  public boolean entryExists(@NotNull final String dn)
          throws LDAPException
   {
     return inMemoryHandler.entryExists(dn);
@@ -2924,7 +3028,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final String dn, final String filter)
+  public boolean entryExists(@NotNull final String dn,
+                             @NotNull final String filter)
          throws LDAPException
   {
     return inMemoryHandler.entryExists(dn, filter);
@@ -2949,7 +3054,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final Entry entry)
+  public boolean entryExists(@NotNull final Entry entry)
          throws LDAPException
   {
     return inMemoryHandler.entryExists(entry);
@@ -2970,7 +3075,7 @@ public final class InMemoryDirectoryServer
    *
    * @throws  AssertionError  If the target entry does not exist.
    */
-  public void assertEntryExists(final String dn)
+  public void assertEntryExists(@NotNull final String dn)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertEntryExists(dn);
@@ -2993,7 +3098,8 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          match the provided filter.
    */
-  public void assertEntryExists(final String dn, final String filter)
+  public void assertEntryExists(@NotNull final String dn,
+                                @NotNull final String filter)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertEntryExists(dn, filter);
@@ -3018,7 +3124,7 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          match the provided filter.
    */
-  public void assertEntryExists(final Entry entry)
+  public void assertEntryExists(@NotNull final Entry entry)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertEntryExists(entry);
@@ -3041,7 +3147,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingEntryDNs(final String... dns)
+  @NotNull()
+  public List<String> getMissingEntryDNs(@NotNull final String... dns)
          throws LDAPException
   {
     return inMemoryHandler.getMissingEntryDNs(StaticUtils.toList(dns));
@@ -3064,7 +3171,8 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingEntryDNs(final Collection<String> dns)
+  @NotNull()
+  public List<String> getMissingEntryDNs(@NotNull final Collection<String> dns)
          throws LDAPException
   {
     return inMemoryHandler.getMissingEntryDNs(dns);
@@ -3086,7 +3194,7 @@ public final class InMemoryDirectoryServer
    *
    * @throws  AssertionError  If any of the target entries does not exist.
    */
-  public void assertEntriesExist(final String... dns)
+  public void assertEntriesExist(@NotNull final String... dns)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertEntriesExist(StaticUtils.toList(dns));
@@ -3108,7 +3216,7 @@ public final class InMemoryDirectoryServer
    *
    * @throws  AssertionError  If any of the target entries does not exist.
    */
-  public void assertEntriesExist(final Collection<String> dns)
+  public void assertEntriesExist(@NotNull final Collection<String> dns)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertEntriesExist(dns);
@@ -3135,8 +3243,9 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeNames(final String dn,
-                                               final String... attributeNames)
+  @Nullable()
+  public List<String> getMissingAttributeNames(@NotNull final String dn,
+                           @NotNull final String... attributeNames)
          throws LDAPException
   {
     return inMemoryHandler.getMissingAttributeNames(dn,
@@ -3164,8 +3273,9 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeNames(final String dn,
-                           final Collection<String> attributeNames)
+  @Nullable()
+  public List<String> getMissingAttributeNames(@NotNull final String dn,
+                           @NotNull final Collection<String> attributeNames)
          throws LDAPException
   {
     return inMemoryHandler.getMissingAttributeNames(dn, attributeNames);
@@ -3190,8 +3300,8 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          contain all of the specified attributes.
    */
-  public void assertAttributeExists(final String dn,
-                                    final String... attributeNames)
+  public void assertAttributeExists(@NotNull final String dn,
+                                    @NotNull final String... attributeNames)
         throws LDAPException, AssertionError
   {
     inMemoryHandler.assertAttributeExists(dn,
@@ -3217,8 +3327,8 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          contain all of the specified attributes.
    */
-  public void assertAttributeExists(final String dn,
-                                    final Collection<String> attributeNames)
+  public void assertAttributeExists(@NotNull final String dn,
+                   @NotNull final Collection<String> attributeNames)
         throws LDAPException, AssertionError
   {
     inMemoryHandler.assertAttributeExists(dn, attributeNames);
@@ -3246,9 +3356,10 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeValues(final String dn,
-                                                final String attributeName,
-                                                final String... attributeValues)
+  @Nullable()
+  public List<String> getMissingAttributeValues(@NotNull final String dn,
+                           @NotNull final String attributeName,
+                           @NotNull final String... attributeValues)
          throws LDAPException
   {
     return inMemoryHandler.getMissingAttributeValues(dn, attributeName,
@@ -3278,9 +3389,10 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeValues(final String dn,
-                           final String attributeName,
-                           final Collection<String> attributeValues)
+  @Nullable()
+  public List<String> getMissingAttributeValues(@NotNull final String dn,
+                           @NotNull final String attributeName,
+                           @NotNull final Collection<String> attributeValues)
        throws LDAPException
   {
     return inMemoryHandler.getMissingAttributeValues(dn, attributeName,
@@ -3309,8 +3421,9 @@ public final class InMemoryDirectoryServer
    *                          contain the specified attribute, or that attribute
    *                          does not have all of the specified values.
    */
-  public void assertValueExists(final String dn, final String attributeName,
-                                final String... attributeValues)
+  public void assertValueExists(@NotNull final String dn,
+                                @NotNull final String attributeName,
+                                @NotNull final String... attributeValues)
         throws LDAPException, AssertionError
   {
     inMemoryHandler.assertValueExists(dn, attributeName,
@@ -3339,8 +3452,9 @@ public final class InMemoryDirectoryServer
    *                          contain the specified attribute, or that attribute
    *                          does not have all of the specified values.
    */
-  public void assertValueExists(final String dn, final String attributeName,
-                                final Collection<String> attributeValues)
+  public void assertValueExists(@NotNull final String dn,
+                   @NotNull final String attributeName,
+                   @NotNull final Collection<String> attributeValues)
         throws LDAPException, AssertionError
   {
     inMemoryHandler.assertValueExists(dn, attributeName, attributeValues);
@@ -3361,7 +3475,7 @@ public final class InMemoryDirectoryServer
    *
    * @throws  AssertionError  If the target entry is found in the server.
    */
-  public void assertEntryMissing(final String dn)
+  public void assertEntryMissing(@NotNull final String dn)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertEntryMissing(dn);
@@ -3386,8 +3500,8 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attributes.
    */
-  public void assertAttributeMissing(final String dn,
-                                     final String... attributeNames)
+  public void assertAttributeMissing(@NotNull final String dn,
+                                     @NotNull final String... attributeNames)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertAttributeMissing(dn,
@@ -3413,8 +3527,8 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attributes.
    */
-  public void assertAttributeMissing(final String dn,
-                                     final Collection<String> attributeNames)
+  public void assertAttributeMissing(@NotNull final String dn,
+                   @NotNull final Collection<String> attributeNames)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertAttributeMissing(dn, attributeNames);
@@ -3440,8 +3554,9 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attribute values.
    */
-  public void assertValueMissing(final String dn, final String attributeName,
-                                 final String... attributeValues)
+  public void assertValueMissing(@NotNull final String dn,
+                                 @NotNull final String attributeName,
+                                 @NotNull final String... attributeValues)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertValueMissing(dn, attributeName,
@@ -3468,8 +3583,9 @@ public final class InMemoryDirectoryServer
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attribute values.
    */
-  public void assertValueMissing(final String dn, final String attributeName,
-                                 final Collection<String> attributeValues)
+  public void assertValueMissing(@NotNull final String dn,
+                   @NotNull final String attributeName,
+                   @NotNull final Collection<String> attributeValues)
          throws LDAPException, AssertionError
   {
     inMemoryHandler.assertValueMissing(dn, attributeName, attributeValues);

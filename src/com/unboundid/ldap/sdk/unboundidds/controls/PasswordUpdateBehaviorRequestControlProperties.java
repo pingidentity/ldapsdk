@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import java.io.Serializable;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.Nullable;
+import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -73,28 +75,28 @@ public final class PasswordUpdateBehaviorRequestControlProperties
 
   // Indicates whether the requester should be allowed to provide a pre-encoded
   // password.
-  private Boolean allowPreEncodedPassword;
+  @Nullable private Boolean allowPreEncodedPassword;
 
   // Indicates whether to ignore any minimum password age configured in the
   // password policy.
-  private Boolean ignoreMinimumPasswordAge;
+  @Nullable private Boolean ignoreMinimumPasswordAge;
 
   // Indicates whether to skip the process of checking whether the provided
   // password matches the new current password or is in the password history.
-  private Boolean ignorePasswordHistory;
+  @Nullable private Boolean ignorePasswordHistory;
 
   // Indicates whether to treat the password change as a self change.
-  private Boolean isSelfChange;
+  @Nullable private Boolean isSelfChange;
 
   // Indicates whether to update the user's account to indicate that they must
   // change their password the next time they authenticate.
-  private Boolean mustChangePassword;
+  @Nullable private Boolean mustChangePassword;
 
   // Indicates whether to skip password validation for the new password.
-  private Boolean skipPasswordValidation;
+  @Nullable private Boolean skipPasswordValidation;
 
   // Specifies the password storage scheme to use for the new password.
-  private String passwordStorageScheme;
+  @Nullable private String passwordStorageScheme;
 
 
 
@@ -124,7 +126,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    * @param  control  The control to use to initialize this properties object.
    */
   public PasswordUpdateBehaviorRequestControlProperties(
-              final PasswordUpdateBehaviorRequestControl control)
+              @NotNull final PasswordUpdateBehaviorRequestControl control)
   {
     isSelfChange = control.getIsSelfChange();
     allowPreEncodedPassword = control.getAllowPreEncodedPassword();
@@ -149,6 +151,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          {@code null} if the server should automatically determine whether
    *          the password update is a self change or an administrative reset.
    */
+  @Nullable()
   public Boolean getIsSelfChange()
   {
     return isSelfChange;
@@ -195,7 +198,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                       automatically determine whether the password change
    *                       is a self change or an administrative reset.
    */
-  public void setIsSelfChange(final Boolean isSelfChange)
+  public void setIsSelfChange(@Nullable final Boolean isSelfChange)
   {
     this.isSelfChange = isSelfChange;
   }
@@ -217,6 +220,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          the password policy configuration should be used to determine
    *          whether to accept pre-encoded passwords.
    */
+  @Nullable()
   public Boolean getAllowPreEncodedPassword()
   {
     return allowPreEncodedPassword;
@@ -259,7 +263,8 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                                  determine whether to accept a pre-encoded
    *                                  password.
    */
-  public void setAllowPreEncodedPassword(final Boolean allowPreEncodedPassword)
+  public void setAllowPreEncodedPassword(
+                   @Nullable final Boolean allowPreEncodedPassword)
   {
     this.allowPreEncodedPassword = allowPreEncodedPassword;
   }
@@ -281,6 +286,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          {@code null} if the password policy configuration should be used
    *          to determine whether to skip password validation.
    */
+  @Nullable()
   public Boolean getSkipPasswordValidation()
   {
     return skipPasswordValidation;
@@ -319,7 +325,8 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                                 password policy configuration to determine
    *                                 whether to perform new password validation.
    */
-  public void setSkipPasswordValidation(final Boolean skipPasswordValidation)
+  public void setSkipPasswordValidation(
+                   @Nullable final Boolean skipPasswordValidation)
   {
     this.skipPasswordValidation = skipPasswordValidation;
   }
@@ -341,6 +348,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          password policy configuration should be used to determine whether
    *          to ignore the password history.
    */
+  @Nullable()
   public Boolean getIgnorePasswordHistory()
   {
     return ignorePasswordHistory;
@@ -385,7 +393,8 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                                determine whether to perform password
    *                                history validation.
    */
-  public void setIgnorePasswordHistory(final Boolean ignorePasswordHistory)
+  public void setIgnorePasswordHistory(
+                   @Nullable final Boolean ignorePasswordHistory)
   {
     this.ignorePasswordHistory = ignorePasswordHistory;
   }
@@ -405,6 +414,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          age, or {@code null} if the password policy configuration should
    *          be used to determine the appropriate behavior.
    */
+  @Nullable()
   public Boolean getIgnoreMinimumPasswordAge()
   {
     return ignoreMinimumPasswordAge;
@@ -445,7 +455,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                                   resets.
    */
   public void setIgnoreMinimumPasswordAge(
-                   final Boolean ignoreMinimumPasswordAge)
+                   @Nullable final Boolean ignoreMinimumPasswordAge)
   {
     this.ignoreMinimumPasswordAge = ignoreMinimumPasswordAge;
   }
@@ -463,6 +473,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          user's password policy configuration should determine the
    *          appropriate schemes for encoding new passwords.
    */
+  @Nullable()
   public String getPasswordStorageScheme()
   {
     return passwordStorageScheme;
@@ -490,7 +501,8 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                                to determine which password storage schemes
    *                                should be used to encode new passwords.
    */
-  public void setPasswordStorageScheme(final String passwordStorageScheme)
+  public void setPasswordStorageScheme(
+                   @Nullable final String passwordStorageScheme)
   {
     this.passwordStorageScheme = passwordStorageScheme;
   }
@@ -509,6 +521,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          operation, or {@code null} if the password policy configuration
    *          should be used to control this behavior.
    */
+  @Nullable()
   public Boolean getMustChangePassword()
   {
     return mustChangePassword;
@@ -553,7 +566,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *                             server's normal logic will be used to make the
    *                             determination.
    */
-  public void setMustChangePassword(final Boolean mustChangePassword)
+  public void setMustChangePassword(@Nullable final Boolean mustChangePassword)
   {
     this.mustChangePassword = mustChangePassword;
   }
@@ -568,6 +581,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          control properties object.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -583,7 +597,7 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("PasswordUpdateBehaviorRequestControlProperties(");
 
@@ -632,10 +646,11 @@ public final class PasswordUpdateBehaviorRequestControlProperties
    *          appended to the buffer, or {@code false} if no name-value pair has
    *          yet been appended to the buffer.
    */
-  private static boolean appendNameValuePair(final StringBuilder buffer,
-                                             final String propertyName,
-                                             final Object propertyValue,
-                                             final boolean appendedPreviousPair)
+  private static boolean appendNameValuePair(
+               @NotNull final StringBuilder buffer,
+               @NotNull final String propertyName,
+               @Nullable final Object propertyValue,
+               final boolean appendedPreviousPair)
   {
     if (propertyValue == null)
     {

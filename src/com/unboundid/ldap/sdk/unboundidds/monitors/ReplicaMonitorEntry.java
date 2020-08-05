@@ -44,6 +44,8 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -83,7 +85,7 @@ public final class ReplicaMonitorEntry
   /**
    * The structural object class used in replica monitor entries.
    */
-  static final String REPLICA_MONITOR_OC =
+  @NotNull static final String REPLICA_MONITOR_OC =
        "ds-replica-monitor-entry";
 
 
@@ -92,7 +94,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that contains the base DNs for the replicated
    * data.
    */
-  private static final String ATTR_BASE_DN = "base-dn";
+  @NotNull private static final String ATTR_BASE_DN = "base-dn";
 
 
 
@@ -100,7 +102,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that contains the address and port of the
    * replication server to which the replica is connected.
    */
-  private static final String ATTR_CONNECTED_TO =
+  @NotNull private static final String ATTR_CONNECTED_TO =
        "connected-to";
 
 
@@ -109,7 +111,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the current
    * receive window size.
    */
-  private static final String ATTR_CURRENT_RECEIVE_WINDOW_SIZE =
+  @NotNull private static final String ATTR_CURRENT_RECEIVE_WINDOW_SIZE =
        "current-rcv-window";
 
 
@@ -118,7 +120,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the current send
    * window size.
    */
-  private static final String ATTR_CURRENT_SEND_WINDOW_SIZE =
+  @NotNull private static final String ATTR_CURRENT_SEND_WINDOW_SIZE =
        "current-send-window";
 
 
@@ -126,7 +128,7 @@ public final class ReplicaMonitorEntry
   /**
    * The name of the attribute that provides the generation ID for the replica.
    */
-  private static final String ATTR_GENERATION_ID = "generation-id";
+  @NotNull private static final String ATTR_GENERATION_ID = "generation-id";
 
 
 
@@ -134,7 +136,8 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the number of
    * times the connection to the replication server has been lost.
    */
-  private static final String ATTR_LOST_CONNECTIONS = "lost-connections";
+  @NotNull private static final String ATTR_LOST_CONNECTIONS =
+       "lost-connections";
 
 
 
@@ -142,7 +145,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the maximum
    * receive window size.
    */
-  private static final String ATTR_MAX_RECEIVE_WINDOW_SIZE =
+  @NotNull private static final String ATTR_MAX_RECEIVE_WINDOW_SIZE =
        "max-rcv-window";
 
 
@@ -151,7 +154,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the maximum send
    * window size.
    */
-  private static final String ATTR_MAX_SEND_WINDOW_SIZE =
+  @NotNull private static final String ATTR_MAX_SEND_WINDOW_SIZE =
        "max-send-window";
 
 
@@ -161,7 +164,7 @@ public final class ReplicaMonitorEntry
    * pending updates which are currently being processed by the Directory Server
    * and have not yet been sent to the replication server.
    */
-  private static final String ATTR_PENDING_UPDATES = "pending-updates";
+  @NotNull private static final String ATTR_PENDING_UPDATES = "pending-updates";
 
 
 
@@ -169,14 +172,15 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the number of
    * updates received from the replication server for this replica.
    */
-  private static final String ATTR_RECEIVED_UPDATES = "received-updates";
+  @NotNull private static final String ATTR_RECEIVED_UPDATES =
+       "received-updates";
 
 
 
   /**
    * The name of the attribute that provides the replica ID for this replica.
    */
-  private static final String ATTR_REPLICA_ID = "replica-id";
+  @NotNull private static final String ATTR_REPLICA_ID = "replica-id";
 
 
 
@@ -184,7 +188,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the number of
    * updates that were replayed after resolving a modify conflict.
    */
-  private static final String ATTR_RESOLVED_MODIFY_CONFLICTS =
+  @NotNull private static final String ATTR_RESOLVED_MODIFY_CONFLICTS =
        "resolved-modify-conflicts";
 
 
@@ -193,7 +197,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the number of
    * updates that were replayed after resolving a naming conflict.
    */
-  private static final String ATTR_RESOLVED_NAMING_CONFLICTS =
+  @NotNull private static final String ATTR_RESOLVED_NAMING_CONFLICTS =
        "resolved-naming-conflicts";
 
 
@@ -202,7 +206,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the number of
    * updates sent to the replication server from this replica.
    */
-  private static final String ATTR_SENT_UPDATES = "sent-updates";
+  @NotNull private static final String ATTR_SENT_UPDATES = "sent-updates";
 
 
 
@@ -210,7 +214,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that indicates whether SSL is used when
    * communicating with the replication server.
    */
-  private static final String ATTR_SSL_ENCRYPTION = "ssl-encryption";
+  @NotNull private static final String ATTR_SSL_ENCRYPTION = "ssl-encryption";
 
 
 
@@ -218,7 +222,8 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the number of
    * updates that have been successfully replayed with no problems.
    */
-  private static final String ATTR_SUCCESSFUL_REPLAYED = "replayed-updates-ok";
+  @NotNull private static final String ATTR_SUCCESSFUL_REPLAYED =
+       "replayed-updates-ok";
 
 
 
@@ -226,7 +231,7 @@ public final class ReplicaMonitorEntry
    * The name of the attribute that provides information about the total number
    * of updates that have been replayed in some form.
    */
-  private static final String ATTR_TOTAL_REPLAYED = "replayed-updates";
+  @NotNull private static final String ATTR_TOTAL_REPLAYED = "replayed-updates";
 
 
 
@@ -235,7 +240,7 @@ public final class ReplicaMonitorEntry
    * updates that could not be replayed because of an unresolved naming
    * conflict.
    */
-  private static final String ATTR_UNRESOLVED_NAMING_CONFLICTS =
+  @NotNull private static final String ATTR_UNRESOLVED_NAMING_CONFLICTS =
        "unresolved-naming-conflicts";
 
 
@@ -249,63 +254,63 @@ public final class ReplicaMonitorEntry
 
   // Indicates whether the replica uses SSL when communicating with the
   // replication server.
-  private final Boolean useSSL;
+  @Nullable private final Boolean useSSL;
 
   // The current receive window size.
-  private final Long currentReceiveWindowSize;
+  @Nullable private final Long currentReceiveWindowSize;
 
   // The current send window size.
-  private final Long currentSendWindowSize;
+  @Nullable private final Long currentSendWindowSize;
 
   // The number of lost connections.
-  private final Long lostConnections;
+  @Nullable private final Long lostConnections;
 
   // The maximum receive window size.
-  private final Long maxReceiveWindowSize;
+  @Nullable private final Long maxReceiveWindowSize;
 
   // The maximum send window size.
-  private final Long maxSendWindowSize;
+  @Nullable private final Long maxSendWindowSize;
 
   // The number of pending updates that haven't been sent to the replication
   // server.
-  private final Long pendingUpdates;
+  @Nullable private final Long pendingUpdates;
 
   // The number of updates received from the replication server.
-  private final Long receivedUpdates;
+  @Nullable private final Long receivedUpdates;
 
   // The number of updates replayed after resolving a modify conflict.
-  private final Long replayedAfterModifyConflict;
+  @Nullable private final Long replayedAfterModifyConflict;
 
   // The number of updates replayed after resolving a naming conflict.
-  private final Long replayedAfterNamingConflict;
+  @Nullable private final Long replayedAfterNamingConflict;
 
   // The port number of the replication server.
-  private final Long replicationServerPort;
+  @Nullable private final Long replicationServerPort;
 
   // The number of updates sent to the replication server.
-  private final Long sentUpdates;
+  @Nullable private final Long sentUpdates;
 
   // The number of updates replayed successfully.
-  private final Long successfullyReplayed;
+  @Nullable private final Long successfullyReplayed;
 
   // The total number of updates replayed.
-  private final Long totalReplayed;
+  @Nullable private final Long totalReplayed;
 
   // The number of unresolved naming conflicts that could not be successfully
   // replayed.
-  private final Long unresolvedNamingConflicts;
+  @Nullable private final Long unresolvedNamingConflicts;
 
   // The base DN for the replicated data.
-  private final String baseDN;
+  @Nullable private final String baseDN;
 
   // The generation ID for the replicated data.
-  private final String generationID;
+  @Nullable private final String generationID;
 
   // The replica ID for the replica.
-  private final String replicaID;
+  @Nullable private final String replicaID;
 
   // The address of the replication server.
-  private final String replicationServerAddress;
+  @Nullable private final String replicationServerAddress;
 
 
 
@@ -315,7 +320,7 @@ public final class ReplicaMonitorEntry
    * @param  entry  The entry to be parsed as a replica monitor entry.  It must
    *                not be {@code null}.
    */
-  public ReplicaMonitorEntry(final Entry entry)
+  public ReplicaMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 
@@ -371,6 +376,7 @@ public final class ReplicaMonitorEntry
    * @return  The base DN for this replica, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getBaseDN()
   {
     return baseDN;
@@ -384,6 +390,7 @@ public final class ReplicaMonitorEntry
    * @return  The replica ID for this replica, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getReplicaID()
   {
     return replicaID;
@@ -397,6 +404,7 @@ public final class ReplicaMonitorEntry
    * @return  The generation ID for this replica, or {@code null} if it was not
    *          included in the monitor entry.
    */
+  @Nullable()
   public String getGenerationID()
   {
     return generationID;
@@ -412,6 +420,7 @@ public final class ReplicaMonitorEntry
    *          connected, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public String getReplicationServerAddress()
   {
     return replicationServerAddress;
@@ -427,6 +436,7 @@ public final class ReplicaMonitorEntry
    *          connected, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getReplicationServerPort()
   {
     return replicationServerPort;
@@ -443,6 +453,7 @@ public final class ReplicaMonitorEntry
    *          use SSL, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Boolean useSSL()
   {
     return useSSL;
@@ -458,6 +469,7 @@ public final class ReplicaMonitorEntry
    *          replication server, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getLostConnections()
   {
     return lostConnections;
@@ -473,6 +485,7 @@ public final class ReplicaMonitorEntry
    *          replication server, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getReceivedUpdates()
   {
     return receivedUpdates;
@@ -488,6 +501,7 @@ public final class ReplicaMonitorEntry
    *          replication server, or {@code null} if it was not included in the
    *          monitor entry.
    */
+  @Nullable()
   public Long getSentUpdates()
   {
     return sentUpdates;
@@ -504,6 +518,7 @@ public final class ReplicaMonitorEntry
    *          server, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getPendingUpdates()
   {
     return pendingUpdates;
@@ -519,6 +534,7 @@ public final class ReplicaMonitorEntry
    *          replica, or {@code null} if it was not included in the monitor
    *          entry.
    */
+  @Nullable()
   public Long getTotalUpdatesReplayed()
   {
     return totalReplayed;
@@ -534,6 +550,7 @@ public final class ReplicaMonitorEntry
    *          replica without conflicts, or {@code null} if it was not included
    *          in the monitor entry.
    */
+  @Nullable()
   public Long getUpdatesSuccessfullyReplayed()
   {
     return successfullyReplayed;
@@ -549,6 +566,7 @@ public final class ReplicaMonitorEntry
    *          after automatically resolving a modify conflict, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getUpdatesReplayedAfterModifyConflict()
   {
     return replayedAfterModifyConflict;
@@ -564,6 +582,7 @@ public final class ReplicaMonitorEntry
    *          after automatically resolving a naming conflict, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getUpdatesReplayedAfterNamingConflict()
   {
     return replayedAfterNamingConflict;
@@ -579,6 +598,7 @@ public final class ReplicaMonitorEntry
    *          naming conflict that could not be automatically resolved, or
    *          {@code null} if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getUnresolvedNamingConflicts()
   {
     return unresolvedNamingConflicts;
@@ -592,6 +612,7 @@ public final class ReplicaMonitorEntry
    * @return  The current receive window size for this replica, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentReceiveWindowSize()
   {
     return currentReceiveWindowSize;
@@ -605,6 +626,7 @@ public final class ReplicaMonitorEntry
    * @return  The current send window size for this replica, or {@code null} if
    *          it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getCurrentSendWindowSize()
   {
     return currentSendWindowSize;
@@ -618,6 +640,7 @@ public final class ReplicaMonitorEntry
    * @return  The maximum receive window size for this replica, or {@code null}
    *          if it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMaximumReceiveWindowSize()
   {
     return maxReceiveWindowSize;
@@ -631,6 +654,7 @@ public final class ReplicaMonitorEntry
    * @return  The maximum send window size for this replica, or {@code null} if
    *          it was not included in the monitor entry.
    */
+  @Nullable()
   public Long getMaximumSendWindowSize()
   {
     return maxSendWindowSize;
@@ -642,6 +666,7 @@ public final class ReplicaMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDisplayName()
   {
     return INFO_REPLICA_MONITOR_DISPNAME.get();
@@ -653,6 +678,7 @@ public final class ReplicaMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getMonitorDescription()
   {
     return INFO_REPLICA_MONITOR_DESC.get();
@@ -664,6 +690,7 @@ public final class ReplicaMonitorEntry
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =

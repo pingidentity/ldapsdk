@@ -42,6 +42,8 @@ import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -80,7 +82,7 @@ public final class EndAdministrativeSessionExtendedRequest
    * The OID (1.3.6.1.4.1.30221.2.6.14) for the end administrative session
    * extended request.
    */
-  public static final String END_ADMIN_SESSION_REQUEST_OID =
+  @NotNull public static final String END_ADMIN_SESSION_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.6.14";
 
 
@@ -98,7 +100,8 @@ public final class EndAdministrativeSessionExtendedRequest
    *
    * @param  controls  The set of controls to include in the request.
    */
-  public EndAdministrativeSessionExtendedRequest(final Control... controls)
+  public EndAdministrativeSessionExtendedRequest(
+              @Nullable final Control... controls)
   {
     super(END_ADMIN_SESSION_REQUEST_OID, controls);
   }
@@ -115,7 +118,7 @@ public final class EndAdministrativeSessionExtendedRequest
    * @throws  LDAPException  If a problem occurs while decoding the request.
    */
   public EndAdministrativeSessionExtendedRequest(
-              final ExtendedRequest extendedRequest)
+              @NotNull final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     super(extendedRequest);
@@ -133,6 +136,7 @@ public final class EndAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public EndAdministrativeSessionExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -144,8 +148,9 @@ public final class EndAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public EndAdministrativeSessionExtendedRequest duplicate(
-              final Control[] controls)
+              @Nullable final Control[] controls)
   {
     return new EndAdministrativeSessionExtendedRequest(controls);
   }
@@ -156,6 +161,7 @@ public final class EndAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getExtendedRequestName()
   {
     return INFO_EXTENDED_REQUEST_NAME_END_ADMIN_SESSION.get();
@@ -167,7 +173,7 @@ public final class EndAdministrativeSessionExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer)
+  public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("EndAdministrativeSessionExtendedRequest(");
 
