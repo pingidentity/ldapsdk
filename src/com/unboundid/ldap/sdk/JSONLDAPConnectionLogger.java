@@ -80,7 +80,7 @@ public final class JSONLDAPConnectionLogger
    * The bytes that comprise the value that will be used in place of redacted
    * attribute values.
    */
-  private static final String REDACTED_VALUE_STRING = "[REDACTED]";
+  @NotNull private static final String REDACTED_VALUE_STRING = "[REDACTED]";
 
 
 
@@ -88,7 +88,7 @@ public final class JSONLDAPConnectionLogger
    * The bytes that comprise the value that will be used in place of redacted
    * attribute values.
    */
-  private static final byte[] REDACTED_VALUE_BYTES =
+  @NotNull private static final byte[] REDACTED_VALUE_BYTES =
        StaticUtils.getBytes(REDACTED_VALUE_STRING);
 
 

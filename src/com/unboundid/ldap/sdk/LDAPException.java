@@ -490,7 +490,7 @@ public class LDAPException
    * @return  {@code true} if this result contains at least one control with
    *          the specified OID, or {@code false} if not.
    */
-  public final boolean hasResponseControl(final String oid)
+  public final boolean hasResponseControl(@NotNull final String oid)
   {
     for (final Control c : responseControls)
     {
@@ -653,7 +653,8 @@ public class LDAPException
    *                            automatically be included, regardless of the
    *                            value of the {@code includeCause} argument.
    */
-  public void toString(final StringBuilder buffer, final boolean includeCause,
+  public void toString(@NotNull final StringBuilder buffer,
+                       final boolean includeCause,
                        final boolean includeStackTrace)
   {
     buffer.append("LDAPException(resultCode=");

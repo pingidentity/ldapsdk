@@ -228,7 +228,7 @@ public final class ValuePattern
    * The URL to the publicly-accessible javadoc for this class, which provides
    * a detailed overview of the supported value pattern syntax.
    */
-  public static final String PUBLIC_JAVADOC_URL =
+  @NotNull public static final String PUBLIC_JAVADOC_URL =
        "https://docs.ldap.com/ldap-sdk/docs/javadoc/index.html?" +
             "com/unboundid/util/ValuePattern.html";
 

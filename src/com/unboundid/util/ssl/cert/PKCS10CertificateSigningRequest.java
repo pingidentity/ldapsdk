@@ -820,6 +820,7 @@ public final class PKCS10CertificateSigningRequest
    * @throws  CertException  If a problem is encountered while generating the
    *                         certificate.
    */
+  @NotNull()
   private static ASN1BitString generateSignature(
                @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
                @NotNull final PrivateKey privateKey,

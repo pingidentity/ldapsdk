@@ -627,7 +627,7 @@ public final class SSLUtil
    */
   @NotNull()
   public SSLServerSocketFactory createSSLServerSocketFactory(
-                                     final String protocol)
+                                     @NotNull final String protocol)
          throws GeneralSecurityException
   {
     return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
@@ -1333,6 +1333,7 @@ public final class SSLUtil
    *
    * @return  A string representation of the provided certificate.
    */
+  @NotNull()
   public static String certificateToString(
                             @NotNull final X509Certificate certificate)
   {

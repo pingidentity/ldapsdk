@@ -81,6 +81,7 @@ public abstract class LDAPListenerRequestHandler
    *
    * @throws  LDAPException  If the connection should not be accepted.
    */
+  @NotNull()
   public abstract LDAPListenerRequestHandler newInstance(
                        @NotNull LDAPListenerClientConnection connection)
          throws LDAPException;

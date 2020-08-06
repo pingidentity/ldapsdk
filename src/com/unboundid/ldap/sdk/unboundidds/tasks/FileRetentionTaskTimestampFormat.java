@@ -183,49 +183,52 @@ public enum FileRetentionTaskTimestampFormat
   /**
    * A regular expression fragment that begins a capture group.
    */
-  private static final String REGEX_FRAGMENT_BEGIN_CAPTURE_GROUP = "(";
+  @NotNull private static final String REGEX_FRAGMENT_BEGIN_CAPTURE_GROUP = "(";
 
 
 
   /**
    * A regular expression fragment that matches a year between 1900 and 2199.
    */
-  private static final String REGEX_FRAGMENT_YEAR = "(19|20|21)[0-9][0-9]";
+  @NotNull private static final String REGEX_FRAGMENT_YEAR =
+       "(19|20|21)[0-9][0-9]";
 
 
 
   /**
    * A regular expression fragment that matches a month between 01 and 12.
    */
-  private static final String REGEX_FRAGMENT_MONTH = "(0[1-9]|1[0-2])";
+  @NotNull private static final String REGEX_FRAGMENT_MONTH = "(0[1-9]|1[0-2])";
 
 
 
   /**
    * A regular expression fragment that matches a day between 01 and 31.
    */
-  private static final String REGEX_FRAGMENT_DAY = "(0[1-9]|[1-2][0-9]|3[0-1])";
+  @NotNull private static final String REGEX_FRAGMENT_DAY =
+       "(0[1-9]|[1-2][0-9]|3[0-1])";
 
 
 
   /**
    * A regular expression fragment that matches an hour between 00 and 23.
    */
-  private static final String REGEX_FRAGMENT_HOUR = "([0-1][0-9]|2[0-3])";
+  @NotNull private static final String REGEX_FRAGMENT_HOUR =
+       "([0-1][0-9]|2[0-3])";
 
 
 
   /**
    * A regular expression fragment that matches a minute between 00 and 59.
    */
-  private static final String REGEX_FRAGMENT_MINUTE = "[0-5][0-9]";
+  @NotNull private static final String REGEX_FRAGMENT_MINUTE = "[0-5][0-9]";
 
 
 
   /**
    * A regular expression fragment that matches a second between 00 and 59.
    */
-  private static final String REGEX_FRAGMENT_SECOND = "[0-5][0-9]";
+  @NotNull private static final String REGEX_FRAGMENT_SECOND = "[0-5][0-9]";
 
 
 
@@ -233,7 +236,8 @@ public enum FileRetentionTaskTimestampFormat
    * A regular expression fragment that matches a millisecond between 000 and
    * 999, preceded by a literal period character.
    */
-  private static final String REGEX_FRAGMENT_MILLISECOND = "\\.[0-9][0-9][0-9]";
+  @NotNull private static final String REGEX_FRAGMENT_MILLISECOND =
+       "\\.[0-9][0-9][0-9]";
 
 
 
@@ -241,14 +245,14 @@ public enum FileRetentionTaskTimestampFormat
    * A regular expression fragment that matches a literal 'Z' character (to
    * serve as a time zone indicator).
    */
-  private static final String REGEX_FRAGMENT_LITERAL_Z = "Z";
+  @NotNull private static final String REGEX_FRAGMENT_LITERAL_Z = "Z";
 
 
 
   /**
    * A regular expression fragment that ends a capture group.
    */
-  private static final String REGEX_FRAGMENT_END_CAPTURE_GROUP = ")";
+  @NotNull private static final String REGEX_FRAGMENT_END_CAPTURE_GROUP = ")";
 
 
 

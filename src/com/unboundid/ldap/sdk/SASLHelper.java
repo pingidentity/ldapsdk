@@ -58,7 +58,7 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
 final class SASLHelper
 {
   // The set of controls to include in the request.
-  private final Control[] controls;
+  @NotNull private final Control[] controls;
 
   // The message ID used when communicating with the directory server.
   private volatile int messageID;

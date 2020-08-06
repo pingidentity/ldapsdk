@@ -440,7 +440,6 @@ public abstract class JSONObjectFilter
    * @return  {@code true} if this JSON object filter matches the provided JSON
    *          object, or {@code false} if not.
    */
-  @NotNull()
   public abstract boolean matchesJSONObject(@NotNull JSONObject o);
 
 
@@ -633,7 +632,6 @@ public abstract class JSONObjectFilter
    *                         the specified field was neither {@code true} nor
    *                         {@code false}.
    */
-  @Nullable()
   protected boolean getBoolean(@NotNull final JSONObject o,
                                @NotNull final String fieldName,
                                @Nullable final Boolean defaultValue)

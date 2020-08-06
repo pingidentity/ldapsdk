@@ -76,6 +76,7 @@ public interface DecodeableControl
    * @throws  LDAPException  If the provided information cannot be decoded as a
    *                         valid instance of this decodeable control.
    */
+  @NotNull()
   Control decodeControl(@NotNull String oid, boolean isCritical,
                         @Nullable ASN1OctetString value)
           throws LDAPException;

@@ -67,7 +67,8 @@ public final class IssuerAlternativeNameExtension
   /**
    * The OID (2.5.29.18) for issuer alternative name extensions.
    */
-  public static final OID ISSUER_ALTERNATIVE_NAME_OID = new OID("2.5.29.18");
+  @NotNull public static final OID ISSUER_ALTERNATIVE_NAME_OID =
+       new OID("2.5.29.18");
 
 
 

@@ -132,6 +132,7 @@ public final class ValidateLDAPSchema
    * @return  A result code that indicates whether processing completed
    *          successfully.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)

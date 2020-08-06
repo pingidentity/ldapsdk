@@ -299,7 +299,8 @@ public final class UnboundIDRootDSE
    *          specified one-time password delivery mechanism, or {@code false}
    *          if it does not.
    */
-  public boolean supportsOTPDeliveryMechanism(final String mechanismName)
+  public boolean supportsOTPDeliveryMechanism(
+              @NotNull final String mechanismName)
   {
     return hasAttributeValue(ATTR_SUPPORTED_OTP_DELIVERY_MECHANISM,
          mechanismName);

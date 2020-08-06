@@ -898,7 +898,7 @@ public final class AlertTask
    * @return  The resulting string list.
    */
   @NotNull()
-  private static List<String> getStringList(final List<String> l)
+  private static List<String> getStringList(@Nullable final List<String> l)
   {
     if (l == null)
     {

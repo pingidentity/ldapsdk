@@ -1791,6 +1791,7 @@ public abstract class AbstractConnectionPool
    *                               entries and/or references.
    */
   @Override()
+  @NotNull()
   public final SearchResult search(
        @Nullable final SearchResultListener searchResultListener,
        @NotNull final String baseDN, @NotNull final SearchScope scope,
@@ -1855,6 +1856,7 @@ public abstract class AbstractConnectionPool
    *                               entries and/or references.
    */
   @Override()
+  @NotNull()
   public final SearchResult search(@NotNull final String baseDN,
                                    @NotNull final SearchScope scope,
                                    @NotNull final DereferencePolicy derefPolicy,

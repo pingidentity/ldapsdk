@@ -134,6 +134,7 @@ public final class InternalCertHelper
    *                         certificate.
    */
   @InternalUseOnly()
+  @NotNull()
   public static X509Certificate createX509Certificate(
                      @NotNull final X509CertificateVersion version,
                      @NotNull final BigInteger serialNumber,
@@ -207,6 +208,7 @@ public final class InternalCertHelper
    *                         certificate signing request.
    */
   @InternalUseOnly()
+  @NotNull()
   public static PKCS10CertificateSigningRequest
                      createPKCS10CertificateSigningRequest(
          @NotNull final PKCS10CertificateSigningRequestVersion version,
@@ -264,6 +266,7 @@ public final class InternalCertHelper
    *                         private key.
    */
   @InternalUseOnly()
+  @NotNull()
   public static PKCS8PrivateKey createPKCS8PrivateKey(
                      @NotNull final PKCS8PrivateKeyVersion version,
                      @NotNull final OID privateKeyAlgorithmOID,

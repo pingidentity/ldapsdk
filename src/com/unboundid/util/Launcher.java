@@ -152,6 +152,7 @@ public final class Launcher
    *
    * @return  A result code with information about the status of processing.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream outStream,
                                 @Nullable final OutputStream errStream,
                                 @Nullable final String... args)

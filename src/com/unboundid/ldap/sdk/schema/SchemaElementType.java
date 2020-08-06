@@ -119,11 +119,11 @@ public enum SchemaElementType
 
 
   // A name for this schema element type.
-  private final String name;
+  @NotNull private final String name;
 
   // The name used to hold definitions for elements of this type in a subschema
   // subentry.
-  private final String subschemaAttributeTypeName;
+  @NotNull private final String subschemaAttributeTypeName;
 
 
 

@@ -179,6 +179,7 @@ public final class LDAPDebuggerRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public LDAPDebuggerRequestHandler newInstance(
               @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException

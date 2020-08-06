@@ -1168,7 +1168,8 @@ public final class X509Certificate
                      generateSelfSignedCertificate(
               @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
               @NotNull final PublicKeyAlgorithmIdentifier publicKeyAlgorithm,
-              final int keySizeBits, final DN subjectDN,
+              final int keySizeBits,
+              @NotNull final DN subjectDN,
               final long notBefore, final long notAfter,
               @Nullable final X509CertificateExtension... extensions)
          throws CertException
@@ -1411,6 +1412,7 @@ public final class X509Certificate
    * @throws  CertException  If a problem is encountered while creating the
    *                         certificate.
    */
+  @NotNull()
   public static X509Certificate generateIssuerSignedCertificate(
               @NotNull final SignatureAlgorithmIdentifier signatureAlgorithm,
               @NotNull final X509Certificate issuerCertificate,
@@ -1808,6 +1810,7 @@ public final class X509Certificate
    *
    * @return  The certificate validity start time as a {@code Date}.
    */
+  @NotNull()
   public Date getNotBeforeDate()
   {
     return new Date(notBefore);

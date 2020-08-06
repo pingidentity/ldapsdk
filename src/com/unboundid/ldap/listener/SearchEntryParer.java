@@ -269,7 +269,8 @@ public final class SearchEntryParer
    *            empty if no options are needed, and must not be {@code null}.
    * @param  s  The schema to use when processing.
    */
-  private static void addAttributeOIDAndNames(final AttributeTypeDefinition d,
+  private static void addAttributeOIDAndNames(
+                           @Nullable final AttributeTypeDefinition d,
                            @NotNull final Map<String,List<List<String>>> m,
                            @NotNull final List<String> o,
                            @Nullable final Schema s)

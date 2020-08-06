@@ -204,6 +204,7 @@ public final class Base64Tool
    *          other than {@link ResultCode#SUCCESS} will indicate that an error
    *          occurred.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final InputStream in,
                                 @Nullable final OutputStream out,
                                 @Nullable final OutputStream err,

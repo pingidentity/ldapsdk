@@ -468,7 +468,9 @@ public final class ASN1OctetString
    * @throws  ASN1Exception  If the provided array cannot be decoded as an
    *                         octet string element.
    */
-  public static ASN1OctetString decodeAsOctetString(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1OctetString decodeAsOctetString(
+              @NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try

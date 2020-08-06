@@ -59,7 +59,7 @@ public final class TrustAllSSLSocketVerifier
   /**
    * A singleton instance of this SSL socket verifier.
    */
-  private static final TrustAllSSLSocketVerifier INSTANCE =
+  @NotNull private static final TrustAllSSLSocketVerifier INSTANCE =
        new TrustAllSSLSocketVerifier();
 
 
@@ -79,6 +79,7 @@ public final class TrustAllSSLSocketVerifier
    *
    * @return  A singleton instance of this SSL socket verifier.
    */
+  @NotNull()
   public static TrustAllSSLSocketVerifier getInstance()
   {
     return INSTANCE;

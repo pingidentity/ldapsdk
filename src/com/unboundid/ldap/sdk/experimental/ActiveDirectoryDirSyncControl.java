@@ -237,7 +237,7 @@ public final class ActiveDirectoryDirSyncControl
    *                         decode the control value as appropriate for a
    *                         DirSync control.
    */
-  public ActiveDirectoryDirSyncControl(final String oid,
+  public ActiveDirectoryDirSyncControl(@NotNull final String oid,
                                        final boolean isCritical,
                                        @Nullable final ASN1OctetString value)
        throws LDAPException
@@ -286,6 +286,7 @@ public final class ActiveDirectoryDirSyncControl
    *
    * @return  An ASN.1 octet string containing the encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(final int flags,
                                       final int maxAttributeCount,
                                       @Nullable final ASN1OctetString cookie)

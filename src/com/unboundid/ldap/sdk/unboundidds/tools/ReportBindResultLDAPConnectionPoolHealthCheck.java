@@ -92,7 +92,7 @@ public final class ReportBindResultLDAPConnectionPoolHealthCheck
 
   // The tool whose output and error streams will be used for displaying result
   // details.
-  private final CommandLineTool tool;
+  @NotNull private final CommandLineTool tool;
 
   // The column at which to wrap long lines.
   private final int wrapColumn;

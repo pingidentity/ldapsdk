@@ -1530,6 +1530,7 @@ public final class InMemoryDirectoryServer
    * client connections.
    */
   @Override()
+  @Nullable()
   public Schema getSchema(@Nullable final String entryDN)
          throws LDAPException
   {

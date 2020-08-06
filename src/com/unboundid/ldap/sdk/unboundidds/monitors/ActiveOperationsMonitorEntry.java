@@ -153,7 +153,7 @@ public final class ActiveOperationsMonitorEntry
    * @param  entry  The entry to be parsed as a active operations monitor entry.
    *                It must not be {@code null}.
    */
-  public ActiveOperationsMonitorEntry(final Entry entry)
+  public ActiveOperationsMonitorEntry(@NotNull final Entry entry)
   {
     super(entry);
 

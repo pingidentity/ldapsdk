@@ -676,7 +676,7 @@ public final class MemoryUsageMonitorEntry
    *          collector, or {@code null} if that information is not available.
    */
   @Nullable()
-  public Long getTotalCollectionCount(final String collectorName)
+  public Long getTotalCollectionCount(@NotNull final String collectorName)
   {
     return totalCollectionCountPerGC.get(
          StaticUtils.toLowerCase(collectorName));
@@ -711,7 +711,7 @@ public final class MemoryUsageMonitorEntry
    *          that information is not available.
    */
   @Nullable()
-  public Long getTotalCollectionDuration(final String collectorName)
+  public Long getTotalCollectionDuration(@NotNull final String collectorName)
   {
     return totalCollectionDurationPerGC.get(
          StaticUtils.toLowerCase(collectorName));
@@ -746,7 +746,7 @@ public final class MemoryUsageMonitorEntry
    *          available.
    */
   @Nullable()
-  public Long getAverageCollectionDuration(final String collectorName)
+  public Long getAverageCollectionDuration(@NotNull final String collectorName)
   {
     return averageCollectionDurationPerGC.get(
          StaticUtils.toLowerCase(collectorName));
@@ -781,7 +781,7 @@ public final class MemoryUsageMonitorEntry
    *          information is not available.
    */
   @Nullable()
-  public Long getRecentCollectionDuration(final String collectorName)
+  public Long getRecentCollectionDuration(@NotNull final String collectorName)
   {
     return recentCollectionDurationPerGC.get(
          StaticUtils.toLowerCase(collectorName));
@@ -813,7 +813,7 @@ public final class MemoryUsageMonitorEntry
    *          {@code null} if that information is not available.
    */
   @Nullable()
-  public Long getCurrentBytesUsed(final String poolName)
+  public Long getCurrentBytesUsed(@NotNull final String poolName)
   {
     return currentBytesUsedPerMP.get(StaticUtils.toLowerCase(poolName));
   }
@@ -847,7 +847,7 @@ public final class MemoryUsageMonitorEntry
    *          available.
    */
   @Nullable()
-  public Long getBytesUsedAfterLastCollection(final String poolName)
+  public Long getBytesUsedAfterLastCollection(@NotNull final String poolName)
   {
     return bytesUsedAfterLastCollectionPerMP.get(
          StaticUtils.toLowerCase(poolName));

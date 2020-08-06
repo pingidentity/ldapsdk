@@ -998,7 +998,7 @@ public final class JEEnvironmentMonitorEntry
    *          {@code null} if no such statistic was provided.
    */
   @Nullable()
-  public String getEnvironmentStat(final String statName)
+  public String getEnvironmentStat(@NotNull final String statName)
   {
     return envStats.get(StaticUtils.toLowerCase(statName));
   }
@@ -1032,7 +1032,7 @@ public final class JEEnvironmentMonitorEntry
    *          {@code null} if no such statistic was provided.
    */
   @Nullable()
-  public String getLockStat(final String statName)
+  public String getLockStat(@NotNull final String statName)
   {
     return lockStats.get(StaticUtils.toLowerCase(statName));
   }
@@ -1067,7 +1067,7 @@ public final class JEEnvironmentMonitorEntry
    *          statistic, or {@code null} if no such statistic was provided.
    */
   @Nullable()
-  public String getTransactionStat(final String statName)
+  public String getTransactionStat(@NotNull final String statName)
   {
     return txnStats.get(StaticUtils.toLowerCase(statName));
   }

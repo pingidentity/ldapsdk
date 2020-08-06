@@ -209,6 +209,7 @@ public enum AssuredReplicationRemoteLevel
    * @return  The less strict of the two provided assured replication remote
    *          level values.
    */
+  @NotNull()
   public static AssuredReplicationRemoteLevel getLessStrict(
                      @NotNull final AssuredReplicationRemoteLevel l1,
                      @NotNull final AssuredReplicationRemoteLevel l2)
@@ -238,6 +239,7 @@ public enum AssuredReplicationRemoteLevel
    * @return  The more strict of the two provided assured replication remote
    *          level values.
    */
+  @NotNull()
   public static AssuredReplicationRemoteLevel getMoreStrict(
                      @NotNull final AssuredReplicationRemoteLevel l1,
                      @NotNull final AssuredReplicationRemoteLevel l2)

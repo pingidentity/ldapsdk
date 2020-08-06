@@ -354,7 +354,7 @@ public final class AccountUsableResponseControl
    * @throws  LDAPException  If the provided control cannot be decoded as an
    *                         account usable response control.
    */
-  public AccountUsableResponseControl(final String oid,
+  public AccountUsableResponseControl(@NotNull final String oid,
                                       final boolean isCritical,
                                       @Nullable final ASN1OctetString value)
          throws LDAPException

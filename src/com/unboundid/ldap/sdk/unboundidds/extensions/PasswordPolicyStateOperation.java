@@ -901,7 +901,8 @@ public final class PasswordPolicyStateOperation
   /**
    * The set of values that will be used if there are no values.
    */
-  private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
+  @NotNull private static final ASN1OctetString[] NO_VALUES =
+       new ASN1OctetString[0];
 
 
 
@@ -1079,7 +1080,7 @@ public final class PasswordPolicyStateOperation
   @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountActivationTimeOperation(
-                          final Date expirationTime)
+                          @Nullable final Date expirationTime)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_SET_ACCOUNT_ACTIVATION_TIME,
          createValues(expirationTime));
@@ -1164,7 +1165,7 @@ public final class PasswordPolicyStateOperation
   @NotNull()
   public static PasswordPolicyStateOperation
                      createSetAccountExpirationTimeOperation(
-                          final Date expirationTime)
+                          @Nullable final Date expirationTime)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_SET_ACCOUNT_EXPIRATION_TIME,
          createValues(expirationTime));
@@ -1246,7 +1247,7 @@ public final class PasswordPolicyStateOperation
   @NotNull()
   public static PasswordPolicyStateOperation
                      createSetPasswordChangedTimeOperation(
-                          final Date passwordChangedTime)
+                          @Nullable final Date passwordChangedTime)
   {
     return new PasswordPolicyStateOperation(OP_TYPE_SET_PW_CHANGED_TIME,
          createValues(passwordChangedTime));
@@ -2852,7 +2853,7 @@ public final class PasswordPolicyStateOperation
   @NotNull()
   public static PasswordPolicyStateOperation
                      createSetLastBindPasswordValidationTimeOperation(
-                          final Date validationTime)
+                          @Nullable final Date validationTime)
   {
     return new PasswordPolicyStateOperation(
          OP_TYPE_SET_LAST_BIND_PASSWORD_VALIDATION_TIME,

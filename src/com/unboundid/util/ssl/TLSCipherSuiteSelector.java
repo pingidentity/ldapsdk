@@ -188,6 +188,7 @@ public final class TLSCipherSuiteSelector
    * @return  A result code that indicates whether the processing was
    *          successful.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)

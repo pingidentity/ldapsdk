@@ -72,10 +72,10 @@ public class LDAPRebindAuth
 
 
   // The DN to use when authenticating.
-  private final String dn;
+  @Nullable private final String dn;
 
   // The password to use when authenticating.
-  private final String password;
+  @Nullable private final String password;
 
 
 

@@ -427,6 +427,7 @@ public final class SetNotificationDestinationExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public SetNotificationDestinationExtendedRequest duplicate(
               @Nullable final Control[] controls)
   {

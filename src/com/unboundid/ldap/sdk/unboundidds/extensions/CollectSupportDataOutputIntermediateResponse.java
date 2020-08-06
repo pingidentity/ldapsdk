@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -146,7 +147,8 @@ public final class CollectSupportDataOutputIntermediateResponse
    */
   public CollectSupportDataOutputIntermediateResponse(
               @NotNull final CollectSupportDataOutputStream outputStream,
-              @NotNull final String outputMessage, final Control... controls)
+              @NotNull final String outputMessage,
+              @Nullable final Control... controls)
   {
     super(COLLECT_SUPPORT_DATA_OUTPUT_INTERMEDIATE_RESPONSE_OID,
          encodeValue(outputStream, outputMessage), controls);
@@ -168,6 +170,7 @@ public final class CollectSupportDataOutputIntermediateResponse
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
                @NotNull final CollectSupportDataOutputStream outputStream,
                @NotNull final String outputMessage)

@@ -124,7 +124,7 @@ public final class ProxyRequestHandler
    *                    to forward any requests received.  It must not be
    *                    {@code null}.
    */
-  public ProxyRequestHandler(final ServerSet serverSet)
+  public ProxyRequestHandler(@NotNull final ServerSet serverSet)
   {
     Validator.ensureNotNull(serverSet);
 
@@ -163,6 +163,7 @@ public final class ProxyRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ProxyRequestHandler newInstance(
               @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException

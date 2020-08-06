@@ -270,8 +270,7 @@ public final class GSSAPIBindRequestProperties
    *                           request.  It may be {@code null} if an existing
    *                           Kerberos session should be used.
    */
-  @Nullable()
-  public void setAuthenticationID(final String authenticationID)
+  public void setAuthenticationID(@Nullable final String authenticationID)
   {
     this.authenticationID = authenticationID;
   }
@@ -499,8 +498,7 @@ public final class GSSAPIBindRequestProperties
    *                     attempt to determine the KDC address from the system
    *                     configuration.
    */
-  @Nullable()
-  public void setKDCAddress(final String kdcAddress)
+  public void setKDCAddress(@Nullable final String kdcAddress)
   {
     this.kdcAddress = kdcAddress;
   }

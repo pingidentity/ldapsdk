@@ -201,6 +201,7 @@ public final class MoveSubtree
    *
    * @return  A result code indicating whether the processing was successful.
    */
+  @NotNull()
   public static ResultCode main(@NotNull final String[] args,
                                 @Nullable final OutputStream out,
                                 @Nullable final OutputStream err)

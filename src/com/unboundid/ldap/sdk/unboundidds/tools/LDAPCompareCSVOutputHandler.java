@@ -111,6 +111,7 @@ final class LDAPCompareCSVOutputHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   String formatResult(@NotNull final CompareRequest request,
                       @NotNull final LDAPResult result)
   {

@@ -394,6 +394,7 @@ public abstract class MatchingRule
    * @throws  LDAPException  If a problem occurs while normalizing the provided
    *                         value.
    */
+  @NotNull()
   public abstract ASN1OctetString normalize(@NotNull ASN1OctetString value)
          throws LDAPException;
 
@@ -415,6 +416,7 @@ public abstract class MatchingRule
    * @throws  LDAPException  If a problem occurs while normalizing the provided
    *                         value.
    */
+  @NotNull()
   public abstract ASN1OctetString normalizeSubstring(
                                        @NotNull ASN1OctetString value,
                                        byte substringType)

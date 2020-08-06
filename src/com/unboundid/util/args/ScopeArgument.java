@@ -76,7 +76,7 @@ public final class ScopeArgument
   /**
    * A map of value strings to the corresponding search scopes.
    */
-  private static final Map<String,SearchScope> SCOPE_STRINGS;
+  @NotNull private static final Map<String,SearchScope> SCOPE_STRINGS;
 
   static
   {

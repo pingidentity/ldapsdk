@@ -215,6 +215,7 @@ public final class PreReadResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public PreReadResponseControl decodeControl(@NotNull final String oid,
                                      final boolean isCritical,
                                      @Nullable final ASN1OctetString value)

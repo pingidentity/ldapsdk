@@ -1676,7 +1676,8 @@ public abstract class CommandLineTool
    *                     together on the same line, and that line will be
    *                     followed by an end-of-line sequence.
    */
-  private static void write(final PrintStream stream, final int indent,
+  private static void write(@NotNull final PrintStream stream,
+                            final int indent,
                             final int wrapColumn,
                             @NotNull final Object... msg)
   {

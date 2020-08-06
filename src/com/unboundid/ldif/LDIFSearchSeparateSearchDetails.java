@@ -58,13 +58,13 @@ final class LDIFSearchSeparateSearchDetails
   @NotNull private final File outputFile;
 
   // The LDAP URL with the associated search criteria.
-  private final LDAPURL ldapURL;
+  @NotNull private final LDAPURL ldapURL;
 
   // The LDIF writer that will be used to write results to the output file.
-  private final LDIFWriter ldifWriter;
+  @NotNull private final LDIFWriter ldifWriter;
 
   // The search entry parer that will be used to pare search results.
-  private final SearchEntryParer searchEntryParer;
+  @NotNull private final SearchEntryParer searchEntryParer;
 
 
 
@@ -78,7 +78,7 @@ final class LDIFSearchSeparateSearchDetails
    *                     the output file.
    * @param  schema      The schema to use when paring search result entries.
    */
-  LDIFSearchSeparateSearchDetails(final LDAPURL ldapURL,
+  LDIFSearchSeparateSearchDetails(@NotNull final LDAPURL ldapURL,
                                   @NotNull final File outputFile,
                                   @NotNull final LDIFWriter ldifWriter,
                                   @Nullable final Schema schema)

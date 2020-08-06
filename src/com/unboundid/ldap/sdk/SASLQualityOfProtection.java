@@ -90,7 +90,7 @@ public enum SASLQualityOfProtection
 
   // The string representation that should be used for this QoP when interacting
   // with the Java SASL framework.
-  private final String qopString;
+  @NotNull private final String qopString;
 
 
 
@@ -212,6 +212,7 @@ public enum SASLQualityOfProtection
    *          protection values, as may be provided to a Java
    *          {@code SaslClient}.
    */
+  @NotNull()
   public static String toString(
               @NotNull final List<SASLQualityOfProtection> qopValues)
   {

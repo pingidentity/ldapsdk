@@ -218,7 +218,8 @@ public final class GetChangelogBatchExtendedResult
               final int entryCount,
               @Nullable final ASN1OctetString resumeToken,
               final boolean moreChangesAvailable,
-              final boolean changesAlreadyPurged, final String additionalInfo)
+              final boolean changesAlreadyPurged,
+              @Nullable final String additionalInfo)
   {
     this(r, entryCount, resumeToken, moreChangesAvailable, -1,
          changesAlreadyPurged, additionalInfo);

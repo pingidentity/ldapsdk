@@ -1138,6 +1138,7 @@ public final class DeliverOneTimePasswordExtendedRequest
    * @return  An ASN.1 octet string suitable for use as the value of this
    *          extended request.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
        @NotNull final String authenticationID,
        @Nullable final ASN1OctetString staticPassword,

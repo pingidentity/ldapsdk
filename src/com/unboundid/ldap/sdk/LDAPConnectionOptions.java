@@ -1329,6 +1329,7 @@ public final class LDAPConnectionOptions
    * @return  A duplicate of this LDAP connection options object that may be
    *          modified without impacting this instance.
    */
+  @NotNull()
   public LDAPConnectionOptions duplicate()
   {
     final LDAPConnectionOptions o = new LDAPConnectionOptions();
@@ -2647,8 +2648,9 @@ public final class LDAPConnectionOptions
    *          default value if the system property is not set with a valid
    *          value.
    */
+  @Nullable()
   static Long getSystemProperty(@NotNull final String propertyName,
-                                final Long defaultValue)
+                                @Nullable final Long defaultValue)
   {
     final String propertyValueString =
          StaticUtils.getSystemProperty(propertyName);

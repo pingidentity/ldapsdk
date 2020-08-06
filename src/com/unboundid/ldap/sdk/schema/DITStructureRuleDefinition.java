@@ -70,7 +70,7 @@ public final class DITStructureRuleDefinition
   /**
    * A pre-allocated zero-element integer array.
    */
-  private static final int[] NO_INTS = new int[0];
+  @NotNull private static final int[] NO_INTS = new int[0];
 
 
 

@@ -136,6 +136,7 @@ public final class ToolDefaultCollectSupportDataLogCaptureWindow
    *                         a valid tool-default collect support data log
    *                         capture window object.
    */
+  @NotNull()
   static ToolDefaultCollectSupportDataLogCaptureWindow decodeInternal(
               @NotNull final ASN1Element e)
          throws LDAPException

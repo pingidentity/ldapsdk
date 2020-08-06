@@ -281,6 +281,7 @@ public final class SearchResultEntry
    * @throws  LDAPException  If a problem occurs while reading or decoding data
    *                         from the ASN.1 stream reader.
    */
+  @NotNull()
   static SearchResultEntry readSearchEntryFrom(final int messageID,
               @NotNull final ASN1StreamReaderSequence messageSequence,
               @NotNull final ASN1StreamReader reader,

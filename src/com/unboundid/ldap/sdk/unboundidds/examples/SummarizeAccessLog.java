@@ -517,6 +517,7 @@ public final class SummarizeAccessLog
    *          the usage information for this tool.
    */
   @Override()
+  @NotNull()
   public String getTrailingArgumentsPlaceholder()
   {
     return "{path}";
@@ -2603,6 +2604,7 @@ public final class SummarizeAccessLog
    * @return  The singular form if the count is 1, or the plural form if the
    *          count is any other value.
    */
+  @NotNull()
   private String getSingularOrPlural(final long count,
                                      @NotNull final String singular,
                                      @NotNull final String plural)

@@ -354,6 +354,7 @@ public final class TimestampArgument
    * @throws  ParseException  If the provided string cannot be parsed as a
    *                          timestamp.
    */
+  @NotNull()
   public static Date parseTimestamp(@NotNull final String s)
          throws ParseException
   {

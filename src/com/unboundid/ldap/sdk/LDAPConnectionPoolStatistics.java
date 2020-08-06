@@ -144,7 +144,8 @@ public final class LDAPConnectionPoolStatistics
    * @param  pool  The connection pool with which these statistics are
    *               associated.
    */
-  public LDAPConnectionPoolStatistics(final AbstractConnectionPool pool)
+  public LDAPConnectionPoolStatistics(
+              @NotNull final AbstractConnectionPool pool)
   {
     this.pool = pool;
 

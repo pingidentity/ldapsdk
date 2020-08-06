@@ -138,6 +138,7 @@ public final class GetSubtreeAccessibilityExtendedRequest
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public GetSubtreeAccessibilityExtendedResult process(
               @NotNull final LDAPConnection connection, final int depth)
          throws LDAPException

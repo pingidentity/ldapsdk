@@ -259,8 +259,8 @@ public final class ParallelProcessor<I,O>
    */
   @NotNull()
   public synchronized ArrayList<Result<I,O>> processAll(
-       final List<? extends I> items)
-       throws InterruptedException, IllegalStateException
+              @NotNull final List<? extends I> items)
+         throws InterruptedException, IllegalStateException
   {
     if (shutdown.get())
     {

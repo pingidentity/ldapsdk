@@ -210,6 +210,7 @@ final class ConnectionOptions
    *
    * @return  The {@code LDAPConnectionOptions} object that was created.
    */
+  @NotNull()
   LDAPConnectionOptions createConnectionOptions(
                              @NotNull final SecurityOptions securityOptions)
   {

@@ -239,7 +239,7 @@ public final class ReplicationServerMonitorEntry
    *          the provided base DN is not a valid DN.
    */
   @Nullable()
-  public String getGenerationID(final String baseDN)
+  public String getGenerationID(@NotNull final String baseDN)
   {
     try
     {
@@ -263,7 +263,7 @@ public final class ReplicationServerMonitorEntry
    *          there no generation ID is available for the provided base DN.
    */
   @Nullable()
-  public String getGenerationID(final DN baseDN)
+  public String getGenerationID(@NotNull final DN baseDN)
   {
     return generationIDs.get(baseDN);
   }

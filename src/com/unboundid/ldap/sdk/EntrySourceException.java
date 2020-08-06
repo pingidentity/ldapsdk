@@ -41,6 +41,7 @@ import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -84,7 +85,7 @@ public class EntrySourceException
    *                             exception.  It must not be {@code null}.
    */
   public EntrySourceException(final boolean mayContinueReading,
-                              final Throwable cause)
+                              @Nullable final Throwable cause)
   {
     super(StaticUtils.getExceptionMessage(cause), cause);
 
@@ -107,7 +108,8 @@ public class EntrySourceException
    *                             exception.  It must not be {@code null}.
    */
   public EntrySourceException(final boolean mayContinueReading,
-                              final String message, final Throwable cause)
+                              @NotNull final String message,
+                              @Nullable final Throwable cause)
   {
     super(message, cause);
 

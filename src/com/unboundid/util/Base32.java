@@ -103,6 +103,7 @@ public final class Base32
    *
    * @return  The base32-encoded representation of the provided data.
    */
+  @NotNull()
   public static String encode(@NotNull final String data)
   {
     Validator.ensureNotNull(data);
@@ -119,6 +120,7 @@ public final class Base32
    *
    * @return  The base32-encoded representation of the provided data.
    */
+  @NotNull()
   public static String encode(@NotNull final byte[] data)
   {
     Validator.ensureNotNull(data);

@@ -317,7 +317,7 @@ public final class ModifyAuditLogMessage
    * @return  {@code true} if the modification is revertible, or {@code false}
    *          if not.
    */
-  static boolean modificationIsRevertible(final Modification m)
+  static boolean modificationIsRevertible(@NotNull final Modification m)
   {
     switch (m.getModificationType().intValue())
     {
@@ -351,7 +351,7 @@ public final class ModifyAuditLogMessage
    *          be reverted.
    */
   @Nullable()
-  static Modification getRevertModification(final Modification m)
+  static Modification getRevertModification(@NotNull final Modification m)
   {
     switch (m.getModificationType().intValue())
     {

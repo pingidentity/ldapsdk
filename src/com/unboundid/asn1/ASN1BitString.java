@@ -40,6 +40,7 @@ package com.unboundid.asn1;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -64,10 +65,10 @@ public final class ASN1BitString
 
 
   // An array of the bits in this bit string, where true is 1 and false is 0.
-  private final boolean[] bits;
+  @NotNull private final boolean[] bits;
 
   // The bytes represented by the bits that comprise this bit string.
-  private final byte[] bytes;
+  @Nullable private final byte[] bytes;
 
 
 
@@ -80,7 +81,7 @@ public final class ASN1BitString
    *               {@code boolean} value of {@code false} represents a bit of
    *               zero.  It must not be {@code null} but may be empty.
    */
-  public ASN1BitString(final boolean... bits)
+  public ASN1BitString(@NotNull final boolean... bits)
   {
     this(ASN1Constants.UNIVERSAL_BIT_STRING_TYPE, bits);
   }
@@ -97,7 +98,7 @@ public final class ASN1BitString
    *               {@code boolean} value of {@code false} represents a bit of
    *               zero.  It must not be {@code null} but may be empty.
    */
-  public ASN1BitString(final byte type, final boolean... bits)
+  public ASN1BitString(final byte type, @NotNull final boolean... bits)
   {
     this(type, bits, null, encodeValue(bits));
   }
@@ -119,8 +120,9 @@ public final class ASN1BitString
    *                       an even multiple of eight.
    * @param  encodedValue  The encoded value for this element.
    */
-  private ASN1BitString(final byte type, final boolean[] bits,
-                        final byte[] bytes, final byte[] encodedValue)
+  private ASN1BitString(final byte type, @NotNull final boolean[] bits,
+                        @Nullable final byte[] bytes,
+                        @NotNull final byte[] encodedValue)
   {
     super(type, encodedValue);
 
@@ -174,7 +176,7 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the provided string does not represent a valid
    *                         bit string value.
    */
-  public ASN1BitString(final String stringRepresentation)
+  public ASN1BitString(@NotNull final String stringRepresentation)
          throws ASN1Exception
   {
     this(ASN1Constants.UNIVERSAL_BIT_STRING_TYPE, stringRepresentation);
@@ -195,7 +197,8 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the provided string does not represent a valid
    *                         bit string value.
    */
-  public ASN1BitString(final byte type, final String stringRepresentation)
+  public ASN1BitString(final byte type,
+                       @NotNull final String stringRepresentation)
          throws ASN1Exception
   {
     this(type, getBits(stringRepresentation));
@@ -217,7 +220,8 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the provided string does not represent a valid
    *                         bit string value.
    */
-  private static boolean[] getBits(final String s)
+  @NotNull()
+  private static boolean[] getBits(@NotNull final String s)
           throws ASN1Exception
   {
     final char[] chars = s.toCharArray();
@@ -255,7 +259,8 @@ public final class ASN1BitString
    *
    * @return  The encoded value.
    */
-  private static byte[] encodeValue(final boolean... bits)
+  @NotNull()
+  private static byte[] encodeValue(@NotNull final boolean... bits)
   {
     // A bit string value always has at least one byte, and that byte specifies
     // the number of padding bits needed in the last byte.  The remaining bytes
@@ -318,6 +323,7 @@ public final class ASN1BitString
    * @return  An array of {@code boolean} values that correspond to the bits in
    *          this bit string.
    */
+  @NotNull()
   public boolean[] getBits()
   {
     return bits;
@@ -334,6 +340,7 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the number of bits in this bit string is not a
    *                         multiple of eight.
    */
+  @NotNull()
   public byte[] getBytes()
          throws ASN1Exception
   {
@@ -360,7 +367,8 @@ public final class ASN1BitString
    *
    * @return  An array of the bits that make up the provided bytes.
    */
-  public static boolean[] getBitsForBytes(final byte... bytes)
+  @NotNull()
+  public static boolean[] getBitsForBytes(@NotNull final byte... bytes)
   {
     final boolean[] bits = new boolean[bytes.length * 8];
     for (int i=0; i < bytes.length; i++)
@@ -392,7 +400,9 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the provided array cannot be decoded as a bit
    *                         string element.
    */
-  public static ASN1BitString decodeAsBitString(final byte[] elementBytes)
+  @NotNull()
+  public static ASN1BitString decodeAsBitString(
+              @NotNull final byte[] elementBytes)
          throws ASN1Exception
   {
     try
@@ -458,7 +468,9 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the provided element cannot be decoded as a bit
    *                         string element.
    */
-  public static ASN1BitString decodeAsBitString(final ASN1Element element)
+  @NotNull()
+  public static ASN1BitString decodeAsBitString(
+              @NotNull final ASN1Element element)
          throws ASN1Exception
   {
     final byte[] elementValue = element.getValue();
@@ -493,7 +505,8 @@ public final class ASN1BitString
    * @throws  ASN1Exception  If the provided value cannot be decoded as a valid
    *                         bit string.
    */
-  private static boolean[] decodeValue(final byte[] elementValue)
+  @NotNull()
+  private static boolean[] decodeValue(@NotNull final byte[] elementValue)
           throws ASN1Exception
   {
     if (elementValue.length == 0)

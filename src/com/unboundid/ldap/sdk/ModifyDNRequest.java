@@ -1010,7 +1010,7 @@ public final class ModifyDNRequest
   @Nullable()
   private LDAPResult reconnectAndRetry(@NotNull final LDAPConnection connection,
                                        final int depth,
-                                       final ResultCode resultCode)
+                                       @NotNull final ResultCode resultCode)
   {
     try
     {

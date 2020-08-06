@@ -684,7 +684,6 @@ public class ExtendedRequest
    * {@inheritDoc}
    */
   @Override()
-  @NotNull()
   public void toCode(@NotNull final List<String> lineList,
                      @NotNull final String requestID,
                      final int indentSpaces, final boolean includeProcessing)

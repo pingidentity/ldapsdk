@@ -360,13 +360,15 @@ public final class TransactionSettingsRequestControl
    *                                   processing the associated operation.
    */
   public TransactionSettingsRequestControl(final boolean isCritical,
-              final String transactionName,
-              final TransactionSettingsCommitDurability commitDurability,
-              final TransactionSettingsBackendLockBehavior backendLockBehavior,
-              final Long backendLockTimeoutMillis, final Integer retryAttempts,
-              final Long minTxnLockTimeoutMillis,
-              final Long maxTxnLockTimeoutMillis,
-              final boolean returnResponseControl)
+       @Nullable final String transactionName,
+       @Nullable final TransactionSettingsCommitDurability commitDurability,
+       @Nullable final TransactionSettingsBackendLockBehavior
+            backendLockBehavior,
+       @Nullable final Long backendLockTimeoutMillis,
+       @Nullable final Integer retryAttempts,
+       @Nullable final Long minTxnLockTimeoutMillis,
+       @Nullable final Long maxTxnLockTimeoutMillis,
+       final boolean returnResponseControl)
   {
     super(TRANSACTION_SETTINGS_REQUEST_OID, isCritical,
          encodeValue(transactionName, commitDurability, backendLockBehavior,

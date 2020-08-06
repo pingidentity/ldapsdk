@@ -1258,7 +1258,7 @@ public final class UnboundIDChangeLogEntry
    *               may be included in a changelog entry.
    */
   @Nullable()
-  public Attribute getAttributeBeforeChange(final String name)
+  public Attribute getAttributeBeforeChange(@NotNull final String name)
          throws ChangeLogEntryAttributeExceededMaxValuesException
   {
     return getAttributeBeforeChange(name, false);

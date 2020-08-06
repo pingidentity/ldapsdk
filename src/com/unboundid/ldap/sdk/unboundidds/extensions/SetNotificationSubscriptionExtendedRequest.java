@@ -263,7 +263,8 @@ public final class SetNotificationSubscriptionExtendedRequest
    */
   @NotNull()
   private static ASN1OctetString encodeValue(@NotNull final String managerID,
-               @NotNull final String destinationID, final String subscriptionID,
+               @NotNull final String destinationID,
+               @NotNull final String subscriptionID,
                @NotNull final Collection<ASN1OctetString> subscriptionDetails)
   {
     Validator.ensureNotNull(managerID);

@@ -317,7 +317,7 @@ public final class PasswordUpdateBehaviorRequestControl
    */
   @NotNull()
   private static ASN1OctetString encodeValue(
-               final PasswordUpdateBehaviorRequestControlProperties properties)
+       @NotNull final PasswordUpdateBehaviorRequestControlProperties properties)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(6);
 

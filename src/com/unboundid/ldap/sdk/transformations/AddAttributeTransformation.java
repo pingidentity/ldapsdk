@@ -67,7 +67,7 @@ public final class AddAttributeTransformation
        implements EntryTransformation
 {
   // The attribute to add if appropriate.
-  private final Attribute attributeToAdd;
+  @NotNull private final Attribute attributeToAdd;
 
   // Indicates whether we need to check entries against the filter.
   private final boolean examineFilter;

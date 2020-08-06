@@ -204,6 +204,7 @@ public final class JSONAccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public JSONAccessLogRequestHandler newInstance(
               @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException

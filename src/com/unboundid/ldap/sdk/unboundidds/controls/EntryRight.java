@@ -103,7 +103,7 @@ public enum EntryRight
 
 
   // The name of this entry right.
-  private final String name;
+  @NotNull private final String name;
 
 
 

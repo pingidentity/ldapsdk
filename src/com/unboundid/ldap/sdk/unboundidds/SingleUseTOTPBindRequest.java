@@ -233,6 +233,7 @@ public final class SingleUseTOTPBindRequest
    * @throws  LDAPException  If the provided credentials are not valid for an
    *                         UNBOUNDID-TOTP bind request.
    */
+  @NotNull()
   public static SingleUseTOTPBindRequest decodeSASLCredentials(
                      @NotNull final ASN1OctetString saslCredentials,
                      @Nullable final Control... controls)

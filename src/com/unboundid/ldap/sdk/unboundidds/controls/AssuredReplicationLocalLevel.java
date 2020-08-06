@@ -188,6 +188,7 @@ public enum AssuredReplicationLocalLevel
    * @return  The less strict of the two provided assured replication local
    *          level values.
    */
+  @NotNull()
   public static AssuredReplicationLocalLevel getLessStrict(
                      @NotNull final AssuredReplicationLocalLevel l1,
                      @NotNull final AssuredReplicationLocalLevel l2)
@@ -217,6 +218,7 @@ public enum AssuredReplicationLocalLevel
    * @return  The more strict of the two provided assured replication local
    *          level values.
    */
+  @NotNull()
   public static AssuredReplicationLocalLevel getMoreStrict(
                      @NotNull final AssuredReplicationLocalLevel l1,
                      @NotNull final AssuredReplicationLocalLevel l2)

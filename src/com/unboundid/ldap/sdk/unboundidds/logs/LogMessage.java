@@ -475,7 +475,7 @@ public class LogMessage
    *          there is no value with the specified name.
    */
   @Nullable()
-  public final String getNamedValue(final String name)
+  public final String getNamedValue(@NotNull final String name)
   {
     return namedValues.get(name);
   }

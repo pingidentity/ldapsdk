@@ -181,6 +181,7 @@ public final class LoadBalancingAlgorithmServerAvailabilityData
    *
    * @return  A compact representation of the server availability data.
    */
+  @NotNull()
   public String toCompactString()
   {
     return serverAddress + ':' + serverPort + ':' + healthCheckState.name();

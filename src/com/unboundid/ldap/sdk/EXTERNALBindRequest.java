@@ -85,7 +85,7 @@ public final class EXTERNALBindRequest
   /**
    * The name for the EXTERNAL SASL mechanism.
    */
-  public static final String EXTERNAL_MECHANISM_NAME = "EXTERNAL";
+  @NotNull public static final String EXTERNAL_MECHANISM_NAME = "EXTERNAL";
 
 
 

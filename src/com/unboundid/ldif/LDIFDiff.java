@@ -1007,7 +1007,7 @@ public final class LDIFDiff
    * @throws  Exception  If a problem is encountered while loading the schema.
    */
   @NotNull()
-  private static Schema getSchema(final List<File> paths)
+  private static Schema getSchema(@NotNull final List<File> paths)
           throws Exception
   {
     final Set<File> schemaFiles = new LinkedHashSet<>();

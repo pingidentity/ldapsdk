@@ -104,7 +104,7 @@ public final class JoinBaseDN
   /**
    * The singleton instance that will be used for the "useSearchBaseDN" type.
    */
-  private static final JoinBaseDN USE_SEARCH_BASE_DN = new JoinBaseDN(
+  @NotNull private static final JoinBaseDN USE_SEARCH_BASE_DN = new JoinBaseDN(
        BASE_TYPE_SEARCH_BASE, null);
 
 
@@ -112,7 +112,7 @@ public final class JoinBaseDN
   /**
    * The singleton instance that will be used for the "useSourceEntryDN" type.
    */
-  private static final JoinBaseDN USE_SOURCE_ENTRY_DN = new JoinBaseDN(
+  @NotNull private static final JoinBaseDN USE_SOURCE_ENTRY_DN = new JoinBaseDN(
        BASE_TYPE_SOURCE_ENTRY_DN, null);
 
 

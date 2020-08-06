@@ -1356,6 +1356,7 @@ public final class StaticUtils
    * @return  A string containing the hexadecimal representation of the provided
    *          byte.
    */
+  @NotNull()
   public static String toHex(final byte b)
   {
     final StringBuilder buffer = new StringBuilder(2);

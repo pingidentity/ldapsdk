@@ -359,6 +359,7 @@ public final class LDAPSearch
    * @return  The result code obtained when running the tool.  Any result code
    *          other than {@link ResultCode#SUCCESS} indicates an error.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)

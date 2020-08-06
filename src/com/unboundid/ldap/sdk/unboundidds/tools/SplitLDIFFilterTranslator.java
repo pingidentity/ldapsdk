@@ -129,7 +129,7 @@ final class SplitLDIFFilterTranslator
    *                                               outside the split should be
    *                                               added to all sets.
    */
-  SplitLDIFFilterTranslator(final DN splitBaseDN,
+  SplitLDIFFilterTranslator(@NotNull final DN splitBaseDN,
                             @Nullable final Schema schema,
                             @NotNull final LinkedHashSet<Filter> filters,
                             final boolean assumeFlatDIT,

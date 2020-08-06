@@ -236,6 +236,7 @@ public final class CollectSupportData
    *          had not been provided.  Any other result code indicates that the
    *          processing did not complete successfully.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)

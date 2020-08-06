@@ -194,6 +194,7 @@ public final class CRLDistributionPointsExtension
    * @throws  CertException  If a problem is encountered while trying to encode
    *                         this extension.
    */
+  @NotNull()
   private static byte[] encodeValue(
                @NotNull final List<CRLDistributionPoint> crlDistributionPoints)
           throws CertException

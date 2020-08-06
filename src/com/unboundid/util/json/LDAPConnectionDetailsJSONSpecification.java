@@ -1345,6 +1345,7 @@ public final class LDAPConnectionDetailsJSONSpecification
    * @throws  LDAPException  If the parsed JSON object does not contain a valid
    *                         connection details specification.
    */
+  @NotNull()
   public static LDAPConnectionDetailsJSONSpecification fromString(
                      @NotNull final String jsonString)
          throws JSONException, LDAPException

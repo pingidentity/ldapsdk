@@ -654,6 +654,7 @@ public final class DeliverSingleUseTokenExtendedRequest
    *
    * @return  An ASN.1 octet string containing the encoded value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(@NotNull final String userDN,
        @NotNull final String tokenID,
        @Nullable final Long validityDurationMillis,

@@ -5897,6 +5897,7 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         determine the authorization DN.
    */
+  @NotNull()
   private DN handleProxiedAuthControl(@NotNull final Map<String,Control> m)
           throws LDAPException
   {

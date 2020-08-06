@@ -968,15 +968,16 @@ public enum ManageAccountSubCommandType
    * The map of subcommand types indexed by password policy state operation
    * type.
    */
-  private static HashMap<Integer,ManageAccountSubCommandType> typesByOpType =
-       null;
+  @Nullable private static HashMap<Integer,ManageAccountSubCommandType>
+       typesByOpType = null;
 
 
 
   /**
    * The map of subcommand types indexed by name.
    */
-  private static HashMap<String,ManageAccountSubCommandType> typesByName = null;
+  @Nullable private static HashMap<String,ManageAccountSubCommandType>
+       typesByName = null;
 
 
 

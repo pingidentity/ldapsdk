@@ -70,7 +70,7 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
 
 
   // The human-readable name for this password policy warning type.
-  private final String name;
+  @NotNull private final String name;
 
 
 

@@ -77,7 +77,7 @@ public final class BeginningOfChangelogStartingPoint
   /**
    * The pre-encoded representation of this changelog batch starting point.
    */
-  private static final ASN1Null ENCODED_ELEMENT = new ASN1Null(TYPE);
+  @NotNull private static final ASN1Null ENCODED_ELEMENT = new ASN1Null(TYPE);
 
 
 

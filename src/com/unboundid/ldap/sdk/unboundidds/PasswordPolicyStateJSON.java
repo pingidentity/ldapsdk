@@ -1955,7 +1955,7 @@ public final class PasswordPolicyStateJSON
    *          if its value cannot be parsed as a {@code Date}.
    */
   @Nullable()
-  private Date getDate(final PasswordPolicyStateJSONField field)
+  private Date getDate(@NotNull final PasswordPolicyStateJSONField field)
   {
     final String stringValue =
          passwordPolicyStateObject.getFieldAsString(field.getFieldName());

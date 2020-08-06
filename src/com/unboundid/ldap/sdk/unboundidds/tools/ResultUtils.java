@@ -255,7 +255,7 @@ public final class ResultUtils
   private static void formatResult(@NotNull final List<String> lines,
                                    @NotNull final LDAPResult result,
                                    final boolean inTxn,
-                                   final String prefix,
+                                   @NotNull final String prefix,
                                    final int maxWidth)
   {
     // Format the result code.  If it's a success result but the operation was
@@ -2150,8 +2150,10 @@ public final class ResultUtils
    *                   the comment prefix and indent.
    */
   private static void addGetServerIDResponseControl(
-                           final List<String> lines, final Control c,
-                           final String prefix, final int maxWidth)
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
   {
     final GetServerIDResponseControl decoded;
     try

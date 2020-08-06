@@ -307,6 +307,7 @@ public final class ConcurrentRequestLimiterRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ConcurrentRequestLimiterRequestHandler newInstance(
               @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException

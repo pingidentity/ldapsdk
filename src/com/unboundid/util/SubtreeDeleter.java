@@ -2090,6 +2090,7 @@ public final class SubtreeDeleter
    * @return  An object with information about the results of the subtree
    *          delete processing.
    */
+  @NotNull()
   private static SubtreeDeleterResult deleteEntriesWithoutSimplePagedResults(
                       @NotNull final LDAPInterface connection,
                       @NotNull final DN baseDN,

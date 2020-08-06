@@ -3468,6 +3468,7 @@ public final class LDAPConnection
    *                               entries and/or references.
    */
   @Override()
+  @NotNull()
   public SearchResult search(
               @Nullable final SearchResultListener searchResultListener,
               @NotNull final String baseDN, @NotNull final SearchScope scope,
@@ -5232,7 +5233,7 @@ public final class LDAPConnection
    *                         parsing the schema.
    */
   @Nullable()
-  private static Schema getCachedSchema(final LDAPConnection c)
+  private static Schema getCachedSchema(@NotNull final LDAPConnection c)
          throws LDAPException
   {
     final Schema s = c.getSchema();

@@ -144,6 +144,7 @@ public final class GenerateTOTPSharedSecret
    *          code other than {@link ResultCode#SUCCESS} should be considered a
    *          failure.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)

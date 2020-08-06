@@ -133,7 +133,7 @@ public enum CRLDistributionPointRevocationReason
   private final int bitPosition;
 
   // A human-readable name for this revocation reason.
-  private final String name;
+  @NotNull private final String name;
 
 
 

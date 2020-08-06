@@ -87,6 +87,7 @@ abstract class LDAPCompareOutputHandler
    *
    * @return  A string with a formatted representation of the message.
    */
+  @NotNull()
   abstract String formatResult(@NotNull CompareRequest request,
                                @NotNull LDAPResult result);
 }

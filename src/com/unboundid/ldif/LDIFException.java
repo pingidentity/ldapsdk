@@ -82,7 +82,7 @@ public final class LDIFException
   private final long lineNumber;
 
   // A list of the lines comprising the LDIF data being parsed, if available.
-  private final List<String> dataLines;
+  @Nullable private final List<String> dataLines;
 
 
 

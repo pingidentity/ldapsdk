@@ -3215,6 +3215,7 @@ public final class ArgumentParser
    * @throws  ArgumentException  If a malformed Unicode escape sequence is
    *                             encountered.
    */
+  @NotNull()
   static String handleUnicodeEscapes(@NotNull final String propertiesFilePath,
                                      final int lineNumber,
                                      @NotNull final StringBuilder buffer)

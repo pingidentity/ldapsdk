@@ -248,10 +248,10 @@ public final class LDAPMessage
   private final int messageID;
 
   // The protocol op for this LDAP message.
-  private final ProtocolOp protocolOp;
+  @NotNull private final ProtocolOp protocolOp;
 
   // The set of controls for this LDAP message.
-  private final List<Control> controls;
+  @NotNull private final List<Control> controls;
 
 
 
@@ -1188,7 +1188,7 @@ public final class LDAPMessage
   public static LDAPResponse readLDAPResponseFrom(
                                   @NotNull final ASN1StreamReader reader,
                                   final boolean ignoreSocketTimeout,
-                                  final Schema schema)
+                                  @Nullable final Schema schema)
          throws LDAPException
   {
     final ASN1StreamReaderSequence messageSequence;

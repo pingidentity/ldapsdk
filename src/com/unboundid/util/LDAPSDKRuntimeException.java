@@ -121,6 +121,7 @@ public abstract class LDAPSDKRuntimeException
    * @return  A string representation of this exception suitable for use in
    *          messages.
    */
+  @NotNull()
   public String getExceptionMessage()
   {
     final boolean includeCause =
@@ -146,6 +147,7 @@ public abstract class LDAPSDKRuntimeException
    * @return  A string representation of this exception suitable for use in
    *          messages.
    */
+  @NotNull()
   public String getExceptionMessage(final boolean includeCause,
                                     final boolean includeStackTrace)
   {

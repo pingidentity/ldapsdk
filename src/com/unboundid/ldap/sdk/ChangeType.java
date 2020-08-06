@@ -82,7 +82,7 @@ public enum ChangeType
 
 
   // The human-readable name for this change type.
-  private final String name;
+  @NotNull private final String name;
 
 
 

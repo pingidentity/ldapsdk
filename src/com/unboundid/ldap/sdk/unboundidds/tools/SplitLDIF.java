@@ -223,6 +223,7 @@ public final class SplitLDIF
    *          Any result code other than {@link ResultCode#SUCCESS} indicates
    *          that an error occurred.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)
@@ -1234,7 +1235,7 @@ readLoop:
    *          extension.
    */
   @NotNull()
-  private File getOutputFile(final String extension)
+  private File getOutputFile(@NotNull final String extension)
   {
     final File baseFile;
     if (targetLDIFBasePath.isPresent())

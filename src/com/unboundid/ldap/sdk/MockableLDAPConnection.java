@@ -64,7 +64,7 @@ public class MockableLDAPConnection
        implements FullLDAPInterface
 {
   // The wrapped connection.
-  private final LDAPConnection connection;
+  @NotNull private final LDAPConnection connection;
 
 
 

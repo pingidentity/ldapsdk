@@ -112,10 +112,10 @@ public enum ExtendedKeyUsageID
 
 
   // The OID for this extended key usage ID value.
-  private final OID oid;
+  @NotNull private final OID oid;
 
   // The human-readable name for this extended key usage ID value.
-  private final String name;
+  @NotNull private final String name;
 
 
 

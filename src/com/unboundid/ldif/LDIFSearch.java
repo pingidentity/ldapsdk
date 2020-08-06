@@ -106,7 +106,7 @@ public final class LDIFSearch
    * related Ping Identity server product) that contains this tool, if
    * applicable.
    */
-  private static final File PING_SERVER_ROOT =
+  @Nullable private static final File PING_SERVER_ROOT =
        InternalSDKHelper.getPingIdentityServerRoot();
 
 
@@ -199,6 +199,7 @@ public final class LDIFSearch
    *          code other than {@link ResultCode#SUCCESS} should be considered
    *          an error.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)
@@ -1329,7 +1330,7 @@ public final class LDIFSearch
    * @throws  Exception  If a problem is encountered while loading the schema.
    */
   @NotNull()
-  private static Schema getSchema(final List<File> paths)
+  private static Schema getSchema(@NotNull final List<File> paths)
           throws Exception
   {
     final Set<File> schemaFiles = new LinkedHashSet<>();

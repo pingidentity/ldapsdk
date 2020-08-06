@@ -113,7 +113,8 @@ public final class StartTLSExtendedRequest
   /**
    * The OID (1.3.6.1.4.1.1466.20037) for the StartTLS extended request.
    */
-  public static final String STARTTLS_REQUEST_OID = "1.3.6.1.4.1.1466.20037";
+  @NotNull public static final String STARTTLS_REQUEST_OID =
+       "1.3.6.1.4.1.1466.20037";
 
 
 
@@ -125,7 +126,7 @@ public final class StartTLSExtendedRequest
 
 
   // The SSL socket factory used to perform the negotiation.
-  private final SSLSocketFactory sslSocketFactory;
+  @Nullable private final SSLSocketFactory sslSocketFactory;
 
 
 

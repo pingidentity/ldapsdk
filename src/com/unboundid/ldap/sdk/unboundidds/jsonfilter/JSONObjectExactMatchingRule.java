@@ -258,6 +258,7 @@ public final class JSONObjectExactMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1OctetString normalize(@NotNull final ASN1OctetString value)
          throws LDAPException
   {
@@ -282,6 +283,7 @@ public final class JSONObjectExactMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public ASN1OctetString normalizeSubstring(
               @NotNull final ASN1OctetString value, final byte substringType)
          throws LDAPException

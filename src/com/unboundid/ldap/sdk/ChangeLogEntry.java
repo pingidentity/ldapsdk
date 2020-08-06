@@ -162,26 +162,26 @@ public class ChangeLogEntry
   private final boolean deleteOldRDN;
 
   // The change type for this changelog entry.
-  private final ChangeType changeType;
+  @NotNull private final ChangeType changeType;
 
   // A list of the attributes for an add, or the deleted entry attributes for a
   // delete operation.
-  private final List<Attribute> attributes;
+  @Nullable private final List<Attribute> attributes;
 
   // A list of the modifications for a modify operation.
-  private final List<Modification> modifications;
+  @Nullable private final List<Modification> modifications;
 
   // The change number for the changelog entry.
   private final long changeNumber;
 
   // The new RDN for a modify DN operation.
-  private final String newRDN;
+  @Nullable private final String newRDN;
 
   // The new superior DN for a modify DN operation.
-  private final String newSuperior;
+  @Nullable private final String newSuperior;
 
   // The DN of the target entry.
-  private final String targetDN;
+  @NotNull private final String targetDN;
 
 
 

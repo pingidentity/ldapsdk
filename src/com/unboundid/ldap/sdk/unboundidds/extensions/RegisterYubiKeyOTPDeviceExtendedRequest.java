@@ -155,8 +155,9 @@ public final class RegisterYubiKeyOTPDeviceExtendedRequest
    *                     be {@code null} or empty if there should not be any
    *                     request controls.
    */
-  public RegisterYubiKeyOTPDeviceExtendedRequest(final String yubiKeyOTP,
-                                                 final Control... controls)
+  public RegisterYubiKeyOTPDeviceExtendedRequest(
+              @NotNull final String yubiKeyOTP,
+              @Nullable final Control... controls)
   {
     this(null, (ASN1OctetString) null, yubiKeyOTP, controls);
   }

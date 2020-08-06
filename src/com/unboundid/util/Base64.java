@@ -127,6 +127,7 @@ public final class Base64
    *
    * @return  The base64-encoded representation of the provided data.
    */
+  @NotNull()
   public static String encode(@NotNull final String data)
   {
     Validator.ensureNotNull(data);
@@ -143,6 +144,7 @@ public final class Base64
    *
    * @return  The base64-encoded representation of the provided data.
    */
+  @NotNull()
   public static String encode(@NotNull final byte[] data)
   {
     Validator.ensureNotNull(data);
@@ -273,6 +275,7 @@ public final class Base64
    * @return  A base64url-encoded representation of the provided data to the
    *          given buffer.
    */
+  @NotNull()
   public static String urlEncode(@NotNull final String data, final boolean pad)
   {
     return urlEncode(StaticUtils.getBytes(data), pad);
@@ -336,6 +339,7 @@ public final class Base64
    * @return  A base64url-encoded representation of the provided data to the
    *          given buffer.
    */
+  @NotNull()
   public static String urlEncode(@NotNull final byte[] data, final boolean pad)
   {
     final StringBuilder buffer = new StringBuilder(4*data.length/3+6);

@@ -126,6 +126,7 @@ public final class CloseableLock
    * @return  The {@link Lock} instance that may be used to perform the
    *          unlock via the try-with-resources facility.
    */
+  @NotNull()
   public Lock lock()
   {
     reentrantLock.lock();

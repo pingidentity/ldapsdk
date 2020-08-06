@@ -286,7 +286,8 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedResult
    * @return  The ASN.1 octet string containing the encoded value.
    */
   @Nullable()
-  private static ASN1OctetString encodeValue(final ResultCode resultCode,
+  private static ASN1OctetString encodeValue(
+               @NotNull final ResultCode resultCode,
                @Nullable final Collection<SupportedOTPDeliveryMechanismInfo>
                     deliveryMechanismInfo)
 

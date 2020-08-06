@@ -202,6 +202,7 @@ public final class AccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public AccessLogRequestHandler newInstance(
               @NotNull final LDAPListenerClientConnection connection)
          throws LDAPException

@@ -227,10 +227,10 @@ public enum DisconnectType
 
 
   // The result code most closely associated with this disconnect type.
-  private final ResultCode resultCode;
+  @NotNull private final ResultCode resultCode;
 
   // A description for this disconnect type.
-  private final String description;
+  @NotNull private final String description;
 
 
 

@@ -157,7 +157,8 @@ public class LDAPExtendedOperationException
    * {@inheritDoc}
    */
   @Override()
-  public void toString(final StringBuilder buffer, final boolean includeCause,
+  public void toString(@NotNull final StringBuilder buffer,
+                       final boolean includeCause,
                        final boolean includeStackTrace)
   {
     buffer.append("LDAPException(resultCode=");

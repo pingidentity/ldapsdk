@@ -307,6 +307,7 @@ final class SRVRecordSet
    * @return  A string representation of this priority server set.
    */
   @Override()
+  @NotNull()
   public String toString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -322,7 +323,7 @@ final class SRVRecordSet
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  private void toString(final StringBuilder buffer)
+  private void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("SRVRecordSet(records={");
 

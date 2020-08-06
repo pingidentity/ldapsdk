@@ -215,7 +215,7 @@ public final class GeneratePasswordExtendedRequest
    *                   {@code null} or empty if there should not be any request
    *                   controls.
    */
-  public GeneratePasswordExtendedRequest(final Control... controls)
+  public GeneratePasswordExtendedRequest(@Nullable final Control... controls)
   {
     this(GeneratePasswordPolicySelectionType.DEFAULT_POLICY, null, null,
          DEFAULT_NUMBER_OF_PASSWORDS, DEFAULT_VALIDATION_ATTEMPTS, controls);

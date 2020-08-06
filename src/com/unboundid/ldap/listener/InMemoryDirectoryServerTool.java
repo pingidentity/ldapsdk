@@ -426,6 +426,7 @@ public final class InMemoryDirectoryServerTool
    *
    * @return  A result code indicating whether the processing was successful.
    */
+  @NotNull()
   public static ResultCode main(@NotNull final String[] args,
                                 @Nullable final OutputStream outStream,
                                 @Nullable final OutputStream errStream)
@@ -512,6 +513,7 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public String getToolDescription()
   {
     return INFO_MEM_DS_TOOL_DESC.get(InMemoryDirectoryServer.class.getName());

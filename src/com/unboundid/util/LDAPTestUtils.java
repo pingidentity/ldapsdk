@@ -1733,6 +1733,7 @@ public final class LDAPTestUtils
    * @throws  AssertionError  If the result code from the provided result
    *                          matched any of the unacceptable values.
    */
+  @NotNull()
   public static LDAPResult assertResultCodeNot(
                      @NotNull final LDAPConnection conn,
                      @NotNull final LDAPRequest request,
@@ -2183,6 +2184,7 @@ public final class LDAPTestUtils
    * @throws  AssertionError  If the provided LDAP result does not include any
    *                          control with the specified OID.
    */
+  @NotNull()
   public static Control assertHasControl(@NotNull final LDAPResult result,
                                          @NotNull final String oid)
          throws AssertionError
@@ -2214,6 +2216,7 @@ public final class LDAPTestUtils
    * @throws  AssertionError  If the provided LDAP exception does not include
    *                          any control with the specified OID.
    */
+  @NotNull()
   public static Control assertHasControl(@NotNull final LDAPException exception,
                                          @NotNull final String oid)
          throws AssertionError
@@ -2245,6 +2248,7 @@ public final class LDAPTestUtils
    * @throws  AssertionError  If the provided search result entry does not
    *                          include any control with the specified OID.
    */
+  @NotNull()
   public static Control assertHasControl(@NotNull final SearchResultEntry entry,
                                          @NotNull final String oid)
          throws AssertionError
@@ -2276,6 +2280,7 @@ public final class LDAPTestUtils
    * @throws  AssertionError  If the provided search result reference does not
    *                          include any control with the specified OID.
    */
+  @NotNull()
   public static Control assertHasControl(
                              @NotNull final SearchResultReference reference,
                              @NotNull final String oid)
@@ -2601,7 +2606,7 @@ public final class LDAPTestUtils
    */
   public static void assertEntriesReturnedEquals(
                           @NotNull final SearchResult result,
-                          @NotNull final int expectedEntryCount)
+                          final int expectedEntryCount)
          throws AssertionError
   {
     if (result.getEntryCount() != expectedEntryCount)
@@ -2636,7 +2641,7 @@ public final class LDAPTestUtils
    */
   public static void assertEntriesReturnedEquals(
                           @NotNull final LDAPSearchException exception,
-                          @NotNull final int expectedEntryCount)
+                          final int expectedEntryCount)
          throws AssertionError
   {
     if (exception.getEntryCount() != expectedEntryCount)

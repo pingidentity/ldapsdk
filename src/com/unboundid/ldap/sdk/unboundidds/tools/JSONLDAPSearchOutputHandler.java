@@ -242,7 +242,7 @@ final class JSONLDAPSearchOutputHandler
   @Override()
   public void formatUnsolicitedNotification(
                    @NotNull final LDAPConnection connection,
-                   final ExtendedResult notification)
+                   @NotNull final ExtendedResult notification)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();

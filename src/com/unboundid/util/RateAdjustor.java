@@ -231,6 +231,7 @@ public final class RateAdjustor extends Thread
    * @throws  IllegalArgumentException  If there is a problem with the rates
    *                                    input.
    */
+  @NotNull()
   public static RateAdjustor newInstance(
                                   @NotNull final FixedRateBarrier barrier,
                                   @Nullable final Integer baseRatePerSecond,
@@ -1572,7 +1573,7 @@ public final class RateAdjustor extends Thread
    * @throws  IOException  If there is a problem reading from the Reader.
    */
   @NotNull()
-  private static List<String> readLines(final Reader reader)
+  private static List<String> readLines(@NotNull final Reader reader)
           throws IOException
   {
     final BufferedReader bufferedReader = new BufferedReader(reader);

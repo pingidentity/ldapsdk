@@ -70,7 +70,7 @@ public enum PKCS8PrivateKeyVersion
   private final int intValue;
 
   // The name for this PKCS #8 private key version.
-  private final String name;
+  @NotNull private final String name;
 
 
 

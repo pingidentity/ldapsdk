@@ -66,7 +66,7 @@ public final class PKCS11KeyManager
   /**
    * The key store type to use to access PKCS#11 tokens.
    */
-  private static final String PKCS11_KEY_STORE_TYPE = "PKCS11";
+  @NotNull private static final String PKCS11_KEY_STORE_TYPE = "PKCS11";
 
 
 

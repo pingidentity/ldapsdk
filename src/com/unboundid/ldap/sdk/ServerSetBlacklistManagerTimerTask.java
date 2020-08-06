@@ -52,7 +52,7 @@ final class ServerSetBlacklistManagerTimerTask
       extends TimerTask
 {
   // The server set blacklist manager with which this timer task is associated.
-  private final ServerSetBlacklistManager blacklistManager;
+  @NotNull private final ServerSetBlacklistManager blacklistManager;
 
 
 

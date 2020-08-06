@@ -1639,7 +1639,7 @@ public final class ResultCode
    * The set of result code objects created with undefined int result code
    * values.
    */
-  private static final ConcurrentHashMap<Integer,ResultCode>
+  @NotNull private static final ConcurrentHashMap<Integer,ResultCode>
        UNDEFINED_RESULT_CODES =
             new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
 

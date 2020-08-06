@@ -159,6 +159,7 @@ public final class LDAPModify
    *
    * @return  A result code indicating whether the processing was successful.
    */
+  @NotNull()
   public static ResultCode main(@NotNull final String[] args,
                                 @Nullable final OutputStream outStream,
                                 @Nullable final OutputStream errStream)

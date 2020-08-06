@@ -174,7 +174,7 @@ public enum AccessLogMessageType
 
 
   // The string that will be used to identify this message type in log files.
-  private final String logIdentifier;
+  @NotNull private final String logIdentifier;
 
 
 

@@ -554,6 +554,7 @@ public final class HostNameSSLSocketVerifier
    *          component of the provided address and the second element is the
    *          remainder of the address.
    */
+  @NotNull()
   private static ObjectPair<String,String> getFirstComponentAndRemainder(
                                                 @NotNull final String address)
   {

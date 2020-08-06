@@ -360,6 +360,7 @@ public final class EntryChangeNotificationControl
    * @return  An ASN.1 octet string that can be used as the value for this
    *          control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
                @NotNull final PersistentSearchChangeType changeType,
                @Nullable final String previousDN, final long changeNumber)

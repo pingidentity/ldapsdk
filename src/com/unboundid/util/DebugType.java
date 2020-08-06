@@ -117,7 +117,7 @@ public enum DebugType
 
 
   // The name for this debug type.
-  private final String name;
+  @NotNull private final String name;
 
 
 

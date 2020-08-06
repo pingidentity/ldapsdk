@@ -90,7 +90,7 @@ public abstract class AccessLogMessage
    *
    * @param  m  The log message to be parsed as an access log message.
    */
-  protected AccessLogMessage(final LogMessage m)
+  protected AccessLogMessage(@NotNull final LogMessage m)
   {
     super(m);
 

@@ -40,6 +40,7 @@ package com.unboundid.util.parallel;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -69,5 +70,6 @@ public interface Processor<I,O>
    *
    * @throws Throwable  If there is any exception during the processing.
    */
+  @Nullable()
   O process(@NotNull I input) throws Throwable;
 }

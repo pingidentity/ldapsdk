@@ -62,7 +62,7 @@ public final class SearchResultReferenceEntrySourceException
 
 
   // The search result reference returned from the server.
-  private final SearchResultReference searchReference;
+  @NotNull private final SearchResultReference searchReference;
 
 
 
@@ -74,7 +74,7 @@ public final class SearchResultReferenceEntrySourceException
    *                          directory server.  It must not be {@code null}.
    */
   public SearchResultReferenceEntrySourceException(
-              final SearchResultReference searchReference)
+              @NotNull final SearchResultReference searchReference)
   {
     super(true, new LDAPException(ResultCode.REFERRAL,
          ResultCode.REFERRAL.getName(), null,
@@ -91,6 +91,7 @@ public final class SearchResultReferenceEntrySourceException
    *
    * @return  The search result reference for this entry source exception.
    */
+  @NotNull()
   public SearchResultReference getSearchReference()
   {
     return searchReference;

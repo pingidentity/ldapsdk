@@ -234,6 +234,7 @@ public final class TransformLDIF
    * @return  A result code indicating whether processing completed
    *          successfully.
    */
+  @NotNull()
   public static ResultCode main(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err,
                                 @NotNull final String... args)

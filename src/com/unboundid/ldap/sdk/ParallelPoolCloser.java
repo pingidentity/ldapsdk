@@ -60,7 +60,7 @@ final class ParallelPoolCloser
   private final boolean unbind;
 
   // A collection containing the connections to be closed.
-  private final Collection<LDAPConnection> connections;
+  @NotNull private final Collection<LDAPConnection> connections;
 
   // The number of threads to use to establish connections in parallel.
   private final int numThreads;

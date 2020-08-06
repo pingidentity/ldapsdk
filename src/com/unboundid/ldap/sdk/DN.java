@@ -901,7 +901,7 @@ rdnLoop:
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
   @NotNull()
-  public static RDN[] getRDNs(final String s)
+  public static RDN[] getRDNs(@NotNull final String s)
          throws LDAPException
   {
     return new DN(s).getRDNs();
@@ -1016,7 +1016,7 @@ rdnLoop:
    * @throws  LDAPException  If the provided string cannot be parsed as a DN.
    */
   @Nullable()
-  public static DN getParent(final String s)
+  public static DN getParent(@NotNull final String s)
          throws LDAPException
   {
     return new DN(s).getParent();

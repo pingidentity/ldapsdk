@@ -73,7 +73,7 @@ public class LDAPModificationSet
 
 
   // The list of modifications.
-  private final ArrayList<LDAPModification> mods;
+  @NotNull private final ArrayList<LDAPModification> mods;
 
 
 

@@ -115,7 +115,7 @@ public final class CRAMMD5BindRequest
   /**
    * The name for the CRAM-MD5 SASL mechanism.
    */
-  public static final String CRAMMD5_MECHANISM_NAME = "CRAM-MD5";
+  @NotNull public static final String CRAMMD5_MECHANISM_NAME = "CRAM-MD5";
 
 
 

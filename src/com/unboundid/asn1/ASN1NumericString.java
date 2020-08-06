@@ -67,7 +67,7 @@ public final class ASN1NumericString
 
 
   // The string value for this element.
-  private final String stringValue;
+  @NotNull private final String stringValue;
 
 
 
@@ -127,7 +127,7 @@ public final class ASN1NumericString
    */
   private ASN1NumericString(final byte type,
                             @Nullable final String stringValue,
-                            final byte[] encodedValue)
+                            @NotNull final byte[] encodedValue)
           throws ASN1Exception
   {
     super(type, encodedValue);

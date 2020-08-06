@@ -80,6 +80,7 @@ public final class LDAPDN
    *
    * @return  A normalized representation of the provided DN.
    */
+  @NotNull()
   public static String normalize(@NotNull final String dn)
   {
     try

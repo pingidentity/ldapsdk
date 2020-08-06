@@ -230,6 +230,7 @@ public final class ContentSyncStateControl
    *
    * @return  An ASN.1 octet string containing the encoded control value.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
                       @NotNull final ContentSyncState state,
                       @NotNull final UUID entryUUID,

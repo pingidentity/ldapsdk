@@ -350,6 +350,7 @@ public final class JoinResultControl
    * @return  An ASN.1 element containing an encoded representation of the
    *          value for this control.
    */
+  @NotNull()
   private static ASN1OctetString encodeValue(
                       @NotNull final ResultCode resultCode,
                       @Nullable final String diagnosticMessage,

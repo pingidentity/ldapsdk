@@ -797,6 +797,7 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
   public StringArgument getCleanCopy()
   {
     return new StringArgument(this);

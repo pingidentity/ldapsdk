@@ -136,7 +136,7 @@ public final class OctetStringMatchingRule
   /**
    * The serial version UID for this serializable class.
    */
-  @NotNull private static final long serialVersionUID = -5655018388491186342L;
+  private static final long serialVersionUID = -5655018388491186342L;
 
 
 

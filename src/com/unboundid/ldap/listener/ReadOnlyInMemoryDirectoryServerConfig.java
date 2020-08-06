@@ -168,7 +168,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  @NotNull()
   public void setListenerConfigs(
               @NotNull final Collection<InMemoryListenerConfig> listenerConfigs)
          throws UnsupportedOperationException

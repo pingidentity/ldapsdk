@@ -610,7 +610,7 @@ public final class FieldInfo
    *                                type.
    */
   @NotNull()
-  AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
+  AttributeTypeDefinition constructAttributeType(@NotNull final OIDAllocator a)
        throws LDAPPersistException
   {
     return encoder.constructAttributeType(field, a);

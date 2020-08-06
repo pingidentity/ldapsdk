@@ -823,7 +823,7 @@ public final class JSONObjectReader
    *                         object.
    */
   @NotNull()
-  private JSONObject readObject(final Map<String,JSONValue> fields)
+  private JSONObject readObject(@NotNull final Map<String,JSONValue> fields)
           throws IOException, JSONException
   {
     boolean firstField = true;

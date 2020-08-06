@@ -144,7 +144,7 @@ public final class JoinRule
    * An empty array of join rules that will be used as the set of components
    * for DN and equality join rules.
    */
-  private static final JoinRule[] NO_RULES = new JoinRule[0];
+  @NotNull private static final JoinRule[] NO_RULES = new JoinRule[0];
 
 
 

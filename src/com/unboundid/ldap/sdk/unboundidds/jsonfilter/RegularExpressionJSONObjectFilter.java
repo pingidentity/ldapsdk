@@ -338,7 +338,7 @@ public final class RegularExpressionJSONObjectFilter
    * @param  regularExpression  The regular expression pattern to match.  It
    *                            must not be {@code null}.
    */
-  public RegularExpressionJSONObjectFilter(final List<String> field,
+  public RegularExpressionJSONObjectFilter(@NotNull final List<String> field,
               @NotNull final Pattern regularExpression)
   {
     Validator.ensureNotNull(field);
