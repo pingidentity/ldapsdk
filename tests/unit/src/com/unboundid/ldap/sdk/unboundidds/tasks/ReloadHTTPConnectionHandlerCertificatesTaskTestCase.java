@@ -130,7 +130,7 @@ public class ReloadHTTPConnectionHandlerCertificatesTaskTestCase
 
   /**
    * Tests the constructor that takes a single string argument with a
-   * {@code null} task ID..
+   * {@code null} task ID.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

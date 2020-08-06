@@ -1432,7 +1432,7 @@ public final class LDIFSearch
 
   /**
    * Reads the contents of the specified passphrase file and adds it to the list
-   * of passphrases..
+   * of passphrases.
    *
    * @param  f  The passphrase file to read.
    *

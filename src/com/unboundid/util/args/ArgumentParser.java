@@ -752,7 +752,7 @@ public final class ArgumentParser
    *     provided on the command line.  If this is not specified and the
    *     {@code noPropertiesFile} argument is not present, then the argument
    *     parser may use a default properties file path specified using either
-   *     the {@code com.unboundid.util.args.ArgumentParser..propertiesFilePath}
+   *     the {@code com.unboundid.util.args.ArgumentParser.propertiesFilePath}
    *     system property or the {@code UNBOUNDID_TOOL_PROPERTIES_FILE_PATH}
    *     environment variable.
    *   </LI>

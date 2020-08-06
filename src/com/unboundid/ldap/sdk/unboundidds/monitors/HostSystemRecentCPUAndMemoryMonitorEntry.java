@@ -183,7 +183,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
   // The recent free memory, in gigabytes.
   @Nullable private final Double recentMemoryFreeGB;
 
-  // The recent free memory percent..
+  // The recent free memory percent.
   @Nullable private final Double recentMemoryPercentFree;
 
   // The total amount of system memory, in gigabytes.

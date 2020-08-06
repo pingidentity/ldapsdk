@@ -89,7 +89,7 @@ public class SynchronizeEncryptionSettingsTaskTestCase
 
 
   /**
-   * Tests the first constructor with a {@code null} task ID..
+   * Tests the first constructor with a {@code null} task ID.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

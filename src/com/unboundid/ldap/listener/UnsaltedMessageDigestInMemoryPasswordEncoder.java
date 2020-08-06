@@ -90,7 +90,7 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoder
    *                          perform the encoding.  It must not be
    *                          {@code null}, it must have a fixed length, and it
    *                          must properly report that length via the
-   *                          {@code MessageDigest.getDigestLength} method..
+   *                          {@code MessageDigest.getDigestLength} method.
    */
   public UnsaltedMessageDigestInMemoryPasswordEncoder(
               @NotNull final String prefix,

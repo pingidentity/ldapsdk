@@ -974,7 +974,7 @@ public class SummarizeAccessLogTestCase
 
   /**
    * Provides test coverage for the summarize-access-log tool with a file that
-   * does not exist..
+   * does not exist.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

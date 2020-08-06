@@ -314,7 +314,7 @@ public final class RoundRobinDNSServerSet
    *                             resolution will be performed via the underlying
    *                             system's name service mechanism (which may make
    *                             use of other services instead of or in addition
-   *                             to DNS)..  If this is non-{@code null}, then
+   *                             to DNS).  If this is non-{@code null}, then
    *                             only DNS will be used to perform the name
    *                             resolution.  A value of "dns:" indicates that
    *                             the underlying system's DNS configuration

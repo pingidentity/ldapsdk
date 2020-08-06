@@ -1046,7 +1046,7 @@ public final class ScrambleAttributeTransformation
 
   /**
    * Scrambles the provided encoded password value.  It is expected that it will
-   * either start with a storage scheme name in curly braces (e.g..,
+   * either start with a storage scheme name in curly braces (e.g.,
    * "{SSHA256}XrgyNdl3fid7KYdhd/Ju47KJQ5PYZqlUlyzxQ28f/QXUnNd9fupj9g==") or
    * that it will use the authentication password syntax as described in RFC
    * 3112 in which the scheme name is separated from the rest of the password by

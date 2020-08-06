@@ -961,7 +961,7 @@ public final class LDAPMessage
    *                              that will be handled by the connection reader.
    *
    * @return  The decoded LDAP message, or {@code null} if the end of the input
-   *          stream has been reached..
+   *          stream has been reached.
    *
    * @throws  LDAPException  If an error occurs while attempting to read or
    *                         decode the LDAP message.
@@ -1145,7 +1145,7 @@ public final class LDAPMessage
    *                              that will be handled by the connection reader.
    *
    * @return  The decoded LDAP message, or {@code null} if the end of the input
-   *          stream has been reached..
+   *          stream has been reached.
    *
    * @throws  LDAPException  If an error occurs while attempting to read or
    *                         decode the LDAP message.
@@ -1179,7 +1179,7 @@ public final class LDAPMessage
    *                              response.
    *
    * @return  The decoded LDAP message, or {@code null} if the end of the input
-   *          stream has been reached..
+   *          stream has been reached.
    *
    * @throws  LDAPException  If an error occurs while attempting to read or
    *                         decode the LDAP message.

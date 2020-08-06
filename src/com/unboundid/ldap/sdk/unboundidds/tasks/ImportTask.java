@@ -624,7 +624,7 @@ public final class ImportTask
    *                                 data to be imported.  The paths may be
    *                                 either absolute or relative to the server
    *                                 install root.  It must not be {@code null}
-   *                                 or empty..
+   *                                 or empty.
    * @param  backendID               The backend ID of the backend into which
    *                                 the data should be imported.  It may be
    *                                 {@code null} only if one or more include
@@ -742,7 +742,7 @@ public final class ImportTask
    *                                 data to be imported.  The paths may be
    *                                 either absolute or relative to the server
    *                                 install root.  It must not be {@code null}
-   *                                 or empty..
+   *                                 or empty.
    * @param  backendID               The backend ID of the backend into which
    *                                 the data should be imported.  It may be
    *                                 {@code null} only if one or more include

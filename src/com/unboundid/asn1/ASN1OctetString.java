@@ -242,7 +242,7 @@ public final class ASN1OctetString
    *                 element.  It must not be {@code null}.
    * @param  offset  The offset within the array at which the value begins.  It
    *                 must be greater than or equal to zero and less than or
-   *                 equal to the length of the array..
+   *                 equal to the length of the array.
    * @param  length  The length in bytes of the value.   It must be greater than
    *                 or equal to zero, and it must not extend beyond the end of
    *                 the array.

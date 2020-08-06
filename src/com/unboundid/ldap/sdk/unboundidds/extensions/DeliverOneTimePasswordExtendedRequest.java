@@ -161,7 +161,7 @@ public final class DeliverOneTimePasswordExtendedRequest
 
 
   /**
-   * The BER type for the preferred delivery mechanism names element..
+   * The BER type for the preferred delivery mechanism names element.
    */
   private static final byte TYPE_PREFERRED_DELIVERY_MECHANISM_NAMES =
        (byte) 0xA2;
@@ -169,7 +169,7 @@ public final class DeliverOneTimePasswordExtendedRequest
 
 
   /**
-   * The BER type for the preferred delivery mechanism names and IDs element..
+   * The BER type for the preferred delivery mechanism names and IDs element.
    */
   private static final byte TYPE_PREFERRED_DELIVERY_MECHANISM_NAMES_AND_IDS =
        (byte) 0xA3;

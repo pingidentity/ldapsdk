@@ -711,7 +711,7 @@ public class DNArgumentTestCase
 
   /**
    * Tests the {@code addValue} method with something that can't be decoded as a
-   * DN..
+   * DN.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

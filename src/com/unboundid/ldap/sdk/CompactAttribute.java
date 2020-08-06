@@ -144,7 +144,7 @@ final class CompactAttribute
 
 
   /**
-   * Retrieves the set of values for this attribute as byte arrays..
+   * Retrieves the set of values for this attribute as byte arrays.
    *
    * @return  The set of values for this attribute as byte arrays.
    */
@@ -157,7 +157,7 @@ final class CompactAttribute
 
 
   /**
-   * Retrieves the set of values for this attribute as strings..
+   * Retrieves the set of values for this attribute as strings.
    *
    * @return  The set of values for this attribute as strings.
    */

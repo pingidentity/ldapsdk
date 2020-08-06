@@ -4365,7 +4365,7 @@ public class LDAPConnectionTestCase
 
 
     // Perform the search again, and this time wait a while before checking the
-    // response to give it time to complete..
+    // response to give it time to complete.
     searchListener = new BasicAsyncSearchResultListener();
     searchRequest = new SearchRequest(searchListener,
          getTestBaseDN(), SearchScope.SUB, "(objectClass=*)");

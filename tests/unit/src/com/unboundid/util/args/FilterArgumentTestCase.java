@@ -707,7 +707,7 @@ public class FilterArgumentTestCase
 
   /**
    * Tests the {@code addValue} method with something that can't be decoded as a
-   * filter..
+   * filter.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

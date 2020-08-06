@@ -992,7 +992,7 @@ public final class TransformLDIFTestCase
 
   /**
    * Tests the behavior when trying to rename attributes without an equal number
-   * of from and to attributes..
+   * of from and to attributes.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

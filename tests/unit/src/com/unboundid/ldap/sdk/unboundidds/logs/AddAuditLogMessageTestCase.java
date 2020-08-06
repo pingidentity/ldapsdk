@@ -302,7 +302,7 @@ public final class AddAuditLogMessageTestCase
 
   /**
    * Tests the behavior for a basic add audit log message read from a list of
-   * strings and an already-provided change record..
+   * strings and an already-provided change record.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */

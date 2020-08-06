@@ -125,7 +125,7 @@ public abstract class EntrySource
    * available.
    *
    * @return  The next entry from the entry source, or {@code null} if there are
-   *          no more entries to retrieve..
+   *          no more entries to retrieve.
    *
    * @throws  EntrySourceException  If a problem occurs while attempting to read
    *                                the next entry from the entry source.

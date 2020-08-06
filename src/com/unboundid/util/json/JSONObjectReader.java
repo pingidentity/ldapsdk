@@ -123,7 +123,7 @@ public final class JSONObjectReader
    * Reads the next JSON object from the input stream.
    *
    * @return  The JSON object that was read, or {@code null} if the end of the
-   *          end of the stream has been reached..
+   *          end of the stream has been reached.
    *
    * @throws  IOException  If a problem is encountered while reading from the
    *                       input stream.

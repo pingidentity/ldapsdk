@@ -103,7 +103,7 @@ public class GroovyScriptedTaskTestCase
 
 
   /**
-   * Tests the first constructor with a {@code null} task ID and no arguments..
+   * Tests the first constructor with a {@code null} task ID and no arguments.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
