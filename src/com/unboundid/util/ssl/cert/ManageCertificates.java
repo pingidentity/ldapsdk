@@ -1988,7 +1988,7 @@ public final class ManageCertificates
 
     final IntegerArgument genCSRKeySizeBits = new IntegerArgument(null,
          "key-size-bits", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_BITS.get(),
-         INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_KEY_ALGORITHM_DESC.get(), 1,
+         INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_KEY_SIZE_BITS_DESC.get(), 1,
          Integer.MAX_VALUE);
     genCSRKeySizeBits.addLongIdentifier("keySizeBits", true);
     genCSRKeySizeBits.addLongIdentifier("key-length-bits", true);
