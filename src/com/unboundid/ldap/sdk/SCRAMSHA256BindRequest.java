@@ -57,6 +57,14 @@ public final class SCRAMSHA256BindRequest
        extends SCRAMBindRequest
 {
   /**
+   * The name for the SCRAM-SHA-256 SASL mechanism.
+   */
+  @NotNull public static final String SCRAM_SHA_256_MECHANISM_NAME =
+       "SCRAM-SHA-256";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4396660110665214258L;
@@ -108,7 +116,7 @@ public final class SCRAMSHA256BindRequest
   @NotNull()
   public String getSASLMechanismName()
   {
-    return "SCRAM-SHA-256";
+    return SCRAM_SHA_256_MECHANISM_NAME;
   }
 
 

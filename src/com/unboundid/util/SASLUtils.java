@@ -53,10 +53,14 @@ import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequestProperties;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.OAUTHBEARERBindRequest;
 import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLBindRequest;
 import com.unboundid.ldap.sdk.SASLQualityOfProtection;
+import com.unboundid.ldap.sdk.SCRAMSHA1BindRequest;
+import com.unboundid.ldap.sdk.SCRAMSHA256BindRequest;
+import com.unboundid.ldap.sdk.SCRAMSHA512BindRequest;
 import com.unboundid.ldap.sdk.unboundidds.SingleUseTOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.
             UnboundIDCertificatePlusPasswordBindRequest;
@@ -75,6 +79,14 @@ import static com.unboundid.util.UtilityMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class SASLUtils
 {
+  /**
+   * The name of the SASL option that specifies the access token.  It may be
+   * used in conjunction with the OAUTHBEARER mechanism.
+   */
+  @NotNull public static final String SASL_OPTION_ACCESS_TOKEN = "accessToken";
+
+
+
   /**
    * The name of the SASL option that specifies the authentication ID.  It may
    * be used in conjunction with the CRAM-MD5, DIGEST-MD5, GSSAPI, and PLAIN
@@ -214,6 +226,15 @@ public final class SASLUtils
 
 
   /**
+   * The name of the SASL option that specifies the username.  It may be
+   * used in conjunction with the SCRAM-SHA-1, SCRAM-SHA-256, and SCRAM-SHA-512
+   * mechanisms.
+   */
+  @NotNull public static final String SASL_OPTION_USERNAME = "username";
+
+
+
+  /**
    * The name of the SASL option that specifies whether to use a Kerberos ticket
    * cache.  It may be used in conjunction with the GSSAPI mechanism.
    */
@@ -295,6 +316,15 @@ public final class SASLUtils
                    INFO_SASL_GSSAPI_OPTION_USE_TICKET_CACHE.get(), false,
                    false)));
 
+    m.put(StaticUtils.toLowerCase(
+         OAUTHBEARERBindRequest.OAUTHBEARER_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              OAUTHBEARERBindRequest.OAUTHBEARER_MECHANISM_NAME,
+              INFO_SASL_PLAIN_DESCRIPTION.get(), false, false,
+              new SASLOption(SASL_OPTION_ACCESS_TOKEN,
+                   INFO_SASL_OAUTHBEARER_OPTION_ACCESS_TOKEN.get(), false,
+                   false)));
+
     m.put(StaticUtils.toLowerCase(PLAINBindRequest.PLAIN_MECHANISM_NAME),
          new SASLMechanismInfo(PLAINBindRequest.PLAIN_MECHANISM_NAME,
               INFO_SASL_PLAIN_DESCRIPTION.get(), true, true,
@@ -302,6 +332,32 @@ public final class SASLUtils
                    INFO_SASL_PLAIN_OPTION_AUTH_ID.get(), true, false),
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_PLAIN_OPTION_AUTHZ_ID.get(), false, false)));
+
+    m.put(
+         StaticUtils.toLowerCase(
+              SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME),
+         new SASLMechanismInfo(SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME,
+              INFO_SASL_SCRAM_SHA_1_DESCRIPTION.get(), true, true,
+              new SASLOption(SASL_OPTION_USERNAME,
+                   INFO_SASL_SCRAM_OPTION_USERNAME.get(), true, false)));
+
+    m.put(
+         StaticUtils.toLowerCase(
+              SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME,
+              INFO_SASL_SCRAM_SHA_256_DESCRIPTION.get(), true, true,
+              new SASLOption(SASL_OPTION_USERNAME,
+                   INFO_SASL_SCRAM_OPTION_USERNAME.get(), true, false)));
+
+    m.put(
+         StaticUtils.toLowerCase(
+              SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME,
+              INFO_SASL_SCRAM_SHA_512_DESCRIPTION.get(), true, true,
+              new SASLOption(SASL_OPTION_USERNAME,
+                   INFO_SASL_SCRAM_OPTION_USERNAME.get(), true, false)));
 
     m.put(StaticUtils.toLowerCase(
          UnboundIDCertificatePlusPasswordBindRequest.
@@ -689,9 +745,33 @@ public final class SASLUtils
       return createGSSAPIBindRequest(password, promptForPassword, tool,
            optionsMap, controls);
     }
+    else if (mech.equalsIgnoreCase(
+         OAUTHBEARERBindRequest.OAUTHBEARER_MECHANISM_NAME))
+    {
+      return createOAUTHBEARERBindRequest(password, promptForPassword,
+           tool, optionsMap, controls);
+    }
     else if (mech.equalsIgnoreCase(PLAINBindRequest.PLAIN_MECHANISM_NAME))
     {
       return createPLAINBindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
+    }
+    else if (mech.equalsIgnoreCase(
+         SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME))
+    {
+      return createSCRAMSHA1BindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
+    }
+    else if (mech.equalsIgnoreCase(
+         SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME))
+    {
+      return createSCRAMSHA256BindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
+    }
+    else if (mech.equalsIgnoreCase(
+         SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME))
+    {
+      return createSCRAMSHA512BindRequest(password, promptForPassword, tool,
            optionsMap, controls);
     }
     else if (mech.equalsIgnoreCase(UnboundIDCertificatePlusPasswordBindRequest.
@@ -880,7 +960,7 @@ public final class SASLUtils
       {
         throw new LDAPException(ResultCode.PARAM_ERROR,
              ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
-                  CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+                  DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME));
       }
     }
     else
@@ -895,7 +975,7 @@ public final class SASLUtils
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_AUTH_ID,
-                CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+                DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME));
     }
 
     final DIGESTMD5BindRequestProperties properties =
@@ -1089,6 +1169,65 @@ public final class SASLUtils
 
 
   /**
+   * Creates a SASL OAUTHBEARER bind request using the provided password and
+   * set of options.
+   *
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} only if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
+   *
+   * @return  The SASL OAUTHBEARER bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  @NotNull()
+  private static OAUTHBEARERBindRequest createOAUTHBEARERBindRequest(
+                      @Nullable final byte[] password,
+                      final boolean promptForPassword,
+                      @Nullable final CommandLineTool tool,
+                      @NotNull final Map<String,String> options,
+                      @Nullable final Control[] controls)
+          throws LDAPException
+  {
+    // The accessToken option wasn't declared as required, but we will either
+    // require it to have been provided or we will interactively prompt for it.
+    String accessToken =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_ACCESS_TOKEN));
+    if (accessToken == null)
+    {
+      if (promptForPassword)
+      {
+        tool.getOriginalOut().print(
+             INFO_SASL_TOOL_ENTER_OAUTHBEARER_ACCESS_TOKEN.get());
+        accessToken = StaticUtils.toUTF8String(PasswordReader.readPassword());
+        tool.getOriginalOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_ACCESS_TOKEN,
+                  OAUTHBEARERBindRequest.OAUTHBEARER_MECHANISM_NAME));
+      }
+    }
+
+    // Ensure no unsupported options were provided.
+    ensureNoUnsupportedOptions(options,
+         OAUTHBEARERBindRequest.OAUTHBEARER_MECHANISM_NAME);
+
+    return new OAUTHBEARERBindRequest(accessToken, controls);
+  }
+
+
+
+  /**
    * Creates a SASL PLAIN bind request using the provided password and set of
    * options.
    *
@@ -1130,7 +1269,7 @@ public final class SASLUtils
       {
         throw new LDAPException(ResultCode.PARAM_ERROR,
              ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
-                  CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+                  PLAINBindRequest.PLAIN_MECHANISM_NAME));
       }
     }
     else
@@ -1157,6 +1296,213 @@ public final class SASLUtils
          PLAINBindRequest.PLAIN_MECHANISM_NAME);
 
     return new PLAINBindRequest(authID, authzID, pw, controls);
+  }
+
+
+
+  /**
+   * Creates a SASL SCRAM-SHA-1 bind request using the provided password and
+   * set of options.
+   *
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} only if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
+   *
+   * @return  The SASL SCRAM-SHA-1 bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  @NotNull()
+  private static SCRAMSHA1BindRequest createSCRAMSHA1BindRequest(
+                      @Nullable final byte[] password,
+                      final boolean promptForPassword,
+                      @Nullable final CommandLineTool tool,
+                      @NotNull final Map<String,String> options,
+                      @Nullable final Control[] controls)
+          throws LDAPException
+  {
+    final byte[] pw;
+    if (password == null)
+    {
+      if (promptForPassword)
+      {
+        tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        tool.getOriginalOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
+                  SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME));
+      }
+    }
+    else
+    {
+      pw = password;
+    }
+
+    // The username option is required.
+    final String username =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_USERNAME));
+    if (username == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_USERNAME,
+                SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME));
+    }
+
+    // Ensure no unsupported options were provided.
+    ensureNoUnsupportedOptions(options,
+         SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME);
+
+    return new SCRAMSHA1BindRequest(username, pw, controls);
+  }
+
+
+
+  /**
+   * Creates a SASL SCRAM-SHA-256 bind request using the provided password and
+   * set of options.
+   *
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} only if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
+   *
+   * @return  The SASL SCRAM-SHA-256 bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  @NotNull()
+  private static SCRAMSHA256BindRequest createSCRAMSHA256BindRequest(
+                      @Nullable final byte[] password,
+                      final boolean promptForPassword,
+                      @Nullable final CommandLineTool tool,
+                      @NotNull final Map<String,String> options,
+                      @Nullable final Control[] controls)
+          throws LDAPException
+  {
+    final byte[] pw;
+    if (password == null)
+    {
+      if (promptForPassword)
+      {
+        tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        tool.getOriginalOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
+                  SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME));
+      }
+    }
+    else
+    {
+      pw = password;
+    }
+
+    // The username option is required.
+    final String username =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_USERNAME));
+    if (username == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_USERNAME,
+                SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME));
+    }
+
+    // Ensure no unsupported options were provided.
+    ensureNoUnsupportedOptions(options,
+         SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME);
+
+    return new SCRAMSHA256BindRequest(username, pw, controls);
+  }
+
+
+
+  /**
+   * Creates a SASL SCRAM-SHA-512 bind request using the provided password and
+   * set of options.
+   *
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} only if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
+   *
+   * @return  The SASL SCRAM-SHA-512 bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  @NotNull()
+  private static SCRAMSHA512BindRequest createSCRAMSHA512BindRequest(
+                      @Nullable final byte[] password,
+                      final boolean promptForPassword,
+                      @Nullable final CommandLineTool tool,
+                      @NotNull final Map<String,String> options,
+                      @Nullable final Control[] controls)
+          throws LDAPException
+  {
+    final byte[] pw;
+    if (password == null)
+    {
+      if (promptForPassword)
+      {
+        tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        tool.getOriginalOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
+                  SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME));
+      }
+    }
+    else
+    {
+      pw = password;
+    }
+
+    // The username option is required.
+    final String username =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_USERNAME));
+    if (username == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_USERNAME,
+                SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME));
+    }
+
+    // Ensure no unsupported options were provided.
+    ensureNoUnsupportedOptions(options,
+         SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME);
+
+    return new SCRAMSHA512BindRequest(username, pw, controls);
   }
 
 

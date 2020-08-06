@@ -58,6 +58,14 @@ public final class SCRAMSHA512BindRequest
        extends SCRAMBindRequest
 {
   /**
+   * The name for the SCRAM-SHA-512 SASL mechanism.
+   */
+  @NotNull public static final String SCRAM_SHA_512_MECHANISM_NAME =
+       "SCRAM-SHA-512";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4396660110665214258L;
@@ -109,7 +117,7 @@ public final class SCRAMSHA512BindRequest
   @NotNull()
   public String getSASLMechanismName()
   {
-    return "SCRAM-SHA-512";
+    return SCRAM_SHA_512_MECHANISM_NAME;
   }
 
 

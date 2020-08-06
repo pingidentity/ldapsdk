@@ -41,6 +41,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,9 +55,13 @@ import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.OAUTHBEARERBindRequest;
 import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLQualityOfProtection;
+import com.unboundid.ldap.sdk.SCRAMSHA1BindRequest;
+import com.unboundid.ldap.sdk.SCRAMSHA256BindRequest;
+import com.unboundid.ldap.sdk.SCRAMSHA512BindRequest;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.SingleUseTOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.
@@ -141,7 +146,11 @@ public final class SASLUtilsTestCase
       DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME,
       EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME,
       GSSAPIBindRequest.GSSAPI_MECHANISM_NAME,
+      OAUTHBEARERBindRequest.OAUTHBEARER_MECHANISM_NAME,
       PLAINBindRequest.PLAIN_MECHANISM_NAME,
+      SCRAMSHA1BindRequest.SCRAM_SHA_1_MECHANISM_NAME,
+      SCRAMSHA256BindRequest.SCRAM_SHA_256_MECHANISM_NAME,
+      SCRAMSHA512BindRequest.SCRAM_SHA_512_MECHANISM_NAME,
       UnboundIDCertificatePlusPasswordBindRequest.
            UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME,
       UnboundIDDeliveredOTPBindRequest.UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME,
@@ -821,6 +830,64 @@ public final class SASLUtilsTestCase
 
 
   /**
+   * Tests the ability to create a valid OAUTHBEARER bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidOAUTHBEARERBind()
+         throws Exception
+  {
+    final BindRequest bindRequest = SASLUtils.createBindRequest(null,
+         (String) null, null, "mech=OAUTHBEARER", "accessToken=abcdefg");
+
+    assertNotNull(bindRequest);
+
+    assertTrue(bindRequest instanceof OAUTHBEARERBindRequest);
+
+    final OAUTHBEARERBindRequest oAuthBearerBind =
+         (OAUTHBEARERBindRequest) bindRequest;
+
+    assertNotNull(oAuthBearerBind.getAccessToken());
+    assertEquals(oAuthBearerBind.getAccessToken(), "abcdefg");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create an OAUTHBEARER bind request
+   * without providing an access token.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testOAUTHBEARERBindWithoutAccessToken()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, (byte[]) null, false, null, null,
+         Collections.singletonList("mech=OAUTHBEARER"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create an OAUTHBEARER bind request
+   * with an invalid option.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testOAUTHBEARERBindWithInvalidOption()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, (byte[]) null, false, null, null,
+         Arrays.asList("mech=OAUTHBEARER", "accessToken=abcdefgh",
+              "invalid=foo"));
+  }
+
+
+
+  /**
    * Tests the ability to create a valid PLAIN bind request without an alternate
    * authorization ID.
    *
@@ -917,6 +984,237 @@ public final class SASLUtilsTestCase
   {
     SASLUtils.createBindRequest(null, "password", null, "mech=PLAIN",
          "authID=u:test.user", "unsupported=foo");
+  }
+
+
+
+  /**
+   * Tests the ability to create a valid SCRAM-SHA-1 bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidSCRAMSHA1Bind()
+         throws Exception
+  {
+    final BindRequest bindRequest = SASLUtils.createBindRequest(null,
+         "password", null, "mech=SCRAM-SHA-1", "username=jdoe");
+
+    assertNotNull(bindRequest);
+
+    assertTrue(bindRequest instanceof SCRAMSHA1BindRequest);
+
+    final SCRAMSHA1BindRequest scramBind =
+         (SCRAMSHA1BindRequest) bindRequest;
+
+    assertNotNull(scramBind.getUsername());
+    assertEquals(scramBind.getUsername(), "jdoe");
+
+    assertNotNull(scramBind.getPasswordString());
+    assertEquals(scramBind.getPasswordString(), "password");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-1 bind request
+   * without a username.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA1BindWithoutUsername()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, StaticUtils.getBytes("password"),
+         false, null, null, Collections.singletonList("mech=SCRAM-SHA-1"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-1 bind request
+   * without a password.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA1BindWithoutPassword()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, (byte[]) null, false, null, null,
+         Arrays.asList("mech=SCRAM-SHA-1", "username=jdoe"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-1 bind request
+   * with an invalid otpion.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA1BindWithInvalidOption()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, StaticUtils.getBytes("password"),
+         false, null, null,
+         Arrays.asList("mech=SCRAM-SHA-1", "username=jdoe", "invalid=foo"));
+  }
+
+
+
+  /**
+   * Tests the ability to create a valid SCRAM-SHA-256 bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidSCRAMSHA256Bind()
+         throws Exception
+  {
+    final BindRequest bindRequest = SASLUtils.createBindRequest(null,
+         "password", null, "mech=SCRAM-SHA-256", "username=jdoe");
+
+    assertNotNull(bindRequest);
+
+    assertTrue(bindRequest instanceof SCRAMSHA256BindRequest);
+
+    final SCRAMSHA256BindRequest scramBind =
+         (SCRAMSHA256BindRequest) bindRequest;
+
+    assertNotNull(scramBind.getUsername());
+    assertEquals(scramBind.getUsername(), "jdoe");
+
+    assertNotNull(scramBind.getPasswordString());
+    assertEquals(scramBind.getPasswordString(), "password");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-256 bind request
+   * without a username.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA256BindWithoutUsername()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, StaticUtils.getBytes("password"),
+         false, null, null, Collections.singletonList("mech=SCRAM-SHA-256"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-256 bind request
+   * without a password.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA256BindWithoutPassword()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, (byte[]) null, false, null, null,
+         Arrays.asList("mech=SCRAM-SHA-256", "username=jdoe"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-256 bind request
+   * with an invalid otpion.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA256BindWithInvalidOption()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, StaticUtils.getBytes("password"),
+         false, null, null,
+         Arrays.asList("mech=SCRAM-SHA-256", "username=jdoe", "invalid=foo"));
+  }
+
+
+
+  /**
+   * Tests the ability to create a valid SCRAM-SHA-512 bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidSCRAMSHA512Bind()
+         throws Exception
+  {
+    final BindRequest bindRequest = SASLUtils.createBindRequest(null,
+         "password", null, "mech=SCRAM-SHA-512", "username=jdoe");
+
+    assertNotNull(bindRequest);
+
+    assertTrue(bindRequest instanceof SCRAMSHA512BindRequest);
+
+    final SCRAMSHA512BindRequest scramBind =
+         (SCRAMSHA512BindRequest) bindRequest;
+
+    assertNotNull(scramBind.getUsername());
+    assertEquals(scramBind.getUsername(), "jdoe");
+
+    assertNotNull(scramBind.getPasswordString());
+    assertEquals(scramBind.getPasswordString(), "password");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-512 bind request
+   * without a username.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA512BindWithoutUsername()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, StaticUtils.getBytes("password"),
+         false, null, null, Collections.singletonList("mech=SCRAM-SHA-512"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-512 bind request
+   * without a password.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA512BindWithoutPassword()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, (byte[]) null, false, null, null,
+         Arrays.asList("mech=SCRAM-SHA-512", "username=jdoe"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a SCRAM-SHA-512 bind request
+   * with an invalid otpion.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testSCRAMSHA512BindWithInvalidOption()
+         throws Exception
+  {
+    SASLUtils.createBindRequest(null, StaticUtils.getBytes("password"),
+         false, null, null,
+         Arrays.asList("mech=SCRAM-SHA-512", "username=jdoe", "invalid=foo"));
   }
 
 
