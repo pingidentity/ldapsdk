@@ -382,7 +382,7 @@ public final class SingleUseTOTPBindRequest
     constructorArgs.add(ToCodeArgHelper.createString(getAuthorizationID(),
          "Authorization ID"));
     constructorArgs.add(ToCodeArgHelper.createString(
-         "---redacted-totp-password", "TOTP Password"));
+         "---redacted-totp-password---", "TOTP Password"));
     constructorArgs.add(ToCodeArgHelper.createString(
          ((getStaticPassword() == null)
               ? "null"

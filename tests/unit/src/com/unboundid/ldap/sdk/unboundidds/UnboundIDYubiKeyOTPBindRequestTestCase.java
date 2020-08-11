@@ -37,6 +37,9 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -101,6 +104,10 @@ public final class UnboundIDYubiKeyOTPBindRequestTestCase
     r.getLastMessageID();
 
     assertNotNull(r.toString());
+
+    final List<String> toCodeLines = new ArrayList<>();
+    r.toCode(toCodeLines, "testRequestID", 4, true);
+    assertFalse(toCodeLines.isEmpty());
   }
 
 
@@ -149,6 +156,10 @@ public final class UnboundIDYubiKeyOTPBindRequestTestCase
     r.getLastMessageID();
 
     assertNotNull(r.toString());
+
+    final List<String> toCodeLines = new ArrayList<>();
+    r.toCode(toCodeLines, "testRequestID", 4, true);
+    assertFalse(toCodeLines.isEmpty());
   }
 
 
@@ -192,6 +203,10 @@ public final class UnboundIDYubiKeyOTPBindRequestTestCase
     r.getLastMessageID();
 
     assertNotNull(r.toString());
+
+    final List<String> toCodeLines = new ArrayList<>();
+    r.toCode(toCodeLines, "testRequestID", 4, true);
+    assertFalse(toCodeLines.isEmpty());
   }
 
 
@@ -243,6 +258,10 @@ public final class UnboundIDYubiKeyOTPBindRequestTestCase
     assertEquals(r.getYubiKeyOTP(), "ThisIsMyYubiKeyOTP");
 
     assertNotNull(r.toString());
+
+    final List<String> toCodeLines = new ArrayList<>();
+    r.toCode(toCodeLines, "testRequestID", 4, true);
+    assertFalse(toCodeLines.isEmpty());
   }
 
 
