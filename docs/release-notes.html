@@ -238,6 +238,20 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldifmodify tool to use lenient mode by default for modifications.
+                  In this mode, the tool will ignore attempts to update an entry to add an
+                  attribute value that already exists or to remove an attribute value that does
+                  not exist.  This mode was previously available when using the
+                  --lenientModifications argument, but the default lenient mode was found to cause
+                  compatibility issues with other versions of the ldifmodify tool.  A new
+                  --strictModifications argument has been added to allow the tool to run in the
+                  former strict mode if desired.  The existing --lenientModifications argument
+                  still exists for the purpose of backward compatibility with scripts that try to
+                  use it, but it is hidden so that it doesn't appear in the usage.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK so that when displaying a command that is split across
                   multiple lines, it will use an appropriate continuation character for the
                   underlying platform.  It previously always used the backslash character (also

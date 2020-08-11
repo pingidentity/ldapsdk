@@ -132,6 +132,7 @@ public final class LDIFModify
   @Nullable private BooleanArgument doNotWrap;
   @Nullable private BooleanArgument encryptTarget;
   @Nullable private BooleanArgument lenientModifications;
+  @Nullable private BooleanArgument strictModifications;
   @Nullable private BooleanArgument noSchemaCheck;
   @Nullable private BooleanArgument stripTrailingSpaces;
   @Nullable private BooleanArgument suppressComments;
@@ -292,6 +293,7 @@ public final class LDIFModify
     encryptTarget = null;
     lenientModifications = null;
     noSchemaCheck = null;
+    strictModifications = null;
     stripTrailingSpaces = null;
     suppressComments = null;
     changesEncryptionPassphraseFile = null;
@@ -607,7 +609,23 @@ public final class LDIFModify
     lenientModifications.addLongIdentifier("lenient", true);
     lenientModifications.setArgumentGroupName(
          INFO_LDIFMODIFY_ARG_GROUP_INPUT.get());
+    lenientModifications.setHidden(true);
     parser.addArgument(lenientModifications);
+
+
+    strictModifications = new BooleanArgument(null, "strictModifications", 1,
+         INFO_LDIFMODIFY_ARG_DESC_STRICT_MODIFICATIONS.get());
+    strictModifications.addLongIdentifier("strict-modifications", true);
+    strictModifications.addLongIdentifier("strictModification", true);
+    strictModifications.addLongIdentifier("strict-modification", true);
+    strictModifications.addLongIdentifier("strictMods", true);
+    strictModifications.addLongIdentifier("strict-mods", true);
+    strictModifications.addLongIdentifier("strictMod", true);
+    strictModifications.addLongIdentifier("strict-mod", true);
+    strictModifications.addLongIdentifier("strict", true);
+    strictModifications.setArgumentGroupName(
+         INFO_LDIFMODIFY_ARG_GROUP_INPUT.get());
+    parser.addArgument(strictModifications);
 
 
     targetLDIF = new FileArgument('t', "targetLDIF", (targetWriter == null), 1,
@@ -722,6 +740,8 @@ public final class LDIFModify
     noSchemaCheck.setHidden(true);
     parser.addArgument(noSchemaCheck);
 
+
+    parser.addExclusiveArgumentSet(lenientModifications, strictModifications);
 
     parser.addExclusiveArgumentSet(wrapColumn, doNotWrap);
 
@@ -2107,7 +2127,7 @@ changeRecordLoop:
     try
     {
       final Entry updatedEntry = Entry.applyModifications(entry,
-           lenientModifications.isPresent(),
+           (! strictModifications.isPresent()),
            modifyChangeRecord.getModifications());
       createChangeRecordComment(comment, INFO_LDIFMODIFY_APPLIED_MODIFY.get(),
            modifyChangeRecord, false);

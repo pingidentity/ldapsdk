@@ -2305,12 +2305,12 @@ public final class LDIFModifyTestCase
 
   /**
    * Tests the behavior when trying to add an attribute value that already
-   * exists when not using lenient mode.
+   * exists when using strict mode.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testModifyAddExistingValueNotLenient()
+  public void testModifyAddExistingValueStrictMode()
          throws Exception
   {
     final File sourceLDIF = createTempFile(
@@ -2330,7 +2330,7 @@ public final class LDIFModifyTestCase
     assertTrue(targetLDIF.delete());
 
     ldifModify(sourceLDIF, changesLDIF, targetLDIF,
-         ResultCode.ATTRIBUTE_OR_VALUE_EXISTS);
+         ResultCode.ATTRIBUTE_OR_VALUE_EXISTS, "--strictModifications");
 
     assertTrue(targetLDIF.exists());
     assertTargetLDIFEquals(targetLDIF,
@@ -2346,12 +2346,12 @@ public final class LDIFModifyTestCase
 
   /**
    * Tests the behavior when trying to add an attribute value that already
-   * exists when using lenient mode.
+   * exists when explicitly using lenient mode.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testModifyAddExistingValueLenient()
+  public void testModifyAddExistingValueExplicitLenient()
          throws Exception
   {
     final File sourceLDIF = createTempFile(
@@ -2372,6 +2372,46 @@ public final class LDIFModifyTestCase
 
     ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.SUCCESS,
          "--lenientModifications");
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example",
+              "description: foo"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add an attribute value that already
+   * exists when using the default lenient mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testModifyAddExistingValueDefaultLenient()
+         throws Exception
+  {
+    final File sourceLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: foo");
+
+    final File changesLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: modify",
+         "add: description",
+         "description: foo");
+
+    final File targetLDIF = createTempFile();
+    assertTrue(targetLDIF.delete());
+
+    ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.SUCCESS);
 
     assertTrue(targetLDIF.exists());
     assertTargetLDIFEquals(targetLDIF,
