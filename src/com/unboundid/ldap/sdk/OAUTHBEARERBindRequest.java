@@ -37,6 +37,9 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
@@ -507,7 +510,7 @@ public final class OAUTHBEARERBindRequest
 
 
     // Append the request path, if appropriate.
-    if (requestMethod != null)
+    if (requestPath != null)
     {
       buffer.append(OAUTHBEARER_CRED_ELEMENT_REQUEST_PATH_PREFIX);
       buffer.append(requestPath);
@@ -525,7 +528,7 @@ public final class OAUTHBEARERBindRequest
 
 
     // Append the request query string, if appropriate.
-    if (requestPostData != null)
+    if (requestQueryString != null)
     {
       buffer.append(OAUTHBEARER_CRED_ELEMENT_REQUEST_QUERY_STRING_PREFIX);
       buffer.append(requestQueryString);
@@ -567,6 +570,17 @@ public final class OAUTHBEARERBindRequest
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int getLastMessageID()
+  {
+    return messageID;
+  }
+
+
+
+  /**
    * Retrieves a string representation of the OAUTHBEARER bind request.
    *
    * @return  A string representation of the OAUTHBEARER bind request.
@@ -589,6 +603,7 @@ public final class OAUTHBEARERBindRequest
    * @param  buffer  The buffer to which the information should be appended.  It
    *                 must not be {@code null}.
    */
+  @Override()
   public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("OAUTHBEARERBindRequest(accessToken='{redacted}'");
@@ -640,5 +655,132 @@ public final class OAUTHBEARERBindRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toCode(@NotNull final List<String> lineList,
+                     @NotNull final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create and update the request properties object.
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces,
+         "OAUTHBEARERBindRequestProperties", requestID + "RequestProperties",
+         "new OAUTHBEARERBindRequestProperties",
+         ToCodeArgHelper.createString(accessToken, "Access Token"));
+
+    if (authorizationID != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setAuthorizationID",
+           ToCodeArgHelper.createString(authorizationID, null));
+    }
+
+    if (serverAddress != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setServerAddress",
+           ToCodeArgHelper.createString(serverAddress, null));
+    }
+
+    if (serverPort != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setServerPort",
+           ToCodeArgHelper.createInteger(serverPort, null));
+    }
+
+    if (requestMethod != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setRequestMethod",
+           ToCodeArgHelper.createString(requestMethod, null));
+    }
+
+    if (requestPath != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setRequestPath",
+           ToCodeArgHelper.createString(requestPath, null));
+    }
+
+    if (requestPostData != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setRequestPostData",
+           ToCodeArgHelper.createString(requestPostData, null));
+    }
+
+    if (requestQueryString != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setRequestQueryString",
+           ToCodeArgHelper.createString(requestQueryString, null));
+    }
+
+
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(2);
+    constructorArgs.add(
+         ToCodeArgHelper.createRaw(requestID + "RequestProperties", null));
+
+    final Control[] controls = getControls();
+    if (controls.length > 0)
+    {
+      constructorArgs.add(ToCodeArgHelper.createControlArray(controls,
+           "Bind Controls"));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces,
+         "OAUTHBEARERBindRequest", requestID + "Request",
+         "new OAUTHBEARERBindRequest", constructorArgs);
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  BindResult " + requestID +
+           "Result = connection.bind(" + requestID + "Request);");
+      lineList.add(indent + "  // The bind was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The bind failed.  Maybe the following will " +
+           "help explain why.");
+      lineList.add(indent + "  // Note that the connection is now likely in " +
+           "an unauthenticated state.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+
+      lineList.add("");
+      lineList.add("OAUTHBEARERBindResult bindResult = " +
+                "new OAUTHBEARERBindResult(new BindResult(e));");
+      lineList.add("String authorizationErrorCode = " +
+           "bindResult.getAuthorizationErrorCode();");
+      lineList.add("Set<String> scopes = bindResult.getScopes();");
+      lineList.add("String openIDConfigurationURL = " +
+           "bindResult.getOpenIDConfigurationURL();");
+
+      lineList.add(indent + '}');
+    }
   }
 }

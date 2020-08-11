@@ -37,6 +37,9 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -90,6 +93,10 @@ public class OAUTHBEARERBindRequestTestCase
          new ASN1OctetString("n,,\u0001auth=Bearer the-access-token\u0001"));
 
     assertNotNull(bindRequest.toString());
+
+    final List<String> toCodeLines = new ArrayList<>();
+    bindRequest.toCode(toCodeLines, "testRequestID", 4, true);
+    assertFalse(toCodeLines.isEmpty());
   }
 
 
@@ -153,6 +160,10 @@ public class OAUTHBEARERBindRequestTestCase
               "path=/\u0001post=the-post-data\u0001qs=query=string\u0001"));
 
     assertNotNull(bindRequest.toString());
+
+    final List<String> toCodeLines = new ArrayList<>();
+    bindRequest.toCode(toCodeLines, "testRequestID", 4, true);
+    assertFalse(toCodeLines.isEmpty());
   }
 
 
