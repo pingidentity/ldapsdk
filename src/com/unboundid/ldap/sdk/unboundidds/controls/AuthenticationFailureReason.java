@@ -348,9 +348,28 @@ public final class AuthenticationFailureReason
 
 
   /**
+   * The numeric value for the failure type that indicates that a
+   * security-related problem was encountered while processing the bind
+   * operation.
+   */
+  public static final int FAILURE_TYPE_SECURITY_PROBLEM = 17;
+
+
+
+  /**
+   * The name for the failure type that indicates that the bind request used a
+   * security-related problem was encountered while processing the bind
+   * operation.
+   */
+  @NotNull public static final String FAILURE_NAME_SECURITY_PROBLEM =
+       "security-problem";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -7025888367310006422L;
+  private static final long serialVersionUID = -4331994950570326032L;
 
 
 
