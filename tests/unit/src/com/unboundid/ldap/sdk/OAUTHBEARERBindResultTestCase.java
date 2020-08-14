@@ -237,7 +237,9 @@ public class OAUTHBEARERBindResultTestCase
     assertEquals(bindResult.getResponseControls().length, 1);
     assertEquals(bindResult.getResponseControls()[0], finalControls[0]);
 
-    assertNull(bindResult.getServerSASLCredentials());
+    assertNotNull(bindResult.getServerSASLCredentials());
+    assertTrue(bindResult.getServerSASLCredentials().equalsIgnoreType(
+         initialServerSASLCredentials));
 
     assertNotNull(bindResult.getInitialBindResult());
     assertEquals(bindResult.getInitialBindResult(), initialBindResult);
@@ -331,7 +333,9 @@ public class OAUTHBEARERBindResultTestCase
     assertEquals(bindResult.getResponseControls().length, 1);
     assertEquals(bindResult.getResponseControls()[0], finalControls[0]);
 
-    assertNull(bindResult.getServerSASLCredentials());
+    assertNotNull(bindResult.getServerSASLCredentials());
+    assertTrue(bindResult.getServerSASLCredentials().equalsIgnoreType(
+         initialServerSASLCredentials));
 
     assertNotNull(bindResult.getInitialBindResult());
     assertEquals(bindResult.getInitialBindResult(), initialBindResult);
@@ -423,7 +427,9 @@ public class OAUTHBEARERBindResultTestCase
     assertEquals(bindResult.getResponseControls().length, 1);
     assertEquals(bindResult.getResponseControls()[0], finalControls[0]);
 
-    assertNull(bindResult.getServerSASLCredentials());
+    assertNotNull(bindResult.getServerSASLCredentials());
+    assertTrue(bindResult.getServerSASLCredentials().equalsIgnoreType(
+         initialServerSASLCredentials));
 
     assertNotNull(bindResult.getInitialBindResult());
     assertEquals(bindResult.getInitialBindResult(), initialBindResult);

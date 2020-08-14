@@ -151,7 +151,7 @@ public final class OAUTHBEARERBindResult
   public OAUTHBEARERBindResult(@NotNull final BindResult initialBindResult,
                                @Nullable final BindResult finalBindResult)
   {
-    super((finalBindResult == null) ? initialBindResult : finalBindResult);
+    super(mergeBindResults(initialBindResult, finalBindResult));
 
     this.initialBindResult = initialBindResult;
     this.finalBindResult = finalBindResult;
@@ -203,6 +203,44 @@ public final class OAUTHBEARERBindResult
       scopeSet.add(tokenizer.nextToken());
     }
     scopes = Collections.unmodifiableSet(scopeSet);
+  }
+
+
+
+  /**
+   * Creates a bind result that is merged from the provided results.  If the
+   * provided final result is {@code null}, then this will simply return the
+   * initial result.  If both are non-{@code null}, then it will use all details
+   * from the final result except the server SASL credentials, which will come
+   * from the initial result.
+   *
+   * @param  initialBindResult  The result obtained in response to the initial
+   *                            OAUTHBEARER bind request.  It must not be
+   *                            {@code null}.
+   * @param  finalBindResult    The result obtained in response to the final
+   *                            OAUTHBEARER bind request, if any.  It may be
+   *                            {@code null} if the bind consisted of only a
+   *                            single request.
+   *
+   * @return  The merged bind results.
+   */
+  @NotNull()
+  private static BindResult mergeBindResults(
+               @NotNull final BindResult initialBindResult,
+               @Nullable final BindResult finalBindResult)
+  {
+    if (finalBindResult == null)
+    {
+      return initialBindResult;
+    }
+
+    return new BindResult(finalBindResult.getMessageID(),
+         finalBindResult.getResultCode(),
+         finalBindResult.getDiagnosticMessage(),
+         finalBindResult.getMatchedDN(),
+         finalBindResult.getReferralURLs(),
+         finalBindResult.getResponseControls(),
+         initialBindResult.getServerSASLCredentials());
   }
 
 
