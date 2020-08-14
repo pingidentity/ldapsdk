@@ -113,7 +113,7 @@ public class OAUTHBEARERBindRequestTestCase
   {
     OAUTHBEARERBindRequestProperties properties =
          new OAUTHBEARERBindRequestProperties("the-access-token");
-    properties.setAuthorizationID("u:jdoe");
+    properties.setAuthorizationID("dn:uid=jdoe,ou=People,dc=example,dc=com");
     properties.setServerAddress("ds.example.com");
     properties.setServerPort(389);
     properties.setRequestMethod("POST");
@@ -133,7 +133,8 @@ public class OAUTHBEARERBindRequestTestCase
     assertEquals(bindRequest.getAccessToken(), "the-access-token");
 
     assertNotNull(bindRequest.getAuthorizationID());
-    assertEquals(bindRequest.getAuthorizationID(), "u:jdoe");
+    assertEquals(bindRequest.getAuthorizationID(),
+         "dn:uid=jdoe,ou=People,dc=example,dc=com");
 
     assertNotNull(bindRequest.getServerAddress());
     assertEquals(bindRequest.getServerAddress(), "ds.example.com");
@@ -155,9 +156,10 @@ public class OAUTHBEARERBindRequestTestCase
 
     assertNotNull(bindRequest.encodeCredentials());
     assertEquals(bindRequest.encodeCredentials(),
-         new ASN1OctetString("n,a=u:jdoe,\u0001auth=Bearer the-access-token" +
-              "\u0001host=ds.example.com\u0001port=389\u0001mthd=POST\u0001" +
-              "path=/\u0001post=the-post-data\u0001qs=query=string\u0001"));
+         new ASN1OctetString("n,a=dn:uid=3Djdoe=2Cou=3DPeople=2Cdc=3Dexample" +
+              "=2Cdc=3Dcom,\u0001auth=Bearer the-access-token\u0001" +
+              "host=ds.example.com\u0001port=389\u0001mthd=POST\u0001path=/" +
+              "\u0001post=the-post-data\u0001qs=query=string\u0001"));
 
     assertNotNull(bindRequest.toString());
 

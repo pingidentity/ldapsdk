@@ -469,7 +469,7 @@ public final class OAUTHBEARERBindRequest
     if (authorizationID != null)
     {
       buffer.append(GS2_HEADER_ELEMENT_AUTHZ_ID_PREFIX);
-      buffer.append(authorizationID);
+      escapeAuthorizationID(authorizationID, buffer);
     }
 
     buffer.append(GS2_HEADER_DELIMITER);
@@ -536,6 +536,40 @@ public final class OAUTHBEARERBindRequest
     }
 
     return new ASN1OctetString(buffer.toByteArray());
+  }
+
+
+
+  /**
+   * Appends an escaped version of the provided authorization ID to the given
+   * buffer.  Any equal signs will be replaced with "=3D" and any commas will be
+   * replaced with "=2C".
+   *
+   * @param  authorizationID  The authorization ID to be escaped.
+   * @param  buffer           The buffer to which the escaped authorization ID
+   *                          should be appended.
+   */
+  private static void escapeAuthorizationID(
+               @NotNull final String authorizationID,
+               @NotNull final ByteStringBuffer buffer)
+  {
+    final int length = authorizationID.length();
+    for (int i=0; i < length; i++)
+    {
+      final char c = authorizationID.charAt(i);
+      switch (c)
+      {
+        case ',':
+          buffer.append("=2C");
+          break;
+        case '=':
+          buffer.append("=3D");
+          break;
+        default:
+          buffer.append(c);
+          break;
+      }
+    }
   }
 
 
