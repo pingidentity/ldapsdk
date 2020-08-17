@@ -41,7 +41,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -55,6 +57,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityNotice;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
+import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -97,6 +100,90 @@ public final class PasswordPolicyStateJSON
    */
   @NotNull public static final String PASSWORD_POLICY_STATE_JSON_ATTRIBUTE =
        "ds-pwp-state-json";
+
+
+
+  /**
+   * The name of the field that will be used to indicate whether a password
+   * quality requirement applies to add operations.
+   */
+  @NotNull private static final String REQUIREMENT_FIELD_APPLIES_TO_ADD =
+       "applies-to-add";
+
+
+
+  /**
+   * The name of the field that will be used to indicate whether a password
+   * quality requirement applies to administrative password resets.
+   */
+  @NotNull private static final String
+       REQUIREMENT_FIELD_APPLIES_TO_ADMIN_RESET =
+            "applies-to-administrative-reset";
+
+
+
+  /**
+   * The name of the field that will be used to indicate whether a password
+   * quality requirement applies to bind operations.
+   */
+  @NotNull private static final String REQUIREMENT_FIELD_APPLIES_TO_BIND =
+       "applies-to-bind";
+
+
+
+  /**
+   * The name of the field that will be used to indicate whether a password
+   * quality requirement applies to self password changes.
+   */
+  @NotNull private static final String
+       REQUIREMENT_FIELD_APPLIES_TO_SELF_CHANGE = "applies-to-self-change";
+
+
+
+  /**
+   * The name of the field that will be used to hold the set of client-side
+   * validation properties.
+   */
+  @NotNull private static final String
+       REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES =
+       "client-side-validation-properties";
+
+
+
+  /**
+   * The name of the field that will be used to hold the name of a client-side
+   * validation property.
+   */
+  @NotNull private static final String
+       REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_PROPERTY_NAME = "name";
+
+
+
+  /**
+   * The name of the field that will be used to hold the value of a client-side
+   * validation property.
+   */
+  @NotNull private static final String
+       REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_PROPERTY_VALUE = "value";
+
+
+
+  /**
+   * The name of the field that will be used to hold the name of the client-side
+   * validation type for a password quality requirement.
+   */
+  @NotNull private static final String
+       REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_TYPE =
+            "client-side-validation-type";
+
+
+
+  /**
+   * The name of the field that will be used to hold the description component
+   * of a password quality requirement.
+   */
+  @NotNull private static final String REQUIREMENT_FIELD_DESCRIPTION =
+       "description";
 
 
 
@@ -1940,6 +2027,162 @@ public final class PasswordPolicyStateJSON
     return passwordPolicyStateObject.getFieldAsInteger(
          MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_DURATION_SECONDS.
               getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the list of quality requirements that must be satisfied for
+   * passwords included in new entries that are added using the same password
+   * policy as the associated entry.
+   *
+   * @return  The list of password quality requirements that will be enforced
+   *          for adds using the same password policy as the associated entry,
+   *          or an empty list if no requirements will be imposed.
+   */
+  @NotNull()
+  public List<PasswordQualityRequirement> getAddPasswordQualityRequirements()
+  {
+    return getPasswordQualityRequirements(REQUIREMENT_FIELD_APPLIES_TO_ADD);
+  }
+
+
+
+  /**
+   * Retrieves the list of quality requirements that must be satisfied when the
+   * associated user attempts to change their own password.
+   *
+   * @return  The list of password quality requirements that will be enforced
+   *          for self password changes, or an empty list if no requirements
+   *          will be imposed.
+   */
+    @NotNull()
+  public List<PasswordQualityRequirement>
+            getSelfChangePasswordQualityRequirements()
+  {
+    return getPasswordQualityRequirements(
+         REQUIREMENT_FIELD_APPLIES_TO_SELF_CHANGE);
+  }
+
+
+
+  /**
+   * Retrieves the list of quality requirements that must be satisfied when an
+   * administrator attempts to change the user's password.
+   *
+   * @return  The list of password quality requirements that will be enforced
+   *          for administrative password resets, or an empty list if no
+   *          requirements will be imposed.
+   */
+  @NotNull()
+  public List<PasswordQualityRequirement>
+            getAdministrativeResetPasswordQualityRequirements()
+  {
+    return getPasswordQualityRequirements(
+         REQUIREMENT_FIELD_APPLIES_TO_ADMIN_RESET);
+  }
+
+
+
+  /**
+   * Retrieves the list of quality requirements that must be satisfied when the
+   * associated user authenticates in a manner that makes the clear-text
+   * password available to the server.
+   *
+   * @return  The list of password quality requirements that will be enforced
+   *          for binds, or an empty list if no requirements will be imposed.
+   */
+  @NotNull()
+  public List<PasswordQualityRequirement> getBindPasswordQualityRequirements()
+  {
+    return getPasswordQualityRequirements(REQUIREMENT_FIELD_APPLIES_TO_BIND);
+  }
+
+
+
+  /**
+   * Retrieves a list of the password quality requirements that are contained in
+   * the JSON object in which the indicated Boolean field is present and set to
+   * {@code true}.
+   *
+   * @param  booleanFieldName  The name of the field that is expected to be
+   *                           present with a Boolean value of true for each
+   *                           requirement to be included in the list that is
+   *                           returned.
+   *
+   * @return  The appropriate list of password quality requirements, or an empty
+   *          list if no requirements will be imposed.
+   */
+  @NotNull()
+  private List<PasswordQualityRequirement> getPasswordQualityRequirements(
+       @NotNull final String booleanFieldName)
+  {
+    final List<JSONValue> requirementObjectLst =
+         passwordPolicyStateObject.getFieldAsArray(
+              PASSWORD_QUALITY_REQUIREMENTS.getFieldName());
+    if ((requirementObjectLst == null) || requirementObjectLst.isEmpty())
+    {
+      return Collections.emptyList();
+    }
+
+    final List<PasswordQualityRequirement> requirements =
+         new ArrayList<>(requirementObjectLst.size());
+    for (final JSONValue requirementObjectValue : requirementObjectLst)
+    {
+      if (! (requirementObjectValue instanceof JSONObject))
+      {
+        continue;
+      }
+
+      final JSONObject requirementObject = (JSONObject) requirementObjectValue;
+      final Boolean include = requirementObject.getFieldAsBoolean(
+           booleanFieldName);
+      if ((include == null) || (! include.booleanValue()))
+      {
+        continue;
+      }
+
+      final String description =
+           requirementObject.getFieldAsString(REQUIREMENT_FIELD_DESCRIPTION);
+      if (description == null)
+      {
+        continue;
+      }
+
+      final String clientSideValidationType =
+           requirementObject.getFieldAsString(
+                REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_TYPE);
+
+      final Map<String,String> clientSideValidationProperties =
+           new LinkedHashMap<>();
+      final List<JSONValue> propertyValues = requirementObject.getFieldAsArray(
+           REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES);
+      if (propertyValues != null)
+      {
+        for (final JSONValue propertyValue : propertyValues)
+        {
+          if (! (propertyValue instanceof JSONObject))
+          {
+            continue;
+          }
+
+          final JSONObject propertyObject = (JSONObject) propertyValue;
+          final String name = propertyObject.getFieldAsString(
+               REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_PROPERTY_NAME);
+          final String value = propertyObject.getFieldAsString(
+               REQUIREMENT_FIELD_CLIENT_SIDE_VALIDATION_PROPERTY_VALUE);
+          if ((name != null) && (value != null))
+          {
+            clientSideValidationProperties.put(name, value);
+          }
+        }
+      }
+
+      requirements.add(new PasswordQualityRequirement(description,
+           clientSideValidationType, clientSideValidationProperties));
+    }
+
+    return requirements;
   }
 
 

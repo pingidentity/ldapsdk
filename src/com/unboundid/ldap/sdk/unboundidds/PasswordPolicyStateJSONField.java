@@ -732,7 +732,15 @@ public enum PasswordPolicyStateJSONField
    * attempts the server should maintain for a user.
    */
   MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_DURATION_SECONDS(
-       "maximum-recent-login-history-failed-authentication-duration-seconds");
+       "maximum-recent-login-history-failed-authentication-duration-seconds"),
+
+
+
+  /**
+   * The field used to hold information about the requirements that passwords
+   * will be required to satisfy.
+   */
+  PASSWORD_QUALITY_REQUIREMENTS("password-quality-requirements");
 
 
 

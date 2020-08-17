@@ -63,6 +63,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityNotice;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
+import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.json.JSONArray;
 import com.unboundid.util.json.JSONBoolean;
@@ -380,6 +381,19 @@ public final class PasswordPolicyStateJSONTestCase
 
     assertNull(state.
          getMaximumRecentLoginHistoryFailedAuthenticationDurationSeconds());
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertTrue(state.getAddPasswordQualityRequirements().isEmpty());
+
+    assertNotNull(state.getSelfChangePasswordQualityRequirements());
+    assertTrue(state.getSelfChangePasswordQualityRequirements().isEmpty());
+
+    assertNotNull(state.getAdministrativeResetPasswordQualityRequirements());
+    assertTrue(state.getAdministrativeResetPasswordQualityRequirements().
+         isEmpty());
+
+    assertNotNull(state.getBindPasswordQualityRequirements());
+    assertTrue(state.getBindPasswordQualityRequirements().isEmpty());
 
     assertNotNull(state.toString());
     assertFalse(state.toString().isEmpty());
@@ -1812,6 +1826,534 @@ public final class PasswordPolicyStateJSONTestCase
     assertNull(state.getSecondsSincePasswordChange());
 
     assertNull(state.getAccountActivationTime());
+  }
+
+
+
+  /**
+   * Tests the behavior for the properties related to password quality
+   * requirements for add operations.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetAddPasswordQualityRequirements()
+         throws Exception
+  {
+    final PasswordQualityRequirement allRequirement =
+         new PasswordQualityRequirement("all-requirement-description",
+              "all-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement noneRequirement =
+         new PasswordQualityRequirement("none-requirement-description",
+              "none-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement addRequirement =
+         new PasswordQualityRequirement("add-requirement-description",
+              "add-requirement-type",
+              Collections.singletonMap("property-1", "value-1"));
+    final PasswordQualityRequirement selfChangeRequirement =
+         new PasswordQualityRequirement("self-change-requirement-description",
+              "self-change-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2"));
+    final PasswordQualityRequirement adminResetRequirement =
+         new PasswordQualityRequirement("admin-reset-requirement-description",
+              "admin-reset-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2",
+                   "property-3", "value-3"));
+    final PasswordQualityRequirement bindRequirement =
+         new PasswordQualityRequirement("bind-requirement-description", null,
+              null);
+
+    final JSONArray requirementsArray = new JSONArray(
+         encodeRequirement(allRequirement, true, true, true, true),
+         encodeRequirement(noneRequirement, false, false, false, false),
+         encodeRequirement(addRequirement, true, false, false, false),
+         encodeRequirement(selfChangeRequirement, false, true, false, false),
+         encodeRequirement(adminResetRequirement, false, false, true, false),
+         encodeRequirement(bindRequirement, false, false, false, true));
+
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS, requirementsArray));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertFalse(state.getAddPasswordQualityRequirements().isEmpty());
+    assertEquals(state.getAddPasswordQualityRequirements().size(), 2);
+
+    final PasswordQualityRequirement requirement0 =
+         state.getAddPasswordQualityRequirements().get(0);
+    assertEquals(requirement0.getDescription(),
+         allRequirement.getDescription());
+    assertEquals(requirement0.getClientSideValidationType(),
+         allRequirement.getClientSideValidationType());
+    assertEquals(requirement0.getClientSideValidationProperties(),
+         allRequirement.getClientSideValidationProperties());
+
+    final PasswordQualityRequirement requirement1 =
+         state.getAddPasswordQualityRequirements().get(1);
+    assertEquals(requirement1.getDescription(),
+         addRequirement.getDescription());
+    assertEquals(requirement1.getClientSideValidationType(),
+         addRequirement.getClientSideValidationType());
+    assertEquals(requirement1.getClientSideValidationProperties(),
+         addRequirement.getClientSideValidationProperties());
+  }
+
+
+
+  /**
+   * Tests the behavior for the properties related to password quality
+   * requirements for self password changes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSelfChangePasswordQualityRequirements()
+         throws Exception
+  {
+    final PasswordQualityRequirement allRequirement =
+         new PasswordQualityRequirement("all-requirement-description",
+              "all-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement noneRequirement =
+         new PasswordQualityRequirement("none-requirement-description",
+              "none-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement addRequirement =
+         new PasswordQualityRequirement("add-requirement-description",
+              "add-requirement-type",
+              Collections.singletonMap("property-1", "value-1"));
+    final PasswordQualityRequirement selfChangeRequirement =
+         new PasswordQualityRequirement("self-change-requirement-description",
+              "self-change-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2"));
+    final PasswordQualityRequirement adminResetRequirement =
+         new PasswordQualityRequirement("admin-reset-requirement-description",
+              "admin-reset-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2",
+                   "property-3", "value-3"));
+    final PasswordQualityRequirement bindRequirement =
+         new PasswordQualityRequirement("bind-requirement-description", null,
+              null);
+
+    final JSONArray requirementsArray = new JSONArray(
+         encodeRequirement(allRequirement, true, true, true, true),
+         encodeRequirement(noneRequirement, false, false, false, false),
+         encodeRequirement(addRequirement, true, false, false, false),
+         encodeRequirement(selfChangeRequirement, false, true, false, false),
+         encodeRequirement(adminResetRequirement, false, false, true, false),
+         encodeRequirement(bindRequirement, false, false, false, true));
+
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS, requirementsArray));
+
+    assertNotNull(state.getSelfChangePasswordQualityRequirements());
+    assertFalse(state.getSelfChangePasswordQualityRequirements().isEmpty());
+    assertEquals(state.getSelfChangePasswordQualityRequirements().size(), 2);
+
+    final PasswordQualityRequirement requirement0 =
+         state.getSelfChangePasswordQualityRequirements().get(0);
+    assertEquals(requirement0.getDescription(),
+         allRequirement.getDescription());
+    assertEquals(requirement0.getClientSideValidationType(),
+         allRequirement.getClientSideValidationType());
+    assertEquals(requirement0.getClientSideValidationProperties(),
+         allRequirement.getClientSideValidationProperties());
+
+    final PasswordQualityRequirement requirement1 =
+         state.getSelfChangePasswordQualityRequirements().get(1);
+    assertEquals(requirement1.getDescription(),
+         selfChangeRequirement.getDescription());
+    assertEquals(requirement1.getClientSideValidationType(),
+         selfChangeRequirement.getClientSideValidationType());
+    assertEquals(requirement1.getClientSideValidationProperties(),
+         selfChangeRequirement.getClientSideValidationProperties());
+  }
+
+
+
+  /**
+   * Tests the behavior for the properties related to password quality
+   * requirements for administrative password resets.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetAdministrativeResetPasswordQualityRequirements()
+         throws Exception
+  {
+    final PasswordQualityRequirement allRequirement =
+         new PasswordQualityRequirement("all-requirement-description",
+              "all-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement noneRequirement =
+         new PasswordQualityRequirement("none-requirement-description",
+              "none-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement addRequirement =
+         new PasswordQualityRequirement("add-requirement-description",
+              "add-requirement-type",
+              Collections.singletonMap("property-1", "value-1"));
+    final PasswordQualityRequirement selfChangeRequirement =
+         new PasswordQualityRequirement("self-change-requirement-description",
+              "self-change-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2"));
+    final PasswordQualityRequirement adminResetRequirement =
+         new PasswordQualityRequirement("admin-reset-requirement-description",
+              "admin-reset-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2",
+                   "property-3", "value-3"));
+    final PasswordQualityRequirement bindRequirement =
+         new PasswordQualityRequirement("bind-requirement-description", null,
+              null);
+
+    final JSONArray requirementsArray = new JSONArray(
+         encodeRequirement(allRequirement, true, true, true, true),
+         encodeRequirement(noneRequirement, false, false, false, false),
+         encodeRequirement(addRequirement, true, false, false, false),
+         encodeRequirement(selfChangeRequirement, false, true, false, false),
+         encodeRequirement(adminResetRequirement, false, false, true, false),
+         encodeRequirement(bindRequirement, false, false, false, true));
+
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS, requirementsArray));
+
+    assertNotNull(state.getAdministrativeResetPasswordQualityRequirements());
+    assertFalse(
+         state.getAdministrativeResetPasswordQualityRequirements().isEmpty());
+    assertEquals(
+         state.getAdministrativeResetPasswordQualityRequirements().size(), 2);
+
+    final PasswordQualityRequirement requirement0 =
+         state.getAdministrativeResetPasswordQualityRequirements().get(0);
+    assertEquals(requirement0.getDescription(),
+         allRequirement.getDescription());
+    assertEquals(requirement0.getClientSideValidationType(),
+         allRequirement.getClientSideValidationType());
+    assertEquals(requirement0.getClientSideValidationProperties(),
+         allRequirement.getClientSideValidationProperties());
+
+    final PasswordQualityRequirement requirement1 =
+         state.getAdministrativeResetPasswordQualityRequirements().get(1);
+    assertEquals(requirement1.getDescription(),
+         adminResetRequirement.getDescription());
+    assertEquals(requirement1.getClientSideValidationType(),
+         adminResetRequirement.getClientSideValidationType());
+    assertEquals(requirement1.getClientSideValidationProperties(),
+         adminResetRequirement.getClientSideValidationProperties());
+  }
+
+
+
+  /**
+   * Tests the behavior for the properties related to password quality
+   * requirements for bind operations.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetBindPasswordQualityRequirements()
+         throws Exception
+  {
+    final PasswordQualityRequirement allRequirement =
+         new PasswordQualityRequirement("all-requirement-description",
+              "all-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement noneRequirement =
+         new PasswordQualityRequirement("none-requirement-description",
+              "none-requirement-type", Collections.<String,String>emptyMap());
+    final PasswordQualityRequirement addRequirement =
+         new PasswordQualityRequirement("add-requirement-description",
+              "add-requirement-type",
+              Collections.singletonMap("property-1", "value-1"));
+    final PasswordQualityRequirement selfChangeRequirement =
+         new PasswordQualityRequirement("self-change-requirement-description",
+              "self-change-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2"));
+    final PasswordQualityRequirement adminResetRequirement =
+         new PasswordQualityRequirement("admin-reset-requirement-description",
+              "admin-reset-requirement-type",
+              StaticUtils.mapOf("property-1", "value-1",
+                   "property-2", "value-2",
+                   "property-3", "value-3"));
+    final PasswordQualityRequirement bindRequirement =
+         new PasswordQualityRequirement("bind-requirement-description", null,
+              null);
+
+    final JSONArray requirementsArray = new JSONArray(
+         encodeRequirement(allRequirement, true, true, true, true),
+         encodeRequirement(noneRequirement, false, false, false, false),
+         encodeRequirement(addRequirement, true, false, false, false),
+         encodeRequirement(selfChangeRequirement, false, true, false, false),
+         encodeRequirement(adminResetRequirement, false, false, true, false),
+         encodeRequirement(bindRequirement, false, false, false, true));
+
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS, requirementsArray));
+
+    assertNotNull(state.getBindPasswordQualityRequirements());
+    assertFalse(state.getBindPasswordQualityRequirements().isEmpty());
+    assertEquals(state.getBindPasswordQualityRequirements().size(), 2);
+
+    final PasswordQualityRequirement requirement0 =
+         state.getBindPasswordQualityRequirements().get(0);
+    assertEquals(requirement0.getDescription(),
+         allRequirement.getDescription());
+    assertEquals(requirement0.getClientSideValidationType(),
+         allRequirement.getClientSideValidationType());
+    assertEquals(requirement0.getClientSideValidationProperties(),
+         allRequirement.getClientSideValidationProperties());
+
+    final PasswordQualityRequirement requirement1 =
+         state.getBindPasswordQualityRequirements().get(1);
+    assertEquals(requirement1.getDescription(),
+         bindRequirement.getDescription());
+    assertNull(requirement1.getClientSideValidationType());
+    assertNotNull(requirement1.getClientSideValidationProperties());
+    assertTrue(requirement1.getClientSideValidationProperties().isEmpty());
+  }
+
+
+
+  /**
+   * Encodes the provided password quality requirement to a JSON object suitable
+   * for inclusion in the password policy state properties object.
+   *
+   * @param  requirement          The requirement to be encoded.
+   * @param  appliesToAdd         Indicates whether the requirement applies to
+   *                              add operations.
+   * @param  appliesToSelfChange  Indicates whether the requirement applies to
+   *                              self password changes.
+   * @param  appliesToAdminReset  Indicates whether the requirement applies to
+   *                              administrative password resets.
+   * @param  appliesToBind        Indicates whether the requirement applies to
+   *                              bind operations.
+   *
+   * @return  The encoded JSON object.
+   */
+  private static JSONObject encodeRequirement(
+       final PasswordQualityRequirement requirement,
+       final boolean appliesToAdd,
+       final boolean appliesToSelfChange,
+       final boolean appliesToAdminReset,
+       final boolean appliesToBind)
+  {
+    final Map<String,JSONValue> objectFields = new LinkedHashMap<>();
+    objectFields.put("description",
+         new JSONString(requirement.getDescription()));
+
+    final String validationType = requirement.getClientSideValidationType();
+    if (validationType != null)
+    {
+      objectFields.put("client-side-validation-type",
+           new JSONString(validationType));
+
+      final List<JSONValue> propertyObjects = new ArrayList<>();
+      for (Map.Entry<String,String> e :
+           requirement.getClientSideValidationProperties().entrySet())
+      {
+        propertyObjects.add(new JSONObject(
+             new JSONField("name", e.getKey()),
+             new JSONField("value", e.getValue())));
+      }
+      objectFields.put("client-side-validation-properties",
+           new JSONArray(propertyObjects));
+    }
+
+    objectFields.put("applies-to-add", new JSONBoolean(appliesToAdd));
+    objectFields.put("applies-to-self-change",
+         new JSONBoolean(appliesToSelfChange));
+    objectFields.put("applies-to-administrative-reset",
+         new JSONBoolean(appliesToAdminReset));
+    objectFields.put("applies-to-bind", new JSONBoolean(appliesToBind));
+
+    return new JSONObject(objectFields);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the field exists and is an empty array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsFieldEmptyArray()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS, JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertTrue(state.getAddPasswordQualityRequirements().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the field exists but its value is not an array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsFieldValueNotArray()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS, new JSONString("foo")));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertTrue(state.getAddPasswordQualityRequirements().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the array contains a non-object element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsArrayValueNotObject()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS,
+         new JSONArray(new JSONString("foo"))));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertTrue(state.getAddPasswordQualityRequirements().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the array contains an object that is missing the required description
+   * field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsObjectMissingDescription()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS,
+         new JSONArray(
+              new JSONObject(
+                   new JSONField("client-side-validation-type", "type"),
+                   new JSONField("applies-to-add", true)))));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertTrue(state.getAddPasswordQualityRequirements().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the properties array has a non-object element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsPropertyNotObject()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS,
+         new JSONArray(
+              new JSONObject(
+                   new JSONField("description", "description"),
+                   new JSONField("client-side-validation-type", "type"),
+                   new JSONField("client-side-validation-properties",
+                        new JSONArray(new JSONString("foo"))),
+                   new JSONField("applies-to-add", true)))));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertFalse(state.getAddPasswordQualityRequirements().isEmpty());
+    assertEquals(state.getAddPasswordQualityRequirements().size(), 1);
+
+    final PasswordQualityRequirement r =
+         state.getAddPasswordQualityRequirements().get(0);
+    assertEquals(r.getDescription(), "description");
+    assertEquals(r.getClientSideValidationType(), "type");
+    assertNotNull(r.getClientSideValidationProperties());
+    assertTrue(r.getClientSideValidationProperties().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the properties array has an object without a name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsPropertyMissingName()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS,
+         new JSONArray(
+              new JSONObject(
+                   new JSONField("description", "description"),
+                   new JSONField("client-side-validation-type", "type"),
+                   new JSONField("client-side-validation-properties",
+                        new JSONArray(new JSONObject(
+                             new JSONField("value", "foo")))),
+                   new JSONField("applies-to-add", true)))));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertFalse(state.getAddPasswordQualityRequirements().isEmpty());
+    assertEquals(state.getAddPasswordQualityRequirements().size(), 1);
+
+    final PasswordQualityRequirement r =
+         state.getAddPasswordQualityRequirements().get(0);
+    assertEquals(r.getDescription(), "description");
+    assertEquals(r.getClientSideValidationType(), "type");
+    assertNotNull(r.getClientSideValidationProperties());
+    assertTrue(r.getClientSideValidationProperties().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve password quality requirements
+   * when the properties array has an object without a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPasswordQualityRequirementsPropertyMissingValue()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         PASSWORD_QUALITY_REQUIREMENTS,
+         new JSONArray(
+              new JSONObject(
+                   new JSONField("description", "description"),
+                   new JSONField("client-side-validation-type", "type"),
+                   new JSONField("client-side-validation-properties",
+                        new JSONArray(new JSONObject(
+                             new JSONField("name", "foo")))),
+                   new JSONField("applies-to-add", true)))));
+
+    assertNotNull(state.getAddPasswordQualityRequirements());
+    assertFalse(state.getAddPasswordQualityRequirements().isEmpty());
+    assertEquals(state.getAddPasswordQualityRequirements().size(), 1);
+
+    final PasswordQualityRequirement r =
+         state.getAddPasswordQualityRequirements().get(0);
+    assertEquals(r.getDescription(), "description");
+    assertEquals(r.getClientSideValidationType(), "type");
+    assertNotNull(r.getClientSideValidationProperties());
+    assertTrue(r.getClientSideValidationProperties().isEmpty());
   }
 
 
