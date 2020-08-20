@@ -36,7 +36,8 @@ ${TARGET="offline"}                <br>
                   indicate whether to match a hostname against the CN attribute of a certificate
                   even if that certificate has a subject alternative name extension with at least
                   one dNSName, iPAddress, or uniformResourceIdentifier element.  Even though this
-                  is not permitted by RFC 6125, some clients may expect this behavior.
+                  is not permitted by RFC 6125 section 6.4.4, LDAP clients historically treat both
+                  sources as equally valid.
                   <br><br>
                 </li>
 

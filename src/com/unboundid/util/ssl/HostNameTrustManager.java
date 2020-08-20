@@ -164,11 +164,11 @@ public final class HostNameTrustManager
    *              Indicates whether to check the CN attribute in the peer
    *              certificate's subject DN if the certificate also contains a
    *              subject alternative name extension that contains at least one
-   *              dNSName, uniformResourceIdentifier, or iPAddress value.  RFC
-   *              6125 section 6.4.4 indicates that the CN attribute should not
-   *              be checked in certificates that have an appropriate subject
-   *              alternative name extension, although some clients may expect
-   *              CN matching anyway.
+   *              dNSName, uniformResourceIdentifier, or iPAddress value.
+   *              Although RFC 6125 section 6.4.4 indicates that the CN
+   *              attribute should not be checked in certificates that have an
+   *              appropriate subject alternative name extension, LDAP clients
+   *              historically treat both sources as equally valid.
    * @param  acceptableHostNames
    *              The set of hostnames and/or IP addresses that will be
    *              considered acceptable.  Only certificates with a CN or

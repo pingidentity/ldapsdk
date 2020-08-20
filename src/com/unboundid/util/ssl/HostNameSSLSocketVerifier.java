@@ -86,10 +86,10 @@ public final class HostNameSSLSocketVerifier
    * behavior that the verifier should exhibit when checking certificates that
    * contain both a CN attribute in the subject DN and a subject alternative
    * name extension that contains one or more dNSName,
-   * uniformResourceIdentifier, or iPAddress values. RFC 6125 section 6.4.4
-   * indicates that the CN attribute should not be checked in certificates that
-   * have an appropriate subject alternative name extension, although some
-   * clients may expect CN matching anyway.
+   * uniformResourceIdentifier, or iPAddress values. Although RFC 6125 section
+   * 6.4.4 indicates that the CN attribute should not be checked in certificates
+   * that have an appropriate subject alternative name extension, LDAP clients
+   * historically treat both sources as equally valid.
    */
   @NotNull public static final String
        PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT =
@@ -106,12 +106,12 @@ public final class HostNameSSLSocketVerifier
   static final boolean DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT;
   static
   {
-    boolean checkCN = false;
+    boolean checkCN = true;
     final String propValue = StaticUtils.getSystemProperty(
          PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT);
-    if ((propValue != null) && propValue.equalsIgnoreCase("true"))
+    if ((propValue != null) && propValue.equalsIgnoreCase("false"))
     {
-      checkCN = true;
+      checkCN = false;
     }
 
     DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT = checkCN;
@@ -162,11 +162,11 @@ public final class HostNameSSLSocketVerifier
    *              Indicates whether to check the CN attribute in the peer
    *              certificate's subject DN if the certificate also contains a
    *              subject alternative name extension that contains at least one
-   *              dNSName, uniformResourceIdentifier, or iPAddress value.  RFC
-   *              6125 section 6.4.4 indicates that the CN attribute should not
-   *              be checked in certificates that have an appropriate subject
-   *              alternative name extension, although some clients may expect
-   *              CN matching anyway.
+   *              dNSName, uniformResourceIdentifier, or iPAddress value.
+   *              Although RFC 6125 section 6.4.4 indicates that the CN
+   *              attribute should not be checked in certificates that have an
+   *              appropriate subject alternative name extension, LDAP clients
+   *              historically treat both sources as equally valid.
    */
   public HostNameSSLSocketVerifier(final boolean allowWildcards,
               final boolean checkCNWhenSubjectAltNameIsPresent)
