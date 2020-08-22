@@ -55,6 +55,7 @@ import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.examples.ModRate;
 import com.unboundid.ldap.sdk.examples.SearchRate;
 import com.unboundid.ldap.sdk.examples.SearchAndModRate;
+import com.unboundid.ldap.sdk.examples.TestLDAPSDKPerformance;
 import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
@@ -258,6 +259,10 @@ public final class Launcher
     {
       return SearchAndModRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("test-ldap-sdk-performance"))
+    {
+      return TestLDAPSDKPerformance.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("tls-cipher-suite-selector"))
     {
       return TLSCipherSuiteSelector.main(outStream, errStream, remainingArgs);
@@ -300,6 +305,7 @@ public final class Launcher
         err.println("     modrate");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");
+        err.println("     test-ldap-sdk-performance");
         err.println("     tls-cipher-suite-selector");
         err.println("     transform-ldif");
         err.println("     validate-ldap-schema");

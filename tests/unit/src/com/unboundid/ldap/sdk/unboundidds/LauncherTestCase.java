@@ -170,6 +170,7 @@ public final class LauncherTestCase
       new Object[] { "split-ldif" },
       new Object[] { "subtree-accessibility" },
       new Object[] { "summarize-access-log" },
+      new Object[] { "test-ldap-sdk-performance" },
       new Object[] { "tls-cipher-suite-selector" },
       new Object[] { "transform-ldif" },
       new Object[] { "validate-ldap-schema" },
@@ -234,15 +235,11 @@ public final class LauncherTestCase
     for (final Object[] toolNamesArray : getValidToolNames())
     {
       final String toolName = (String) toolNamesArray[0];
-      if (toolName.equals("version"))
+      if (toolName.equals("test-ldap-sdk-performance") ||
+           toolName.equals("tls-cipher-suite-selector") ||
+           toolName.equals("version"))
       {
-        // This isn't really a tool.
-        continue;
-      }
-
-      if (toolName.equals("tls-cipher-suite-selector"))
-      {
-        // This is an internal tool that we don't intend to ship directly but
+        // These are internal tools that we don't intend to ship directly but
         // can still be invoked using the launcher.
         continue;
       }

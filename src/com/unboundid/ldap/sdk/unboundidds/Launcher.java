@@ -56,6 +56,7 @@ import com.unboundid.ldap.sdk.examples.LDAPDebugger;
 import com.unboundid.ldap.sdk.examples.ModRate;
 import com.unboundid.ldap.sdk.examples.SearchRate;
 import com.unboundid.ldap.sdk.examples.SearchAndModRate;
+import com.unboundid.ldap.sdk.examples.TestLDAPSDKPerformance;
 import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
@@ -154,6 +155,8 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>subtree-accessibility -- Launch the {@link SubtreeAccessibility}
  *       tool.</LI>
  *   <LI>summarize-access-log -- Launch the {@link SummarizeAccessLog}
+ *       tool.</LI>
+ *   <LI>test-ldap-sdk-performance -- Launch the {@link TLSCipherSuiteSelector}
  *       tool.</LI>
  *   <LI>tls-cipher-suite-selector -- Launch the {@link TLSCipherSuiteSelector}
  *       tool.</LI>
@@ -361,6 +364,10 @@ public final class Launcher
     {
       return SummarizeAccessLog.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("test-ldap-sdk-performance"))
+    {
+      return TestLDAPSDKPerformance.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("tls-cipher-suite-selector"))
     {
       return TLSCipherSuiteSelector.main(outStream, errStream, remainingArgs);
@@ -416,6 +423,7 @@ public final class Launcher
         err.println("     split-ldif");
         err.println("     subtree-accessibility");
         err.println("     summarize-access-log");
+        err.println("     test-ldap-sdk-performance");
         err.println("     tls-cipher-suite-selector");
         err.println("     transform-ldif");
         err.println("     validate-ldap-schema");
@@ -472,6 +480,7 @@ public final class Launcher
          SplitLDIF.class,
          SubtreeAccessibility.class,
          SummarizeAccessLog.class,
+         TestLDAPSDKPerformance.class,
          TLSCipherSuiteSelector.class,
          TransformLDIF.class,
          ValidateLDAPSchema.class,
