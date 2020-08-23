@@ -44,6 +44,7 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -114,7 +115,8 @@ public class TestLDAPSDKPerformanceTestCase
          "--numIntervals", "1",
          "--warmUpIntervals", "1",
          "--intervalDurationSeconds", "1");
-    assertEquals(resultCode, ResultCode.SUCCESS);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
   }
 
 
@@ -139,7 +141,8 @@ public class TestLDAPSDKPerformanceTestCase
          "--numIntervals", "1",
          "--warmUpIntervals", "1",
          "--intervalDurationSeconds", "1");
-    assertEquals(resultCode, ResultCode.SUCCESS);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
   }
 
 
@@ -160,7 +163,8 @@ public class TestLDAPSDKPerformanceTestCase
          "--tool", "authrate",
          "--numIntervals", "1",
          "--intervalDurationSeconds", "1");
-    assertEquals(resultCode, ResultCode.SUCCESS);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
   }
 
 
@@ -186,7 +190,8 @@ public class TestLDAPSDKPerformanceTestCase
          "--numIntervals", "1",
          "--warmUpIntervals", "1",
          "--intervalDurationSeconds", "1");
-    assertEquals(resultCode, ResultCode.SUCCESS);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
   }
 
 
@@ -211,6 +216,7 @@ public class TestLDAPSDKPerformanceTestCase
          "--numIntervals", "1",
          "--warmUpIntervals", "1",
          "--intervalDurationSeconds", "1");
-    assertEquals(resultCode, ResultCode.SUCCESS);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
   }
 }

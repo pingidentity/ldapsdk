@@ -157,7 +157,7 @@ final class AuthRateThread
   @NotNull private final ResultCodeCounter rcCounter;
 
   // The search request to generate.
-  @NotNull private final SearchRequest searchRequest;
+  @Nullable private final SearchRequest searchRequest;
 
   // The password to use to authenticate.
   @NotNull private final String userPassword;
@@ -166,7 +166,7 @@ final class AuthRateThread
   @NotNull private final ValuePattern baseDN;
 
   //The value pattern to use for the filters.
-  @NotNull private final ValuePattern filter;
+  @Nullable private final ValuePattern filter;
 
 
 
@@ -211,7 +211,7 @@ final class AuthRateThread
                  @NotNull final LDAPConnection bindConnection,
                  @NotNull final ValuePattern baseDN,
                  @NotNull final SearchScope scope,
-                 @NotNull final ValuePattern filter,
+                 @Nullable final ValuePattern filter,
                  @NotNull final String[] attributes,
                  @NotNull final String userPassword,
                  final boolean bindOnly,
@@ -267,9 +267,17 @@ final class AuthRateThread
     resultCode    = new AtomicReference<>(null);
     authThread    = new AtomicReference<>(null);
     stopRequested = new AtomicBoolean(false);
-    searchRequest = new SearchRequest("", scope,
-         Filter.createPresenceFilter("objectClass"), attributes);
-    searchRequest.setControls(searchControls);
+
+    if (bindOnly)
+    {
+      searchRequest = null;
+    }
+    else
+    {
+      searchRequest = new SearchRequest("", scope,
+           Filter.createPresenceFilter("objectClass"), attributes);
+      searchRequest.setControls(searchControls);
+    }
 
     if (bindControls.isEmpty())
     {

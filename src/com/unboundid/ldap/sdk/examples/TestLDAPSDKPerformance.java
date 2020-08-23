@@ -895,10 +895,10 @@ public final class TestLDAPSDKPerformance
 
       authRateArgs.add("--scope");
       authRateArgs.add("sub");
-    }
 
-    authRateArgs.add("--filter");
-    authRateArgs.add("(uid=user.1)");
+      authRateArgs.add("--filter");
+      authRateArgs.add("(uid=user.1)");
+    }
 
     authRateArgs.add("--credentials");
     authRateArgs.add("password");

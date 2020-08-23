@@ -526,7 +526,7 @@ public final class AuthRate
                   "(e.g., \"(uid=user.[1-1000])\").  See " +
                   ValuePattern.PUBLIC_JAVADOC_URL + " for complete details " +
                   "about the value pattern syntax.  This must be provided.";
-    filter = new StringArgument('f', "filter", true, 1, "{filter}",
+    filter = new StringArgument('f', "filter", false, 1, "{filter}",
                                 description);
     filter.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(filter);
@@ -560,6 +560,7 @@ public final class AuthRate
     bindOnly.setArgumentGroupName("Search and Authentication Arguments");
     bindOnly.addLongIdentifier("bind-only", true);
     parser.addArgument(bindOnly);
+    parser.addRequiredArgumentSet(filter, bindOnly);
 
 
     description = "The type of authentication to perform.  Allowed values " +
@@ -822,15 +823,22 @@ public final class AuthRate
     }
 
     final ValuePattern filterPattern;
-    try
+    if (filter.isPresent())
     {
-      filterPattern = new ValuePattern(filter.getValue(), seed);
+      try
+      {
+        filterPattern = new ValuePattern(filter.getValue(), seed);
+      }
+      catch (final ParseException pe)
+      {
+        Debug.debugException(pe);
+        err("Unable to parse the filter pattern:  ", pe.getMessage());
+        return ResultCode.PARAM_ERROR;
+      }
     }
-    catch (final ParseException pe)
+    else
     {
-      Debug.debugException(pe);
-      err("Unable to parse the filter pattern:  ", pe.getMessage());
-      return ResultCode.PARAM_ERROR;
+      filterPattern = null;
     }
 
 
