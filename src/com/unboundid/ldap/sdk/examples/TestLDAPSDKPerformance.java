@@ -90,7 +90,8 @@ public final class TestLDAPSDKPerformance
   /**
    * The column at which to wrap long lines.
    */
-  private static int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
+  private static final int WRAP_COLUMN =
+       StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
 
 
 
@@ -139,11 +140,10 @@ public final class TestLDAPSDKPerformance
   @Nullable private IntegerArgument entriesPerSearchArg;
 
   // The argument used to specify the duration (in seconds) to use for each
-  // searchrate interval.
+  // interval.
   @Nullable private IntegerArgument intervalDurationSecondsArg;
 
-  // The argument used to specify the number of searchrate intervals to
-  // complete.
+  // The argument used to specify the number of intervals to complete.
   @Nullable private IntegerArgument numIntervalsArg;
 
   // The argument used to specify the number of concurrent threads to use when
@@ -509,11 +509,14 @@ public final class TestLDAPSDKPerformance
 
     numIntervalsArg = new IntegerArgument('I', "numIntervals", false, 1,
          "{num}",
-         "The number of searchrate intervals to run.  If this argument is " +
-              "provided in conjunction with the --warmUpIntervals argument, " +
-              "then the total number of intervals used will be the sum of " +
-              "the two values.  If this argument is not provided, then the " +
-              "searchrate tool will run until it is interrupted.",
+         "The number of intervals to use when running the performance " +
+              "measurement tool.  If this argument is provided in " +
+              "conjunction with the --warmUpIntervals argument, then the " +
+              "warm-up intervals will not be included in this count, and the " +
+              "total number of intervals run will be the sum of the two " +
+              "values.  If this argument is not provided, then the tool will " +
+              "run until it is interrupted (e.g., by pressing Ctrl+C or by " +
+              "killing the underlying Java process).",
          0, Integer.MAX_VALUE);
     numIntervalsArg.addLongIdentifier("num-intervals", true);
     numIntervalsArg.addLongIdentifier("intervals", true);
@@ -522,9 +525,11 @@ public final class TestLDAPSDKPerformance
 
     intervalDurationSecondsArg = new IntegerArgument('i',
          "intervalDurationSeconds", true, 1, "{num}",
-         "The length of time in seconds between searchrate output lines.  If " +
-              "this is not provided, then a default interval duration of " +
-              "five seconds will be used.",
+         "The length of time in seconds to use for each tool interval (that " +
+              "is, the length of time between each line of output giving " +
+              "statistical information for operations processed in that " +
+              "interval).  If this is not provided, then a default interval " +
+              "duration of five seconds will be used.",
          1, Integer.MAX_VALUE, 5);
     intervalDurationSecondsArg.addLongIdentifier("interval-duration-seconds",
          true);
@@ -536,8 +541,11 @@ public final class TestLDAPSDKPerformance
     warmUpIntervalsArg = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}",
          "The number of intervals to run before starting to actually " +
-              "collect statistics to include in the final result.  if this " +
-              "is not provided, then the tool will start collecting " +
+              "collect statistics to include in the final result.  This can " +
+              "give the JVM and JIT a chance to identify and optimize " +
+              "hotspots in the code for the best and most stable " +
+              "performance.  If this is not provided, then no warm-up " +
+              "intervals will be used and the tool will start collecting " +
               "statistics right away.",
          0, Integer.MAX_VALUE, 0);
     warmUpIntervalsArg.addLongIdentifier("warm-up-intervals", true);
@@ -763,14 +771,17 @@ public final class TestLDAPSDKPerformance
          searchRate.runTool(searchRateArgsArray);
     if (searchRateResultCode == ResultCode.SUCCESS)
     {
-      completionMessage.compareAndSet(null,
-           "The searchrate tool completed successfully");
+      final String message = "The searchrate tool completed successfully.";
+      completionMessage.compareAndSet(null, message);
+      wrapOut(0, WRAP_COLUMN, message);
     }
     else
     {
-      completionMessage.compareAndSet(null,
+      final String message =
            "ERROR:  The searchrate tool exited with error result code " +
-                searchRateResultCode);
+                searchRateResultCode + '.';
+      completionMessage.compareAndSet(null, message);
+      wrapErr(0, WRAP_COLUMN, message);
     }
 
     return searchRateResultCode;
@@ -842,14 +853,17 @@ public final class TestLDAPSDKPerformance
          modRate.runTool(modRateArgsArray);
     if (modRateResultCode == ResultCode.SUCCESS)
     {
-      completionMessage.compareAndSet(null,
-           "The modrate tool completed successfully");
+      final String message = "The modrate tool completed successfully.";
+      completionMessage.compareAndSet(null, message);
+      wrapOut(0, WRAP_COLUMN, message);
     }
     else
     {
-      completionMessage.compareAndSet(null,
+      final String message =
            "ERROR:  The modrate tool exited with error result code " +
-                modRateResultCode);
+                modRateResultCode + '.';
+      completionMessage.compareAndSet(null, message);
+      wrapErr(0, WRAP_COLUMN, message);
     }
 
     return modRateResultCode;
@@ -934,14 +948,17 @@ public final class TestLDAPSDKPerformance
          authRate.runTool(authRateArgsArray);
     if (authRateResultCode == ResultCode.SUCCESS)
     {
-      completionMessage.compareAndSet(null,
-           "The authrate tool completed successfully");
+      final String message = "The authrate tool completed successfully.";
+      completionMessage.compareAndSet(null, message);
+      wrapOut(0, WRAP_COLUMN, message);
     }
     else
     {
-      completionMessage.compareAndSet(null,
+      final String message =
            "ERROR:  The authrate tool exited with error result code " +
-                authRateResultCode);
+                authRateResultCode + '.';
+      completionMessage.compareAndSet(null, message);
+      wrapErr(0, WRAP_COLUMN, message);
     }
 
     return authRateResultCode;
@@ -1021,14 +1038,18 @@ public final class TestLDAPSDKPerformance
          searchAndModRate.runTool(searchAndModRateArgsArray);
     if (searchAndModRateResultCode == ResultCode.SUCCESS)
     {
-      completionMessage.compareAndSet(null,
-           "The search-and-mod-rate tool completed successfully");
+      final String message =
+           "The search-and-mod-rate tool completed successfully.";
+      completionMessage.compareAndSet(null, message);
+      wrapOut(0, WRAP_COLUMN, message);
     }
     else
     {
-      completionMessage.compareAndSet(null,
+      final String message =
            "ERROR:  The search-and-mod-rate tool exited with error result " +
-                "code " + searchAndModRateResultCode);
+                "code " + searchAndModRateResultCode + '.';
+      completionMessage.compareAndSet(null, message);
+      wrapErr(0, WRAP_COLUMN, message);
     }
 
     return searchAndModRateResultCode;
@@ -1071,18 +1092,18 @@ public final class TestLDAPSDKPerformance
            "--useSSL",
            "--resultCode", "32",
            "--diagnosticMessage", "The base entry does not exist",
-           "--warmUpIntervals", "3",
+           "--warmUpIntervals", "5",
            "--numIntervals", "10",
-           "--intervalDuration", "5"
+           "--intervalDurationSeconds", "5"
          },
          "Test LDAP SDK performance with the modrate tool using ten " +
               "concurrent threads over SSL-encrypted connections.  Each " +
               "modify will return an error result with a result code of 32 " +
               "(noSuchObject) and a diagnostic message of 'The target entry " +
-              "does not exist'.  The tool will run three warm-up intervals " +
-              "of five seconds each, and then ten intervals in which it " +
-              "captures statistics.  The tool will exit after those ten " +
-              "intervals have completed.");
+              "does not exist'.  The tool will run five warm-up intervals " +
+              "of five seconds each, and then ten 5-second intervals in " +
+              "which it will capture statistics.  The tool will exit after " +
+              "those last ten intervals have completed.");
 
     return examples;
   }
