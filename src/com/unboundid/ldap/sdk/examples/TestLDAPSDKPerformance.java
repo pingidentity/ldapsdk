@@ -78,9 +78,10 @@ import com.unboundid.util.ssl.cert.ManageCertificates;
  * This class implements a command-line tool that can be helpful in measuring
  * the performance of the LDAP SDK itself.  It creates an {@link LDAPListener}
  * that uses a {@link CannedResponseRequestHandler} to return a predefined
- * response to any search request that it receives.  It will then use the
- * {@link SearchRate} tool to issue concurrent searches against that listener
- * instance as quickly as possible.
+ * response to any request that it receives.  It will then use one of the
+ * {@link SearchRate}, {@link ModRate}, {@link AuthRate}, or
+ * {@link SearchAndModRate} tools to issue concurrent operations against that
+ * listener instance as quickly as possible.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class TestLDAPSDKPerformance
@@ -93,8 +94,41 @@ public final class TestLDAPSDKPerformance
 
 
 
+  /**
+   * The name for the authrate tool.
+   */
+  @NotNull private static final String TOOL_NAME_AUTHRATE = "authrate";
+
+
+
+  /**
+   * The name for the modrate tool.
+   */
+  @NotNull private static final String TOOL_NAME_MODRATE = "modrate";
+
+
+
+  /**
+   * The name for the search-and-mod-rate tool.
+   */
+  @NotNull private static final String TOOL_NAME_SEARCH_AND_MOD_RATE =
+       "search-and-mod-rate";
+
+
+
+  /**
+   * The name for the searchrate tool.
+   */
+  @NotNull private static final String TOOL_NAME_SEARCHRATE = "searchrate";
+
+
+
   // A reference to the completion message for the tool.
   @NotNull private final AtomicReference<String> completionMessage;
+
+  // The argument used to indicate that the authrate tool should only perform
+  // binds rather than both binds and searches.
+  @Nullable private BooleanArgument bindOnlyArg;
 
   // The argument used to indicate whether to communicate with the listener
   // over an SSL-encrypted connection.
@@ -117,7 +151,7 @@ public final class TestLDAPSDKPerformance
   @Nullable private IntegerArgument numThreadsArg;
 
   // The argument used to specify the result code to return in response to each
-  // search.
+  // operation.
   @Nullable private IntegerArgument resultCodeArg;
 
   // The argument used to specify the number of warm-up intervals to use whose
@@ -127,6 +161,10 @@ public final class TestLDAPSDKPerformance
   // The argument used to specify the diagnostic message to include in each
   // search result done message.
   @Nullable private StringArgument diagnosticMessageArg;
+
+  // The argument used to specify the name of the tool to invoke for the
+  // performance testing.
+  @Nullable private StringArgument toolArg;
 
 
 
@@ -185,6 +223,7 @@ public final class TestLDAPSDKPerformance
 
     completionMessage = new AtomicReference<>();
 
+    bindOnlyArg = null;
     useSSLArg = null;
     entriesPerSearchArg = null;
     intervalDurationSecondsArg = null;
@@ -193,6 +232,7 @@ public final class TestLDAPSDKPerformance
     resultCodeArg = null;
     warmUpIntervalsArg = null;
     diagnosticMessageArg = null;
+    toolArg = null;
   }
 
 
@@ -250,10 +290,10 @@ public final class TestLDAPSDKPerformance
   {
     return Collections.singletonList(
          "It creates an LDAP listener that uses a canned-response request " +
-              "handler to return a predefined response to all search " +
-              "requests.  It then uses the searchrate utility to issue " +
-              "concurrent searches against that listener as quickly as " +
-              "possible.");
+              "handler to return a predefined response to all requests.  It" +
+              "then invokes another tool (either searchrate, modrate, " +
+              "authrate, or search-and-mod-rate) to issue concurrent " +
+              "requests against that listener as quickly as possible.");
   }
 
 
@@ -386,9 +426,24 @@ public final class TestLDAPSDKPerformance
   public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {
+    toolArg = new StringArgument(null, "tool", true, 1,
+         "{searchrate|modrate|authrate|search-and-mod-rate}",
+         "The tool to invoke against the LDAP listener.  It may be one of " +
+              "searchrate, modrate, authrate, or search-and-mod-rate.  If " +
+              "this is not provided, then the searchrate tool will be invoked.",
+         StaticUtils.setOf(TOOL_NAME_SEARCHRATE,
+              TOOL_NAME_MODRATE,
+              TOOL_NAME_AUTHRATE,
+              TOOL_NAME_SEARCH_AND_MOD_RATE),
+         TOOL_NAME_SEARCHRATE);
+    toolArg.addLongIdentifier("toolName", true);
+    toolArg.addLongIdentifier("tool-name", true);
+    parser.addArgument(toolArg);
+
+
     numThreadsArg = new IntegerArgument('t', "numThreads", true, 1, "{num}",
          "The number of concurrent threads (each using its own connection) " +
-              "to use to process searches.  If this is not provided, then a " +
+              "to use to process requests.  If this is not provided, then a " +
               "single thread will be used.",
          1, Integer.MAX_VALUE, 1);
     numThreadsArg.addLongIdentifier("num-threads", true);
@@ -410,11 +465,20 @@ public final class TestLDAPSDKPerformance
     parser.addArgument(entriesPerSearchArg);
 
 
+    bindOnlyArg = new BooleanArgument(null, "bindOnly", 1,
+         "Indicates that the authrate tool should only issue bind requests.  " +
+              "If this is not provided, the authrate tool will perform both " +
+              "search and bind operations.  This argument will only be used " +
+              "in conjunction with the authrate tool.");
+    bindOnlyArg.addLongIdentifier("bind-only", true);
+    parser.addArgument(bindOnlyArg);
+
+
     resultCodeArg = new IntegerArgument(null, "resultCode", true, 1,
          "{intValue}",
          "The integer value for the result code to return in response to " +
-              "each search request.  If this is not provided, then a result " +
-              "code of 0 (success) will be returned.",
+              "each request.  If this is not provided, then a result code of " +
+              "0 (success) will be returned.",
          0, Integer.MAX_VALUE, ResultCode.SUCCESS_INT_VALUE);
     resultCodeArg.addLongIdentifier("result-code", true);
     parser.addArgument(resultCodeArg);
@@ -422,9 +486,9 @@ public final class TestLDAPSDKPerformance
 
     diagnosticMessageArg = new StringArgument(null, "diagnosticMessage", false,
          1, "{message}",
-         "The diagnostic message to return in response to each search " +
-              "request.  If this is not provided, then no diagnostic message " +
-              "will be returned.");
+         "The diagnostic message to return in response to each request.  If " +
+              "this is not provided, then no diagnostic message will be " +
+              "returned.");
     diagnosticMessageArg.addLongIdentifier("diagnostic-message", true);
     diagnosticMessageArg.addLongIdentifier("errorMessage", true);
     diagnosticMessageArg.addLongIdentifier("error-message", true);
@@ -607,76 +671,367 @@ public final class TestLDAPSDKPerformance
 
     try
     {
-      final List<String> searchRateArgs = new ArrayList<>();
-
-      searchRateArgs.add("--hostname");
-      searchRateArgs.add("localhost");
-
-      searchRateArgs.add("--port");
-      searchRateArgs.add(String.valueOf(ldapListener.getListenPort()));
-
-      if (useSSLArg.isPresent())
+      final int listenPort = ldapListener.getListenPort();
+      final String toolName = StaticUtils.toLowerCase(toolArg.getValue());
+      switch (toolName)
       {
-        searchRateArgs.add("--useSSL");
-        searchRateArgs.add("--trustAll");
+        case TOOL_NAME_SEARCHRATE:
+          return invokeSearchRate(listenPort);
+        case TOOL_NAME_MODRATE:
+          return invokeModRate(listenPort);
+        case TOOL_NAME_AUTHRATE:
+          return invokeAuthRate(listenPort);
+        case TOOL_NAME_SEARCH_AND_MOD_RATE:
+          return invokeSearchAndModRate(listenPort);
+        default:
+          // This should never happen.
+          final String message = "ERROR:  Unrecognized tool name:  " + toolName;
+          completionMessage.compareAndSet(null, message);
+          wrapErr(0, WRAP_COLUMN, message);
+          return ResultCode.PARAM_ERROR;
       }
-
-      searchRateArgs.add("--baseDN");
-      searchRateArgs.add("dc=example,dc=com");
-
-      searchRateArgs.add("--scope");
-      searchRateArgs.add("sub");
-
-      searchRateArgs.add("--filter");
-      searchRateArgs.add("(objectClass=*)");
-
-      searchRateArgs.add("--numThreads");
-      searchRateArgs.add(String.valueOf(numThreadsArg.getValue()));
-
-      if (numIntervalsArg.isPresent())
-      {
-        searchRateArgs.add("--numIntervals");
-        searchRateArgs.add(String.valueOf(numIntervalsArg.getValue()));
-      }
-
-      if (intervalDurationSecondsArg.isPresent())
-      {
-        searchRateArgs.add("--intervalDuration");
-        searchRateArgs.add(String.valueOf(
-             intervalDurationSecondsArg.getValue()));
-      }
-
-      if (warmUpIntervalsArg.isPresent())
-      {
-        searchRateArgs.add("--warmUpIntervals");
-        searchRateArgs.add(String.valueOf(warmUpIntervalsArg.getValue()));
-      }
-
-      final String[] searchRateArgsArray =
-           searchRateArgs.toArray(StaticUtils.NO_STRINGS);
-
-      final SearchRate searchRate = new SearchRate(getOut(), getErr());
-
-      final ResultCode searchRateResultCode =
-           searchRate.runTool(searchRateArgsArray);
-      if (searchRateResultCode == ResultCode.SUCCESS)
-      {
-        completionMessage.compareAndSet(null,
-             "The searchrate tool completed successfully");
-      }
-      else
-      {
-        completionMessage.compareAndSet(null,
-             "ERROR:  The searchrate tool exited with error result code " +
-                  searchRateResultCode);
-      }
-
-      return searchRateResultCode;
     }
     finally
     {
       ldapListener.shutDown(true);
     }
+  }
+
+
+
+  /**
+   * Invokes the {@link SearchRate} tool with an appropriate set of arguments.
+   *
+   * @param  listenPort  The port on which the LDAP listener is listening.
+   *
+   * @return  The result code obtained from the {@code SearchRate} tool.
+   */
+  @NotNull()
+  private ResultCode invokeSearchRate(final int listenPort)
+  {
+    final List<String> searchRateArgs = new ArrayList<>();
+
+    searchRateArgs.add("--hostname");
+    searchRateArgs.add("localhost");
+
+    searchRateArgs.add("--port");
+    searchRateArgs.add(String.valueOf(listenPort));
+
+    if (useSSLArg.isPresent())
+    {
+      searchRateArgs.add("--useSSL");
+      searchRateArgs.add("--trustAll");
+    }
+
+    searchRateArgs.add("--baseDN");
+    searchRateArgs.add("dc=example,dc=com");
+
+    searchRateArgs.add("--scope");
+    searchRateArgs.add("sub");
+
+    searchRateArgs.add("--filter");
+    searchRateArgs.add("(objectClass=*)");
+
+    searchRateArgs.add("--numThreads");
+    searchRateArgs.add(String.valueOf(numThreadsArg.getValue()));
+
+    if (numIntervalsArg.isPresent())
+    {
+      searchRateArgs.add("--numIntervals");
+      searchRateArgs.add(String.valueOf(numIntervalsArg.getValue()));
+    }
+
+    if (intervalDurationSecondsArg.isPresent())
+    {
+      searchRateArgs.add("--intervalDuration");
+      searchRateArgs.add(String.valueOf(
+           intervalDurationSecondsArg.getValue()));
+    }
+
+    if (warmUpIntervalsArg.isPresent())
+    {
+      searchRateArgs.add("--warmUpIntervals");
+      searchRateArgs.add(String.valueOf(warmUpIntervalsArg.getValue()));
+    }
+
+    final String[] searchRateArgsArray =
+         searchRateArgs.toArray(StaticUtils.NO_STRINGS);
+
+    final SearchRate searchRate = new SearchRate(getOut(), getErr());
+
+    final ResultCode searchRateResultCode =
+         searchRate.runTool(searchRateArgsArray);
+    if (searchRateResultCode == ResultCode.SUCCESS)
+    {
+      completionMessage.compareAndSet(null,
+           "The searchrate tool completed successfully");
+    }
+    else
+    {
+      completionMessage.compareAndSet(null,
+           "ERROR:  The searchrate tool exited with error result code " +
+                searchRateResultCode);
+    }
+
+    return searchRateResultCode;
+  }
+
+
+
+  /**
+   * Invokes the {@link ModRate} tool with an appropriate set of arguments.
+   *
+   * @param  listenPort  The port on which the LDAP listener is listening.
+   *
+   * @return  The result code obtained from the {@code ModRate} tool.
+   */
+  @NotNull()
+  private ResultCode invokeModRate(final int listenPort)
+  {
+    final List<String> modRateArgs = new ArrayList<>();
+
+    modRateArgs.add("--hostname");
+    modRateArgs.add("localhost");
+
+    modRateArgs.add("--port");
+    modRateArgs.add(String.valueOf(listenPort));
+
+    if (useSSLArg.isPresent())
+    {
+      modRateArgs.add("--useSSL");
+      modRateArgs.add("--trustAll");
+    }
+
+    modRateArgs.add("--entryDN");
+    modRateArgs.add("dc=example,dc=com");
+
+    modRateArgs.add("--attribute");
+    modRateArgs.add("description");
+
+    modRateArgs.add("--valuePattern");
+    modRateArgs.add("value");
+
+    modRateArgs.add("--numThreads");
+    modRateArgs.add(String.valueOf(numThreadsArg.getValue()));
+
+    if (numIntervalsArg.isPresent())
+    {
+      modRateArgs.add("--numIntervals");
+      modRateArgs.add(String.valueOf(numIntervalsArg.getValue()));
+    }
+
+    if (intervalDurationSecondsArg.isPresent())
+    {
+      modRateArgs.add("--intervalDuration");
+      modRateArgs.add(String.valueOf(
+           intervalDurationSecondsArg.getValue()));
+    }
+
+    if (warmUpIntervalsArg.isPresent())
+    {
+      modRateArgs.add("--warmUpIntervals");
+      modRateArgs.add(String.valueOf(warmUpIntervalsArg.getValue()));
+    }
+
+    final String[] modRateArgsArray =
+         modRateArgs.toArray(StaticUtils.NO_STRINGS);
+
+    final ModRate modRate = new ModRate(getOut(), getErr());
+
+    final ResultCode modRateResultCode =
+         modRate.runTool(modRateArgsArray);
+    if (modRateResultCode == ResultCode.SUCCESS)
+    {
+      completionMessage.compareAndSet(null,
+           "The modrate tool completed successfully");
+    }
+    else
+    {
+      completionMessage.compareAndSet(null,
+           "ERROR:  The modrate tool exited with error result code " +
+                modRateResultCode);
+    }
+
+    return modRateResultCode;
+  }
+
+
+
+  /**
+   * Invokes the {@link AuthRate} tool with an appropriate set of arguments.
+   *
+   * @param  listenPort  The port on which the LDAP listener is listening.
+   *
+   * @return  The result code obtained from the {@code AuthRate} tool.
+   */
+  @NotNull()
+  private ResultCode invokeAuthRate(final int listenPort)
+  {
+    final List<String> authRateArgs = new ArrayList<>();
+
+    authRateArgs.add("--hostname");
+    authRateArgs.add("localhost");
+
+    authRateArgs.add("--port");
+    authRateArgs.add(String.valueOf(listenPort));
+
+    if (useSSLArg.isPresent())
+    {
+      authRateArgs.add("--useSSL");
+      authRateArgs.add("--trustAll");
+    }
+
+    if (bindOnlyArg.isPresent())
+    {
+      authRateArgs.add("--bindOnly");
+
+      authRateArgs.add("--baseDN");
+      authRateArgs.add("uid=user.1,ou=People,dc=example,dc=com");
+    }
+    else
+    {
+      authRateArgs.add("--baseDN");
+      authRateArgs.add("dc=example,dc=com");
+
+      authRateArgs.add("--scope");
+      authRateArgs.add("sub");
+    }
+
+    authRateArgs.add("--filter");
+    authRateArgs.add("(uid=user.1)");
+
+    authRateArgs.add("--credentials");
+    authRateArgs.add("password");
+
+    authRateArgs.add("--numThreads");
+    authRateArgs.add(String.valueOf(numThreadsArg.getValue()));
+
+    if (numIntervalsArg.isPresent())
+    {
+      authRateArgs.add("--numIntervals");
+      authRateArgs.add(String.valueOf(numIntervalsArg.getValue()));
+    }
+
+    if (intervalDurationSecondsArg.isPresent())
+    {
+      authRateArgs.add("--intervalDuration");
+      authRateArgs.add(String.valueOf(
+           intervalDurationSecondsArg.getValue()));
+    }
+
+    if (warmUpIntervalsArg.isPresent())
+    {
+      authRateArgs.add("--warmUpIntervals");
+      authRateArgs.add(String.valueOf(warmUpIntervalsArg.getValue()));
+    }
+
+    final String[] authRateArgsArray =
+         authRateArgs.toArray(StaticUtils.NO_STRINGS);
+
+    final AuthRate authRate = new AuthRate(getOut(), getErr());
+
+    final ResultCode authRateResultCode =
+         authRate.runTool(authRateArgsArray);
+    if (authRateResultCode == ResultCode.SUCCESS)
+    {
+      completionMessage.compareAndSet(null,
+           "The authrate tool completed successfully");
+    }
+    else
+    {
+      completionMessage.compareAndSet(null,
+           "ERROR:  The authrate tool exited with error result code " +
+                authRateResultCode);
+    }
+
+    return authRateResultCode;
+  }
+
+
+
+  /**
+   * Invokes the {@link SearchAndModRate} tool with an appropriate set of
+   * arguments.
+   *
+   * @param  listenPort  The port on which the LDAP listener is listening.
+   *
+   * @return  The result code obtained from the {@code SearchAndModRate} tool.
+   */
+  @NotNull()
+  private ResultCode invokeSearchAndModRate(final int listenPort)
+  {
+    final List<String> searchAndModRateArgs = new ArrayList<>();
+
+    searchAndModRateArgs.add("--hostname");
+    searchAndModRateArgs.add("localhost");
+
+    searchAndModRateArgs.add("--port");
+    searchAndModRateArgs.add(String.valueOf(listenPort));
+
+    if (useSSLArg.isPresent())
+    {
+      searchAndModRateArgs.add("--useSSL");
+      searchAndModRateArgs.add("--trustAll");
+    }
+
+    searchAndModRateArgs.add("--baseDN");
+    searchAndModRateArgs.add("dc=example,dc=com");
+
+    searchAndModRateArgs.add("--scope");
+    searchAndModRateArgs.add("sub");
+
+    searchAndModRateArgs.add("--filter");
+    searchAndModRateArgs.add("(objectClass=*)");
+
+    searchAndModRateArgs.add("--modifyAttribute");
+    searchAndModRateArgs.add("description");
+
+    searchAndModRateArgs.add("--valueLength");
+    searchAndModRateArgs.add("10");
+
+    searchAndModRateArgs.add("--numThreads");
+    searchAndModRateArgs.add(String.valueOf(numThreadsArg.getValue()));
+
+    if (numIntervalsArg.isPresent())
+    {
+      searchAndModRateArgs.add("--numIntervals");
+      searchAndModRateArgs.add(String.valueOf(numIntervalsArg.getValue()));
+    }
+
+    if (intervalDurationSecondsArg.isPresent())
+    {
+      searchAndModRateArgs.add("--intervalDuration");
+      searchAndModRateArgs.add(String.valueOf(
+           intervalDurationSecondsArg.getValue()));
+    }
+
+    if (warmUpIntervalsArg.isPresent())
+    {
+      searchAndModRateArgs.add("--warmUpIntervals");
+      searchAndModRateArgs.add(String.valueOf(warmUpIntervalsArg.getValue()));
+    }
+
+    final String[] searchAndModRateArgsArray =
+         searchAndModRateArgs.toArray(StaticUtils.NO_STRINGS);
+
+    final SearchAndModRate searchAndModRate =
+         new SearchAndModRate(getOut(), getErr());
+
+    final ResultCode searchAndModRateResultCode =
+         searchAndModRate.runTool(searchAndModRateArgsArray);
+    if (searchAndModRateResultCode == ResultCode.SUCCESS)
+    {
+      completionMessage.compareAndSet(null,
+           "The search-and-mod-rate tool completed successfully");
+    }
+    else
+    {
+      completionMessage.compareAndSet(null,
+           "ERROR:  The search-and-mod-rate tool exited with error result " +
+                "code " + searchAndModRateResultCode);
+    }
+
+    return searchAndModRateResultCode;
   }
 
 
@@ -702,27 +1057,28 @@ public final class TestLDAPSDKPerformance
          {
            "--numThreads", "10"
          },
-         "Test LDAP SDK performance with ten concurrent threads.  " +
-              "Communication will use an insecure connection, and each " +
-              "search will return a success result with a single matching " +
-              "entry.  The tool will continue to run until it is interrupted.");
+         "Test LDAP SDK performance with the searchrate tool using ten " +
+              "concurrent threads.  Communication will use an insecure " +
+              "connection, and each search will return a success result with " +
+              "a single matching entry.  The tool will continue to run until " +
+              "it is interrupted.");
 
     examples.put(
          new String[]
          {
+           "--tool", "modrate",
            "--numThreads", "10",
            "--useSSL",
-           "--entriesPerSearch", "0",
            "--resultCode", "32",
            "--diagnosticMessage", "The base entry does not exist",
            "--warmUpIntervals", "3",
            "--numIntervals", "10",
            "--intervalDuration", "5"
          },
-         "Test LDAP SDK performance with ten concurrent threads using " +
-              "SSL-encrypted communication.  Each search will return an " +
-              "error result with no matching entries, a result code of 32 " +
-              "(noSuchObject), and a diagnostic message of 'The base entry " +
+         "Test LDAP SDK performance with the modrate tool using ten " +
+              "concurrent threads over SSL-encrypted connections.  Each " +
+              "modify will return an error result with a result code of 32 " +
+              "(noSuchObject) and a diagnostic message of 'The target entry " +
               "does not exist'.  The tool will run three warm-up intervals " +
               "of five seconds each, and then ten intervals in which it " +
               "captures statistics.  The tool will exit after those ten " +

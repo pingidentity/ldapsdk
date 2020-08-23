@@ -44,7 +44,6 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
-import com.unboundid.util.StaticUtils;
 
 
 
@@ -96,33 +95,13 @@ public class TestLDAPSDKPerformanceTestCase
 
 
   /**
-   * Tests the behavior when not using SSL.  Provide a minimal set of arguments
-   * that will still allow the tool to exit as quickly as possible.
+   * Tests the behavior when using searchrate.  Provide a complete set of
+   * arguments.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testWithoutSSL()
-         throws Exception
-  {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    final ResultCode resultCode = TestLDAPSDKPerformance.main(out, out,
-         "--numIntervals", "1",
-         "--intervalDurationSeconds", "1");
-    assertEquals(resultCode, ResultCode.SUCCESS,
-         StaticUtils.toUTF8String(out.toByteArray()));
-  }
-
-
-
-  /**
-   * Tests the behavior when using SSL.  Provide a complete set of arguments,
-   * but still try to complete as quickly as possible.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testWithSSL()
+  public void testSearchRate()
          throws Exception
   {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -135,5 +114,103 @@ public class TestLDAPSDKPerformanceTestCase
          "--numIntervals", "1",
          "--warmUpIntervals", "1",
          "--intervalDurationSeconds", "1");
+    assertEquals(resultCode, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the behavior when using modrate.  Provide a complete set of
+   * arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testModRate()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ResultCode resultCode = TestLDAPSDKPerformance.main(out, out,
+         "--tool", "modrate",
+         "--useSSL",
+         "--resultCode", "0",
+         "--diagnosticMessage", "diagnostic message",
+         "--numThreads", "10",
+         "--numIntervals", "1",
+         "--warmUpIntervals", "1",
+         "--intervalDurationSeconds", "1");
+    assertEquals(resultCode, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the behavior when using authrate in the default mode when performing
+   * both searches and binds.  Provide a minimal set of arguments, but still try
+   * to complete as quickly as possible.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAuthRateWithSearchesAndBinds()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ResultCode resultCode = TestLDAPSDKPerformance.main(out, out,
+         "--tool", "authrate",
+         "--numIntervals", "1",
+         "--intervalDurationSeconds", "1");
+    assertEquals(resultCode, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the behavior when using authrate.  Provide a complete set of
+   * arguments, and use bind-only mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAuthRateBindOnl()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ResultCode resultCode = TestLDAPSDKPerformance.main(out, out,
+         "--tool", "authrate",
+         "--useSSL",
+         "--bindOnly",
+         "--resultCode", "0",
+         "--diagnosticMessage", "diagnostic message",
+         "--numThreads", "10",
+         "--numIntervals", "1",
+         "--warmUpIntervals", "1",
+         "--intervalDurationSeconds", "1");
+    assertEquals(resultCode, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the behavior when using search-and-mod.  Provide a complete set of
+   * arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSearchAndModRate()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ResultCode resultCode = TestLDAPSDKPerformance.main(out, out,
+         "--tool", "search-and-mod-rate",
+         "--useSSL",
+         "--resultCode", "0",
+         "--diagnosticMessage", "diagnostic message",
+         "--numThreads", "10",
+         "--numIntervals", "1",
+         "--warmUpIntervals", "1",
+         "--intervalDurationSeconds", "1");
+    assertEquals(resultCode, ResultCode.SUCCESS);
   }
 }
