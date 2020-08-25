@@ -45,9 +45,9 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 
 /**
  * This class provides a set of test cases for the
- * {@code PasswordPolicyStateJSONField} enum.
+ * {@code ModifiablePasswordPolicyStateJSONField} enum.
  */
-public final class PasswordPolicyStateJSONFieldTestCase
+public final class ModifiablePasswordPolicyStateJSONFieldTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -59,23 +59,26 @@ public final class PasswordPolicyStateJSONFieldTestCase
   public void testEnumMethods()
          throws Exception
   {
-    for (final PasswordPolicyStateJSONField f :
-         PasswordPolicyStateJSONField.values())
+    for (final ModifiablePasswordPolicyStateJSONField f :
+         ModifiablePasswordPolicyStateJSONField.values())
     {
       assertNotNull(f.getFieldName());
       assertEquals(f.getFieldName(),
            f.name().toLowerCase().replace('_', '-'));
 
-      assertNotNull(PasswordPolicyStateJSONField.forName(f.getFieldName()));
-      assertEquals(PasswordPolicyStateJSONField.forName(f.getFieldName()), f);
+      assertNotNull(ModifiablePasswordPolicyStateJSONField.forName(
+           f.getFieldName()));
+      assertEquals(ModifiablePasswordPolicyStateJSONField.forName(
+           f.getFieldName()), f);
 
-      assertNotNull(PasswordPolicyStateJSONField.forName(f.name()));
-      assertEquals(PasswordPolicyStateJSONField.forName(f.name()), f);
+      assertNotNull(ModifiablePasswordPolicyStateJSONField.forName(f.name()));
+      assertEquals(ModifiablePasswordPolicyStateJSONField.forName(f.name()), f);
 
       assertNotNull(f.toString());
       assertEquals(f.toString(), f.getFieldName());
     }
 
-    assertNull(PasswordPolicyStateJSONField.forName("undefined-field-name"));
+    assertNull(ModifiablePasswordPolicyStateJSONField.forName(
+         "undefined-field-name"));
   }
 }

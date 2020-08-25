@@ -57,6 +57,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityNotice;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            PasswordPolicyStateExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -88,6 +90,11 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   considered stable or mature enough to be guaranteed to work in an
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
+ *
+ *
+ * @see ModifiablePasswordPolicyStateJSON
+ * @see PasswordPolicyStateExtendedRequest
+ * @see PasswordPolicyStateJSONField
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
