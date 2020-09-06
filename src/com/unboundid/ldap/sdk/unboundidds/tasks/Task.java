@@ -1013,6 +1013,7 @@ public class Task
          new RefreshEncryptionSettingsTask(),
          new ReloadGlobalIndexTask(),
          new ReloadHTTPConnectionHandlerCertificatesTask(),
+         new RemoveAttributeTypeTask(),
          new RestoreTask(),
          new RotateLogTask(),
          new SearchTask(),
@@ -2132,6 +2133,11 @@ public class Task
                 RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK_CLASS))
       {
         return new ReloadHTTPConnectionHandlerCertificatesTask(entry);
+      }
+      else if (taskClass.equals(
+           RemoveAttributeTypeTask.REMOVE_ATTRIBUTE_TYPE_TASK_CLASS))
+      {
+        return new RemoveAttributeTypeTask(entry);
       }
       else if (taskClass.equals(RestoreTask.RESTORE_TASK_CLASS))
       {
