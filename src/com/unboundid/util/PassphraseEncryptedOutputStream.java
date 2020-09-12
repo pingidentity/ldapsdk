@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
@@ -85,109 +84,6 @@ import javax.crypto.CipherOutputStream;
 public final class PassphraseEncryptedOutputStream
      extends OutputStream
 {
-  /**
-   * An atomic reference that indicates whether the JVM supports the stronger
-   * encryption settings.  It will be {@code null} until an attempt is made to
-   * use stronger encryption, at which point the determination will be made and
-   * a value assigned.  The cached value will be used for subsequent attempts to
-   * use the strong encryption.
-   */
-  @NotNull private static final AtomicReference<Boolean>
-       SUPPORTS_STRONG_ENCRYPTION = new AtomicReference<>();
-
-
-
-  /**
-   * The length (in bytes) of the initialization vector that will be generated
-   * for the cipher.
-   */
-  private static final int CIPHER_INITIALIZATION_VECTOR_LENGTH_BYTES = 16;
-
-
-
-  /**
-   * The length (in bits) for the encryption key to generate from the password
-   * when using the baseline encryption strength.
-   */
-  private static final int BASELINE_KEY_FACTORY_KEY_LENGTH_BITS = 128;
-
-
-
-  /**
-   * The length (in bits) for the encryption key to generate from the password
-   * when using strong encryption.
-   */
-  private static final int STRONG_KEY_FACTORY_KEY_LENGTH_BITS = 256;
-
-
-
-  /**
-   * The key factory iteration count that will be used when generating the
-   * encryption key from the passphrase when using the baseline encryption
-   * strength.
-   */
-  private static final int BASELINE_KEY_FACTORY_ITERATION_COUNT = 16_384;
-
-
-
-  /**
-   * The key factory iteration count that will be used when generating the
-   * encryption key from the passphrase when using the strong encryption.
-   */
-  private static final int STRONG_KEY_FACTORY_ITERATION_COUNT = 131_072;
-
-
-
-  /**
-   * The length (in bytes) of the key factory salt that will be used when
-   * generating the encryption key from the passphrase.
-   */
-  private static final int KEY_FACTORY_SALT_LENGTH_BYTES = 16;
-
-
-
-  /**
-   * The cipher transformation that will be used for the encryption.
-   */
-  @NotNull private static final String CIPHER_TRANSFORMATION =
-       "AES/CBC/PKCS5Padding";
-
-
-
-  /**
-   * The key factory algorithm that will be used when generating the encryption
-   * key from the passphrase when using the baseline encryption strength.
-   */
-  @NotNull private static final String BASELINE_KEY_FACTORY_ALGORITHM =
-       "PBKDF2WithHmacSHA1";
-
-
-
-  /**
-   * The key factory algorithm that will be used when generating the encryption
-   * key from the passphrase when using strong encryption.
-   */
-  @NotNull private static final String STRONG_KEY_FACTORY_ALGORITHM =
-       "PBKDF2WithHmacSHA512";
-
-
-
-  /**
-   * The algorithm that will be used when generating a MAC of the header
-   * contents when using the baseline encryption strength.
-   */
-  @NotNull private static final String BASELINE_MAC_ALGORITHM = "HmacSHA256";
-
-
-
-  /**
-   * The algorithm that will be used when generating a MAC of the header
-   * contents when using strong encryption.
-   */
-  @NotNull private static final String STRONG_MAC_ALGORITHM = "HmacSHA512";
-
-
-
   // The cipher output stream that will be used to actually write the
   // encrypted output.
   @NotNull private final CipherOutputStream cipherOutputStream;
@@ -361,11 +257,9 @@ public final class PassphraseEncryptedOutputStream
               final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
-    this(passphrase, wrappedOutputStream, keyIdentifier, useStrongEncryption,
-         (useStrongEncryption
-              ? STRONG_KEY_FACTORY_ITERATION_COUNT
-              : BASELINE_KEY_FACTORY_ITERATION_COUNT),
-         writeHeaderToStream);
+    this(passphrase, wrappedOutputStream,
+         generateProperties(keyIdentifier, useStrongEncryption, null,
+              writeHeaderToStream));
   }
 
 
@@ -482,74 +376,162 @@ public final class PassphraseEncryptedOutputStream
               final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
-    final SecureRandom random = new SecureRandom();
+    this(passphrase, wrappedOutputStream,
+         generateProperties(keyIdentifier, useStrongEncryption,
+              keyFactoryIterationCount, writeHeaderToStream));
+  }
 
-    final byte[] keyFactorySalt = new byte[KEY_FACTORY_SALT_LENGTH_BYTES];
-    random.nextBytes(keyFactorySalt);
 
-    final byte[] cipherInitializationVector =
-         new byte[CIPHER_INITIALIZATION_VECTOR_LENGTH_BYTES];
-    random.nextBytes(cipherInitializationVector);
 
-    final String macAlgorithm;
-    PassphraseEncryptedStreamHeader header = null;
-    CipherOutputStream cipherStream = null;
+  /**
+   * Generates an appropriate {@link PassphraseEncryptedOutputStreamProperties}
+   * object from the provided information.
+   *
+   * @param  keyIdentifier
+   *              An optional identifier that may be used to associate the
+   *              encryption details with information in another system.  This
+   *              is primarily intended for use in conjunction with
+   *              UnboundID/Ping Identity products, but may be useful in other
+   *              systems.  It may be {@code null} if no key identifier is
+   *              needed.
+   * @param  useStrongEncryption
+   *              Indicates whether to attempt to use strong encryption, if it
+   *              is available.  If this is {@code true} and the JVM supports
+   *              the stronger level of encryption, then that encryption will be
+   *              used.  If this is {@code false}, or if the JVM does not
+   *              support the attempted stronger level of encryption, then the
+   *              baseline configuration will be used.
+   * @param  keyFactoryIterationCount
+   *              The iteration count to use when generating the encryption key
+   *              from the provided passphrase.
+   * @param  writeHeaderToStream
+   *              Indicates whether to write the generated
+   *              {@link PassphraseEncryptedStreamHeader} to the provided
+   *              {@code wrappedOutputStream} before any encrypted data so that
+   *              a {@link PassphraseEncryptedInputStream} can read it to obtain
+   *              information necessary for decrypting the data.  If this is
+   *              {@code false}, then the {@link #getEncryptionHeader()} method
+   *              must be used to obtain the encryption header so that it can be
+   *              stored elsewhere and provided to the
+   *              {@code PassphraseEncryptedInputStream} constructor.
+   *
+   * @return  The generated properties object.
+   */
+  @NotNull()
+  private static PassphraseEncryptedOutputStreamProperties generateProperties(
+               @Nullable final String keyIdentifier,
+               final boolean useStrongEncryption,
+               @Nullable final Integer keyFactoryIterationCount,
+               final boolean writeHeaderToStream)
+  {
+    final PassphraseEncryptedOutputStreamProperties properties;
     if (useStrongEncryption)
     {
-      macAlgorithm = STRONG_MAC_ALGORITHM;
-
-      final Boolean supportsStrongEncryption = SUPPORTS_STRONG_ENCRYPTION.get();
-      if ((supportsStrongEncryption == null) ||
-           Boolean.TRUE.equals(supportsStrongEncryption))
-      {
-        try
-        {
-          header = new PassphraseEncryptedStreamHeader(passphrase,
-               STRONG_KEY_FACTORY_ALGORITHM, keyFactoryIterationCount,
-               keyFactorySalt, STRONG_KEY_FACTORY_KEY_LENGTH_BITS,
-               CIPHER_TRANSFORMATION, cipherInitializationVector,
-               keyIdentifier, macAlgorithm);
-
-          final Cipher cipher = header.createCipher(Cipher.ENCRYPT_MODE);
-          if (writeHeaderToStream)
-          {
-            header.writeTo(wrappedOutputStream);
-          }
-
-          cipherStream = new CipherOutputStream(wrappedOutputStream, cipher);
-          SUPPORTS_STRONG_ENCRYPTION.compareAndSet(null, Boolean.TRUE);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          SUPPORTS_STRONG_ENCRYPTION.set(Boolean.FALSE);
-        }
-      }
+      properties = new PassphraseEncryptedOutputStreamProperties(
+           PassphraseEncryptionCipherType.getStrongestAvailableCipherType());
     }
     else
     {
-      macAlgorithm = BASELINE_MAC_ALGORITHM;
+      properties = new PassphraseEncryptedOutputStreamProperties(
+           PassphraseEncryptionCipherType.AES_128);
     }
 
-    if (cipherStream == null)
+    properties.setKeyIdentifier(keyIdentifier);
+    properties.setWriteHeaderToStream(writeHeaderToStream);
+
+    if (keyFactoryIterationCount != null)
     {
-      header = new PassphraseEncryptedStreamHeader(passphrase,
-           BASELINE_KEY_FACTORY_ALGORITHM, keyFactoryIterationCount,
-           keyFactorySalt, BASELINE_KEY_FACTORY_KEY_LENGTH_BITS,
-           CIPHER_TRANSFORMATION, cipherInitializationVector, keyIdentifier,
-           macAlgorithm);
-
-      final Cipher cipher = header.createCipher(Cipher.ENCRYPT_MODE);
-      if (writeHeaderToStream)
-      {
-        header.writeTo(wrappedOutputStream);
-      }
-
-      cipherStream = new CipherOutputStream(wrappedOutputStream, cipher);
+      properties.setKeyFactoryIterationCount(keyFactoryIterationCount);
     }
 
-    encryptionHeader = header;
-    cipherOutputStream = cipherStream;
+    return properties;
+  }
+
+
+
+  /**
+   * Creates a new passphrase-encrypted output stream with the provided
+   * information.
+   *
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  properties
+   *              The properties to use when encrypting data.  It must not be
+   *              {@code null}.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    initializing the encryption.
+   *
+   * @throws  IOException  If a problem is encountered while writing the
+   *                       encryption header to the underlying output stream.
+   */
+  public PassphraseEncryptedOutputStream(@NotNull final String passphrase,
+       @NotNull final OutputStream wrappedOutputStream,
+       @NotNull final PassphraseEncryptedOutputStreamProperties properties)
+       throws GeneralSecurityException, IOException
+  {
+    this(passphrase.toCharArray(), wrappedOutputStream, properties);
+  }
+
+
+
+  /**
+   * Creates a new passphrase-encrypted output stream with the provided
+   * information.
+   *
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  properties
+   *              The properties to use when encrypting data.  It must not be
+   *              {@code null}.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    initializing the encryption.
+   *
+   * @throws  IOException  If a problem is encountered while writing the
+   *                       encryption header to the underlying output stream.
+   */
+  public PassphraseEncryptedOutputStream(@NotNull final char[] passphrase,
+       @NotNull final OutputStream wrappedOutputStream,
+       @NotNull final PassphraseEncryptedOutputStreamProperties properties)
+       throws GeneralSecurityException, IOException
+  {
+    final SecureRandom random = new SecureRandom();
+
+    final PassphraseEncryptionCipherType cipherType =
+         properties.getCipherType();
+    final byte[] keyFactorySalt =
+         new byte[cipherType.getKeyFactorySaltLengthBytes()];
+    random.nextBytes(keyFactorySalt);
+
+    final byte[] cipherInitializationVector =
+         new byte[cipherType.getInitializationVectorLengthBytes()];
+    random.nextBytes(cipherInitializationVector);
+
+    encryptionHeader = new PassphraseEncryptedStreamHeader(passphrase,
+              cipherType.getKeyFactoryAlgorithm(),
+              properties.getKeyFactoryIterationCount(), keyFactorySalt,
+              cipherType.getKeyLengthBits(),
+              cipherType.getCipherTransformation(), cipherInitializationVector,
+              properties.getKeyIdentifier(), cipherType.getMacAlgorithm());
+    final Cipher cipher = encryptionHeader.createCipher(Cipher.ENCRYPT_MODE);
+
+    if (properties.writeHeaderToStream())
+    {
+      encryptionHeader.writeTo(wrappedOutputStream);
+    }
+
+    cipherOutputStream = new CipherOutputStream(wrappedOutputStream, cipher);
   }
 
 

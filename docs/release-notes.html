@@ -14,6 +14,19 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the LDAP SDK's support for passphrase-based encryption to provide better
+                  support for explicitly specifying the type of cipher that should be used.
+                  Previously, you could request either a baseline level of protection (which would
+                  have always been based on 128-bit AES) or the strongest supported level of
+                  protection (which would have either been based on 128-bit or 256-bit AES,
+                  depending on what the underlying JVM supported).  It is now possible to
+                  explicitly request 128-bit or 256-bit AES, with attempts to use the latter
+                  failing if the JVM doesn't support it.  This framework will provide even more
+                  flexibility if we add support for additional cipher types in the future.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for a new ds-pwp-modifiable-state-json operational
                   attribute that may be used to manipulate a select set of password policy state
                   properties in the Ping Identity Directory Server.
@@ -22,9 +35,9 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Added client-side support for a new remove attribute type task that can be used
-                  to safely remove an attribute type definition from the server schema.  It will
-                  make sure that the attribute type is not in use in the server before removing
-                  it.
+                  to safely remove an attribute type definition from a Ping Identity Directory
+                  Server's schema.  It will make sure that the attribute type is not in use in the
+                  server before removing it.
                   <br><br>
                 </li>
               </ul>
