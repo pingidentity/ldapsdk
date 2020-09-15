@@ -193,7 +193,7 @@ final class ManageCertificatesServerCertificateCollector
 
       final InetAddress address =
            LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(hostname);
-      nonSecureSocket.connect(new InetSocketAddress(address, port), 60);
+      nonSecureSocket.connect(new InetSocketAddress(address, port), 60_000);
       if (verbose)
       {
         manageCertificates.wrapOut(0, WRAP_COLUMN,

@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue with the manage-certificates trust-server-certificate command
+                  that caused it to wait for a maximum of 60 milliseconds rather than the intended
+                  60 seconds when trying to establish a connection to the target server.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK's support for passphrase-based encryption to provide better
                   support for explicitly specifying the type of cipher that should be used.
                   Previously, you could request either a baseline level of protection (which would
