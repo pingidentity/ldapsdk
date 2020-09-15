@@ -323,6 +323,87 @@ public class ChangeLogEntryTestCase
 
 
   /**
+   * Tests the ability to create a changelog entry for a delete operation
+   * that includes deleted entry attributes in the style used by OpenDJ.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDeleteChangeLogEntryWithOpenDJDeletedEntryAttributes()
+         throws Exception
+  {
+    // includedAttributes representation:
+    // objectClass: top{EOL}
+    // objectClass: person{EOL}
+    // objectClass: organizationalPerson{EOL}
+    // objectClass: inetOrgPerson{EOL}
+    ChangeLogEntry e = new ChangeLogEntry(new Entry(
+       "dn: changeNumber=12345,cn=changelog",
+       "objectClass: changeLogEntry",
+       "objectClass: top",
+       "changeNumber: 12345",
+       "changeTime: 20200820143342Z",
+       "changeType: delete",
+       "targetDN: uid=test.user,ou=People,dc=example,dc=com",
+       "changeInitiatorsName: cn=Directory Manager,cn=Root DNs,cn=config",
+       "changeLogCookie: dc=example,dc=com:00000168830dffc908760000025d " +
+            "000001740c4a296d290305eadbc7 000001740c4736b620e40004862c " +
+            "00000168b9d9513b17360015af64 000001740c46cce32b0a057f9d1a " +
+            "000001740c4a2dee2b1409be1aee 0000016883458f673f1800000010 " +
+            "00000168831976a677c3000af13a 000001740c4a050753e40003c4b6 " +
+            "000001740c4a1f7253830adf218b 000001687df5eb93584c000d1875 " +
+            "000001687c61b07e77eb0009491f 000001740c4805533aa20003c48e " +
+            "000001740c478300197b0005ed64;",
+       "entryDN: changeNumber=12345,cn=changelog",
+       "hasSubordinates: false",
+       "includedAttributes:: b2JqZWN0Q2xhc3M6IHRvcApvYmplY3RDbGFzczogcGVyc29u" +
+            "Cm9iamVjdENsYXNzOiBvcmdhbml6YXRpb25hbFBlcnNvbgpvYmplY3RDbGFzczog" +
+            "aW5ldE9yZ1BlcnNvbgo=",
+       "numSubordinates: 0",
+       "replicaIdentifier: 11028",
+       "replicationCSN: 000001740c4a2dee2b1409be1aee",
+       "subschemaSubentry: cn=schema",
+       "targetEntryUUID: 44026558-60ec-419f-8f6a-8559d2a7e3ef"));
+
+    assertNotNull(e);
+
+    assertEquals(e.getChangeNumber(), 12_345L);
+
+    assertDNsEqual(e.getTargetDN(),
+         "uid=test.user,ou=People,dc=example,dc=com");
+
+    assertEquals(e.getChangeType(), ChangeType.DELETE);
+
+    assertNull(e.getAddAttributes());
+
+    assertNotNull(e.getDeletedEntryAttributes());
+    assertEquals(e.getDeletedEntryAttributes().size(), 1);
+    assertEquals(e.getDeletedEntryAttributes().get(0),
+         new Attribute("objectClass", "top", "person", "organizationalPerson",
+              "inetOrgPerson"));
+
+    assertNull(e.getModifications());
+
+    assertNull(e.getNewRDN());
+
+    assertNull(e.getNewSuperior());
+
+    assertTrue(e.toLDIFChangeRecord() instanceof LDIFDeleteChangeRecord);
+
+
+    Entry deletedEntry = new Entry(e.getTargetDN(),
+                                   e.getDeletedEntryAttributes());
+    assertTrue(deletedEntry.hasAttributeValue("objectClass", "top"));
+    assertTrue(deletedEntry.hasAttributeValue("objectClass", "person"));
+    assertTrue(deletedEntry.hasAttributeValue("objectClass",
+         "organizationalPerson"));
+    assertTrue(deletedEntry.hasAttributeValue("objectClass",
+         "inetOrgPerson"));
+  }
+
+
+
+  /**
    * Tests the ability to construct a changelog entry for a delete operation.
    *
    * @throws  Exception  If an unexpected problem occurs.

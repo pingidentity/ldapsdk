@@ -152,6 +152,17 @@ public class ChangeLogEntry
 
 
   /**
+   * The name of an alternative attribute that may be used to obtain information
+   * about attributes from a deleted entry if the deletedEntryAttrs attribute
+   * is not present.
+   */
+  @NotNull public static final String
+       ATTR_ALTERNATIVE_DELETED_ENTRY_ATTRS_INCLUDED_ATTRIBUTES =
+            "includedAttributes";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4018129098468341663L;
@@ -481,17 +492,22 @@ public class ChangeLogEntry
    * @throws  LDAPException  If an error occurs while parsing the deleted
    *                         attribute list.
    */
-  @NotNull()
+  @Nullable()
   private static List<Attribute> parseDeletedAttributeList(
                                       @NotNull final Entry entry,
                                       @NotNull final String targetDN)
           throws LDAPException
   {
-    final Attribute deletedEntryAttrs =
+    Attribute deletedEntryAttrs =
          entry.getAttribute(ATTR_DELETED_ENTRY_ATTRS);
     if ((deletedEntryAttrs == null) || (! deletedEntryAttrs.hasValue()))
     {
-      return null;
+      deletedEntryAttrs = entry.getAttribute(
+           ATTR_ALTERNATIVE_DELETED_ENTRY_ATTRS_INCLUDED_ATTRIBUTES);
+      if ((deletedEntryAttrs == null) || (! deletedEntryAttrs.hasValue()))
+      {
+        return null;
+      }
     }
 
     final byte[] valueBytes = deletedEntryAttrs.getValueByteArray();
@@ -592,7 +608,7 @@ public class ChangeLogEntry
    * @throws  LDAPException  If an error occurs while parsing the modification
    *                         list.
    */
-  @NotNull()
+  @Nullable()
   private static List<Modification> parseModificationList(
                                          @NotNull final Entry entry,
                                          @NotNull final String targetDN)

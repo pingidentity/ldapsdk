@@ -21,6 +21,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ChangeLogEntry class so that it will fall back to using
+                  includedAttributes if the deletedEntryAttrs attribute does not exist.  This can
+                  help parse deleted attributes from OpenDJ changelog entries.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK's support for passphrase-based encryption to provide better
                   support for explicitly specifying the type of cipher that should be used.
                   Previously, you could request either a baseline level of protection (which would
