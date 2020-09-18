@@ -38,7 +38,11 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.ByteStringBuffer;
@@ -198,6 +202,10 @@ public final class OAUTHBEARERBindRequest
   // The port of the server to which the request will be sent.
   @Nullable private final Integer serverPort;
 
+  // A set of additional key-value pairs that should be included in the bind
+  // request.
+  @NotNull private final Map<String,String> additionalKeyValuePairs;
+
   // The access token to include in the bind request.
   @NotNull private final String accessToken;
 
@@ -250,6 +258,7 @@ public final class OAUTHBEARERBindRequest
     requestPostData = null;
     requestQueryString = null;
 
+    additionalKeyValuePairs = Collections.emptyMap();
     messageID = -1;
   }
 
@@ -277,6 +286,9 @@ public final class OAUTHBEARERBindRequest
     requestPath = properties.getRequestPath();
     requestPostData = properties.getRequestPostData();
     requestQueryString = properties.getRequestQueryString();
+
+    additionalKeyValuePairs = Collections.unmodifiableMap(
+         new LinkedHashMap<>(properties.getAdditionalKeyValuePairs()));
 
     messageID = -1;
   }
@@ -409,6 +421,22 @@ public final class OAUTHBEARERBindRequest
 
 
   /**
+   * Retrieves an unmodifiable map of additional key-value pairs that should be
+   * included in the bind request.
+   *
+   * @return  An unmodifiable map of additional key-value pairs that should be
+   *          included in the bind request.  It will not be {@code null} but may
+   *          be empty.
+   */
+  @NotNull()
+  public Map<String,String> getAdditionalKeyValuePairs()
+  {
+    return additionalKeyValuePairs;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -532,6 +560,15 @@ public final class OAUTHBEARERBindRequest
     {
       buffer.append(OAUTHBEARER_CRED_ELEMENT_REQUEST_QUERY_STRING_PREFIX);
       buffer.append(requestQueryString);
+      buffer.append(OAUTHBEARER_DELIMITER);
+    }
+
+    // Append any additional key-value pairs.
+    for (final Map.Entry<String,String> e : additionalKeyValuePairs.entrySet())
+    {
+      buffer.append(e.getKey());
+      buffer.append('=');
+      buffer.append(e.getValue());
       buffer.append(OAUTHBEARER_DELIMITER);
     }
 
@@ -688,6 +725,30 @@ public final class OAUTHBEARERBindRequest
       buffer.append('\'');
     }
 
+    if (! additionalKeyValuePairs.isEmpty())
+    {
+      buffer.append(", additionalKeyValuePairs=[");
+
+      final Iterator<Map.Entry<String,String>> iterator =
+           additionalKeyValuePairs.entrySet().iterator();
+      while (iterator.hasNext())
+      {
+        final Map.Entry<String,String> e = iterator.next();
+        buffer.append(" \"");
+        buffer.append(e.getKey());
+        buffer.append("\"=\"");
+        buffer.append(e.getValue());
+        buffer.append('"');
+
+        if (iterator.hasNext())
+        {
+          buffer.append(',');
+        }
+      }
+
+      buffer.append(" ]");
+    }
+
     buffer.append(')');
   }
 
@@ -754,6 +815,14 @@ public final class OAUTHBEARERBindRequest
       ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
            requestID + "RequestProperties.setRequestQueryString",
            ToCodeArgHelper.createString(requestQueryString, null));
+    }
+
+    for (final Map.Entry<String,String> e : additionalKeyValuePairs.entrySet())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.addKeyValuePair",
+           ToCodeArgHelper.createString(e.getKey(), null),
+           ToCodeArgHelper.createString(e.getValue(), null));
     }
 
 

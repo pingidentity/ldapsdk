@@ -45,6 +45,7 @@ import org.testng.annotations.Test;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -88,6 +89,9 @@ public class OAUTHBEARERBindRequestTestCase
 
     assertNull(bindRequest.getRequestQueryString());
 
+    assertNotNull(bindRequest.getAdditionalKeyValuePairs());
+    assertTrue(bindRequest.getAdditionalKeyValuePairs().isEmpty());
+
     assertNotNull(bindRequest.encodeCredentials());
     assertEquals(bindRequest.encodeCredentials(),
          new ASN1OctetString("n,,\u0001auth=Bearer the-access-token\u0001"));
@@ -120,6 +124,8 @@ public class OAUTHBEARERBindRequestTestCase
     properties.setRequestPath("/");
     properties.setRequestPostData("the-post-data");
     properties.setRequestQueryString("query=string");
+    properties.addKeyValuePair("keyOne", "value1");
+    properties.addKeyValuePair("keyTwo", "value2");
 
     OAUTHBEARERBindRequest bindRequest = new OAUTHBEARERBindRequest(properties,
          new Control("1.2.3.4"),
@@ -154,12 +160,18 @@ public class OAUTHBEARERBindRequestTestCase
     assertNotNull(bindRequest.getRequestQueryString());
     assertEquals(bindRequest.getRequestQueryString(), "query=string");
 
+    assertNotNull(bindRequest.getAdditionalKeyValuePairs());
+    assertFalse(bindRequest.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(bindRequest.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("keyOne", "value1", "keyTwo", "value2"));
+
     assertNotNull(bindRequest.encodeCredentials());
     assertEquals(bindRequest.encodeCredentials(),
          new ASN1OctetString("n,a=dn:uid=3Djdoe=2Cou=3DPeople=2Cdc=3Dexample" +
               "=2Cdc=3Dcom,\u0001auth=Bearer the-access-token\u0001" +
               "host=ds.example.com\u0001port=389\u0001mthd=POST\u0001path=/" +
-              "\u0001post=the-post-data\u0001qs=query=string\u0001"));
+              "\u0001post=the-post-data\u0001qs=query=string\u0001" +
+              "keyOne=value1\u0001keyTwo=value2\u0001"));
 
     assertNotNull(bindRequest.toString());
 
@@ -261,9 +273,12 @@ public class OAUTHBEARERBindRequestTestCase
 
       try (LDAPConnection conn = ds.getConnection())
       {
+        final OAUTHBEARERBindRequest bindRequest =
+             new OAUTHBEARERBindRequest("sasl-bind-in-progress");
+        assertTrue(bindRequest.getLastMessageID() < 0);
+
         final OAUTHBEARERBindResult bindResult = (OAUTHBEARERBindResult)
-             assertResultCodeEquals(conn,
-                  new OAUTHBEARERBindRequest("sasl-bind-in-progress"),
+             assertResultCodeEquals(conn, bindRequest,
                   ResultCode.INVALID_CREDENTIALS);
 
         assertNotNull(bindResult.getInitialBindResult());
@@ -274,6 +289,8 @@ public class OAUTHBEARERBindRequestTestCase
 
         assertNotNull(bindResult.getAuthorizationErrorCode());
         assertEquals(bindResult.getAuthorizationErrorCode(), "invalid_token");
+
+        assertTrue(bindRequest.getLastMessageID() > 0);
       }
     }
   }

@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk;
 import org.testng.annotations.Test;
 
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -86,6 +87,9 @@ public class OAUTHBEARERBindRequestPropertiesTestCase
 
     assertNull(properties.getRequestQueryString());
 
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertTrue(properties.getAdditionalKeyValuePairs().isEmpty());
+
     assertNotNull(properties.toString());
   }
 
@@ -110,6 +114,8 @@ public class OAUTHBEARERBindRequestPropertiesTestCase
     properties.setRequestPath("/");
     properties.setRequestPostData("the-post-data");
     properties.setRequestQueryString("query=string");
+    properties.addKeyValuePair("keyOne", "value1");
+    properties.addKeyValuePair("keyTwo", "value2");
 
     properties = new OAUTHBEARERBindRequestProperties(properties);
 
@@ -168,6 +174,243 @@ public class OAUTHBEARERBindRequestPropertiesTestCase
 
     assertNotNull(properties.getRequestQueryString());
     assertEquals(properties.getRequestQueryString(), "query=string");
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertFalse(properties.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(properties.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("keyOne", "value1", "keyTwo", "value2"));
+
+    assertNotNull(properties.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior around the ability to set additional key-value pairs.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAdditionalKeyValuePairs()
+         throws Exception
+  {
+    OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    OAUTHBEARERBindRequest bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertTrue(properties.getAdditionalKeyValuePairs().isEmpty());
+
+    assertNotNull(properties.toString());
+
+
+    properties.addKeyValuePair("key", "value");
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertFalse(properties.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(properties.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("key", "value"));
+
+    assertNotNull(properties.toString());
+
+
+    properties.addKeyValuePair("keyTwo", "");
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertFalse(properties.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(properties.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("key", "value", "keyTwo", ""));
+
+    assertNotNull(properties.toString());
+
+
+    properties.addKeyValuePair("key", "differentValue");
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertFalse(properties.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(properties.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("key", "differentValue", "keyTwo", ""));
+
+    assertNotNull(properties.toString());
+
+
+    properties.removeKeyValuePair("nonexistent");
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertFalse(properties.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(properties.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("key", "differentValue", "keyTwo", ""));
+
+    assertNotNull(properties.toString());
+
+
+    properties.removeKeyValuePair("key");
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertFalse(properties.getAdditionalKeyValuePairs().isEmpty());
+    assertEquals(properties.getAdditionalKeyValuePairs(),
+         StaticUtils.mapOf("keyTwo", ""));
+
+    assertNotNull(properties.toString());
+
+
+    properties.clearAdditionalKeyValuePairs();
+
+    properties = new OAUTHBEARERBindRequestProperties(properties);
+
+    bindRequest = new OAUTHBEARERBindRequest(properties);
+    properties = new OAUTHBEARERBindRequestProperties(bindRequest);
+
+    assertNotNull(properties.getAccessToken());
+    assertEquals(properties.getAccessToken(), "the-access-token");
+
+    assertNull(properties.getAuthorizationID());
+
+    assertNull(properties.getServerAddress());
+
+    assertNull(properties.getServerPort());
+
+    assertNull(properties.getRequestMethod());
+
+    assertNull(properties.getRequestPath());
+
+    assertNull(properties.getRequestPostData());
+
+    assertNull(properties.getRequestQueryString());
+
+    assertNotNull(properties.getAdditionalKeyValuePairs());
+    assertTrue(properties.getAdditionalKeyValuePairs().isEmpty());
 
     assertNotNull(properties.toString());
   }
@@ -235,5 +478,106 @@ public class OAUTHBEARERBindRequestPropertiesTestCase
     final OAUTHBEARERBindRequestProperties properties =
          new OAUTHBEARERBindRequestProperties("the-access-token");
     properties.setServerPort(65536);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add a key-value pair with a {@code null}
+   * key.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testAddKeyValuePairNullKey()
+         throws Exception
+  {
+    final OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+    properties.addKeyValuePair(null, "value");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add a key-value pair with an empty key.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testAddKeyValuePairEmptyKey()
+         throws Exception
+  {
+    final OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+    properties.addKeyValuePair("", "value");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add a key-value pair with a key that
+   * contains a non-alphabetic character.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testAddKeyValuePairKeyHasNonNumericCharacter()
+         throws Exception
+  {
+    final OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+    properties.addKeyValuePair("key1", "value");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add a key-value pair with a {@code null}
+   * value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testAddKeyValuePairNullValue()
+         throws Exception
+  {
+    final OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+    properties.addKeyValuePair("key", null);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add a key-value pair with a value that
+   * contains the 0x00 character.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testAddKeyValuePairValueWith0Byte()
+         throws Exception
+  {
+    final OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+    properties.addKeyValuePair("key", "a\u0000b");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to add a key-value pair with a value that
+   * contains the 0x01 character.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testAddKeyValuePairValueWith1Byte()
+         throws Exception
+  {
+    final OAUTHBEARERBindRequestProperties properties =
+         new OAUTHBEARERBindRequestProperties("the-access-token");
+    properties.addKeyValuePair("key", "a\u0001b");
   }
 }

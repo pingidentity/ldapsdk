@@ -38,6 +38,10 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
@@ -68,6 +72,10 @@ public final class OAUTHBEARERBindRequestProperties
 
   // The port of the server to which the request will be sent.
   @Nullable private Integer serverPort;
+
+  // A set of additional key-value pairs that should be included in the bind
+  // request.
+  @NotNull private final Map<String,String> additionalKeyValuePairs;
 
   // The access token to include in the bind request.
   @NotNull private String accessToken;
@@ -115,6 +123,8 @@ public final class OAUTHBEARERBindRequestProperties
     requestPath = null;
     requestPostData = null;
     requestQueryString = null;
+
+    additionalKeyValuePairs = new LinkedHashMap<>();
   }
 
 
@@ -140,6 +150,8 @@ public final class OAUTHBEARERBindRequestProperties
     requestPath = properties.requestPath;
     requestPostData = properties.requestPostData;
     requestQueryString = properties.requestQueryString;
+    additionalKeyValuePairs =
+         new LinkedHashMap<>(properties.additionalKeyValuePairs);
   }
 
 
@@ -165,6 +177,8 @@ public final class OAUTHBEARERBindRequestProperties
     requestPath = bindRequest.getRequestPath();
     requestPostData = bindRequest.getRequestPostData();
     requestQueryString = bindRequest.getRequestQueryString();
+    additionalKeyValuePairs =
+         new LinkedHashMap<>(bindRequest.getAdditionalKeyValuePairs());
   }
 
 
@@ -409,6 +423,88 @@ public final class OAUTHBEARERBindRequestProperties
 
 
   /**
+   * Retrieves an unmodifiable map of additional key-value pairs that should be
+   * included in the bind request.
+   *
+   * @return  An unmodifiable map of additional key-value pairs that should be
+   *          included in the bind request.
+   */
+  @NotNull()
+  public Map<String,String> getAdditionalKeyValuePairs()
+  {
+    return Collections.unmodifiableMap(additionalKeyValuePairs);
+  }
+
+
+
+  /**
+   * Adds an item to the set of additional key-value pairs that should be
+   * included in the bind request.  If an item is already defined with the
+   * provided key, then its value will be replaced.
+   *
+   * @param  key    The key to use.  It must not be {@code null} or empty, and
+   *                it must contain only alphabetic characters.
+   * @param  value  The value to use for the key.  It must not be {@code null},
+   *                and it must not contain the 0x00 or 0x01 characters.
+   */
+  public void addKeyValuePair(@NotNull final String key,
+                              @NotNull final String value)
+  {
+    Validator.ensureNotNullOrEmpty(key,
+         "OAUTHBEARERBindRequestProperties.addKeyValuePair.key must not be " +
+              "null or empty.");
+    for (final char c : key.toCharArray())
+    {
+      Validator.ensureTrue(
+           (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))),
+           "OAUTHBEARERBindRequestProperties.addKeyValuePair.key must " +
+                "contain only alphabetic characters.");
+    }
+
+    Validator.ensureNotNull(value,
+         "OAUTHBEARERBindRequestProperties.addKeyValuePair.value must not be " +
+              "null.");
+    for (final char c : value.toCharArray())
+    {
+      Validator.ensureFalse(
+           ((c == '\u0000') || (c == '\u0001')),
+           "OAUTHBEARERBindRequestProperties.addKeyValuePair.value must not " +
+                "contain the characters \\u0000 or \\u0001.");
+    }
+
+    additionalKeyValuePairs.put(key, value);
+  }
+
+
+
+  /**
+   * Removes the specified additional key-value pair so it will not be included
+   * in the bind request.
+   *
+   * @param  key  The key to remove.
+   *
+   * @return  The value that was associated with the key.  It may be
+   *          {@code null} if the specified key was not set.
+   */
+  @Nullable()
+  public String removeKeyValuePair(@NotNull final String key)
+  {
+    return additionalKeyValuePairs.remove(key);
+  }
+
+
+
+  /**
+   * Clears the set of additional key-value pairs.
+   */
+  public void clearAdditionalKeyValuePairs()
+  {
+    additionalKeyValuePairs.clear();
+  }
+
+
+
+  /**
    * Retrieves a string representation of the OAUTHBEARER bind request
    * properties.
    *
@@ -481,6 +577,30 @@ public final class OAUTHBEARERBindRequestProperties
       buffer.append(", requestQueryString='");
       buffer.append(requestQueryString);
       buffer.append('\'');
+    }
+
+    if (! additionalKeyValuePairs.isEmpty())
+    {
+      buffer.append(", additionalKeyValuePairs=[");
+
+      final Iterator<Map.Entry<String,String>> iterator =
+           additionalKeyValuePairs.entrySet().iterator();
+      while (iterator.hasNext())
+      {
+        final Map.Entry<String,String> e = iterator.next();
+        buffer.append(" \"");
+        buffer.append(e.getKey());
+        buffer.append("\"=\"");
+        buffer.append(e.getValue());
+        buffer.append('"');
+
+        if (iterator.hasNext())
+        {
+          buffer.append(',');
+        }
+      }
+
+      buffer.append(" ]");
     }
 
     buffer.append(')');
