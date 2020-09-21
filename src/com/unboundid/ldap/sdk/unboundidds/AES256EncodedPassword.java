@@ -612,10 +612,17 @@ public final class AES256EncodedPassword
               @NotNull final byte[] clearTextPassword)
          throws GeneralSecurityException
   {
-    return encode(
+    final AES256EncodedPasswordSecretKey secretKey =
          AES256EncodedPasswordSecretKey.generate(encryptionSettingsDefinitionID,
-              encryptionSettingsDefinitionPassphrase, keyFactorySalt),
-         initializationVector, clearTextPassword);
+              encryptionSettingsDefinitionPassphrase, keyFactorySalt);
+    try
+    {
+      return encode(secretKey, initializationVector, clearTextPassword);
+    }
+    finally
+    {
+      secretKey.destroy();
+    }
   }
 
 
@@ -956,9 +963,18 @@ public final class AES256EncodedPassword
               @NotNull final char[] encryptionSettingsDefinitionPassphrase)
          throws GeneralSecurityException
   {
-    return decrypt(AES256EncodedPasswordSecretKey.generate(
-         encryptionSettingsDefinitionID, encryptionSettingsDefinitionPassphrase,
-         keyFactorySalt));
+    final AES256EncodedPasswordSecretKey secretKey =
+         AES256EncodedPasswordSecretKey.generate(encryptionSettingsDefinitionID,
+              encryptionSettingsDefinitionPassphrase, keyFactorySalt);
+
+    try
+    {
+      return decrypt(secretKey);
+    }
+    finally
+    {
+      secretKey.destroy();
+    }
   }
 
 

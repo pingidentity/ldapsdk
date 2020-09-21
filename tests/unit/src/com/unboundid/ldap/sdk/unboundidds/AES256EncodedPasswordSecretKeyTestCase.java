@@ -81,6 +81,8 @@ public final class AES256EncodedPasswordSecretKeyTestCase
     assertNotNull(secretKey.getSecretKey());
 
     assertNotNull(secretKey.toString());
+
+    secretKey.destroy();
   }
 
 
@@ -125,6 +127,8 @@ public final class AES256EncodedPasswordSecretKeyTestCase
     assertNotNull(secretKey.getSecretKey());
 
     assertNotNull(secretKey.toString());
+
+    secretKey.destroy();
   }
 
 
@@ -302,5 +306,41 @@ public final class AES256EncodedPasswordSecretKeyTestCase
 
     AES256EncodedPasswordSecretKey.generate(encryptionSettingsDefinitionID,
          encryptionSettingsDefinitionPassphrase, StaticUtils.NO_BYTES);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to use a secret key after it has been
+   * destroyed.
+   *
+   *
+   * Tests the behavior when trying to generate a secret key with an empty salt.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPSDKUsageException.class })
+  public void testUseAfterDestroy()
+         throws Exception
+  {
+    final AES256EncodedPasswordSecretKey secretKey =
+         AES256EncodedPasswordSecretKey.generate(
+              "1234567890abcdef", "esd-passphrase");
+    assertNotNull(secretKey);
+
+    assertNotNull(secretKey.getEncryptionSettingsDefinitionID());
+    assertEquals(secretKey.getEncryptionSettingsDefinitionID(),
+         StaticUtils.byteArray(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+
+    assertNotNull(secretKey.getKeyFactorySalt());
+    assertEquals(secretKey.getKeyFactorySalt().length, 16);
+
+    assertNotNull(secretKey.getSecretKey());
+
+    assertNotNull(secretKey.toString());
+
+    secretKey.destroy();
+
+    secretKey.getSecretKey();
   }
 }

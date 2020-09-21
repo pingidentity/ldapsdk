@@ -42,11 +42,14 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.security.auth.Destroyable;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
@@ -86,15 +89,15 @@ public final class AES256EncodedPasswordSecretKey
 
 
 
+  // A references to the secret key that was generated.
+  @NotNull private final AtomicReference<SecretKey> secretKeyRef;
+
   // The bytes that comprise the raw encryption settings definition ID whose
   // passphrase was used to generate the secret key.
   @NotNull private final byte[] encryptionSettingsDefinitionID;
 
   // The salt used in the course of generating the secret key.
   @NotNull private final byte[] keyFactorySalt;
-
-  // The secret key that was generated.
-  @NotNull private final SecretKey secretKey;
 
 
 
@@ -121,7 +124,8 @@ public final class AES256EncodedPasswordSecretKey
   {
     this.encryptionSettingsDefinitionID = encryptionSettingsDefinitionID;
     this.keyFactorySalt = keyFactorySalt;
-    this.secretKey = secretKey;
+
+    secretKeyRef = new AtomicReference<>(secretKey);
   }
 
 
@@ -299,14 +303,45 @@ public final class AES256EncodedPasswordSecretKey
 
 
   /**
-   * Retrieves the secret key that was generated.
+   * Retrieves the secret key that was generated.  This method must not be
+   * called after the {@link #destroy} method has been called.
    *
    * @return  The secret key that was generated.
    */
   @NotNull()
   public SecretKey getSecretKey()
   {
+    final SecretKey secretKey = secretKeyRef.get();
+    if (secretKey == null)
+    {
+      Validator.violation("An AES256EncodedPasswordSecretKey instance must " +
+           "not be used after it has been destroyed.");
+    }
+
     return secretKey;
+  }
+
+
+
+  /**
+   * Destroys this secret key.  The key must not be used after it has been
+   * destroyed.
+   */
+  public void destroy()
+  {
+    final SecretKey secretKey = secretKeyRef.getAndSet(null);
+    if ((secretKey != null) && (secretKey instanceof Destroyable))
+    {
+      try
+      {
+        final Destroyable destroyableSecretKey = (Destroyable) secretKey;
+        destroyableSecretKey.destroy();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
   }
 
 
