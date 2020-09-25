@@ -314,6 +314,47 @@ public final class MessageFormatStringsTestCase
 
 
   /**
+   * Tests to ensure that format strings do not contain two consecutive periods.
+   * Three consecutive periods will be acceptable.
+   *
+   * @param  propertiesFile  The properties file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "propertiesFiles")
+  public void testMessageWithConsecutivePeriods(final File propertiesFile)
+         throws Exception
+  {
+    int lineNumber = 1;
+    for (final String line : StaticUtils.readFileLines(propertiesFile))
+    {
+      if (line.isEmpty() || line.startsWith("#") ||
+           line.startsWith("class.name="))
+      {
+        lineNumber++;
+        continue;
+      }
+
+      if (line.contains(".."))
+      {
+        assertTrue((line.contains("...") || line.contains(" .. ")),
+           "Message properties file '" + propertiesFile.getName() +
+                " contains line " + lineNumber +
+                " that has two consecutive periods:  " + line);
+      }
+
+      assertFalse(line.contains("...."),
+           "Message properties file '" + propertiesFile.getName() +
+                " contains line " + lineNumber +
+                " that has four or more consecutive periods:  " + line);
+
+      lineNumber++;
+    }
+  }
+
+
+
+  /**
    * Tests to ensure that format strings do not contain two consecutive
    * open curly braces or two consecutive close curly braces.
    *
@@ -670,6 +711,71 @@ public final class MessageFormatStringsTestCase
         }
 
         quotePos = formatString.indexOf('\'', quotePos + numToSkip);
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests to ensure that message format strings do not contain repeated words.
+   *
+   * @param  propertiesFile  The properties file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "propertiesFiles")
+  public void testRepeatedWords(final File propertiesFile)
+         throws Exception
+  {
+    final Properties properties = new Properties();
+    try (FileInputStream inputStream = new FileInputStream(propertiesFile))
+    {
+      properties.load(inputStream);
+    }
+
+    final StringBuilder currentWordBuffer = new StringBuilder();
+    for (final Map.Entry<Object,Object> e : properties.entrySet())
+    {
+      final String propertyName = (String) e.getKey();
+      if (propertyName.equals("class.name"))
+      {
+        continue;
+      }
+
+      final String formatString = (String) e.getValue();
+
+      String lastWord = null;
+      currentWordBuffer.setLength(0);
+      for (final char c : formatString.toCharArray())
+      {
+        if (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')))
+        {
+          currentWordBuffer.append(c);
+        }
+        else if ((c == ' ') || (c == '.'))
+        {
+          if (currentWordBuffer.length() > 0)
+          {
+            final String currentWord = currentWordBuffer.toString();
+            if (lastWord != null)
+            {
+              assertFalse(lastWord.equals(currentWord),
+                   "Message properties file '" + propertiesFile.getName() +
+                        "' contains property " + propertyName  +
+                        " whose format string contains duplicate word '" +
+                        currentWord + "':  " + formatString);
+            }
+
+            lastWord = currentWord;
+            currentWordBuffer.setLength(0);
+          }
+        }
+        else
+        {
+          lastWord = null;
+          currentWordBuffer.setLength(0);
+        }
       }
     }
   }
