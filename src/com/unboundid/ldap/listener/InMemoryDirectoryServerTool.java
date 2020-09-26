@@ -258,6 +258,34 @@ public final class InMemoryDirectoryServerTool
 
 
   /**
+   * The SSL client authentication policy value that indicates that the server
+   * should not ask the client to present a certificate chain.
+   */
+  @NotNull private static final String SSL_CLIENT_AUTH_POLICY_PROHIBITED =
+       "prohibited";
+
+
+
+  /**
+   * The SSL client authentication policy value that indicates that the server
+   * should ask the client to present a certificate chain but will not require
+   * one.
+   */
+  @NotNull private static final String SSL_CLIENT_AUTH_POLICY_OPTIONAL =
+       "optional";
+
+
+
+  /**
+   * The SSL client authentication policy value that indicates that the server
+   * should require the client to present a certificate chain.
+   */
+  @NotNull private static final String SSL_CLIENT_AUTH_POLICY_REQUIRED =
+       "required";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 6484637038039050412L;
@@ -380,6 +408,10 @@ public final class InMemoryDirectoryServerTool
   // The argument used to specify the password attribute types.
   @Nullable private StringArgument passwordAttributeArgument;
 
+  // The argument used to specify the policy the server should use for TLS
+  // client authentication.
+  @Nullable private StringArgument sslClientAuthPolicy;
+
   // The argument used to specify the password to use to access the contents of
   // the SSL trust store
   @Nullable private StringArgument trustStorePasswordArgument;
@@ -489,6 +521,7 @@ public final class InMemoryDirectoryServerTool
     keyStorePasswordArgument = null;
     keyStoreTypeArgument = null;
     passwordAttributeArgument = null;
+    sslClientAuthPolicy = null;
     trustStorePasswordArgument = null;
     trustStoreTypeArgument = null;
     vendorNameArgument = null;
@@ -640,6 +673,28 @@ public final class InMemoryDirectoryServerTool
     trustStoreTypeArgument.addLongIdentifier("trust-store-type", true);
     trustStoreTypeArgument.addLongIdentifier("trust-store-format", true);
     parser.addArgument(trustStoreTypeArgument);
+
+    sslClientAuthPolicy = new StringArgument(null, "sslClientAuthPolicy", false,
+         1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_SSL_CLIENT_AUTH_POLICY.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_SSL_CLIENT_AUTH_POLICY.get(),
+         StaticUtils.setOf(
+              SSL_CLIENT_AUTH_POLICY_PROHIBITED,
+              SSL_CLIENT_AUTH_POLICY_OPTIONAL,
+              SSL_CLIENT_AUTH_POLICY_REQUIRED),
+         SSL_CLIENT_AUTH_POLICY_PROHIBITED);
+    sslClientAuthPolicy.addLongIdentifier("ssl-client-auth-policy", true);
+    sslClientAuthPolicy.addLongIdentifier("sslClientAuthenticationPolicy",
+         true);
+    sslClientAuthPolicy.addLongIdentifier("ssl-client-authentication-policy",
+         true);
+    sslClientAuthPolicy.addLongIdentifier("sslClientCertificatePolicy", true);
+    sslClientAuthPolicy.addLongIdentifier("ssl-client-certificate-policy",
+         true);
+    sslClientAuthPolicy.addLongIdentifier("sslClientCertPolicy", true);
+    sslClientAuthPolicy.addLongIdentifier("ssl-client-cert-policy", true);
+    sslClientAuthPolicy.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
+    parser.addArgument(sslClientAuthPolicy);
 
     maxConcurrentConnectionsArgument = new IntegerArgument(null,
          "maxConcurrentConnections", false, 1, null,
@@ -1566,19 +1621,42 @@ public final class InMemoryDirectoryServerTool
 
         final SSLUtil serverSSLUtil = new SSLUtil(keyManager, trustManager);
 
+        final boolean requestCertificate;
+        final boolean requireCertificate;
+        final String clientAuthPolicy = sslClientAuthPolicy.getValue();
+        if (clientAuthPolicy.equalsIgnoreCase(
+             SSL_CLIENT_AUTH_POLICY_OPTIONAL))
+        {
+          requestCertificate = true;
+          requireCertificate = false;
+        }
+        else if (clientAuthPolicy.equalsIgnoreCase(
+             SSL_CLIENT_AUTH_POLICY_REQUIRED))
+        {
+          requestCertificate = true;
+          requireCertificate = true;
+        }
+        else
+        {
+          requestCertificate = false;
+          requireCertificate = false;
+        }
+
         if (useSSLArgument.isPresent())
         {
           final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
           serverConfig.setListenerConfigs(
                InMemoryListenerConfig.createLDAPSConfig("LDAPS", null,
                     listenPort, serverSSLUtil.createSSLServerSocketFactory(),
-                    clientSSLUtil.createSSLSocketFactory()));
+                    clientSSLUtil.createSSLSocketFactory(),
+                    requestCertificate, requireCertificate));
         }
         else
         {
           serverConfig.setListenerConfigs(
                InMemoryListenerConfig.createLDAPConfig("LDAP+StartTLS", null,
-                    listenPort, serverSSLUtil.createSSLSocketFactory()));
+                    listenPort, serverSSLUtil.createSSLSocketFactory(),
+                    requestCertificate, requireCertificate));
         }
       }
       catch (final Exception e)

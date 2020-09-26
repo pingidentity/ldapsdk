@@ -227,6 +227,26 @@ public final class LDAPListenerClientConnection
         socket.setSendBufferSize(sendBufferSize);
       }
 
+      if (socket instanceof SSLSocket)
+      {
+        final SSLSocket sslSocket = (SSLSocket) socket;
+        if (config.requestClientCertificate())
+        {
+          if (config.requireClientCertificate())
+          {
+            sslSocket.setNeedClientAuth(true);
+          }
+          else
+          {
+            sslSocket.setWantClientAuth(true);
+          }
+        }
+        else
+        {
+          sslSocket.setWantClientAuth(false);
+        }
+      }
+
       asn1Reader = new ASN1StreamReader(socket.getInputStream());
     }
     catch (final IOException ioe)
@@ -1036,8 +1056,9 @@ public final class LDAPListenerClientConnection
    * returned output stream must be used to send the appropriate response to
    * the client.
    *
-   * @param  f  The SSL socket factory that will be used to convert the existing
-   *            {@code Socket} to an {@code SSLSocket}.
+   * @param  sslSocketFactory  The SSL socket factory that will be used to
+   *                           convert the existing {@code Socket} to an
+   *                           {@code SSLSocket}.
    *
    * @return  An output stream that can be used to send a clear-text message to
    *          the client (e.g., the StartTLS response message).
@@ -1048,7 +1069,51 @@ public final class LDAPListenerClientConnection
    */
   @NotNull()
   public synchronized OutputStream convertToTLS(
-                                        @NotNull final SSLSocketFactory f)
+              @NotNull final SSLSocketFactory sslSocketFactory)
+         throws LDAPException
+  {
+    return convertToTLS(sslSocketFactory, false, false);
+  }
+
+
+
+  /**
+   * Attempts to convert this unencrypted connection to one that uses TLS
+   * encryption, as would be used during the course of invoking the StartTLS
+   * extended operation.  If this is called, then the response that would have
+   * been returned from the associated request will be suppressed, so the
+   * returned output stream must be used to send the appropriate response to
+   * the client.
+   *
+   * @param  sslSocketFactory          The SSL socket factory that will be used
+   *                                   to convert the existing {@code Socket} to
+   *                                   an {@code SSLSocket}.
+   * @param  requestClientCertificate  Indicates whether the listener should
+   *                                   request that the client present its own
+   *                                   certificate chain during TLS negotiation.
+   *                                   This will be ignored for non-TLS-based
+   *                                   connections.
+   * @param  requireClientCertificate  Indicates whether the listener should
+   *                                   require that the client present its own
+   *                                   certificate chain during TLS negotiation,
+   *                                   and should fail negotiation if the client
+   *                                   does not present one.  This will be
+   *                                   ignored for non-TLS-based connections or
+   *                                   if {@code requestClientCertificate} is
+   *                                   {@code false}.
+   *
+   * @return  An output stream that can be used to send a clear-text message to
+   *          the client (e.g., the StartTLS response message).
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to convert
+   *                         the existing socket to an SSL socket.  If this is
+   *                         thrown, then the connection will have been closed.
+   */
+  @NotNull()
+  public synchronized OutputStream convertToTLS(
+              @NotNull final SSLSocketFactory sslSocketFactory,
+              final boolean requestClientCertificate,
+              final boolean requireClientCertificate)
          throws LDAPException
   {
     final OutputStream clearOutputStream = outputStream;
@@ -1060,11 +1125,31 @@ public final class LDAPListenerClientConnection
 
     try
     {
-      synchronized (f)
+      synchronized (sslSocketFactory)
       {
-        socket = f.createSocket(socket, hostname, port, true);
+        socket = sslSocketFactory.createSocket(socket, hostname, port, true);
       }
-      ((SSLSocket) socket).setUseClientMode(false);
+
+      final SSLSocket sslSocket = (SSLSocket) socket;
+      sslSocket.setUseClientMode(false);
+
+      if (requestClientCertificate)
+      {
+        if (requireClientCertificate)
+        {
+          sslSocket.setNeedClientAuth(true);
+        }
+        else
+        {
+          sslSocket.setWantClientAuth(true);
+        }
+      }
+      else
+      {
+        sslSocket.setWantClientAuth(false);
+      }
+
+
       outputStream = socket.getOutputStream();
       asn1Reader = new ASN1StreamReader(socket.getInputStream());
       suppressNextResponse.set(true);

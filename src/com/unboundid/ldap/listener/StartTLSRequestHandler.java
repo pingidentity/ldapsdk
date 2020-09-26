@@ -80,6 +80,14 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 public final class StartTLSRequestHandler
        extends LDAPListenerRequestHandler
 {
+  // Indicates whether the listener should request that the client provide a
+  // certificate.
+  private final boolean requestClientCertificate;
+
+  // Indicates whether the listener should require that the client provide a
+  // certificate.
+  private final boolean requireClientCertificate;
+
   // The client connection with which this request handler is associated.
   @Nullable private final LDAPListenerClientConnection connection;
 
@@ -106,8 +114,44 @@ public final class StartTLSRequestHandler
               @NotNull final SSLSocketFactory sslSocketFactory,
               @NotNull final LDAPListenerRequestHandler requestHandler)
   {
-    this.sslSocketFactory = sslSocketFactory;
-    this.requestHandler   = requestHandler;
+    this(sslSocketFactory, requestHandler, false, false);
+  }
+
+
+
+  /**
+   * Creates a new StartTLS request handler with the provided information.
+   *
+   * @param  sslSocketFactory          The SSL socket factory that will be used
+   *                                   to convert the existing socket to use SSL
+   *                                   encryption.
+   * @param  requestHandler            The request handler that will be used to
+   *                                   process all operations except StartTLS
+   *                                   extended operations.
+   * @param  requestClientCertificate  Indicates whether the listener should
+   *                                   request that the client present its own
+   *                                   certificate chain during TLS negotiation.
+   *                                   This will be ignored for non-TLS-based
+   *                                   connections.
+   * @param  requireClientCertificate  Indicates whether the listener should
+   *                                   require that the client present its own
+   *                                   certificate chain during TLS negotiation,
+   *                                   and should fail negotiation if the client
+   *                                   does not present one.  This will be
+   *                                   ignored for non-TLS-based connections or
+   *                                   if {@code requestClientCertificate} is
+   *                                   {@code false}.
+   */
+  public StartTLSRequestHandler(
+              @NotNull final SSLSocketFactory sslSocketFactory,
+              @NotNull final LDAPListenerRequestHandler requestHandler,
+              final boolean requestClientCertificate,
+              final boolean requireClientCertificate)
+  {
+    this.sslSocketFactory         = sslSocketFactory;
+    this.requestHandler           = requestHandler;
+    this.requestClientCertificate = requestClientCertificate;
+    this.requireClientCertificate = requireClientCertificate;
 
     connection = null;
   }
@@ -117,22 +161,39 @@ public final class StartTLSRequestHandler
   /**
    * Creates a new StartTLS request handler with the provided information.
    *
-   * @param  sslSocketFactory  The SSL socket factory that will be used to
-   *                           convert the existing socket to use SSL
-   *                           encryption.
-   * @param  requestHandler    The request handler that will be used to process
-   *                           all operations except StartTLS extended
-   *                           operations.
+   * @param  sslSocketFactory          The SSL socket factory that will be used
+   *                                   to convert the existing socket to use SSL
+   *                                   encryption.
+   * @param  requestHandler            The request handler that will be used to
+   *                                   process all operations except StartTLS
+   *                                   extended operations.
    * @param  connection        The connection to the associated client.
+   * @param  requestClientCertificate  Indicates whether the listener should
+   *                                   request that the client present its own
+   *                                   certificate chain during TLS negotiation.
+   *                                   This will be ignored for non-TLS-based
+   *                                   connections.
+   * @param  requireClientCertificate  Indicates whether the listener should
+   *                                   require that the client present its own
+   *                                   certificate chain during TLS negotiation,
+   *                                   and should fail negotiation if the client
+   *                                   does not present one.  This will be
+   *                                   ignored for non-TLS-based connections or
+   *                                   if {@code requestClientCertificate} is
+   *                                   {@code false}.
    */
   private StartTLSRequestHandler(
                @NotNull final SSLSocketFactory sslSocketFactory,
                @NotNull final LDAPListenerRequestHandler requestHandler,
-               @NotNull final LDAPListenerClientConnection connection)
+               @NotNull final LDAPListenerClientConnection connection,
+               final boolean requestClientCertificate,
+               final boolean requireClientCertificate)
   {
-    this.sslSocketFactory = sslSocketFactory;
-    this.requestHandler   = requestHandler;
-    this.connection       = connection;
+    this.sslSocketFactory         = sslSocketFactory;
+    this.requestHandler           = requestHandler;
+    this.connection               = connection;
+    this.requestClientCertificate = requestClientCertificate;
+    this.requireClientCertificate = requireClientCertificate;
   }
 
 
@@ -147,7 +208,8 @@ public final class StartTLSRequestHandler
          throws LDAPException
   {
     return new StartTLSRequestHandler(sslSocketFactory,
-         requestHandler.newInstance(connection), connection);
+         requestHandler.newInstance(connection), connection,
+         requestClientCertificate, requireClientCertificate);
   }
 
 
@@ -250,8 +312,9 @@ public final class StartTLSRequestHandler
              new StartTLSExtendedRequest(new ExtendedRequest(request.getOID(),
                   request.getValue()));
 
-        final OutputStream clearOutputStream =
-             connection.convertToTLS(sslSocketFactory);
+        final OutputStream clearOutputStream = connection.convertToTLS(
+             sslSocketFactory, requestClientCertificate,
+             requireClientCertificate);
 
         final LDAPMessage responseMessage = new LDAPMessage(messageID,
              new ExtendedResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,

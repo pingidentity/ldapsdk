@@ -371,7 +371,8 @@ public final class InMemoryDirectoryServer
       {
         listenerRequestHandler =
              new StartTLSRequestHandler(c.getStartTLSSocketFactory(),
-                  requestHandler);
+                  requestHandler, c.requestClientCertificate(),
+                  c.requireClientCertificate());
       }
 
       final LDAPListenerConfig listenerCfg = new LDAPListenerConfig(
@@ -380,6 +381,8 @@ public final class InMemoryDirectoryServer
       listenerCfg.setExceptionHandler(config.getListenerExceptionHandler());
       listenerCfg.setListenAddress(c.getListenAddress());
       listenerCfg.setServerSocketFactory(c.getServerSocketFactory());
+      listenerCfg.setRequestClientCertificate(c.requestClientCertificate());
+      listenerCfg.setRequireClientCertificate(c.requireClientCertificate());
 
       ldapListenerConfigs.put(name, listenerCfg);
 

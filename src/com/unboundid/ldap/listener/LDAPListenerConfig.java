@@ -61,6 +61,14 @@ import com.unboundid.util.Validator;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDAPListenerConfig
 {
+  // Indicates whether the listener should request that the client provide a
+  // certificate.
+  private boolean requestClientCertificate;
+
+  // Indicates whether the listener should require that the client provide a
+  // certificate.
+  private boolean requireClientCertificate;
+
   // Indicates whether to use the SO_KEEPALIVE socket option for sockets
   // accepted by the listener.
   private boolean useKeepAlive;
@@ -127,17 +135,19 @@ public final class LDAPListenerConfig
     this.listenPort     = listenPort;
     this.requestHandler = requestHandler;
 
-    useKeepAlive        = true;
-    useLinger           = true;
-    useReuseAddress     = true;
-    useTCPNoDelay       = true;
-    lingerTimeout       = 5;
-    listenAddress       = null;
-    maxConnections      = 0;
-    receiveBufferSize   = 0;
-    sendBufferSize      = 0;
-    exceptionHandler    = null;
-    serverSocketFactory = ServerSocketFactory.getDefault();
+    requestClientCertificate = false;
+    requireClientCertificate = false;
+    useKeepAlive             = true;
+    useLinger                = true;
+    useReuseAddress          = true;
+    useTCPNoDelay            = true;
+    lingerTimeout            = 5;
+    listenAddress            = null;
+    maxConnections           = 0;
+    receiveBufferSize        = 0;
+    sendBufferSize           = 0;
+    exceptionHandler         = null;
+    serverSocketFactory      = ServerSocketFactory.getDefault();
   }
 
 
@@ -565,6 +575,77 @@ public final class LDAPListenerConfig
 
 
 
+  /**
+   * Indicates whether the listener should request that the client present its
+   * own certificate chain during TLS negotiation.  This will be ignored for
+   * non-TLS-based connections.
+   *
+   * @return  {@code true} if the listener should request that the client
+   *          present its own certificate chain during TLS negotiation, or
+   *          {@code false} if not.
+   */
+  public boolean requestClientCertificate()
+  {
+    return requestClientCertificate;
+  }
+
+
+
+  /**
+   * Specifies whether the listener should request that the client present its
+   * own certificate chain during TLS negotiation.  This will be ignored for
+   * non-TLS-based connections.
+   *
+   * @param  requestClientCertificate  Indicates whether the listener should
+   *                                   request that the client present its own
+   *                                   certificate chain during TLS negotiation.
+   */
+  public void setRequestClientCertificate(
+                   final boolean requestClientCertificate)
+  {
+    this.requestClientCertificate = requestClientCertificate;
+  }
+
+
+
+  /**
+   * Indicates whether the listener should require that the client present its
+   * own certificate chain during TLS negotiation and should fail negotiation
+   * if no certificate chain was provided.  This will be ignored for
+   * non-TLS-based connections, and it will also be ignored if
+   * {@link #requestClientCertificate} returns false.
+   *
+   * @return  {@code true} if the listener should require that the client
+   *          present its own certificate chain during TLS negotiation, or
+   *          {@code false} if TLS negotiation should continue even if the
+   *          client did not present a certificate chain when requested.
+   */
+  public boolean requireClientCertificate()
+  {
+    return requireClientCertificate;
+  }
+
+
+
+  /**
+   * Specifies whether the listener should require that the client present its
+   * own certificate chain during TLS negotiation and should fail negotiation
+   * if no certificate chain was provided.  This will be ignored for
+   * non-TLS-based connections, and it will also be ignored if
+   * {@link #requestClientCertificate} returns false.
+   *
+   * @param  requireClientCertificate  Indicates whether the listener should
+   *                                   require that the client present its own
+   *                                   certificate chain during TLS negotiation.
+   */
+  public void setRequireClientCertificate(
+                   final boolean requireClientCertificate)
+  {
+    this.requireClientCertificate = requireClientCertificate;
+  }
+
+
+
 /**
    * Creates a copy of this configuration that may be altered without impacting
    * this configuration, and which will not be altered by changes to this
@@ -580,17 +661,19 @@ public final class LDAPListenerConfig
     final LDAPListenerConfig copy =
          new LDAPListenerConfig(listenPort, requestHandler);
 
-    copy.useKeepAlive        = useKeepAlive;
-    copy.useLinger           = useLinger;
-    copy.useReuseAddress     = useReuseAddress;
-    copy.useTCPNoDelay       = useTCPNoDelay;
-    copy.listenAddress       = listenAddress;
-    copy.lingerTimeout       = lingerTimeout;
-    copy.maxConnections      = maxConnections;
-    copy.receiveBufferSize   = receiveBufferSize;
-    copy.sendBufferSize      = sendBufferSize;
-    copy.exceptionHandler    = exceptionHandler;
-    copy.serverSocketFactory = serverSocketFactory;
+    copy.requestClientCertificate = requestClientCertificate;
+    copy.requireClientCertificate = requireClientCertificate;
+    copy.useKeepAlive             = useKeepAlive;
+    copy.useLinger                = useLinger;
+    copy.useReuseAddress          = useReuseAddress;
+    copy.useTCPNoDelay            = useTCPNoDelay;
+    copy.listenAddress            = listenAddress;
+    copy.lingerTimeout            = lingerTimeout;
+    copy.maxConnections           = maxConnections;
+    copy.receiveBufferSize        = receiveBufferSize;
+    copy.sendBufferSize           = sendBufferSize;
+    copy.exceptionHandler         = exceptionHandler;
+    copy.serverSocketFactory      = serverSocketFactory;
 
     return copy;
   }
@@ -672,6 +755,10 @@ public final class LDAPListenerConfig
     buffer.append(receiveBufferSize);
     buffer.append(", sendBufferSize=");
     buffer.append(sendBufferSize);
+    buffer.append(", requestClientCertificate=");
+    buffer.append(requestClientCertificate);
+    buffer.append(", requireClientCertificate=");
+    buffer.append(requireClientCertificate);
     buffer.append(')');
   }
 }
