@@ -14,6 +14,12 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a null X.509 trust manager that will never trust any certificate chain.
+                  This is primarily useful for testing purposes.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK's support for the OAUTHBEARER SASL mechanism to make it
                   possible to include arbitrary additional key-value pairs in the SASL
                   credentials.
