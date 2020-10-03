@@ -61,6 +61,7 @@ import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldap.sdk.unboundidds.jsonfilter.JSONObjectFilter;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -70,6 +71,7 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
@@ -3503,13 +3505,90 @@ attrNameLoop:
              ERR_FILTER_APPROXIMATE_MATCHING_NOT_SUPPORTED.get());
 
       case FILTER_TYPE_EXTENSIBLE_MATCH:
-        throw new LDAPException(ResultCode.NOT_SUPPORTED,
-             ERR_FILTER_EXTENSIBLE_MATCHING_NOT_SUPPORTED.get());
+        return extensibleMatchFilterMatchesEntry(entry, schema);
 
       default:
         throw new LDAPException(ResultCode.PARAM_ERROR,
                                 ERR_FILTER_INVALID_TYPE.get());
     }
+  }
+
+
+
+  /**
+   * Indicates whether the provided extensible matching filter component matches
+   * the provided entry.  This method provides very limited support for
+   * extensible matching  It can only be used for filters that contain both an
+   * attribute type and a matching rule ID, and when the matching rule ID is
+   * one of the following:
+   * <OL>
+   *   <LI>jsonObjectFilterExtensibleMatch (or 1.3.6.1.4.1.30221.2.4.13)</LI>
+   * </OL>
+   *
+   * @param  entry   The entry for which to make the determination.  It must not
+   *                 be {@code null}.
+   * @param  schema  The schema to use when making the determination.  If this
+   *                 is {@code null}, then all matching will be performed using
+   *                 a case-ignore matching rule.
+   *
+   * @return  {@code true} if this filter appears to match the provided entry,
+   *          or {@code false} if not.
+   *
+   * @throws  LDAPException  If a problem occurs while trying to make the
+   *                         determination.
+   */
+  private boolean extensibleMatchFilterMatchesEntry(@NotNull final Entry entry,
+                       @Nullable final Schema schema)
+          throws LDAPException
+  {
+    if ((attrName != null) && (matchingRuleID != null) && (! dnAttributes))
+    {
+      if (matchingRuleID.equalsIgnoreCase("jsonObjectFilterExtensibleMatch") ||
+           matchingRuleID.equals("1.3.6.1.4.1.30221.2.4.13"))
+      {
+        final JSONObjectFilter jsonObjectFilter;
+        try
+        {
+          final JSONObject jsonObject =
+               new JSONObject(assertionValue.stringValue());
+          jsonObjectFilter = JSONObjectFilter.decode(jsonObject);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
+               ERR_FILTER_EXTENSIBLE_MATCH_MALFORMED_JSON_OBJECT_FILTER.get(
+                    toString(), entry.getDN(),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
+
+        final Attribute attr = entry.getAttribute(attrName, schema);
+        if (attr != null)
+        {
+          for (final ASN1OctetString v : attr.getRawValues())
+          {
+            try
+            {
+              final JSONObject jsonObject = new JSONObject(v.stringValue());
+              if (jsonObjectFilter.matchesJSONObject(jsonObject))
+              {
+                return true;
+              }
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+            }
+          }
+        }
+
+        return false;
+      }
+    }
+
+    throw new LDAPException(ResultCode.NOT_SUPPORTED,
+         ERR_FILTER_EXTENSIBLE_MATCHING_NOT_SUPPORTED.get());
   }
 
 

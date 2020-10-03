@@ -85,6 +85,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the Filter.matchesEntry method to add limited support for extensibl
+                  matching filters that contain both an attribute type and matching rule ID,
+                  whose matching rule ID targets the jsonObjectFilterExtensibleMatch matching
+                  rule, and whose dnAttributes flag is not set.  These filters can be used to
+                  identify entries with attribute values that are JSON objects matching a given
+                  JSON object filter.
+                  <br><br>
+                </li>
+
+                <li>
                   Deprecated the client-side code related to support for interactive transactions
                   in the Ping Identity Directory Server, including the MoveSubtree option for
                   using interactive transactions when moving a subtree.  The classes for starting

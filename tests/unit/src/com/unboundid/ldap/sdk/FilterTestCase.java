@@ -49,7 +49,11 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldap.sdk.unboundidds.jsonfilter.EqualsJSONObjectFilter;
+import com.unboundid.ldap.sdk.unboundidds.jsonfilter.JSONObjectFilter;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.util.StaticUtils.toUTF8String;
 
@@ -7735,6 +7739,74 @@ public class FilterTestCase
         Boolean.FALSE
       }
     };
+  }
+
+
+
+  /**
+   * Tests the behavior of the matchesEntry method when the provided filter uses
+   * the jsonObjectFilterExtensibleMatch matching rule.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMatchesEntryJSONObjectExtensibleMatch()
+         throws Exception
+  {
+    final Entry entry = new Entry(
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: ubidPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "ubidEmailJSON: not-a-valid-json-object",
+         "ubidEmailJSON: " +
+              new JSONObject(
+                   new JSONField("type", "personal"),
+                   new JSONField("value", "test.user@example.com"),
+                   new JSONField("primary", true)).toSingleLineString());
+
+    JSONObjectFilter jsonObjectFilter = new EqualsJSONObjectFilter(
+         "value", "test.user@example.com");
+    Filter filter = jsonObjectFilter.toLDAPFilter("ubidEmailJSON");
+    assertTrue(filter.matchesEntry(entry));
+
+    jsonObjectFilter = new EqualsJSONObjectFilter(
+         "value", "different.user@example.com");
+    filter = jsonObjectFilter.toLDAPFilter("ubidEmailJSON");
+    assertFalse(filter.matchesEntry(entry));
+
+    filter = jsonObjectFilter.toLDAPFilter("nonexistentAttribute");
+    assertFalse(filter.matchesEntry(entry));
+
+    try
+    {
+      filter = Filter.createExtensibleMatchFilter("ubidEmailJSON",
+           "1.3.6.1.4.1.30221.2.4.13", false, "not-a-valid-json-object");
+      filter.matchesEntry(entry);
+      fail("Expected an exception when trying to use a JSON object filter " +
+           "whose assertion value is not a valid JSON object");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.INAPPROPRIATE_MATCHING);
+    }
+
+    try
+    {
+      filter = Filter.createExtensibleMatchFilter("ubidEmailJSON",
+           "1.3.6.1.4.1.30221.2.4.13", false, "{}");
+      filter.matchesEntry(entry);
+      fail("Expected an exception when trying to use a JSON object filter " +
+           "whose assertion value is a valid JSON object but not a valid " +
+           "JSON object filter");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.INAPPROPRIATE_MATCHING);
+    }
   }
 
 
