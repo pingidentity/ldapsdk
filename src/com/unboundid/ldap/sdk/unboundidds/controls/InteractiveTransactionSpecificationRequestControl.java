@@ -46,10 +46,6 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
-            StartInteractiveTransactionExtendedRequest;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
-            StartInteractiveTransactionExtendedResult;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
@@ -62,6 +58,25 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  The use of interactive transactions is strongly discouraged
+ *   because it can create conditions which are prone to deadlocks between
+ *   operations that may significantly affect performance and will result in the
+ *   cancellation of one or both operations.  It is strongly recommended that
+ *   standard LDAP transactions (which may be started using a
+ *   {@link com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest})
+ *   or a {@code MultiUpdateExtendedRequest} be used instead.  Although they
+ *   cannot include arbitrary read operations, LDAP transactions and
+ *   multi-update operations may be used in conjunction with the
+ *   {@link com.unboundid.ldap.sdk.controls.AssertionRequestControl},
+ *   {@link com.unboundid.ldap.sdk.controls.PreReadRequestControl}, and
+ *   {@link com.unboundid.ldap.sdk.controls.PostReadRequestControl} to
+ *   incorporate some read capability into a transaction, and in conjunction
+ *   with the {@link com.unboundid.ldap.sdk.ModificationType#INCREMENT}
+ *   modification type to increment integer values without the need to know the
+ *   precise value before or after the operation (although the pre-read and/or
+ *   post-read controls may be used to determine that).
+ * </BLOCKQUOTE>
  * This class provides an implementation of the interactive transaction
  * specification request control, which may be used to indicate that the
  * associated operation is part of an interactive transaction.  It may be used
@@ -86,7 +101,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * <UL>
  *   <LI><CODE>txnID</CODE> -- The transaction ID for the transaction, which was
  *       obtained from a previous
- *       {@link StartInteractiveTransactionExtendedResult}.</LI>
+ *       {@code StartInteractiveTransactionExtendedResult}.</LI>
  *   <LI><CODE>abortOnFailure</CODE> -- Indicates whether the transaction should
  *       be aborted if the request associated with this control does not
  *       complete successfully.</LI>
@@ -97,9 +112,16 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *       altered by a subsequent operation.</LI>
  * </UL>
  * See the documentation for the
- * {@link StartInteractiveTransactionExtendedRequest} class for an example of
+ * {@code StartInteractiveTransactionExtendedRequest} class for an example of
  * processing an interactive transaction.
+ *
+ * @deprecated  The use of interactive transactions is strongly discouraged
+ *              because it can create conditions which are prone to deadlocks
+ *              between operations that may significantly affect performance and
+ *              will result in the cancellation of one or both operations.
  */
+@Deprecated()
+@SuppressWarnings("deprecation")
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class InteractiveTransactionSpecificationRequestControl

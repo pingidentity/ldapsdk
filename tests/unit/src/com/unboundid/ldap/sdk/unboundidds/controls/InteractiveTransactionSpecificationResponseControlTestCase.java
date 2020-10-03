@@ -57,6 +57,7 @@ import com.unboundid.ldap.sdk.ResultCode;
  * This class provides a set of test cases for the interactive transaction
  * specification response control.
  */
+@SuppressWarnings("deprecation")
 public class InteractiveTransactionSpecificationResponseControlTestCase
        extends LDAPSDKTestCase
 {

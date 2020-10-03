@@ -46,8 +46,6 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationRequestControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -62,14 +60,15 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 /**
  * <BLOCKQUOTE>
- *   <B>NOTE:</B>  The use of interactive transactions is discouraged because it
- *   can create conditions which are prone to deadlocks between operations that
- *   may result in the cancellation of one or both operations.  It is strongly
- *   recommended that standard LDAP transactions (which may be started using a
+ *   <B>NOTE:</B>  The use of interactive transactions is strongly discouraged
+ *   because it can create conditions which are prone to deadlocks between
+ *   operations that may significantly affect performance and will result in the
+ *   cancellation of one or both operations.  It is strongly recommended that
+ *   standard LDAP transactions (which may be started using a
  *   {@link com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest})
- *   or a multi-update extended operation be used instead.  Although they cannot
- *   include arbitrary read operations, LDAP transactions and multi-update
- *   operations may be used in conjunction with the
+ *   or a {@link MultiUpdateExtendedRequest} be used instead.  Although they
+ *   cannot include arbitrary read operations, LDAP transactions and
+ *   multi-update operations may be used in conjunction with the
  *   {@link com.unboundid.ldap.sdk.controls.AssertionRequestControl},
  *   {@link com.unboundid.ldap.sdk.controls.PreReadRequestControl}, and
  *   {@link com.unboundid.ldap.sdk.controls.PostReadRequestControl} to
@@ -88,7 +87,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * {@link StartInteractiveTransactionExtendedResult} that is returned will
  * include a a transaction ID, which should be included in each operation that
  * is part of the transaction using the
- * {@link InteractiveTransactionSpecificationRequestControl}.  After all
+ * {@code InteractiveTransactionSpecificationRequestControl}.  After all
  * requests for the transaction have been submitted to the server, the
  * {@link EndInteractiveTransactionExtendedRequest} should be used to
  * commit that transaction, or it may also be used to abort the transaction if
@@ -114,7 +113,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * returned will include a transaction ID that may be used to identify the
  * transaction for all operations which are to be performed as part of the
  * transaction.  This transaction ID should be included in a
- * {@link InteractiveTransactionSpecificationRequestControl} attached to each
+ * {@code InteractiveTransactionSpecificationRequestControl} attached to each
  * request that is to be processed as part of the transaction.  When the
  * transaction has completed, the
  * {@link EndInteractiveTransactionExtendedRequest} may be used to commit it,
@@ -187,7 +186,14 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   }
  * }
  * </PRE>
+ *
+ * @deprecated  The use of interactive transactions is strongly discouraged
+ *              because it can create conditions which are prone to deadlocks
+ *              between operations that may significantly affect performance and
+ *              will result in the cancellation of one or both operations.
  */
+@Deprecated()
+@SuppressWarnings("deprecation")
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class StartInteractiveTransactionExtendedRequest

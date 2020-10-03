@@ -61,10 +61,6 @@ import com.unboundid.ldap.sdk.RootDSE;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationResponseControl;
 
 
 
@@ -72,6 +68,7 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
  * Provides a set of test cases for the start interactive transaction extended
  * request.
  */
+@SuppressWarnings("deprecation")
 public class StartInteractiveTransactionExtendedRequestTestCase
        extends LDAPSDKTestCase
 {
@@ -327,7 +324,8 @@ public class StartInteractiveTransactionExtendedRequestTestCase
 
     Control[] controls =
     {
-      new InteractiveTransactionSpecificationRequestControl(txnID, true, true)
+      new com.unboundid.ldap.sdk.unboundidds.controls.
+           InteractiveTransactionSpecificationRequestControl(txnID, true, true)
     };
 
 
@@ -337,13 +335,16 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult addResult = conn.add(addRequest);
     assertEquals(addResult.getResultCode(), ResultCode.SUCCESS);
 
-    Control c = addResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    Control c = addResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    InteractiveTransactionSpecificationResponseControl itsrc =
-         (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl itsrc =
+         (com.unboundid.ldap.sdk.unboundidds.controls.
+              InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -358,12 +359,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     assertEquals(searchResult.getEntryCount(), 1,
                  searchResult.getSearchEntries().toString());
 
-    c = searchResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = searchResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -378,12 +381,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     addResult = conn.add(addRequest);
     assertEquals(addResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = addResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = addResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -394,12 +399,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     assertEquals(searchResult.getEntryCount(), 2,
                  searchResult.getSearchEntries().toString());
 
-    c = searchResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = searchResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -409,12 +416,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     CompareResult compareResult = conn.compare(compareRequest);
     assertTrue(compareResult.compareMatched());
 
-    c = compareResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = compareResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -428,12 +437,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult modifyResult = conn.modify(modifyRequest);
     assertEquals(modifyResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = modifyResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = modifyResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -443,12 +454,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     compareResult = conn.compare(compareRequest);
     assertTrue(compareResult.compareMatched());
 
-    c = compareResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = compareResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -458,12 +471,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult modifyDNResult = conn.modifyDN(modifyDNRequest);
     assertEquals(modifyDNResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = modifyDNResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = modifyDNResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -474,12 +489,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     assertEquals(searchResult.getEntryCount(), 2,
                  searchResult.getSearchEntries().toString());
 
-    c = searchResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = searchResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -489,12 +506,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult deleteResult = conn.delete(deleteRequest);
     assertEquals(deleteResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = deleteResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = deleteResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -564,7 +583,8 @@ public class StartInteractiveTransactionExtendedRequestTestCase
 
     Control[] controls =
     {
-      new InteractiveTransactionSpecificationRequestControl(txnID, true, true)
+      new com.unboundid.ldap.sdk.unboundidds.controls.
+           InteractiveTransactionSpecificationRequestControl(txnID, true, true)
     };
 
 
@@ -574,13 +594,16 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult addResult = conn.add(addRequest);
     assertEquals(addResult.getResultCode(), ResultCode.SUCCESS);
 
-    Control c = addResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    Control c = addResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    InteractiveTransactionSpecificationResponseControl itsrc =
-         (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl itsrc =
+         (com.unboundid.ldap.sdk.unboundidds.controls.
+              InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -595,12 +618,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     assertEquals(searchResult.getEntryCount(), 1,
                  searchResult.getSearchEntries().toString());
 
-    c = searchResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = searchResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -615,12 +640,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     addResult = conn.add(addRequest);
     assertEquals(addResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = addResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = addResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -631,12 +658,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     assertEquals(searchResult.getEntryCount(), 2,
                  searchResult.getSearchEntries().toString());
 
-    c = searchResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = searchResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -646,12 +675,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     CompareResult compareResult = conn.compare(compareRequest);
     assertTrue(compareResult.compareMatched());
 
-    c = compareResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = compareResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -665,12 +696,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult modifyResult = conn.modify(modifyRequest);
     assertEquals(modifyResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = modifyResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = modifyResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -680,12 +713,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     compareResult = conn.compare(compareRequest);
     assertTrue(compareResult.compareMatched());
 
-    c = compareResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = compareResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -695,12 +730,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult modifyDNResult = conn.modifyDN(modifyDNRequest);
     assertEquals(modifyDNResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = modifyDNResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = modifyDNResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -711,12 +748,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     assertEquals(searchResult.getEntryCount(), 2,
                  searchResult.getSearchEntries().toString());
 
-    c = searchResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = searchResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 
@@ -726,12 +765,14 @@ public class StartInteractiveTransactionExtendedRequestTestCase
     LDAPResult deleteResult = conn.delete(deleteRequest);
     assertEquals(deleteResult.getResultCode(), ResultCode.SUCCESS);
 
-    c = deleteResult.getResponseControl(
-         InteractiveTransactionSpecificationResponseControl.
+    c = deleteResult.getResponseControl(com.unboundid.ldap.sdk.unboundidds.
+         controls.InteractiveTransactionSpecificationResponseControl.
               INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID);
     assertNotNull(c);
-    assertTrue(c instanceof InteractiveTransactionSpecificationResponseControl);
-    itsrc = (InteractiveTransactionSpecificationResponseControl) c;
+    assertTrue(c instanceof com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl);
+    itsrc = (com.unboundid.ldap.sdk.unboundidds.controls.
+         InteractiveTransactionSpecificationResponseControl) c;
     assertTrue(itsrc.transactionValid());
 
 

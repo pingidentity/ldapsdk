@@ -57,8 +57,6 @@ import com.unboundid.asn1.InternalASN1Helper;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
-            InteractiveTransactionAbortedExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
@@ -227,6 +225,7 @@ final class LDAPConnectionReader
    * responses, and associating them with their corresponding requests.
    */
   @Override()
+  @SuppressWarnings("deprecation")
   public void run()
   {
     boolean reconnect  = false;
@@ -494,12 +493,13 @@ final class LDAPConnectionReader
                    DisconnectType.SERVER_CLOSED_WITH_NOTICE,
                    extendedResult.getDiagnosticMessage(), null);
             }
-            else if (InteractiveTransactionAbortedExtendedResult.
-                          INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID.equals(
-                               oid))
+            else if (com.unboundid.ldap.sdk.unboundidds.extensions.
+                 InteractiveTransactionAbortedExtendedResult.
+                      INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID.equals(oid))
             {
-              extendedResult = new InteractiveTransactionAbortedExtendedResult(
-                                        extendedResult);
+              extendedResult = new com.unboundid.ldap.sdk.unboundidds.
+                   extensions.InteractiveTransactionAbortedExtendedResult(
+                        extendedResult);
             }
 
             final UnsolicitedNotificationHandler handler =
@@ -640,6 +640,7 @@ final class LDAPConnectionReader
    * @throws  LDAPException  If a problem occurs while reading the response.
    */
   @NotNull()
+  @SuppressWarnings("deprecation")
   LDAPResponse readResponse(final int messageID)
                throws LDAPException
   {
@@ -677,11 +678,12 @@ final class LDAPConnectionReader
                  DisconnectType.SERVER_CLOSED_WITH_NOTICE,
                  extendedResult.getDiagnosticMessage(), null);
           }
-          else if (InteractiveTransactionAbortedExtendedResult.
-                        INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID.equals(oid))
+          else if (com.unboundid.ldap.sdk.unboundidds.extensions.
+               InteractiveTransactionAbortedExtendedResult.
+                    INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID.equals(oid))
           {
-            extendedResult = new InteractiveTransactionAbortedExtendedResult(
-                                      extendedResult);
+            extendedResult = new com.unboundid.ldap.sdk.unboundidds.extensions.
+                 InteractiveTransactionAbortedExtendedResult(extendedResult);
           }
 
           final UnsolicitedNotificationHandler handler =

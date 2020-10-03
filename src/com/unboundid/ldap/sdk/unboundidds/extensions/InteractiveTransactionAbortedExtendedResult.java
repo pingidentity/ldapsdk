@@ -51,6 +51,25 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  The use of interactive transactions is strongly discouraged
+ *   because it can create conditions which are prone to deadlocks between
+ *   operations that may significantly affect performance and will result in the
+ *   cancellation of one or both operations.  It is strongly recommended that
+ *   standard LDAP transactions (which may be started using a
+ *   {@link com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest})
+ *   or a {@link MultiUpdateExtendedRequest} be used instead.  Although they
+ *   cannot include arbitrary read operations, LDAP transactions and
+ *   multi-update operations may be used in conjunction with the
+ *   {@link com.unboundid.ldap.sdk.controls.AssertionRequestControl},
+ *   {@link com.unboundid.ldap.sdk.controls.PreReadRequestControl}, and
+ *   {@link com.unboundid.ldap.sdk.controls.PostReadRequestControl} to
+ *   incorporate some read capability into a transaction, and in conjunction
+ *   with the {@link com.unboundid.ldap.sdk.ModificationType#INCREMENT}
+ *   modification type to increment integer values without the need to know the
+ *   precise value before or after the operation (although the pre-read and/or
+ *   post-read controls may be used to determine that).
+ * </BLOCKQUOTE>
  * This class provides an implementation of the interactive transaction aborted
  * extended result, which is used as an unsolicited notification to indicate
  * that the server has aborted an interactive transaction without the client's
@@ -65,7 +84,13 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   considered stable or mature enough to be guaranteed to work in an
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
+ *
+ * @deprecated  The use of interactive transactions is strongly discouraged
+ *              because it can create conditions which are prone to deadlocks
+ *              between operations that may significantly affect performance and
+ *              will result in the cancellation of one or both operations.
  */
+@Deprecated()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class InteractiveTransactionAbortedExtendedResult

@@ -73,10 +73,6 @@ import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationResponseControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             RealAttributesOnlyRequestControl;
@@ -87,17 +83,11 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             SuppressReferentialIntegrityUpdatesRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
-            EndInteractiveTransactionExtendedRequest;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
             GetSubtreeAccessibilityExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             GetSubtreeAccessibilityExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             SetSubtreeAccessibilityExtendedRequest;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
-            StartInteractiveTransactionExtendedRequest;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
-            StartInteractiveTransactionExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             SubtreeAccessibilityRestriction;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -575,6 +565,13 @@ public final class MoveSubtree
 
 
   /**
+   * <BLOCKQUOTE>
+   *   <B>NOTE:</B>  The use of interactive transactions is strongly discouraged
+   *   because it can create conditions which are prone to deadlocks between
+   *   operations that may significantly affect performance and will result in
+   *   the cancellation of one or both operations.  Use one of the
+   *   {@code moveSubtreeWithRestrictedAccessibility} methods instead.
+   * </BLOCKQUOTE>
    * Moves a single leaf entry using a pair of interactive transactions.  The
    * logic used to accomplish this is as follows:
    * <OL>
@@ -637,7 +634,13 @@ public final class MoveSubtree
    *
    * @return  An object with information about the result of the attempted
    *          subtree move.
+   *
+   * @deprecated  The use of interactive transactions is strongly discouraged
+   *              because it can create conditions which are prone to deadlocks
+   *              between operations that may significantly affect performance
+   *              and will result in the cancellation of one or both operations.
    */
+  @Deprecated()
   @NotNull()
   public static MoveSubtreeResult moveEntryWithInteractiveTransaction(
               @NotNull final LDAPConnection sourceConnection,
@@ -653,6 +656,13 @@ public final class MoveSubtree
 
 
   /**
+   * <BLOCKQUOTE>
+   *   <B>NOTE:</B>  The use of interactive transactions is strongly discouraged
+   *   because it can create conditions which are prone to deadlocks between
+   *   operations that may significantly affect performance and will result in
+   *   the cancellation of one or both operations.  Use one of the
+   *   {@code moveSubtreeWithRestrictedAccessibility} methods instead.
+   * </BLOCKQUOTE>
    * Moves a single leaf entry using a pair of interactive transactions.  The
    * logic used to accomplish this is as follows:
    * <OL>
@@ -718,7 +728,14 @@ public final class MoveSubtree
    *
    * @return  An object with information about the result of the attempted
    *          subtree move.
+   *
+   * @deprecated  The use of interactive transactions is strongly discouraged
+   *              because it can create conditions which are prone to deadlocks
+   *              between operations that may significantly affect performance
+   *              and will result in the cancellation of one or both operations.
    */
+  @Deprecated()
+  @SuppressWarnings("deprecation")
   @NotNull()
   public static MoveSubtreeResult moveEntryWithInteractiveTransaction(
               @NotNull final LDAPConnection sourceConnection,
@@ -748,30 +765,35 @@ processingBlock:
     try
     {
       // Start an interactive transaction in the source server.
-      final InteractiveTransactionSpecificationRequestControl sourceTxnControl;
+      final com.unboundid.ldap.sdk.unboundidds.controls.
+           InteractiveTransactionSpecificationRequestControl sourceTxnControl;
       try
       {
-        final StartInteractiveTransactionExtendedRequest startTxnRequest;
+        final com.unboundid.ldap.sdk.unboundidds.extensions.
+             StartInteractiveTransactionExtendedRequest startTxnRequest;
         if (opPurposeControl == null)
         {
-          startTxnRequest =
-               new StartInteractiveTransactionExtendedRequest(entryDN);
+          startTxnRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               StartInteractiveTransactionExtendedRequest(entryDN);
         }
         else
         {
-          startTxnRequest = new StartInteractiveTransactionExtendedRequest(
-               entryDN, new Control[]{opPurposeControl});
+          startTxnRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               StartInteractiveTransactionExtendedRequest(entryDN,
+               new Control[]{opPurposeControl});
         }
 
-        final StartInteractiveTransactionExtendedResult startTxnResult =
-             (StartInteractiveTransactionExtendedResult)
+        final com.unboundid.ldap.sdk.unboundidds.extensions.
+             StartInteractiveTransactionExtendedResult startTxnResult =
+             (com.unboundid.ldap.sdk.unboundidds.extensions.
+                  StartInteractiveTransactionExtendedResult)
              sourceConnection.processExtendedOperation(startTxnRequest);
         if (startTxnResult.getResultCode() == ResultCode.SUCCESS)
         {
           sourceTxnID = startTxnResult.getTransactionID();
-          sourceTxnControl =
-               new InteractiveTransactionSpecificationRequestControl(
-                    sourceTxnID, true, true);
+          sourceTxnControl = new com.unboundid.ldap.sdk.unboundidds.controls.
+               InteractiveTransactionSpecificationRequestControl(sourceTxnID,
+               true, true);
         }
         else
         {
@@ -796,30 +818,35 @@ processingBlock:
 
 
       // Start an interactive transaction in the target server.
-      final InteractiveTransactionSpecificationRequestControl targetTxnControl;
+      final com.unboundid.ldap.sdk.unboundidds.controls.
+           InteractiveTransactionSpecificationRequestControl targetTxnControl;
       try
       {
-        final StartInteractiveTransactionExtendedRequest startTxnRequest;
+        final com.unboundid.ldap.sdk.unboundidds.extensions.
+             StartInteractiveTransactionExtendedRequest startTxnRequest;
         if (opPurposeControl == null)
         {
-          startTxnRequest =
-               new StartInteractiveTransactionExtendedRequest(entryDN);
+          startTxnRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               StartInteractiveTransactionExtendedRequest(entryDN);
         }
         else
         {
-          startTxnRequest = new StartInteractiveTransactionExtendedRequest(
-               entryDN, new Control[]{opPurposeControl});
+          startTxnRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               StartInteractiveTransactionExtendedRequest(entryDN,
+               new Control[]{opPurposeControl});
         }
 
-        final StartInteractiveTransactionExtendedResult startTxnResult =
-             (StartInteractiveTransactionExtendedResult)
+        final com.unboundid.ldap.sdk.unboundidds.extensions.
+             StartInteractiveTransactionExtendedResult startTxnResult =
+             (com.unboundid.ldap.sdk.unboundidds.extensions.
+                  StartInteractiveTransactionExtendedResult)
              targetConnection.processExtendedOperation(startTxnRequest);
         if (startTxnResult.getResultCode() == ResultCode.SUCCESS)
         {
           targetTxnID = startTxnResult.getTransactionID();
-          targetTxnControl =
-               new InteractiveTransactionSpecificationRequestControl(
-                    targetTxnID, true, true);
+          targetTxnControl = new com.unboundid.ldap.sdk.unboundidds.controls.
+               InteractiveTransactionSpecificationRequestControl(targetTxnID,
+               true, true);
         }
         else
         {
@@ -897,9 +924,11 @@ processingBlock:
       {
         try
         {
-          final InteractiveTransactionSpecificationResponseControl txnResult =
-               InteractiveTransactionSpecificationResponseControl.get(
-                    searchResult);
+          final com.unboundid.ldap.sdk.unboundidds.controls.
+               InteractiveTransactionSpecificationResponseControl txnResult =
+               com.unboundid.ldap.sdk.unboundidds.controls.
+                    InteractiveTransactionSpecificationResponseControl.get(
+                         searchResult);
           if ((txnResult == null) || (! txnResult.transactionValid()))
           {
             resultCode.compareAndSet(null, ResultCode.LOCAL_ERROR);
@@ -929,9 +958,11 @@ processingBlock:
 
         try
         {
-          final InteractiveTransactionSpecificationResponseControl txnResult =
-               InteractiveTransactionSpecificationResponseControl.get(
-                    searchResult);
+          final com.unboundid.ldap.sdk.unboundidds.controls.
+               InteractiveTransactionSpecificationResponseControl txnResult =
+               com.unboundid.ldap.sdk.unboundidds.controls.
+                    InteractiveTransactionSpecificationResponseControl.get(
+                         searchResult);
           if ((txnResult != null) && (! txnResult.transactionValid()))
           {
             sourceTxnID = null;
@@ -1019,9 +1050,11 @@ processingBlock:
 
           try
           {
-            final InteractiveTransactionSpecificationResponseControl txnResult =
-                 InteractiveTransactionSpecificationResponseControl.get(
-                      deleteResult);
+            final com.unboundid.ldap.sdk.unboundidds.controls.
+                 InteractiveTransactionSpecificationResponseControl txnResult =
+                 com.unboundid.ldap.sdk.unboundidds.controls.
+                      InteractiveTransactionSpecificationResponseControl.get(
+                           deleteResult);
             if ((txnResult == null) || (! txnResult.transactionValid()))
             {
               resultCode.compareAndSet(null, ResultCode.LOCAL_ERROR);
@@ -1053,9 +1086,11 @@ processingBlock:
 
           try
           {
-            final InteractiveTransactionSpecificationResponseControl txnResult =
-                 InteractiveTransactionSpecificationResponseControl.get(
-                      deleteResult);
+            final com.unboundid.ldap.sdk.unboundidds.controls.
+                 InteractiveTransactionSpecificationResponseControl txnResult =
+                 com.unboundid.ldap.sdk.unboundidds.controls.
+                      InteractiveTransactionSpecificationResponseControl.get(
+                           deleteResult);
             if ((txnResult != null) && (! txnResult.transactionValid()))
             {
               sourceTxnID = null;
@@ -1092,16 +1127,18 @@ processingBlock:
       // Commit the transaction in the target server.
       try
       {
-        final EndInteractiveTransactionExtendedRequest commitRequest;
+        final com.unboundid.ldap.sdk.unboundidds.extensions.
+             EndInteractiveTransactionExtendedRequest commitRequest;
         if (opPurposeControl == null)
         {
-          commitRequest = new EndInteractiveTransactionExtendedRequest(
-               targetTxnID, true);
+          commitRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               EndInteractiveTransactionExtendedRequest(targetTxnID, true);
         }
         else
         {
-          commitRequest = new EndInteractiveTransactionExtendedRequest(
-               targetTxnID, true, new Control[] { opPurposeControl });
+          commitRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               EndInteractiveTransactionExtendedRequest(targetTxnID, true,
+               new Control[] { opPurposeControl });
         }
 
         final ExtendedResult commitResult =
@@ -1135,16 +1172,18 @@ processingBlock:
       // Commit the transaction in the source server.
       try
       {
-        final EndInteractiveTransactionExtendedRequest commitRequest;
+        final com.unboundid.ldap.sdk.unboundidds.extensions.
+             EndInteractiveTransactionExtendedRequest commitRequest;
         if (opPurposeControl == null)
         {
-          commitRequest = new EndInteractiveTransactionExtendedRequest(
-               sourceTxnID, true);
+          commitRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               EndInteractiveTransactionExtendedRequest(sourceTxnID, true);
         }
         else
         {
-          commitRequest = new EndInteractiveTransactionExtendedRequest(
-               sourceTxnID, true, new Control[] { opPurposeControl });
+          commitRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+               EndInteractiveTransactionExtendedRequest(sourceTxnID, true,
+               new Control[] { opPurposeControl });
         }
 
         final ExtendedResult commitResult =
@@ -1183,16 +1222,18 @@ processingBlock:
       {
         try
         {
-          final EndInteractiveTransactionExtendedRequest abortRequest;
+          final com.unboundid.ldap.sdk.unboundidds.extensions.
+               EndInteractiveTransactionExtendedRequest abortRequest;
           if (opPurposeControl == null)
           {
-            abortRequest = new EndInteractiveTransactionExtendedRequest(
-                 targetTxnID, false);
+            abortRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+                 EndInteractiveTransactionExtendedRequest(targetTxnID, false);
           }
           else
           {
-            abortRequest = new EndInteractiveTransactionExtendedRequest(
-                 targetTxnID, false, new Control[] { opPurposeControl });
+            abortRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+                 EndInteractiveTransactionExtendedRequest(targetTxnID, false,
+                 new Control[] { opPurposeControl });
           }
 
           final ExtendedResult abortResult =
@@ -1237,16 +1278,18 @@ processingBlock:
       {
         try
         {
-          final EndInteractiveTransactionExtendedRequest abortRequest;
+          final com.unboundid.ldap.sdk.unboundidds.extensions.
+               EndInteractiveTransactionExtendedRequest abortRequest;
           if (opPurposeControl == null)
           {
-            abortRequest = new EndInteractiveTransactionExtendedRequest(
-                 sourceTxnID, false);
+            abortRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+                 EndInteractiveTransactionExtendedRequest(sourceTxnID, false);
           }
           else
           {
-            abortRequest = new EndInteractiveTransactionExtendedRequest(
-                 sourceTxnID, false, new Control[] { opPurposeControl });
+            abortRequest = new com.unboundid.ldap.sdk.unboundidds.extensions.
+                 EndInteractiveTransactionExtendedRequest(sourceTxnID, false,
+                 new Control[] { opPurposeControl });
           }
 
           final ExtendedResult abortResult =

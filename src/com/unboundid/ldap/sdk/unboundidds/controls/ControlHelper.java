@@ -81,6 +81,7 @@ public final class ControlHelper
    * use only and should not be called by external applications.
    */
   @InternalUseOnly()
+  @SuppressWarnings("deprecation")
   public static void registerDefaultResponseControls()
   {
     Control.registerDecodeableControl(

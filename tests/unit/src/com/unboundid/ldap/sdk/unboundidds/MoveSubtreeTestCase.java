@@ -56,8 +56,6 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             SetSubtreeAccessibilityExtendedRequest;
-import com.unboundid.ldap.sdk.unboundidds.extensions.
-            StartInteractiveTransactionExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.SubtreeAccessibilityState;
 
 
@@ -122,6 +120,7 @@ public final class MoveSubtreeTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testSuccessfulTransactionMoveWithMethod()
          throws Exception
   {
@@ -363,6 +362,7 @@ public final class MoveSubtreeTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testFailedTransactionMoveSourceUnauthenticated()
          throws Exception
   {
@@ -427,6 +427,7 @@ public final class MoveSubtreeTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testFailedTransactionMoveTargetUnauthenticated()
          throws Exception
   {
@@ -492,6 +493,7 @@ public final class MoveSubtreeTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testFailedTransactionMoveBaseDNMissing()
          throws Exception
   {
@@ -549,6 +551,7 @@ public final class MoveSubtreeTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testFailedTransactionMoveTargetBaseExists()
          throws Exception
   {
@@ -614,6 +617,7 @@ public final class MoveSubtreeTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testFailedTransactionMoveSizeLimitExceeded()
          throws Exception
   {
@@ -1464,6 +1468,7 @@ public final class MoveSubtreeTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
+  @SuppressWarnings("deprecation")
   private static boolean serversSupportInteractiveTransactions(
                              final LDAPConnection sourceConn,
                              final LDAPConnection targetConn)
@@ -1472,8 +1477,8 @@ public final class MoveSubtreeTestCase
     final RootDSE sourceRootDSE = sourceConn.getRootDSE();
     assertNotNull(sourceRootDSE);
 
-    if (! sourceRootDSE.supportsExtendedOperation(
-         StartInteractiveTransactionExtendedRequest.
+    if (! sourceRootDSE.supportsExtendedOperation(com.unboundid.ldap.sdk.
+         unboundidds.extensions.StartInteractiveTransactionExtendedRequest.
               START_INTERACTIVE_TRANSACTION_REQUEST_OID))
     {
       return false;
@@ -1482,8 +1487,8 @@ public final class MoveSubtreeTestCase
     final RootDSE targetRootDSE = targetConn.getRootDSE();
     assertNotNull(targetRootDSE);
 
-    if (! targetRootDSE.supportsExtendedOperation(
-         StartInteractiveTransactionExtendedRequest.
+    if (! targetRootDSE.supportsExtendedOperation(com.unboundid.ldap.sdk.
+         unboundidds.extensions.StartInteractiveTransactionExtendedRequest.
               START_INTERACTIVE_TRANSACTION_REQUEST_OID))
     {
       return false;

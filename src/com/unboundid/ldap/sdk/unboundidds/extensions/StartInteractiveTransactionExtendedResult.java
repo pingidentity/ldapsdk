@@ -97,7 +97,13 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * See the documentation for the
  * {@link StartInteractiveTransactionExtendedRequest} class for an example that
  * demonstrates the use of interactive transactions.
+ *
+ * @deprecated  The use of interactive transactions is strongly discouraged
+ *              because it can create conditions which are prone to deadlocks
+ *              between operations that may significantly affect performance and
+ *              will result in the cancellation of one or both operations.
  */
+@Deprecated()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class StartInteractiveTransactionExtendedResult

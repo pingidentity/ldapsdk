@@ -50,6 +50,7 @@ import com.unboundid.ldap.sdk.ResultCode;
  * This class provides a set of test cases for the interactive transaction
  * aborted extended result.
  */
+@SuppressWarnings("deprecation")
 public class InteractiveTransactionAbortedExtendedResultTestCase
      extends LDAPSDKTestCase
 {

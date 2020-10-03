@@ -62,8 +62,6 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             BatchedTransactionSpecificationRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.monitors.MonitorEntry;
 import com.unboundid.ldap.sdk.unboundidds.monitors.MonitorManager;
 import com.unboundid.util.LDAPTestUtils;
@@ -529,6 +527,7 @@ public final class ExampleUsagesTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(enabled=false)
+  @SuppressWarnings("deprecation")
   public void testStartInteractiveTransactionExtendedRequestExample()
          throws Exception
   {
@@ -562,8 +561,8 @@ public final class ExampleUsagesTestCase
       // Perform a search to find all users in the "Sales" department.
       SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
            SearchScope.SUB, Filter.createEqualityFilter("ou", "Sales"));
-      searchRequest.addControl(
-           new InteractiveTransactionSpecificationRequestControl(txnID, true,
+      searchRequest.addControl(new com.unboundid.ldap.sdk.unboundidds.controls.
+           InteractiveTransactionSpecificationRequestControl(txnID, true,
                 true));
 
       SearchResult searchResult = connection.search(searchRequest);
@@ -579,10 +578,9 @@ public final class ExampleUsagesTestCase
         ModifyRequest modifyRequest = new ModifyRequest(e.getDN(),
              new Modification(ModificationType.REPLACE,
                   "facsimileTelephoneNumber", "+1 123 456 7890"));
-        modifyRequest.addControl(
-             new InteractiveTransactionSpecificationRequestControl(txnID, true,
-
-                  true));
+        modifyRequest.addControl(new com.unboundid.ldap.sdk.unboundidds.
+             controls.InteractiveTransactionSpecificationRequestControl(txnID,
+                  true, true));
         connection.modify(modifyRequest);
       }
 

@@ -74,7 +74,13 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   considered stable or mature enough to be guaranteed to work in an
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
+ *
+ * @deprecated  The use of interactive transactions is strongly discouraged
+ *              because it can create conditions which are prone to deadlocks
+ *              between operations that may significantly affect performance and
+ *              will result in the cancellation of one or both operations.
  */
+@Deprecated()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class EndInteractiveTransactionExtendedRequest

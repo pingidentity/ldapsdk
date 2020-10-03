@@ -53,6 +53,7 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
  * Provides a set of test cases for the end interactive transaction extended
  * request.
  */
+@SuppressWarnings("deprecation")
 public class EndInteractiveTransactionExtendedRequestTestCase
      extends LDAPSDKTestCase
 {

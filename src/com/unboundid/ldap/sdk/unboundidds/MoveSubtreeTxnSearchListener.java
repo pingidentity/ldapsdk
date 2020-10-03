@@ -56,10 +56,6 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.
-            InteractiveTransactionSpecificationResponseControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
@@ -88,6 +84,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
+@SuppressWarnings("deprecation")
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 final class MoveSubtreeTxnSearchListener
       implements SearchResultListener
@@ -162,8 +159,8 @@ final class MoveSubtreeTxnSearchListener
        @NotNull final AtomicInteger entriesReadFromSource,
        @NotNull final AtomicInteger entriesAddedToTarget,
        @NotNull final TreeSet<DN> sourceEntryDNs,
-       @NotNull final InteractiveTransactionSpecificationRequestControl
-            targetTxnControl,
+       @NotNull final com.unboundid.ldap.sdk.unboundidds.controls.
+            InteractiveTransactionSpecificationRequestControl targetTxnControl,
        @Nullable final OperationPurposeRequestControl opPurposeControl,
        @Nullable final MoveSubtreeListener moveListener)
   {
@@ -298,8 +295,11 @@ final class MoveSubtreeTxnSearchListener
 
       try
       {
-        final InteractiveTransactionSpecificationResponseControl txnResult =
-             InteractiveTransactionSpecificationResponseControl.get(addResult);
+        final com.unboundid.ldap.sdk.unboundidds.controls.
+             InteractiveTransactionSpecificationResponseControl txnResult =
+             com.unboundid.ldap.sdk.unboundidds.controls.
+                  InteractiveTransactionSpecificationResponseControl.get(
+                       addResult);
         if ((txnResult != null) && (! txnResult.transactionValid()))
         {
           targetTxnValid.set(false);
@@ -315,8 +315,11 @@ final class MoveSubtreeTxnSearchListener
 
     try
     {
-      final InteractiveTransactionSpecificationResponseControl txnResult =
-           InteractiveTransactionSpecificationResponseControl.get(addResult);
+      final com.unboundid.ldap.sdk.unboundidds.controls.
+           InteractiveTransactionSpecificationResponseControl txnResult =
+           com.unboundid.ldap.sdk.unboundidds.controls.
+                InteractiveTransactionSpecificationResponseControl.get(
+                     addResult);
       if ((txnResult != null) && (! txnResult.transactionValid()))
       {
         targetTxnValid.set(false);
