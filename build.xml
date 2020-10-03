@@ -412,6 +412,7 @@
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; Ping Identity &amp;ndash; All Rights Reserved.&lt;/div&gt;">
       <fileset dir="${src.dir}" defaultexcludes="yes">
         <exclude name="**/*Helper*" />
+        <exclude name="**/*InteractiveTransaction*" />
         <exclude name="**/*Constants*" />
         <exclude name="com/unboundid/util/parallel/**" />
       </fileset>
@@ -715,6 +716,7 @@
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; Ping Identity Corporation &amp;ndash; All Rights Reserved.&lt;/div&gt;">
       <fileset dir="${src.dir}" defaultexcludes="yes">
         <exclude name="**/*Helper*" />
+        <exclude name="**/*InteractiveTransaction*" />
         <exclude name="**/*Constants*" />
         <exclude name="com/unboundid/util/parallel/**" />
       </fileset>
