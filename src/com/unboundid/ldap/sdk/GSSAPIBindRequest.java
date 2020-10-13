@@ -1405,17 +1405,17 @@ public final class GSSAPIBindRequest
            e);
     }
 
-    final SASLHelper helper = new SASLHelper(this, connection,
-         GSSAPI_MECHANISM_NAME, saslClient, getControls(),
+    final SASLClientBindHandler bindHandler = new SASLClientBindHandler(this,
+         connection, GSSAPI_MECHANISM_NAME, saslClient, getControls(),
          getResponseTimeoutMillis(connection), unhandledCallbackMessages);
 
     try
     {
-      return helper.processSASLBind();
+      return bindHandler.processSASLBind();
     }
     finally
     {
-      messageID = helper.getMessageID();
+      messageID = bindHandler.getMessageID();
     }
   }
 

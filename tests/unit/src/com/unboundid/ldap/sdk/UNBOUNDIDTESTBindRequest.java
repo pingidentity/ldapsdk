@@ -163,17 +163,17 @@ final class UNBOUNDIDTESTBindRequest
          new UNBOUNDIDTESTSASLClient(dn, password, qop);
 
     final ArrayList<String> unhandledCallbackMessages = new ArrayList<>(0);
-    final SASLHelper helper = new SASLHelper(this, connection,
-         UNBOUNDID_TEST_MECHANISM_NAME, saslClient, getControls(),
+    final SASLClientBindHandler bindHandler = new SASLClientBindHandler(this,
+         connection, UNBOUNDID_TEST_MECHANISM_NAME, saslClient, getControls(),
          getResponseTimeoutMillis(connection), unhandledCallbackMessages);
 
     try
     {
-      return helper.processSASLBind();
+      return bindHandler.processSASLBind();
     }
     finally
     {
-      messageID = helper.getMessageID();
+      messageID = bindHandler.getMessageID();
     }
   }
 

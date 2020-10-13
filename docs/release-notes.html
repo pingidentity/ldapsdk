@@ -24,6 +24,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a SASLClientBindHandler class that can be used to invoke SASL bind
+                  operations that use a javax.security.sasl.SaslClient object to perform the
+                  actual SASL processing.  This includes support for updating the underlying
+                  connection with a negotiated security layer if the SASL mechanism supports and
+                  uses a quality of protection (QoP) value of auth-int or auth-conf.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a null X.509 trust manager that will never trust any certificate chain.
                   This is primarily useful for testing purposes.
                   <br><br>

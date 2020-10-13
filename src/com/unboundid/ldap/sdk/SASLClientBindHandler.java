@@ -44,21 +44,27 @@ import javax.security.sasl.SaslClient;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
 
 
 /**
- * This class provides a mechanism for authenticating to an LDAP directory
- * server using the Java SASL client library.  It is intended for internal use
- * only.
+ * This class provides a mechanism for performing a SASL bind operation (or set
+ * of operations) using a Java {@code SaslClient} to perform all of the
+ * SASL-related processing.  This also supports enabling communication security
+ * for SASL mechanisms that support the {@code auth-int} or {@code auth-conf}
+ * quality of protection mechanisms.
  */
-final class SASLHelper
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class SASLClientBindHandler
 {
   // The set of controls to include in the request.
-  @NotNull private final Control[] controls;
+  @Nullable private final Control[] controls;
 
   // The message ID used when communicating with the directory server.
   private volatile int messageID;
@@ -89,24 +95,39 @@ final class SASLHelper
    * Creates a new SASL client with the provided information.
    *
    * @param  bindRequest                The SASL bind request being processed.
+   *                                    This must not be {@code null}.
    * @param  connection                 The connection to use to communicate
-   *                                    with the directory server.
+   *                                    with the directory server.  This must
+   *                                    not be {@code null}.
    * @param  mechanism                  The name of the SASL mechanism to use.
+   *                                    This must not be {@code null} or empty.
    * @param  saslClient                 The Java SASL client instance to use to
-   *                                    perform the processing.
+   *                                    perform the processing.  This must not
+   *                                    be {@code null}.
    * @param  controls                   The set of controls to include in the
-   *                                    request.
+   *                                    request.  This may be {@code null} or
+   *                                    empty if no controls should be included
+   *                                    in the request.
    * @param  responseTimeoutMillis      The maximum length of time in
    *                                    milliseconds to wait for a response from
-   *                                    the server.
+   *                                    the server.  A value that is less than
+   *                                    or equal to zero indicates that no
+   *                                    timeout should be enforced.
    * @param  unhandledCallbackMessages  A list that will be updated with
    *                                    messages about any unhandled callbacks.
+   *                                    This list must be managed by the bind
+   *                                    request class, which should update it if
+   *                                    its {@code CallbackHandler.handle}
+   *                                    method is invoked with one or more
+   *                                    callbacks that it does not handle or
+   *                                    support.  It must not be {@code null}.
    */
-  SASLHelper(@NotNull final SASLBindRequest bindRequest,
+  public SASLClientBindHandler(
+             @NotNull final SASLBindRequest bindRequest,
              @NotNull final LDAPConnection connection,
              @NotNull final String mechanism,
              @NotNull final SaslClient saslClient,
-             @NotNull final Control[] controls,
+             @Nullable final Control[] controls,
              final long responseTimeoutMillis,
              @NotNull final List<String> unhandledCallbackMessages)
   {
@@ -131,7 +152,7 @@ final class SASLHelper
    * @throws  LDAPException  If a problem occurs while processing the bind.
    */
   @NotNull()
-  BindResult processSASLBind()
+  public BindResult processSASLBind()
          throws LDAPException
   {
     try
@@ -307,11 +328,13 @@ final class SASLHelper
 
 
   /**
-   * Retrieves the message ID used when communicating with the directory server.
+   * Retrieves the message ID for the last message in the exchange with the
+   * directory server.
    *
-   * @return  The message ID used when communicating with the directory server.
+   * @return  The message for the last message in the exchange with the
+   *          directory server.
    */
-  int getMessageID()
+  public int getMessageID()
   {
     return messageID;
   }
