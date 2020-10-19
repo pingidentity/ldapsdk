@@ -61,66 +61,71 @@ import com.unboundid.util.StaticUtils;
 public enum ModifiablePasswordPolicyStateJSONField
 {
   /**
-   * The field used to hold the time the user's password was last changed.  If
-   * present, the value of this field may be a string containing a timestamp
-   * in the ISO 8601 format described in RFC 3339, or it may be the JSON null
-   * value to indicate that the user does not have a password changed time.
+   * The field (password-changed-time) used to hold the time the user's password
+   * was last changed.  If present, the value of this field may be a string
+   * containing a timestamp in the ISO 8601 format described in RFC 3339, or it
+   * may be the JSON null value to indicate that the user does not have a
+   * password changed time.  Note that setting this field to {@code null} will
+   * cause the server to fall back to using the entry's createTimestamp value
+   * (if available) as the last changed time.
    */
   PASSWORD_CHANGED_TIME("password-changed-time"),
 
 
 
   /**
-   * The field used to indicate whether the user's account has been
-   * administratively disabled.
+   * The field (account-is-disabled) used to indicate whether the user's account
+   * has been administratively disabled.
    */
   ACCOUNT_IS_DISABLED("account-is-disabled"),
 
 
 
   /**
-   * The field used to hold the user's account activation time.  If present, the
-   * value of this field may be a string containing a timestamp in the ISO 8601
-   * format described in RFC 3339, or it may be the JSON null value to indicate
-   * that the user does not have an account activation time.
+   * The field (account-activation-time) used to hold the user's account
+   * activation time.  If present, the value of this field may be a string
+   * containing a timestamp in the ISO 8601 format described in RFC 3339, or it
+   * may be the JSON null value to indicate that the user does not have an
+   * account activation time.
    */
   ACCOUNT_ACTIVATION_TIME("account-activation-time"),
 
 
 
   /**
-   * The field used to hold the user's account expiration time.  If present, the
-   * value of this field may be a string containing a timestamp in the ISO 8601
-   * format described in RFC 3339, or it may be the JSON null value to indicate
-   * that the user does not have an account expiration time.
+   * The field (account-expiration-time) used to hold the user's account
+   * expiration time.  If present, the value of this field may be a string
+   * containing a timestamp in the ISO 8601 format described in RFC 3339, or it
+   * may be the JSON null value to indicate that the user does not have an
+   * account expiration time.
    */
   ACCOUNT_EXPIRATION_TIME("account-expiration-time"),
 
 
 
   /**
-   * The field used to indicate whether the user's account is locked as a result
-   * of too many failed authentication attempts.
+   * The field (account-is-failure-locked) used to indicate whether the user's
+   * account is locked as a result of too many failed authentication attempts.
    */
   ACCOUNT_IS_FAILURE_LOCKED("account-is-failure-locked"),
 
 
 
   /**
-   * The field used to hold the time that the user was first warned about an
-   * upcoming password expiration.  If present, the value of this field may be a
-   * string containing a timestamp in the ISO 8601 format described in RFC 3339,
-   * or it may be the JSON null value to indicate that the user does not have a
-   * password expiration warned time.
+   * The field (password-expiration-warned-time) used to hold the time that the
+   * user was first warned about an upcoming password expiration.  If present,
+   * the value of this field may be a string containing a timestamp in the ISO
+   * 8601 format described in RFC 3339, or it may be the JSON null value to
+   * indicate that the user does not have a password expiration warned time.
    */
   PASSWORD_EXPIRATION_WARNED_TIME("password-expiration-warned-time"),
 
 
 
   /**
-   * The field used to indicate whether the user must change their password
-   * before they will be permitted to request any other operations in the
-   * server.
+   * The field (must-change-password) used to indicate whether the user must
+   * change their password before they will be permitted to request any other
+   * operations in the server.
    */
   MUST_CHANGE_PASSWORD("must-change-password");
 
