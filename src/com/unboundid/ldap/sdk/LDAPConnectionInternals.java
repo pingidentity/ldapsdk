@@ -443,11 +443,11 @@ final class LDAPConnectionInternals
    * @throws  LDAPException  If a problem occurs while attempting to convert the
    *                         connection to use a SASL security layer.
    */
-  void applySASLSecurityLayer(@NotNull final SaslClient saslClient)
+  void applySASLQoP(@NotNull final SaslClient saslClient)
        throws LDAPException
   {
     this.saslClient = saslClient;
-    connectionReader.applySASLSecurityLayer(saslClient);
+    connectionReader.applySASLQoP(saslClient);
   }
 
 

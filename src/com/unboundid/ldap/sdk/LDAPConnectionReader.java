@@ -1019,7 +1019,7 @@ final class LDAPConnectionReader
    * @param  saslClient  The SASL client to use to decode data read over this
    *                     connection.
    */
-  void applySASLSecurityLayer(@NotNull final SaslClient saslClient)
+  void applySASLQoP(@NotNull final SaslClient saslClient)
   {
     InternalASN1Helper.setSASLClient(asn1StreamReader, saslClient);
   }
