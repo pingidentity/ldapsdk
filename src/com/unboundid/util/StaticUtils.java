@@ -5133,18 +5133,42 @@ public final class StaticUtils
 
 
   /**
-   * Attempts to determine all addresses associated with the local system.
+   * Attempts to determine all addresses associated with the local system,
+   * including loopback addresses.
    *
-   * @param  nameResolver  The name resolver to use to determine the local
-   *                       host and loopback addresses.  If this is
-   *                       {@code null}, then the LDAP SDK's default name
-   *                       resolver will be used.
+   * @param  nameResolver  The name resolver to use to determine the local host
+   *                       and loopback addresses.  If this is {@code null},
+   *                       then the LDAP SDK's default name resolver will be
+   *                       used.
    *
    * @return  A set of the local addresses that were identified.
    */
   @NotNull()
   public static Set<InetAddress> getAllLocalAddresses(
                                       @Nullable final NameResolver nameResolver)
+  {
+    return getAllLocalAddresses(nameResolver, true);
+  }
+
+
+
+  /**
+   * Attempts to determine all addresses associated with the local system,
+   * optionally including loopback addresses.
+   *
+   * @param  nameResolver     The name resolver to use to determine the local
+   *                          host and loopback addresses.  If this is
+   *                          {@code null}, then the LDAP SDK's default name
+   *                          resolver will be used.
+   * @param  includeLoopback  Indicates whether to include loopback addresses in
+   *                          the set that is returned.
+   *
+   * @return  A set of the local addresses that were identified.
+   */
+  @NotNull()
+  public static Set<InetAddress> getAllLocalAddresses(
+                                      @Nullable final NameResolver nameResolver,
+                                      final boolean includeLoopback)
   {
     final NameResolver resolver;
     if (nameResolver == null)
@@ -5176,11 +5200,14 @@ public final class StaticUtils
       {
         final NetworkInterface networkInterface =
              networkInterfaces.nextElement();
-        final Enumeration<InetAddress> interfaceAddresses =
-             networkInterface.getInetAddresses();
-        while (interfaceAddresses.hasMoreElements())
+        if (includeLoopback || (! networkInterface.isLoopback()))
         {
-          localAddresses.add(interfaceAddresses.nextElement());
+          final Enumeration<InetAddress> interfaceAddresses =
+               networkInterface.getInetAddresses();
+          while (interfaceAddresses.hasMoreElements())
+          {
+            localAddresses.add(interfaceAddresses.nextElement());
+          }
         }
       }
     }
@@ -5189,13 +5216,16 @@ public final class StaticUtils
       Debug.debugException(e);
     }
 
-    try
+    if (includeLoopback)
     {
-      localAddresses.add(resolver.getLoopbackAddress());
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
+      try
+      {
+        localAddresses.add(resolver.getLoopbackAddress());
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
 
     return Collections.unmodifiableSet(localAddresses);

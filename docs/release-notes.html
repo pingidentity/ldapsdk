@@ -24,6 +24,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the logic used to generate temporary self-signed certificates for use by
+                  the in-memory-directory-server and ldap-debugger tools so that the certificates
+                  will be more acceptable to a wide range of TLS clients. The certificates will
+                  now have a validity duration of one year rather than the former duration of ten
+                  years, as some TLS clients balk at certificates with long lifetimes. Further,
+                  the subject alternative name extension will now default to only using canonical
+                  host names and IP addresses associated with non-loopback interfaces, and it will
+                  only include loopback addresses if no non-loopback values can be identified.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a SASLClientBindHandler class that can be used to invoke SASL bind
                   operations that use a javax.security.sasl.SaslClient object to perform the
                   actual SASL processing.  This includes support for updating the underlying

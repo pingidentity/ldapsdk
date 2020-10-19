@@ -165,8 +165,14 @@ public final class SelfSignedCertificateGenerator
     // their corresponding canonical hostnames.
     final NameResolver nameResolver =
          LDAPConnectionOptions.DEFAULT_NAME_RESOLVER;
-    final Set<InetAddress> localAddresses =
-         StaticUtils.getAllLocalAddresses(nameResolver);
+    Set<InetAddress> localAddresses =
+         StaticUtils.getAllLocalAddresses(nameResolver, false);
+    if (localAddresses.isEmpty())
+    {
+      localAddresses = StaticUtils.getAllLocalAddresses(nameResolver, true);
+
+    }
+
     final Set<String> canonicalHostNames =
          StaticUtils.getAvailableCanonicalHostNames(nameResolver,
               localAddresses);
@@ -216,7 +222,7 @@ public final class SelfSignedCertificateGenerator
     argList.add(subjectDN.toString());
 
     argList.add("--days-valid");
-    argList.add("3650");
+    argList.add("366");
 
     argList.add("--validityStartTime");
     argList.add(yesterdayTimeStamp);
