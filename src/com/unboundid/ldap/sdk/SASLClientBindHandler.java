@@ -309,7 +309,7 @@ public final class SASLClientBindHandler
 
       if (hasNegotiatedSecurity)
       {
-        connection.applySASLQoP(saslClient);
+        connection.applySASLSecurityLayer(saslClient);
       }
       else
       {

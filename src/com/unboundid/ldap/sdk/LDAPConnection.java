@@ -1104,17 +1104,18 @@ public final class LDAPConnection
 
 
   /**
-   * Converts this clear-text connection to one that uses SASL integrity and/or
-   * confidentiality.
+   * Applies a communication security layer that has been negotiated using the
+   * provided {@code SaslClient} object to this connection.  The connection must
+   * be established and must not have any other security layer already in place.
    *
    * @param  saslClient  The SASL client that will be used to secure the
-   *                     communication.
+   *                     communication. It must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while attempting to convert the
    *                         connection to use SASL QoP.
    */
-  void applySASLQoP(@NotNull final SaslClient saslClient)
-       throws LDAPException
+  public void applySASLSecurityLayer(@NotNull final SaslClient saslClient)
+         throws LDAPException
   {
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals == null)
@@ -1124,7 +1125,7 @@ public final class LDAPConnection
     }
     else
     {
-      internals.applySASLQoP(saslClient);
+      internals.applySASLSecurityLayer(saslClient);
     }
   }
 

@@ -28,7 +28,10 @@ ${TARGET="offline"}                <br>
                   operations that use a javax.security.sasl.SaslClient object to perform the
                   actual SASL processing.  This includes support for updating the underlying
                   connection with a negotiated security layer if the SASL mechanism supports and
-                  uses a quality of protection (QoP) value of auth-int or auth-conf.
+                  uses a quality of protection (QoP) value of auth-int or auth-conf.  Also added
+                  an LDAPConnection.applySASLSecurityLayer method that can be used to add a
+                  security layer negotiated with a SaslClient object to an established, clear-text
+                  connection.
                   <br><br>
                 </li>
 
