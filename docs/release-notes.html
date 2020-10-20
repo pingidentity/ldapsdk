@@ -68,6 +68,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a StaticUtils.isIANAReservedIPAddress method that can be used to determine
+                  whether a provided IPv4 or IPv6 address is contained in an IANA-reserved range,
+                  optionally including ranges that are reserved for private-use networks (for
+                  example, home networks, corporate LANs, etc.).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ChangeLogEntry class so that it will fall back to using
                   includedAttributes if the deletedEntryAttrs attribute does not exist.  This can
                   help parse deleted attributes from OpenDJ changelog entries.

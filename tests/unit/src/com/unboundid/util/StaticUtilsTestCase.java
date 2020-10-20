@@ -42,6 +42,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -3765,5 +3766,466 @@ public class StaticUtilsTestCase
     StaticUtils.writeFile(f.getAbsolutePath(), "Line 1", "Line 2", "Line 3");
     assertEquals(StaticUtils.readFileLines(f.getAbsolutePath()),
          Arrays.asList("Line 1", "Line 2", "Line 3"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getAllLocalAddresses} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetAllLocalAddresses()
+         throws Exception
+  {
+    // Test when loopback addresses are implicitly included.
+    final Set<InetAddress> addressesWithLoopbackImplicitlyIncluded =
+         StaticUtils.getAllLocalAddresses(null);
+    assertNotNull(addressesWithLoopbackImplicitlyIncluded);
+    assertFalse(addressesWithLoopbackImplicitlyIncluded.isEmpty());
+
+    boolean loopbackAddressFound = false;
+    for (final InetAddress address : addressesWithLoopbackImplicitlyIncluded)
+    {
+      if (address.isLoopbackAddress())
+      {
+        loopbackAddressFound = true;
+        break;
+      }
+    }
+
+    assertTrue(loopbackAddressFound);
+
+
+    // Test when loopback addresses are explicitly included.
+    final Set<InetAddress> addressesWithLoopbackExplicitlyIncluded =
+         StaticUtils.getAllLocalAddresses(null, true);
+    assertNotNull(addressesWithLoopbackExplicitlyIncluded);
+    assertFalse(addressesWithLoopbackExplicitlyIncluded.isEmpty());
+
+    assertEquals(addressesWithLoopbackExplicitlyIncluded,
+         addressesWithLoopbackImplicitlyIncluded);
+
+
+    // Test when loopback addresses are explicitly excluded.
+    final Set<InetAddress> addressesWithLoopbackExplicitlyExcluded =
+         StaticUtils.getAllLocalAddresses(null, false);
+    assertNotNull(addressesWithLoopbackExplicitlyExcluded);
+    assertFalse(addressesWithLoopbackExplicitlyExcluded.isEmpty());
+    assertTrue(addressesWithLoopbackExplicitlyExcluded.size() <
+         addressesWithLoopbackImplicitlyIncluded.size());
+
+    for (final InetAddress address : addressesWithLoopbackExplicitlyExcluded)
+    {
+      assertFalse(address.isLoopbackAddress());
+      assertTrue(addressesWithLoopbackImplicitlyIncluded.contains(address));
+    }
+
+    for (final InetAddress address : addressesWithLoopbackImplicitlyIncluded)
+    {
+      if (! address.isLoopbackAddress())
+      {
+        assertTrue(addressesWithLoopbackImplicitlyIncluded.contains(address));
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code isIANAReservedIPAddress} method with the
+   * provided information.
+   *
+   * @param  address                 The address to test.  It must not be
+   *                                 {@code null}.
+   * @param  isPrivateUseAddress     Indicates whether the provided address is
+   *                                 an address from a range reserved for
+   *                                 private-use networks.
+   * @param  isOtherReservedAddress  Indicates whether the provided address is
+   *                                 a reserved address from a non-private-use
+   *                                 range.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="isIANAReservedIPAddressTestData")
+  public void testIsIANAReservedIPAddress(final InetAddress address,
+                                          final boolean isPrivateUseAddress,
+                                          final boolean isOtherReservedAddress)
+         throws Exception
+  {
+    if (StaticUtils.isIANAReservedIPAddress(address, true))
+    {
+      if (StaticUtils.isIANAReservedIPAddress(address, false))
+      {
+        assertFalse(isPrivateUseAddress);
+        assertTrue(isOtherReservedAddress);
+      }
+      else
+      {
+        assertTrue(isPrivateUseAddress);
+        assertFalse(isOtherReservedAddress);
+      }
+    }
+    else
+    {
+      assertFalse(isPrivateUseAddress);
+      assertFalse(isOtherReservedAddress);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a set of test data for use in testing the
+   * {@code isIANAReservedIPAddress} method.
+   *
+   * @return  A set of data for use in testing the
+   *          {@code isIANAReservedIPAddress} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @DataProvider(name="isIANAReservedIPAddressTestData")
+  public Object[][] getIsIANAReservedIPAddressTestData()
+         throws Exception
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        InetAddress.getByName("0.1.2.3"),
+        false,  // Not a private-use address
+        true    // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("1.2.3.4"),
+        false,  // Not a private-use address
+        false   // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("10.11.12.13"),
+        true,  // It is a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("100.1.2.3"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("100.64.65.66"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("100.127.128.129"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("127.0.0.1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("127.128.129.130"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("169.253.2.3"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("169.254.1.2"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("169.255.2.3"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("172.15.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("172.16.1.2"),
+        true,  // It is a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("172.31.1.2"),
+        true,  // It is a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("172.32.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.0.0.1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.0.1.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.0.2.1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.0.3.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.88.98.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.88.99.1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.88.100.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.167.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.168.1.2"),
+        true,  // It is a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("192.169.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.17.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.18.1.2"),
+        false, // Not a private-use address
+        true  //  It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.19.1.2"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.20.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.51.99.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.51.100.1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("198.51.101.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("203.0.112.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("203.0.113.1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("203.0.114.1"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("223.255.1.2"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("224.1.2.3"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("255.1.2.3"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("::1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("::1"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("1F01:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("2001:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("3F01:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        false, // Not a private-use address
+        false  // Not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("4001:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("FB01:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("FC01:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        true,  // It is a private-use address
+        false  // It is not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("FD01:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        true,  // It is a private-use address
+        false  // It is not a reserved address
+      },
+
+      new Object[]
+      {
+        InetAddress.getByName("FE01:0203:0405:0607:0809:0A0B:0C0D:0E0F"),
+        false, // Not a private-use address
+        true   // It is a reserved address
+      }
+    };
   }
 }

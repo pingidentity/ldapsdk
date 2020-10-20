@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
@@ -5353,6 +5355,239 @@ public final class StaticUtils
     {
       return hostAddress;
     }
+  }
+
+
+
+  /**
+   * Indicates whether the provided address is marked as reserved in the IANA
+   * IPv4 address space registry at
+   * https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt
+   * or the IPv6 address space registry at
+   * https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.txt.
+   *
+   * @param  address
+   *             The address for which to make the determination.  It must
+   *             not be {@code null}, and it must be an IPv4 or IPv6 address.
+   * @param  includePrivateUseNetworkAddresses
+   *              Indicates whether to consider addresses in a private-use
+   *              network address range (including 10.0.0.0/8, 172.16.0.0/12,
+   *              192.168.0.0/16, and fc00::/7) as reserved addresses.  If this
+   *              is {@code true}, then this method will return {@code true} for
+   *              addresses in a private-use network range; if it is
+   *              {@code false}, then this method will return {@code false} for
+   *              addresses in those ranges.  This does not have any effect for
+   *              addresses in other reserved address ranges.
+   *
+   * @return  {@code true} if the provided address is in a reserved address
+   *          range, or {@code false} if not.
+   */
+  public static boolean isIANAReservedIPAddress(
+              @NotNull final InetAddress address,
+              final boolean includePrivateUseNetworkAddresses)
+  {
+    if (address instanceof Inet4Address)
+    {
+      return isIANAReservedIPv4Address((Inet4Address) address,
+           includePrivateUseNetworkAddresses);
+    }
+    else if (address instanceof Inet6Address)
+    {
+      return isIANAReservedIPv6Address((Inet6Address) address,
+           includePrivateUseNetworkAddresses);
+    }
+    else
+    {
+      // It's an unrecognized address type.  We have to assume it's not
+      // reserved.
+      return false;
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided address is marked as reserved in the IANA
+   * IPv4 address space registry at
+   * https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt.
+   * This implementation is based on the version of the registry that was
+   * updated on 2019-12-27.
+   *
+   * @param  address
+   *             The IPv4 address for which to make the determination.  It must
+   *             not be {@code null}, and it must be an IPv4 address.
+   * @param  includePrivateUseNetworkAddresses
+   *              Indicates whether to consider addresses in a private-use
+   *              network address range as reserved addresses.
+   *
+   * @return  {@code true} if the provided address is in a reserved address
+   *          range, or {@code false} if not.
+   */
+  public static boolean isIANAReservedIPv4Address(
+              @NotNull final Inet4Address address,
+              final boolean includePrivateUseNetworkAddresses)
+  {
+    final byte[] addressBytes = address.getAddress();
+    final int firstOctet = addressBytes[0] & 0xFF;
+    final int secondOctet = addressBytes[1] & 0xFF;
+    final int thirdOctet = addressBytes[2] & 0xFF;
+
+    switch (firstOctet)
+    {
+      // * Addresses 0.*.*.* are reserved for self-identification.
+      case 0:
+
+      // * Addresses 127.*.*.* are reserved for loopback addresses.
+      case 127:
+
+      // * Addresses 224.*.*.* through 239.*.*.* are reserved for multicast.
+      case 224:
+      case 225:
+      case 226:
+      case 227:
+      case 228:
+      case 229:
+      case 230:
+      case 231:
+      case 232:
+      case 233:
+      case 234:
+      case 235:
+      case 236:
+      case 237:
+      case 238:
+      case 239:
+
+      // * Addresses 240.*.*.* through 255.*.*.* are reserved for future use.
+      case 240:
+      case 241:
+      case 242:
+      case 243:
+      case 244:
+      case 245:
+      case 246:
+      case 247:
+      case 248:
+      case 249:
+      case 250:
+      case 251:
+      case 252:
+      case 253:
+      case 254:
+      case 255:
+        return true;
+
+      // * Addresses 10.*.*.* are reserved for private-use networks.
+      case 10:
+        return includePrivateUseNetworkAddresses;
+
+      // * Addresses 100.64.0.0 through 100.127.255.255. are in the shared
+      //   address space range described in RFC 6598.
+      case 100:  // First octet 100 -- Partially reserved
+        return ((secondOctet >= 64) && (secondOctet <= 127));
+
+      // * Addresses 169.254.*.* are reserved for link-local addresses.
+      case 169:
+        return (secondOctet == 254);
+
+      // * Addresses 172.16.0.0 through 172.31.255.255 are reserved for
+      //   private-use networks.
+      case 172:
+        if ((secondOctet >= 16) && (secondOctet <= 31))
+        {
+          return includePrivateUseNetworkAddresses;
+        }
+        else
+        {
+          return false;
+        }
+
+      // * Addresses 192.0.0.* are reserved for IPv4 Special Purpose Address.
+      // * Addresses 192.0.2.* are reserved for TEST-NET-1.
+      // * Addresses 192.88.99.* are reserved for 6to4 Relay Anycast.
+      // * Addresses 192.168.*.* are reserved for private-use networks.
+      case 192:
+        if (secondOctet == 0)
+        {
+          return ((thirdOctet == 0) || (thirdOctet == 2));
+        }
+        else if (secondOctet == 88)
+        {
+          return (thirdOctet == 99);
+        }
+        else if (secondOctet == 168)
+        {
+          return includePrivateUseNetworkAddresses;
+        }
+        else
+        {
+          return false;
+        }
+
+      // * Addresses 198.18.0.0 through 198.19.255.255 are reserved for Network
+      //   Interconnect Device Benchmark Testing.
+      // * Addresses 198.51.100.* are reserved for TEST-NET-2.
+      case 198:
+        if ((secondOctet >= 18) && (secondOctet <= 19))
+        {
+          return true;
+        }
+        else
+        {
+          return ((secondOctet == 51) && (thirdOctet == 100));
+        }
+
+      // * Addresses 203.0.113.* are reserved for TEST-NET-3.
+      case 203:
+        return ((secondOctet == 0) && (thirdOctet == 113));
+
+      // All other addresses are not reserved.
+      default:
+        return false;
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided address is marked as reserved in the IANA
+   * IPv6 address space registry at
+   * https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.txt.
+   * This implementation is based on the version of the registry that was
+   * updated on 2019-09-13.
+   *
+   * @param  address
+   *             The IPv4 address for which to make the determination.  It must
+   *             not be {@code null}, and it must be an IPv6 address.
+   * @param  includePrivateUseNetworkAddresses
+   *              Indicates whether to consider addresses in a private-use
+   *              network address range as reserved addresses.
+   *
+   * @return  {@code true} if the provided address is in a reserved address
+   *          range, or {@code false} if not.
+   */
+  public static boolean isIANAReservedIPv6Address(
+              @NotNull final Inet6Address address,
+              final boolean includePrivateUseNetworkAddresses)
+  {
+    final byte[] addressBytes = address.getAddress();
+    final int firstOctet = addressBytes[0] & 0xFF;
+
+    // Addresses with a first octet between 0x20 and 0x3F are not reserved.
+    if ((firstOctet >= 0x20) && (firstOctet <= 0x3F))
+    {
+      return false;
+    }
+
+    // Addresses with a first octet between 0xFC and 0xFD are reserved for
+    // private-use networks.
+    if ((firstOctet >= 0xFC) && (firstOctet <= 0xFD))
+    {
+      return includePrivateUseNetworkAddresses;
+    }
+
+    // All other addresses are reserved.
+    return true;
   }
 
 
