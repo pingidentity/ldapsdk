@@ -36,6 +36,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new DNS host name argument value validator that can be used to determine
+                  whether a string represents a valid DNS host name.  It can optionally accept or
+                  reject values that are numeric IP addresses rather than host names, can
+                  optionally accept or reject values that represent unqualified names, and can
+                  optionally accept or reject values that represent unresolvable names.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a SASLClientBindHandler class that can be used to invoke SASL bind
                   operations that use a javax.security.sasl.SaslClient object to perform the
                   actual SASL processing.  This includes support for updating the underlying
