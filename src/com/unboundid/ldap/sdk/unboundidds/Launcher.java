@@ -73,6 +73,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPPasswordModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
+import com.unboundid.ldap.sdk.unboundidds.tools.ParallelUpdate;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
 import com.unboundid.ldif.LDIFDiff;
 import com.unboundid.ldif.LDIFModify;
@@ -147,6 +148,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>manage-certificates -- Launch the {@link ManageCertificates} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>move-subtree -- Launch the {@link MoveSubtree} tool.</LI>
+ *   <LI>parallel-update -- Launch the {@link ParallelUpdate} tool.</LI>
  *   <LI>register-yubikey-otp-device -- Launch the
  *       {@link RegisterYubiKeyOTPDevice} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
@@ -340,6 +342,10 @@ public final class Launcher
     {
       return MoveSubtree.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("parallel-update"))
+    {
+      return ParallelUpdate.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("register-yubikey-otp-device"))
     {
       return RegisterYubiKeyOTPDevice.main(remainingArgs, outStream, errStream);
@@ -417,6 +423,7 @@ public final class Launcher
         err.println("     manage-certificates");
         err.println("     modrate");
         err.println("     move-subtree");
+        err.println("     parallel-update");
         err.println("     register-yubikey-otp-device");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");
@@ -474,6 +481,7 @@ public final class Launcher
          ManageCertificates.class,
          ModRate.class,
          MoveSubtree.class,
+         ParallelUpdate.class,
          RegisterYubiKeyOTPDevice.class,
          SearchAndModRate.class,
          SearchRate.class,

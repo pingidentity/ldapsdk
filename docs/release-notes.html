@@ -14,6 +14,19 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a parallel-update command-line tool that can be used to apply changes read
+                  from an LDIF file against an LDAP server using multiple concurrent threads for
+                  higher throughput than single-threaded tools like ldapmodify.  It properly
+                  handles dependencies between concurrent operations (for example, it will delay
+                  adding a child entry if the add for its parent is still in progress), and it
+                  also supports retrying operations that fail in a way that indicates that the
+                  operation might succeed if attempted after all other operations have completed.
+                  Any changes that cannot be processed successfully will be written to a reject
+                  file for later examination.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP listener framework and the in-memory directory server to
                   provide support for mutual TLS authentication. in which the server requests a
                   certificate chain from the client and validates any chain that is provided).
