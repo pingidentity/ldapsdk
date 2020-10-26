@@ -1153,7 +1153,7 @@ public final class ParallelUpdate
    */
   @Override()
   @Nullable()
-  protected String getToolCompletionMessage()
+  public String getToolCompletionMessage()
   {
     return completionMessage.get();
   }
