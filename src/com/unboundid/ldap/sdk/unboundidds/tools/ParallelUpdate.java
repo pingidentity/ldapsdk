@@ -2605,6 +2605,123 @@ public final class ParallelUpdate
 
 
   /**
+   * Retrieves the total number of operations attempted.  This should only be
+   * called after all tool processing has completed.
+   *
+   * @return  The total number of operations attempted.
+   */
+  public long getTotalAttemptCount()
+  {
+    return opsAttempted.get();
+  }
+
+
+
+  /**
+   * Retrieves the number of operations attempted on the initial pass through
+   * the LDIF file (that is, operations for which no retry attempts was made).
+   * This should only be called after all tool processing has completed.
+   *
+   * @return  The number of operations attempted on the initial pass through the
+   *          LDIF file.
+   */
+  public long getInitialAttemptCount()
+  {
+    return initialAttempted;
+  }
+
+
+
+  /**
+   * Retrieves the number of retry attempts made for operations that did not
+   * complete successfully on their first attempt.  This should only be called
+   * after all tool processing has completed.
+   *
+   * @return  The number of retry attempts made for operations that did not
+   *          complete successfully on their first attempt.
+   */
+  public long getRetryAttemptCount()
+  {
+    return opsAttempted.get() - initialAttempted;
+  }
+
+
+
+  /**
+   * Retrieves the total number of operations that completed successfully.  This
+   * should only be called after all tool processing has completed.
+   *
+   * @return  The total number of operations that completed successfully.
+   */
+  public long getTotalSuccessCount()
+  {
+    return opsSucceeded.get();
+  }
+
+
+
+  /**
+   * Retrieves the number of operations that completed successfully on their
+   * first attempt.  This should only be called after all tool processing has
+   * completed.
+   *
+   * @return  The total number of operations that completed successfully on
+   *          their first attempt.
+   */
+  public long getInitialSuccessCount()
+  {
+    return initialSucceeded;
+  }
+
+
+
+  /**
+   * Retrieves the number of operations that did not complete completed
+   * successfully on their initial attempt but did succeed on a retry attempt.
+   * This should only be called after all tool processing has completed.
+   *
+   * @return  The number of operations that completed successfully on a retry
+   *          attempt.
+   */
+  public long getRetrySuccessCount()
+  {
+    return opsSucceeded.get() - initialSucceeded;
+  }
+
+
+
+  /**
+   * Retrieves the number of operations that were rejected and did not complete
+   * successfully during any of the attempts.  This should only be called after
+   * all tool processing has completed.
+   *
+   * @return  The number of operations that were rejected.
+   */
+  public long getRejectCount()
+  {
+    return opsRejected.get();
+  }
+
+
+
+  /**
+   * Retrieves the total length of time, in milliseconds, spent processing
+   * operations.  This should only be called after all tool processing has
+   * completed.  Note that when running with multiple threads, this can exceed
+   * the length of time spent running the tool because multiple operations can
+   * be processed in parallel.
+   *
+   * @return  The total length of time, in milliseconds, spent processing
+   *          operations.
+   */
+  public long getTotalOpDurationMillis()
+  {
+    return totalOpDurationMillis.get();
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

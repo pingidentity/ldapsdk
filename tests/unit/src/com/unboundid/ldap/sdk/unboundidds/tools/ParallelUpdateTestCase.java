@@ -201,13 +201,28 @@ public final class ParallelUpdateTestCase
     final File rejectFile = createTempFile();
 
     final InMemoryDirectoryServer ds = getTestDS(false, false);
+
+    final ParallelUpdate parallelUpdate = new ParallelUpdate(null, null);
     assertEquals(
-         ParallelUpdate.main(NO_OUTPUT, NO_OUTPUT,
+         parallelUpdate.runTool(
               "--hostname", "localhost",
               "--port", String.valueOf(ds.getListenPort()),
               "--ldifFile", ldifFile.getAbsolutePath(),
-              "--rejectFile", rejectFile.getAbsolutePath()),
+              "--rejectFile", rejectFile.getAbsolutePath(),
+              "--numThreads", "1"),
          ResultCode.SUCCESS);
+
+    assertEquals(parallelUpdate.getTotalAttemptCount(), 6L);
+    assertEquals(parallelUpdate.getInitialAttemptCount(), 6L);
+    assertEquals(parallelUpdate.getRetryAttemptCount(), 0L);
+
+    assertEquals(parallelUpdate.getTotalSuccessCount(), 6L);
+    assertEquals(parallelUpdate.getInitialSuccessCount(), 6L);
+    assertEquals(parallelUpdate.getRetrySuccessCount(), 0L);
+
+    assertEquals(parallelUpdate.getRejectCount(), 0L);
+
+    assertTrue(parallelUpdate.getTotalOpDurationMillis() > 0L);
   }
 
 
