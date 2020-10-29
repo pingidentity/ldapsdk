@@ -4410,7 +4410,7 @@ readChangeRecordLoop:
       "--useSSL",
       "--bindDN", "uid=admin,dc=example,dc=com",
       "--bindPassword", "password",
-      "--filename", "changes.ldif",
+      "--ldifFile", "changes.ldif",
       "--modifyEntriesMatchingFilter", "(objectClass=person)",
       "--searchPageSize", "100"
     };
