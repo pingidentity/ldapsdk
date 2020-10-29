@@ -184,6 +184,7 @@ public final class LDAPDelete
   @Nullable private BooleanArgument getUserResourceLimits = null;
   @Nullable private BooleanArgument hardDelete = null;
   @Nullable private BooleanArgument manageDsaIT = null;
+  @Nullable private BooleanArgument neverRetry = null;
   @Nullable private BooleanArgument noOperation = null;
   @Nullable private BooleanArgument replicationRepair = null;
   @Nullable private BooleanArgument retryFailedOperations = null;
@@ -652,6 +653,9 @@ public final class LDAPDelete
 
     final String argGroupOp = INFO_LDAPDELETE_ARG_GROUP_OPERATION.get();
 
+    // NOTE:  The retryFailedOperations argument is now hidden, as we will retry
+    // operations by default.  The neverRetry argument can be used to disable
+    // this.
     retryFailedOperations = new BooleanArgument(null, "retryFailedOperations",
          1, INFO_LDAPDELETE_ARG_DESC_RETRY_FAILED_OPS.get());
     retryFailedOperations.addLongIdentifier("retry-failed-operations", true);
@@ -659,7 +663,15 @@ public final class LDAPDelete
     retryFailedOperations.addLongIdentifier("retry-failed-ops", true);
     retryFailedOperations.addLongIdentifier("retry", true);
     retryFailedOperations.setArgumentGroupName(argGroupOp);
+    retryFailedOperations.setHidden(true);
     parser.addArgument(retryFailedOperations);
+
+
+    neverRetry = new BooleanArgument(null, "neverRetry", 1,
+         INFO_LDAPDELETE_ARG_DESC_NEVER_RETRY.get());
+    neverRetry.addLongIdentifier("never-retry", true);
+    neverRetry.setArgumentGroupName(argGroupOp);
+    parser.addArgument(neverRetry);
 
 
     dryRun = new BooleanArgument('n', "dryRun", 1,
@@ -1330,7 +1342,7 @@ public final class LDAPDelete
            new ReportBindResultLDAPConnectionPoolHealthCheck(this, true,
                 verbose.isPresent()));
       connectionPool.setRetryFailedOperationsDueToInvalidConnections(
-           retryFailedOperations.isPresent());
+           (! neverRetry.isPresent()));
     }
     catch (final LDAPException e)
     {

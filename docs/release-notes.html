@@ -27,6 +27,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapmodify and ldapdelete tools so that they will now retry failed
+                  operations by default on a newly established connection if the failure indicates
+                  that the underlying connection may no longer be valid.  This behavior was
+                  previously available if the --retryFailedOperations argument was provided, and
+                  that argument is still available (but hidden) to preserve backward compatibility
+                  with scripts that use it, but it now has no effect.  A new --neverRetry argument
+                  has been added that can disable this feature if the retry functionality should
+                  be disabled.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP listener framework and the in-memory directory server to
                   provide support for mutual TLS authentication. in which the server requests a
                   certificate chain from the client and validates any chain that is provided).
@@ -139,7 +151,7 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Updated the Filter.matchesEntry method to add limited support for extensibl
+                  Updated the Filter.matchesEntry method to add limited support for extensible
                   matching filters that contain both an attribute type and matching rule ID,
                   whose matching rule ID targets the jsonObjectFilterExtensibleMatch matching
                   rule, and whose dnAttributes flag is not set.  These filters can be used to
@@ -640,7 +652,7 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated the manage-certificates tool make it easier to list and export
-                  certificates from the JMV's default trust store.  The new
+                  certificates from the JVM's default trust store.  The new
                   --use-jvm-default-trust-store argument can be used as an alternative to the
                   existing --keystore argument to indicate that it should use the JVM's default
                   set of trusted issuer certificates without the need to provide the path to the
@@ -6642,7 +6654,7 @@ ${TARGET="offline"}                <br>
                   a convenience that makes it possible to use the tools when only the LDAP SDK jar
                   file is available.  The tools can be invoked using a command like:
                   <blockquote>
-                    <tt>java -jar unboundid-ldapsdk.jar </tt><i>{tool-name} {tool-args}</i>
+                    java -jar unboundid-ldapsdk.jar <i>{tool-name} {tool-args}</i>
                   </blockquote>
                   <br><br>
                 </li>

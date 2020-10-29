@@ -135,7 +135,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             SuppressOperationalAttributeUpdateRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             SuppressReferentialIntegrityUpdatesRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessMultipleAttributeBehavior;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            UniquenessMultipleAttributeBehavior;
 import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             UniquenessRequestControlProperties;
@@ -301,6 +302,7 @@ public final class LDAPModify
   @Nullable private BooleanArgument ignoreNoUserModification = null;
   @Nullable private BooleanArgument manageDsaIT = null;
   @Nullable private BooleanArgument nameWithEntryUUID = null;
+  @Nullable private BooleanArgument neverRetry = null;
   @Nullable private BooleanArgument noOperation = null;
   @Nullable private BooleanArgument passwordValidationDetails = null;
   @Nullable private BooleanArgument permissiveModify = null;
@@ -687,12 +689,23 @@ public final class LDAPModify
     parser.addArgument(searchPageSize);
 
 
+    // NOTE:  The retryFailedOperations argument is now hidden, as we will retry
+    // operations by default.  The neverRetry argument can be used to disable
+    // this.
     retryFailedOperations = new BooleanArgument(null, "retryFailedOperations",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_RETRY_FAILED_OPERATIONS.get());
     retryFailedOperations.addLongIdentifier("retry-failed-operations", true);
     retryFailedOperations.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
+    retryFailedOperations.setHidden(true);
     parser.addArgument(retryFailedOperations);
+
+
+    neverRetry = new BooleanArgument(null, "neverRetry", 1,
+         INFO_LDAPMODIFY_ARG_DESC_NEVER_RETRY.get());
+    neverRetry.addLongIdentifier("never-retry", true);
+    neverRetry.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
+    parser.addArgument(neverRetry);
 
 
     dryRun = new BooleanArgument('n', "dryRun", 1,
@@ -1720,9 +1733,10 @@ public final class LDAPModify
         return le.getResultCode();
       }
 
-      if ((connectionPool != null) && retryFailedOperations.isPresent())
+      if (connectionPool != null)
       {
-        connectionPool.setRetryFailedOperationsDueToInvalidConnections(true);
+        connectionPool.setRetryFailedOperationsDueToInvalidConnections(
+             (! neverRetry.isPresent()));
       }
 
 
@@ -2537,7 +2551,7 @@ readChangeRecordLoop:
                modifyChangeRecord, searchResult);
           return searchResult.getResultCode();
         }
-        else if (retryFailedOperations.isPresent())
+        else if (! neverRetry.isPresent())
         {
           try
           {
