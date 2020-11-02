@@ -88,7 +88,7 @@ public final class CachingNameResolverTestCase
     // Test the getByName method.  This should require a name service lookup,
     // but make sure it gets stored in the cache.
     final InetAddress getByNameAddress1 =
-         nameResolver.getByName("www.pingidentity.com");
+         nameResolver.getByName("www.github.com");
     assertNotNull(getByNameAddress1);
 
     assertNotNull(nameResolver.getAddressToNameMap());
@@ -98,7 +98,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNull(nameResolver.getLocalHostAddressReference().get());
 
@@ -110,7 +110,7 @@ public final class CachingNameResolverTestCase
     // multiple addresses, the address that getByName returns is randomized, so
     // we can't guarantee that this result matches the one we got before.
     final InetAddress getByNameAddress2 =
-         nameResolver.getByName("www.pingidentity.com");
+         nameResolver.getByName("www.github.com");
     assertNotNull(getByNameAddress2);
 
     assertNotNull(nameResolver.getAddressToNameMap());
@@ -120,7 +120,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNull(nameResolver.getLocalHostAddressReference().get());
 
@@ -130,7 +130,7 @@ public final class CachingNameResolverTestCase
     // Use the getAllByName method.  This should use the same cached
     // information as the previous lookups.
     final InetAddress[] getAllByNameAddresses =
-         nameResolver.getAllByName("www.pingidentity.com");
+         nameResolver.getAllByName("www.github.com");
     assertNotNull(getAllByNameAddresses);
     assertTrue(getAllByNameAddresses.length > 0);
 
@@ -157,7 +157,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNull(nameResolver.getLocalHostAddressReference().get());
 
@@ -182,7 +182,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNull(nameResolver.getLocalHostAddressReference().get());
 
@@ -206,7 +206,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNull(nameResolver.getLocalHostAddressReference().get());
 
@@ -228,7 +228,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNotNull(nameResolver.getLocalHostAddressReference().get());
     assertEquals(nameResolver.getLocalHostAddressReference().get().getSecond(),
@@ -252,7 +252,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNotNull(nameResolver.getLocalHostAddressReference().get());
     assertEquals(nameResolver.getLocalHostAddressReference().get().getSecond(),
@@ -276,7 +276,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNotNull(nameResolver.getLocalHostAddressReference().get());
     assertEquals(nameResolver.getLocalHostAddressReference().get().getSecond(),
@@ -302,7 +302,7 @@ public final class CachingNameResolverTestCase
     assertFalse(nameResolver.getNameToAddressMap().isEmpty());
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
     assertTrue(nameResolver.getNameToAddressMap().containsKey(
-         "www.pingidentity.com"));
+         "www.github.com"));
 
     assertNotNull(nameResolver.getLocalHostAddressReference().get());
     assertEquals(nameResolver.getLocalHostAddressReference().get().getSecond(),
@@ -364,10 +364,10 @@ public final class CachingNameResolverTestCase
     final long earliestInitialExpirationTime = System.currentTimeMillis() + 1L;
 
     final InetAddress getByNameAddress =
-         nameResolver.getByName("www.pingidentity.com");
+         nameResolver.getByName("www.github.com");
     assertNotNull(getByNameAddress);
 
-    assertNotNull(nameResolver.getAllByName("www.pingidentity.com"));
+    assertNotNull(nameResolver.getAllByName("www.github.com"));
 
     final String hostName = nameResolver.getCanonicalHostName(getByNameAddress);
     assertNotNull(hostName);
@@ -397,7 +397,7 @@ public final class CachingNameResolverTestCase
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
 
     final long initialCachedNameExpirationTime = nameResolver.
-         getNameToAddressMap().get("www.pingidentity.com").getFirst();
+         getNameToAddressMap().get("www.github.com").getFirst();
     assertTrue(initialCachedNameExpirationTime >=
          earliestInitialExpirationTime);
     assertTrue(initialCachedNameExpirationTime <= latestInitialExpirationTime);
@@ -427,7 +427,7 @@ public final class CachingNameResolverTestCase
 
     final long earliestSecondExpirationTime = System.currentTimeMillis() + 1L;
 
-    nameResolver.getByName("www.pingidentity.com");
+    nameResolver.getByName("www.github.com");
     nameResolver.getCanonicalHostName(getByNameAddress);
     nameResolver.getLocalHost();
     nameResolver.getLoopbackAddress();
@@ -454,7 +454,7 @@ public final class CachingNameResolverTestCase
     assertEquals(nameResolver.getNameToAddressMap().size(), 1);
 
     final long secondCachedNameExpirationTime = nameResolver.
-         getNameToAddressMap().get("www.pingidentity.com").getFirst();
+         getNameToAddressMap().get("www.github.com").getFirst();
     assertFalse(secondCachedNameExpirationTime ==
          initialCachedNameExpirationTime);
     assertTrue(secondCachedNameExpirationTime >= earliestSecondExpirationTime);
@@ -710,10 +710,10 @@ public final class CachingNameResolverTestCase
          throws Exception
   {
     // Perform a name service lookup to get the InetAddress for the
-    final InetAddress wwwPingIdentityAddress =
-         InetAddress.getByName("www.pingidentity.com");
+    final InetAddress wwwGitHubAddress =
+         InetAddress.getByName("www.github.com");
     final InetAddress addressFromIP =
-         InetAddress.getByName(wwwPingIdentityAddress.getHostAddress());
+         InetAddress.getByName(wwwGitHubAddress.getHostAddress());
     final InetAddress wwwAddress =
          InetAddress.getByAddress("www", addressFromIP.getAddress());
 
@@ -733,13 +733,13 @@ public final class CachingNameResolverTestCase
 
 
     // Get the host name for the InetAddress that we created from a lookup of
-    // a name of "www.pingidentity.com".  It should have a host name equal to
+    // a name of "www.github.com".  It should have a host name equal to
     // the name we provided when looking it up.  Make sure that no name service
     // lookup is performed in this case, either.
-    final String wwwPingIdentityHostName =
-         nameResolver.getHostName(wwwPingIdentityAddress);
-    assertNotNull(wwwPingIdentityHostName);
-    assertEquals(wwwPingIdentityHostName, "www.pingidentity.com");
+    final String wwwGitHubHostName =
+         nameResolver.getHostName(wwwGitHubAddress);
+    assertNotNull(wwwGitHubHostName);
+    assertEquals(wwwGitHubHostName, "www.github.com");
 
     assertTrue(nameResolver.getAddressToNameMap().isEmpty());
     assertTrue(nameResolver.getNameToAddressMap().isEmpty());
@@ -764,7 +764,7 @@ public final class CachingNameResolverTestCase
     assertNotNull(canonicalName1);
 
     final String canonicalName2 =
-         nameResolver.getCanonicalHostName(wwwPingIdentityAddress);
+         nameResolver.getCanonicalHostName(wwwGitHubAddress);
     assertNotNull(canonicalName2);
     assertEquals(canonicalName2, canonicalName1);
 
