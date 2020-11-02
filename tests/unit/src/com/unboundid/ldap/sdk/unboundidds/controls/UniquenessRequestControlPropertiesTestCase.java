@@ -91,6 +91,10 @@ public final class UniquenessRequestControlPropertiesTestCase
     assertEquals(p.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
 
+    assertTrue(p.alertOnPostCommitConflictDetection());
+
+    assertFalse(p.createConflictPreventionDetailsEntry());
+
     assertNotNull(p.toString());
   }
 
@@ -132,6 +136,10 @@ public final class UniquenessRequestControlPropertiesTestCase
     assertNotNull(p.getPostCommitValidationLevel());
     assertEquals(p.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
+
+    assertTrue(p.alertOnPostCommitConflictDetection());
+
+    assertFalse(p.createConflictPreventionDetailsEntry());
 
     assertNotNull(p.toString());
   }
@@ -176,6 +184,10 @@ public final class UniquenessRequestControlPropertiesTestCase
     assertEquals(p.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
 
+    assertTrue(p.alertOnPostCommitConflictDetection());
+
+    assertFalse(p.createConflictPreventionDetailsEntry());
+
     assertNotNull(p.toString());
   }
 
@@ -218,6 +230,10 @@ public final class UniquenessRequestControlPropertiesTestCase
     assertEquals(p.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
 
+    assertTrue(p.alertOnPostCommitConflictDetection());
+
+    assertFalse(p.createConflictPreventionDetailsEntry());
+
     assertNotNull(p.toString());
   }
 
@@ -244,6 +260,8 @@ public final class UniquenessRequestControlPropertiesTestCase
     p.setPreCommitValidationLevel(UniquenessValidationLevel.ALL_BACKEND_SETS);
     p.setPostCommitValidationLevel(
          UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+    p.setAlertOnPostCommitConflictDetection(false);
+    p.setCreateConflictPreventionDetailsEntry(true);
 
     assertNotNull(p.getAttributeTypes());
     assertFalse(p.getAttributeTypes().isEmpty());
@@ -270,6 +288,10 @@ public final class UniquenessRequestControlPropertiesTestCase
     assertNotNull(p.getPostCommitValidationLevel());
     assertEquals(p.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+
+    assertFalse(p.alertOnPostCommitConflictDetection());
+
+    assertTrue(p.createConflictPreventionDetailsEntry());
 
     assertNotNull(p.toString());
   }
@@ -311,6 +333,10 @@ public final class UniquenessRequestControlPropertiesTestCase
     assertNotNull(p.getPostCommitValidationLevel());
     assertEquals(p.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
+
+    assertTrue(p.alertOnPostCommitConflictDetection());
+
+    assertFalse(p.createConflictPreventionDetailsEntry());
 
     assertNotNull(p.toString());
 
@@ -660,5 +686,62 @@ public final class UniquenessRequestControlPropertiesTestCase
       assertEquals(p.getPostCommitValidationLevel(), l);
       assertNotNull(p.toString());
     }
+  }
+
+
+
+  /**
+   * Tests the behavior for the ability to get and set the flag used to
+   * determine whether to alert on un-prevented conflicts detected during
+   * post-commit processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetAndSetAlertOnPostCommitConflictDetection()
+         throws Exception
+  {
+    final UniquenessRequestControlProperties p =
+         new UniquenessRequestControlProperties(
+              Filter.createEqualityFilter("uid", "john.doe"));
+    assertNotNull(p.toString());
+
+    assertTrue(p.alertOnPostCommitConflictDetection());
+
+    p.setAlertOnPostCommitConflictDetection(false);
+    assertFalse(p.alertOnPostCommitConflictDetection());
+    assertNotNull(p.toString());
+
+    p.setAlertOnPostCommitConflictDetection(true);
+    assertTrue(p.alertOnPostCommitConflictDetection());
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior for the ability to get and set the flag used to
+   * determine whether to create a temporary conflict prevention details entry.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetAndSetCreateConflictPreventionDetailsEntry()
+         throws Exception
+  {
+    final UniquenessRequestControlProperties p =
+         new UniquenessRequestControlProperties(
+              Filter.createEqualityFilter("uid", "john.doe"));
+    assertNotNull(p.toString());
+
+    assertFalse(p.createConflictPreventionDetailsEntry());
+
+    p.setCreateConflictPreventionDetailsEntry(true);
+    assertTrue(p.createConflictPreventionDetailsEntry());
+    assertNotNull(p.toString());
+
+    p.setCreateConflictPreventionDetailsEntry(false);
+    assertFalse(p.createConflictPreventionDetailsEntry());
+    assertNotNull(p.toString());
   }
 }

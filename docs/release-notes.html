@@ -161,6 +161,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated support for the proprietary uniqueness request control to make it
+                  possible to indicate whether the server should raise an administrative alert if
+                  an un-prevented conflict is detected during post-commit validation, and to
+                  indicate whether the server should create a temporary conflict prevention
+                  details entry to provide better support for preventing conflicts that arise from
+                  other concurrent updates.
+                  <br><br>
+                </li>
+
+                <li>
                   Deprecated the client-side code related to support for interactive transactions
                   in the Ping Identity Directory Server, including the MoveSubtree option for
                   using interactive transactions when moving a subtree.  The classes for starting

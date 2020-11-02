@@ -107,6 +107,10 @@ public final class UniquenessRequestControlTestCase
     assertEquals(c.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
 
+    assertTrue(c.alertOnPostCommitConflictDetection());
+
+    assertFalse(c.createConflictPreventionDetailsEntry());
+
     assertNotNull(c.getControlName());
 
     assertNotNull(c.toString());
@@ -162,6 +166,10 @@ public final class UniquenessRequestControlTestCase
     assertNotNull(c.getPostCommitValidationLevel());
     assertEquals(c.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
+
+    assertTrue(c.alertOnPostCommitConflictDetection());
+
+    assertFalse(c.createConflictPreventionDetailsEntry());
 
     assertNotNull(c.getControlName());
 
@@ -219,6 +227,10 @@ public final class UniquenessRequestControlTestCase
     assertEquals(c.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
 
+    assertTrue(c.alertOnPostCommitConflictDetection());
+
+    assertFalse(c.createConflictPreventionDetailsEntry());
+
     assertNotNull(c.getControlName());
 
     assertNotNull(c.toString());
@@ -247,6 +259,8 @@ public final class UniquenessRequestControlTestCase
     p.setPreCommitValidationLevel(UniquenessValidationLevel.ALL_BACKEND_SETS);
     p.setPostCommitValidationLevel(
          UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+    p.setAlertOnPostCommitConflictDetection(false);
+    p.setCreateConflictPreventionDetailsEntry(true);
 
     UniquenessRequestControl c =
          new UniquenessRequestControl(true, "uniqueness-id", p);
@@ -287,6 +301,10 @@ public final class UniquenessRequestControlTestCase
     assertNotNull(c.getPostCommitValidationLevel());
     assertEquals(c.getPostCommitValidationLevel(),
          UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+
+    assertFalse(c.alertOnPostCommitConflictDetection());
+
+    assertTrue(c.createConflictPreventionDetailsEntry());
 
     assertNotNull(c.getControlName());
 

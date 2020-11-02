@@ -101,6 +101,12 @@ import com.unboundid.util.Validator;
  *     A post-commit validation level of
  *     {@link UniquenessValidationLevel#ALL_SUBTREE_VIEWS}.
  *   </LI>
+ *   <LI>
+ *     Do alert on conflicts detected during post-commit validation.
+ *   </LI>
+ *   <LI>
+ *     Do not create a conflict prevention details entry.
+ *   </LI>
  * </UL>
  */
 @Mutable()
@@ -114,6 +120,15 @@ public final class UniquenessRequestControlProperties
   private static final long serialVersionUID = 4330352906527176309L;
 
 
+
+  // Indicates whether the server should raise an administrative alert if a
+  // conflict is detected during post-commit validation.
+  private boolean alertOnPostCommitConflictDetection = true;
+
+  // Indicates whether the server should create a conflict prevention details
+  // entry before pre-commit validation as a means of helping to avoid
+  // conflicts.
+  private boolean createConflictPreventionDetailsEntry = false;
 
   // Indicates whether to prevent conflicts with soft-deleted entries.
   private boolean preventConflictsWithSoftDeletedEntries = false;
@@ -492,6 +507,78 @@ public final class UniquenessRequestControlProperties
 
 
   /**
+   * Indicates whether the server should raise an administrative alert if a
+   * conflict is detected during post-commit validation processing.
+   *
+   * @return  {@code true} if the server should raise an administrative alert if
+   *          a conflict is detected during post-commit validation processing,
+   *          or {@code false} if not.
+   */
+  public boolean alertOnPostCommitConflictDetection()
+  {
+    return alertOnPostCommitConflictDetection;
+  }
+
+
+
+  /**
+   * Specifies whether the server should raise an administrative alert if a
+   * conflict is detected during post-commit validation processing.
+   *
+   * @param  alertOnPostCommitConflictDetection  Indicates whether the server
+   *                                             should raise an administrative
+   *                                             alert if a conflict is detected
+   *                                             during post-commit validation
+   *                                             processing.
+   */
+  public void setAlertOnPostCommitConflictDetection(
+                   final boolean alertOnPostCommitConflictDetection)
+  {
+    this.alertOnPostCommitConflictDetection =
+         alertOnPostCommitConflictDetection;
+  }
+
+
+
+  /**
+   * Indicates whether the server should create a temporary conflict prevention
+   * details entry before beginning pre-commit validation to provide better
+   * support for preventing conflicts.  If created, the entry will be removed
+   * after post-commit validation processing has completed.
+   *
+   * @return  {@code true} if the server should create a temporary conflict
+   *          prevention details entry before beginning pre-commit validation,
+   *          or {@code false} if not.
+   */
+  public boolean createConflictPreventionDetailsEntry()
+  {
+    return createConflictPreventionDetailsEntry;
+  }
+
+
+
+  /**
+   * Specifies whether the server should create a temporary conflict prevention
+   * details entry before beginning pre-commit validation to provide better
+   * support for preventing conflicts.  If created, the entry will be removed
+   * after post-commit validation processing has completed.
+   *
+   * @param  createConflictPreventionDetailsEntry  Indicates whether the server
+   *                                               should create a temporary
+   *                                               conflict prevention details
+   *                                               entry before beginning
+   *                                               pre-commit validation.
+   */
+  public void setCreateConflictPreventionDetailsEntry(
+                   final boolean createConflictPreventionDetailsEntry)
+  {
+    this.createConflictPreventionDetailsEntry =
+         createConflictPreventionDetailsEntry;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this uniqueness request control
    * properties object.
    *
@@ -555,6 +642,10 @@ public final class UniquenessRequestControlProperties
     buffer.append(preCommitValidationLevel);
     buffer.append(", postCommitValidationLevel=");
     buffer.append(postCommitValidationLevel);
+    buffer.append(", alertOnPostCommitConflictDetection=");
+    buffer.append(alertOnPostCommitConflictDetection);
+    buffer.append(", createConflictPreventionDetailsEntry=");
+    buffer.append(createConflictPreventionDetailsEntry);
     buffer.append(')');
   }
 }
