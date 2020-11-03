@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.List;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.security.auth.x500.X500Principal;
@@ -80,6 +81,7 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class HostNameSSLSocketVerifier
        extends SSLSocketVerifier
+       implements HostnameVerifier
 {
   /**
    * The name of a system property that can be used to specify the default
@@ -197,11 +199,33 @@ public final class HostNameSSLSocketVerifier
                               @NotNull final SSLSocket sslSocket)
          throws LDAPException
   {
+    verifySSLSession(host, port, sslSocket.getSession());
+  }
+
+
+
+  /**
+   * Verifies that the provided {@code SSLSession} is acceptable and the
+   * connection should be allowed to remain established.
+   *
+   * @param  host        The address to which the client intended the connection
+   *                     to be established.
+   * @param  port        The port to which the client intended the connection to
+   *                     be established.
+   * @param  sslSession  The SSL session that was negotiated.
+   *
+   * @throws  LDAPException  If a problem is identified that should prevent the
+   *                         provided {@code SSLSocket} from remaining
+   *                         established.
+   */
+  private void verifySSLSession(@NotNull final String host, final int port,
+                               @NotNull final SSLSession sslSession)
+          throws LDAPException
+  {
     try
     {
       // Get the certificates presented during negotiation.  The certificates
       // will be ordered so that the server certificate comes first.
-      final SSLSession sslSession = sslSocket.getSession();
       if (sslSession == null)
       {
         throw new LDAPException(ResultCode.CONNECT_ERROR,
@@ -296,6 +320,18 @@ public final class HostNameSSLSocketVerifier
       {
         hostInetAddress =
              LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(host);
+
+        // Loopback IP addresses (but not names like "localhost") should be
+        // considered "potentially trustworthy" as per the W3C Secure Contexts
+        // Candidate Recommendation at https://www.w3.org/TR/secure-contexts/.
+        // That means that when connecting over a loopback, we can assume that
+        // the connection is established to the server we intended, even if that
+        // loopback IP address isn't in the certificate's subject alternative
+        // name extension or the CN attribute of the subject DN.
+        if (hostInetAddress.isLoopbackAddress())
+        {
+          return true;
+        }
       }
       catch (final Exception e)
       {
@@ -692,5 +728,31 @@ public final class HostNameSSLSocketVerifier
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Verifies that the provided hostname is acceptable for use with the
+   * negotiated SSL session.
+   *
+   * @param  hostname  The address to which the client intended the connection
+   *                   to be established.
+   * @param  session   The SSL session that was established.
+   */
+  @Override()
+  public boolean verify(@NotNull final String hostname,
+                        @NotNull final SSLSession session)
+  {
+    try
+    {
+      verifySSLSession(hostname, session.getPeerPort(), session);
+      return true;
+    }
+    catch (final LDAPException e)
+    {
+      Debug.debugException(e);
+      return false;
+    }
   }
 }

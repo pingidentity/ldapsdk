@@ -82,6 +82,23 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the HostNameSSLSocketVerifier to automatically trust any certificate
+                  when the client connected to the peer using an IP address that referenced a
+                  loopback interface on the system.  As per the W3C Secure Contexts Candidate
+                  Recommendation (https://www.w3.org/TR/secure-contexts/) section 3.2, connections
+                  established with a loopback IP address should be considered potentially
+                  trustworthy.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the HostNameSSLSocketVerifier and TrustAllSSLSocketVerifier classes to
+                  implement the javax.net.ssl.HostnameVerifier interface so they may be used in
+                  contexts where that interface is accepted.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a null X.509 trust manager that will never trust any certificate chain.
                   This is primarily useful for testing purposes.
                   <br><br>

@@ -46,8 +46,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.SSLSession;
+
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.StaticUtils;
@@ -457,6 +461,13 @@ public final class HostNameSSLSocketVerifierTestCase
               "1.2.3.5", certificate, true, false, buffer),
          buffer.toString());
 
+    // Match when we use a loopback IP address.
+    buffer.setLength(0);
+    assertTrue(
+         HostNameSSLSocketVerifier.certificateIncludesHostname(
+              "127.0.0.1", certificate, true, false, buffer),
+         buffer.toString());
+
     // Don't match when we provide something that's not an IP address.
     buffer.setLength(0);
     assertFalse(
@@ -642,6 +653,13 @@ public final class HostNameSSLSocketVerifierTestCase
          HostNameSSLSocketVerifier.certificateIncludesHostname(
               "1.2.3.6", certificate, true, false, buffer),
          buffer.toString());
+
+    // Match when we provide a loopback address.
+    buffer.setLength(0);
+    assertTrue(
+         HostNameSSLSocketVerifier.certificateIncludesHostname(
+              "127.0.0.1", certificate, true, false, buffer),
+         buffer.toString());
   }
 
 
@@ -711,5 +729,30 @@ public final class HostNameSSLSocketVerifierTestCase
     final KeyStore.PrivateKeyEntry entry = (KeyStore.PrivateKeyEntry)
          keyStore.getEntry(ALIAS, new KeyStore.PasswordProtection(PIN_CHARS));
     return (X509Certificate) entry.getCertificateChain()[0];
+  }
+
+
+
+  /**
+   * Provides basic coverage for the SSL socket verifier as a hostname verifier.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testHostnameVerifier()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDSWithSSL();
+    try (LDAPConnection conn = ds.getConnection())
+    {
+      final SSLSession sslSession = conn.getSSLSession();
+      assertNotNull(sslSession);
+
+      final HostNameSSLSocketVerifier verifier =
+           new HostNameSSLSocketVerifier(true);
+      assertTrue(verifier.verify("127.0.0.1", sslSession));
+
+      assertFalse(verifier.verify("disallowed.example.com", sslSession));
+    }
   }
 }

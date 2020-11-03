@@ -5187,7 +5187,11 @@ public final class StaticUtils
 
     try
     {
-      localAddresses.add(resolver.getLocalHost());
+      final InetAddress localHostAddress = resolver.getLocalHost();
+      if (includeLoopback || (! localHostAddress.isLoopbackAddress()))
+      {
+        localAddresses.add(localHostAddress);
+      }
     }
     catch (final Exception e)
     {
@@ -5208,7 +5212,11 @@ public final class StaticUtils
                networkInterface.getInetAddresses();
           while (interfaceAddresses.hasMoreElements())
           {
-            localAddresses.add(interfaceAddresses.nextElement());
+            final InetAddress address = interfaceAddresses.nextElement();
+            if (includeLoopback || (! address.isLoopbackAddress()))
+            {
+              localAddresses.add(address);
+            }
           }
         }
       }

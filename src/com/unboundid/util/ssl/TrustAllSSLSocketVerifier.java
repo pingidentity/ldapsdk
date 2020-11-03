@@ -37,6 +37,8 @@ package com.unboundid.util.ssl;
 
 
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 import com.unboundid.ldap.sdk.LDAPException;
@@ -55,6 +57,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class TrustAllSSLSocketVerifier
        extends SSLSocketVerifier
+       implements HostnameVerifier
 {
   /**
    * A singleton instance of this SSL socket verifier.
@@ -108,5 +111,22 @@ public final class TrustAllSSLSocketVerifier
   {
     // No implementation is required.  The SSLSocket will be considered
     // acceptable as long as this method does not throw an exception.
+  }
+
+
+
+  /**
+   * Verifies that the provided hostname is acceptable for use with the
+   * negotiated SSL session.
+   *
+   * @param  hostname  The address to which the client intended the connection
+   *                   to be established.
+   * @param  session   The SSL session that was established.
+   */
+  @Override()
+  public boolean verify(@NotNull final String hostname,
+                        @NotNull final SSLSession session)
+  {
+    return true;
   }
 }

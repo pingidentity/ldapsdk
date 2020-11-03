@@ -3826,7 +3826,7 @@ public class StaticUtilsTestCase
     {
       if (! address.isLoopbackAddress())
       {
-        assertTrue(addressesWithLoopbackImplicitlyIncluded.contains(address));
+        assertTrue(addressesWithLoopbackExplicitlyExcluded.contains(address));
       }
     }
   }

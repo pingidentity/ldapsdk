@@ -1162,6 +1162,10 @@ public class LDAPConnectionOptionsTestCase
          ds.getListenAddress("LDAPS").getHostAddress(),
          ds.getListenPort("LDAPS"));
     assertNotNull(conn.getRootDSE());
+    assertTrue(TrustAllSSLSocketVerifier.getInstance().verify("127.0.0.1",
+         conn.getSSLSession()));
+    assertTrue(TrustAllSSLSocketVerifier.getInstance().verify(
+         "disallowed.example.com", conn.getSSLSession()));
     conn.close();
 
     conn = new LDAPConnection(opts,
@@ -1183,8 +1187,7 @@ public class LDAPConnectionOptionsTestCase
     try
     {
       conn = new LDAPConnection(clientSSLUtil.createSSLSocketFactory(), opts,
-           ds.getListenAddress("LDAPS").getHostAddress(),
-           ds.getListenPort("LDAPS"));
+           "localhost", ds.getListenPort("LDAPS"));
       conn.close();
       fail("Expected an exception due to hostname validation failure");
     }
@@ -1199,9 +1202,7 @@ public class LDAPConnectionOptionsTestCase
 
     try
     {
-      conn = new LDAPConnection(opts,
-           ds.getListenAddress("LDAP").getHostAddress(),
-           ds.getListenPort("LDAP"));
+      conn = new LDAPConnection(opts, "localhost", ds.getListenPort("LDAP"));
       assertNotNull(conn.getRootDSE());
       conn.processExtendedOperation(
            new StartTLSExtendedRequest(clientSSLUtil.createSSLSocketFactory()));
@@ -1228,6 +1229,10 @@ public class LDAPConnectionOptionsTestCase
          ds.getListenAddress("LDAPS").getHostAddress(),
          ds.getListenPort("LDAPS"));
     assertNotNull(conn.getRootDSE());
+    assertTrue(new HostNameSSLSocketVerifier(true).verify("127.0.0.1",
+         conn.getSSLSession()));
+    assertFalse(new HostNameSSLSocketVerifier(true).verify(
+         "disallowed.example.com", conn.getSSLSession()));
     conn.close();
 
     conn = new LDAPConnection(opts,
