@@ -99,6 +99,21 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDIF writer to improve the human readability for the comments that
+                  it generates beneath base64-encoded values.  It would previously only include
+                  printable ASCII characters, with all other characters (and ASCII characters that
+                  would normally require base64 encoding, like leading and trailing spaces, and
+                  leading colons and less-than signs) displayed as the hexadecimal-escaped bytes
+                  that comprise them.  It will now also include printable non-ASCII characters
+                  that are identified as letters, numbers, punctuation, and select symbols.  For
+                  other characters, it will look up the name in the Unicode character table and if
+                  a name is found then it will be displayed, enclosed in curly braces.  For all
+                  other characters, it will use the hexadecimal representation of the bytes that
+                  comprise it.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a null X.509 trust manager that will never trust any certificate chain.
                   This is primarily useful for testing purposes.
                   <br><br>

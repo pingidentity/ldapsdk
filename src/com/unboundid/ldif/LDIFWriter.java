@@ -63,6 +63,8 @@ import com.unboundid.util.parallel.ParallelProcessor;
 import com.unboundid.util.parallel.Result;
 import com.unboundid.util.parallel.Processor;
 
+import static com.unboundid.ldif.LDIFMessages.*;
+
 
 
 /**
@@ -1358,7 +1360,7 @@ public final class LDIFWriter
                            @NotNull final ByteStringBuffer buffer,
                            final int wrapColumn)
   {
-    if (commentAboutBase64EncodedValues)
+    if (commentAboutBase64EncodedValues && StaticUtils.isValidUTF8(valueBytes))
     {
       final int wrapColumnMinusTwo;
       if (wrapColumn <= 5)
@@ -1404,68 +1406,140 @@ public final class LDIFWriter
    * @param  valueBytes  The byte array containing the value to encode.
    *
    * @return  A string representation of the provided value with any special
-   *          characters
+   *          characters.
    */
   @NotNull()
   private static String getEscapedValue(@NotNull final byte[] valueBytes)
   {
-    final StringBuilder buffer = new StringBuilder(valueBytes.length * 2);
-    for (int i=0; i < valueBytes.length; i++)
+    final String valueString = StaticUtils.toUTF8String(valueBytes);
+    final StringBuilder buffer = new StringBuilder(valueString.length());
+    for (int i=0; i < valueString.length(); i++)
     {
-      final byte b = valueBytes[i];
-      switch (b)
+      final char c = valueString.charAt(i);
+      switch (c)
       {
+        case '\t':
+          buffer.append(INFO_LDIF_WRITER_CHAR_TAB.get());
+          break;
+        case '\n':
+          buffer.append(INFO_LDIF_WRITER_CHAR_CARRIAGE_RETURN.get());
+          break;
+        case '\r':
+          buffer.append(INFO_LDIF_WRITER_CHAR_LINE_FEED.get());
+          break;
         case ' ':
-          if ((i == 0) || (i == (valueBytes.length - 1)))
+          if (i == 0)
           {
-            buffer.append("\\20");
+            buffer.append(INFO_LDIF_WRITER_CHAR_LEADING_SPACE.get());
+          }
+          else if (i == (valueString.length() - 1))
+          {
+            buffer.append(INFO_LDIF_WRITER_CHAR_TRAILING_SPACE.get());
           }
           else
           {
             buffer.append(' ');
           }
           break;
-        case '(':
-          buffer.append("\\28");
-          break;
-        case ')':
-          buffer.append("\\29");
-          break;
-        case '*':
-          buffer.append("\\2a");
-          break;
         case ':':
           if (i == 0)
           {
-            buffer.append("\\3a");
+            buffer.append(INFO_LDIF_WRITER_CHAR_LEADING_COLON.get());
           }
           else
           {
-            buffer.append(':');
+            buffer.append(c);
           }
           break;
         case '<':
           if (i == 0)
           {
-            buffer.append("\\3c");
+            buffer.append(INFO_LDIF_WRITER_CHAR_LEADING_LESS_THAN.get());
           }
           else
           {
-            buffer.append('<');
+            buffer.append(c);
           }
           break;
-        case '\\':
-          buffer.append("\\5c");
+        case '{':
+          buffer.append(INFO_LDIF_WRITER_CHAR_OPENING_CURLY_BRACE.get());
+          break;
+        case '}':
+          buffer.append(INFO_LDIF_WRITER_CHAR_CLOSING_CURLY_BRACE.get());
           break;
         default:
-          if ((b >= '!') && (b <= '~'))
+          if ((c >= '!') && (c <= '~'))
           {
-            buffer.append((char) b);
+            buffer.append(c);
           }
           else
           {
-            buffer.append("\\");
-            StaticUtils.toHex(b, buffer);
+            // Try to figure out whether the character might be printable, even
+            // if it's non-ASCII.  If so, then print it.  Otherwise, if we can
+            // get the name for the Unicode code point, then print that name.
+            // As a last resort, just print a hex representation of the bytes
+            // that make up the
+            final int codePoint = Character.codePointAt(valueString, i);
+            final int[] codePointArray = { codePoint };
+            final String codePointString = new String(codePointArray, 0, 1);
+
+            final int charType = Character.getType(codePoint);
+            switch (charType)
+            {
+              case Character.UPPERCASE_LETTER:
+              case Character.LOWERCASE_LETTER:
+              case Character.TITLECASE_LETTER:
+              case Character.MODIFIER_LETTER:
+              case Character.OTHER_LETTER:
+              case Character.DECIMAL_DIGIT_NUMBER:
+              case Character.LETTER_NUMBER:
+              case Character.OTHER_NUMBER:
+              case Character.SPACE_SEPARATOR:
+              case Character.DASH_PUNCTUATION:
+              case Character.START_PUNCTUATION:
+              case Character.END_PUNCTUATION:
+              case Character.CONNECTOR_PUNCTUATION:
+              case Character.OTHER_PUNCTUATION:
+              case Character.INITIAL_QUOTE_PUNCTUATION:
+              case Character.FINAL_QUOTE_PUNCTUATION:
+              case Character.MATH_SYMBOL:
+              case Character.CURRENCY_SYMBOL:
+                // These characters should be printable.
+                buffer.append(codePointString);
+                break;
+
+              default:
+                // See if we can get a name for the character.  If so, then use
+                // it.  Otherwise, just print the escaped hex representation.
+                String codePointName;
+                try
+                {
+                  codePointName = Character.getName(codePoint);
+                }
+                catch (final Exception e)
+                {
+                  Debug.debugException(e);
+                  codePointName = null;
+                }
+
+                if ((codePointName == null) || codePointName.isEmpty())
+                {
+                  final byte[] codePointBytes =
+                       StaticUtils.getBytes(codePointString);
+                  buffer.append(INFO_LDIF_WRITER_CHAR_HEX.get(
+                       StaticUtils.toHex(codePointBytes)));
+                }
+                else
+                {
+                  buffer.append("{");
+                  buffer.append(codePointName);
+                  buffer.append('}');
+                }
+                break;
+            }
+
+            final int numChars = Character.charCount(codePoint);
+            i += (numChars - 1);
           }
           break;
       }

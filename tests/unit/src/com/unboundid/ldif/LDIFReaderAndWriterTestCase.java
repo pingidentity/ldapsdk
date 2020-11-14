@@ -9576,4 +9576,91 @@ public class LDIFReaderAndWriterTestCase
          "objectClass: domain",
          "dc: example");
   }
+
+
+
+  /**
+   * Tests to ensure that values that need to be base64-encoded will have
+   * comments with the expected content.
+   *
+   * @param  valueString             The value string to include in the entry.
+   * @param  expectedCommentContent  The expected comment content that is
+   *                                 expected to be in the LDIF representation.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="base64CommentTestData")
+  public void testBase64Comments(final String valueString,
+                                 final String expectedCommentContent)
+         throws Exception
+  {
+    final Entry e = new Entry(
+         "dc=example,dc=com",
+         new Attribute("objectClass", "top", "domain"),
+         new Attribute("dc", "example"),
+         new Attribute("description", valueString));
+
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+         LDIFWriter writer = new LDIFWriter(out))
+    {
+      writer.setWrapColumn(Integer.MAX_VALUE);
+
+      writer.writeEntry(e);
+      writer.flush();
+
+      final String ldifString = StaticUtils.toUTF8String(out.toByteArray());
+      assertTrue(ldifString.contains(expectedCommentContent),
+           ldifString);
+    }
+  }
+
+
+
+  /**
+   * Retrieves data that may be used for testing comments for base64-encoded
+   * data.
+   *
+   * @return  Data that may be used for testing comments for base64-encoded
+   *          data.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @DataProvider(name="base64CommentTestData")
+  public Object[][] getBase64CommentTestData()
+         throws Exception
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        " a\tb\r\nc d ",
+        "{LEADING SPACE}a{TAB}b{LINE FEED}{CARRIAGE RETURN}c d{TRAILING SPACE}"
+      },
+      new Object[]
+      {
+        "jalape\\u00F1o",
+        "jalape\\u00F1o"
+      },
+      new Object[]
+      {
+        "::",
+        "{LEADING COLON}:"
+      },
+      new Object[]
+      {
+        "<<",
+        "{LEADING LESS THAN}<"
+      },
+      new Object[]
+      {
+        "{\ud83d\ude00}",
+        "{OPENING CURLY BRACE}{GRINNING FACE}{CLOSING CURLY BRACE}"
+      },
+      new Object[]
+      {
+        "\ud83d\udeff}",
+        "{0xf09f9bbf}"
+      },
+    };
+  }
 }
