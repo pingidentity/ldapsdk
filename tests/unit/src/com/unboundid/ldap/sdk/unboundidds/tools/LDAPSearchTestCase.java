@@ -1811,13 +1811,56 @@ public final class LDAPSearchTestCase
 
 
   /**
+   * Provides test coverage for the tool when configured to use the dns-only
+   * output format and an output file is used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDNsOnlyOutputFormatWithOutputFile()
+         throws Exception
+  {
+    final File outputFile = createTempFile();
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "dns-only",
+              "--requestedAttribute", "uid",
+              "--outputFile", outputFile.getAbsolutePath(),
+              "(objectClass=person)"),
+         ResultCode.SUCCESS);
+
+    try (FileReader fileReader = new FileReader(outputFile);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
+    {
+      assertEquals(bufferedReader.readLine(),
+           "uid=aaron.adams,ou=People,dc=example,dc=com");
+      assertEquals(bufferedReader.readLine(),
+           "uid=brenda.brown,ou=People,dc=example,dc=com");
+      assertEquals(bufferedReader.readLine(),
+           "uid=chester.cooper,ou=People,dc=example,dc=com");
+      assertEquals(bufferedReader.readLine(),
+           "uid=dolly.duke,ou=People,dc=example,dc=com");
+      assertEquals(bufferedReader.readLine(),
+           "uid=ezra.edwards,ou=People,dc=example,dc=com");
+      assertNull(bufferedReader.readLine());
+    }
+  }
+
+
+
+  /**
    * Provides test coverage for the tool when configured to use the values-only
    * output format and an output file is used.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testVaulesOnlyOutputFormatWithOutputFile()
+  public void testValuesOnlyOutputFormatWithOutputFile()
          throws Exception
   {
     final File outputFile = createTempFile();

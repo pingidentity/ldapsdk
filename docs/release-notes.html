@@ -114,6 +114,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a "dns-only" output format for the ldapsearch command-line tool.  If this
+                  output format is selected, only the DNs of matching entries will be included in
+                  the output, with one DN per line, no blank lines between DNs, and no prefix
+                  (like "dn:") before each DN.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a null X.509 trust manager that will never trust any certificate chain.
                   This is primarily useful for testing purposes.
                   <br><br>

@@ -759,10 +759,10 @@ public final class LDAPSearch
 
     final Set<String> outputFormatAllowedValues = StaticUtils.setOf("ldif",
          "json", "csv", "multi-valued-csv", "tab-delimited",
-         "multi-valued-tab-delimited", "values-only");
+         "multi-valued-tab-delimited", "dns-only", "values-only");
     outputFormat = new StringArgument(null, "outputFormat", false, 1,
          "{ldif|json|csv|multi-valued-csv|tab-delimited|" +
-              "multi-valued-tab-delimited||values-only}",
+              "multi-valued-tab-delimited|dns-only|values-only}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_OUTPUT_FORMAT.get(
               requestedAttribute.getIdentifierString(),
               ldapURLFile.getIdentifierString()),
@@ -2291,6 +2291,10 @@ public final class LDAPSearch
 
       outputHandler = new ColumnFormatterLDAPSearchOutputHandler(this,
            format, requestedAttributes, WRAP_COLUMN, includeAllValues);
+    }
+    else if (outputFormatStr.equals("dns-only"))
+    {
+      outputHandler = new DNsOnlyLDAPSearchOutputHandler(this);
     }
     else if (outputFormatStr.equals("values-only"))
     {
