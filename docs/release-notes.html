@@ -142,6 +142,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the command-line tool framework in which the output stream
+                  that the tool creates when writing output to a file (for tools that support the
+                  outputFile argument, and when that argument is used to send the output to a
+                  file) was never explicitly closed.  It was implicitly closed when the tool
+                  exited, but this could cause problems in cases where a program programmatically
+                  invoked the tool and then tried to do something with the output file in the same
+                  JVM process.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a StaticUtils.isIANAReservedIPAddress method that can be used to determine
                   whether a provided IPv4 or IPv6 address is contained in an IANA-reserved range,
                   optionally including ranges that are reserved for private-use networks (for

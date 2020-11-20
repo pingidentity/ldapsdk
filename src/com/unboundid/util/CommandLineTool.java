@@ -411,13 +411,13 @@ public abstract class CommandLineTool
       return ResultCode.PARAM_ERROR;
     }
 
+    PrintStream outputFileStream = null;
     if ((outputFileArgument != null) && outputFileArgument.isPresent())
     {
       final File outputFile = outputFileArgument.getValue();
       final boolean append = ((appendToOutputFileArgument != null) &&
            appendToOutputFileArgument.isPresent());
 
-      final PrintStream outputFileStream;
       try
       {
         final FileOutputStream fos = new FileOutputStream(outputFile, append);
@@ -443,146 +443,155 @@ public abstract class CommandLineTool
       }
     }
 
-
-    // If any values were selected using a properties file, then display
-    // information about them.
-    final List<String> argsSetFromPropertiesFiles =
-         parser.getArgumentsSetFromPropertiesFile();
-    if ((! argsSetFromPropertiesFiles.isEmpty()) &&
-        (! parser.suppressPropertiesFileComment()))
+    try
     {
-      for (final String line :
-           StaticUtils.wrapLine(
-                INFO_CL_TOOL_ARGS_FROM_PROPERTIES_FILE.get(
-                     parser.getPropertiesFileUsed().getPath()),
-                (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
+      // If any values were selected using a properties file, then display
+      // information about them.
+      final List<String> argsSetFromPropertiesFiles =
+           parser.getArgumentsSetFromPropertiesFile();
+      if ((! argsSetFromPropertiesFiles.isEmpty()) &&
+          (! parser.suppressPropertiesFileComment()))
       {
-        out("# ", line);
-      }
-
-      final StringBuilder buffer = new StringBuilder();
-      for (final String s : argsSetFromPropertiesFiles)
-      {
-        if (s.startsWith("-"))
+        for (final String line :
+             StaticUtils.wrapLine(
+                  INFO_CL_TOOL_ARGS_FROM_PROPERTIES_FILE.get(
+                       parser.getPropertiesFileUsed().getPath()),
+                  (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
         {
-          if (buffer.length() > 0)
-          {
-            out(buffer);
-            buffer.setLength(0);
-          }
-
-          buffer.append("#      ");
-          buffer.append(s);
+          out("# ", line);
         }
-        else
+
+        final StringBuilder buffer = new StringBuilder();
+        for (final String s : argsSetFromPropertiesFiles)
         {
-          if (buffer.length() == 0)
+          if (s.startsWith("-"))
           {
-            // This should never happen.
+            if (buffer.length() > 0)
+            {
+              out(buffer);
+              buffer.setLength(0);
+            }
+
             buffer.append("#      ");
+            buffer.append(s);
           }
           else
           {
-            buffer.append(' ');
+            if (buffer.length() == 0)
+            {
+              // This should never happen.
+              buffer.append("#      ");
+            }
+            else
+            {
+              buffer.append(' ');
+            }
+
+            buffer.append(StaticUtils.cleanExampleCommandLineArgument(s));
           }
-
-          buffer.append(StaticUtils.cleanExampleCommandLineArgument(s));
         }
+
+        if (buffer.length() > 0)
+        {
+          out(buffer);
+        }
+
+        out();
       }
 
-      if (buffer.length() > 0)
+
+      CommandLineToolShutdownHook shutdownHook = null;
+      final AtomicReference<ResultCode> exitCode = new AtomicReference<>();
+      if (registerShutdownHook())
       {
-        out(buffer);
+        shutdownHook = new CommandLineToolShutdownHook(this, exitCode);
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
       }
 
-      out();
-    }
+      final ToolInvocationLogDetails logDetails =
+              ToolInvocationLogger.getLogMessageDetails(
+                      getToolName(), logToolInvocationByDefault(), getErr());
+      ToolInvocationLogShutdownHook logShutdownHook = null;
 
-
-    CommandLineToolShutdownHook shutdownHook = null;
-    final AtomicReference<ResultCode> exitCode = new AtomicReference<>();
-    if (registerShutdownHook())
-    {
-      shutdownHook = new CommandLineToolShutdownHook(this, exitCode);
-      Runtime.getRuntime().addShutdownHook(shutdownHook);
-    }
-
-    final ToolInvocationLogDetails logDetails =
-            ToolInvocationLogger.getLogMessageDetails(
-                    getToolName(), logToolInvocationByDefault(), getErr());
-    ToolInvocationLogShutdownHook logShutdownHook = null;
-
-    if (logDetails.logInvocation())
-    {
-      final HashSet<Argument> argumentsSetFromPropertiesFile =
-           new HashSet<>(StaticUtils.computeMapCapacity(10));
-      final ArrayList<ObjectPair<String,String>> propertiesFileArgList =
-           new ArrayList<>(10);
-      getToolInvocationPropertiesFileArguments(parser,
-           argumentsSetFromPropertiesFile, propertiesFileArgList);
-
-      final ArrayList<ObjectPair<String,String>> providedArgList =
-           new ArrayList<>(10);
-      getToolInvocationProvidedArguments(parser,
-           argumentsSetFromPropertiesFile, providedArgList);
-
-      logShutdownHook = new ToolInvocationLogShutdownHook(logDetails);
-      Runtime.getRuntime().addShutdownHook(logShutdownHook);
-
-      final String propertiesFilePath;
-      if (propertiesFileArgList.isEmpty())
+      if (logDetails.logInvocation())
       {
-        propertiesFilePath = "";
-      }
-      else
-      {
-        final File propertiesFile = parser.getPropertiesFileUsed();
-        if (propertiesFile == null)
+        final HashSet<Argument> argumentsSetFromPropertiesFile =
+             new HashSet<>(StaticUtils.computeMapCapacity(10));
+        final ArrayList<ObjectPair<String,String>> propertiesFileArgList =
+             new ArrayList<>(10);
+        getToolInvocationPropertiesFileArguments(parser,
+             argumentsSetFromPropertiesFile, propertiesFileArgList);
+
+        final ArrayList<ObjectPair<String,String>> providedArgList =
+             new ArrayList<>(10);
+        getToolInvocationProvidedArguments(parser,
+             argumentsSetFromPropertiesFile, providedArgList);
+
+        logShutdownHook = new ToolInvocationLogShutdownHook(logDetails);
+        Runtime.getRuntime().addShutdownHook(logShutdownHook);
+
+        final String propertiesFilePath;
+        if (propertiesFileArgList.isEmpty())
         {
           propertiesFilePath = "";
         }
         else
         {
-          propertiesFilePath = propertiesFile.getAbsolutePath();
+          final File propertiesFile = parser.getPropertiesFileUsed();
+          if (propertiesFile == null)
+          {
+            propertiesFilePath = "";
+          }
+          else
+          {
+            propertiesFilePath = propertiesFile.getAbsolutePath();
+          }
+        }
+
+        ToolInvocationLogger.logLaunchMessage(logDetails, providedArgList,
+                propertiesFileArgList, propertiesFilePath);
+      }
+
+      try
+      {
+        exitCode.set(doToolProcessing());
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        err(StaticUtils.getExceptionMessage(e));
+        exitCode.set(ResultCode.LOCAL_ERROR);
+      }
+      finally
+      {
+        if (logShutdownHook != null)
+        {
+          Runtime.getRuntime().removeShutdownHook(logShutdownHook);
+
+          String completionMessage = getToolCompletionMessage();
+          if (completionMessage == null)
+          {
+            completionMessage = exitCode.get().getName();
+          }
+
+          ToolInvocationLogger.logCompletionMessage(
+                  logDetails, exitCode.get().intValue(), completionMessage);
+        }
+        if (shutdownHook != null)
+        {
+          Runtime.getRuntime().removeShutdownHook(shutdownHook);
         }
       }
 
-      ToolInvocationLogger.logLaunchMessage(logDetails, providedArgList,
-              propertiesFileArgList, propertiesFilePath);
-    }
-
-    try
-    {
-      exitCode.set(doToolProcessing());
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      err(StaticUtils.getExceptionMessage(e));
-      exitCode.set(ResultCode.LOCAL_ERROR);
+      return exitCode.get();
     }
     finally
     {
-      if (logShutdownHook != null)
+      if (outputFileStream != null)
       {
-        Runtime.getRuntime().removeShutdownHook(logShutdownHook);
-
-        String completionMessage = getToolCompletionMessage();
-        if (completionMessage == null)
-        {
-          completionMessage = exitCode.get().getName();
-        }
-
-        ToolInvocationLogger.logCompletionMessage(
-                logDetails, exitCode.get().intValue(), completionMessage);
-      }
-      if (shutdownHook != null)
-      {
-        Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        outputFileStream.close();
       }
     }
-
-    return exitCode.get();
   }
 
 
