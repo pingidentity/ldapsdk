@@ -772,7 +772,7 @@ public final class ManageCertificates
     exportCertSubCommand.addName("exportCertificate", true);
     exportCertSubCommand.addName("export-cert", true);
     exportCertSubCommand.addName("exportCert", true);
-    exportCertSubCommand.addName("export", false);
+    exportCertSubCommand.addName("export", true);
 
     parser.addSubCommand(exportCertSubCommand);
 
@@ -1302,10 +1302,10 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_DELETE_CERT_DESC.get(), deleteCertParser,
          deleteCertExamples);
     deleteCertSubCommand.addName("deleteCertificate", true);
-    deleteCertSubCommand.addName("remove-certificate", false);
+    deleteCertSubCommand.addName("remove-certificate", true);
     deleteCertSubCommand.addName("removeCertificate", true);
-    deleteCertSubCommand.addName("delete", false);
-    deleteCertSubCommand.addName("remove", false);
+    deleteCertSubCommand.addName("delete", true);
+    deleteCertSubCommand.addName("remove", true);
 
     parser.addSubCommand(deleteCertSubCommand);
 
@@ -1788,7 +1788,7 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_GEN_CERT_DESC.get(), genCertParser,
          genCertExamples);
     genCertSubCommand.addName("generateSelfSignedCertificate", true);
-    genCertSubCommand.addName("generate-certificate", false);
+    genCertSubCommand.addName("generate-certificate", true);
     genCertSubCommand.addName("generateCertificate", true);
     genCertSubCommand.addName("self-signed-certificate", true);
     genCertSubCommand.addName("selfSignedCertificate", true);
@@ -2254,7 +2254,7 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_GEN_CSR_DESC.get(), genCSRParser,
          genCSRExamples);
     genCSRSubCommand.addName("generateCertificateSigningRequest", true);
-    genCSRSubCommand.addName("generate-certificate-request", false);
+    genCSRSubCommand.addName("generate-certificate-request", true);
     genCSRSubCommand.addName("generateCertificateRequest", true);
     genCSRSubCommand.addName("generate-csr", true);
     genCSRSubCommand.addName("generateCSR", true);
@@ -2814,13 +2814,13 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_SIGN_CSR_DESC.get(), signCSRParser,
          signCSRExamples);
     signCSRSubCommand.addName("signCertificateSigningRequest", true);
-    signCSRSubCommand.addName("sign-certificate-request", false);
+    signCSRSubCommand.addName("sign-certificate-request", true);
     signCSRSubCommand.addName("signCertificateRequest", true);
-    signCSRSubCommand.addName("sign-certificate", false);
+    signCSRSubCommand.addName("sign-certificate", true);
     signCSRSubCommand.addName("signCertificate", true);
     signCSRSubCommand.addName("sign-csr", true);
     signCSRSubCommand.addName("signCSR", true);
-    signCSRSubCommand.addName("sign", false);
+    signCSRSubCommand.addName("sign", true);
     signCSRSubCommand.addName("gencert", true);
 
     parser.addSubCommand(signCSRSubCommand);
@@ -3019,11 +3019,11 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_CHANGE_ALIAS_DESC.get(), changeAliasParser,
          changeAliasExamples);
     changeAliasSubCommand.addName("changeCertificateAlias", true);
-    changeAliasSubCommand.addName("change-alias", false);
+    changeAliasSubCommand.addName("change-alias", true);
     changeAliasSubCommand.addName("changeAlias", true);
     changeAliasSubCommand.addName("rename-certificate", true);
     changeAliasSubCommand.addName("renameCertificate", true);
-    changeAliasSubCommand.addName("rename", false);
+    changeAliasSubCommand.addName("rename", true);
 
     parser.addSubCommand(changeAliasSubCommand);
 
@@ -3391,7 +3391,7 @@ public final class ManageCertificates
     changePKPWSubCommand.addName("changePrivateKeyPassphrase", true);
     changePKPWSubCommand.addName("change-private-key-pin", true);
     changePKPWSubCommand.addName("changePrivateKeyPIN", true);
-    changePKPWSubCommand.addName("change-key-password", false);
+    changePKPWSubCommand.addName("change-key-password", true);
     changePKPWSubCommand.addName("changeKeyPassword", true);
     changePKPWSubCommand.addName("change-key-passphrase", true);
     changePKPWSubCommand.addName("changeKeyPassphrase", true);
@@ -3400,6 +3400,141 @@ public final class ManageCertificates
     changePKPWSubCommand.addName("keypasswd", true);
 
     parser.addSubCommand(changePKPWSubCommand);
+
+
+    // Define the "retrieve-server-certificate" subcommand and all of its
+    // arguments.
+    final ArgumentParser retrieveCertParser = new ArgumentParser(
+         "retrieve-server-certificate",
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_DESC.get());
+
+    final StringArgument retrieveCertHostname = new StringArgument('h',
+         "hostname", true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_HOST.get(),
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_HOSTNAME_DESC.get());
+    retrieveCertHostname.addLongIdentifier("server-address", true);
+    retrieveCertHostname.addLongIdentifier("serverAddress", true);
+    retrieveCertHostname.addLongIdentifier("address", true);
+    retrieveCertParser.addArgument(retrieveCertHostname);
+
+    final IntegerArgument retrieveCertPort = new IntegerArgument('p',
+         "port", true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_PORT.get(),
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_PORT_DESC.get(), 1, 65_535);
+    retrieveCertPort.addLongIdentifier("server-port", true);
+    retrieveCertPort.addLongIdentifier("serverPort", true);
+    retrieveCertParser.addArgument(retrieveCertPort);
+
+    final BooleanArgument retrieveCertUseStartTLS = new BooleanArgument('q',
+         "use-ldap-start-tls", 1,
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_USE_START_TLS_DESC.get());
+    retrieveCertUseStartTLS.addLongIdentifier("use-ldap-starttls", true);
+    retrieveCertUseStartTLS.addLongIdentifier("useLDAPStartTLS", true);
+    retrieveCertUseStartTLS.addLongIdentifier("use-start-tls", true);
+    retrieveCertUseStartTLS.addLongIdentifier("use-starttls", true);
+    retrieveCertUseStartTLS.addLongIdentifier("useStartTLS", true);
+    retrieveCertParser.addArgument(retrieveCertUseStartTLS);
+
+    final FileArgument retrieveCertOutputFile = new FileArgument(null,
+         "output-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_FILE_DESC.get(), false, true,
+         true, false);
+    retrieveCertOutputFile.addLongIdentifier("outputFile", true);
+    retrieveCertOutputFile.addLongIdentifier("export-file", true);
+    retrieveCertOutputFile.addLongIdentifier("exportFile", true);
+    retrieveCertOutputFile.addLongIdentifier("certificate-file", true);
+    retrieveCertOutputFile.addLongIdentifier("certificateFile", true);
+    retrieveCertOutputFile.addLongIdentifier("file", true);
+    retrieveCertOutputFile.addLongIdentifier("filename", true);
+    retrieveCertParser.addArgument(retrieveCertOutputFile);
+
+    final Set<String> retrieveCertOutputFormatAllowedValues = StaticUtils.setOf(
+         "PEM", "text", "txt", "RFC", "DER", "binary", "bin");
+    final StringArgument retrieveCertOutputFormat = new StringArgument(null,
+         "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_FORMAT_DESC.get(),
+         retrieveCertOutputFormatAllowedValues, "PEM");
+    retrieveCertOutputFormat.addLongIdentifier("outputFormat", true);
+    retrieveCertParser.addArgument(retrieveCertOutputFormat);
+
+    final BooleanArgument retrieveCertOnlyPeer = new BooleanArgument(null,
+         "only-peer-certificate", 1,
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_ONLY_PEER_DESC.get());
+    retrieveCertOnlyPeer.addLongIdentifier("onlyPeerCertificate", true);
+    retrieveCertOnlyPeer.addLongIdentifier("only-peer", true);
+    retrieveCertOnlyPeer.addLongIdentifier("onlyPeer", true);
+    retrieveCertOnlyPeer.addLongIdentifier("peer-certificate-only", true);
+    retrieveCertOnlyPeer.addLongIdentifier("peerCertificateOnly", true);
+    retrieveCertOnlyPeer.addLongIdentifier("peer-only", true);
+    retrieveCertOnlyPeer.addLongIdentifier("peerOnly", true);
+    retrieveCertParser.addArgument(retrieveCertOnlyPeer);
+
+    final BooleanArgument retrieveCertEnableSSLDebugging = new BooleanArgument(
+         null, "enableSSLDebugging", 1,
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_ENABLE_SSL_DEBUGGING_DESC.
+              get());
+    retrieveCertEnableSSLDebugging.addLongIdentifier("enableTLSDebugging",
+         true);
+    retrieveCertEnableSSLDebugging.addLongIdentifier("enableStartTLSDebugging",
+         true);
+    retrieveCertEnableSSLDebugging.addLongIdentifier("enable-ssl-debugging",
+         true);
+    retrieveCertEnableSSLDebugging.addLongIdentifier("enable-tls-debugging",
+         true);
+    retrieveCertEnableSSLDebugging.addLongIdentifier(
+         "enable-starttls-debugging", true);
+    retrieveCertEnableSSLDebugging.addLongIdentifier(
+         "enable-start-tls-debugging", true);
+    retrieveCertParser.addArgument(retrieveCertEnableSSLDebugging);
+    addEnableSSLDebuggingArgument(retrieveCertEnableSSLDebugging);
+
+    final BooleanArgument retrieveCertVerbose = new BooleanArgument(null,
+         "verbose", 1,
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_ARG_VERBOSE_DESC.get());
+    retrieveCertParser.addArgument(retrieveCertVerbose);
+
+    retrieveCertParser.addDependentArgumentSet(retrieveCertOutputFormat,
+         retrieveCertOutputFile);
+
+    final LinkedHashMap<String[],String> retrieveCertExamples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
+    retrieveCertExamples.put(
+         new String[]
+         {
+           "retrieve-server-certificate",
+           "--hostname", "ds.example.com",
+           "--port", "636"
+         },
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "truststore")));
+    retrieveCertExamples.put(
+         new String[]
+         {
+           "retrieve-server-certificate",
+           "--hostname", "ds.example.com",
+           "--port", "389",
+           "--use-ldap-start-tls",
+           "--only-peer-certificate",
+           "--output-file", "ds-cert.pem",
+           "--output-format", "PEM",
+           "--verbose"
+         },
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_EXAMPLE_2.get(
+              getPlatformSpecificPath("config", "truststore")));
+
+    final SubCommand retrieveCertSubCommand = new SubCommand(
+         "retrieve-server-certificate",
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_DESC.get(), retrieveCertParser,
+         retrieveCertExamples);
+    retrieveCertSubCommand.addName("retrieveServerCertificate", true);
+    retrieveCertSubCommand.addName("retrieve-certificate", true);
+    retrieveCertSubCommand.addName("retrieveCertificate", true);
+    retrieveCertSubCommand.addName("get-server-certificate", true);
+    retrieveCertSubCommand.addName("getServerCertificate", true);
+    retrieveCertSubCommand.addName("get-certificate", true);
+    retrieveCertSubCommand.addName("getCertificate", true);
+    retrieveCertSubCommand.addName("display-server-certificate", true);
+    retrieveCertSubCommand.addName("displayServerCertificate", true);
+
+    parser.addSubCommand(retrieveCertSubCommand);
 
 
     // Define the "trust-server-certificate" subcommand and all of its
@@ -3583,7 +3718,7 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_DESC.get(), trustServerParser,
          trustServerExamples);
     trustServerSubCommand.addName("trustServerCertificate", true);
-    trustServerSubCommand.addName("trust-server", false);
+    trustServerSubCommand.addName("trust-server", true);
     trustServerSubCommand.addName("trustServer", true);
 
     parser.addSubCommand(trustServerSubCommand);
@@ -3754,7 +3889,7 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_DISPLAY_CERT_DESC.get(), displayCertParser,
          displayCertExamples);
     displayCertSubCommand.addName("displayCertificateFile", true);
-    displayCertSubCommand.addName("display-certificate", false);
+    displayCertSubCommand.addName("display-certificate", true);
     displayCertSubCommand.addName("displayCertificate", true);
     displayCertSubCommand.addName("display-certificates", true);
     displayCertSubCommand.addName("displayCertificates", true);
@@ -3764,9 +3899,9 @@ public final class ManageCertificates
     displayCertSubCommand.addName("showCertificateFile", true);
     displayCertSubCommand.addName("show-certificates", true);
     displayCertSubCommand.addName("showCertificates", true);
-    displayCertSubCommand.addName("print-certificate-file", false);
+    displayCertSubCommand.addName("print-certificate-file", true);
     displayCertSubCommand.addName("printCertificateFile", true);
-    displayCertSubCommand.addName("print-certificate", false);
+    displayCertSubCommand.addName("print-certificate", true);
     displayCertSubCommand.addName("printCertificate", true);
     displayCertSubCommand.addName("print-certificates", true);
     displayCertSubCommand.addName("printCertificates", true);
@@ -3786,7 +3921,7 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_SC_DISPLAY_CSR_ARG_FILE_DESC.get(), true, true,
          true, false);
     displayCSRFile.addLongIdentifier("certificateSigningRequestFile", true);
-    displayCSRFile.addLongIdentifier("request-file", false);
+    displayCSRFile.addLongIdentifier("request-file", true);
     displayCSRFile.addLongIdentifier("requestFile", true);
     displayCSRFile.addLongIdentifier("input-file", true);
     displayCSRFile.addLongIdentifier("inputFile", true);
@@ -3827,7 +3962,7 @@ public final class ManageCertificates
     displayCSRSubCommand.addName("displayCertificateSigningRequest", true);
     displayCSRSubCommand.addName("display-certificate-request-file", true);
     displayCSRSubCommand.addName("displayCertificateRequestFile", true);
-    displayCSRSubCommand.addName("display-certificate-request", false);
+    displayCSRSubCommand.addName("display-certificate-request", true);
     displayCSRSubCommand.addName("displayCertificateRequest", true);
     displayCSRSubCommand.addName("display-csr-file", true);
     displayCSRSubCommand.addName("displayCSRFile", true);
@@ -3846,13 +3981,13 @@ public final class ManageCertificates
     displayCSRSubCommand.addName("show-csr", true);
     displayCSRSubCommand.addName("showCSR", true);
     displayCSRSubCommand.addName("print-certificate-signing-request-file",
-         false);
+         true);
     displayCSRSubCommand.addName("printCertificateSigningRequestFile", true);
     displayCSRSubCommand.addName("print-certificate-signing-request", true);
     displayCSRSubCommand.addName("printCertificateSigningRequest", true);
     displayCSRSubCommand.addName("print-certificate-request-file", true);
     displayCSRSubCommand.addName("printCertificateRequestFile", true);
-    displayCSRSubCommand.addName("print-certificate-request", false);
+    displayCSRSubCommand.addName("print-certificate-request", true);
     displayCSRSubCommand.addName("printCertificateRequest", true);
     displayCSRSubCommand.addName("print-csr-file", true);
     displayCSRSubCommand.addName("printCSRFile", true);
@@ -3956,6 +4091,10 @@ public final class ManageCertificates
     else if (selectedSubCommand.hasName("change-private-key-password"))
     {
       return doChangePrivateKeyPassword();
+    }
+    else if (selectedSubCommand.hasName("retrieve-server-certificate"))
+    {
+      return doRetrieveServerCertificate();
     }
     else if (selectedSubCommand.hasName("trust-server-certificate"))
     {
@@ -7955,6 +8094,184 @@ public final class ManageCertificates
 
 
   /**
+   * Performs the necessary processing for the retrieve-server-certificate
+   * subcommand.
+   *
+   * @return  A result code that indicates whether the processing completed
+   *          successfully.
+   */
+  @NotNull()
+  private ResultCode doRetrieveServerCertificate()
+  {
+    // Get the values of a number of configured arguments.
+    final StringArgument hostnameArgument =
+         subCommandParser.getStringArgument("hostname");
+    final String hostname = hostnameArgument.getValue();
+
+    final IntegerArgument portArgument =
+         subCommandParser.getIntegerArgument("port");
+    final int port = portArgument.getValue();
+
+    final BooleanArgument useLDAPStartTLSArgument =
+         subCommandParser.getBooleanArgument("use-ldap-start-tls");
+    final boolean useLDAPStartTLS =
+         ((useLDAPStartTLSArgument != null) &&
+          useLDAPStartTLSArgument.isPresent());
+
+    final BooleanArgument onlyPeerArgument =
+         subCommandParser.getBooleanArgument("only-peer-certificate");
+    final boolean onlyPeer =
+         ((onlyPeerArgument != null) && onlyPeerArgument.isPresent());
+
+    final BooleanArgument verboseArgument =
+         subCommandParser.getBooleanArgument("verbose");
+    final boolean verbose =
+         ((verboseArgument != null) && verboseArgument.isPresent());
+
+    boolean outputPEM = true;
+    final StringArgument outputFormatArgument =
+         subCommandParser.getStringArgument("output-format");
+    if ((outputFormatArgument != null) && outputFormatArgument.isPresent())
+    {
+      final String format = outputFormatArgument.getValue().toLowerCase();
+      if (format.equals("der") || format.equals("binary") ||
+          format.equals("bin"))
+      {
+        outputPEM = false;
+      }
+    }
+
+    File outputFile = null;
+    final FileArgument outputFileArgument =
+         subCommandParser.getFileArgument("output-file");
+    if ((outputFileArgument != null) && outputFileArgument.isPresent())
+    {
+      outputFile = outputFileArgument.getValue();
+    }
+
+
+    // Spawn a background thread to establish a connection and get the
+    // certificate chain from the target server.
+    final LinkedBlockingQueue<Object> responseQueue =
+         new LinkedBlockingQueue<>(10);
+    final ManageCertificatesServerCertificateCollector certificateCollector =
+         new ManageCertificatesServerCertificateCollector(this, hostname, port,
+              useLDAPStartTLS, verbose, responseQueue);
+    certificateCollector.start();
+
+    Object responseObject =
+         ERR_MANAGE_CERTS_RETRIEVE_CERT_NO_CERT_CHAIN_RECEIVED.get(
+              hostname + ':' + port);
+    try
+    {
+      responseObject = responseQueue.poll(90L, TimeUnit.SECONDS);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    final X509Certificate[] chain;
+    if (responseObject instanceof  X509Certificate[])
+    {
+      chain = (X509Certificate[]) responseObject;
+      if (chain.length == 0)
+      {
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_RETRIEVE_CERT_EMPTY_CHAIN.get());
+        return ResultCode.NO_RESULTS_RETURNED;
+      }
+    }
+    else if (responseObject instanceof CertException)
+    {
+      // The error message will have already been recorded by the collector
+      // thread, so we can just return a non-success result.
+      return ResultCode.LOCAL_ERROR;
+    }
+    else
+    {
+      wrapErr(0, WRAP_COLUMN, String.valueOf(responseObject));
+      return ResultCode.LOCAL_ERROR;
+    }
+
+    try
+    {
+      certificateCollector.join(10_000L);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+
+    // If the certificates should be written to a file, then do that now.
+    if (outputFile != null)
+    {
+      try (PrintStream s = new PrintStream(outputFile))
+      {
+        for (final X509Certificate c : chain)
+        {
+          if (outputPEM)
+          {
+            writePEMCertificate(s, c.getX509CertificateBytes());
+          }
+          else
+          {
+            s.write(c.getX509CertificateBytes());
+          }
+
+          if (onlyPeer)
+          {
+            break;
+          }
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_RETRIEVE_CERT_CANNOT_WRITE_TO_FILE.get(
+                  outputFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)));
+        return ResultCode.LOCAL_ERROR;
+      }
+    }
+
+
+    // Display information about the certificates.
+    for (int i=0; i < chain.length; i++)
+    {
+      if (verbose || (i > 0))
+      {
+        out();
+        out();
+      }
+
+      if ((! onlyPeer) && (chain.length > 1))
+      {
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_RETRIEVE_CERT_DISPLAY_HEADER.get((i+1),
+                  chain.length));
+        out();
+      }
+
+      final X509Certificate c = chain[i];
+      writePEMCertificate(getOut(), c.getX509CertificateBytes());
+      out();
+      printCertificate(c, "", verbose);
+
+      if (onlyPeer)
+      {
+        break;
+      }
+    }
+
+    return ResultCode.SUCCESS;
+  }
+
+
+
+  /**
    * Performs the necessary processing for the trust-server-certificate
    * subcommand.
    *
@@ -8093,6 +8410,15 @@ public final class ManageCertificates
     {
       wrapErr(0, WRAP_COLUMN, String.valueOf(responseObject));
       return ResultCode.LOCAL_ERROR;
+    }
+
+    try
+    {
+      certificateCollector.join(10_000L);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
     }
 
 
@@ -12253,6 +12579,16 @@ public final class ManageCertificates
               getPlatformSpecificPath("config", "keystore"),
               getPlatformSpecificPath("config", "current.pin"),
               getPlatformSpecificPath("config", "new.pin")));
+
+    examples.put(
+         new String[]
+         {
+           "retrieve-server-certificate",
+           "--hostname", "ds.example.com",
+           "--port", "636"
+         },
+         INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "truststore")));
 
     examples.put(
          new String[]

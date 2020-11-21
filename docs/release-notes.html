@@ -135,6 +135,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates tool to add a new retrieve-server-certificate
+                  subcommand.  When this subcommand is used, the tool will retrieve the
+                  certificate chain for a specified remote server and write information about the
+                  certificates to standard output.  It may also optionally write a PEM-encoded or
+                  DER-encoded representation of that chain (or just the peer certificate, if
+                  desired) to a specified file.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the manage-certificates trust-server-certificate command
                   that caused it to wait for a maximum of 60 milliseconds rather than the intended
                   60 seconds when trying to establish a connection to the target server.

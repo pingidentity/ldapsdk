@@ -640,6 +640,7 @@ public final class ManageCertificatesTestCase
       "sign-certificate-signing-request",
       "delete-certificate",
       "change-certificate-alias",
+      "retrieve-server-certificate",
       "trust-server-certificate",
       "check-certificate-usability",
       "display-certificate-file",
@@ -4817,6 +4818,182 @@ public final class ManageCertificatesTestCase
          "--current-private-key-password", "password",
          "--new-private-key-password", "new-password",
          "--display-keytool-command");
+  }
+
+
+
+  /**
+   * Provides test coverage for the retrieve-server-certificate subcommand.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRetrieveServerCertificate()
+         throws Exception
+  {
+    // Tests the behavior when retrieving a self-signed certificate when not
+    // using StartTLS, not using only-peer-certificate, not using an output
+    // file, and not using verbose.
+    File ksFile = createTempFile();
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--days-valid", "7300",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--subject-alternative-name-dns", "ldap.example.com",
+         "--subject-alternative-name-dns", "localhost",
+         "--subject-alternative-name-ip-address", "127.0.0.1",
+         "--subject-alternative-name-ip-address", "::1",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth",
+         "--display-keytool-command");
+
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+
+    SSLUtil serverSSLUtil = new SSLUtil(
+         new KeyStoreKeyManager(ksFile.getAbsolutePath(),
+              "password".toCharArray(), "JKS", "server-cert"),
+         new TrustAllTrustManager());
+    final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
+
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPSConfig("LDAPS",
+         null, 0, serverSSLUtil.createSSLServerSocketFactory(),
+         clientSSLUtil.createSSLSocketFactory()));
+
+    InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+    String portStr = String.valueOf(ds.getListenPort("LDAPS"));
+
+    ksFile = createTempFile();
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "retrieve-server-certificate",
+         "--hostname", "localhost",
+         "--port", portStr);
+
+
+    // Tests the above configuration, but when using only-peer-certificate,
+    // verbose mode, and an output file with the PEM format.
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.delete());
+
+    manageCertificates(
+         "retrieve-server-certificate",
+         "--hostname", "localhost",
+         "--port", portStr,
+         "--only-peer-certificate",
+         "--output-file", outputFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--verbose");
+
+    assertTrue(outputFile.exists());
+    assertTrue(outputFile.length() > 0L);
+
+    ds.shutDown(true);
+
+
+    // Test with a keystore with a certificate signed by a root certificate.
+    ksFile = createTempFile();
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    File csrFile = createTempFile();
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    File certFile = createTempFile();
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--subject-alternative-name-dns", "ldap.example.com",
+         "--subject-alternative-name-dns", "localhost",
+         "--subject-alternative-name-ip-address", "127.0.0.1",
+         "--subject-alternative-name-ip-address", "::1",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth",
+         "--display-keytool-command");
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "3650",
+         "--include-requested-extensions",
+         "--no-prompt",
+         "--display-keytool-command");
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    serverSSLUtil = new SSLUtil(
+         new KeyStoreKeyManager(ksFile.getAbsolutePath(),
+              "password".toCharArray(), "JKS", "server-cert"),
+         new TrustAllTrustManager());
+
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPSConfig("LDAPS",
+         null, 0, serverSSLUtil.createSSLServerSocketFactory(),
+         clientSSLUtil.createSSLSocketFactory()));
+
+    ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+    portStr = String.valueOf(ds.getListenPort("LDAPS"));
+
+    ksFile = createTempFile();
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(outputFile.delete());
+
+    manageCertificates(
+         "retrieve-server-certificate",
+         "--hostname", "localhost",
+         "--port", portStr,
+         "--output-file", outputFile.getAbsolutePath(),
+         "--output-format", "DER",
+         "--verbose");
+
+    assertTrue(outputFile.exists());
+    assertTrue(outputFile.length() > 0L);
+
+    ds.shutDown(true);
   }
 
 

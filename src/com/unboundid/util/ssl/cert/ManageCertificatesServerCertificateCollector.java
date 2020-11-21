@@ -43,6 +43,7 @@ import java.net.Socket;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509TrustManager;
 
@@ -367,6 +368,27 @@ final class ManageCertificatesServerCertificateCollector
           manageCertificates.wrapErr(0, WRAP_COLUMN, message);
           queue.offer(new CertException(message));
           return;
+        }
+
+
+        if (verbose)
+        {
+          final SSLSession sslSession = sslSocket.getSession();
+          final String negotiatedProtocol = sslSession.getProtocol();
+          if (negotiatedProtocol != null)
+          {
+            manageCertificates.wrapOut(0, WRAP_COLUMN,
+                 INFO_MANAGE_CERTS_CERT_COLLECTOR_NEGOTIATED_TLS_PROTOCOL.get(
+                      negotiatedProtocol));
+          }
+
+          final String negotiatedCipherSuite = sslSession.getCipherSuite();
+          if (negotiatedCipherSuite != null)
+          {
+            manageCertificates.wrapOut(0, WRAP_COLUMN,
+                 INFO_MANAGE_CERTS_CERT_COLLECTOR_NEGOTIATED_TLS_SUITE.get(
+                      negotiatedCipherSuite));
+          }
         }
       }
       finally
