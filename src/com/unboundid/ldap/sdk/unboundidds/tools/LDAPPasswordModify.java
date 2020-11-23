@@ -296,7 +296,8 @@ public final class LDAPPasswordModify
   /**
    * The OID base that has been assigned to Microsoft.
    */
-  @NotNull private static final String MICROSOFT_BASE_OID = "1.2.840.113556";
+  @NotNull private static final String MICROSOFT_BASE_OBJECT_IDENTIFIER =
+       "1.2.840.113556";
 
 
 
@@ -1500,7 +1501,7 @@ public final class LDAPPasswordModify
     int numMicrosoftControlsSupported = 0;
     for (final String oid : rootDSE.getSupportedControlOIDs())
     {
-      if (oid.startsWith(MICROSOFT_BASE_OID + '.'))
+      if (oid.startsWith(MICROSOFT_BASE_OBJECT_IDENTIFIER + '.'))
       {
         numMicrosoftControlsSupported++;
       }
@@ -1512,7 +1513,8 @@ public final class LDAPPasswordModify
       {
         wrapOut(0, WRAP_COLUMN,
              INFO_PWMOD_SELECTING_AD_METHOD_CONTROL_COUNT.get(
-                  numMicrosoftControlsSupported, MICROSOFT_BASE_OID));
+                  numMicrosoftControlsSupported,
+                  MICROSOFT_BASE_OBJECT_IDENTIFIER));
       }
 
       return PASSWORD_CHANGE_METHOD_AD;
