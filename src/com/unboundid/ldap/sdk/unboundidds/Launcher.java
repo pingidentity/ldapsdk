@@ -73,6 +73,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPPasswordModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
+import com.unboundid.ldap.sdk.unboundidds.tools.OIDLookup;
 import com.unboundid.ldap.sdk.unboundidds.tools.ParallelUpdate;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
 import com.unboundid.ldif.LDIFDiff;
@@ -148,6 +149,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>manage-certificates -- Launch the {@link ManageCertificates} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>move-subtree -- Launch the {@link MoveSubtree} tool.</LI>
+ *   <LI>oid-lookup -- Launch the {@link OIDLookup} tool.</LI>
  *   <LI>parallel-update -- Launch the {@link ParallelUpdate} tool.</LI>
  *   <LI>register-yubikey-otp-device -- Launch the
  *       {@link RegisterYubiKeyOTPDevice} tool.</LI>
@@ -342,6 +344,10 @@ public final class Launcher
     {
       return MoveSubtree.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("oid-lookup"))
+    {
+      return OIDLookup.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("parallel-update"))
     {
       return ParallelUpdate.main(outStream, errStream, remainingArgs);
@@ -423,6 +429,7 @@ public final class Launcher
         err.println("     manage-certificates");
         err.println("     modrate");
         err.println("     move-subtree");
+        err.println("     oid-lookup");
         err.println("     parallel-update");
         err.println("     register-yubikey-otp-device");
         err.println("     searchrate");
@@ -481,6 +488,7 @@ public final class Launcher
          ManageCertificates.class,
          ModRate.class,
          MoveSubtree.class,
+         OIDLookup.class,
          ParallelUpdate.class,
          RegisterYubiKeyOTPDevice.class,
          SearchAndModRate.class,

@@ -246,6 +246,9 @@
     <copy file="${resource.dir}/standard-schema.ldif"
           toDir="${classes.dir}/com/unboundid/ldap/sdk/schema/"
           overwrite="true" />
+    <copy file="${resource.dir}/oid-registry.json"
+          toDir="${classes.dir}/com/unboundid/util/"
+          overwrite="true" />
   </target>
 
 

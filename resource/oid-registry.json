@@ -1,0 +1,946 @@
+{ "oid":"0.9.2342.19200300.100.1.1", "name":"uid", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"0.9.2342.19200300.100.1.2", "name":"textEncodedORAddress", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.3", "name":"mail", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.4", "name":"info", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.5", "name":"drink", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.6", "name":"roomNumber", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.7", "name":"photo", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"0.9.2342.19200300.100.1.8", "name":"userClass", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.9", "name":"host", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.10", "name":"manager", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.11", "name":"documentIdentifier", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.12", "name":"documentTitle", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.13", "name":"documentVersion", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.14", "name":"documentAuthor", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.15", "name":"documentLocation", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.20", "name":"homePhone", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.21", "name":"secretary", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.22", "name":"otherMailbox", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.23", "name":"lastModifiedTime", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.24", "name":"lastModifiedBy", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.25", "name":"dc", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"0.9.2342.19200300.100.1.26", "name":"aRecord", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.27", "name":"mDRecord", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.28", "name":"mxRecord", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.29", "name":"nSRecord", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.30", "name":"sOARecord", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.31", "name":"cNAMERecord", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.37", "name":"associatedDomain", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.38", "name":"associatedName", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.39", "name":"homePostalAddress", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.40", "name":"personalTitle", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.41", "name":"mobile", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.42", "name":"pager", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.43", "name":"co", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.44", "name":"uniqueIdentifier", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.45", "name":"organizationalStatus", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.46", "name":"janetMailbox", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.47", "name":"mailPreferenceOption", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.48", "name":"buildingName", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.49", "name":"dSAQuality", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.50", "name":"singleLevelQuality", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.51", "name":"subtreeMinimumQuality", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.52", "name":"subtreeMaximumQuality", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.53", "name":"personalSignature", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.54", "name":"dITRedirect", "type":"Attribute Type", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.1.55", "name":"audio", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"0.9.2342.19200300.100.1.56", "name":"documentPublisher", "type":"Attribute Type", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.1.60", "name":"jpegPhoto", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"0.9.2342.19200300.100.4.3", "name":"pilotObject", "type":"Object Class", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.4.4", "name":"pilotPerson", "type":"Object Class", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.4.5", "name":"account", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.6", "name":"document", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.7", "name":"room", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.9", "name":"documentSeries", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.13", "name":"domain", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.14", "name":"rFC822localPart", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.15", "name":"dNSDomain", "type":"Object Class", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.4.17", "name":"domainRelatedObject", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.18", "name":"friendlyCountry", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.19", "name":"simpleSecurityObject", "type":"Object Class", "origin":"RFC 4524", "url":"https://docs.ldap.com/specs/rfc4524.txt" }
+{ "oid":"0.9.2342.19200300.100.4.20", "name":"pilotOrganization", "type":"Object Class", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.4.21", "name":"pilotDSA", "type":"Object Class", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"0.9.2342.19200300.100.4.22", "name":"qualityLabelledData", "type":"Object Class", "origin":"RFC 1274", "url":"https://docs.ldap.com/specs/rfc1274.txt" }
+{ "oid":"1.2.826.0.1.3344810.2.3", "name":"Matched Values", "type":"Request Control", "origin":"RFC 3876", "url":"https://docs.ldap.com/specs/rfc3876.txt" }
+{ "oid":"1.2.826.0.1.3458854.2.1.1", "name":"groupOfEntries", "type":"Object Class", "origin":"draft-findlay-ldap-groupofentries", "url":"https://docs.ldap.com/specs/draft-findlay-ldap-groupofentries-00.txt" }
+{ "oid":"1.2.840.113549.1.9.1", "name":"emailAddress", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.2", "name":"unstructuredName", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.3", "name":"contentType", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.4", "name":"messageDigest", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.5", "name":"signingTime", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.6", "name":"counterSignature", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.7", "name":"challengePassword", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.8", "name":"unstructuredAddress", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.24.1", "name":"pkcsEntity", "type":"Object Class", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.24.2", "name":"naturalPerson", "type":"Object Class", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.25.1", "name":"pKCS15Token", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.25.2", "name":"encryptedPrivateKeyInfo", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.1.9.25.5", "name":"pKCS7PDU", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.2.840.113549.6.0.0", "name":"Signed Operation", "type":"Request Control", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.0.1", "name":"Demand Signed Result", "type":"Request Control", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.0.2", "name":"Signed Result", "type":"Response Control", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.1.0", "name":"signedAuditTrail", "type":"Object Class", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.1.2", "name":"zombieObject", "type":"Object Class", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.2.0", "name":"Changes", "type":"Attribute Type", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.2.1", "name":"OriginalObject", "type":"Attribute Type", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113549.6.2.2", "name":"signedDirectoryOperationSupport", "type":"Attribute Type", "origin":"RFC 2649", "url":"https://docs.ldap.com/specs/rfc2649.txt" }
+{ "oid":"1.2.840.113556.1.4.319", "name":"Simple Paged Results", "type":"Control", "origin":"RFC 2696", "url":"https://docs.ldap.com/specs/rfc2696.txt" }
+{ "oid":"1.2.840.113556.1.4.473", "name":"Server-Side Sort", "type":"Request Control", "origin":"RFC 2891", "url":"https://docs.ldap.com/specs/rfc2891.txt" }
+{ "oid":"1.2.840.113556.1.4.474", "name":"Server-Side Sort", "type":"Response Control", "origin":"RFC 2891", "url":"https://docs.ldap.com/specs/rfc2891.txt" }
+{ "oid":"1.2.840.113556.1.4.478", "name":"calCalURI", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.479", "name":"calFBURL", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.480", "name":"calCAPURI", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.481", "name":"calCalAdrURI", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.482", "name":"calOtherCalURIs", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.483", "name":"calOtherFBURLs", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.484", "name":"calOtherCAPURIs", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.485", "name":"calOtherCalAdrURIs", "type":"Attribute Type", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.2.840.113556.1.4.805", "name":"Tree Delete", "type":"Request Control", "origin":"draft-armijo-ldap-treedelete", "url":"https://docs.ldap.com/specs/draft-armijo-ldap-treedelete-02.txt" }
+{ "oid":"1.2.840.113556.1.4.841", "name":"DirSync", "type":"Request Control", "origin":"Active Directory" }
+{ "oid":"1.2.840.113556.1.4.1413", "name":"Permissive Modify", "type":"Request Control", "origin":"Active Directory" }
+{ "oid":"1.2.840.113556.1.4.1504", "name":"Attribute Scoped Query", "type":"Request Control", "origin":"draft-kashi-attr-scoped-query", "url":"https://docs.ldap.com/specs/draft-kashi-attr-scoped-query-01.txt" }
+{ "oid":"1.2.840.113556.1.5.87", "name":"calEntry", "type":"Object Class", "origin":"RFC 2739", "url":"https://docs.ldap.com/specs/rfc2739.txt" }
+{ "oid":"1.3.6.1.1.1.1.0", "name":"uidNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.1", "name":"gidNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.2", "name":"gecos", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.3", "name":"homeDirectory", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.4", "name":"loginShell", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.5", "name":"shadowLastChange", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.6", "name":"shadowMin", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.7", "name":"shadowMax", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.8", "name":"shadowWarning", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.9", "name":"shadowInactive", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.10", "name":"shadowExpire", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.11", "name":"shadowFlag", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.12", "name":"memberUid", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.13", "name":"memberNisNetgroup", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.14", "name":"nisNetgroupTriple", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.15", "name":"ipServicePort", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.16", "name":"ipServiceProtocol", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.17", "name":"ipProtocolNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.18", "name":"oncRpcNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.19", "name":"ipHostNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.20", "name":"ipNetworkNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.21", "name":"ipNetmaskNumber", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.22", "name":"macAddress", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.23", "name":"bootParameter", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.24", "name":"bootFile", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.26", "name":"nisMapName", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.27", "name":"nisMapEntry", "type":"Attribute Type", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.1.28", "name":"nisPublicKey", "type":"Attribute Type", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.1.29", "name":"nisSecretKey", "type":"Attribute Type", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.1.30", "name":"nisDomain", "type":"Attribute Type", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.1.31", "name":"automountMapName", "type":"Attribute Type", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.1.32", "name":"automountKey", "type":"Attribute Type", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.1.33", "name":"automountInformation", "type":"Attribute Type", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.2.0", "name":"posixAccount", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.1", "name":"shadowAccount", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.2", "name":"posixGroup", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.3", "name":"ipService", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.4", "name":"ipProtocol", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.5", "name":"oncRpc", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.6", "name":"ipHost", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.7", "name":"ipNetwork", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.8", "name":"nisNetgroup", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.9", "name":"nisMap", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.10", "name":"nisObject", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.11", "name":"ieee802Device", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.12", "name":"bootableDevice", "type":"Object Class", "origin":"RFC 2307", "url":"https://docs.ldap.com/specs/rfc2307.txt" }
+{ "oid":"1.3.6.1.1.1.2.14", "name":"nisKeyObject", "type":"Object Class", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.2.15", "name":"nisDomainObject", "type":"Object Class", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.2.16", "name":"automountMap", "type":"Object Class", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.1.2.17", "name":"automount", "type":"Object Class", "origin":"draft-howard-rfc2307bis", "url":"https://docs.ldap.com/specs/draft-howard-rfc2307bis-02.txt" }
+{ "oid":"1.3.6.1.1.3.1", "name":"uidObject", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"1.3.6.1.1.4", "name":"vendorName", "type":"Attribute Type", "origin":"RFC 3045", "url":"https://docs.ldap.com/specs/rfc3045.txt" }
+{ "oid":"1.3.6.1.1.5", "name":"vendorVersion", "type":"Attribute Type", "origin":"RFC 3045", "url":"https://docs.ldap.com/specs/rfc3045.txt" }
+{ "oid":"1.3.6.1.1.7.1", "name":"LCUP (LDAP Client Update Protocol) Sync", "type":"Request Control", "origin":"RFC 3928", "url":"https://docs.ldap.com/specs/rfc3928.txt" }
+{ "oid":"1.3.6.1.1.7.2", "name":"LCUP (LDAP Client Update Protocol) Sync Update", "type":"Control", "origin":"RFC 3928", "url":"https://docs.ldap.com/specs/rfc3928.txt" }
+{ "oid":"1.3.6.1.1.7.3", "name":"LCUP (LDAP Client Update Protocol) Sync Done", "type":"Control", "origin":"RFC 3928", "url":"https://docs.ldap.com/specs/rfc3928.txt" }
+{ "oid":"1.3.6.1.1.8", "name":"Cancel", "type":"Extended Request", "origin":"RFC 3909", "url":"https://docs.ldap.com/specs/rfc3909.txt" }
+{ "oid":"1.3.6.1.1.10.4.1", "name":"uddiBusinessKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.2", "name":"uddiAuthorizedName", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.3", "name":"uddiOperator", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.4", "name":"uddiName", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.5", "name":"uddiDescription", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.6", "name":"uddiDiscoveryURLs", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.7", "name":"uddiUseType", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.8", "name":"uddiPersonName", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.9", "name":"uddiPhone", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.10", "name":"uddiEMail", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.11", "name":"uddiSortCode", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.12", "name":"uddiTModelKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.13", "name":"uddiAddressLine", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.14", "name":"uddiIdentifierBag", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.15", "name":"uddiCategoryBag", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.16", "name":"uddiKeyedReference", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.17", "name":"uddiServiceKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.18", "name":"uddiBindingKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.19", "name":"uddiAccessPoint", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.20", "name":"uddiHostingRedirector", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.21", "name":"uddiInstanceDescription", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.22", "name":"uddiInstanceParms", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.23", "name":"uddiOverviewDescription", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.24", "name":"uddiOverviewURL", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.25", "name":"uddiFromKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.26", "name":"uddiToKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.27", "name":"uddiUUID", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.28", "name":"uddiIsHidden", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.29", "name":"uddiIsProjection", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.30", "name":"uddiLang", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.31", "name":"uddiv3BusinessKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.32", "name":"uddiv3ServiceKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.33", "name":"uddiv3BindingKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.34", "name":"uddiv3TModelKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.35", "name":"uddiv3DigitalSignature", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.36", "name":"uddiv3NodeId", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.37", "name":"uddiv3EntityModificationTime", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.38", "name":"uddiv3SubscriptionKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.39", "name":"uddiv3SubscriptionFilter", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.40", "name":"uddiv3NotificationInterval", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.41", "name":"uddiv3MaxEntities", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.42", "name":"uddiv3ExpiresAfter", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.43", "name":"uddiv3BriefResponse", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.44", "name":"uddiv3EntityKey", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.45", "name":"uddiv3EntityCreationTime", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.4.46", "name":"uddiv3EntityDeletionTime", "type":"Attribute Type", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.1", "name":"uddiBusinessEntity", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.2", "name":"uddiContact", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.3", "name":"uddiAddress", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.4", "name":"uddiBusinessService", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.5", "name":"uddiBindingTemplate", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.6", "name":"uddiTModelInstanceInfo", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.7", "name":"uddiTModel", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.8", "name":"uddiPublisherAssertion", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.9", "name":"uddiv3Subscription", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.10.6.10", "name":"uddiv3EntityObituary", "type":"Object Class", "origin":"RFC 4403", "url":"https://docs.ldap.com/specs/rfc4403.txt" }
+{ "oid":"1.3.6.1.1.12", "name":"LDAP Assertion", "type":"Request Control", "origin":"RFC 4528", "url":"https://docs.ldap.com/specs/rfc4528.txt" }
+{ "oid":"1.3.6.1.1.13.1", "name":"LDAP Pre-Read Request and", "type":"Response Control", "origin":"RFC 4527", "url":"https://docs.ldap.com/specs/rfc4527.txt" }
+{ "oid":"1.3.6.1.1.13.2", "name":"LDAP Post-Read Request and", "type":"Response Control", "origin":"RFC 4527", "url":"https://docs.ldap.com/specs/rfc4527.txt" }
+{ "oid":"1.3.6.1.1.14", "name":"LDAP Modify-Increment Extension Feature", "origin":"RFC 4525", "url":"https://docs.ldap.com/specs/rfc4525.txt" }
+{ "oid":"1.3.6.1.1.16.4", "name":"entryUUID", "type":"Attribute Type", "origin":"RFC 4530", "url":"https://docs.ldap.com/specs/rfc4530.txt" }
+{ "oid":"1.3.6.1.1.17.1", "name":"Start LBURP (LDAP Bulk Update/Replication Protocol)", "type":"Extended Request", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.17.2", "name":"Start LBURP (LDAP Bulk Update/Replication Protocol)", "type":"Extended Response", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.17.3", "name":"End LBURP (LDAP Bulk Update/Replication Protocol)", "type":"Extended Request", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.17.4", "name":"End LBURP (LDAP Bulk Update/Replication Protocol)", "type":"Extended Response", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.17.5", "name":"LBURP (LDAP Bulk Update/Replication Protocol) Update", "type":"Extended Response", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.17.6", "name":"LBURP (LDAP Bulk Update/Replication Protocol) Update", "type":"Extended Request", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.17.7", "name":"LBURP (LDAP Bulk Update/Replication Protocol) Incremental Update Style", "origin":"RFC 4373", "url":"https://docs.ldap.com/specs/rfc4373.txt" }
+{ "oid":"1.3.6.1.1.19", "name":"LDAP Turn", "type":"Extended Request", "origin":"RFC 4531", "url":"https://docs.ldap.com/specs/rfc4531.txt" }
+{ "oid":"1.3.6.1.1.20", "name":"entryDN", "type":"Attribute Type", "origin":"RFC 5020", "url":"https://docs.ldap.com/specs/rfc5020.txt" }
+{ "oid":"1.3.6.1.1.21.1", "name":"Start Transaction", "type":"Extended Request", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
+{ "oid":"1.3.6.1.1.21.2", "name":"Transaction Specification", "type":"Request Control", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
+{ "oid":"1.3.6.1.1.21.3", "name":"End Transaction", "type":"Extended Request", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
+{ "oid":"1.3.6.1.1.21.4", "name":"Aborted Transaction Unsolicited Notification", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
+{ "oid":"1.3.6.1.1.22", "name":"LDAP Don’t Use Copy", "type":"Control", "origin":"RFC 6171", "url":"https://docs.ldap.com/specs/rfc6171.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.6", "name":"javaClassName", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.7", "name":"javaCodebase", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.8", "name":"javaSerializedData", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.10", "name":"javaFactory", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.11", "name":"javaReferenceAddress", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.12", "name":"javaDoc", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.13", "name":"javaClassNames", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.14", "name":"corbaIor", "type":"Attribute Type", "origin":"RFC 2714", "url":"https://docs.ldap.com/specs/rfc2714.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.1.15", "name":"corbaRepositoryId", "type":"Attribute Type", "origin":"RFC 2714", "url":"https://docs.ldap.com/specs/rfc2714.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.1", "name":"javaContainer", "type":"Object Class", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.4", "name":"javaObject", "type":"Object Class", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.5", "name":"javaSerializedObject", "type":"Object Class", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.7", "name":"javaNamingReference", "type":"Object Class", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.8", "name":"javaMarshalledObject", "type":"Object Class", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.9", "name":"corbaObject", "type":"Object Class", "origin":"RFC 2714", "url":"https://docs.ldap.com/specs/rfc2714.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.10", "name":"corbaContainer", "type":"Object Class", "origin":"RFC 2714", "url":"https://docs.ldap.com/specs/rfc2714.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.4.2.11", "name":"corbaObjectReference", "type":"Object Class", "origin":"RFC 2714", "url":"https://docs.ldap.com/specs/rfc2714.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.1", "name":"pwdAttribute", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.2", "name":"pwdMinAge", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.3", "name":"pwdMaxAge", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.4", "name":"pwdInHistory", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.5", "name":"pwdCheckQuality", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.6", "name":"pwdMinLength", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.7", "name":"pwdExpireWarning", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.8", "name":"pwdGraceAuthNLimit", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.9", "name":"pwdLockout", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.10", "name":"pwdLockoutDuration", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.11", "name":"pwdMaxFailure", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.12", "name":"pwdFailureCountInterval", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.13", "name":"pwdMustChange", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.14", "name":"pwdAllowUserChange", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.15", "name":"pwdSafeModify", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.16", "name":"pwdChangedTime", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.17", "name":"pwdAccountLockedTime", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.19", "name":"pwdFailureTime", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.20", "name":"pwdHistory", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.21", "name":"pwdGraceUseTime", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.22", "name":"pwdReset", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.1.23", "name":"pwdPolicySubentry", "type":"Attribute Type", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.2.1", "name":"pwdPolicy", "type":"Object Class", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.8.5.1", "name":"Password Policy Request and", "type":"Response Control", "origin":"draft-behera-ldap-password-policy", "url":"https://docs.ldap.com/specs/draft-behera-ldap-password-policy-10.txt" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.1.39", "name":"aclRights", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.1.40", "name":"aclRightsInfo", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.1.792", "name":"isMemberOf", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.5.2", "name":"Get Effective Rights", "type":"Request Control", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.5.8", "name":"Account Usable Request and", "type":"Response Control", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.250.1.41", "name":"labeledURL", "type":"Attribute Type", "origin":"RFC 2079", "url":"https://docs.ldap.com/specs/rfc2079.txt" }
+{ "oid":"1.3.6.1.4.1.250.1.57", "name":"labeledURI", "type":"Attribute Type", "origin":"RFC 2079", "url":"https://docs.ldap.com/specs/rfc2079.txt" }
+{ "oid":"1.3.6.1.4.1.250.3.15", "name":"labeledURIObject", "type":"Object Class", "origin":"RFC 2079", "url":"https://docs.ldap.com/specs/rfc2079.txt" }
+{ "oid":"1.3.6.1.4.1.453.16.2.103", "name":"numSubordinates", "type":"Attribute Type", "origin":"draft-ietf-boreham-numsubordinates", "url":"https://docs.ldap.com/specs/draft-ietf-boreham-numsubordinates-01.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.1", "name":"administratorsAddress", "type":"Attribute Type", "origin":"draft-wahl-ldap-adminaddr", "url":"https://docs.ldap.com/specs/draft-wahl-ldap-adminaddr-05.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.5", "name":"namingContexts", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.6", "name":"altServer", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.7", "name":"supportedExtension", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.13", "name":"supportedControl", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.14", "name":"supportedSASLMechanisms", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.15", "name":"supportedLDAPVersion", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.16", "name":"ldapSyntaxes", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.101.120.111", "name":"extensibleObject", "type":"Object Class", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.1466.109.114.1", "name":"caseExactIA5Match", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.109.114.2", "name":"caseIgnoreIA5Match", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.109.114.3", "name":"caseIgnoreIA5SubstringsMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.3", "name":"Attribute Type Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.6", "name":"Bit String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.7", "name":"Boolean", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.11", "name":"Country String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.12", "name":"DN", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.14", "name":"Delivery Method", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.15", "name":"Directory String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.16", "name":"DIT Content Rule Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.17", "name":"DIT Structure Rule Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.21", "name":"Enhanced Guide", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.22", "name":"Facsimile Telephone Number", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.23", "name":"Fax", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.24", "name":"Generalized Time", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.25", "name":"Guide", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.26", "name":"IA5 String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.27", "name":"INTEGER", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.28", "name":"JPEG", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.30", "name":"Matching Rule Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.31", "name":"Matching Rule Use Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.34", "name":"Name And Optional UID", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.35", "name":"Name Form Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.36", "name":"Numeric String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.37", "name":"Object Class Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.38", "name":"OID", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.39", "name":"Other Mailbox", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.40", "name":"Octet String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.41", "name":"Postal Address", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.44", "name":"Printable String", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.50", "name":"Telephone Number", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.51", "name":"Teletex Terminal Identifier", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.52", "name":"Telex Number", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.53", "name":"UTC Time", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.54", "name":"LDAP Syntax Description", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.115.121.1.58", "name":"Substring Assertion", "type":"Attribute Syntax", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"1.3.6.1.4.1.1466.344", "name":"dcObject", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"1.3.6.1.4.1.1466.20036", "name":"Notice of Disconnection Unsolicited Notification", "origin":"RFC 4511", "url":"https://docs.ldap.com/specs/rfc4511.txt" }
+{ "oid":"1.3.6.1.4.1.1466.20037", "name":"StartTLS", "type":"Extended Request", "origin":"RFC 4511", "url":"https://docs.ldap.com/specs/rfc4511.txt" }
+{ "oid":"1.3.6.1.4.1.1466.29539.10", "name":"LDAP Triggered Search", "type":"Request Control", "origin":"draft-ietf-ldapext-trigger", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-trigger-01.txt" }
+{ "oid":"1.3.6.1.4.1.1466.29539.10.1", "name":"dnSubordinateTo", "type":"Matching Rule", "origin":"draft-ietf-ldapext-trigger", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-trigger-01.txt" }
+{ "oid":"1.3.6.1.4.1.1466.29539.13", "name":"LDAP Triggered Search", "type":"Response Control", "origin":"draft-ietf-ldapext-trigger", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-trigger-01.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.3.3", "name":"supportedAuthPasswordSchemes", "type":"Attribute Type", "origin":"RFC 3112", "url":"https://docs.ldap.com/specs/rfc3112.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.3.4", "name":"authPassword", "type":"Attribute Type", "origin":"RFC 3112", "url":"https://docs.ldap.com/specs/rfc3112.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.3.5", "name":"supportedFeatures", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.4.7", "name":"authPasswordObject", "type":"Object Class", "origin":"RFC 3112", "url":"https://docs.ldap.com/specs/rfc3112.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.5.1", "name":"All Operational Attributes Feature", "origin":"RFC 3673", "url":"https://docs.ldap.com/specs/rfc3673.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.5.2", "name":"Requesting Attributes by", "type":"Object Class", "origin":"RFC 4529", "url":"https://docs.ldap.com/specs/rfc4529.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.5.3", "name":"LDAP Absolute True and False Filters Feature", "origin":"RFC 4526", "url":"https://docs.ldap.com/specs/rfc4526.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.9.1.1", "name":"LDAP Content Synchronization", "type":"Request Control", "origin":"RFC 4533", "url":"https://docs.ldap.com/specs/rfc4533.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.9.1.2", "name":"LDAP Content Synchronization State", "type":"Control", "origin":"RFC 4533", "url":"https://docs.ldap.com/specs/rfc4533.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.9.1.3", "name":"LDAP Content Synchronization Done", "type":"Control", "origin":"RFC 4533", "url":"https://docs.ldap.com/specs/rfc4533.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.9.1.4", "name":"LDAP Content Synchronization Info Intermediate Response", "origin":"RFC 4533", "url":"https://docs.ldap.com/specs/rfc4533.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.10.1", "name":"LDAP Subentries", "type":"Request Control", "origin":"RFC 3672", "url":"https://docs.ldap.com/specs/rfc3672.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.10.2", "name":"LDAP No-Op", "type":"Request Control", "origin":"draft-zeilenga-ldap-noop", "url":"https://docs.ldap.com/specs/draft-zeilenga-ldap-noop-12.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.11.1", "name":"Password Modify", "type":"Extended Request", "origin":"RFC 3062", "url":"https://docs.ldap.com/specs/rfc3062.txt" }
+{ "oid":"1.3.6.1.4.1.4203.1.11.3", "name":"\"Who Am I?\"", "type":"Extended Request", "origin":"RFC 4532", "url":"https://docs.ldap.com/specs/rfc4532.txt" }
+{ "oid":"1.3.6.1.4.1.5322.13.1.1", "name":"namedObject", "type":"Object Class", "origin":"draft-howard-namedobject", "url":"https://docs.ldap.com/specs/draft-howard-namedobject-01.txt" }
+{ "oid":"1.3.6.1.4.1.5515.3.1", "name":"Copy Subtree", "type":"Extended Request", "origin":"draft-greenblatt-ldapext-sos", "url":"https://docs.ldap.com/specs/draft-greenblatt-ldapext-sos-01.txt" }
+{ "oid":"1.3.6.1.4.1.5515.3.2", "name":"Copy Subtree", "type":"Extended Response", "origin":"draft-greenblatt-ldapext-sos", "url":"https://docs.ldap.com/specs/draft-greenblatt-ldapext-sos-01.txt" }
+{ "oid":"1.3.6.1.4.1.5515.3.3", "name":"Delete Subtree", "type":"Extended Request", "origin":"draft-greenblatt-ldapext-sos", "url":"https://docs.ldap.com/specs/draft-greenblatt-ldapext-sos-01.txt" }
+{ "oid":"1.3.6.1.4.1.5515.3.4", "name":"Delete Subtree", "type":"Extended Response", "origin":"draft-greenblatt-ldapext-sos", "url":"https://docs.ldap.com/specs/draft-greenblatt-ldapext-sos-01.txt" }
+{ "oid":"1.3.6.1.4.1.5515.3.5", "name":"Update Subtree", "type":"Extended Request", "origin":"draft-greenblatt-ldapext-sos", "url":"https://docs.ldap.com/specs/draft-greenblatt-ldapext-sos-01.txt" }
+{ "oid":"1.3.6.1.4.1.5515.3.6", "name":"Update Subtree", "type":"Extended Response", "origin":"draft-greenblatt-ldapext-sos", "url":"https://docs.ldap.com/specs/draft-greenblatt-ldapext-sos-01.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.1", "name":"template-major-version-number", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.2", "name":"template-minor-version-number", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.3", "name":"template-url-syntax", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.4", "name":"service-advert-service-type", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.5", "name":"service-advert-scopes", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.6", "name":"service-advert-url-authenticator", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.1.7", "name":"service-advert-attribute-authenticator", "type":"Attribute Type", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.6252.2.27.6.2.1", "name":"slpService", "type":"Object Class", "origin":"RFC 2926", "url":"https://docs.ldap.com/specs/rfc2926.txt" }
+{ "oid":"1.3.6.1.4.1.7628.5.4.1", "name":"inheritable", "type":"Attribute Type", "origin":"draft-ietf-ldup-subentry", "url":"https://docs.ldap.com/specs/draft-ietf-ldup-subentry-08.txt" }
+{ "oid":"1.3.6.1.4.1.7628.5.4.2", "name":"blockInheritance", "type":"Attribute Type", "origin":"draft-ietf-ldup-subentry", "url":"https://docs.ldap.com/specs/draft-ietf-ldup-subentry-08.txt" }
+{ "oid":"1.3.6.1.4.1.7628.5.6.1.1", "name":"inheritableLDAPSubEntry", "type":"Object Class", "origin":"draft-ietf-ldup-subentry", "url":"https://docs.ldap.com/specs/draft-ietf-ldup-subentry-08.txt" }
+{ "oid":"1.3.6.1.4.1.7628.5.101.1", "name":"LDAP Subentries", "type":"Request Control", "origin":"draft-ietf-ldup-subentry", "url":"https://docs.ldap.com/specs/draft-ietf-ldup-subentry-08.txt" }
+{ "oid":"1.3.6.1.4.1.21008.108.63.1", "name":"LDAP Session Tracking", "type":"Control", "origin":"draft-wahl-ldap-session", "url":"https://docs.ldap.com/specs/draft-wahl-ldap-session-03.txt" }
+{ "oid":"1.3.6.1.4.1.30221.1.2.900", "name":"untypedObject", "type":"Object Class", "origin":"draft-furuseth-ldap-untypedobject", "url":"https://docs.ldap.com/specs/draft-furuseth-ldap-untypedobject-02.txt" }
+{ "oid":"1.3.6.1.4.1.30221.1.5.2", "name":"Replication Repair", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.1.6.1", "name":"Password Policy State", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.1.6.2", "name":"Get Connection ID", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.636", "name":"entry-size-bytes", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1759", "name":"ubidExternalID", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1760", "name":"ubidMiddleName", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1761", "name":"ubidHonorificPrefix", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1762", "name":"ubidHonorificSuffix", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1763", "name":"ubidNickName", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1764", "name":"ubidEmailJSON", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1765", "name":"ubidPhoneNumberJSON", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1766", "name":"ubidPostalAddressJSON", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1767", "name":"ubidAccountVerified", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1768", "name":"ubidMiddleInitial", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1769", "name":"ubidBirthDate", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1770", "name":"ubidEntitlement", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1785", "name":"ubidPhotoURL", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1904", "name":"ubidSecondFactorEnabled", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1921", "name":"ubidSecondFactorEmail", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.1.1922", "name":"ubidSecondFactorPhoneNumber", "type":"Attribute Type", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.2.645", "name":"ubidPerson", "type":"Object Class", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.2.646", "name":"ubidPersonAux", "type":"Object Class", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.3.1", "name":"Compact Timestamp", "type":"Attribute Syntax", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.3.2", "name":"LDAP URL", "type":"Attribute Syntax", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.3.3", "name":"Hexadecimal String", "type":"Attribute Syntax", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.3.4", "name":"JSON Object", "type":"Attribute Syntax", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.1", "name":"compactTimestampMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.2", "name":"compactTimestampOrderingMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.3", "name":"ldapURLMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.4", "name":"hexStringMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.5", "name":"hexStringOrderingMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.6", "name":"valueCountEquals", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.7", "name":"valueCountDoesNotEqual", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.8", "name":"valueCountGreaterThan", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.9", "name":"valueCountGreaterThanOrEqualTo", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.10", "name":"valueCountLessThan", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.11", "name":"valueCountLessThanOrEqualTo", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.12", "name":"jsonObjectExactMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.13", "name":"jsonObjectFilterExtensibleMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.14", "name":"relativeTimeExtensibleMatch", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.15", "name":"jsonObjectCaseSensitiveNamesCaseSensitiveValues", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.16", "name":"jsonObjectCaseInsensitiveNamesCaseSensitiveValues", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.4.17", "name":"jsonObjectCaseInsensitiveNamesCaseInsensitiveValues", "type":"Matching Rule", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.1", "name":"Batched Transaction Specification", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.2", "name":"Intermediate Client Request and", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.3", "name":"Retain Identity", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.4", "name":"Interactive Transaction Specification Request and", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.5", "name":"Ignore NO-USER-MODIFICATION", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.6", "name":"Get Authorization Entry Request and", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.7", "name":"Unsolicited Cancel", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.8", "name":"Connection Closed", "type":"Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.9", "name":"Join Request and Result", "type":"Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.10", "name":"Suppress Configuration Audit", "type":"Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.11", "name":"Administrative Operation", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.12", "name":"Extended Schema Info", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.13", "name":"Return Conflict Entries", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.14", "name":"Get Server ID", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.15", "name":"Get Server ID", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.16", "name":"Route to Server", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.17", "name":"Exclude Branch", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.18", "name":"Internal Operation", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.19", "name":"Operation Purpose", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.20", "name":"Soft Delete", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.21", "name":"Soft Delete", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.22", "name":"Hard Delete", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.23", "name":"Undelete", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.24", "name":"Soft-Deleted Entry Access", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.25", "name":"Get User Resource Limits", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.26", "name":"Get User Resource Limits", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.27", "name":"Suppress Operational Attribute Update", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.28", "name":"Assured Replication", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.29", "name":"Assured Replication", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.30", "name":"Suppress Referential Integrity Updates", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.31", "name":"Retire Password", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.32", "name":"Purge Password", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.33", "name":"Get Backend Set ID", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.34", "name":"Get Backend Set ID", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.35", "name":"Route to Backend Set", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.36", "name":"Matching Entry Count", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.37", "name":"Matching Entry Count", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.38", "name":"Transaction Settings", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.39", "name":"Transaction Settings", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.40", "name":"Password Validation Details", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.41", "name":"Password Validation Details", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.42", "name":"Inter-Server", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.43", "name":"Inter-Server", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.44", "name":"Name with entryUUID", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.45", "name":"Permit entryUUID Naming Attribute", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.46", "name":"Get Password Policy State Issues", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.47", "name":"Get Password Policy State Issues", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.48", "name":"Proxied MS-CHAPv2 Details", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.49", "name":"Return OTP", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.50", "name":"Return OTP", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.51", "name":"Password Update Behavior", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.52", "name":"Uniqueness", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.53", "name":"Uniqueness", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.54", "name":"Reject Unindexed Search", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.55", "name":"Permit Unindexed Search", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.56", "name":"Override Search Limits", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.57", "name":"Pass Through Mirroring", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.58", "name":"Generate Password", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.59", "name":"Generate Password", "type":"Response Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.60", "name":"OAuth Scopes", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.61", "name":"Get Recent Login History", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.5.62", "name":"Get Recent Login History", "type":"Request Control", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.1", "name":"Start Batched Transaction", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.2", "name":"End Batched Transaction", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.3", "name":"Start Interactive Transaction", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.4", "name":"End Interactive Transaction", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.5", "name":"Interactive Transaction Aborted Unsolicited Notification", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.6", "name":"Stream Directory Values", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.7", "name":"Stream Directory Values Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.8", "name":"Stream Proxy Values", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.9", "name":"Stream Proxy Values Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.10", "name":"Get Changelog Batch", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.11", "name":"Changelog Entry Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.12", "name":"Missing Changelog Entries Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.13", "name":"Start Administrative Session", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.14", "name":"End Administrative Session", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.15", "name":"Validate TOTP Password", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.16", "name":"Validate TOTP Password", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.17", "name":"Multi-Update", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.18", "name":"Multi-Update", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.19", "name":"Set Subtree Accessibility", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.20", "name":"Get Subtree Accessibility", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.21", "name":"Get Subtree Accessibility", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.22", "name":"Assured Replication Poll", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.23", "name":"Assured Replication Poll", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.24", "name":"Deliver One-Time Password", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.25", "name":"Deliver One-Time Password", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.26", "name":"List Configurations", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.27", "name":"List Configurations", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.28", "name":"Get Configuration", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.29", "name":"Get Configuration", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.30", "name":"Get Backup Compatibility Descriptor", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.31", "name":"Get Backup Compatibility Descriptor", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.32", "name":"Identify Backup Compatibility Problems", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.33", "name":"Identify Backup Compatibility Problems", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.34", "name":"Get Entries Extended Request and", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.35", "name":"Get Entries", "type":"Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.36", "name":"Set Notification Destination", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.37", "name":"Delete Notification Destination", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.38", "name":"Set Notification Subscription", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.39", "name":"Delete Notification Subscription", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.40", "name":"List Notification Subscriptions", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.41", "name":"List Notification Subscriptions", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.42", "name":"Clear Missed Notification Changes Alarm", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.43", "name":"Get Password Quality Requirements", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.44", "name":"Get Password Quality Requirements", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.45", "name":"Deliver Password Reset Token", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.46", "name":"Deliver Password Reset Token", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.47", "name":"Get Supported OTP Delivery Mechanisms", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.48", "name":"Get Supported OTP Delivery Mechanisms", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.49", "name":"Deliver Single-Use Token", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.50", "name":"Deliver Single-Use Token", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.51", "name":"Consume Single-Use Token", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.52", "name":"Synchronize Encryption Settings", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.53", "name":"Synchronize Encryption Settings", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.54", "name":"Register YubiKey OTP Device", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.55", "name":"Deregister YubiKey OTP Device", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.56", "name":"Generate TOTP Shared Secret", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.57", "name":"Generate TOTP Shared Secret", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.58", "name":"Revoke TOTP Shared Secret", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.59", "name":"Export Reversible Passwords", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.60", "name":"Export Reversible Passwords", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.61", "name":"Export Reversible Passwords", "type":"Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.62", "name":"Generate Password", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.63", "name":"Generate Password", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.64", "name":"Collect Support Data", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.65", "name":"Collect Support Data Output Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.66", "name":"Collect Support Data Archive Fragment Intermediate Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.67", "name":"Collect Support Data", "type":"Extended Response", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.1", "name":"access-control-disabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.2", "name":"access-control-enabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.3", "name":"access-control-parse-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.4", "name":"cannot-acquire-shared-backend-lock", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.5", "name":"cannot-copy-schema-files", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.6", "name":"cannot-decode-entry", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.7", "name":"cannot-find-recurring-task", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.8", "name":"cannot-register-backend", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.9", "name":"cannot-release-shared-backend-lock", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.10", "name":"cannot-rename-current-task-file", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.11", "name":"cannot-rename-new-task-file", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.12", "name":"cannot-restore-backup", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.13", "name":"cannot-schedule-recurring-task-iteration", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.14", "name":"cannot-write-configuration", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.15", "name":"cannot-write-new-schema-files", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.16", "name":"cannot-write-task-backing-file", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.17", "name":"duplicate-alerts-suppressed (deprecated)", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.18", "name":"entering-lockdown-mode", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.19", "name":"external-config-file-edit-handled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.20", "name":"external-config-file-edit-lost", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.21", "name":"invalid-privilege", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.22", "name":"je-recovery-required", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.23", "name":"ldap-connection-handler-cannot-listen", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.24", "name":"ldap-connection-handler-consecutive-failures", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.25", "name":"ldap-connection-handler-uncaught-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.26", "name":"ldif-backend-cannot-write", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.27", "name":"ldif-connection-handler-parse-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.28", "name":"ldif-connection-handler-io-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.29", "name":"leaving-lockdown-mode", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.30", "name":"logging-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.31", "name":"replication-unresolved-conflict", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.32", "name":"server-shutting-down", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.33", "name":"server-started", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.34", "name":"uncaught-exception", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.35", "name":"unique-attribute-sync-conflict", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.36", "name":"unique-attribute-sync-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.37", "name":"user-defined-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.38", "name":"user-defined-fatal", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.39", "name":"user-defined-info", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.40", "name":"user-defined-warning", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.41", "name":"worker-thread-caught-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.42", "name":"work-queue-full", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.43", "name":"work-queue-no-threads-remaining", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.44", "name":"do-not-use", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.45", "name":"low-disk-space-warning", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.46", "name":"low-disk-space-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.47", "name":"out-of-disk-space-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.48", "name":"cannot-write-server-state-file", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.49", "name":"deadlock-detected", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.50", "name":"work-queue-backlogged", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.51", "name":"thread-exit-holding-lock", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.52", "name":"replication-missing-changes", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.53", "name":"replication-plugin-message-serialization-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.54", "name":"replication-server-changelog-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.55", "name":"health-check-available-to-degraded", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.56", "name":"health-check-available-to-unavailable", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.57", "name":"health-check-degraded-to-available", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.58", "name":"health-check-degraded-to-unavailable", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.59", "name":"health-check-unavailable-to-available", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.60", "name":"health-check-unavailable-to-degraded", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.61", "name":"proxy-entry-balancing-operation-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.62", "name":"proxy-entry-balancing-error-multiple-operations-succeeded", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.63", "name":"large-attribute-update-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.64", "name":"access-log-criteria-matched", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.65", "name":"replication-backlogged", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.66", "name":"replication-monitor-data-unavailable", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.67", "name":"lba-no-available-servers", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.68", "name":"force-gc-starting", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.69", "name":"force-gc-complete", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.70", "name":"config-change", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.71", "name":"sync-resource-connection-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.72", "name":"sync-resource-operation-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.73", "name":"access-control-change", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.74", "name":"index-degraded", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.75", "name":"index-rebuild-in-progress", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.76", "name":"index-rebuild-completed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.77", "name":"system-nanotime-stopped", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.78", "name":"backend-initialization-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.79", "name":"external-server-initialization-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.80", "name":"unrecognized-alert-type", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.81", "name":"replication-server-listen-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.82", "name":"replication-replay-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.83", "name":"sync-pipe-initialization-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.84", "name":"server-starting", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.85", "name":"server-jvm-paused", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.86", "name":"unsupported-nested-group", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.87", "name":"je-daemon-thread-exception", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.88", "name":"replication-unsent-changes", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.89", "name":"je-background-sync-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.90", "name":"duplicate-fatal-alerts-suppressed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.91", "name":"duplicate-error-alerts-suppressed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.92", "name":"duplicate-warning-alerts-suppressed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.93", "name":"duplicate-info-alerts-suppressed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.94", "name":"backend-disabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.95", "name":"sync-pipe-backlog-above-threshold", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.96", "name":"sync-pipe-backlog-below-threshold", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.97", "name":"offline-config-change-detected", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.98", "name":"schema-checking-disabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.99", "name":"system-current-time-shifted", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.100", "name":"backup-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.101", "name":"proxy-entry-rebalancing-admin-action-required", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.102", "name":"restricted-subtree-accessibility", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.103", "name":"threshold-warning-entry", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.104", "name":"threshold-warning-exit", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.105", "name":"threshold-critical-entry", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.106", "name":"threshold-critical-exit", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.107", "name":"replication-metadata-decode-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.108", "name":"globally-unique-attribute-conflict", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.109", "name":"global-referential-integrity-update-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.110", "name":"index-corrupt", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.111", "name":"third-party-extension-exception", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.112", "name":"subtree-delete-interrupted", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.113", "name":"broker-store-unavailable", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.114", "name":"broker-store-available", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.115", "name":"embedded-postgresql-unavailable", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.116", "name":"exploded-index-background-delete-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.117", "name":"exploded-index-background-delete-cleanup-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.118", "name":"broker-store-version-incompatible", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.119", "name":"do-not-use", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.120", "name":"alarm-cleared", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.121", "name":"alarm-warning", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.122", "name":"alarm-minor", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.123", "name":"alarm-major", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.124", "name":"alarm-critical", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.125", "name":"do-not-use", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.126", "name":"global-index-insufficient-disk-space-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.127", "name":"global-index-persistence-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.128", "name":"global-index-read-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.129", "name":"unindexed-internal-search", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.130", "name":"je-cleaner-disabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.131", "name":"mirrored-subtree-manager-operation-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.132", "name":"mirrored-subtree-manager-no-master-found", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.133", "name":"mirrored-subtree-manager-forced-as-master-warning", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.134", "name":"mirrored-subtree-manager-forced-as-master-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.135", "name":"mirrored-subtree-server-not-in-topology", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.136", "name":"sensitive-trace-data-logged-warning", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.137", "name":"failed-to-apply-mirrored-configuration", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.138", "name":"je-environment-not-closed-cleanly", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.139", "name":"crypto-manager-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.140", "name":"debug-logging-enabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.141", "name":"log-file-rotation-listener-invoke-error", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.142", "name":"log-file-rotation-listener-processing-takes-too-long", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.143", "name":"jvm-misconfiguration", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.144", "name":"replication-generation-id-mismatch", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.145", "name":"exporting-reversible-passwords", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.146", "name":"restart-required", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.147", "name":"key-near-index-entry-limit-alert", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.148", "name":"key-exceeded-index-entry-limit-alert", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.149", "name":"continuous-garbage-collection-detected", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.150", "name":"unlicensed-product", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.151", "name":"task-started", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.152", "name":"task-completed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.153", "name":"task-failed", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.154", "name":"exec-task-launching-command", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.155", "name":"file-retention-task-delete-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.156", "name":"http-connection-handler-duplicate-context-path", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.157", "name":"http-connection-handler-duplicate-servlet-extension", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.158", "name":"insecure-access-token-validator-enabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.159", "name":"no-enabled-alert-handlers", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.160", "name":"mirrored-subtree-manager-failed-outbound-connection", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.161", "name":"mirrored-subtree-manager-connection-asymmetry", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.162", "name":"missing-schema-elements-referenced-by-backend", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.163", "name":"entry-references-removed-attribute-type", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.164", "name":"delegated-admin-configuration-errors", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.165", "name":"monitoring-endpoint-unable-to-connect", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.166", "name":"pdp-unavailable", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.167", "name":"pdp-trust-framework-version-deprecated", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.168", "name":"console-logger-without-no-detach", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.169", "name":"scim-lookthrough-limit-exceeded", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.170", "name":"uniqueness-control-post-commit-conflict", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.171", "name":"account-temporarily-locked-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.172", "name":"account-permanently-locked-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.173", "name":"account-unlocked-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.174", "name":"account-idle-locked-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.175", "name":"account-reset-locked-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.176", "name":"account-disabled-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.177", "name":"account-enabled-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.178", "name":"account-not-yet-active-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.179", "name":"account-expired-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.180", "name":"password-expired-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.181", "name":"password-expiring-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.182", "name":"password-reset-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.183", "name":"password-changed-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.184", "name":"account-created-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.185", "name":"account-updated-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.186", "name":"bind-password-failed-validation-account-status-notification", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.187", "name":"privilege-assigned", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.10.3.188", "name":"insecure-request-rejected", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.12.1", "name":"Excluding Attributes from Search Result Entries Feature", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.12.2", "name":"Subordinate Subtree Search Scope Feature", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.12.3", "name":"Changelog Attribute Indexing Feature", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.12.4", "name":"Mirrored Subtree Digest Version 2", "type":"Feature", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.12.5", "name":"Pass-Through Mirroring", "type":"Feature", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.5.5.7.9.1", "name":"dateOfBirth", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.3.6.1.5.5.7.9.2", "name":"placeOfBirth", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.3.6.1.5.5.7.9.3", "name":"gender", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.3.6.1.5.5.7.9.4", "name":"countryOfCitizenship", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.3.6.1.5.5.7.9.5", "name":"countryOfResidence", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"1.3.18.0.2.4.1107", "name":"printer-xri-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1108", "name":"printer-aliases", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1109", "name":"printer-charset-configured", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1110", "name":"printer-job-priority-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1111", "name":"printer-job-k-octets-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1112", "name":"printer-current-operator", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1113", "name":"printer-service-person", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1114", "name":"printer-delivery-orientation-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1115", "name":"printer-stacking-order-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1116", "name":"printer-output-features-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1117", "name":"printer-media-local-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1118", "name":"printer-copies-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1119", "name":"printer-natural-language-configured", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1120", "name":"printer-print-quality-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1121", "name":"printer-resolution-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1122", "name":"printer-media-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1123", "name":"printer-sides-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1124", "name":"printer-number-up-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1125", "name":"printer-finishings-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1126", "name":"printer-pages-per-minute-color", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1127", "name":"printer-pages-per-minute", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1128", "name":"printer-compression-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1129", "name":"printer-color-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1130", "name":"printer-document-format-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1131", "name":"printer-charset-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1132", "name":"printer-multiple-document-jobs-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1133", "name":"printer-ipp-versions-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1134", "name":"printer-more-info", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1135", "name":"printer-name", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1136", "name":"printer-location", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1137", "name":"printer-generated-natural-language-supported", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1138", "name":"printer-make-and-model", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1139", "name":"printer-info", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.4.1140", "name":"printer-uri", "type":"Attribute Type", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.6.253", "name":"printerLPR", "type":"Object Class", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.6.254", "name":"slpServicePrinter", "type":"Object Class", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.6.255", "name":"printerService", "type":"Object Class", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.6.256", "name":"printerIPP", "type":"Object Class", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.6.257", "name":"printerServiceAuxClass", "type":"Object Class", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"1.3.18.0.2.6.258", "name":"printerAbstract", "type":"Object Class", "origin":"RFC 3712", "url":"https://docs.ldap.com/specs/rfc3712.txt" }
+{ "oid":"2.5.4.0", "name":"objectClass", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.4.1", "name":"aliasedObjectName", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.4.2", "name":"knowledgeInformation", "type":"Attribute Type", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.4.3", "name":"cn", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.4", "name":"sn", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.5", "name":"serialNumber", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.6", "name":"c", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.7", "name":"l", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.8", "name":"st", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.9", "name":"street", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.10", "name":"o", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.11", "name":"ou", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.12", "name":"title", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.13", "name":"description", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.14", "name":"searchGuide", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.15", "name":"businessCategory", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.16", "name":"postalAddress", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.17", "name":"postalCode", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.18", "name":"postOfficeBox", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.19", "name":"physicalDeliveryOfficeName", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.20", "name":"telephoneNumber", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.21", "name":"telexNumber", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.22", "name":"teletexTerminalIdentifier", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.23", "name":"facsimileTelephoneNumber", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.24", "name":"x121Address", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.25", "name":"internationaliSDNNumber", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.26", "name":"registeredAddress", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.27", "name":"destinationIndicator", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.28", "name":"preferredDeliveryMethod", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.29", "name":"presentationAddress", "type":"Attribute Type", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.4.30", "name":"supportedApplicationContext", "type":"Attribute Type", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.4.31", "name":"member", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.32", "name":"owner", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.33", "name":"roleOccupant", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.34", "name":"seeAlso", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.35", "name":"userPassword", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.36", "name":"userCertificate", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.37", "name":"cACertificate", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.38", "name":"authorityRevocationList", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.39", "name":"certificateRevocationList", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.40", "name":"crossCertificatePair", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.41", "name":"name", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.42", "name":"givenName", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.43", "name":"initials", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.44", "name":"generationQualifier", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.45", "name":"x500UniqueIdentifier", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.46", "name":"dnQualifier", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.47", "name":"enhancedSearchGuide", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.48", "name":"protocolInformation", "type":"Attribute Type", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.4.49", "name":"distinguishedName", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.50", "name":"uniqueMember", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.51", "name":"houseIdentifier", "type":"Attribute Type", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.4.52", "name":"supportedAlgorithms", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.53", "name":"deltaRevocationList", "type":"Attribute Type", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.4.54", "name":"dmdName", "type":"Attribute Type", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.4.65", "name":"pseudonym", "type":"Attribute Type", "origin":"RFC 2985", "url":"https://docs.ldap.com/specs/rfc2985.txt" }
+{ "oid":"2.5.6.0", "name":"top", "type":"Object Class", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.6.1", "name":"alias", "type":"Object Class", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.6.2", "name":"country", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.3", "name":"locality", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.4", "name":"organization", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.5", "name":"organizationalUnit", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.6", "name":"person", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.7", "name":"organizationalPerson", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.8", "name":"organizationalRole", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.9", "name":"groupOfNames", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.10", "name":"residentialPerson", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.11", "name":"applicationProcess", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.12", "name":"applicationEntity", "type":"Object Class", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.6.13", "name":"dSA", "type":"Object Class", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.6.14", "name":"device", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.15", "name":"strongAuthenticationUser", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.16", "name":"certificationAuthority", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.16.2", "name":"certificationAuthority-V2", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.17", "name":"groupOfUniqueNames", "type":"Object Class", "origin":"RFC 4519", "url":"https://docs.ldap.com/specs/rfc4519.txt" }
+{ "oid":"2.5.6.18", "name":"userSecurityInformation", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.19", "name":"cRLDistributionPoint", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.20", "name":"dmd", "type":"Object Class", "origin":"RFC 2256", "url":"https://docs.ldap.com/specs/rfc2256.txt" }
+{ "oid":"2.5.6.21", "name":"pkiUser", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.22", "name":"pkiCA", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.6.23", "name":"deltaCRL", "type":"Object Class", "origin":"RFC 4523", "url":"https://docs.ldap.com/specs/rfc4523.txt" }
+{ "oid":"2.5.13.0", "name":"objectIdentifierMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.1", "name":"distinguishedNameMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.2", "name":"caseIgnoreMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.3", "name":"caseIgnoreOrderingMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.4", "name":"caseIgnoreSubstringsMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.5", "name":"caseExactMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.6", "name":"caseExactOrderingMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.7", "name":"caseExactSubstringsMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.8", "name":"numericStringMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.9", "name":"numericStringOrderingMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.10", "name":"numericStringSubstringsMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.11", "name":"caseIgnoreListMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.12", "name":"caseIgnoreListSubstringsMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.13", "name":"booleanMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.14", "name":"integerMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.15", "name":"integerOrderingMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.16", "name":"bitStringMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.17", "name":"octetStringMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.18", "name":"octetStringOrderingMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.20", "name":"telephoneNumberMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.21", "name":"telephoneNumberSubstringsMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.23", "name":"uniqueMemberMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.27", "name":"generalizedTimeMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.28", "name":"generalizedTimeOrderingMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.29", "name":"integerFirstComponentMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.30", "name":"objectIdentifierFirstComponentMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.31", "name":"directoryStringFirstComponentMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.32", "name":"wordMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.13.33", "name":"keywordMatch", "type":"Matching Rule", "origin":"RFC 4517", "url":"https://docs.ldap.com/specs/rfc4517.txt" }
+{ "oid":"2.5.18.1", "name":"createTimestamp", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.18.2", "name":"modifyTimestamp", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.18.3", "name":"creatorsName", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.18.4", "name":"modifiersName", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.18.9", "name":"hasSubordinates", "type":"Attribute Type", "origin":"X.501" }
+{ "oid":"2.5.18.10", "name":"subschemaSubentry", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.20.1", "name":"subschema", "type":"Object Class", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.1", "name":"dITStructureRules", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.2", "name":"dITContentRules", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.4", "name":"matchingRules", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.5", "name":"attributeTypes", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.6", "name":"objectClasses", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.7", "name":"nameForms", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.8", "name":"matchingRuleUse", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.9", "name":"structuralObjectClass", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.5.21.10", "name":"governingStructureRule", "type":"Attribute Type", "origin":"RFC 4512", "url":"https://docs.ldap.com/specs/rfc4512.txt" }
+{ "oid":"2.16.840.1.113719.2.142.6.1.1", "name":"ldapSubEntry", "type":"Object Class", "origin":"draft-ietf-ldup-subentry", "url":"https://docs.ldap.com/specs/draft-ietf-ldup-subentry-08.txt" }
+{ "oid":"2.16.840.1.113730.3.1.1", "name":"carLicense", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.2", "name":"departmentNumber", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.3", "name":"employeeNumber", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.4", "name":"employeeType", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.5", "name":"changeNumber", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.6", "name":"targetDN", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.7", "name":"changeType", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.8", "name":"changes", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.9", "name":"newRDN", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.10", "name":"deleteOldRDN", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.11", "name":"newSuperior", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.34", "name":"ref", "type":"Attribute Type", "origin":"RFC 3296", "url":"https://docs.ldap.com/specs/rfc3296.txt" }
+{ "oid":"2.16.840.1.113730.3.1.35", "name":"changelog", "type":"Attribute Type", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.1.39", "name":"preferredLanguage", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.40", "name":"userSMIMECertificate", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.55", "name":"aci", "type":"Attribute Type", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.1.198", "name":"memberURL", "type":"Attribute Type", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.1.216", "name":"userPKCS12", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.241", "name":"displayName", "type":"Attribute Type", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.1.542", "name":"nsUniqueId", "type":"Attribute Type", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.2.1", "name":"changeLogEntry", "type":"Object Class", "origin":"draft-good-ldap-changelog", "url":"https://docs.ldap.com/specs/draft-good-ldap-changelog-04.txt" }
+{ "oid":"2.16.840.1.113730.3.2.2", "name":"inetOrgPerson", "type":"Object Class", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
+{ "oid":"2.16.840.1.113730.3.2.6", "name":"referral", "type":"Object Class", "origin":"RFC 3296", "url":"https://docs.ldap.com/specs/rfc3296.txt" }
+{ "oid":"2.16.840.1.113730.3.2.33", "name":"groupOfURLs", "type":"Object Class", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.4.2", "name":"ManageDsaIT", "type":"Request Control", "origin":"RFC 3296", "url":"https://docs.ldap.com/specs/rfc3296.txt" }
+{ "oid":"2.16.840.1.113730.3.4.3", "name":"Persistent Search", "type":"Request Control", "origin":"draft-ietf-ldapext-psearch", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-psearch-03.txt" }
+{ "oid":"2.16.840.1.113730.3.4.4", "name":"Password Expired", "type":"Response Control", "origin":"draft-vchu-ldap-pwd-policy", "url":"https://docs.ldap.com/specs/draft-vchu-ldap-pwd-policy-00.txt" }
+{ "oid":"2.16.840.1.113730.3.4.5", "name":"Password Expiring", "type":"Response Control", "origin":"draft-vchu-ldap-pwd-policy", "url":"https://docs.ldap.com/specs/draft-vchu-ldap-pwd-policy-00.txt" }
+{ "oid":"2.16.840.1.113730.3.4.7", "name":"Entry Change Notification", "type":"Response Control", "origin":"draft-ietf-ldapext-psearch", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-psearch-03.txt" }
+{ "oid":"2.16.840.1.113730.3.4.9", "name":"Virtual List View", "type":"Request Control", "origin":"draft-ietf-ldapext-ldapv3-vlv", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" }
+{ "oid":"2.16.840.1.113730.3.4.10", "name":"Virtual List View", "type":"Response Control", "origin":"draft-ietf-ldapext-ldapv3-vlv", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" }
+{ "oid":"2.16.840.1.113730.3.4.12", "name":"Proxied Authorization (v1)", "type":"Request Control", "origin":"draft-weltman-ldapv3-proxy", "url":"https://docs.ldap.com/specs/draft-weltman-ldapv3-proxy-04.txt" }
+{ "oid":"2.16.840.1.113730.3.4.15", "name":"Authorization Identity", "type":"Response Control", "origin":"RFC 3829", "url":"https://docs.ldap.com/specs/rfc3829.txt" }
+{ "oid":"2.16.840.1.113730.3.4.16", "name":"Authorization Identity", "type":"Request Control", "origin":"RFC 3829", "url":"https://docs.ldap.com/specs/rfc3829.txt" }
+{ "oid":"2.16.840.1.113730.3.4.17", "name":"Real Attributes Only", "type":"Request Control", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.4.18", "name":"Proxied Authorization (v2)", "type":"Request Control", "origin":"RFC 4370", "url":"https://docs.ldap.com/specs/rfc4370.txt" }
+{ "oid":"2.16.840.1.113730.3.4.19", "name":"Virtual Attributes Only", "type":"Request Control", "origin":"iPlanet Directory Server" }

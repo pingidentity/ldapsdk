@@ -39,6 +39,21 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new OIDRegistry class that provides a registry of object identifiers
+                  used by LDAP schema elements, controls, extended operations, and other sources.
+                  Each item has an OID, name, and type, and it may optionally have an origin
+                  string and a URL to content that can provide additional information about the
+                  item.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new oid-lookup command-line tool that can be used to search the OID
+                  registry to find items with a given OID, name, type, or other content.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP listener framework and the in-memory directory server to
                   provide support for mutual TLS authentication. in which the server requests a
                   certificate chain from the client and validates any chain that is provided).

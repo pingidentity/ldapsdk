@@ -164,6 +164,7 @@ public final class LauncherTestCase
       new Object[] { "manage-certificates" },
       new Object[] { "modrate" },
       new Object[] { "move-subtree" },
+      new Object[] { "oid-lookup" },
       new Object[] { "parallel-update" },
       new Object[] { "register-yubikey-otp-device" },
       new Object[] { "searchrate" },
