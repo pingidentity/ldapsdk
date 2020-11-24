@@ -736,7 +736,7 @@ public final class OIDLookup
     final LinkedHashMap<String[],String> examples = new LinkedHashMap<>();
 
     examples.put(
-         new String[0],
+         StaticUtils.NO_STRINGS,
          INFO_OID_LOOKUP_EXAMPLE_1.get());
 
     examples.put(

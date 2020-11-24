@@ -157,6 +157,7 @@ public final class LauncherTestCase
       new Object[] { "ldappasswordmodify" },
       new Object[] { "ldapsearch" },
       new Object[] { "ldap-debugger" },
+      new Object[] { "ldap-result-code" },
       new Object[] { "ldifmodify" },
       new Object[] { "ldifsearch" },
       new Object[] { "ldif-diff" },
