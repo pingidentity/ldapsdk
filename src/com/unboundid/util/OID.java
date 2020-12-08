@@ -143,6 +143,35 @@ public final class OID
 
 
   /**
+   * Creates a new OID that is a child of the provided parent OID.
+   *
+   * @param  parentOID       The parent OID below which the child should be
+   *                         created.  It must not be {@code null}, and it must
+   *                         be a valid numeric OID.
+   * @param  childComponent  The integer value for the child component.
+   *
+   * @throws  ParseException  If the provided parent OID is not a valid numeric
+   *                          OID.
+   */
+  public OID(@NotNull final OID parentOID, final int childComponent)
+         throws ParseException
+  {
+    if (parentOID.components == null)
+    {
+      throw new ParseException(
+           ERR_OID_INIT_PARENT_NOT_VALID.get(String.valueOf(parentOID)), 0);
+    }
+
+    components = new ArrayList<>(parentOID.components.size() + 1);
+    components.addAll(parentOID.components);
+    components.add(childComponent);
+
+    oidString = parentOID.oidString + '.' + childComponent;
+  }
+
+
+
+  /**
    * Creates a new OID object with the provided string representation and set
    * of components.
    *
@@ -503,6 +532,145 @@ public final class OID
   public List<Integer> getComponents()
   {
     return components;
+  }
+
+
+
+  /**
+   * Retrieves the OID that is the parent for this OID.  This OID must represent
+   * a valid numeric OID.
+   *
+   * @return  The OID that is the parent for this OID, or {@code null} if this
+   *          OID doesn't have a parent.  Note that the returned OID may not
+   *          necessarily be strictly valid in some cases (for example, if this
+   *          OID only contains two components, as all strictly valid OIDs must
+   *          contain at least two components).
+   *
+   * @throws  ParseException  If this OID does not represent a valid numeric
+   *                          OID.
+   */
+  @Nullable()
+  public OID getParent()
+         throws ParseException
+  {
+    if (components == null)
+    {
+      throw new ParseException(ERR_OID_GET_PARENT_NOT_VALID.get(oidString), 0);
+    }
+
+    if (components.size() <= 1)
+    {
+      // This OID cannot have a parent.
+      return null;
+    }
+
+    final List<Integer> childComponents = new ArrayList<>(components);
+    childComponents.remove(components.size() - 1);
+    return new OID(childComponents);
+  }
+
+
+
+  /**
+   * Indicates whether this OID is an ancestor of the provided OID.  This OID
+   * will be considered an ancestor of the provided OID if the provided OID has
+   * more components than this OID, and if the components that comprise this
+   * OID make up the initial set of components for the provided OID.
+   *
+   * @param  oid  The OID for which to make the determination.  It must not be
+   *              {@code null}, and it must represent a valid numeric OID.
+   *
+   * @return  {@code true} if this OID is an ancestor of the provided OID, or
+   *          {@code false} if not.
+   *
+   * @throws  ParseException  If either this OID or the provided OID does not
+   *                          represent a valid numeric OID.
+   */
+  public boolean isAncestorOf(@NotNull final OID oid)
+         throws ParseException
+  {
+    if (components == null)
+    {
+      throw new ParseException(
+           ERR_OID_IS_ANCESTOR_OF_THIS_NOT_VALID.get(oidString,
+                oid.oidString),
+           0);
+    }
+
+    if (oid.components == null)
+    {
+      throw new ParseException(
+           ERR_OID_IS_ANCESTOR_OF_PROVIDED_NOT_VALID.get(oid.oidString,
+                oid.oidString),
+           0);
+    }
+
+    if (oid.components.size() <= components.size())
+    {
+      return false;
+    }
+
+    for (int i=0; i < components.size(); i++)
+    {
+      if (! components.get(i).equals(oid.components.get(i)))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether this OID is a descendant of the provided OID.  This OID
+   * will be considered a descendant of the provided OID if this OID has more
+   * components than the provided OID, and if the components that comprise the
+   * provided OID make up the initial set of components for this OID.
+   *
+   * @param  oid  The OID for which to make the determination.  It must not be
+   *              {@code null}, and it must represent a valid numeric OID.
+   *
+   * @return  {@code true} if this OID is a descendant of the provided OID, or
+   *          {@code false} if not.
+   *
+   * @throws  ParseException  If either this OID or the provided OID does not
+   *                          represent a valid numeric OID.
+   */
+  public boolean isDescendantOf(@NotNull final OID oid)
+         throws ParseException
+  {
+    if (components == null)
+    {
+      throw new ParseException(
+           ERR_OID_IS_DESCENDANT_OF_THIS_NOT_VALID.get(oidString,
+                oid.oidString),
+           0);
+    }
+
+    if (oid.components == null)
+    {
+      throw new ParseException(
+           ERR_OID_IS_DESCENDANT_OF_PROVIDED_NOT_VALID.get(oid.oidString,
+                oid.oidString),
+           0);
+    }
+
+    if (components.size() <= oid.components.size())
+    {
+      return false;
+    }
+
+    for (int i=0; i < oid.components.size(); i++)
+    {
+      if (! components.get(i).equals(oid.components.get(i)))
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 
 
