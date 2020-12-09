@@ -135,6 +135,9 @@ public final class OIDLookup
   // The argument parser used by this tool.
   @Nullable private ArgumentParser parser;
 
+  // The argument used to indicate that only exact matches should be returned.
+  @Nullable private BooleanArgument exactMatchArg;
+
   // The argument used to request terse output.
   @Nullable private BooleanArgument terseArg;
 
@@ -200,6 +203,7 @@ public final class OIDLookup
     super(out, err);
 
     parser = null;
+    exactMatchArg = null;
     terseArg = null;
     schemaPathArg = null;
     outputFormatArg = null;
@@ -380,6 +384,13 @@ public final class OIDLookup
     parser.addArgument(outputFormatArg);
 
 
+    exactMatchArg = new BooleanArgument(null, "exact-match", 1,
+         INFO_OID_LOOKUP_ARG_DESC_EXACT_MATCH.get());
+    exactMatchArg.addLongIdentifier("exactMatch", true);
+    exactMatchArg.addLongIdentifier("exact", true);
+    parser.addArgument(exactMatchArg);
+
+
     terseArg = new BooleanArgument(null, "terse", 1,
          INFO_OID_LOOKUP_ARG_DESC_TERSE.get());
     parser.addArgument(terseArg);
@@ -451,11 +462,12 @@ public final class OIDLookup
     if ((parser != null) && (! parser.getTrailingArguments().isEmpty()))
     {
       matchingItems = new ArrayList<>();
-      final String searchString =
-           parser.getTrailingArguments().get(0).toLowerCase();
+      final String lowerSearchString =
+           StaticUtils.toLowerCase(parser.getTrailingArguments().get(0));
       for (final OIDRegistryItem item : oidRegistry.getItems().values())
       {
-        if (itemMatchesSearchString(item, searchString))
+        if (itemMatchesSearchString(item, lowerSearchString,
+             exactMatchArg.isPresent()))
         {
           matchingItems.add(item);
         }
@@ -665,42 +677,63 @@ public final class OIDLookup
    * Determines whether the provided OID registry item matches the given search
    * string.
    *
-   * @param  item          The item for which to make the determination.
-   * @param  searchString  The search string to match against the item.
+   * @param  item               The item for which to make the determination.
+   * @param  lowerSearchString  The search string to match against the item.  It
+   *                            must have already been converted to lowercase.
+   * @param  exactMatch         Indicates whether to use exact matching (if
+   *                            {@code true}) or substring matching (if
+   *                            {@code false}).
    *
    * @return  {@code true} if the provided item matches the given search string,
    *          or {@code false} if not.
    */
   private static boolean itemMatchesSearchString(
                @NotNull final OIDRegistryItem item,
-               @NotNull final String searchString)
+               @NotNull final String lowerSearchString,
+               final boolean exactMatch)
   {
-    final String oid = StaticUtils.toLowerCase(item.getOID());
-    if ((oid != null) && oid.contains(searchString))
+    return (matches(item.getOID(), lowerSearchString, exactMatch) ||
+         matches(item.getName(), lowerSearchString, exactMatch) ||
+         matches(item.getType(), lowerSearchString, exactMatch) ||
+         matches(item.getOrigin(), lowerSearchString, exactMatch) ||
+         matches(item.getURL(), lowerSearchString, exactMatch));
+  }
+
+
+
+  /**
+   * Indicates whether the provided item matches the given search string.
+   *
+   * @param  itemString         A string from the registry item being
+   *                            considered.  It may be {@code null}, and it may
+   *                            be mixed-case.
+   * @param  lowerSearchString  The search string to match against the item.  It
+   *                            must have already been converted to lowercase.
+   * @param  exactMatch         Indicates whether to use exact matching (if
+   *                            {@code true}) or substring matching (if
+   *                            {@code false}).
+   *
+   * @return  {@code true} if the provided item string matches the given search
+   *          string, or {@code false} if not.
+   */
+  private static boolean matches(@Nullable final String itemString,
+                                 @NotNull final String lowerSearchString,
+                                 final boolean exactMatch)
+  {
+    if (itemString == null)
     {
-      return true;
+      return false;
     }
 
-    final String name = StaticUtils.toLowerCase(item.getName());
-    if ((name != null) && name.contains(searchString))
+    final String lowerItemString = StaticUtils.toLowerCase(itemString);
+    if (exactMatch)
     {
-      return true;
+      return lowerItemString.equals(lowerSearchString);
     }
-
-    final String type = StaticUtils.toLowerCase(item.getType());
-    if ((type != null) && type.contains(searchString))
+    else
     {
-      return true;
+      return lowerItemString.contains(lowerSearchString);
     }
-
-    final String origin = StaticUtils.toLowerCase(item.getOrigin());
-    if ((origin != null) && origin.contains(searchString))
-    {
-      return true;
-    }
-
-    final String url = StaticUtils.toLowerCase(item.getURL());
-    return ((url != null) && url.contains(searchString));
   }
 
 
