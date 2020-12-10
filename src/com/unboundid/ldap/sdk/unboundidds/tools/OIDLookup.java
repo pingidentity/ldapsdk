@@ -109,7 +109,7 @@ public final class OIDLookup
 
   /**
    * The output format value that indicates that output should be generated as
-   * comma-separated values.
+   * JSON objects.
    */
   @NotNull private static final String OUTPUT_FORMAT_JSON = "json";
 

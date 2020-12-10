@@ -49,6 +49,8 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONObjectReader;
 
 
 
@@ -269,7 +271,8 @@ public final class LDAPResultCodeTestCase
 
     assertEquals(
          LDAPResultCode.main(out, err,
-              "--search", "attribute"),
+              "--search", "attribute",
+              "--output-format", "table"),
          ResultCode.SUCCESS);
 
     final byte[] outputBytes = out.toByteArray();
@@ -326,5 +329,172 @@ public final class LDAPResultCodeTestCase
 
     assertEquals(out.toByteArray().length, 0);
     assertTrue(err.toByteArray().length > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the CSV output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCSV()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream err = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDAPResultCode.main(out, err,
+              "--list",
+              "--output-format", "csv"),
+         ResultCode.SUCCESS);
+
+    final byte[] outputBytes = out.toByteArray();
+    assertTrue(outputBytes.length > 0);
+
+    assertTrue(out.toByteArray().length > 0);
+
+    try (ByteArrayInputStream byteArrayInputStream =
+              new ByteArrayInputStream(outputBytes);
+         InputStreamReader inputStreamReader =
+              new InputStreamReader(byteArrayInputStream);
+         BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+    {
+      String line = bufferedReader.readLine();
+      assertNotNull(line);
+
+      int numResultCodes = 0;
+      while (line != null)
+      {
+        assertFalse(line.isEmpty());
+        numResultCodes++;
+
+        final int commaPos = line.indexOf(',');
+        assertTrue(commaPos > 0);
+
+        final String name = line.substring(0, commaPos);
+        final int intValue = Integer.parseInt(line.substring(commaPos+1));
+
+        final ResultCode rc = ResultCode.valueOf(intValue);
+        assertNotNull(rc);
+        assertTrue(name.equalsIgnoreCase(rc.getName()));
+        line = bufferedReader.readLine();
+      }
+
+      assertEquals(numResultCodes, ResultCode.values().length);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the JSON output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSON()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream err = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDAPResultCode.main(out, err,
+              "--list",
+              "--output-format", "json"),
+         ResultCode.SUCCESS);
+
+    final byte[] outputBytes = out.toByteArray();
+    assertTrue(outputBytes.length > 0);
+
+    assertTrue(out.toByteArray().length > 0);
+
+    try (ByteArrayInputStream byteArrayInputStream =
+              new ByteArrayInputStream(outputBytes);
+         JSONObjectReader jsonObjectReader =
+              new JSONObjectReader(byteArrayInputStream))
+    {
+      int numResultCodes = 0;
+      while (true)
+      {
+        final JSONObject o = jsonObjectReader.readObject();
+        if (o == null)
+        {
+          break;
+        }
+
+        numResultCodes++;
+
+        final String name = o.getFieldAsString("name");
+        assertNotNull(name);
+
+        final int intValue = o.getFieldAsInteger("int-value");
+
+        final ResultCode rc = ResultCode.valueOf(intValue);
+        assertNotNull(rc);
+        assertTrue(name.equalsIgnoreCase(rc.getName()));
+      }
+
+      assertEquals(numResultCodes, ResultCode.values().length);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the tab-delimited output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTabDelimited()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream err = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDAPResultCode.main(out, err,
+              "--list",
+              "--output-format", "tab-delimited"),
+         ResultCode.SUCCESS);
+
+    final byte[] outputBytes = out.toByteArray();
+    assertTrue(outputBytes.length > 0);
+
+    assertTrue(out.toByteArray().length > 0);
+
+    try (ByteArrayInputStream byteArrayInputStream =
+              new ByteArrayInputStream(outputBytes);
+         InputStreamReader inputStreamReader =
+              new InputStreamReader(byteArrayInputStream);
+         BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+    {
+      String line = bufferedReader.readLine();
+      assertNotNull(line);
+
+      int numResultCodes = 0;
+      while (line != null)
+      {
+        assertFalse(line.isEmpty());
+        numResultCodes++;
+
+        final int commaPos = line.indexOf('\t');
+        assertTrue(commaPos > 0);
+
+        final String name = line.substring(0, commaPos);
+        final int intValue = Integer.parseInt(line.substring(commaPos+1));
+
+        final ResultCode rc = ResultCode.valueOf(intValue);
+        assertNotNull(rc);
+        assertTrue(name.equalsIgnoreCase(rc.getName()));
+        line = bufferedReader.readLine();
+      }
+
+      assertEquals(numResultCodes, ResultCode.values().length);
+    }
   }
 }

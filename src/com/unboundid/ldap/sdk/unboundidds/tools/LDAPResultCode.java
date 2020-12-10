@@ -38,8 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +62,8 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
@@ -93,6 +95,54 @@ public final class LDAPResultCode
 
 
 
+  /**
+   * The name of the JSON field that will hold the integer value for the result
+   * code.
+   */
+  @NotNull private static final String JSON_FIELD_INT_VALUE = "int-value";
+
+
+
+  /**
+   * The name of the JSON field that will hold the name for the result code.
+   */
+  @NotNull private static final String JSON_FIELD_NAME = "name";
+
+
+
+  /**
+   * The output format value that indicates that output should be generated as
+   * comma-separated values.
+   */
+  @NotNull private static final String OUTPUT_FORMAT_CSV = "csv";
+
+
+
+  /**
+   * The output format value that indicates that output should be generated as
+   * JSON objects.
+   */
+  @NotNull private static final String OUTPUT_FORMAT_JSON = "json";
+
+
+
+  /**
+   * The output format value that indicates that output should be generated as
+   * tab-delimited text.
+   */
+  @NotNull private static final String OUTPUT_FORMAT_TAB_DELIMITED =
+       "tab-delimited";
+
+
+
+  /**
+   * The output format value that indicates that output should be generated as
+   * a table.
+   */
+  @NotNull private static final String OUTPUT_FORMAT_TABLE = "table";
+
+
+
   // The argument used to indicate that the tool should list result codes in
   // alphabetic order rather than numeric order.
   @Nullable private BooleanArgument alphabeticOrderArg;
@@ -109,8 +159,11 @@ public final class LDAPResultCode
   // code with the specified integer value.
   @Nullable private IntegerArgument intValueArg;
 
-  // The argument used to indicate that the tool should search for result coes
-  // that have the specified string in thier name
+  // The argument used to specify the output format for the tool.
+  @Nullable private StringArgument outputFormatArg;
+
+  // The argument used to indicate that the tool should search for result codes
+  // that have the specified string in their name
   @Nullable private StringArgument searchArg;
 
 
@@ -168,6 +221,13 @@ public final class LDAPResultCode
                         @Nullable final OutputStream err)
   {
     super(out, err);
+
+    alphabeticOrderArg = null;
+    listArg = null;
+    scriptFriendlyArg = null;
+    intValueArg = null;
+    outputFormatArg = null;
+    searchArg = null;
   }
 
 
@@ -203,7 +263,9 @@ public final class LDAPResultCode
   @NotNull()
   public List<String> getAdditionalDescriptionParagraphs()
   {
-    return Collections.singletonList(INFO_LDAP_RC_TOOL_DESC_2.get());
+    return Arrays.asList(
+         INFO_LDAP_RC_TOOL_DESC_2.get(),
+         INFO_LDAP_RC_TOOL_DESC_3.get());
   }
 
 
@@ -306,12 +368,26 @@ public final class LDAPResultCode
     alphabeticOrderArg.addLongIdentifier("alphabetical", true);
     parser.addArgument(alphabeticOrderArg);
 
+    outputFormatArg = new StringArgument(null, "output-format", false, 1,
+         INFO_LDAP_RC_ARG_PLACEHOLDER_OUTPUT_FORMAT.get(),
+         INFO_LDAP_RC_ARG_DESC_OUTPUT_FORMAT.get(),
+         StaticUtils.setOf(
+              OUTPUT_FORMAT_CSV,
+              OUTPUT_FORMAT_JSON,
+              OUTPUT_FORMAT_TAB_DELIMITED,
+              OUTPUT_FORMAT_TABLE));
+    outputFormatArg.addLongIdentifier("outputFormat", true);
+    outputFormatArg.addLongIdentifier("format", true);
+    parser.addArgument(outputFormatArg);
+
     scriptFriendlyArg = new BooleanArgument(null, "script-friendly", 1,
          INFO_LDAP_RC_ARG_DESC_SCRIPT_FRIENDLY.get());
     scriptFriendlyArg.addLongIdentifier("scriptFriendly", true);
+    scriptFriendlyArg.setHidden(true);
     parser.addArgument(scriptFriendlyArg);
 
     parser.addExclusiveArgumentSet(listArg, intValueArg, searchArg);
+    parser.addExclusiveArgumentSet(outputFormatArg, scriptFriendlyArg);
   }
 
 
@@ -394,28 +470,63 @@ public final class LDAPResultCode
 
 
     // Construct the column formatter that will be used to generate the output.
+    final boolean json;
     final OutputFormat outputFormat;
     final boolean scriptFriendly =
          ((scriptFriendlyArg != null) && scriptFriendlyArg.isPresent());
     if (scriptFriendly)
     {
+      json = false;
       outputFormat = OutputFormat.TAB_DELIMITED_TEXT;
+    }
+    else if ((outputFormatArg != null) && outputFormatArg.isPresent())
+    {
+      final String outputFormatValue =
+           StaticUtils.toLowerCase(outputFormatArg.getValue());
+      if (outputFormatValue.equals(OUTPUT_FORMAT_CSV))
+      {
+        json = false;
+        outputFormat = OutputFormat.CSV;
+      }
+      else if (outputFormatValue.equals(OUTPUT_FORMAT_JSON))
+      {
+        json = true;
+        outputFormat = null;
+      }
+      else if (outputFormatValue.equals(OUTPUT_FORMAT_TAB_DELIMITED))
+      {
+        json = false;
+        outputFormat = OutputFormat.TAB_DELIMITED_TEXT;
+      }
+      else
+      {
+        json = false;
+        outputFormat = OutputFormat.COLUMNS;
+      }
     }
     else
     {
+      json = false;
       outputFormat = OutputFormat.COLUMNS;
     }
 
-    final ColumnFormatter formatter =
-         new ColumnFormatter(false, null, outputFormat, " | ",
-              new FormattableColumn(numCharsInLongestName,
-                   HorizontalAlignment.LEFT, nameLabel),
-              new FormattableColumn(numCharsInLongestIntValue,
-                   HorizontalAlignment.LEFT, intValueLabel));
+    final ColumnFormatter formatter;
+    if (json)
+    {
+      formatter = null;
+    }
+    else
+    {
+      formatter = new ColumnFormatter(false, null, outputFormat, " | ",
+           new FormattableColumn(numCharsInLongestName,
+                HorizontalAlignment.LEFT, nameLabel),
+           new FormattableColumn(numCharsInLongestIntValue,
+                HorizontalAlignment.LEFT, intValueLabel));
+    }
 
 
     // Display the table header, if appropriate.
-    if (! scriptFriendly)
+    if ((formatter != null) && (outputFormat == OutputFormat.COLUMNS))
     {
       for (final String line : formatter.getHeaderLines(true))
       {
@@ -424,7 +535,7 @@ public final class LDAPResultCode
     }
 
 
-    // Display the table body.
+    // Display the main output.
     final Collection<ResultCode> resultCodes;
     if ((alphabeticOrderArg != null) && alphabeticOrderArg.isPresent())
     {
@@ -437,7 +548,17 @@ public final class LDAPResultCode
 
     for (final ResultCode rc : resultCodes)
     {
-      out(formatter.formatRow(rc.getName(), rc.intValue()));
+      if (formatter == null)
+      {
+        final JSONObject jsonObject = new JSONObject(
+             new JSONField(JSON_FIELD_NAME, rc.getName()),
+             new JSONField(JSON_FIELD_INT_VALUE, rc.intValue()));
+        out(jsonObject.toSingleLineString());
+      }
+      else
+      {
+        out(formatter.formatRow(rc.getName(), rc.intValue()));
+      }
     }
 
     return ResultCode.SUCCESS;
@@ -462,7 +583,7 @@ public final class LDAPResultCode
          new String[]
          {
            "--int-value", "49",
-           "--script-friendly"
+           "--output-format", "json"
          },
          INFO_LDAP_RC_EXAMPLE_2.get());
 
