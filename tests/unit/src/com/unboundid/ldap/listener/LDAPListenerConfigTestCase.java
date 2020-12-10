@@ -42,6 +42,7 @@ import java.net.InetAddress;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.ThrowsOnCreateServerSocketFactory;
@@ -443,6 +444,42 @@ public final class LDAPListenerConfigTestCase
     assertEquals(c.getMaxConnections(), 0);
     c = c.duplicate();
     assertEquals(c.getMaxConnections(), 0);
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Provides test coverage for the max message size configuration.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMaxMessageSize()
+         throws Exception
+  {
+    LDAPListenerConfig c = new LDAPListenerConfig(1234,
+         new CannedResponseRequestHandler());
+    assertEquals(c.getMaxMessageSizeBytes(),
+         new LDAPConnectionOptions().getMaxMessageSize());
+    c = c.duplicate();
+    assertEquals(c.getMaxMessageSizeBytes(),
+         new LDAPConnectionOptions().getMaxMessageSize());
+
+    assertNotNull(c.toString());
+
+    c.setMaxMessageSizeBytes(123_456_789);
+    assertEquals(c.getMaxMessageSizeBytes(), 123_456_789);
+    c = c.duplicate();
+    assertEquals(c.getMaxMessageSizeBytes(), 123_456_789);
+
+    assertNotNull(c.toString());
+
+    c.setMaxMessageSizeBytes(-1);
+    assertEquals(c.getMaxMessageSizeBytes(), Integer.MAX_VALUE);
+    c = c.duplicate();
+    assertEquals(c.getMaxMessageSizeBytes(), Integer.MAX_VALUE);
 
     assertNotNull(c.toString());
   }

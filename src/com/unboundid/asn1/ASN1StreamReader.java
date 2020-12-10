@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import javax.security.sasl.SaslClient;
 
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
@@ -74,6 +75,15 @@ import static com.unboundid.asn1.ASN1Messages.*;
 public final class ASN1StreamReader
        implements Closeable
 {
+  /**
+   * The default maximum element size that will be used for the constructor that
+   * does not specify a size.
+   */
+  private static final int DEFAULT_MAX_ELEMENT_SIZE_BYTES =
+       new LDAPConnectionOptions().getMaxMessageSize();
+
+
+
   // Indicates whether socket timeout exceptions should be ignored for the
   // initial read of an element.
   private boolean ignoreInitialSocketTimeout;
@@ -103,8 +113,9 @@ public final class ASN1StreamReader
 
   /**
    * Creates a new ASN.1 stream reader that will read data from the provided
-   * input stream.  It will use a maximum element size of
-   * {@code Integer.MAX_VALUE}.
+   * input stream.  It will use a maximum element size equal to the default
+   * value returned by the {@link LDAPConnectionOptions#getMaxMessageSize()}
+   * method.
    *
    * @param  inputStream  The input stream from which data should be read.  If
    *                      the provided input stream does not support the use of
@@ -113,7 +124,7 @@ public final class ASN1StreamReader
    */
   public ASN1StreamReader(@NotNull final InputStream inputStream)
   {
-    this(inputStream, Integer.MAX_VALUE);
+    this(inputStream, DEFAULT_MAX_ELEMENT_SIZE_BYTES);
   }
 
 

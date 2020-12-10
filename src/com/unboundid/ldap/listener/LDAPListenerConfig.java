@@ -40,6 +40,7 @@ package com.unboundid.ldap.listener;
 import java.net.InetAddress;
 import javax.net.ServerSocketFactory;
 
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -61,6 +62,15 @@ import com.unboundid.util.Validator;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDAPListenerConfig
 {
+  /**
+   * The default maximum message size that will be used if no other value is
+   * specified.
+   */
+  static final int DEFAULT_MAX_MESSAGE_SIZE_BYTES =
+       new LDAPConnectionOptions().getMaxMessageSize();
+
+
+
   // Indicates whether the listener should request that the client provide a
   // certificate.
   private boolean requestClientCertificate;
@@ -96,6 +106,10 @@ public final class LDAPListenerConfig
 
   // The maximum number of concurrent connections that will be allowed.
   private int maxConnections;
+
+  // The maximum size in bytes for encoded messages that the listener will
+  // accept.
+  private int maxMessageSizeBytes;
 
   // The receive buffer size to use for sockets accepted by the listener.
   private int receiveBufferSize;
@@ -144,6 +158,7 @@ public final class LDAPListenerConfig
     lingerTimeout            = 5;
     listenAddress            = null;
     maxConnections           = 0;
+    maxMessageSizeBytes      = DEFAULT_MAX_MESSAGE_SIZE_BYTES;
     receiveBufferSize        = 0;
     sendBufferSize           = 0;
     exceptionHandler         = null;
@@ -431,6 +446,43 @@ public final class LDAPListenerConfig
 
 
   /**
+   * Retrieves the maximum size in bytes for LDAP messages that will be accepted
+   * by this listener.
+   *
+   * @return  The maximum size in bytes for LDAP messages that will be accepted
+   *          by this listener.
+   */
+  public int getMaxMessageSizeBytes()
+  {
+    return maxMessageSizeBytes;
+  }
+
+
+
+  /**
+   * Specifies the maximum size in bytes for LDAP messages that will be accepted
+   * by this listener.
+   *
+   * @param  maxMessageSizeBytes  The maximum size in bytes for LDAP messages
+   *                              that will be accepted by this listener.  A
+   *                              value that is less than or equal to zero will
+   *                              use the maximum allowed message size.
+   */
+  public void setMaxMessageSizeBytes(final int maxMessageSizeBytes)
+  {
+    if (maxMessageSizeBytes > 0)
+    {
+      this.maxMessageSizeBytes = maxMessageSizeBytes;
+    }
+    else
+    {
+      this.maxMessageSizeBytes = Integer.MAX_VALUE;
+    }
+  }
+
+
+
+  /**
    * Retrieves the receive buffer size that should be used for sockets accepted
    * by the listener.
    *
@@ -670,6 +722,7 @@ public final class LDAPListenerConfig
     copy.listenAddress            = listenAddress;
     copy.lingerTimeout            = lingerTimeout;
     copy.maxConnections           = maxConnections;
+    copy.maxMessageSizeBytes      = maxMessageSizeBytes;
     copy.receiveBufferSize        = receiveBufferSize;
     copy.sendBufferSize           = sendBufferSize;
     copy.exceptionHandler         = exceptionHandler;
@@ -749,6 +802,8 @@ public final class LDAPListenerConfig
 
     buffer.append(", maxConnections=");
     buffer.append(maxConnections);
+    buffer.append(", maxMessageSizeBytes=");
+    buffer.append(maxMessageSizeBytes);
     buffer.append(", useReuseAddress=");
     buffer.append(useReuseAddress);
     buffer.append(", receiveBufferSize=");

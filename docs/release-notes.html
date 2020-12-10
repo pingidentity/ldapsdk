@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue in the LDAP listener framework that caused listeners to use a
+                  maximum message size of two gigabytes, which could allow malicious or errant
+                  clients to cause the server to allocate large amounts of memory.  The listener
+                  will now default to a maximum message size of twenty megabytes (which is the
+                  same as the maximum message size for LDAP client connections), and the LDAP
+                  listener configuration and in-memory directory server configuration have been
+                  updated to allow configuring the maximum message size that should be used.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated OID support to add methods that leverage hierarchy.  It is now possible
                   to create an OID that is a child of a provided OID, to retrieve the parent of a
                   provided OID, and to determine whether an OID is an ancestor or descendant of a

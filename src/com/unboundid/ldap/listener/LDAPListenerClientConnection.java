@@ -247,7 +247,17 @@ public final class LDAPListenerClientConnection
         }
       }
 
-      asn1Reader = new ASN1StreamReader(socket.getInputStream());
+      final int maxMessageSizeBytes;
+      if (listener == null)
+      {
+        asn1Reader = new ASN1StreamReader(socket.getInputStream());
+      }
+      else
+      {
+        asn1Reader = new ASN1StreamReader(socket.getInputStream(),
+             listener.getConfig().getMaxMessageSizeBytes());
+      }
+
     }
     catch (final IOException ioe)
     {

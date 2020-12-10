@@ -47,6 +47,7 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.OperationType;
@@ -137,6 +138,9 @@ public final class InMemoryDirectoryServerConfigTestCase
 
     assertEquals(cfg.getMaxConnections(), 0);
 
+    assertEquals(cfg.getMaxMessageSizeBytes(),
+         new LDAPConnectionOptions().getMaxMessageSize());
+
     assertNotNull(cfg.getEqualityIndexAttributes());
     assertTrue(cfg.getEqualityIndexAttributes().isEmpty());
 
@@ -210,6 +214,9 @@ public final class InMemoryDirectoryServerConfigTestCase
     assertEquals(cfg.getMaxChangeLogEntries(), 0);
 
     assertEquals(cfg.getMaxConnections(), 0);
+
+    assertEquals(cfg.getMaxMessageSizeBytes(),
+         new LDAPConnectionOptions().getMaxMessageSize());
 
     assertNotNull(cfg.getEqualityIndexAttributes());
     assertTrue(cfg.getEqualityIndexAttributes().isEmpty());
@@ -1035,6 +1042,36 @@ public final class InMemoryDirectoryServerConfigTestCase
 
     cfg.setMaxConnections(-1);
     assertEquals(cfg.getMaxConnections(), 0);
+
+    assertNotNull(cfg.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior of the methods for limiting the maximum message size.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMaxMessageSize()
+         throws Exception
+  {
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+
+    assertEquals(cfg.getMaxMessageSizeBytes(),
+         new LDAPConnectionOptions().getMaxMessageSize());
+
+    assertNotNull(cfg.toString());
+
+    cfg.setMaxMessageSizeBytes(123_456_789);
+    assertEquals(cfg.getMaxMessageSizeBytes(), 123_456_789);
+
+    assertNotNull(cfg.toString());
+
+    cfg.setMaxMessageSizeBytes(-1);
+    assertEquals(cfg.getMaxMessageSizeBytes(), Integer.MAX_VALUE);
 
     assertNotNull(cfg.toString());
   }

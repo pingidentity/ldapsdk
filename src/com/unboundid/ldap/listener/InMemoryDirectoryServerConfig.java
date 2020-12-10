@@ -161,6 +161,9 @@ public class InMemoryDirectoryServerConfig
   // The maximum number of concurrent connections that will be allowed.
   private int maxConnections;
 
+  // The maximum size in bytes for encoded messages that the server will accept.
+  private int maxMessageSizeBytes;
+
   // The maximum number of entries that may be returned in any single search
   // operation.
   private int maxSizeLimit;
@@ -285,6 +288,7 @@ public class InMemoryDirectoryServerConfig
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
     maxConnections                       = 0;
+    maxMessageSizeBytes = LDAPListenerConfig.DEFAULT_MAX_MESSAGE_SIZE_BYTES;
     maxSizeLimit                         = 0;
     exceptionHandler                     = null;
     customRootDSEAttributes              = Collections.emptyList();
@@ -364,6 +368,7 @@ public class InMemoryDirectoryServerConfig
     ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
     maxConnections                     = cfg.maxConnections;
+    maxMessageSizeBytes                = cfg.maxMessageSizeBytes;
     maxSizeLimit                       = cfg.maxSizeLimit;
     exceptionHandler                   = cfg.exceptionHandler;
     customRootDSEAttributes            = cfg.customRootDSEAttributes;
@@ -1228,6 +1233,43 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves the maximum size in bytes for LDAP messages that will be accepted
+   * by the server.
+   *
+   * @return  The maximum size in bytes for LDAP messages that will be accepted
+   *          by the server.
+   */
+  public int getMaxMessageSizeBytes()
+  {
+    return maxMessageSizeBytes;
+  }
+
+
+
+  /**
+   * Specifies the maximum size in bytes for LDAP messages that will be accepted
+   * by the server.
+   *
+   * @param  maxMessageSizeBytes  The maximum size in bytes for LDAP messages
+   *                              that will be accepted by the server.  A
+   *                              value that is less than or equal to zero will
+   *                              use the maximum allowed message size.
+   */
+  public void setMaxMessageSizeBytes(final int maxMessageSizeBytes)
+  {
+    if (maxMessageSizeBytes > 0)
+    {
+      this.maxMessageSizeBytes = maxMessageSizeBytes;
+    }
+    else
+    {
+      this.maxMessageSizeBytes = Integer.MAX_VALUE;
+    }
+  }
+
+
+
+  /**
    * Retrieves the maximum number of entries that the server should return in
    * any search operation.
    *
@@ -1938,6 +1980,8 @@ public class InMemoryDirectoryServerConfig
 
     buffer.append(", maxConnections=");
     buffer.append(maxConnections);
+    buffer.append(", maxMessageSizeBytes=");
+    buffer.append(maxMessageSizeBytes);
     buffer.append(", maxSizeLimit=");
     buffer.append(maxSizeLimit);
 
