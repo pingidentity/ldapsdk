@@ -326,6 +326,9 @@ public final class ServerSetBlacklistManagerTestCase
     assertFalse(blacklistManager.isBlacklisted(new ObjectPair<>(host, port2)));
 
     assertNotNull(blacklistManager.toString());
+
+
+    blacklistManager.shutDown();
   }
 
 
@@ -614,5 +617,8 @@ public final class ServerSetBlacklistManagerTestCase
     assertFalse(blacklistManager.isBlacklisted(new ObjectPair<>(host, port2)));
 
     assertNotNull(blacklistManager.toString());
+
+
+    blacklistManager.shutDown();
   }
 }

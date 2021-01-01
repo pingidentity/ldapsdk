@@ -14,6 +14,26 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed a potential issue that could affect the fewest connections and round-robin
+                  server sets.  By default, these server set implementations use a blacklist
+                  manager that can help them avoid trying to establish connections to a server
+                  that might not be available.  The blacklist manager uses a background timer to
+                  periodically check on the state of any background servers that are believed to
+                  be unavailable to see if they have become available again, and there was nothing
+                  to cancel the timer if it is no longer needed (for example, because the
+                  connection pool that was using the server set has been closed).  If the server
+                  set references a server that has permanently become unavailable, then this could
+                  leave a background timer thread running, and it would continue running until the
+                  JVM is shut down.  To address this, we have added a ServerSet.shutDown() method
+                  that can allow the server set to perform any necessary cleanup (like canceling
+                  the blacklist manager's timer), and we have updated the
+                  LDAPConnectionPool.close() method to call the ServerSet.shutDown() method.  Any
+                  ServerSet uses outside of connection pools may need to be updated to call the
+                  ServerSet.shutDown method.
+                  <br><br>
+                </li>
+
+                <li>
                   Added draft-coretta-x660-ldap to the set of LDAP-related specifications.
                   <br><br>
                 </li>

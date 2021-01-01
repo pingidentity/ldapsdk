@@ -1535,6 +1535,15 @@ public final class LDAPConnectionPool
       closed = true;
       healthCheckThread.stopRunning(! healthCheckThreadAlreadySignaled);
 
+      try
+      {
+        serverSet.shutDown();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
       if (numThreads > 1)
       {
         final ArrayList<LDAPConnection> connList =

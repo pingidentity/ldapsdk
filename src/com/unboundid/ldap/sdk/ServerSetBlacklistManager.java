@@ -439,6 +439,23 @@ public final class ServerSetBlacklistManager
 
 
   /**
+   * Shuts down the blacklist manager.
+   */
+  public synchronized void shutDown()
+  {
+    final Timer timer = timerReference.getAndSet(null);
+    if (timer != null)
+    {
+      timer.cancel();
+      timer.purge();
+    }
+
+    blacklistedServers.clear();
+  }
+
+
+
+  /**
    * Retrieves a string representation of this server set blacklist manager.
    *
    * @return  A string representation of this server set blacklist manager.

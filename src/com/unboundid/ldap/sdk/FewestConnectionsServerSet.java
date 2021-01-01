@@ -700,6 +700,20 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
+  public void shutDown()
+  {
+    if (blacklistManager != null)
+    {
+      blacklistManager.shutDown();
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("FewestConnectionsServerSet(servers={");

@@ -354,6 +354,16 @@ public abstract class ServerSet
 
 
   /**
+   * Shuts down this server set and frees any resources associated with it.
+   */
+  public void shutDown()
+  {
+    // No implementation required by default.
+  }
+
+
+
+  /**
    * Retrieves a string representation of this server set.
    *
    * @return  A string representation of this server set.
