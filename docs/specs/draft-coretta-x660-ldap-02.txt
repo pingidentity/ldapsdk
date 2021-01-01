@@ -1,15 +1,15 @@
 
 
 X660LDAP                                                      J. Coretta
-Internet-Draft                                         December 31, 2020
+Internet-Draft                                           January 1, 2021
 Intended status: Standards Track
-Expires: July 4, 2021
+Expires: July 5, 2021
 
 
            Lightweight Directory Access Protocol (LDAP)
              Procedures and Schema Definitions for the
              Storage of X.660 Registration Information
-                  draft-coretta-x660-ldap-01.txt
+                  draft-coretta-x660-ldap-02.txt
 
 Abstract
 
@@ -32,11 +32,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 4, 2021.
+   This Internet-Draft will expire on July 5, 2021.
 
 Copyright Notice
 
-   Copyright (c) 2020 IETF Trust and the persons identified as the
+   Copyright (c) 2021 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -55,9 +55,9 @@ Copyright Notice
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 1]
+Coretta                   Expires July 5, 2021                  [Page 1]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
 Table of Contents
@@ -83,7 +83,7 @@ Table of Contents
          2.1.11. arcDescription .......................................6
       2.2. Object Classes .............................................6
          2.2.1. x660RootArcEntry ......................................6
-         2.2.1. x660ArcEntry ..........................................7
+         2.2.2. x660ArcEntry ..........................................7
    3. Directory Models ................................................7
       3.1. Naming Context and Organization Entries ....................7
       3.2. Two-Dimensional Model ......................................7
@@ -113,9 +113,9 @@ Table of Contents
    in BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in
    all capitals, as shown here.
 
-Coretta                   Expires July 4, 2021                  [Page 2]
+Coretta                   Expires July 5, 2021                  [Page 2]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
 1.2.  Intended Audience
@@ -171,9 +171,9 @@ Coretta                   Expires July 4, 2021                  [Page 2]
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 3]
+Coretta                   Expires July 5, 2021                  [Page 3]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
 2.1.  Attribute Types
@@ -229,9 +229,9 @@ Coretta                   Expires July 4, 2021                  [Page 3]
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 4]
+Coretta                   Expires July 5, 2021                  [Page 4]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
      ( 1.3.6.1.4.1.56521.101.1.1.4
@@ -287,9 +287,9 @@ Coretta                   Expires July 4, 2021                  [Page 4]
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 5]
+Coretta                   Expires July 5, 2021                  [Page 5]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
      ( 1.3.6.1.4.1.56521.101.1.1.8
@@ -345,9 +345,9 @@ Coretta                   Expires July 4, 2021                  [Page 5]
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 6]
+Coretta                   Expires July 5, 2021                  [Page 6]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
      ( 1.3.6.1.4.1.56521.101.1.2.1
@@ -403,9 +403,9 @@ Coretta                   Expires July 4, 2021                  [Page 6]
    This model suggests that arc registration entries reside as siblings
    within an LDAP DIT in singular, non-hierarchical locations.
 
-Coretta                   Expires July 4, 2021                  [Page 7]
+Coretta                   Expires July 5, 2021                  [Page 7]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
 3.2.1.  Requirements
@@ -461,9 +461,9 @@ Coretta                   Expires July 4, 2021                  [Page 7]
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 8]
+Coretta                   Expires July 5, 2021                  [Page 8]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
 3.3.1.  Requirements
@@ -519,9 +519,9 @@ Coretta                   Expires July 4, 2021                  [Page 8]
 
 
 
-Coretta                   Expires July 4, 2021                  [Page 9]
+Coretta                   Expires July 5, 2021                  [Page 9]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
      dn: arc=1, arc=6, arc=3, arc=1, ou=X660, dc=example, dc=com
@@ -577,9 +577,9 @@ Coretta                   Expires July 4, 2021                  [Page 9]
 
 
 
-Coretta                   Expires July 4, 2021                 [Page 10]
+Coretta                   Expires July 5, 2021                 [Page 10]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
      - Use of independent arc registration contact entries, which are
@@ -635,9 +635,9 @@ Coretta                   Expires July 4, 2021                 [Page 10]
 
    There are no requests to IANA in this document.
 
-Coretta                   Expires July 4, 2021                 [Page 11]
+Coretta                   Expires July 5, 2021                 [Page 11]
 
-Internet-Draft        X.660 LDAP Schema and Models         December 2020
+Internet-Draft        X.660 LDAP Schema and Models          January 2021
 
 
 6.  Security Considerations
@@ -693,4 +693,4 @@ Author's Address
 
 
 
-Coretta                   Expires July 4, 2021                 [Page 12]
+Coretta                   Expires July 5, 2021                 [Page 12]
