@@ -1,5 +1,5 @@
 UnboundID LDAP SDK for Java
-Copyright 2008-2020 Ping Identity Corporation  All Rights Reserved.
+Copyright 2008-2021 Ping Identity Corporation  All Rights Reserved.
 
 This package contains UnboundID LDAP SDK for Java, a fast, powerful,
 user-friendly, and completely free Java library for communicating with LDAP
