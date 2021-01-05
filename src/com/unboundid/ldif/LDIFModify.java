@@ -131,6 +131,9 @@ public final class LDIFModify
   @Nullable private BooleanArgument compressTarget;
   @Nullable private BooleanArgument doNotWrap;
   @Nullable private BooleanArgument encryptTarget;
+  @Nullable private BooleanArgument ignoreDeletesOfNonexistentEntries;
+  @Nullable private BooleanArgument ignoreDuplicateDeletes;
+  @Nullable private BooleanArgument ignoreModifiesOfNonexistentEntries;
   @Nullable private BooleanArgument lenientModifications;
   @Nullable private BooleanArgument strictModifications;
   @Nullable private BooleanArgument noSchemaCheck;
@@ -291,6 +294,9 @@ public final class LDIFModify
     compressTarget = null;
     doNotWrap = null;
     encryptTarget = null;
+    ignoreDeletesOfNonexistentEntries = null;
+    ignoreDuplicateDeletes = null;
+    ignoreModifiesOfNonexistentEntries = null;
     lenientModifications = null;
     noSchemaCheck = null;
     strictModifications = null;
@@ -628,6 +634,46 @@ public final class LDIFModify
     parser.addArgument(strictModifications);
 
 
+    ignoreDuplicateDeletes = new BooleanArgument(null, "ignoreDuplicateDeletes",
+         1, INFO_LDIFMODIFY_ARG_DESC_IGNORE_DUPLICATE_DELETES.get());
+    ignoreDuplicateDeletes.addLongIdentifier("ignore-duplicate-deletes", true);
+    ignoreDuplicateDeletes.addLongIdentifier("ignoreRepeatedDeletes", true);
+    ignoreDuplicateDeletes.addLongIdentifier("ignore-repeated-deletes", true);
+    ignoreDuplicateDeletes.addLongIdentifier("ignoreRepeatDeletes", true);
+    ignoreDuplicateDeletes.addLongIdentifier("ignore-repeat-deletes", true);
+    ignoreDuplicateDeletes.setArgumentGroupName(
+         INFO_LDIFMODIFY_ARG_GROUP_INPUT.get());
+    parser.addArgument(ignoreDuplicateDeletes);
+
+
+    ignoreDeletesOfNonexistentEntries = new BooleanArgument(null,
+         "ignoreDeletesOfNonexistentEntries", 1,
+         INFO_LDIFMODIFY_ARG_DESC_IGNORE_NONEXISTENT_DELETES.get());
+    ignoreDeletesOfNonexistentEntries.addLongIdentifier(
+         "ignore-deletes-of-nonexistent-entries", true);
+    ignoreDeletesOfNonexistentEntries.addLongIdentifier(
+         "ignoreNonexistentDeletes", true);
+    ignoreDeletesOfNonexistentEntries.addLongIdentifier(
+         "ignore-nonexistent-deletes", true);
+    ignoreDeletesOfNonexistentEntries.setArgumentGroupName(
+         INFO_LDIFMODIFY_ARG_GROUP_INPUT.get());
+    parser.addArgument(ignoreDeletesOfNonexistentEntries);
+
+
+    ignoreModifiesOfNonexistentEntries = new BooleanArgument(null,
+         "ignoreModifiesOfNonexistentEntries", 1,
+         INFO_LDIFMODIFY_ARG_DESC_IGNORE_NONEXISTENT_MODIFIES.get());
+    ignoreModifiesOfNonexistentEntries.addLongIdentifier(
+         "ignore-modifies-of-nonexistent-entries", true);
+    ignoreModifiesOfNonexistentEntries.addLongIdentifier(
+         "ignoreNonexistentModifies", true);
+    ignoreModifiesOfNonexistentEntries.addLongIdentifier(
+         "ignore-nonexistent-modifies", true);
+    ignoreModifiesOfNonexistentEntries.setArgumentGroupName(
+         INFO_LDIFMODIFY_ARG_GROUP_INPUT.get());
+    parser.addArgument(ignoreModifiesOfNonexistentEntries);
+
+
     targetLDIF = new FileArgument('t', "targetLDIF", (targetWriter == null), 1,
          null, INFO_LDIFMODIFY_ARG_DESC_TARGET_LDIF.get(), false, true, true,
          false);
@@ -781,6 +827,7 @@ public final class LDIFModify
     }
 
 
+    boolean changesIgnored = false;
     LDIFReader ldifReader = null;
     LDIFWriter ldifWriter = null;
     final AtomicLong entriesRead = new AtomicLong(0L);
@@ -963,11 +1010,18 @@ public final class LDIFModify
         {
           if (e.getValue() == Boolean.FALSE)
           {
-            resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
-            writeLDIFComment(ldifWriter,
-                 ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_DELETE.get(
-                      e.getKey().toString()),
-                 true);
+            if (ignoreDeletesOfNonexistentEntries.isPresent())
+            {
+              changesIgnored = true;
+            }
+            else
+            {
+              resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
+              writeLDIFComment(ldifWriter,
+                   ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_DELETE.get(
+                        e.getKey().toString()),
+                   true);
+            }
           }
         }
 
@@ -979,11 +1033,18 @@ public final class LDIFModify
         {
           for (final LDIFChangeRecord r : l)
           {
-            resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
-            comment.setLength(0);
-            createChangeRecordComment(comment,
-                 ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_MODIFY.get(), r, true);
-            writeLDIFComment(ldifWriter, comment, false);
+            if (ignoreModifiesOfNonexistentEntries.isPresent())
+            {
+              changesIgnored = true;
+            }
+            else
+            {
+              resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
+              comment.setLength(0);
+              createChangeRecordComment(comment,
+                   ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_MODIFY.get(), r, true);
+              writeLDIFComment(ldifWriter, comment, false);
+            }
           }
         }
 
@@ -1081,7 +1142,7 @@ public final class LDIFModify
 
 
     // If no entries were updated, then we'll also consider that an error.
-    if (entriesUpdated.get() == 0L)
+    if ((entriesUpdated.get() == 0L) && (! changesIgnored))
     {
       logCompletionMessage(true,
            ERR_LDIFMODIFY_NO_CHANGES_APPLIED_WITH_ERRORS.get(
@@ -1375,11 +1436,14 @@ changeRecordLoop:
             // DN, then reject the new change.
             if (deletedEntryDNs.containsKey(parsedDN))
             {
-              err();
-              wrapErr(ERR_LDIFMODIFY_MULTIPLE_DELETES_FOR_DN.get(
-                   changesLDIF.getValue().getAbsolutePath(),
-                   parsedDN.toString()));
-              resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
+              if (! ignoreDuplicateDeletes.isPresent())
+              {
+                err();
+                wrapErr(ERR_LDIFMODIFY_MULTIPLE_DELETES_FOR_DN.get(
+                     changesLDIF.getValue().getAbsolutePath(),
+                     parsedDN.toString()));
+                resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
+              }
               continue changeRecordLoop;
             }
 

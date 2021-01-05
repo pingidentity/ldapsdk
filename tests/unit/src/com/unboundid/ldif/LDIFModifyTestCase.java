@@ -1718,6 +1718,17 @@ public final class LDIFModifyTestCase
               "objectClass: top",
               "objectClass: domain",
               "dc: example"));
+
+    ldifModify(sourceLDIF, changesLDIF, targetLDIF,
+         ResultCode.SUCCESS, "--ignoreDeletesOfNonexistentEntries");
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example"));
   }
 
 
@@ -1754,6 +1765,17 @@ public final class LDIFModifyTestCase
 
     ldifModify(sourceLDIF, changesLDIF, targetLDIF,
          ResultCode.NO_SUCH_OBJECT);
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example"));
+
+    ldifModify(sourceLDIF, changesLDIF, targetLDIF,
+         ResultCode.SUCCESS, "--ignoreDuplicateDeletes");
 
     assertTrue(targetLDIF.exists());
     assertTargetLDIFEquals(targetLDIF,
@@ -2124,6 +2146,17 @@ public final class LDIFModifyTestCase
     assertTrue(targetLDIF.delete());
 
     ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.NO_SUCH_OBJECT);
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example"));
+
+    ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.SUCCESS,
+         "--ignoreModifiesOfNonexistentEntries");
 
     assertTrue(targetLDIF.exists());
     assertTargetLDIFEquals(targetLDIF,
