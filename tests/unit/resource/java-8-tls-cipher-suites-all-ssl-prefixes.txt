@@ -1,0 +1,108 @@
+# This is a list of TLS cipher suites as supported by Java SE 8, but with
+# all cipher suite names prefixed by "SSL_" regardless of whether they are
+# associated with TLS or legacy SSL.
+#
+# $ /usr/jdk/jdk8/bin/java -version
+# java version "1.8.0_191"
+# Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+# Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+#
+# The cipher suites are ordered in the way that the
+# com.unboundid.util.ssl.TLSCipherSuiteComparator is expected to sort them.
+# Blank lines and lines starting with an octothorpe character will be ignored.
+#
+# The cipher suites should be prioritized in accordance with the following
+# criteria:
+#
+# * Signalling cipher suite values should come last, since they merely
+#   indicate capabilities and aren't actually cipher suites.
+#
+# * TLSv1.3-specific cipher suites (TLS_AES_* and TLS_CHACHA20_*) will come
+#   first.  Other TLS suites will come next, followed by legacy SSL suites, and
+#   finally any suites with an unrecognized protocol.
+#
+# * The key exchange algorithm will be prioritized as follows:
+#   1. ECDHE
+#   2. DHE
+#   3. RSA
+#   4. Everything else
+#
+# * The bulk encryption algorithm will be prioritized as follows:
+#   1. 256-bit AES with GCM
+#   2. 128-bit AES with GCM
+#   3. 256-bit AES without GCM
+#   4. 128-bit AES without GCM
+#   5. ChaCha20
+#   6. Everything else with GCM
+#   7. Everything else
+#
+# * The digest algorithm will be prioritized as follows:
+#   1. 512-bit SHA-2 (there are currently no such algorithms, but there may be
+#      some in the future)
+#   2. 384-bit SHA-2
+#   3. 256-bit SHA-2
+#   4. SHA-1
+#   5. Everything else
+#
+# * If none of the above criteria can be used to differentiate two cipher
+#   suites, then lexicographic ordering will be used.
+
+SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+SSL_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+SSL_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+SSL_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+SSL_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+SSL_ECDHE_RSA_WITH_AES_256_CBC_SHA
+SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+SSL_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+SSL_ECDHE_RSA_WITH_AES_128_CBC_SHA
+SSL_DHE_DSS_WITH_AES_256_GCM_SHA384
+SSL_DHE_RSA_WITH_AES_256_GCM_SHA384
+SSL_DHE_DSS_WITH_AES_128_GCM_SHA256
+SSL_DHE_RSA_WITH_AES_128_GCM_SHA256
+SSL_DHE_DSS_WITH_AES_256_CBC_SHA256
+SSL_DHE_RSA_WITH_AES_256_CBC_SHA256
+SSL_DHE_DSS_WITH_AES_256_CBC_SHA
+SSL_DHE_RSA_WITH_AES_256_CBC_SHA
+SSL_DHE_DSS_WITH_AES_128_CBC_SHA256
+SSL_DHE_RSA_WITH_AES_128_CBC_SHA256
+SSL_DHE_DSS_WITH_AES_128_CBC_SHA
+SSL_DHE_RSA_WITH_AES_128_CBC_SHA
+SSL_RSA_WITH_AES_256_GCM_SHA384
+SSL_RSA_WITH_AES_128_GCM_SHA256
+SSL_RSA_WITH_AES_256_CBC_SHA256
+SSL_RSA_WITH_AES_256_CBC_SHA
+SSL_RSA_WITH_AES_128_CBC_SHA256
+SSL_RSA_WITH_AES_128_CBC_SHA
+SSL_ECDH_ECDSA_WITH_AES_256_GCM_SHA384
+SSL_ECDH_RSA_WITH_AES_256_GCM_SHA384
+SSL_ECDH_ECDSA_WITH_AES_128_GCM_SHA256
+SSL_ECDH_RSA_WITH_AES_128_GCM_SHA256
+SSL_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
+SSL_ECDH_RSA_WITH_AES_256_CBC_SHA384
+SSL_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+SSL_ECDH_RSA_WITH_AES_256_CBC_SHA
+SSL_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
+SSL_ECDH_RSA_WITH_AES_128_CBC_SHA256
+SSL_ECDH_ECDSA_WITH_AES_128_CBC_SHA
+SSL_ECDH_RSA_WITH_AES_128_CBC_SHA
+SSL_ECDH_anon_WITH_AES_256_CBC_SHA
+SSL_ECDH_anon_WITH_AES_128_CBC_SHA
+SSL_DH_anon_WITH_AES_256_GCM_SHA384
+SSL_DH_anon_WITH_AES_128_GCM_SHA256
+SSL_DH_anon_WITH_AES_256_CBC_SHA256
+SSL_DH_anon_WITH_AES_256_CBC_SHA
+SSL_DH_anon_WITH_AES_128_CBC_SHA256
+SSL_DH_anon_WITH_AES_128_CBC_SHA
+SSL_ECDHE_ECDSA_WITH_NULL_SHA
+SSL_ECDHE_RSA_WITH_NULL_SHA
+SSL_RSA_WITH_NULL_SHA256
+SSL_RSA_WITH_NULL_SHA
+SSL_RSA_WITH_NULL_MD5
+SSL_ECDH_ECDSA_WITH_NULL_SHA
+SSL_ECDH_RSA_WITH_NULL_SHA
+SSL_ECDH_anon_WITH_NULL_SHA
+SSL_EMPTY_RENEGOTIATION_INFO_SCSV

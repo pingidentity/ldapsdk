@@ -49,6 +49,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -118,7 +119,34 @@ public final class TLSCipherSuiteComparatorTestCase
     // Make sure that the sorted list is in the expected order.
     final List<String> sortedCipherSuiteList =
          new ArrayList<>(sortedCipherSuiteSet);
-    assertEquals(sortedCipherSuiteList, expectedCipherSuiteOrder);
+    if (! sortedCipherSuiteList.equals(expectedCipherSuiteOrder))
+    {
+      final StringBuilder errorMessage = new StringBuilder();
+      errorMessage.append("The expected order did not match the computed " +
+           "order.");
+      errorMessage.append(StaticUtils.EOL);
+      errorMessage.append(StaticUtils.EOL);
+      errorMessage.append("Expected order:");
+      errorMessage.append(StaticUtils.EOL);
+      errorMessage.append(StaticUtils.EOL);
+      for (final String s : expectedCipherSuiteOrder)
+      {
+        errorMessage.append(s);
+        errorMessage.append(StaticUtils.EOL);
+      }
+
+      errorMessage.append(StaticUtils.EOL);
+      errorMessage.append("Computed order:");
+      errorMessage.append(StaticUtils.EOL);
+      errorMessage.append(StaticUtils.EOL);
+      for (final String s : sortedCipherSuiteList)
+      {
+        errorMessage.append(s);
+        errorMessage.append(StaticUtils.EOL);
+      }
+
+      fail(errorMessage.toString());
+    }
   }
 
 
@@ -164,6 +192,16 @@ public final class TLSCipherSuiteComparatorTestCase
       new Object[]
       {
         "java-13-tls-cipher-suites.txt"
+      },
+
+      new Object[]
+      {
+        "java-8-tls-cipher-suites-all-ssl-prefixes.txt"
+      },
+
+      new Object[]
+      {
+        "java-13-tls-cipher-suites-all-ssl-prefixes.txt"
       }
     };
   }

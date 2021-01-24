@@ -242,15 +242,26 @@ public final class TLSCipherSuiteSelector
       final TreeSet<String> defaultSet =
            new TreeSet<>(TLSCipherSuiteComparator.getInstance());
       defaultSet.addAll(Arrays.asList(defaultParameters.getCipherSuites()));
-      defaultCipherSuites = Collections.unmodifiableSortedSet(supportedSet);
+      defaultCipherSuites = Collections.unmodifiableSortedSet(defaultSet);
 
       final ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
            selectedPair = selectCipherSuites(
-           supportedParameters.getCipherSuites());
-      recommendedCipherSuites =
-           Collections.unmodifiableSortedSet(selectedPair.getFirst());
-      nonRecommendedCipherSuites =
-           Collections.unmodifiableSortedMap(selectedPair.getSecond());
+                supportedParameters.getCipherSuites());
+      if (selectedPair.getFirst().isEmpty())
+      {
+        // We couldn't identify any recommended suites.  Just fall back on the
+        // JVM-default suites.
+        recommendedCipherSuites = defaultCipherSuites;
+        nonRecommendedCipherSuites = Collections.unmodifiableSortedMap(
+             new TreeMap<String,List<String>>());
+      }
+      else
+      {
+        recommendedCipherSuites =
+             Collections.unmodifiableSortedSet(selectedPair.getFirst());
+        nonRecommendedCipherSuites =
+             Collections.unmodifiableSortedMap(selectedPair.getSecond());
+      }
 
       recommendedCipherSuiteArray =
            recommendedCipherSuites.toArray(StaticUtils.NO_STRINGS);
@@ -379,14 +390,48 @@ public final class TLSCipherSuiteSelector
   static ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
        selectCipherSuites(@NotNull final String[] cipherSuiteArray)
   {
+    return selectCipherSuites(cipherSuiteArray, false);
+  }
+
+
+
+  /**
+   * Organizes the provided set of cipher suites into recommended and
+   * non-recommended sets.
+   *
+   * @param  cipherSuiteArray  An array of the cipher suites to be organized.
+   * @param  includeSSLSuites  Indicates whether to allow suites that start
+   *                           with "SSL_".  If this is {@code false} (which
+   *                           should be the case for all calls to this method
+   *                           that don't come directly from this method), then
+   *                           only suites that start with "TLS_" will be
+   *                           included.  If this is {@code true}, then suites
+   *                           that start with "SSL_" may be included.  This is
+   *                           necessary because some JVMs (for example, the IBM
+   *                           JVM) only report suites that start with "SSL_"
+   *                           and none with "TLS_".  In that case, we'll rely
+   *                           only on other logic to determine which suites to
+   *                           recommend and which to exclude.
+   *
+   * @return  An object pair in which the first element is the sorted set of
+   *          recommended cipher suites, and the second element is the sorted
+   *          map of non-recommended cipher suites and the reasons they are not
+   *          recommended for use.
+   */
+  @NotNull()
+  private static ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
+               selectCipherSuites(@NotNull final String[] cipherSuiteArray,
+                                 final boolean includeSSLSuites)
+  {
     final SortedSet<String> recommendedSet =
          new TreeSet<>(TLSCipherSuiteComparator.getInstance());
     final SortedMap<String,List<String>> nonRecommendedMap =
          new TreeMap<>(TLSCipherSuiteComparator.getInstance());
 
+    boolean anyTLSSuitesFound = false;
     for (final String cipherSuiteName : cipherSuiteArray)
     {
-      final String name =
+      String name =
            StaticUtils.toUpperCase(cipherSuiteName).replace('-', '_');
 
       // Signalling cipher suite values (which indicate capabilities of the
@@ -401,13 +446,22 @@ public final class TLSCipherSuiteSelector
 
       // Only cipher suites using the TLS protocol will be accepted.
       final List<String> nonRecommendedReasons = new ArrayList<>(5);
-      if (name.startsWith("SSL_"))
+      if (name.startsWith("SSL_") && (! includeSSLSuites))
       {
         nonRecommendedReasons.add(
              ERR_TLS_CIPHER_SUITE_SELECTOR_LEGACY_SSL_PROTOCOL.get());
       }
-      else if (name.startsWith("TLS_"))
+      else if (name.startsWith("TLS_") || name.startsWith("SSL_"))
       {
+        if (name.startsWith("TLS_"))
+        {
+          anyTLSSuitesFound = true;
+        }
+        else
+        {
+          name = "TLS_" + name.substring(4);
+        }
+
         // Only TLS cipher suites using a recommended key exchange algorithm
         // will be accepted.
         if (name.startsWith("TLS_AES_") ||
@@ -564,6 +618,15 @@ public final class TLSCipherSuiteSelector
         nonRecommendedMap.put(cipherSuiteName,
              Collections.unmodifiableList(nonRecommendedReasons));
       }
+    }
+
+    if (recommendedSet.isEmpty() && (! anyTLSSuitesFound) &&
+         (! includeSSLSuites))
+    {
+      // We didn't find any suite names starting with "TLS_".  Assume that the
+      // JVM only reports suites that start with "SSL_" and try again, allowing
+      // those suites.
+      return selectCipherSuites(cipherSuiteArray, true);
     }
 
     return new ObjectPair<>(recommendedSet, nonRecommendedMap);

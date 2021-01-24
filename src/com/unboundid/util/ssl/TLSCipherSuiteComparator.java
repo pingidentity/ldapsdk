@@ -63,6 +63,21 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   </LI>
  *
  *   <LI>
+ *     Cipher suite names that contain "_NULL" will be ordered after those that
+ *     do not.
+ *   </LI>
+ *
+ *   <LI>
+ *     Cipher suite names that contain "_ANON" will be ordered after those that
+ *     do not.
+ *   </LI>
+ *
+ *   <LI>
+ *     Cipher suite names that contain "_EXPORT" will be ordered after those
+ *     that do not.
+ *   </LI>
+ *
+ *   <LI>
  *     Cipher suites will be ordered according to their prefix, as follows:
  *     <UL>
  *       <LI>
@@ -228,6 +243,13 @@ public final class TLSCipherSuiteComparator
       return scsvOrder;
     }
 
+    final int explicitlyWeakOrder =
+         getExplicitlyWeakOrder(cipherSuiteName1, cipherSuiteName2);
+    if (explicitlyWeakOrder != 0)
+    {
+      return explicitlyWeakOrder;
+    }
+
     final int prefixOrder = getPrefixOrder(cipherSuiteName1, cipherSuiteName2);
     if (prefixOrder != 0)
     {
@@ -296,6 +318,68 @@ public final class TLSCipherSuiteComparator
 
 
   /**
+   * Attempts to order the provided cipher suite names by whether the use a
+   * null component. anonymous authentication, or export-grade encryption.
+   *
+   * @param  cipherSuiteName1  The first cipher suite name to compare.  It must
+   *                           not be {@code null}, and it should represent a
+   *                           valid cipher suite name.
+   * @param  cipherSuiteName2  The second cipher suite name to compare.  It must
+   *                           not be {@code null}, and it should represent a
+   *                           valid cipher suite name.
+   *
+   * @return  A negative integer value if the first cipher suite name should be
+   *          ordered before the second, a positive integer value if the first
+   *          cipher suite should be ordered after the second, or zero if they
+   *          are considered logically equivalent for the purposes of this
+   *          method.
+   */
+  private static int getExplicitlyWeakOrder(
+               @NotNull final String cipherSuiteName1,
+               @NotNull final String cipherSuiteName2)
+  {
+    if (cipherSuiteName1.contains("_NULL"))
+    {
+      if (! cipherSuiteName2.contains("_NULL"))
+      {
+        return 1;
+      }
+    }
+    else if (cipherSuiteName2.contains("_NULL"))
+    {
+      return -1;
+    }
+
+    if (cipherSuiteName1.contains("_ANON"))
+    {
+      if (! cipherSuiteName2.contains("_ANON"))
+      {
+        return 1;
+      }
+    }
+    else if (cipherSuiteName2.contains("_ANON"))
+    {
+      return -1;
+    }
+
+    if (cipherSuiteName1.contains("_EXPORT"))
+    {
+      if (! cipherSuiteName2.contains("_EXPORT"))
+      {
+        return 1;
+      }
+    }
+    else if (cipherSuiteName2.contains("_EXPORT"))
+    {
+      return -1;
+    }
+
+    return 0;
+  }
+
+
+
+  /**
    * Attempts to order the provided cipher suite names using the protocol and
    * key agreement algorithm.
    *
@@ -356,17 +440,53 @@ public final class TLSCipherSuiteComparator
     {
       return 5;
     }
-    else if (cipherSuiteName.startsWith("TLS_"))
+    else if (cipherSuiteName.startsWith("TLS_ECDH_"))
     {
       return 6;
     }
-    else if (cipherSuiteName.startsWith("SSL_"))
+    else if (cipherSuiteName.startsWith("TLS_DH_"))
     {
       return 7;
     }
-    else
+    else if (cipherSuiteName.startsWith("TLS_"))
     {
       return 8;
+    }
+    if (cipherSuiteName.startsWith("SSL_AES_"))
+    {
+      return 9;
+    }
+    else if (cipherSuiteName.startsWith("SSL_CHACHA20_"))
+    {
+      return 10;
+    }
+    else if (cipherSuiteName.startsWith("SSL_ECDHE_"))
+    {
+      return 11;
+    }
+    else if (cipherSuiteName.startsWith("SSL_DHE_"))
+    {
+      return 12;
+    }
+    else if (cipherSuiteName.startsWith("SSL_RSA_"))
+    {
+      return 13;
+    }
+    else if (cipherSuiteName.startsWith("SSL_ECDH_"))
+    {
+      return 14;
+    }
+    else if (cipherSuiteName.startsWith("SSL_DH_"))
+    {
+      return 15;
+    }
+    else if (cipherSuiteName.startsWith("SSL_"))
+    {
+      return 16;
+    }
+    else
+    {
+      return 17;
     }
   }
 

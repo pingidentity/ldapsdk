@@ -24,6 +24,33 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the TLS cipher suite selector to improve compatibility with JVMs that
+                  report all cipher suite names starting with "SSL_".  Previously, the LDAP SDK
+                  assumed that modern TLS cipher suite names would always start with "TLS_" and
+                  only legacy SSL suite names would start with "SSL_".  However, some JVMs (like
+                  the one maintained by IBM) use the "SSL_" prefix for all TLS cipher suite names,
+                  regardless of the protocol with which they are intended to be used.  In such
+                  cases, the LDAP SDK would previously not identify any recommended suites, which
+                  would prevent the SSLUtil helper class from establishing secure connections, but
+                  it will now fall back to allowing suite names that start with "SSL_" as long as
+                  they do not meet any other criteria for exclusion.  Further, if the cipher suite
+                  selector is still unable to identify any recommended suites, it will now fall
+                  back to using the JVM-default set of enabled suites.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the order in which the LDAP SDK returns the names of the recommended
+                  cipher suites chosen by the TLS cipher suite selector.  It now uses more
+                  fine-grained ordering based on the key agreement for cipher suites with the
+                  "SSL" protocol.  It will also order suites that use null encryption after those
+                  that do not, will order suites that use anonymous authentication after those
+                  that do not, and will order suites that use export-grade encryption after those
+                  that do not.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ldifmodify command-line tool to add support for ignoring duplicate
                   attempts to delete the same entry, as well as attempts to delete or modify
                   entries that do not exist in the source LDIF file.
