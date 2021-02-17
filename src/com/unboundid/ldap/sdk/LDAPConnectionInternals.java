@@ -607,6 +607,38 @@ final class LDAPConnectionInternals
     try
     {
       final OutputStream os = outputStream;
+      if (os == null)
+      {
+        // If the message was an unbind request, then we don't care that it
+        // didn't get sent.  Otherwise, fail the send attempt but try to
+        // reconnect first if appropriate.
+        if (message.getProtocolOpType() ==
+             LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST)
+        {
+          return;
+        }
+
+        final boolean closeRequested = connection.closeRequested();
+        if (allowRetry && (! closeRequested) &&
+             (! connection.synchronousMode()))
+        {
+          connection.reconnect();
+
+          try
+          {
+            sendMessage(message, sendTimeoutMillis, false);
+            return;
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+          }
+        }
+
+        throw new LDAPException(ResultCode.SERVER_DOWN,
+             ERR_CONN_SEND_ERROR_NOT_ESTABLISHED.get(host, port));
+      }
+
       if (saslClient == null)
       {
         buffer.writeTo(os);
@@ -628,6 +660,11 @@ final class LDAPConnectionInternals
         os.write(saslBytes);
       }
       os.flush();
+    }
+    catch (final LDAPException e)
+    {
+      Debug.debugException(e);
+      throw e;
     }
     catch (final IOException ioe)
     {
