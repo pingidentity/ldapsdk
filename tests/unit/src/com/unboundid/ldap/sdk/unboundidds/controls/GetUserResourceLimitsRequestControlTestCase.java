@@ -41,8 +41,10 @@ import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.RootDSE;
 
 
 
@@ -75,6 +77,8 @@ public final class GetUserResourceLimitsRequestControlTestCase
 
     assertNull(c.getValue());
 
+    assertFalse(c.excludeGroups());
+
     assertNotNull(c.getControlName());
 
     assertNotNull(c.toString());
@@ -83,15 +87,73 @@ public final class GetUserResourceLimitsRequestControlTestCase
 
 
   /**
-   * Tests the behavior when trying to decode a control that has a value.
+   * Provides test coverage for the case in which group information should be
+   * excluded from the response.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeGroups()
+         throws Exception
+  {
+    GetUserResourceLimitsRequestControl c =
+         new GetUserResourceLimitsRequestControl(false, true);
+
+    c = new GetUserResourceLimitsRequestControl(c);
+    assertNotNull(c);
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.25");
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertTrue(c.excludeGroups());
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control that has a malformed
+   * value.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(expectedExceptions = { LDAPException.class })
-  public void testDecodeControlWithValue()
+  public void testDecodeControlWithMalformedValue()
          throws Exception
   {
     new GetUserResourceLimitsRequestControl(
          new Control("1.2.3.4", false, new ASN1OctetString("foo")));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code serverAdvertisesExcludeGroupsFeature}
+   * method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAdvertisesExcludeGroupsFeature()
+         throws Exception
+  {
+    final RootDSE defaultRootDSE = getTestDS().getRootDSE();
+    assertNotNull(defaultRootDSE);
+    assertFalse(GetUserResourceLimitsRequestControl.
+         serverAdvertisesExcludeGroupsFeature(defaultRootDSE));
+
+    final Entry updatedRootDSEEntry = defaultRootDSE.duplicate();
+    updatedRootDSEEntry.addAttribute(RootDSE.ATTR_SUPPORTED_FEATURE,
+         "1.3.6.1.4.1.30221.2.12.6");
+    final RootDSE updatedRootDSE = new RootDSE(updatedRootDSEEntry);
+    assertTrue(GetUserResourceLimitsRequestControl.
+         serverAdvertisesExcludeGroupsFeature(updatedRootDSE));
   }
 }

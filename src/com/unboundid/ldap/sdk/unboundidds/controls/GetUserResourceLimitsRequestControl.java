@@ -37,11 +37,19 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.asn1.ASN1Boolean;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.RootDSE;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -67,8 +75,22 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
- * This control does not have a value.  The criticality may be either
- * {@code true} or {@code false}.
+ * The criticality for this control may be either {@code true} or {@code false}.
+ * It may optionally have a value, although it should only have a value if the
+ * server advertises OID "1.3.6.1.4.1.30221.2.12.6"
+ * ({@link #EXCLUDE_GROUPS_FEATURE_OID}) in the supportedFeatures attribute of
+ * its root DSE.  The {@link #serverAdvertisesExcludeGroupsFeature} method can
+ * help clients make that determination.
+ * <BR><BR>
+ * If the control does have a value, then it should use the following encoding:
+ * <PRE>
+ *   GetUserResourceLimitsRequest ::= SEQUENCE {
+ *        excludeGroups     [0] BOOLEAN DEFAULT FALSE,
+ *        ... }
+ * </PRE>
+ * <BR><BR>
+ * If the control does not have a value, then the server will assume the default
+ * behavior for all elements that would be in the value.
  *
  * @see GetUserResourceLimitsResponseControl
  */
@@ -87,9 +109,34 @@ public final class GetUserResourceLimitsRequestControl
 
 
   /**
+   * The OID (1.3.6.1.4.1.30221.2.12.6) for the supportedFeature value that a
+   * server should advertise in its root DSE if it supports a value indicating
+   * that the server allows the control to include a value that indicates it
+   * should omit group membership information from the response control.
+   */
+  @NotNull public static final String EXCLUDE_GROUPS_FEATURE_OID =
+       "1.3.6.1.4.1.30221.2.12.6";
+
+
+
+  /**
+   * The BER type for the request value element that indicates whether groups
+   * should be excluded from the response control.
+   */
+  private static final byte TYPE_EXCLUDE_GROUPS = (byte) 0x80;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 3355139762944763749L;
+  private static final long serialVersionUID = -4349321415426346390L;
+
+
+
+  // Indicates whether the server should exclude information about group
+  // membership from the response control.
+  private final boolean excludeGroups;
 
 
 
@@ -113,7 +160,60 @@ public final class GetUserResourceLimitsRequestControl
    */
   public GetUserResourceLimitsRequestControl(final boolean isCritical)
   {
-    super(GET_USER_RESOURCE_LIMITS_REQUEST_OID, isCritical,  null);
+    this(false, false);
+  }
+
+
+
+  /**
+   * Creates a new get user resource limits request control with the specified
+   * criticality.
+   *
+   * @param  isCritical     Indicates whether this control should be marked
+   *                        critical.
+   * @param  excludeGroups  Indicates whether the server should exclude
+   *                        information about group membership from the response
+   *                        control.  This should generally only be {@code true}
+   *                        if the client has confirmed that the server supports
+   *                        this ability, which may be determined using the
+   *                        {@link #serverAdvertisesExcludeGroupsFeature}
+   *                        method.
+   */
+  public GetUserResourceLimitsRequestControl(final boolean isCritical,
+                                             final boolean excludeGroups)
+  {
+    super(GET_USER_RESOURCE_LIMITS_REQUEST_OID, isCritical,
+         encodeValue(excludeGroups));
+
+    this.excludeGroups = excludeGroups;
+  }
+
+
+
+  /**
+   * Encodes a value for this control, if appropriate.
+   *
+   * @param  excludeGroups  Indicates whether the server should exclude
+   *                        information about group membership from the response
+   *                        control.  This should generally only be {@code true}
+   *                        if the client has confirmed that the server supports
+   *                        this ability, which may be determined using the
+   *                        {@link #serverAdvertisesExcludeGroupsFeature}
+   *                        method.
+   *
+   * @return  A value for this control, or {@code null} if no value is needed.
+   */
+  @Nullable()
+  private static ASN1OctetString encodeValue(final boolean excludeGroups)
+  {
+    if (excludeGroups)
+    {
+      return new ASN1OctetString(
+           new ASN1Sequence(
+                new ASN1Boolean(TYPE_EXCLUDE_GROUPS, true)).encode());
+    }
+
+    return null;
   }
 
 
@@ -133,11 +233,75 @@ public final class GetUserResourceLimitsRequestControl
   {
     super(control);
 
-    if (control.hasValue())
+    final ASN1OctetString value = control.getValue();
+    if (value == null)
     {
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_GET_USER_RESOURCE_LIMITS_REQUEST_HAS_VALUE.get());
+      excludeGroups = false;
+      return;
     }
+
+    try
+    {
+      boolean excludeGroupsMutable = false;
+      final ASN1Sequence valueSequence =
+           ASN1Sequence.decodeAsSequence(value.getValue());
+      for (final ASN1Element e : valueSequence.elements())
+      {
+        switch (e.getType())
+        {
+          case TYPE_EXCLUDE_GROUPS:
+            excludeGroupsMutable =
+                 ASN1Boolean.decodeAsBoolean(e).booleanValue();
+            break;
+        }
+      }
+
+      excludeGroups = excludeGroupsMutable;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_USER_RESOURCE_LIMITS_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the control requests that the server exclude information
+   * about group membership from the corresponding response control.
+   *
+   * @return  {@code true} if the server should exclude information about group
+   *          membership from the response control, or {@code false} if not.
+   */
+  public boolean excludeGroups()
+  {
+    return excludeGroups;
+  }
+
+
+
+  /**
+   * Indicates whether the provided root DSE advertises support for a feature
+   * that indicates it is acceptable for the client to request that the server
+   * omit group membership information from the corresponding response
+   * control.
+   *
+   * @param  rootDSE  An object with information from the root DSE of the server
+   *                  for which to make the determination.  It must not be
+   *                  {@code null}.
+   *
+   * @return  {@code true} if the provided root DSE object indicates that the
+   *          server supports clients requesting to exclude group membership
+   *          information from the response control, or {@code false} if not.
+   */
+  public static boolean serverAdvertisesExcludeGroupsFeature(
+              @NotNull final RootDSE rootDSE)
+  {
+    return rootDSE.supportsFeature(EXCLUDE_GROUPS_FEATURE_OID);
   }
 
 
@@ -162,6 +326,8 @@ public final class GetUserResourceLimitsRequestControl
   {
     buffer.append("GetUserResourceLimitsRequestControl(isCritical=");
     buffer.append(isCritical());
+    buffer.append(", excludeGroups=");
+    buffer.append(excludeGroups);
     buffer.append(')');
   }
 }
