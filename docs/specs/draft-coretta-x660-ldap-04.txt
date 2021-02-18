@@ -1,15 +1,15 @@
 
 
 X660LDAP                                                      J. Coretta
-Internet-Draft                                          January 31, 2021
+Internet-Draft                                         February 17, 2021
 Intended status: Standards Track
-Expires: July 31, 2021
+Expires: August 17, 2021
 
 
            Lightweight Directory Access Protocol (LDAP)
              Procedures and Schema Definitions for the
              Storage of X.660 Registration Information
-                  draft-coretta-x660-ldap-03.txt
+                  draft-coretta-x660-ldap-04.txt
 
 Abstract
 
@@ -32,7 +32,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 31, 2021.
+   This Internet-Draft will expire on August 17, 2021.
 
 Copyright Notice
 
@@ -55,9 +55,9 @@ Copyright Notice
 
 
 
-Coretta                   Expires July 31, 2021                 [Page 1]
+Coretta                   Expires August 17, 2021               [Page 1]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 Table of Contents
@@ -113,9 +113,9 @@ Table of Contents
          2.1.40. 'arcRegDefaultPostOfficeBox' ........................18
          2.1.41. 'arcRegSponsorPostOfficeBox' ........................18
 
-Coretta                   Expires July 31, 2021                 [Page 2]
+Coretta                   Expires August 17, 2021               [Page 2]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
          2.1.42. 'arcRegAuthorityPostalAddress' ......................18
@@ -139,7 +139,7 @@ Coretta                   Expires July 31, 2021                 [Page 2]
       2.2. Object Classes ............................................24
          2.2.1. 'x660RootArcEntry' ...................................24
          2.2.2. 'x660ArcEntry' .......................................24
-         2.2.3. 'x660RegistrationEntry' ..............................25
+         2.2.3. 'x660ContactEntry' ...................................25
    3. Directory Models ...............................................25
       3.1. Naming Context and Organization Entries ...................25
       3.2. Two-Dimensional Model .....................................26
@@ -171,9 +171,9 @@ Coretta                   Expires July 31, 2021                 [Page 2]
 
 
 
-Coretta                   Expires July 31, 2021                 [Page 3]
+Coretta                   Expires August 17, 2021               [Page 3]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 1.1.  Conventions
@@ -229,9 +229,9 @@ Coretta                   Expires July 31, 2021                 [Page 3]
 
      - 1.3.6.1.4.1.56521.101.2.2 (object classes OID)
 
-Coretta                   Expires July 31, 2021                 [Page 4]
+Coretta                   Expires August 17, 2021               [Page 4]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 1.6.  Well-Known OIDs
@@ -287,9 +287,9 @@ Coretta                   Expires July 31, 2021                 [Page 4]
 
 
 
-Coretta                   Expires July 31, 2021                 [Page 5]
+Coretta                   Expires August 17, 2021               [Page 5]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.1
@@ -345,9 +345,9 @@ Coretta                   Expires July 31, 2021                 [Page 5]
 
 
 
-Coretta                   Expires July 31, 2021                 [Page 6]
+Coretta                   Expires August 17, 2021               [Page 6]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.4
@@ -403,9 +403,9 @@ Coretta                   Expires July 31, 2021                 [Page 6]
 
 
 
-Coretta                   Expires July 31, 2021                 [Page 7]
+Coretta                   Expires August 17, 2021               [Page 7]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 2.1.8.  'arcSponsorContact'
@@ -461,9 +461,9 @@ Coretta                   Expires July 31, 2021                 [Page 7]
         SUP description )
 
 
-Coretta                   Expires July 31, 2021                 [Page 8]
+Coretta                   Expires August 17, 2021               [Page 8]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 2.1.12.  'arcRegId'
@@ -519,9 +519,9 @@ Coretta                   Expires July 31, 2021                 [Page 8]
    entirely up to the directory architect(s) involved.
 
 
-Coretta                   Expires July 31, 2021                 [Page 9]
+Coretta                   Expires August 17, 2021               [Page 9]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.14
@@ -533,7 +533,7 @@ Coretta                   Expires July 31, 2021                 [Page 9]
 2.1.15.  'arcRegAuthorityCommonName'
 
    The 'arcRegAuthorityCommonName' attribute type allows for a common
-   name to be assigned to a arc registration entry, meant to represent
+   name to be assigned to an arc registration entry, meant to represent
    the name of an authoritative contact, typically an individual.
 
    This attribute type is derived from 'cn', as defined in Section 2.3
@@ -565,7 +565,7 @@ Coretta                   Expires July 31, 2021                 [Page 9]
 2.1.17.  'arcRegSponsorCommonName'
 
    The 'arcRegSponsorCommonName' attribute type allows for a common name
-   to be assigned to a arc registration entry, meant to represent the
+   to be assigned to an arc registration entry, meant to represent the
    name of a sponsorship contact, typically an individual.
 
    This attribute type is derived from 'cn', as defined in Section 2.3
@@ -577,9 +577,9 @@ Coretta                   Expires July 31, 2021                 [Page 9]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 10]
+Coretta                   Expires August 17, 2021              [Page 10]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.17
@@ -592,7 +592,7 @@ Coretta                   Expires July 31, 2021                [Page 10]
 2.1.18.  'arcRegAuthorityCountry'
 
    The 'arcRegAuthorityCountry' attribute type allows for a country code
-   to be assigned to a arc registration entry, meant to represent the
+   to be assigned to an arc registration entry, meant to represent the
    country in which an authoritative contact resides.
 
    This attribute type is derived from 'c', as defined in Section 2.2
@@ -608,7 +608,7 @@ Coretta                   Expires July 31, 2021                [Page 10]
 2.1.19.  'arcRegDefaultCountry'
 
    The 'arcRegDefaultCountry' attribute type allows for a country code
-   to be assigned to a arc registration entry, meant to represent the
+   to be assigned to an arc registration entry, meant to represent the
    country in which a default contact resides.
 
    This attribute type is derived from 'c', as defined in Section 2.2
@@ -624,7 +624,7 @@ Coretta                   Expires July 31, 2021                [Page 10]
 2.1.20.  'arcRegSponsorCountry'
 
    The 'arcRegSponsorCountry' attribute type allows for a country code
-   to be assigned to a arc registration entry, meant to represent the
+   to be assigned to an arc registration entry, meant to represent the
    country in which a sponsorship contact resides.
 
    This attribute type is derived from 'c', as defined in Section 2.2
@@ -635,9 +635,9 @@ Coretta                   Expires July 31, 2021                [Page 10]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 11]
+Coretta                   Expires August 17, 2021              [Page 11]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.20
@@ -650,7 +650,7 @@ Coretta                   Expires July 31, 2021                [Page 11]
 2.1.21.  'arcRegAuthorityEmail'
 
    The 'arcRegAuthorityEmail' attribute type allows for an email address
-   to be assigned to a arc registration entry, meant to be associated
+   to be assigned to an arc registration entry, meant to be associated
    with an authoritative contact.
 
    This attribute type is derived from 'mail', as defined in Section
@@ -666,7 +666,7 @@ Coretta                   Expires July 31, 2021                [Page 11]
 2.1.22.  'arcRegDefaultEmail'
 
    The 'arcRegDefaultEmail' attribute type allows for an email address
-   to be assigned to a arc registration entry, meant to be associated
+   to be assigned to an arc registration entry, meant to be associated
    with a default contact.
 
    This attribute type is derived from 'mail', as defined in Section
@@ -682,7 +682,7 @@ Coretta                   Expires July 31, 2021                [Page 11]
 2.1.23.  'arcRegSponsorEmail'
 
    The 'arcRegSponsorEmail' attribute type allows for an email address
-   to be assigned to a arc registration entry, meant to be associated
+   to be assigned to an arc registration entry, meant to be associated
    with a sponsorship contact.
 
    This attribute type is derived from 'mail', as defined in Section
@@ -693,9 +693,9 @@ Coretta                   Expires July 31, 2021                [Page 11]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 12]
+Coretta                   Expires August 17, 2021              [Page 12]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.23
@@ -708,7 +708,7 @@ Coretta                   Expires July 31, 2021                [Page 12]
 2.1.24.  'arcRegAuthorityFax'
 
    The 'arcRegAuthorityFax' attribute type allows for an email address
-   to be assigned to a arc registration entry, meant to be associated
+   to be assigned to an arc registration entry, meant to be associated
    with an authoritative contact.
 
    This attribute type is derived from 'facsimileTelephoneNumber', as
@@ -724,7 +724,7 @@ Coretta                   Expires July 31, 2021                [Page 12]
 2.1.25.  'arcRegDefaultFax'
 
    The 'arcRegDefaultFax' attribute type allows for an email address
-   to be assigned to a arc registration entry, meant to be associated
+   to be assigned to an arc registration entry, meant to be associated
    with a default contact.
 
    This attribute type is derived from 'facsimileTelephoneNumber', as
@@ -740,7 +740,7 @@ Coretta                   Expires July 31, 2021                [Page 12]
 2.1.26.  'arcRegSponsorFax'
 
    The 'arcRegSponsorFax' attribute type allows for an email address
-   to be assigned to a arc registration entry, meant to be associated
+   to be assigned to an arc registration entry, meant to be associated
    with a sponsorship contact.
 
    This attribute type is derived from 'facsimileTelephoneNumber', as
@@ -751,9 +751,9 @@ Coretta                   Expires July 31, 2021                [Page 12]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 13]
+Coretta                   Expires August 17, 2021              [Page 13]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.26
@@ -809,9 +809,9 @@ Coretta                   Expires July 31, 2021                [Page 13]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 14]
+Coretta                   Expires August 17, 2021              [Page 14]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.29
@@ -867,9 +867,9 @@ Coretta                   Expires July 31, 2021                [Page 14]
         SUP l )
 
 
-Coretta                   Expires July 31, 2021                [Page 15]
+Coretta                   Expires August 17, 2021              [Page 15]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 2.1.33.  'arcRegAuthorityMobile'
@@ -925,9 +925,9 @@ Coretta                   Expires July 31, 2021                [Page 15]
    This attribute type is derived from 'o', as defined in Section 2.19
    of [RFC4519].
 
-Coretta                   Expires July 31, 2021                [Page 16]
+Coretta                   Expires August 17, 2021              [Page 16]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
      ( 1.3.6.1.4.1.56521.101.2.1.36
         NAME 'arcRegAuthorityOrg'
@@ -983,9 +983,9 @@ Coretta                   Expires July 31, 2021                [Page 16]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 17]
+Coretta                   Expires August 17, 2021              [Page 17]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 2.1.40.  'arcRegDefaultPostOfficeBox'
@@ -1041,9 +1041,9 @@ Coretta                   Expires July 31, 2021                [Page 17]
    This attribute type is derived from 'postalAddress', as defined in
    Section 2.23 of [RFC4519].
 
-Coretta                   Expires July 31, 2021                [Page 18]
+Coretta                   Expires August 17, 2021              [Page 18]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.43
@@ -1099,9 +1099,9 @@ Coretta                   Expires July 31, 2021                [Page 18]
         SUP postalCode )
 
 
-Coretta                   Expires July 31, 2021                [Page 19]
+Coretta                   Expires August 17, 2021              [Page 19]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 2.1.47.  'arcRegSponsorPostalCode'
@@ -1157,9 +1157,9 @@ Coretta                   Expires July 31, 2021                [Page 19]
    This attribute type is derived from 'st', as defined in Section 2.33
    of [RFC4519].
 
-Coretta                   Expires July 31, 2021                [Page 20]
+Coretta                   Expires August 17, 2021              [Page 20]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.50
@@ -1215,9 +1215,9 @@ Coretta                   Expires July 31, 2021                [Page 20]
         SUP street )
 
 
-Coretta                   Expires July 31, 2021                [Page 21]
+Coretta                   Expires August 17, 2021              [Page 21]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 2.1.54.  'arcRegAuthorityTelephone'
@@ -1273,9 +1273,9 @@ Coretta                   Expires July 31, 2021                [Page 21]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 22]
+Coretta                   Expires August 17, 2021              [Page 22]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
    This attribute type is derived from 'title', as defined in Section
@@ -1331,9 +1331,9 @@ Coretta                   Expires July 31, 2021                [Page 22]
    (3) root arcs within a DIT, per Rec. ITU-T X.660 (ISO/IEC 9834-1).
 
 
-Coretta                   Expires July 31, 2021                [Page 23]
+Coretta                   Expires August 17, 2021              [Page 23]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.2.1
@@ -1366,9 +1366,9 @@ Coretta                   Expires July 31, 2021                [Page 23]
                arcDefaultContact $ arcDescription $ arcModifyTimestamp $
                arcCreateTimestamp $ arcId ) )
 
-2.2.3.  'x660RegistrationEntry'
+2.2.3.  'x660ContactEntry'
 
-   The 'x660RegistrationEntry' object class allows generalized default,
+   The 'x660ContactEntry' object class allows generalized default,
    sponsor and/or authority contact information to be stored within an
    entry.
 
@@ -1389,13 +1389,13 @@ Coretta                   Expires July 31, 2021                [Page 23]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 24]
+Coretta                   Expires August 17, 2021              [Page 24]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.2.3
-         NAME 'x660RegistrationEntry'
+         NAME 'x660ContactEntry'
          DESC 'A generalized auxiliary class for X.660 arc registration
             default, sponsor and/or authority contact information'
          SUP top
@@ -1447,9 +1447,9 @@ Coretta                   Expires July 31, 2021                [Page 24]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 25]
+Coretta                   Expires August 17, 2021              [Page 25]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 3.2.  Two-Dimensional Model
@@ -1505,9 +1505,9 @@ Coretta                   Expires July 31, 2021                [Page 25]
    as sibling entries.  For example, the addition of deeper arcs would
    be procedurally identical:
 
-Coretta                   Expires July 31, 2021                [Page 26]
+Coretta                   Expires August 17, 2021              [Page 26]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
      dn: arcOID=1.3.6.1,ou=X660,dc=example,dc=com
@@ -1563,14 +1563,14 @@ Coretta                   Expires July 31, 2021                [Page 26]
    arc registration entries in "nested" fashion, thereby reflecting the
    hierarchy of the [X.660] specification itself.
 
-Coretta                   Expires July 31, 2021                [Page 27]
+Coretta                   Expires August 17, 2021              [Page 27]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
    This model is RECOMMENDED for thorough or complete implementations,
    or implementations in which custom solutions (applications) have been
-   tailored for this purpose. This model is NOT RECOMMENDED for sparse
+   tailored for this purpose.  This model is NOT RECOMMENDED for sparse
    and/or small implementations.
 
    Use of this model is entirely at the discretion of the directory
@@ -1621,9 +1621,9 @@ Coretta                   Expires July 31, 2021                [Page 27]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 28]
+Coretta                   Expires August 17, 2021              [Page 28]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 3.3.2.  Distinguished Name Convention
@@ -1679,9 +1679,9 @@ Coretta                   Expires July 31, 2021                [Page 28]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 29]
+Coretta                   Expires August 17, 2021              [Page 29]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
    Depending on the breadth and scope of an implementation, creation and
@@ -1697,7 +1697,7 @@ Coretta                   Expires July 31, 2021                [Page 29]
        the x660RootArcEntry or x660ArcEntry entries themselves, or ...
 
      - Store default, sponsor or authority contact information within
-       dedicated x660RegistrationEntry entries, and reference each
+       dedicated x660ContactEntry entries, and reference each
        entry by DN using arcDefaultContact, arcSponsorContact and/or
        arcAuthorityContact attribute types stored within an arc
        registration entry directly.
@@ -1711,7 +1711,7 @@ Coretta                   Expires July 31, 2021                [Page 29]
 
       dn: arcOID=1.3.6.1.4.1.56521,arc=1,ou=X660,dc=example,dc=com
       objectClass: x660ArcEntry
-      objectClass: x660RegistrationEntry
+      objectClass: x660ContactEntry
       objectClass: top
       arcRegAuthorityPostalAddress: 123 Fake St$Anywhere$CA$99999
       arcRegAuthorityCommonName: Jesse Coretta
@@ -1726,7 +1726,7 @@ Coretta                   Expires July 31, 2021                [Page 29]
       dn: arc=56521,arc=1,arc=4,arc=1,arc=6,arc=3,arc=1,ou=X660,
        dc=example,dc=com
       objectClass: x660ArcEntry
-      objectClass: x660RegistrationEntry
+      objectClass: x660ContactEntry
       objectClass: top
       arcRegAuthorityPostalAddress: 123 Fake St$Anywhere$CA$99999
       arcRegAuthorityCommonName: Jesse Coretta
@@ -1737,9 +1737,9 @@ Coretta                   Expires July 31, 2021                [Page 29]
 
 
 
-Coretta                   Expires July 31, 2021                [Page 30]
+Coretta                   Expires August 17, 2021              [Page 30]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 3.4.1.2.  Dedicated Contact Entries
@@ -1756,7 +1756,7 @@ Coretta                   Expires July 31, 2021                [Page 30]
       arcRegId: 2c68fc8a-ddec-45fd-9cd9-6a4f4382aee0
       cn: 2c68fc8a-ddec-45fd-9cd9-6a4f4382aee0
       objectClass: organizationalRole
-      objectClass: x660RegistrationEntry
+      objectClass: x660ContactEntry
       objectClass: top
       arcRegAuthorityPostalAddress: 123 Fake St$Anywhere$CA$99999
       arcRegAuthorityCommonName: Jesse Coretta
@@ -1771,7 +1771,7 @@ Coretta                   Expires July 31, 2021                [Page 30]
       arcRegId: 2c68fc8a-ddec-45fd-9cd9-6a4f4382aee0
       cn: 2c68fc8a-ddec-45fd-9cd9-6a4f4382aee0
       objectClass: organizationalRole
-      objectClass: x660RegistrationEntry
+      objectClass: x660ContactEntry
       objectClass: top
       arcRegAuthorityPostalAddress: 123 Fake St$Anywhere$CA$99999
       arcRegAuthorityCommonName: Jesse Coretta
@@ -1795,9 +1795,9 @@ Coretta                   Expires July 31, 2021                [Page 30]
               1990.
 
 
-Coretta                   Expires July 31, 2021                [Page 31]
+Coretta                   Expires August 17, 2021              [Page 31]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -1853,15 +1853,16 @@ Coretta                   Expires July 31, 2021                [Page 31]
 
    Beyond this, there are no specific concerns in the area of security.
 
-Coretta                   Expires July 31, 2021                [Page 32]
+Coretta                   Expires August 17, 2021              [Page 32]
 
-Internet-Draft        X.660 LDAP Schema and Models          January 2021
+Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
 Author's Address
 
    Jesse Coretta
    Palm Springs, CA 92262
+   United States
 
    Email: jesse.coretta@icloud.com
 
@@ -1911,4 +1912,4 @@ Author's Address
 
 
 
-Coretta                  Expires July 31, 2021                 [Page 33]
+Coretta                  Expires August 17, 2021               [Page 33]
