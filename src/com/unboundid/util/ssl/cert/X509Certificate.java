@@ -2437,6 +2437,52 @@ public final class X509Certificate
 
 
   /**
+   * Retrieves a hash code for this certificate.
+   *
+   * @return  A hash code for this certificate.
+   */
+  @Override()
+  public int hashCode()
+  {
+    return Arrays.hashCode(x509CertificateBytes);
+  }
+
+
+
+  /**
+   * Indicates whether the provided object is considered equal to this X.509
+   * certificate.
+   *
+   * @param  o  The object for which to make the determination.
+   *
+   * @return  {@code true} if the provided object is considered equal to this
+   *          X.509 certificate, or {@code false} if not.
+   */
+  @Override()
+  public boolean equals(@Nullable final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof X509Certificate))
+    {
+      return false;
+    }
+
+    final X509Certificate c = (X509Certificate) o;
+    return Arrays.equals(x509CertificateBytes, c.x509CertificateBytes);
+  }
+
+
+
+  /**
    * Retrieves a string representation of the decoded X.509 certificate.
    *
    * @return  A string representation of the decoded X.509 certificate.

@@ -51,6 +51,24 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new PEMFileKeyManager class that can be used as a Java X.509 key manager
+                  that reads the certificate chain and private key from PEM files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new PEMFileTrustManager class that can be used as a Java X.509 trust
+                  manager that reads information about trusted certificates from PEM files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added new X509PEMFileReader and PKCS8PEMFileReader classes that can be used to
+                  read PEM-formatted X.509 certificates and PKCS #8 private keys.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved an error message that could be used in an exception if a connection
                   becomes invalid in the course of trying to send a request to the server.
                   <br><br>
