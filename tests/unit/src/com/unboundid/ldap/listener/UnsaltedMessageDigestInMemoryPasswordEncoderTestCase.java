@@ -37,7 +37,6 @@ package com.unboundid.ldap.listener;
 
 
 
-import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.LDAPSDKRuntimeException;
 
 
@@ -71,7 +71,7 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoderTestCase
     final UnsaltedMessageDigestInMemoryPasswordEncoder encoder =
          new UnsaltedMessageDigestInMemoryPasswordEncoder("{SHA}",
               Base64PasswordEncoderOutputFormatter.getInstance(),
-              MessageDigest.getInstance("SHA-1"));
+              CryptoHelper.getMessageDigest("SHA-1"));
 
     assertNotNull(encoder.getPrefix());
     assertEquals(encoder.getPrefix(), "{SHA}");
@@ -131,7 +131,7 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoderTestCase
     final UnsaltedMessageDigestInMemoryPasswordEncoder encoder =
          new UnsaltedMessageDigestInMemoryPasswordEncoder("{SHA256}",
               HexPasswordEncoderOutputFormatter.getLowercaseInstance(),
-              MessageDigest.getInstance("SHA-256"));
+              CryptoHelper.getMessageDigest("SHA-256"));
 
     assertNotNull(encoder.getPrefix());
     assertEquals(encoder.getPrefix(), "{SHA256}");
@@ -190,7 +190,7 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoderTestCase
   {
     final UnsaltedMessageDigestInMemoryPasswordEncoder encoder =
          new UnsaltedMessageDigestInMemoryPasswordEncoder("{SHA512}", null,
-              MessageDigest.getInstance("SHA-512"));
+              CryptoHelper.getMessageDigest("SHA-512"));
 
     assertNotNull(encoder.getPrefix());
     assertEquals(encoder.getPrefix(), "{SHA512}");
@@ -267,7 +267,7 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoderTestCase
     final UnsaltedMessageDigestInMemoryPasswordEncoder encoder =
          new UnsaltedMessageDigestInMemoryPasswordEncoder("{SHA256}",
               HexPasswordEncoderOutputFormatter.getLowercaseInstance(),
-              MessageDigest.getInstance("SHA-256"));
+              CryptoHelper.getMessageDigest("SHA-256"));
 
     final ReadOnlyEntry userEntry =  new ReadOnlyEntry(
          "dn: uid=test.user,ou=People,dc=example,dc=com",
@@ -302,7 +302,7 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoderTestCase
     final UnsaltedMessageDigestInMemoryPasswordEncoder encoder =
          new UnsaltedMessageDigestInMemoryPasswordEncoder("{SHA256}",
               HexPasswordEncoderOutputFormatter.getLowercaseInstance(),
-              MessageDigest.getInstance("SHA-256"));
+              CryptoHelper.getMessageDigest("SHA-256"));
 
     final ReadOnlyEntry userEntry =  new ReadOnlyEntry(
          "dn: uid=test.user,ou=People,dc=example,dc=com",

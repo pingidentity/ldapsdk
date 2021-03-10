@@ -54,6 +54,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedRequest;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.StaticUtils;
 
 
@@ -79,7 +80,7 @@ public final class InMemoryDirectoryServerPasswordEncodingTestCase
     final InMemoryDirectoryServerConfig config =
          new InMemoryDirectoryServerConfig("dc=example,dc=com");
 
-    final MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+    final MessageDigest sha1Digest = CryptoHelper.getMessageDigest("SHA-1");
     config.setPasswordEncoders(
          new ClearInMemoryPasswordEncoder("{CLEAR}", null),
          new ClearInMemoryPasswordEncoder("{HEX}",
@@ -705,7 +706,7 @@ public final class InMemoryDirectoryServerPasswordEncodingTestCase
     final InMemoryDirectoryServerConfig config =
          new InMemoryDirectoryServerConfig("dc=example,dc=com");
 
-    final MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+    final MessageDigest sha1Digest = CryptoHelper.getMessageDigest("SHA-1");
     config.setPasswordAttributes();
     config.setPasswordEncoders(
          new ClearInMemoryPasswordEncoder("{CLEAR}", null),
@@ -804,7 +805,7 @@ public final class InMemoryDirectoryServerPasswordEncodingTestCase
     final InMemoryDirectoryServerConfig config =
          new InMemoryDirectoryServerConfig("dc=example,dc=com");
 
-    final MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+    final MessageDigest sha1Digest = CryptoHelper.getMessageDigest("SHA-1");
     config.setPasswordEncoders(
          null,
          new ClearInMemoryPasswordEncoder("{CLEAR}", null),

@@ -49,6 +49,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Destroyable;
 
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -197,7 +198,7 @@ public final class AES256EncodedPasswordSecretKey
               @NotNull final char[] encryptionSettingsDefinitionPassphrase)
          throws GeneralSecurityException
   {
-    final SecureRandom random = new SecureRandom();
+    final SecureRandom random = CryptoHelper.getSecureRandom();
     final byte[] keyFactorySalt =
          new byte[ENCODING_VERSION_0_KEY_FACTORY_SALT_LENGTH_BYTES];
     random.nextBytes(keyFactorySalt);
@@ -258,7 +259,7 @@ public final class AES256EncodedPasswordSecretKey
          ENCODING_VERSION_0_KEY_FACTORY_ITERATION_COUNT,
          ENCODING_VERSION_0_GENERATED_KEY_LENGTH_BITS);
 
-    final SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
+    final SecretKeyFactory secretKeyFactory = CryptoHelper.getSecretKeyFactory(
          ENCODING_VERSION_0_KEY_FACTORY_ALGORITHM);
 
     final SecretKey secretKey = new SecretKeySpec(

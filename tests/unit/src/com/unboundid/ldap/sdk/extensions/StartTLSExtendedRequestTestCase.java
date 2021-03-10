@@ -51,6 +51,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.RootDSE;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 
@@ -133,7 +134,7 @@ public class StartTLSExtendedRequestTestCase
          throws Exception
   {
     SSLContext sslContext =
-         SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
+         CryptoHelper.getSSLContext(SSLUtil.getDefaultSSLProtocol());
     sslContext.init(null, null, null);
 
     StartTLSExtendedRequest r = new StartTLSExtendedRequest(sslContext);
@@ -170,7 +171,7 @@ public class StartTLSExtendedRequestTestCase
     };
 
     SSLContext sslContext =
-         SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
+         CryptoHelper.getSSLContext(SSLUtil.getDefaultSSLProtocol());
     sslContext.init(null, null, null);
 
     StartTLSExtendedRequest r =

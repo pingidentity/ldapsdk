@@ -48,7 +48,6 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -77,6 +76,7 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -1179,7 +1179,7 @@ public final class X509Certificate
     try
     {
       keyPairGenerator =
-           KeyPairGenerator.getInstance(publicKeyAlgorithm.getName());
+           CryptoHelper.getKeyPairGenerator(publicKeyAlgorithm.getName());
     }
     catch (final Exception e)
     {
@@ -1308,7 +1308,7 @@ public final class X509Certificate
         Debug.debugException(e);
       }
 
-      final MessageDigest sha256 = MessageDigest.getInstance(
+      final MessageDigest sha256 = CryptoHelper.getMessageDigest(
            SubjectKeyIdentifierExtension.
                 SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM);
       subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
@@ -1430,7 +1430,7 @@ public final class X509Certificate
     final byte[] subjectKeyIdentifier;
     try
     {
-      final MessageDigest sha256 = MessageDigest.getInstance(
+      final MessageDigest sha256 = CryptoHelper.getMessageDigest(
            SubjectKeyIdentifierExtension.
                 SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM);
       subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
@@ -1588,7 +1588,7 @@ public final class X509Certificate
     final Signature signature;
     try
     {
-      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+      signature = CryptoHelper.getSignature(signatureAlgorithm.getJavaName());
     }
     catch (final Exception e)
     {
@@ -2106,7 +2106,7 @@ public final class X509Certificate
     {
       signatureAlgorithm =
            SignatureAlgorithmIdentifier.forOID(signatureAlgorithmOID);
-      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+      signature = CryptoHelper.getSignature(signatureAlgorithm.getJavaName());
     }
     catch (final Exception e)
     {
@@ -2231,7 +2231,8 @@ public final class X509Certificate
   {
     try
     {
-      final MessageDigest digest = MessageDigest.getInstance(digestAlgorithm);
+      final MessageDigest digest =
+           CryptoHelper.getMessageDigest(digestAlgorithm);
       return digest.digest(x509CertificateBytes);
     }
     catch (final Exception e)
@@ -2430,7 +2431,7 @@ public final class X509Certificate
   public Certificate toCertificate()
          throws CertificateException
   {
-    return CertificateFactory.getInstance("X.509").generateCertificate(
+    return CryptoHelper.getCertificateFactory("X.509").generateCertificate(
          new ByteArrayInputStream(x509CertificateBytes));
   }
 

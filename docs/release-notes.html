@@ -24,6 +24,20 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved support for running in a JVM that has been configured to operate in a
+                  FIPS 140-2-compliant mode using the Bouncy Castle BCFIPS provider.  The LDAP SDK
+                  does not include the Bouncy Castle libraries, but if they are available in the
+                  classpath, and if the com.unboundid.crypto.FIPS_MODE system property is set to
+                  "true" (ideally at the time the JVM is launched, but at the very least before
+                  any LDAP SDK classes are loaded), then the Bouncy Castle FIPS provider will be
+                  used for cryptographic operations.  In addition, the manage-certificates tool
+                  has been updated to add support for interacting with BCFKS key stores, and the
+                  LDAP listener and command-line tool frameworks have been updated to support
+                  using key and trust store files in the BCFKS format when explicitly requested.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the TLS cipher suite selector to improve compatibility with JVMs that
                   report all cipher suite names starting with "SSL_".  Previously, the LDAP SDK
                   assumed that modern TLS cipher suite names would always start with "TLS_" and

@@ -53,6 +53,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.OID;
 import com.unboundid.util.ObjectPair;
 
@@ -690,7 +691,7 @@ public final class PKCS10CertificateSigningRequestTestCase
          throws Exception
   {
     final KeyPairGenerator keyPairGenerator =
-         KeyPairGenerator.getInstance("RSA");
+         CryptoHelper.getKeyPairGenerator("RSA");
     keyPairGenerator.initialize(2048);
     final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -795,7 +796,7 @@ public final class PKCS10CertificateSigningRequestTestCase
          throws Exception
   {
     final KeyPairGenerator keyPairGenerator =
-         KeyPairGenerator.getInstance("EC");
+         CryptoHelper.getKeyPairGenerator("EC");
     keyPairGenerator.initialize(256);
     final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -923,7 +924,7 @@ public final class PKCS10CertificateSigningRequestTestCase
          throws Exception
   {
     final KeyPairGenerator keyPairGenerator =
-         KeyPairGenerator.getInstance("RSA");
+         CryptoHelper.getKeyPairGenerator("RSA");
     keyPairGenerator.initialize(2048);
     final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -962,7 +963,7 @@ public final class PKCS10CertificateSigningRequestTestCase
          throws Exception
   {
     final KeyPairGenerator keyPairGenerator =
-         KeyPairGenerator.getInstance("RSA");
+         CryptoHelper.getKeyPairGenerator("RSA");
     keyPairGenerator.initialize(2048);
     final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -1001,7 +1002,7 @@ public final class PKCS10CertificateSigningRequestTestCase
          throws Exception
   {
     final KeyPairGenerator keyPairGenerator =
-         KeyPairGenerator.getInstance("RSA");
+         CryptoHelper.getKeyPairGenerator("RSA");
     keyPairGenerator.initialize(2048);
     final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 

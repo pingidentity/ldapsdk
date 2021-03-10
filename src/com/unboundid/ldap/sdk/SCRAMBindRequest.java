@@ -44,6 +44,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.Extensible;
@@ -294,7 +295,7 @@ public abstract class SCRAMBindRequest
   {
     try
     {
-      final Mac mac = Mac.getInstance(getMACAlgorithmName());
+      final Mac mac = CryptoHelper.getMAC(getMACAlgorithmName());
       final SecretKeySpec macKey =
            new SecretKeySpec(key, getMACAlgorithmName());
       mac.init(macKey);
@@ -330,7 +331,7 @@ public abstract class SCRAMBindRequest
     try
     {
       final MessageDigest digest =
-           MessageDigest.getInstance(getDigestAlgorithmName());
+           CryptoHelper.getMessageDigest(getDigestAlgorithmName());
       return digest.digest(data);
     }
     catch (final Exception e)

@@ -81,8 +81,10 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Base64;
+import com.unboundid.util.BouncyCastleFIPSHelper;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -144,6 +146,23 @@ public final class ManageCertificates
 
 
   /**
+   * The name of the keystore type that should be used for the Bouncy Castle
+   * FIPS 140-2-compliant keystore.
+   */
+  @NotNull private static final String BCFKS_KEYSTORE_TYPE =
+       BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE;
+
+
+
+  /**
+   * The name of the BCFKS keystore type, formatted in all lowercase.
+   */
+  @NotNull private static final String BCFKS_KEYSTORE_TYPE_LC =
+       BCFKS_KEYSTORE_TYPE.toLowerCase();
+
+
+
+  /**
    * The name of a system property that can be used to specify the default
    * keystore type for new keystores.
    */
@@ -161,17 +180,23 @@ public final class ManageCertificates
   {
     final String propertyValue =
          StaticUtils.getSystemProperty(PROPERTY_DEFAULT_KEYSTORE_TYPE);
-    if ((propertyValue != null) &&
-        (propertyValue.equalsIgnoreCase("PKCS12") ||
-         propertyValue.equalsIgnoreCase("PKCS#12") ||
-         propertyValue.equalsIgnoreCase("PKCS #12") ||
-         propertyValue.equalsIgnoreCase("PKCS 12")))
+    if (CryptoHelper.usingFIPSMode() ||
+         ((propertyValue != null) && propertyValue.equalsIgnoreCase(
+              BCFKS_KEYSTORE_TYPE)))
     {
-      DEFAULT_KEYSTORE_TYPE = "PKCS12";
+      DEFAULT_KEYSTORE_TYPE = BCFKS_KEYSTORE_TYPE;
+    }
+    else if ((propertyValue != null) &&
+         (propertyValue.equalsIgnoreCase("PKCS12") ||
+              propertyValue.equalsIgnoreCase("PKCS#12") ||
+              propertyValue.equalsIgnoreCase("PKCS #12") ||
+              propertyValue.equalsIgnoreCase("PKCS 12")))
+    {
+      DEFAULT_KEYSTORE_TYPE = CryptoHelper.KEY_STORE_TYPE_PKCS_12;
     }
     else
     {
-      DEFAULT_KEYSTORE_TYPE = "JKS";
+      DEFAULT_KEYSTORE_TYPE = CryptoHelper.KEY_STORE_TYPE_JKS;
     }
   }
 
@@ -181,6 +206,15 @@ public final class ManageCertificates
    * The column at which to wrap long lines of output.
    */
   private static final int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
+
+
+
+  /**
+   * The set of values that will be allowed for the keystore type argument.
+   */
+  @NotNull private static final Set<String> ALLOWED_KEYSTORE_TYPE_VALUES =
+       StaticUtils.setOf("jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12",
+            BCFKS_KEYSTORE_TYPE_LC);
 
 
 
@@ -521,6 +555,14 @@ public final class ManageCertificates
          "promptForKeystorePIN", true);
     listCertsParser.addArgument(listCertsPromptForKeystorePassword);
 
+    final StringArgument listCertsKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_LIST_CERTS_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    listCertsKeystoreType.addLongIdentifier("keystoreType", true);
+    listCertsKeystoreType.addLongIdentifier("storetype", true);
+    listCertsParser.addArgument(listCertsKeystoreType);
+
     final StringArgument listCertsAlias = new StringArgument(null, "alias",
          false, 0, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
          INFO_MANAGE_CERTS_SC_LIST_CERTS_ARG_ALIAS_DESC.get());
@@ -677,6 +719,14 @@ public final class ManageCertificates
     exportCertPromptForKeystorePassword.addLongIdentifier(
          "promptForKeystorePIN", true);
     exportCertParser.addArgument(exportCertPromptForKeystorePassword);
+
+    final StringArgument exportCertKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    exportCertKeystoreType.addLongIdentifier("keystoreType", true);
+    exportCertKeystoreType.addLongIdentifier("storetype", true);
+    exportCertParser.addArgument(exportCertKeystoreType);
 
     final StringArgument exportCertAlias = new StringArgument(null, "alias",
          true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
@@ -900,6 +950,14 @@ public final class ManageCertificates
     exportKeyPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     exportKeyParser.addArgument(exportKeyPromptForPKPassword);
 
+    final StringArgument exportKeyKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    exportKeyKeystoreType.addLongIdentifier("keystoreType", true);
+    exportKeyKeystoreType.addLongIdentifier("storetype", true);
+    exportKeyParser.addArgument(exportKeyKeystoreType);
+
     final StringArgument exportKeyAlias = new StringArgument(null, "alias",
          true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_ALIAS_DESC.get());
@@ -1030,12 +1088,10 @@ public final class ManageCertificates
          "promptForKeystorePIN", true);
     importCertParser.addArgument(importCertPromptForKeystorePassword);
 
-    final Set<String> importCertKeystoreTypeAllowedValues = StaticUtils.setOf(
-         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument importCertKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_KS_TYPE_DESC.get(),
-         importCertKeystoreTypeAllowedValues);
+         ALLOWED_KEYSTORE_TYPE_VALUES);
     importCertKeystoreType.addLongIdentifier("keystoreType", true);
     importCertKeystoreType.addLongIdentifier("storetype", true);
     importCertParser.addArgument(importCertKeystoreType);
@@ -1261,6 +1317,14 @@ public final class ManageCertificates
          "promptForKeystorePIN", true);
     deleteCertParser.addArgument(deleteCertPromptForKeystorePassword);
 
+    final StringArgument deleteCertKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_DELETE_CERT_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    deleteCertKeystoreType.addLongIdentifier("keystoreType", true);
+    deleteCertKeystoreType.addLongIdentifier("storetype", true);
+    deleteCertParser.addArgument(deleteCertKeystoreType);
+
     final StringArgument deleteCertAlias = new StringArgument(null, "alias",
          true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
          INFO_MANAGE_CERTS_SC_DELETE_CERT_ARG_ALIAS_DESC.get());
@@ -1435,12 +1499,10 @@ public final class ManageCertificates
     genCertPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     genCertParser.addArgument(genCertPromptForPKPassword);
 
-    final Set<String> genCertKeystoreTypeAllowedValues = StaticUtils.setOf(
-         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument genCertKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_KS_TYPE_DESC.get(),
-         genCertKeystoreTypeAllowedValues);
+         ALLOWED_KEYSTORE_TYPE_VALUES);
     genCertKeystoreType.addLongIdentifier("keystoreType", true);
     genCertKeystoreType.addLongIdentifier("storetype", true);
     genCertParser.addArgument(genCertKeystoreType);
@@ -1940,12 +2002,10 @@ public final class ManageCertificates
     genCSRPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     genCSRParser.addArgument(genCSRPromptForPKPassword);
 
-    final Set<String> genCSRKeystoreTypeAllowedValues = StaticUtils.setOf(
-         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument genCSRKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_KS_TYPE_DESC.get(),
-         genCSRKeystoreTypeAllowedValues);
+         ALLOWED_KEYSTORE_TYPE_VALUES);
     genCSRKeystoreType.addLongIdentifier("keystoreType", true);
     genCSRKeystoreType.addLongIdentifier("storetype", true);
     genCSRParser.addArgument(genCSRKeystoreType);
@@ -2422,6 +2482,14 @@ public final class ManageCertificates
     signCSRPromptForPKPassword.addLongIdentifier("prompt-for-key-pin", true);
     signCSRPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     signCSRParser.addArgument(signCSRPromptForPKPassword);
+
+    final StringArgument signCSRKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_SIGN_CSR_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    signCSRKeystoreType.addLongIdentifier("keystoreType", true);
+    signCSRKeystoreType.addLongIdentifier("storetype", true);
+    signCSRParser.addArgument(signCSRKeystoreType);
 
     final StringArgument signCSRAlias = new StringArgument(null,
          "signing-certificate-alias",
@@ -2952,6 +3020,14 @@ public final class ManageCertificates
     changeAliasPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     changeAliasParser.addArgument(changeAliasPromptForPKPassword);
 
+    final StringArgument changeAliasKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_ALIAS_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    changeAliasKeystoreType.addLongIdentifier("keystoreType", true);
+    changeAliasKeystoreType.addLongIdentifier("storetype", true);
+    changeAliasParser.addArgument(changeAliasKeystoreType);
+
     final StringArgument changeAliasCurrentAlias = new StringArgument(null,
          "current-alias", true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
          INFO_MANAGE_CERTS_SC_CHANGE_ALIAS_ARG_CURRENT_ALIAS_DESC.get());
@@ -3241,6 +3317,14 @@ public final class ManageCertificates
     changePKPWPromptForKeystorePassword.addLongIdentifier(
          "promptForKeystorePIN", true);
     changePKPWParser.addArgument(changePKPWPromptForKeystorePassword);
+
+    final StringArgument changePKPWKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    changePKPWKeystoreType.addLongIdentifier("keystoreType", true);
+    changePKPWKeystoreType.addLongIdentifier("storetype", true);
+    changePKPWParser.addArgument(changePKPWKeystoreType);
 
     final StringArgument changePKPWAlias = new StringArgument(null, "alias",
          true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
@@ -3620,12 +3704,10 @@ public final class ManageCertificates
          "promptForKeystorePIN", true);
     trustServerParser.addArgument(trustServerPromptForKeystorePassword);
 
-    final Set<String> trustServerKeystoreTypeAllowedValues = StaticUtils.setOf(
-         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument trustServerKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_KS_TYPE_DESC.get(),
-         trustServerKeystoreTypeAllowedValues);
+         ALLOWED_KEYSTORE_TYPE_VALUES);
     trustServerKeystoreType.addLongIdentifier("keystoreType", true);
     trustServerKeystoreType.addLongIdentifier("storetype", true);
     trustServerParser.addArgument(trustServerKeystoreType);
@@ -3785,6 +3867,14 @@ public final class ManageCertificates
     checkUsabilityPromptForKeystorePassword.addLongIdentifier(
          "promptForKeystorePIN", true);
     checkUsabilityParser.addArgument(checkUsabilityPromptForKeystorePassword);
+
+    final StringArgument checkUsabilityKeystoreType = new StringArgument(null,
+         "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_CHECK_USABILITY_ARG_KS_TYPE_DESC.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    checkUsabilityKeystoreType.addLongIdentifier("keystoreType", true);
+    checkUsabilityKeystoreType.addLongIdentifier("storetype", true);
+    checkUsabilityParser.addArgument(checkUsabilityKeystoreType);
 
     final StringArgument checkUsabilityAlias = new StringArgument(null, "alias",
          true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
@@ -8726,7 +8816,7 @@ public final class ManageCertificates
         final String jvmDefaultTrustStoreType =
              inferKeystoreType(JVM_DEFAULT_CACERTS_FILE);
         final KeyStore jvmDefaultTrustStore =
-             KeyStore.getInstance(jvmDefaultTrustStoreType);
+             CryptoHelper.getKeyStore(jvmDefaultTrustStoreType);
         try (FileInputStream inputStream =
                   new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
         {
@@ -10810,26 +10900,43 @@ public final class ManageCertificates
   private String inferKeystoreType(@NotNull final File keystorePath)
           throws LDAPException
   {
+    // If the keystore type argument was specified, then use its value.
+    final StringArgument keystoreTypeArgument =
+         subCommandParser.getStringArgument("keystore-type");
+    if ((keystoreTypeArgument != null) && keystoreTypeArgument.isPresent())
+    {
+      final String ktaValue = keystoreTypeArgument.getValue();
+      if (ktaValue.equalsIgnoreCase("PKCS12") ||
+          ktaValue.equalsIgnoreCase("PKCS 12") ||
+          ktaValue.equalsIgnoreCase("PKCS#12") ||
+          ktaValue.equalsIgnoreCase("PKCS #12"))
+      {
+        return CryptoHelper.KEY_STORE_TYPE_PKCS_12;
+      }
+      else if (ktaValue.equalsIgnoreCase(BCFKS_KEYSTORE_TYPE))
+      {
+        return BCFKS_KEYSTORE_TYPE;
+      }
+      else
+      {
+        return CryptoHelper.KEY_STORE_TYPE_JKS;
+      }
+    }
+
+
+    // If we've gotten here, then the keystore type was not explicitly specified
+    // so we will need to infer it.  If the LDAP SDK is running in FIPS mode,
+    // then we'll always use the BCFKS key store type.
+    if (CryptoHelper.usingFIPSMode())
+    {
+      return BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE;
+    }
+
+
+    // If the key store file doesn't exist, then we must be creating it.  Use
+    // the default key store type.
     if (! keystorePath.exists())
     {
-      final StringArgument keystoreTypeArgument =
-           subCommandParser.getStringArgument("keystore-type");
-      if ((keystoreTypeArgument != null) && keystoreTypeArgument.isPresent())
-      {
-        final String ktaValue = keystoreTypeArgument.getValue();
-        if (ktaValue.equalsIgnoreCase("PKCS12") ||
-            ktaValue.equalsIgnoreCase("PKCS 12") ||
-            ktaValue.equalsIgnoreCase("PKCS#12") ||
-            ktaValue.equalsIgnoreCase("PKCS #12"))
-        {
-          return "PKCS12";
-        }
-        else
-        {
-          return "JKS";
-        }
-      }
-
       return DEFAULT_KEYSTORE_TYPE;
     }
 
@@ -10846,15 +10953,18 @@ public final class ManageCertificates
 
       if (firstByte == 0x30)
       {
-        // This is the correct first byte of a DER sequence, and a PKCS #12
-        // file is encoded as a DER sequence.
-        return "PKCS12";
+        // This suggests that the file is encoded as a DER sequence.  This
+        // encoding is used for both the PKCS #12 and BCFKS key stores, but we
+        // will always assume the PKCS #12 key store type unless we're running
+        // in FIPS mode or the keystore-type argument was provided, and both of
+        // those cases will have already been handled.
+        return CryptoHelper.KEY_STORE_TYPE_PKCS_12;
       }
       else if (firstByte == 0xFE)
       {
         // This is the correct first byte of a Java JKS keystore, which starts
         // with bytes 0xFEEDFEED.
-        return "JKS";
+        return CryptoHelper.KEY_STORE_TYPE_JKS;
       }
       else
       {
@@ -10907,6 +11017,10 @@ public final class ManageCertificates
     {
       return "PKCS #12";
     }
+    else if (keystoreType.equalsIgnoreCase(BCFKS_KEYSTORE_TYPE))
+    {
+      return BCFKS_KEYSTORE_TYPE;
+    }
     else
     {
       return keystoreType;
@@ -10937,7 +11051,7 @@ public final class ManageCertificates
     final KeyStore keystore;
     try
     {
-      keystore = KeyStore.getInstance(keystoreType);
+      keystore = CryptoHelper.getKeyStore(keystoreType);
     }
     catch (final Exception e)
     {
@@ -11898,9 +12012,16 @@ public final class ManageCertificates
         return null;
       }
 
-      for (final String keystoreType : new String[] { "JKS", "PKCS12" })
+      final String[] keystoreTypes =
       {
-        final KeyStore ks = KeyStore.getInstance(keystoreType);
+        CryptoHelper.KEY_STORE_TYPE_JKS,
+        CryptoHelper.KEY_STORE_TYPE_PKCS_12,
+        BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE
+      };
+
+      for (final String keystoreType : keystoreTypes)
+      {
+        final KeyStore ks = CryptoHelper.getKeyStore(keystoreType);
         try (FileInputStream inputStream =
                   new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
         {

@@ -50,6 +50,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.security.auth.x500.X500Principal;
 
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -347,7 +348,7 @@ public final class KeyStoreKeyManager
       throw new KeyStoreException(ERR_KEYSTORE_NO_SUCH_FILE.get(keyStoreFile));
     }
 
-    final KeyStore ks = KeyStore.getInstance(type);
+    final KeyStore ks = CryptoHelper.getKeyStore(type);
     FileInputStream inputStream = null;
     try
     {
@@ -384,8 +385,7 @@ public final class KeyStoreKeyManager
 
     try
     {
-      final KeyManagerFactory factory = KeyManagerFactory.getInstance(
-           KeyManagerFactory.getDefaultAlgorithm());
+      final KeyManagerFactory factory = CryptoHelper.getKeyManagerFactory();
       factory.init(ks, keyStorePIN);
       return factory.getKeyManagers();
     }

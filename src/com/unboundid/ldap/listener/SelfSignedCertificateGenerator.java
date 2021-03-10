@@ -52,6 +52,7 @@ import com.unboundid.ldap.sdk.NameResolver;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.ObjectPair;
@@ -120,7 +121,7 @@ public final class SelfSignedCertificateGenerator
 
     keyStoreFile.delete();
 
-    final SecureRandom random = new SecureRandom();
+    final SecureRandom random = CryptoHelper.getSecureRandom();
     final byte[] randomBytes = new byte[50];
     random.nextBytes(randomBytes);
     final String keyStorePIN = Base64.encode(randomBytes);

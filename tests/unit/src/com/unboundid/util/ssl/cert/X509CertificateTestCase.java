@@ -73,6 +73,7 @@ import com.unboundid.asn1.ASN1UTCTime;
 import com.unboundid.asn1.ASN1UTF8String;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.OID;
@@ -1688,7 +1689,7 @@ public final class X509CertificateTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File keyStoreFile = new File(resourceDir, "cert-test-keystore");
 
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
     {
       keyStore.load(inputStream, "password".toCharArray());
@@ -1797,7 +1798,7 @@ public final class X509CertificateTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File keyStoreFile = new File(resourceDir, "cert-test-keystore");
 
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
     {
       keyStore.load(inputStream, "password".toCharArray());
@@ -1908,7 +1909,7 @@ public final class X509CertificateTestCase
          JVMDefaultTrustManager.getInstance().getCACertsFile();
     assertNotNull(caCertsFile);
 
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(caCertsFile))
     {
       keyStore.load(inputStream, null);
@@ -2931,7 +2932,7 @@ public final class X509CertificateTestCase
   public void testDecodingAllJVMDefaultCertificates()
        throws Exception
   {
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
 
     final File caCertsFile =
          JVMDefaultTrustManager.getInstance().getCACertsFile();

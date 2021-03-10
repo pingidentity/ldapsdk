@@ -60,6 +60,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.StaticUtils;
 
 
@@ -513,7 +514,7 @@ public final class JVMDefaultTrustManagerTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File serverKeyStore = new File(resourceDir, "expired.keystore");
 
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStore))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -562,7 +563,7 @@ public final class JVMDefaultTrustManagerTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File serverKeyStore = new File(resourceDir, "not-yet-valid.keystore");
 
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStore))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -612,7 +613,7 @@ public final class JVMDefaultTrustManagerTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File serverKeyStore = new File(resourceDir, "server.keystore");
 
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStore))
     {
       keystore.load(inputStream, "password".toCharArray());

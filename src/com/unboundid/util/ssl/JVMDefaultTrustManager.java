@@ -60,6 +60,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -638,7 +639,7 @@ filesInDirectoryLoop:
       final KeyStore keyStore;
       try
       {
-        keyStore = KeyStore.getInstance(keyStoreType);
+        keyStore = CryptoHelper.getKeyStore(keyStoreType, null, true);
       }
       catch (final Exception e)
       {

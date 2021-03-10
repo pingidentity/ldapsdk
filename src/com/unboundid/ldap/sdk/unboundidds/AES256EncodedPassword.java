@@ -49,6 +49,7 @@ import javax.crypto.spec.GCMParameterSpec;
 
 import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -557,7 +558,7 @@ public final class AES256EncodedPassword
               @NotNull final byte[] clearTextPassword)
          throws GeneralSecurityException
   {
-    final SecureRandom random = new SecureRandom();
+    final SecureRandom random = CryptoHelper.getSecureRandom();
 
     final byte[] keyFactorySalt =
          new byte[ENCODING_VERSION_0_KEY_FACTORY_SALT_LENGTH_BYTES];
@@ -700,7 +701,7 @@ public final class AES256EncodedPassword
     // Create and initialize the cipher and use it to encrypt the padded
     // password.
     final Cipher cipher =
-         Cipher.getInstance(ENCODING_VERSION_0_CIPHER_TRANSFORMATION);
+         CryptoHelper.getCipher(ENCODING_VERSION_0_CIPHER_TRANSFORMATION);
     cipher.init(Cipher.ENCRYPT_MODE, secretKey.getSecretKey(),
          new GCMParameterSpec(ENCODING_VERSION_0_GCM_TAG_LENGTH_BITS,
               initializationVector));
@@ -1006,7 +1007,7 @@ public final class AES256EncodedPassword
     // Create and initialize the cipher and use it to decrypt the padded
     // password.
     final Cipher cipher =
-         Cipher.getInstance(ENCODING_VERSION_0_CIPHER_TRANSFORMATION);
+         CryptoHelper.getCipher(ENCODING_VERSION_0_CIPHER_TRANSFORMATION);
     cipher.init(Cipher.DECRYPT_MODE, secretKey.getSecretKey(),
          new GCMParameterSpec(ENCODING_VERSION_0_GCM_TAG_LENGTH_BITS,
               initializationVector));

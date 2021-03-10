@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,6 +56,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
@@ -419,8 +419,9 @@ public final class TopologyRegistryTrustManager
             final byte[] certBytes = Base64.decode(certBase64.toString());
             certBase64.setLength(0);
 
-            certs.add((X509Certificate) CertificateFactory.getInstance("X.509").
-                 generateCertificate(new ByteArrayInputStream(certBytes)));
+            certs.add((X509Certificate) CryptoHelper.getCertificateFactory(
+                 "X.509").generateCertificate(new ByteArrayInputStream(
+                      certBytes)));
           }
           else
           {

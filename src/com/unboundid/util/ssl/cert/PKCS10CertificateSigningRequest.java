@@ -59,6 +59,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -738,7 +739,7 @@ public final class PKCS10CertificateSigningRequest
         Debug.debugException(e);
       }
 
-      final MessageDigest sha256 = MessageDigest.getInstance(
+      final MessageDigest sha256 = CryptoHelper.getMessageDigest(
            SubjectKeyIdentifierExtension.
                 SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM);
       subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
@@ -835,7 +836,7 @@ public final class PKCS10CertificateSigningRequest
     final Signature signature;
     try
     {
-      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+      signature = CryptoHelper.getSignature(signatureAlgorithm.getJavaName());
     }
     catch (final Exception e)
     {
@@ -1193,7 +1194,7 @@ public final class PKCS10CertificateSigningRequest
       }
 
       final KeyFactory keyFactory =
-           KeyFactory.getInstance(getPublicKeyAlgorithmNameOrOID());
+           CryptoHelper.getKeyFactory(getPublicKeyAlgorithmNameOrOID());
       publicKey = keyFactory.generatePublic(
            new X509EncodedKeySpec(encodedPublicKeyBytes));
     }
@@ -1214,7 +1215,7 @@ public final class PKCS10CertificateSigningRequest
     {
       signatureAlgorithm =
            SignatureAlgorithmIdentifier.forOID(signatureAlgorithmOID);
-      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+      signature = CryptoHelper.getSignature(signatureAlgorithm.getJavaName());
     }
     catch (final Exception e)
     {

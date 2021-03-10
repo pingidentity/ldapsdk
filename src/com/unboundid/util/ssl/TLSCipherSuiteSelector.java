@@ -60,6 +60,7 @@ import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -228,7 +229,7 @@ public final class TLSCipherSuiteSelector
 
     try
     {
-      final SSLContext sslContext = SSLContext.getDefault();
+      final SSLContext sslContext = CryptoHelper.getDefaultSSLContext();
 
       final SSLParameters supportedParameters =
            sslContext.getSupportedSSLParameters();

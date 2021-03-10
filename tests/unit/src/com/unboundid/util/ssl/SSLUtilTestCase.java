@@ -55,6 +55,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -159,7 +160,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -172,7 +173,7 @@ public class SSLUtilTestCase
     {
       assertNotNull(sslUtil.createSSLContext("TLSv1.1"));
 
-      c = SSLContext.getInstance("TLSv1.1");
+      c = CryptoHelper.getSSLContext("TLSv1.1");
       p = c.getProvider().getName();
 
       assertNotNull(sslUtil.createSSLContext("TLSv1.1", p));
@@ -188,7 +189,7 @@ public class SSLUtilTestCase
     {
       assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-      c = SSLContext.getInstance("TLSv1.2");
+      c = CryptoHelper.getSSLContext("TLSv1.2");
       p = c.getProvider().getName();
 
       assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
@@ -204,7 +205,7 @@ public class SSLUtilTestCase
     {
       assertNotNull(sslUtil.createSSLContext("TLSv1.3"));
 
-      c = SSLContext.getInstance("TLSv1.3");
+      c = CryptoHelper.getSSLContext("TLSv1.3");
       p = c.getProvider().getName();
 
       assertNotNull(sslUtil.createSSLContext("TLSv1.3", p));
@@ -238,7 +239,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -271,7 +272,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -304,7 +305,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -337,7 +338,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -371,7 +372,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -404,7 +405,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -439,7 +440,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -478,7 +479,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -511,7 +512,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));
@@ -547,7 +548,7 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext("TLSv1"));
 
-    SSLContext c = SSLContext.getInstance("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
     String p = c.getProvider().getName();
 
     assertNotNull(sslUtil.createSSLContext("TLSv1", p));

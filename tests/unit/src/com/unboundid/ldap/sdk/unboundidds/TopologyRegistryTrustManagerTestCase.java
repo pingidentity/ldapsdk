@@ -61,6 +61,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFWriter;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -962,7 +963,7 @@ public final class TopologyRegistryTrustManagerTestCase
          throws Exception
   {
     final X509Certificate[] chain;
-    final KeyStore ks = KeyStore.getInstance("JKS");
+    final KeyStore ks = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream is = new FileInputStream(keyStoreFile))
     {
       ks.load(is, "password".toCharArray());
@@ -1032,7 +1033,7 @@ public final class TopologyRegistryTrustManagerTestCase
          throws Exception
   {
     final X509Certificate[] chain;
-    final KeyStore ks = KeyStore.getInstance("JKS");
+    final KeyStore ks = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream is = new FileInputStream(keyStoreFile))
     {
       ks.load(is, "password".toCharArray());

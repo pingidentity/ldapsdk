@@ -79,6 +79,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             TimeWindowCollectSupportDataLogCaptureWindow;
 import com.unboundid.ldap.sdk.unboundidds.tasks.CollectSupportDataSecurityLevel;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.NotNull;
@@ -1260,7 +1261,7 @@ public final class CollectSupportData
       {
         // Generate a passphrase as a base64url-encoded representation of some
         // randomly generated data.
-        final SecureRandom random = new SecureRandom();
+        final SecureRandom random = CryptoHelper.getSecureRandom();
         final byte[] randomBytes = new byte[64];
         random.nextBytes(randomBytes);
         final String passphrase = Base64.urlEncode(randomBytes, false);

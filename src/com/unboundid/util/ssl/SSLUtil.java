@@ -62,6 +62,7 @@ import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -178,28 +179,32 @@ public final class SSLUtil
   /**
    * The name of the SSL protocol that can be used to request TLSv1.3.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1_3 = "TLSv1.3";
+  @NotNull public static final String SSL_PROTOCOL_TLS_1_3 =
+       CryptoHelper.TLS_VERSION_1_3;
 
 
 
   /**
    * The name of the SSL protocol that can be used to request TLSv1.2.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1_2 = "TLSv1.2";
+  @NotNull public static final String SSL_PROTOCOL_TLS_1_2 =
+       CryptoHelper.TLS_VERSION_1_2;
 
 
 
   /**
    * The name of the SSL protocol that can be used to request TLSv1.1.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1_1 = "TLSv1.1";
+  @NotNull public static final String SSL_PROTOCOL_TLS_1_1 =
+       CryptoHelper.TLS_VERSION_1_1;
 
 
 
   /**
    * The name of the SSL protocol that can be used to request TLSv1.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1 = "TLSv1";
+  @NotNull public static final String SSL_PROTOCOL_TLS_1 =
+       CryptoHelper.TLS_VERSION_1;
 
 
 
@@ -455,7 +460,7 @@ public final class SSLUtil
 
   /**
    * Creates an initialized SSL context created with the configured key and
-   * trust managers.  It will use the default provider.
+   * trust managers.  It will use a default provider.
    *
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
@@ -475,7 +480,7 @@ public final class SSLUtil
   {
     Validator.ensureNotNull(protocol);
 
-    final SSLContext sslContext = SSLContext.getInstance(protocol);
+    final SSLContext sslContext = CryptoHelper.getSSLContext(protocol);
     sslContext.init(keyManagers, trustManagers, null);
     return sslContext;
   }
@@ -506,7 +511,8 @@ public final class SSLUtil
   {
     Validator.ensureNotNull(protocol, provider);
 
-    final SSLContext sslContext = SSLContext.getInstance(protocol, provider);
+    final SSLContext sslContext =
+         CryptoHelper.getSSLContext(protocol, provider);
     sslContext.init(keyManagers, trustManagers, null);
     return sslContext;
   }
@@ -1212,7 +1218,7 @@ public final class SSLUtil
       // enabled protocols.
       try
       {
-        final SSLContext defaultContext = SSLContext.getDefault();
+        final SSLContext defaultContext = CryptoHelper.getDefaultSSLContext();
         final String[] supportedProtocols =
              defaultContext.getSupportedSSLParameters().getProtocols();
 

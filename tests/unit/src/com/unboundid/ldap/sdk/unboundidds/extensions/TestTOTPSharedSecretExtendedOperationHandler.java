@@ -37,7 +37,6 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +60,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Base32;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -210,7 +210,7 @@ public final class TestTOTPSharedSecretExtendedOperationHandler
 
     // Generate the TOTP secret.
     final byte[] rawTOTPSecretBytes = new byte[10];
-    new SecureRandom().nextBytes(rawTOTPSecretBytes);
+    CryptoHelper.getSecureRandom().nextBytes(rawTOTPSecretBytes);
     final String base32TOTPSecret = Base32.encode(rawTOTPSecretBytes);
 
 

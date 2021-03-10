@@ -53,6 +53,7 @@ import com.unboundid.asn1.ASN1ObjectIdentifier;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.OID;
 
 
@@ -574,7 +575,7 @@ public final class PKCS8PrivateKeyTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File keyStoreFile = new File(resourceDir, "cert-test-keystore");
 
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
     {
       keyStore.load(inputStream, "password".toCharArray());
@@ -622,7 +623,7 @@ public final class PKCS8PrivateKeyTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File keyStoreFile = new File(resourceDir, "cert-test-keystore");
 
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
     {
       keyStore.load(inputStream, "password".toCharArray());
@@ -671,7 +672,7 @@ public final class PKCS8PrivateKeyTestCase
     final File resourceDir = new File(System.getProperty("unit.resource.dir"));
     final File keyStoreFile = new File(resourceDir, "cert-test-keystore");
 
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
     {
       keyStore.load(inputStream, "password".toCharArray());

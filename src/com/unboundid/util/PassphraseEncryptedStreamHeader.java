@@ -436,7 +436,7 @@ public final class PassphraseEncryptedStreamHeader
       macBuffer.append(e.encode());
     }
 
-    final Mac mac = Mac.getInstance(macAlgorithm);
+    final Mac mac = CryptoHelper.getMAC(macAlgorithm);
     mac.init(secretKey);
 
     final byte[] macValue = mac.doFinal(macBuffer.toByteArray());
@@ -780,7 +780,7 @@ public final class PassphraseEncryptedStreamHeader
           }
         }
 
-        final Mac mac = Mac.getInstance(macAlgorithm);
+        final Mac mac = CryptoHelper.getMAC(macAlgorithm);
         mac.init(secretKey);
         final byte[] computedMacValue = mac.doFinal(macBuffer.toByteArray());
         if (! Arrays.equals(computedMacValue, macValue))
@@ -861,7 +861,7 @@ public final class PassphraseEncryptedStreamHeader
     for (int i = 0; i < iterations; i++)
     {
       final SecretKeyFactory keyFactory =
-           SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+           CryptoHelper.getSecretKeyFactory(keyFactoryAlgorithm);
       final String cipherAlgorithm = cipherTransformation.substring(0,
            cipherTransformation.indexOf('/'));
       final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
@@ -923,7 +923,7 @@ public final class PassphraseEncryptedStreamHeader
            ERR_PW_ENCRYPTED_HEADER_NO_KEY_AVAILABLE.get());
     }
 
-    final Cipher cipher = Cipher.getInstance(cipherTransformation);
+    final Cipher cipher = CryptoHelper.getCipher(cipherTransformation);
     cipher.init(mode, secretKey,
          new IvParameterSpec(cipherInitializationVector));
 

@@ -63,6 +63,7 @@ import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.listener.StandardErrorListenerExceptionHandler;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.LDAPTestUtils;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -1990,7 +1991,7 @@ public abstract class LDAPSDKTestCase
 
     try
     {
-      final MessageDigest md5 = MessageDigest.getInstance("MD5");
+      final MessageDigest md5 = CryptoHelper.getMessageDigest("MD5");
       final byte[] buffer = new byte[8192];
 
       while (true)
@@ -2030,7 +2031,7 @@ public abstract class LDAPSDKTestCase
   protected static byte[] getMD5Digest(@NotNull final byte[] b)
             throws Exception
   {
-    return MessageDigest.getInstance("MD5").digest(b);
+    return CryptoHelper.getMessageDigest("MD5").digest(b);
   }
 
 

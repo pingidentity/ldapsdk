@@ -56,6 +56,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.NoOpRequestControl;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -263,7 +264,7 @@ public final class PasswordModifyExtendedOperationHandler
     final ASN1OctetString genPW;
     if (newPWBytes == null)
     {
-      final SecureRandom random = new SecureRandom();
+      final SecureRandom random = CryptoHelper.getSecureRandom();
       final byte[] pwAlphabet = StaticUtils.getBytes(
            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
       pwBytes = new byte[8];

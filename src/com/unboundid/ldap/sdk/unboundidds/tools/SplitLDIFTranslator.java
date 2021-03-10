@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -169,7 +170,7 @@ abstract class SplitLDIFTranslator
     MessageDigest md5 = messageDigests.get();
     if (md5 == null)
     {
-      md5 = MessageDigest.getInstance("MD5");
+      md5 = CryptoHelper.getMessageDigest("MD5");
       messageDigests.set(md5);
     }
 

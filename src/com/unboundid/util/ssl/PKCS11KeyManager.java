@@ -42,6 +42,7 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -108,7 +109,7 @@ public final class PKCS11KeyManager
   private static KeyManager[] getKeyManagers(@Nullable final char[] keyStorePIN)
           throws KeyStoreException
   {
-    final KeyStore ks = KeyStore.getInstance(PKCS11_KEY_STORE_TYPE);
+    final KeyStore ks = CryptoHelper.getKeyStore(PKCS11_KEY_STORE_TYPE);
     try
     {
       ks.load(null, keyStorePIN);
@@ -123,8 +124,7 @@ public final class PKCS11KeyManager
 
     try
     {
-      final KeyManagerFactory factory = KeyManagerFactory.getInstance(
-           KeyManagerFactory.getDefaultAlgorithm());
+      final KeyManagerFactory factory = CryptoHelper.getKeyManagerFactory();
       factory.init(ks, keyStorePIN);
       return factory.getKeyManagers();
     }

@@ -53,6 +53,7 @@ import com.unboundid.asn1.ASN1ObjectIdentifier;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -651,7 +652,7 @@ public final class PKCS8PrivateKey
          throws GeneralSecurityException
   {
     final KeyFactory keyFactory =
-         KeyFactory.getInstance(getPrivateKeyAlgorithmNameOrOID());
+         CryptoHelper.getKeyFactory(getPrivateKeyAlgorithmNameOrOID());
     return keyFactory.generatePrivate(
          new PKCS8EncodedKeySpec(pkcs8PrivateKeyBytes));
   }

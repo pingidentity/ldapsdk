@@ -56,6 +56,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -586,7 +587,7 @@ public final class TestLDAPSDKPerformance
                   "generate-self-signed-certificate",
                   "--keystore", keyStoreFile.getAbsolutePath(),
                   "--keystore-password", keyStoreFile.getAbsolutePath(),
-                  "--keystore-type", "JKS",
+                  "--keystore-type", CryptoHelper.KEY_STORE_TYPE_JKS,
                   "--alias", "server-cert",
                   "--subject-dn", "CN=Test LDAP SDK Performance");
         if (manageCertificatesResultCode != ResultCode.SUCCESS)
@@ -606,7 +607,7 @@ public final class TestLDAPSDKPerformance
         final SSLUtil sslUtil = new SSLUtil(
              new KeyStoreKeyManager(keyStoreFile,
                   keyStoreFile.getAbsolutePath().toCharArray(),
-                  "JKS", "server-cert"),
+                  CryptoHelper.KEY_STORE_TYPE_JKS, "server-cert"),
              new TrustAllTrustManager());
         serverSocketFactory = sslUtil.createSSLServerSocketFactory();
       }

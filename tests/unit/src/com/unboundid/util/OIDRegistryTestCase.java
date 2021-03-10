@@ -380,7 +380,7 @@ public final class OIDRegistryTestCase
     // Compute SHA-256 digests of the newly generated OID reference with the
     // existing version in the documentation.  If they are different, then fail
     // the test.
-    final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+    final MessageDigest sha256 = CryptoHelper.getMessageDigest("SHA-256");
     final byte[] generatedFileBytes =
          StaticUtils.readFileBytes(generatedHTMLFile);
     final byte[] generatedFileDigest = sha256.digest(generatedFileBytes);

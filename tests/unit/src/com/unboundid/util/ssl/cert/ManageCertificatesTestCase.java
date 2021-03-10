@@ -77,6 +77,7 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.OID;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
@@ -790,7 +791,7 @@ public final class ManageCertificatesTestCase
     // file.
     final JVMDefaultTrustManager jvmDefaultTrustManager =
          JVMDefaultTrustManager.getInstance();
-    final KeyStore ks = KeyStore.getInstance("JKS");
+    final KeyStore ks = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream =
               new FileInputStream(jvmDefaultTrustManager.getCACertsFile()))
     {
@@ -2756,7 +2757,7 @@ public final class ManageCertificatesTestCase
          "generate-self-signed-certificate",
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
-         "--keystore-type", "PKCS12",
+         "--keystore-type", "JKS",
          "--alias", "server-cert",
          "--replace-existing-certificate",
          "--days-valid", "7300",
@@ -8479,7 +8480,7 @@ public final class ManageCertificatesTestCase
                                       final String password)
           throws Exception
   {
-    final KeyStore keystore = KeyStore.getInstance(type);
+    final KeyStore keystore = CryptoHelper.getKeyStore(type);
 
     try (FileInputStream inputStream = new FileInputStream(path))
     {

@@ -41,6 +41,7 @@ import java.io.Serializable;
 import java.security.SecureRandom;
 
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -133,7 +134,7 @@ final class SCRAMClientFirstMessage
 
     if (clientNonce == null)
     {
-      final SecureRandom random = new SecureRandom();
+      final SecureRandom random = CryptoHelper.getSecureRandom();
       final byte[] clientNonceBytes = new byte[16];
       random.nextBytes(clientNonceBytes);
       this.clientNonce = Base64.urlEncode(clientNonceBytes, false);

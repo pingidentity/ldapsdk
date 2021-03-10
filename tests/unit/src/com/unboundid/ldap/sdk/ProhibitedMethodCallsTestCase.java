@@ -333,6 +333,581 @@ public final class ProhibitedMethodCallsTestCase
 
 
   /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code CertificateFactory.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testCertificateFactoryGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("CertificateFactory.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of CertificateFactory.getInstance, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with " +
+             "CryptoHelper.getCertificateFactory.  The offense is on the " +
+             "following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code Cipher.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testCipherGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("Cipher.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of Cipher.getInstance, which may be " +
+             "inappropriate when running in FIPS mode.  You should replace " +
+             "the call with CryptoHelper.getCipher.  The offense is on the " +
+             "following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code KeyFactory.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testKeyFactoryGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("KeyFactory.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of KeyFactory.getInstance, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getKeyFactory.  The offense " +
+             "is on the following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code KeyManagerFactory.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testKeyManagerFactoryGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("KeyManagerFactory.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of KeyManagerFactory.getInstance, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with " +
+             "CryptoHelper.getKeyManagerFactory.  The offense is on the " +
+             "following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code KeyPairGenerator.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testKeyPairGeneratorGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("KeyPairGenerator.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of KeyPairGenerator.getInstance, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with CryptoHelper.getPairGenerator.  " +
+             "The offense is on the following line (at or near line " +
+             lineNumber + "):" + StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code KeyStore.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testKeyStoreGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("KeyStore.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of KeyStore.getInstance, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getStore.  The offense is " +
+             "on the following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code Mac.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testMacGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("Mac.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of Mac.getInstance, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getMAC.  The offense is " +
+             "on the following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code MessageDigest.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testMessageDigestGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("MessageDigest.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of MessageDigest.getInstance, which " +
+             "may be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getMessageDigest.  The " +
+             "offense is on the following line (at or near line " + lineNumber +
+             "):" + StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code SecretKeyFactory.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testSecretKeyFactoryGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("SecretKeyFactory.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of SecretKeyFactory.getInstance, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with " +
+             "CryptoHelper.getSecretKeyFactory.  The offense is on the " +
+             "following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code SecureRandom} constructor.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testSecureRandomConstructor(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("new SecureRandom("))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of a SecureRandom constructor, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with " +
+             "CryptoHelper.getSecureRandom.  The offense is on the " +
+             "following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code SecureRandom.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testSecureRandomGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("SecureRandom.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of SecureRandom.getInstance, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with " +
+             "CryptoHelper.getSecureRandom.  The offense is on the " +
+             "following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code Signature.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testSignatureGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("Signature.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of Signature.getInstance, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getSignature.  The offense " +
+             "is on the following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code SSLContext.getDefault} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testSSLContextGetDefault(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("SSLContext.getDefault"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of SSLContext.getDefault, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getDefaultSSLContext.  The " +
+             "offense is on the following line (at or near line " + lineNumber +
+             "):" + StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code SSLContext.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testSSLContextGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("SSLContext.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of SSLContext.getInstance, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getSSLContext.  The offense " +
+             "is on the following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code TrustManagerFactory.getInstance} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testTrustManagerFactoryGetInstance(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("TrustManagerFactory.getInstance"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of SSLContext.getInstance, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getSSLContext.  The offense " +
+             "is on the following line (at or near line " + lineNumber + "):" +
+             StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
    * Retrieves an iterator that may be used to access all of the files in the
    * LDAP SDK source code.
    *

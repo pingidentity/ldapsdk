@@ -44,6 +44,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
@@ -213,7 +214,7 @@ public final class OneTimePassword
 
       // Generate an HMAC-SHA-1 of the given counter using the provided key.
       final SecretKey k = new SecretKeySpec(sharedSecret, KEY_ALGORITHM_RAW);
-      final Mac m = Mac.getInstance(HMAC_ALGORITHM_SHA_1);
+      final Mac m = CryptoHelper.getMAC(HMAC_ALGORITHM_SHA_1);
       m.init(k);
       final byte[] hmacBytes = m.doFinal(counterBytes);
 

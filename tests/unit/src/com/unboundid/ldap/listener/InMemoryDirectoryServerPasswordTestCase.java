@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -127,7 +128,7 @@ public final class InMemoryDirectoryServerPasswordTestCase
          "cn: Test User",
          "userPassword: password");
 
-    final MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+    final MessageDigest sha1Digest = CryptoHelper.getMessageDigest("SHA-1");
     final List<InMemoryPasswordEncoder> passwordEncoders = Arrays.asList(
          new ClearInMemoryPasswordEncoder("{CLEAR}", null),
          new ClearInMemoryPasswordEncoder("{HEX}",
@@ -183,7 +184,7 @@ public final class InMemoryDirectoryServerPasswordTestCase
          "cn: Test User",
          "userPassword: password");
 
-    final MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+    final MessageDigest sha1Digest = CryptoHelper.getMessageDigest("SHA-1");
     final List<InMemoryPasswordEncoder> passwordEncoders = Arrays.asList(
          new ClearInMemoryPasswordEncoder("{CLEAR}", null),
          new ClearInMemoryPasswordEncoder("{HEX}",
@@ -241,7 +242,7 @@ public final class InMemoryDirectoryServerPasswordTestCase
          "cn: Test User",
          "userPassword: password");
 
-    final MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+    final MessageDigest sha1Digest = CryptoHelper.getMessageDigest("SHA-1");
     final List<InMemoryPasswordEncoder> passwordEncoders = Arrays.asList(
          new ClearInMemoryPasswordEncoder("{CLEAR}", null),
          new ClearInMemoryPasswordEncoder("{HEX}",

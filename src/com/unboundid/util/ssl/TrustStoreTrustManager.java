@@ -48,6 +48,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -280,7 +281,7 @@ public final class TrustStoreTrustManager
     final KeyStore ks;
     try
     {
-      ks = KeyStore.getInstance(trustStoreFormat);
+      ks = CryptoHelper.getKeyStore(trustStoreFormat);
     }
     catch (final Exception e)
     {
@@ -306,8 +307,7 @@ public final class TrustStoreTrustManager
 
     try
     {
-      final TrustManagerFactory factory = TrustManagerFactory.getInstance(
-           TrustManagerFactory.getDefaultAlgorithm());
+      final TrustManagerFactory factory = CryptoHelper.getTrustManagerFactory();
       factory.init(ks);
       final TrustManager[] trustManagers = factory.getTrustManagers();
       final X509TrustManager[] x509TrustManagers =

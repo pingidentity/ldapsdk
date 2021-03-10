@@ -54,6 +54,7 @@ import java.util.logging.Level;
 import javax.net.ssl.X509KeyManager;
 
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.NotMutable;
@@ -232,7 +233,7 @@ public final class PEMFileKeyManager
     try
     {
       final MessageDigest sha256 =
-           MessageDigest.getInstance(ALIAS_FINGERPRINT_ALGORITHM);
+           CryptoHelper.getMessageDigest(ALIAS_FINGERPRINT_ALGORITHM);
       final byte[] digestBytes =
            sha256.digest(certificateChain[0].getEncoded());
       alias = StaticUtils.toHex(digestBytes);

@@ -494,7 +494,7 @@ final class CommandLineToolInteractiveModeProcessor
         if (keyStoreFormatArgument.isPresent())
         {
           final String format = keyStoreFormatArgument.getValue();
-          if (format.equalsIgnoreCase("PKCS12"))
+          if (format.equalsIgnoreCase(CryptoHelper.KEY_STORE_TYPE_PKCS_12))
           {
             defaultStoreTypeChoice = "3";
           }
@@ -550,10 +550,10 @@ final class CommandLineToolInteractiveModeProcessor
         switch (keystoreType)
         {
           case 1:
-            keyStoreFormat = "JKS";
+            keyStoreFormat = CryptoHelper.KEY_STORE_TYPE_JKS;
             break;
           case 2:
-            keyStoreFormat = "PKCS12";
+            keyStoreFormat = CryptoHelper.KEY_STORE_TYPE_PKCS_12;
             break;
           case 0:
           default:
@@ -628,7 +628,7 @@ final class CommandLineToolInteractiveModeProcessor
         else if (trustStoreFormatArgument.isPresent())
         {
           final String format = trustStoreFormatArgument.getValue();
-          if (format.equalsIgnoreCase("PKCS12"))
+          if (format.equalsIgnoreCase(CryptoHelper.KEY_STORE_TYPE_PKCS_12))
           {
             defaultTrustTypeChoice = "3";
           }
@@ -670,10 +670,10 @@ final class CommandLineToolInteractiveModeProcessor
         switch (trustType)
         {
           case 1:
-            trustStoreFormat = "JKS";
+            trustStoreFormat = CryptoHelper.KEY_STORE_TYPE_JKS;
             break;
           case 2:
-            trustStoreFormat = "PKCS12";
+            trustStoreFormat = CryptoHelper.KEY_STORE_TYPE_PKCS_12;
             break;
           case 3:
             trustAll = true;

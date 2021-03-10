@@ -45,6 +45,7 @@ import javax.net.ssl.TrustManager;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.StartTLSPostConnectProcessor;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -380,9 +381,10 @@ final class SecurityOptions
         else
         {
           trustStoreType = LDAPConnectionDetailsJSONSpecification.getString(o,
-               FIELD_TRUST_STORE_TYPE, "JKS").toUpperCase();
-          if (! (trustStoreType.equals("JKS") ||
-                 trustStoreType.equals("PKCS12")))
+               FIELD_TRUST_STORE_TYPE,
+               CryptoHelper.KEY_STORE_TYPE_JKS).toUpperCase();
+          if (! (trustStoreType.equals(CryptoHelper.KEY_STORE_TYPE_JKS) ||
+                 trustStoreType.equals(CryptoHelper.KEY_STORE_TYPE_PKCS_12)))
           {
             throw new LDAPException(ResultCode.PARAM_ERROR,
                  ERR_SECURITY_OPTIONS_INVALID_TS_TYPE.get(
@@ -426,8 +428,10 @@ final class SecurityOptions
       {
         useKeyStore = true;
         keyStoreType = LDAPConnectionDetailsJSONSpecification.getString(o,
-             FIELD_KEY_STORE_TYPE, "JKS").toUpperCase();
-        if (! (keyStoreType.equals("JKS") || keyStoreType.equals("PKCS12")))
+             FIELD_KEY_STORE_TYPE,
+             CryptoHelper.KEY_STORE_TYPE_JKS).toUpperCase();
+        if (! (keyStoreType.equals(CryptoHelper.KEY_STORE_TYPE_JKS) ||
+             keyStoreType.equals(CryptoHelper.KEY_STORE_TYPE_PKCS_12)))
         {
           throw new LDAPException(ResultCode.PARAM_ERROR,
                ERR_SECURITY_OPTIONS_INVALID_KS_TYPE_WITH_FILE.get(

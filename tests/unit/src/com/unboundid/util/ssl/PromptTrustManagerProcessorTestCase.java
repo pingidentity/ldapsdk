@@ -59,6 +59,7 @@ import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ssl.cert.InternalCertHelper;
@@ -177,7 +178,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -307,7 +308,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -454,7 +455,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -583,7 +584,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -728,7 +729,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -858,7 +859,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -999,7 +1000,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    KeyStore keystore = KeyStore.getInstance("JKS");
+    KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1124,7 +1125,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    keystore = KeyStore.getInstance("JKS");
+    keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1250,7 +1251,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1325,7 +1326,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1503,7 +1504,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1634,7 +1635,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1790,7 +1791,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -1932,7 +1933,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2126,7 +2127,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2255,7 +2256,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2378,7 +2379,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2501,7 +2502,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2624,7 +2625,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2748,7 +2749,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2873,7 +2874,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -2996,7 +2997,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -3127,7 +3128,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -3258,7 +3259,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -3389,7 +3390,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -3518,7 +3519,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -3655,7 +3656,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
@@ -3793,7 +3794,7 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    final KeyStore keystore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());

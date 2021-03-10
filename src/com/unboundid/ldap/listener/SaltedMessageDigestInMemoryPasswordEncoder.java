@@ -46,6 +46,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
@@ -153,7 +154,7 @@ public final class SaltedMessageDigestInMemoryPasswordEncoder
     this.saltAfterClearPassword = saltAfterClearPassword;
     this.saltAfterMessageDigest = saltAfterMessageDigest;
 
-    random = new SecureRandom();
+    random = CryptoHelper.getSecureRandom();
   }
 
 

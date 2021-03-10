@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPExtendedOperationException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -223,7 +224,7 @@ public final class StartTLSExtendedRequest
       try
       {
         final SSLContext ctx =
-             SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
+             CryptoHelper.getSSLContext(SSLUtil.getDefaultSSLProtocol());
         ctx.init(null, null, null);
         sslSocketFactory = ctx.getSocketFactory();
       }
@@ -266,7 +267,7 @@ public final class StartTLSExtendedRequest
       try
       {
         final SSLContext ctx =
-             SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
+             CryptoHelper.getSSLContext(SSLUtil.getDefaultSSLProtocol());
         ctx.init(null, null, null);
         this.sslSocketFactory = ctx.getSocketFactory();
       }

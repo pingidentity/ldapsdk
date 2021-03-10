@@ -58,6 +58,7 @@ import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
@@ -571,11 +572,12 @@ public final class LDAPDebugger
           final ObjectPair<File,char[]> keyStoreInfo =
                SelfSignedCertificateGenerator.
                     generateTemporarySelfSignedCertificate(getToolName(),
-                         "JKS");
+                         CryptoHelper.KEY_STORE_TYPE_JKS);
 
           sslUtil = new SSLUtil(
                new KeyStoreKeyManager(keyStoreInfo.getFirst(),
-                    keyStoreInfo.getSecond(), "JKS", null, true),
+                    keyStoreInfo.getSecond(), CryptoHelper.KEY_STORE_TYPE_JKS,
+                    null, true),
                new TrustAllTrustManager(false));
         }
         else

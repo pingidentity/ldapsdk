@@ -54,6 +54,7 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ssl.cert.ManageCertificates;
 
@@ -720,7 +721,7 @@ public final class HostNameSSLSocketVerifierTestCase
   private static X509Certificate getCertificate(final File keyStoreFile)
           throws Exception
   {
-    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    final KeyStore keyStore = CryptoHelper.getKeyStore("JKS");
     try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
     {
       keyStore.load(inputStream, PIN_CHARS);

@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -64,6 +63,7 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.schema.SchemaValidator;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.NotMutable;
@@ -619,7 +619,7 @@ public final class InMemoryDirectoryServerTool
 
     keyStoreTypeArgument = new StringArgument(null, "keyStoreType",
          false, 1, "{type}", INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_TYPE.get(),
-         "JKS");
+         CryptoHelper.KEY_STORE_TYPE_JKS);
     keyStoreTypeArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     keyStoreTypeArgument.addLongIdentifier("keyStoreFormat", true);
@@ -666,7 +666,7 @@ public final class InMemoryDirectoryServerTool
 
     trustStoreTypeArgument = new StringArgument(null, "trustStoreType",
          false, 1, "{type}", INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_TYPE.get(),
-         "JKS");
+         CryptoHelper.KEY_STORE_TYPE_JKS);
     trustStoreTypeArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     trustStoreTypeArgument.addLongIdentifier("trustStoreFormat", true);
@@ -1576,7 +1576,7 @@ public final class InMemoryDirectoryServerTool
       {
         try
         {
-          keyStoreType = "JKS";
+          keyStoreType = CryptoHelper.KEY_STORE_TYPE_JKS;
           final ObjectPair<File,char[]> keyStoreInfo =
                SelfSignedCertificateGenerator.
                     generateTemporarySelfSignedCertificate(
@@ -1720,7 +1720,7 @@ public final class InMemoryDirectoryServerTool
            new UnsaltedMessageDigestInMemoryPasswordEncoder(
                 '{' + schemeName + '}',
                 Base64PasswordEncoderOutputFormatter.getInstance(),
-                MessageDigest.getInstance(digestAlgorithm));
+                CryptoHelper.getMessageDigest(digestAlgorithm));
       encoderMap.put(StaticUtils.toLowerCase(schemeName), encoder);
     }
     catch (final Exception e)
@@ -1751,7 +1751,7 @@ public final class InMemoryDirectoryServerTool
            new SaltedMessageDigestInMemoryPasswordEncoder(
                 '{' + schemeName + '}',
                 Base64PasswordEncoderOutputFormatter.getInstance(),
-                MessageDigest.getInstance(digestAlgorithm), 8, true, true);
+                CryptoHelper.getMessageDigest(digestAlgorithm), 8, true, true);
       encoderMap.put(StaticUtils.toLowerCase(schemeName), encoder);
     }
     catch (final Exception e)
