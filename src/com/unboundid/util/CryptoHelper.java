@@ -1951,6 +1951,10 @@ public final class CryptoHelper
     {
       return BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider();
     }
+    else if (providerName.equals(BouncyCastleFIPSHelper.JSSE_PROVIDER_NAME))
+    {
+      return BouncyCastleFIPSHelper.getBouncyCastleJSSEProvider();
+    }
     else
     {
       if (requireBCInFIPSMode && usingFIPSMode())
