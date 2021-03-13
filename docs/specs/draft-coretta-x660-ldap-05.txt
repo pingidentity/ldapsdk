@@ -1,15 +1,15 @@
 
 
 X660LDAP                                                      J. Coretta
-Internet-Draft                                         February 17, 2021
+Internet-Draft                                            March 12, 2021
 Intended status: Standards Track
-Expires: August 17, 2021
+Expires: September 12, 2021
 
 
            Lightweight Directory Access Protocol (LDAP)
              Procedures and Schema Definitions for the
              Storage of X.660 Registration Information
-                  draft-coretta-x660-ldap-04.txt
+                  draft-coretta-x660-ldap-05.txt
 
 Abstract
 
@@ -32,7 +32,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 17, 2021.
+   This Internet-Draft will expire on September 12, 2021.
 
 Copyright Notice
 
@@ -55,110 +55,115 @@ Copyright Notice
 
 
 
-Coretta                   Expires August 17, 2021               [Page 1]
+Coretta               Expires September 12, 2021                [Page 1]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
 Table of Contents
 
    1. Introduction ....................................................3
       1.1. Conventions ................................................4
-      1.2. Intended Audience ..........................................4
-      1.3. Limitations ................................................4
-      1.4. Acronyms Used ..............................................4
+      1.2. Acronyms Used ..............................................4
+      1.3. Intended Audience ..........................................4
+      1.4. Limitations ................................................4
       1.5. OIDs Allocated .............................................4
       1.6. Well-Known OIDs ............................................5
    2. Schema Definitions ..............................................5
       2.1. Attribute Types ............................................5
-         2.1.1. 'arc' .................................................5
+         2.1.1. 'arc' .................................................6
          2.1.2. 'arcOID' ..............................................6
-         2.1.3. 'arcId' ...............................................6
-         2.1.4. 'arcSecId' ............................................6
-         2.1.5. 'arcAddlSecId' ........................................7
-         2.1.6. 'arcData' .............................................7
-         2.1.7. 'arcAuthorityContact' .................................7
-         2.1.8. 'arcSponsorContact' ...................................8
-         2.1.9. 'arcDefaultContact' ...................................8
-         2.1.10. 'arcTitle' ...........................................8
-         2.1.11. 'arcDescription' .....................................8
-         2.1.12. 'arcRegId' ...........................................9
-         2.1.13. 'arcCreateTimestamp' .................................9
-         2.1.14. 'arcModifyTimestamp' .................................9
-         2.1.15. 'arcRegAuthorityCommonName' .........................10
-         2.1.16. 'arcRegDefaultCommonName' ...........................10
-         2.1.17. 'arcRegSponsorCommonName' ...........................10
-         2.1.18. 'arcRegAuthorityCountry' ............................11
-         2.1.19. 'arcRegDefaultCountry' ..............................11
-         2.1.20. 'arcRegSponsorCountry' ..............................11
-         2.1.21. 'arcRegAuthorityEmail' ..............................12
-         2.1.22. 'arcRegDefaultEmail' ................................12
-         2.1.23. 'arcRegSponsorEmail' ................................12
-         2.1.24. 'arcRegAuthorityFax' ................................13
-         2.1.25. 'arcRegDefaultFax' ..................................13
-         2.1.26. 'arcRegSponsorFax' ..................................13
-         2.1.27. 'arcRegAuthorityFriendlyCountry' ....................14
-         2.1.28. 'arcRegDefaultFriendlyCountry' ......................14
-         2.1.29. 'arcRegSponsorFriendlyCountry' ......................14
-         2.1.30. 'arcRegAuthorityLocality' ...........................15
-         2.1.31. 'arcRegDefaultLocality' .............................15
-         2.1.32. 'arcRegSponsorLocality' .............................15
-         2.1.33. 'arcRegAuthorityMobile' .............................16
-         2.1.34. 'arcRegDefaultMobile' ...............................16
-         2.1.35. 'arcRegSponsorMobile' ...............................16
-         2.1.36. 'arcRegAuthorityOrg' ................................16
-         2.1.37. 'arcRegDefaultOrg' ..................................17
-         2.1.38. 'arcRegSponsorOrg' ..................................17
-         2.1.39. 'arcRegAuthorityPostOfficeBox' ......................17
-         2.1.40. 'arcRegDefaultPostOfficeBox' ........................18
-         2.1.41. 'arcRegSponsorPostOfficeBox' ........................18
+         2.1.3. 'arcIRI' ..............................................6
+         2.1.4. 'arcASN1' .............................................6
+         2.1.5. 'arcId' ...............................................7
+         2.1.6. 'arcSecId' ............................................7
+         2.1.7. 'arcAddlSecId' ........................................7
+         2.1.8. 'arcLongId' ...........................................8
+         2.1.9. 'arcData' .............................................8
+         2.1.10. 'arcAuthorityContact' ................................8
+         2.1.11. 'arcSponsorContact' ..................................9
+         2.1.12. 'arcDefaultContact' ..................................9
+         2.1.13. 'arcTitle' ...........................................9
+         2.1.14. 'arcDescription' .....................................9
+         2.1.15. 'arcRegId' ..........................................10
+         2.1.16. 'arcCreateTimestamp' ................................10
+         2.1.17. 'arcModifyTimestamp' ................................10
+         2.1.18. 'arcRegAuthorityCommonName' .........................11
+         2.1.19. 'arcRegDefaultCommonName' ...........................11
+         2.1.20. 'arcRegSponsorCommonName' ...........................11
+         2.1.21. 'arcRegAuthorityCountry' ............................12
+         2.1.22. 'arcRegDefaultCountry' ..............................12
+         2.1.23. 'arcRegSponsorCountry' ..............................12
+         2.1.24. 'arcRegAuthorityEmail' ..............................13
+         2.1.25. 'arcRegDefaultEmail' ................................13
+         2.1.26. 'arcRegSponsorEmail' ................................13
+         2.1.27. 'arcRegAuthorityFax' ................................14
+         2.1.28. 'arcRegDefaultFax' ..................................14
+         2.1.29. 'arcRegSponsorFax' ..................................14
+         2.1.30. 'arcRegAuthorityFriendlyCountry' ....................15
+         2.1.31. 'arcRegDefaultFriendlyCountry' ......................15
+         2.1.32. 'arcRegSponsorFriendlyCountry' ......................15
+         2.1.33. 'arcRegAuthorityLocality' ...........................16
+         2.1.34. 'arcRegDefaultLocality' .............................16
+         2.1.35. 'arcRegSponsorLocality' .............................16
+         2.1.36. 'arcRegAuthorityMobile' .............................17
+         2.1.37. 'arcRegDefaultMobile' ...............................17
+         2.1.38. 'arcRegSponsorMobile' ...............................17
+         2.1.39. 'arcRegAuthorityOrg' ................................17
+         2.1.40. 'arcRegDefaultOrg' ..................................18
+         2.1.41. 'arcRegSponsorOrg' ..................................18
 
-Coretta                   Expires August 17, 2021               [Page 2]
+Coretta               Expires September 12, 2021                [Page 2]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-         2.1.42. 'arcRegAuthorityPostalAddress' ......................18
-         2.1.43. 'arcRegDefaultPostalAddress' ........................19
-         2.1.44. 'arcRegSponsorPostalAddress' ........................19
-         2.1.45. 'arcRegAuthorityPostalCode' .........................19
-         2.1.46. 'arcRegDefaultPostalCode' ...........................20
-         2.1.47. 'arcRegSponsorPostalCode' ...........................20
-         2.1.48. 'arcRegAuthorityState' ..............................20
-         2.1.49. 'arcRegDefaultState' ................................20
-         2.1.50. 'arcRegSponsorState' ................................21
-         2.1.51. 'arcRegAuthorityStreet' .............................21
-         2.1.52. 'arcRegDefaultStreet' ...............................21
-         2.1.53. 'arcRegSponsorStreet' ...............................22
-         2.1.54. 'arcRegAuthorityTelephone' ..........................22
-         2.1.55. 'arcRegDefaultTelephone' ............................22
-         2.1.56. 'arcRegSponsorTelephone' ............................23
-         2.1.57. 'arcRegAuthorityTitle' ..............................23
-         2.1.58. 'arcRegDefaultTitle' ................................23
-         2.1.59. 'arcRegSponsorTitle' ................................23
+         2.1.42. 'arcRegAuthorityPostOfficeBox' ......................18
+         2.1.43. 'arcRegDefaultPostOfficeBox' ........................19
+         2.1.44. 'arcRegSponsorPostOfficeBox' ........................19
+         2.1.45. 'arcRegAuthorityPostalAddress' ......................19
+         2.1.46. 'arcRegDefaultPostalAddress' ........................19
+         2.1.47. 'arcRegSponsorPostalAddress' ........................20
+         2.1.48. 'arcRegAuthorityPostalCode' .........................20
+         2.1.49. 'arcRegDefaultPostalCode' ...........................20
+         2.1.50. 'arcRegSponsorPostalCode' ...........................21
+         2.1.51. 'arcRegAuthorityState' ..............................21
+         2.1.52. 'arcRegDefaultState' ................................21
+         2.1.53. 'arcRegSponsorState' ................................21
+         2.1.54. 'arcRegAuthorityStreet' .............................22
+         2.1.55. 'arcRegDefaultStreet' ...............................22
+         2.1.56. 'arcRegSponsorStreet' ...............................22
+         2.1.57. 'arcRegAuthorityTelephone' ..........................23
+         2.1.58. 'arcRegDefaultTelephone' ............................23
+         2.1.59. 'arcRegSponsorTelephone' ............................23
+         2.1.60. 'arcRegAuthorityTitle' ..............................23
+         2.1.61. 'arcRegDefaultTitle' ................................24
+         2.1.62. 'arcRegSponsorTitle' ................................24
       2.2. Object Classes ............................................24
          2.2.1. 'x660RootArcEntry' ...................................24
-         2.2.2. 'x660ArcEntry' .......................................24
+         2.2.2. 'x660ArcEntry' .......................................25
          2.2.3. 'x660ContactEntry' ...................................25
-   3. Directory Models ...............................................25
-      3.1. Naming Context and Organization Entries ...................25
-      3.2. Two-Dimensional Model .....................................26
-           3.2.1. Requirements .......................................26
-           3.2.2. Distinguished Name Convention ......................26
-           3.2.3. Root Arc Entries ...................................27
-      3.3. Three-Dimensional Model ...................................28
-           3.3.1. Requirements .......................................28
-           3.3.2. Distinguished Name Convention ......................29
-           3.3.3. Root Arc Entries ...................................29
-      3.4. Arc Authority, Sponsorship and Default Contact Info .......30
-           3.4.1. Examples ...........................................30
-                3.4.1.1. Combined OID and Contact Entries ............30
-                3.4.1.2. Dedicated Contact Entries ...................31
-   4. References .....................................................32
-      4.1. Normative References ......................................32
-   5. IANA Considerations ............................................33
-   6. Security Considerations ........................................33
-   Author's Address ..................................................33
+   3. Directory Models ...............................................26
+      3.1. Naming Context and Organization Entries ...................26
+      3.2. Two-Dimensional Model .....................................27
+           3.2.1. Requirements .......................................27
+           3.2.2. Distinguished Name Convention ......................27
+           3.2.3. Root Arc Entries ...................................28
+           3.2.4. Arc IRI and ASN.1 Value Storage ....................28
+      3.3. Three-Dimensional Model ...................................29
+           3.3.1. Requirements .......................................29
+           3.3.2. Distinguished Name Convention ......................30
+           3.3.3. Root Arc Entries ...................................30
+           3.3.4. Arc IRI and ASN.1 Value Storage ....................31
+      3.4. Arc Authority, Sponsorship and Default Contact Info .......31
+           3.4.1. Examples ...........................................32
+                3.4.1.1. Combined OID and Contact Entries ............32
+                3.4.1.2. Dedicated Contact Entries ...................32
+   4. References .....................................................33
+      4.1. Normative References ......................................33
+   5. IANA Considerations ............................................34
+   6. Security Considerations ........................................34
+   Author's Address ..................................................34
 
 1.  Introduction
 
@@ -166,14 +171,9 @@ Coretta                   Expires August 17, 2021               [Page 2]
    and contextual data within an LDAP [RFC4510] implementation.
 
 
+Coretta               Expires September 12, 2021                [Page 3]
 
-
-
-
-
-Coretta                   Expires August 17, 2021               [Page 3]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
 1.1.  Conventions
@@ -184,13 +184,33 @@ Coretta                   Expires August 17, 2021               [Page 3]
    in BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in
    all capitals, as shown here.
 
-1.2.  Intended Audience
+1.2.  Acronyms Used
+
+   This specification makes reference to several acronyms, each of which
+   are defined below.
+
+   DN  Distinguished Name
+   RA  Registration Authority
+   IRI  Internationalized Resource Identifier
+   RDN  Relative Distinguished Name
+   DUA  Directory User Agent (an LDAP client)
+   DIT  Directory Information Tree
+   OID  ASN.1 Object Identifier
+   GUI  Graphical User Interface
+   TUI  Textual User Interface
+   LDAP  Lightweight Directory Access Protocol
+   ASN.1  Abstract Syntax Notation v1
+
+1.3.  Intended Audience
 
    This specification is intended for use by any entity or individual in
    need of a means for storing and serving [X.660] data, in whole or in
    part.
 
-1.3.  Limitations
+   The most likely candidates for use are RAs, whether internal to an
+   organization, or public.
+
+1.4.  Limitations
 
    Some design decisions set forth in this document tend to favor a more
    generalized implementation as opposed to a strict adherence to all of
@@ -201,25 +221,18 @@ Coretta                   Expires August 17, 2021               [Page 3]
    While Unicode values are supported where expected, this specification
    provides no such enforcement.
 
-1.4.  Acronyms Used
-
-   This specification makes reference to several acronyms, each of which
-   are defined below.
-
-   DN  Distinguished Name
-   RDN  Relative Distinguished Name
-   DUA  Directory User Agent (an LDAP client)
-   DIT  Directory Information Tree
-   OID  (ASN.1) Object Identifier
-   LDAP  Lightweight Directory Access Protocol
-   ASN.1  Abstract Syntax Notation v1
-
 1.5.  OIDs Allocated
 
    This specification provides a dedicated registered OID branch for all
    LDAP schema elements as defined in Section 2.
 
      - 1.3.6.1.4.1.56521 (author root)
+
+
+Coretta               Expires September 12, 2021                [Page 4]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
 
      - 1.3.6.1.4.1.56521.101 (specification OID)
 
@@ -228,11 +241,6 @@ Coretta                   Expires August 17, 2021               [Page 3]
      - 1.3.6.1.4.1.56521.101.2.1 (attribute types OID)
 
      - 1.3.6.1.4.1.56521.101.2.2 (object classes OID)
-
-Coretta                   Expires August 17, 2021               [Page 4]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
 
 1.6.  Well-Known OIDs
 
@@ -275,22 +283,20 @@ Coretta                   Expires August 17, 2021               [Page 4]
    The following subsections detail LDAP attribute types created for use
    within implementations of this specification.
 
+
+
+
+
+Coretta               Expires September 12, 2021                [Page 5]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
+
 2.1.1.  'arc'
 
    The 'arc' attribute type allows the storage of an unsigned integer
    that is meant to represent the primary identifier for an arc
-   registration.
-
-
-
-
-
-
-
-Coretta                   Expires August 17, 2021               [Page 5]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
+   registration entry.
 
      ( 1.3.6.1.4.1.56521.101.2.1.1
          NAME 'arc'
@@ -302,8 +308,11 @@ Coretta                   Expires August 17, 2021               [Page 5]
 
 2.1.2.  'arcOID'
 
-   The 'arcOID' attribute type allows the storage of an arc's ASN.1
-   Object Identifier value [X.680] in dot-delimited form.
+   The 'arcOID' attribute type allows the storage of an arc's OID
+   value [X.680] in dot-delimited form.
+
+   Please note this attribute type is only required in two-dimensional
+   directory model implementations of this specification.
 
      ( 1.3.6.1.4.1.56521.101.2.1.2
          NAME 'arcOID'
@@ -312,7 +321,47 @@ Coretta                   Expires August 17, 2021               [Page 5]
          SINGLE-VALUE
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
 
-2.1.3.  'arcId'
+2.1.3.  'arcIRI'
+
+   The 'arcIRI' attribute type allows the storage of one or more IRI
+   values within an arc registration entry.
+
+   Please note this attribute type is only required in two-dimensional
+   directory model implementations of this specification, or if clients
+   will not automatically discover a given IRI value by traversal.
+
+     ( 1.3.6.1.4.1.56521.101.2.1.3
+         NAME 'arcIRI'
+         DESC 'Internationalized Resource Identifiers for an
+            X.660 arc'
+         EQUALITY octetStringMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+2.1.4.  'arcASN1'
+
+   The 'arcASN1' attribute type allows the storage of an arc's ASN.1
+   identifier.
+
+
+
+
+Coretta               Expires September 12, 2021                [Page 6]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
+
+   Please note this attribute type is only required in two-dimensional
+   directory model implementations of this specification, or if clients
+   will not automatically discover a given ASN.1 value by traversal.
+
+     ( 1.3.6.1.4.1.56521.101.2.1.4
+         NAME 'arcASN1'
+         DESC 'ASN.1 identifier for an X.660 arc'
+         SINGLE-VALUE
+         EQUALITY caseIgnoreMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+2.1.5.  'arcId'
 
    The 'arcId' attribute type allows the storage of the primary
    identifier Unicode value (non-numeric) [X.660] in an arc registration
@@ -321,15 +370,14 @@ Coretta                   Expires August 17, 2021               [Page 5]
    This attribute type is derived from 'name', as defined in Section
    2.18 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.3
+     ( 1.3.6.1.4.1.56521.101.2.1.5
          NAME 'arcId'
          DESC 'The primary non-numeric Unicode identifier for
             an X.660 arc'
-         EQUALITY caseIgnoreMatch
          SINGLE-VALUE
          SUP name )
 
-2.1.4.  'arcSecId'
+2.1.6.  'arcSecId'
 
    The 'arcSecId' attribute type allows the storage of an arc
    registration entry's non-Unicode, non-numeric secondary identifier
@@ -338,27 +386,14 @@ Coretta                   Expires August 17, 2021               [Page 5]
    This attribute type is derived from 'name', as defined in Section
    2.18 of [RFC4519].
 
-
-
-
-
-
-
-
-Coretta                   Expires August 17, 2021               [Page 6]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
-
-     ( 1.3.6.1.4.1.56521.101.2.1.4
+     ( 1.3.6.1.4.1.56521.101.2.1.6
          NAME 'arcSecId'
          DESC 'The non-Unicode secondary identifier for an
             X.660 arc'
-         EQUALITY caseIgnoreMatch
          SINGLE-VALUE
          SUP name )
 
-2.1.5.  'arcAddlSecId'
+2.1.7.  'arcAddlSecId'
 
    The 'arcAddlSecId' attribute type allows the OPTIONAL storage of
    one or more additional secondary identifiers [X.660] in an arc
@@ -367,32 +402,53 @@ Coretta                   Expires August 17, 2021               [Page 6]
    This attribute type is derived from 'name', as defined in Section
    2.18 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.5
+
+Coretta               Expires September 12, 2021                [Page 7]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
+
+     ( 1.3.6.1.4.1.56521.101.2.1.7
          NAME 'arcAddlSecId'
          DESC 'The non-Unicode additional secondary identifier for an
             X.660 arc'
-         EQUALITY caseIgnoreMatch
          SUP name )
 
-2.1.6.  'arcData'
+2.1.8.  'arcLongId'
+
+   The 'arcLongId' attribute type allows the storage of the so-called
+   "Long Arc" well-known identifiers.  Per [X.660], entries that bear
+   this attribute type MUST reside below the root Joint-ISO-ITU-T (2)
+   arc registration entry.
+
+   This attribute type is derived from 'name', as defined in Section
+   2.18 of [RFC4519].
+
+     ( 1.3.6.1.4.1.56521.101.2.1.8
+         NAME 'arcLongId'
+         DESC 'The well-known Long Arc names associated with, and
+            registered to, a Joint-ISO-ITU-T subordinate X.660 arc'
+         SUP name )
+
+2.1.9.  'arcData'
 
    The 'arcData' attribute type allows the OPTIONAL storage of octet
    based values intended meant for extended documentation or notes in
    an arc registration entry.
 
-     ( 1.3.6.1.4.1.56521.101.2.1.6
+     ( 1.3.6.1.4.1.56521.101.2.1.9
          NAME 'arcData'
          DESC 'Extended information for an X.660 arc'
          EQUALITY octetStringMatch
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
 
-2.1.7.  'arcAuthorityContact'
+2.1.10.  'arcAuthorityContact'
 
    The 'arcAuthorityContact' attribute type allows a DN value that
    references an entry containing arc registration authority contact
    information.
 
-     ( 1.3.6.1.4.1.56521.101.2.1.7
+     ( 1.3.6.1.4.1.56521.101.2.1.10
          NAME 'arcAuthorityContact'
          DESC 'LDAP Distinguished Name of an entry bearing authoritative
             information for an X.660 arc'
@@ -403,38 +459,40 @@ Coretta                   Expires August 17, 2021               [Page 6]
 
 
 
-Coretta                   Expires August 17, 2021               [Page 7]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
 
 
-2.1.8.  'arcSponsorContact'
+Coretta               Expires September 12, 2021                [Page 8]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
+
+2.1.11.  'arcSponsorContact'
 
    The 'arcSponsorContact' attribute type allows a DN value that
    references an entry containing arc registration sponsorship contact
    information.
 
-     ( 1.3.6.1.4.1.56521.101.2.1.8
+     ( 1.3.6.1.4.1.56521.101.2.1.11
          NAME 'arcSponsorContact'
          DESC 'LDAP Distinguished Name of an entry bearing sponsorship
             information for an X.660 arc'
          EQUALITY distinguishedNameMatch
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
 
-2.1.9.  'arcDefaultContact'
+2.1.12.  'arcDefaultContact'
 
    The 'arcDefaultContact' attribute type allows a DN value that
    references an entry containing default arc registration contact
    information.
 
-     ( 1.3.6.1.4.1.56521.101.2.1.9
+     ( 1.3.6.1.4.1.56521.101.2.1.12
         NAME 'arcDefaultContact'
         DESC 'LDAP Distinguished Name of an entry bearing generalized
            contact information for an X.660 arc'
         EQUALITY distinguishedNameMatch
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
 
-2.1.10.  'arcTitle'
+2.1.13.  'arcTitle'
 
    The 'arcTitle' attribute type allows for an official title to be set
    for an arc registration entry.
@@ -442,12 +500,12 @@ Coretta                   Expires August 17, 2021               [Page 7]
    This attribute type is derived from 'title', as defined in Section
    2.38 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.10
+     ( 1.3.6.1.4.1.56521.101.2.1.13
         NAME 'arcTitle'
         DESC 'Title assigned to an X.660 arc'
         SUP title )
 
-2.1.11.  'arcDescription'
+2.1.14.  'arcDescription'
 
    The 'arcDescription' attribute type allows for a short description of
    an arc registration entry.
@@ -455,18 +513,18 @@ Coretta                   Expires August 17, 2021               [Page 7]
    This attribute type is derived from 'description', as defined in
    Section 2.5 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.11
+     ( 1.3.6.1.4.1.56521.101.2.1.14
         NAME 'arcDescription'
         DESC 'Short description of an X.660 arc'
         SUP description )
 
 
-Coretta                   Expires August 17, 2021               [Page 8]
+Coretta               Expires September 12, 2021                [Page 9]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-2.1.12.  'arcRegId'
+2.1.15.  'arcRegId'
 
    The 'arcRegId' attribute type is intended to allow the singular
    assignment of a UUID or GUID to a contact, sponsor or authority
@@ -479,37 +537,37 @@ Coretta                   Expires August 17, 2021               [Page 8]
    and/or authority information.  This allows absolute and unambiguous
    reference to any registration entry by DN.
 
-     ( 1.3.6.1.4.1.56521.101.2.1.12
+     ( 1.3.6.1.4.1.56521.101.2.1.15
         NAME 'arcRegId'
-        DESC 'GUID or UUID assigned to an X.660 arc registration entry'
+        DESC 'GUID or UUID assigned to an X.660 arc contact entry'
         SINGLE-VALUE
         EQUALITY octetStringMatch
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
 
    Please note the intended use of this attribute type SHOULD NOT be
-   confused with the act of numbering an arc using the numerical form
-   of a GUID or UUID value, such as:
+   confused with the act of numbering an arc entry using the numerical
+   form of a GUID or UUID value, such as:
 
       2.25.483275873209587983492589328598493854833
 
-   Such an act can be achieved through standard use of the arc attribute
-   type (defined in Section 2.1.1) as it allows an integer value of
-   suitable size to accommodate such a value.
+   Such an act can be achieved through standard use of the 'arc'
+   attribute type (defined in Section 2.1.1) as it allows an integer
+   value of suitable size to accommodate such a value.
 
-2.1.13.  'arcCreateTimestamp'
+2.1.16.  'arcCreateTimestamp'
 
    The 'arcCreateTimestamp' attribute type allows for the assignment of
    a generalized timestamp indicating the date and time at which an arc
    registration entry was created.
 
-     ( 1.3.6.1.4.1.56521.101.2.1.13
+     ( 1.3.6.1.4.1.56521.101.2.1.16
         NAME 'arcCreateTimestamp'
         DESC 'Generalized timestamp for X.660 arc entry creation'
         SINGLE-VALUE
         EQUALITY generalizedTimeMatch
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
 
-2.1.14.  'arcModifyTimestamp'
+2.1.17.  'arcModifyTimestamp'
 
    The 'arcModifyTimestamp' attribute type allows for the assignment of
    one or more generalized timestamps indicating the dates and times of
@@ -519,18 +577,18 @@ Coretta                   Expires August 17, 2021               [Page 8]
    entirely up to the directory architect(s) involved.
 
 
-Coretta                   Expires August 17, 2021               [Page 9]
+Coretta               Expires September 12, 2021               [Page 10]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.14
+     ( 1.3.6.1.4.1.56521.101.2.1.17
         NAME 'arcModifyTimestamp'
         DESC 'Generalized timestamps for X.660 arc entry modification'
         EQUALITY generalizedTimeMatch
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
 
-2.1.15.  'arcRegAuthorityCommonName'
+2.1.18.  'arcRegAuthorityCommonName'
 
    The 'arcRegAuthorityCommonName' attribute type allows for a common
    name to be assigned to an arc registration entry, meant to represent
@@ -539,14 +597,14 @@ Coretta                   Expires August 17, 2021               [Page 9]
    This attribute type is derived from 'cn', as defined in Section 2.3
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.15
+     ( 1.3.6.1.4.1.56521.101.2.1.18
         NAME 'arcRegAuthorityCommonName'
         DESC 'Common Name for the authoritative contact name associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP cn )
 
-2.1.16.  'arcRegDefaultCommonName'
+2.1.19.  'arcRegDefaultCommonName'
 
    The 'arcRegDefaultCommonName' attribute type allows for a common name
    to be assigned to an arc registration entry, meant to represent the
@@ -555,14 +613,14 @@ Coretta                   Expires August 17, 2021               [Page 9]
    This attribute type is derived from 'cn', as defined in Section 2.3
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.16
+     ( 1.3.6.1.4.1.56521.101.2.1.19
         NAME 'arcRegDefaultCommonName'
         DESC 'Common Name for the default contact name associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP cn )
 
-2.1.17.  'arcRegSponsorCommonName'
+2.1.20.  'arcRegSponsorCommonName'
 
    The 'arcRegSponsorCommonName' attribute type allows for a common name
    to be assigned to an arc registration entry, meant to represent the
@@ -577,19 +635,19 @@ Coretta                   Expires August 17, 2021               [Page 9]
 
 
 
-Coretta                   Expires August 17, 2021              [Page 10]
+Coretta               Expires September 12, 2021               [Page 11]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.17
+     ( 1.3.6.1.4.1.56521.101.2.1.20
         NAME 'arcRegSponsorCommonName'
         DESC 'Common Name for the sponsorship contact name associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP cn )
 
-2.1.18.  'arcRegAuthorityCountry'
+2.1.21.  'arcRegAuthorityCountry'
 
    The 'arcRegAuthorityCountry' attribute type allows for a country code
    to be assigned to an arc registration entry, meant to represent the
@@ -598,14 +656,14 @@ Coretta                   Expires August 17, 2021              [Page 10]
    This attribute type is derived from 'c', as defined in Section 2.2
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.18
+     ( 1.3.6.1.4.1.56521.101.2.1.21
         NAME 'arcRegAuthorityCountry'
         DESC 'Common Name for the sponsorship contact country name
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP c )
 
-2.1.19.  'arcRegDefaultCountry'
+2.1.22.  'arcRegDefaultCountry'
 
    The 'arcRegDefaultCountry' attribute type allows for a country code
    to be assigned to an arc registration entry, meant to represent the
@@ -614,14 +672,14 @@ Coretta                   Expires August 17, 2021              [Page 10]
    This attribute type is derived from 'c', as defined in Section 2.2
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.19
+     ( 1.3.6.1.4.1.56521.101.2.1.22
         NAME 'arcRegDefaultCountry'
         DESC 'Common Name for the default contact country name
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP c )
 
-2.1.20.  'arcRegSponsorCountry'
+2.1.23.  'arcRegSponsorCountry'
 
    The 'arcRegSponsorCountry' attribute type allows for a country code
    to be assigned to an arc registration entry, meant to represent the
@@ -635,19 +693,19 @@ Coretta                   Expires August 17, 2021              [Page 10]
 
 
 
-Coretta                   Expires August 17, 2021              [Page 11]
+Coretta               Expires September 12, 2021               [Page 12]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.20
+     ( 1.3.6.1.4.1.56521.101.2.1.23
         NAME 'arcRegSponsorCountry'
         DESC 'Common Name for the default contact country name
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP c )
 
-2.1.21.  'arcRegAuthorityEmail'
+2.1.24.  'arcRegAuthorityEmail'
 
    The 'arcRegAuthorityEmail' attribute type allows for an email address
    to be assigned to an arc registration entry, meant to be associated
@@ -656,14 +714,14 @@ Coretta                   Expires August 17, 2021              [Page 11]
    This attribute type is derived from 'mail', as defined in Section
    2.16 of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.21
+     ( 1.3.6.1.4.1.56521.101.2.1.24
         NAME 'arcRegAuthorityEmail'
         DESC 'Email address for the authoritative contact associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP mail )
 
-2.1.22.  'arcRegDefaultEmail'
+2.1.25.  'arcRegDefaultEmail'
 
    The 'arcRegDefaultEmail' attribute type allows for an email address
    to be assigned to an arc registration entry, meant to be associated
@@ -672,14 +730,14 @@ Coretta                   Expires August 17, 2021              [Page 11]
    This attribute type is derived from 'mail', as defined in Section
    2.16 of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.22
+     ( 1.3.6.1.4.1.56521.101.2.1.25
         NAME 'arcRegDefaultEmail'
         DESC 'Email address for the default contact associated with an
            X.660 arc registration entry'
         SINGLE-VALUE
         SUP mail )
 
-2.1.23.  'arcRegSponsorEmail'
+2.1.26.  'arcRegSponsorEmail'
 
    The 'arcRegSponsorEmail' attribute type allows for an email address
    to be assigned to an arc registration entry, meant to be associated
@@ -693,19 +751,19 @@ Coretta                   Expires August 17, 2021              [Page 11]
 
 
 
-Coretta                   Expires August 17, 2021              [Page 12]
+Coretta               Expires September 12, 2021               [Page 13]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.23
+     ( 1.3.6.1.4.1.56521.101.2.1.26
         NAME 'arcRegSponsorEmail'
         DESC 'Email address for the sponsorship contact associated with
            an X.660 arc registration entry'
         SINGLE-VALUE
         SUP mail )
 
-2.1.24.  'arcRegAuthorityFax'
+2.1.27.  'arcRegAuthorityFax'
 
    The 'arcRegAuthorityFax' attribute type allows for an email address
    to be assigned to an arc registration entry, meant to be associated
@@ -714,14 +772,14 @@ Coretta                   Expires August 17, 2021              [Page 12]
    This attribute type is derived from 'facsimileTelephoneNumber', as
    defined in Section 2.10 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.24
+     ( 1.3.6.1.4.1.56521.101.2.1.27
         NAME 'arcRegAuthorityFax'
         DESC 'Facsimile telephone number assigned to an authoritative
            contact associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP facsimileTelephoneNumber )
 
-2.1.25.  'arcRegDefaultFax'
+2.1.28.  'arcRegDefaultFax'
 
    The 'arcRegDefaultFax' attribute type allows for an email address
    to be assigned to an arc registration entry, meant to be associated
@@ -730,14 +788,14 @@ Coretta                   Expires August 17, 2021              [Page 12]
    This attribute type is derived from 'facsimileTelephoneNumber', as
    defined in Section 2.10 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.25
+     ( 1.3.6.1.4.1.56521.101.2.1.28
         NAME 'arcRegDefaultFax'
         DESC 'Facsimile telephone number assigned to a default contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP facsimileTelephoneNumber )
 
-2.1.26.  'arcRegSponsorFax'
+2.1.29.  'arcRegSponsorFax'
 
    The 'arcRegSponsorFax' attribute type allows for an email address
    to be assigned to an arc registration entry, meant to be associated
@@ -751,19 +809,19 @@ Coretta                   Expires August 17, 2021              [Page 12]
 
 
 
-Coretta                   Expires August 17, 2021              [Page 13]
+Coretta               Expires September 12, 2021               [Page 14]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.26
+     ( 1.3.6.1.4.1.56521.101.2.1.29
         NAME 'arcRegSponsorFax'
         DESC 'Facsimile telephone number assigned to a sponsorship
            contact associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP facsimileTelephoneNumber )
 
-2.1.27.  'arcRegAuthorityFriendlyCountry'
+2.1.30.  'arcRegAuthorityFriendlyCountry'
 
    The 'arcRegAuthorityFriendlyCountry' attribute type allows for a
    so-called friendly country name to be assigned to an authoritative
@@ -772,14 +830,14 @@ Coretta                   Expires August 17, 2021              [Page 13]
    This attribute type is derived from 'co', as defined in Section 2.4
    of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.27
+     ( 1.3.6.1.4.1.56521.101.2.1.30
         NAME 'arcRegAuthorityFriendlyCountry'
         DESC 'Friendly country name assigned to an authoritative contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP co )
 
-2.1.28.  'arcRegDefaultFriendlyCountry'
+2.1.31.  'arcRegDefaultFriendlyCountry'
 
    The 'arcRegDefaultFriendlyCountry' attribute type allows for a
    so-called friendly country name to be assigned to a default contact.
@@ -787,14 +845,14 @@ Coretta                   Expires August 17, 2021              [Page 13]
    This attribute type is derived from 'co', as defined in Section 2.4
    of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.28
+     ( 1.3.6.1.4.1.56521.101.2.1.31
         NAME 'arcRegDefaultFriendlyCountry'
         DESC 'Friendly country name assigned to a default contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP co )
 
-2.1.29.  'arcRegSponsorFriendlyCountry'
+2.1.32.  'arcRegSponsorFriendlyCountry'
 
    The 'arcRegSponsorFriendlyCountry' attribute type allows for a
    so-called friendly country name to be assigned to a sponsorship
@@ -809,19 +867,19 @@ Coretta                   Expires August 17, 2021              [Page 13]
 
 
 
-Coretta                   Expires August 17, 2021              [Page 14]
+Coretta               Expires September 12, 2021               [Page 15]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.29
+     ( 1.3.6.1.4.1.56521.101.2.1.32
         NAME 'arcRegSponsorFriendlyCountry'
         DESC 'Friendly country name assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP co )
 
-2.1.30.  'arcRegAuthorityLocality'
+2.1.33.  'arcRegAuthorityLocality'
 
    The 'arcRegAuthorityLocality' attribute type allows for a locality
    name to be assigned to an authoritative contact.
@@ -829,14 +887,14 @@ Coretta                   Expires August 17, 2021              [Page 14]
    This attribute type is derived from 'l', as defined in Section 2.16
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.30
+     ( 1.3.6.1.4.1.56521.101.2.1.33
         NAME 'arcRegAuthorityLocality'
         DESC 'Locality name assigned to an authoritative contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP l )
 
-2.1.31.  'arcRegDefaultLocality'
+2.1.34.  'arcRegDefaultLocality'
 
    The 'arcRegDefaultLocality' attribute type allows for a locality
    name to be assigned to a default contact.
@@ -844,14 +902,14 @@ Coretta                   Expires August 17, 2021              [Page 14]
    This attribute type is derived from 'l', as defined in Section 2.16
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.31
+     ( 1.3.6.1.4.1.56521.101.2.1.34
         NAME 'arcRegDefaultLocality'
         DESC 'Locality name assigned to a default contact associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP l )
 
-2.1.32.  'arcRegSponsorLocality'
+2.1.35.  'arcRegSponsorLocality'
 
    The 'arcRegSponsorLocality' attribute type allows for a locality
    name to be assigned to a sponsorship contact.
@@ -859,7 +917,7 @@ Coretta                   Expires August 17, 2021              [Page 14]
    This attribute type is derived from 'l', as defined in Section 2.16
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.32
+     ( 1.3.6.1.4.1.56521.101.2.1.35
         NAME 'arcRegSponsorLocality'
         DESC 'Locality name assigned to a sponsorship contact associated
            with an X.660 arc registration entry'
@@ -867,12 +925,12 @@ Coretta                   Expires August 17, 2021              [Page 14]
         SUP l )
 
 
-Coretta                   Expires August 17, 2021              [Page 15]
+Coretta               Expires September 12, 2021               [Page 16]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-2.1.33.  'arcRegAuthorityMobile'
+2.1.36.  'arcRegAuthorityMobile'
 
    The 'arcRegAuthorityMobile' attribute type allows for a mobile
    telephone number to be assigned to an authoritative contact.
@@ -880,14 +938,14 @@ Coretta                   Expires August 17, 2021              [Page 15]
    This attribute type is derived from 'mobile', as defined in Section
    2.18 of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.33
+     ( 1.3.6.1.4.1.56521.101.2.1.36
         NAME 'arcRegAuthorityMobile'
         DESC 'Mobile telephone number assigned to an authoritative
            contact associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP mobile )
 
-2.1.34.  'arcRegDefaultMobile'
+2.1.37.  'arcRegDefaultMobile'
 
    The 'arcRegDefaultMobile' attribute type allows for a mobile
    telephone number to be assigned to a default contact.
@@ -895,14 +953,14 @@ Coretta                   Expires August 17, 2021              [Page 15]
    This attribute type is derived from 'mobile', as defined in Section
    2.18 of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.34
+     ( 1.3.6.1.4.1.56521.101.2.1.37
         NAME 'arcRegDefaultMobile'
         DESC 'Mobile telephone number assigned to a default contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP mobile )
 
-2.1.35.  'arcRegSponsorMobile'
+2.1.38.  'arcRegSponsorMobile'
 
    The 'arcRegSponsorMobile' attribute type allows for a mobile
    telephone number to be assigned to a sponsorship contact.
@@ -910,14 +968,14 @@ Coretta                   Expires August 17, 2021              [Page 15]
    This attribute type is derived from 'mobile', as defined in Section
    2.18 of [RFC4524].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.35
+     ( 1.3.6.1.4.1.56521.101.2.1.38
         NAME 'arcRegSponsorMobile'
         DESC 'Mobile telephone number assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP mobile )
 
-2.1.36.  'arcRegAuthorityOrg'
+2.1.39.  'arcRegAuthorityOrg'
 
    The 'arcRegAuthorityOrg' attribute type allows for an organization
    name associated with an authoritative contact.
@@ -925,18 +983,19 @@ Coretta                   Expires August 17, 2021              [Page 15]
    This attribute type is derived from 'o', as defined in Section 2.19
    of [RFC4519].
 
-Coretta                   Expires August 17, 2021              [Page 16]
+Coretta               Expires September 12, 2021               [Page 17]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
-     ( 1.3.6.1.4.1.56521.101.2.1.36
+
+     ( 1.3.6.1.4.1.56521.101.2.1.39
         NAME 'arcRegAuthorityOrg'
         DESC 'Organization name assigned to an authoritative contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP o )
 
-2.1.37.  'arcRegDefaultOrg'
+2.1.40.  'arcRegDefaultOrg'
 
    The 'arcRegDefaultOrg' attribute type allows for an organization name
    associated with a default contact.
@@ -944,14 +1003,14 @@ Coretta                   Expires August 17, 2021              [Page 16]
    This attribute type is derived from 'o', as defined in Section 2.19
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.37
+     ( 1.3.6.1.4.1.56521.101.2.1.40
         NAME 'arcRegDefaultOrg'
         DESC 'Organization name assigned to a default contact associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP o )
 
-2.1.38.  'arcRegSponsorOrg'
+2.1.41.  'arcRegSponsorOrg'
 
    The 'arcRegSponsorOrg' attribute type allows for an organization name
    associated with a sponsorship contact.
@@ -959,14 +1018,14 @@ Coretta                   Expires August 17, 2021              [Page 16]
    This attribute type is derived from 'o', as defined in Section 2.19
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.38
+     ( 1.3.6.1.4.1.56521.101.2.1.41
         NAME 'arcRegSponsorOrg'
         DESC 'Organization name assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP o )
 
-2.1.39.  'arcRegAuthorityPostOfficeBox'
+2.1.42.  'arcRegAuthorityPostOfficeBox'
 
    The 'arcRegAuthorityPostOfficeBox' attribute type allows for a post
    office box number to be assigned to an authoritative contact.
@@ -974,7 +1033,7 @@ Coretta                   Expires August 17, 2021              [Page 16]
    This attribute type is derived from 'postOfficeBox', as defined in
    Section 2.25 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.39
+     ( 1.3.6.1.4.1.56521.101.2.1.42
         NAME 'arcRegAuthorityPostOfficeBox'
         DESC 'Post office box number assigned to an authoritative
            contact associated with an X.660 arc registration entry'
@@ -982,13 +1041,12 @@ Coretta                   Expires August 17, 2021              [Page 16]
         SUP postOfficeBox )
 
 
+Coretta               Expires September 12, 2021               [Page 18]
 
-Coretta                   Expires August 17, 2021              [Page 17]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-2.1.40.  'arcRegDefaultPostOfficeBox'
+2.1.43.  'arcRegDefaultPostOfficeBox'
 
    The 'arcRegDefaultPostOfficeBox' attribute type allows for a post
    office box number to be assigned to a default contact.
@@ -996,14 +1054,14 @@ Coretta                   Expires August 17, 2021              [Page 17]
    This attribute type is derived from 'postOfficeBox', as defined in
    Section 2.25 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.40
+     ( 1.3.6.1.4.1.56521.101.2.1.43
         NAME 'arcRegDefaultPostOfficeBox'
         DESC 'Post office box number assigned to an default contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postOfficeBox )
 
-2.1.41.  'arcRegSponsorPostOfficeBox'
+2.1.44.  'arcRegSponsorPostOfficeBox'
 
    The 'arcRegSponsorPostOfficeBox' attribute type allows for a post
    office box number to be assigned to a sponsorship contact.
@@ -1011,14 +1069,14 @@ Coretta                   Expires August 17, 2021              [Page 17]
    This attribute type is derived from 'postOfficeBox', as defined in
    Section 2.25 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.41
+     ( 1.3.6.1.4.1.56521.101.2.1.44
         NAME 'arcRegSponsorPostOfficeBox'
         DESC 'Post office box number assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postOfficeBox )
 
-2.1.42.  'arcRegAuthorityPostalAddress'
+2.1.45.  'arcRegAuthorityPostalAddress'
 
    The 'arcRegAuthorityPostalAddress' attribute type allows for a full
    postal address to be assigned to an authoritative contact.
@@ -1026,14 +1084,14 @@ Coretta                   Expires August 17, 2021              [Page 17]
    This attribute type is derived from 'postalAddress', as defined in
    Section 2.23 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.42
+     ( 1.3.6.1.4.1.56521.101.2.1.45
         NAME 'arcRegAuthorityPostalAddress'
         DESC 'Postal address assigned to an authoritative contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postalAddress )
 
-2.1.43.  'arcRegDefaultPostalAddress'
+2.1.46.  'arcRegDefaultPostalAddress'
 
    The 'arcRegDefaultPostalAddress' attribute type allows for a full
    postal address to be assigned to a default contact.
@@ -1041,19 +1099,19 @@ Coretta                   Expires August 17, 2021              [Page 17]
    This attribute type is derived from 'postalAddress', as defined in
    Section 2.23 of [RFC4519].
 
-Coretta                   Expires August 17, 2021              [Page 18]
+Coretta               Expires September 12, 2021               [Page 19]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.43
+     ( 1.3.6.1.4.1.56521.101.2.1.46
         NAME 'arcRegDefaultPostalAddress'
         DESC 'Postal address assigned to a default contact associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postalAddress )
 
-2.1.44.  'arcRegSponsorPostalAddress'
+2.1.47.  'arcRegSponsorPostalAddress'
 
    The 'arcRegSponsorPostalAddress' attribute type allows for a full
    postal address to be assigned to a sponsorship contact.
@@ -1061,14 +1119,14 @@ Coretta                   Expires August 17, 2021              [Page 18]
    This attribute type is derived from 'postalAddress', as defined in
    Section 2.23 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.44
+     ( 1.3.6.1.4.1.56521.101.2.1.47
         NAME 'arcRegSponsorPostalAddress'
         DESC 'Postal address assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postalAddress )
 
-2.1.45.  'arcRegAuthorityPostalCode'
+2.1.48.  'arcRegAuthorityPostalCode'
 
    The 'arcRegAuthorityPostalCode' attribute type allows for a postal
    code to be assigned to an authoritative contact.
@@ -1076,14 +1134,14 @@ Coretta                   Expires August 17, 2021              [Page 18]
    This attribute type is derived from 'postalCode', as defined in
    Section 2.23 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.45
+     ( 1.3.6.1.4.1.56521.101.2.1.48
         NAME 'arcRegAuthorityPostalCode'
         DESC 'Postal code assigned to an authoritative contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postalCode )
 
-2.1.46.  'arcRegDefaultPostalCode'
+2.1.49.  'arcRegDefaultPostalCode'
 
    The 'arcRegDefaultPostalCode' attribute type allows for a postal code
    to be assigned to a default contact.
@@ -1091,7 +1149,7 @@ Coretta                   Expires August 17, 2021              [Page 18]
    This attribute type is derived from 'postalCode', as defined in
    Section 2.23 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.46
+     ( 1.3.6.1.4.1.56521.101.2.1.49
         NAME 'arcRegDefaultPostalCode'
         DESC 'Postal code assigned to a default contact associated with
            an X.660 arc registration entry'
@@ -1099,12 +1157,12 @@ Coretta                   Expires August 17, 2021              [Page 18]
         SUP postalCode )
 
 
-Coretta                   Expires August 17, 2021              [Page 19]
+Coretta               Expires September 12, 2021               [Page 20]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-2.1.47.  'arcRegSponsorPostalCode'
+2.1.50.  'arcRegSponsorPostalCode'
 
    The 'arcRegSponsorPostalCode' attribute type allows for a postal code
    to be assigned to a sponsorship contact.
@@ -1112,14 +1170,14 @@ Coretta                   Expires August 17, 2021              [Page 19]
    This attribute type is derived from 'postalCode', as defined in
    Section 2.23 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.47
+     ( 1.3.6.1.4.1.56521.101.2.1.50
         NAME 'arcRegSponsorPostalCode'
         DESC 'Postal code assigned to a sponsorship contact associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP postalCode )
 
-2.1.48.  'arcRegAuthorityState'
+2.1.51.  'arcRegAuthorityState'
 
    The 'arcRegAuthorityState' attribute type allows for a state or
    province name to be assigned to an authoritative contact.
@@ -1127,14 +1185,14 @@ Coretta                   Expires August 17, 2021              [Page 19]
    This attribute type is derived from 'st', as defined in Section 2.33
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.48
+     ( 1.3.6.1.4.1.56521.101.2.1.51
         NAME 'arcRegAuthorityState'
         DESC 'State or province name assigned to an authoritative
            contact associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP st )
 
-2.1.49.  'arcRegDefaultState'
+2.1.52.  'arcRegDefaultState'
 
    The 'arcRegDefaultState' attribute type allows for a state or
    province name to be assigned to a default contact.
@@ -1142,14 +1200,14 @@ Coretta                   Expires August 17, 2021              [Page 19]
    This attribute type is derived from 'st', as defined in Section 2.33
    of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.49
+     ( 1.3.6.1.4.1.56521.101.2.1.52
         NAME 'arcRegDefaultState'
         DESC 'State or province name assigned to a default contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP st )
 
-2.1.50.  'arcRegSponsorState'
+2.1.53.  'arcRegSponsorState'
 
    The 'arcRegSponsorState' attribute type allows for a state or
    province name to be assigned to a sponsorship contact.
@@ -1157,19 +1215,19 @@ Coretta                   Expires August 17, 2021              [Page 19]
    This attribute type is derived from 'st', as defined in Section 2.33
    of [RFC4519].
 
-Coretta                   Expires August 17, 2021              [Page 20]
+Coretta               Expires September 12, 2021               [Page 21]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-     ( 1.3.6.1.4.1.56521.101.2.1.50
+     ( 1.3.6.1.4.1.56521.101.2.1.53
         NAME 'arcRegSponsorState'
         DESC 'State or province name assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP st )
 
-2.1.51.  'arcRegAuthorityStreet'
+2.1.54.  'arcRegAuthorityStreet'
 
    The 'arcRegAuthorityStreet' attribute type allows for a street name
    and number to be assigned to an authoritative contact.
@@ -1177,14 +1235,14 @@ Coretta                   Expires August 17, 2021              [Page 20]
    This attribute type is derived from 'street', as defined in Section
    2.34 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.51
+     ( 1.3.6.1.4.1.56521.101.2.1.54
         NAME 'arcRegAuthorityStreet'
         DESC 'Street name and number assigned to an authoritative
            contact associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP street )
 
-2.1.52.  'arcRegDefaultStreet'
+2.1.55.  'arcRegDefaultStreet'
 
    The 'arcRegDefaultStreet' attribute type allows for a street name and
    number to be assigned to a default contact.
@@ -1192,14 +1250,14 @@ Coretta                   Expires August 17, 2021              [Page 20]
    This attribute type is derived from 'street', as defined in Section
    2.34 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.52
+     ( 1.3.6.1.4.1.56521.101.2.1.55
         NAME 'arcRegDefaultStreet'
         DESC 'Street name and number assigned to a default contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP street )
 
-2.1.53.  'arcRegSponsorStreet'
+2.1.56.  'arcRegSponsorStreet'
 
    The 'arcRegSponsorStreet' attribute type allows for a street name and
    number to be assigned to a sponsorship contact.
@@ -1207,7 +1265,7 @@ Coretta                   Expires August 17, 2021              [Page 20]
    This attribute type is derived from 'street', as defined in Section
    2.34 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.53
+     ( 1.3.6.1.4.1.56521.101.2.1.56
         NAME 'arcRegSponsorStreet'
         DESC 'Street name and number assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
@@ -1215,12 +1273,12 @@ Coretta                   Expires August 17, 2021              [Page 20]
         SUP street )
 
 
-Coretta                   Expires August 17, 2021              [Page 21]
+Coretta               Expires September 12, 2021               [Page 22]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
-2.1.54.  'arcRegAuthorityTelephone'
+2.1.57.  'arcRegAuthorityTelephone'
 
    The 'arcRegAuthorityTelephone' attribute type allows for a telephone
    number to be assigned to an authoritative contact.
@@ -1228,14 +1286,14 @@ Coretta                   Expires August 17, 2021              [Page 21]
    This attribute type is derived from 'telephoneNumber', as defined in
    Section 2.35 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.54
+     ( 1.3.6.1.4.1.56521.101.2.1.57
         NAME 'arcRegAuthorityTelephone'
         DESC 'Telephone number assigned to an authoritative contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP telephoneNumber )
 
-2.1.55.  'arcRegDefaultTelephone'
+2.1.58.  'arcRegDefaultTelephone'
 
    The 'arcRegDefaultTelephone' attribute type allows for a telephone
    number to be assigned to a default contact.
@@ -1243,14 +1301,14 @@ Coretta                   Expires August 17, 2021              [Page 21]
    This attribute type is derived from 'telephoneNumber', as defined in
    Section 2.35 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.55
+     ( 1.3.6.1.4.1.56521.101.2.1.58
         NAME 'arcRegDefaultTelephone'
         DESC 'Telephone number assigned to a default contact associated
            with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP telephoneNumber )
 
-2.1.56.  'arcRegSponsorTelephone'
+2.1.59.  'arcRegSponsorTelephone'
 
    The 'arcRegSponsorTelephone' attribute type allows for a telephone
    number to be assigned to a sponsorship contact.
@@ -1258,14 +1316,14 @@ Coretta                   Expires August 17, 2021              [Page 21]
    This attribute type is derived from 'telephoneNumber', as defined in
    Section 2.35 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.56
+     ( 1.3.6.1.4.1.56521.101.2.1.59
         NAME 'arcRegSponsorTelephone'
         DESC 'Telephone number assigned to a sponsorship contact
            associated with an X.660 arc registration entry'
         SINGLE-VALUE
         SUP telephoneNumber )
 
-2.1.57.  'arcRegAuthorityTitle'
+2.1.60.  'arcRegAuthorityTitle'
 
    The 'arcRegAuthorityTitle' attribute type allows for an official or
    professional title to be assigned to an authoritative contact,
@@ -1273,22 +1331,22 @@ Coretta                   Expires August 17, 2021              [Page 21]
 
 
 
-Coretta                   Expires August 17, 2021              [Page 22]
+Coretta               Expires September 12, 2021               [Page 23]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
    This attribute type is derived from 'title', as defined in Section
    2.38 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.57
+     ( 1.3.6.1.4.1.56521.101.2.1.60
         NAME 'arcRegAuthorityTitle'
         DESC 'Title assigned to an authoritative contact associated with
            an X.660 arc registration entry'
         SINGLE-VALUE
         SUP title )
 
-2.1.58.  'arcRegDefaultTitle'
+2.1.61.  'arcRegDefaultTitle'
 
    The 'arcRegDefaultTitle' attribute type allows for an official or
    professional title to be assigned to a default contact, typically
@@ -1297,14 +1355,14 @@ Coretta                   Expires August 17, 2021              [Page 22]
    This attribute type is derived from 'title', as defined in Section
    2.38 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.58
+     ( 1.3.6.1.4.1.56521.101.2.1.61
         NAME 'arcRegDefaultTitle'
         DESC 'Title assigned to a default contact associated with an
            X.660 arc registration entry'
         SINGLE-VALUE
         SUP title )
 
-2.1.59.  'arcRegSponsorTitle'
+2.1.62.  'arcRegSponsorTitle'
 
    The 'arcRegSponsorTitle' attribute type allows for an official or
    professional title to be assigned to a sponsorship contact, typically
@@ -1313,7 +1371,7 @@ Coretta                   Expires August 17, 2021              [Page 22]
    This attribute type is derived from 'title', as defined in Section
    2.38 of [RFC4519].
 
-     ( 1.3.6.1.4.1.56521.101.2.1.59
+     ( 1.3.6.1.4.1.56521.101.2.1.62
         NAME 'arcRegSponsorTitle'
         DESC 'Title assigned to a sponsorship contact associated with
            an X.660 arc registration entry'
@@ -1331,9 +1389,9 @@ Coretta                   Expires August 17, 2021              [Page 22]
    (3) root arcs within a DIT, per Rec. ITU-T X.660 (ISO/IEC 9834-1).
 
 
-Coretta                   Expires August 17, 2021              [Page 23]
+Coretta               Expires September 12, 2021               [Page 24]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.2.1
@@ -1347,7 +1405,7 @@ Coretta                   Expires August 17, 2021              [Page 23]
          MAY ( arcData $ arcAuthorityContact $ arcSponsorContact $
                arcDefaultContact $ arcSecId $ labeledURI $ arcTitle $
                arcDescription $ arcAddlSecId $ arcCreateTimestamp $
-               arcModifyTimestamp ) )
+               arcModifyTimestamp $ arcIRI $ arcASN1 ) )
 
 2.2.2.  'x660ArcEntry'
 
@@ -1364,7 +1422,8 @@ Coretta                   Expires August 17, 2021              [Page 23]
          MAY ( arcAddlSecId $ arcData $ arcOID $ arcSecId $ arcTitle $
                arcSponsorContact $ arcAuthorityContact $ labeledURI $
                arcDefaultContact $ arcDescription $ arcModifyTimestamp $
-               arcCreateTimestamp $ arcId ) )
+               arcCreateTimestamp $ arcId $ arcLongId $ arcIRI $
+               arcASN1 ) )
 
 2.2.3.  'x660ContactEntry'
 
@@ -1375,8 +1434,8 @@ Coretta                   Expires August 17, 2021              [Page 23]
    In larger, more complete implementations of this specification, it
    is RECOMMENDED that registration data be stored in dedicated entries
    that bear this class.  In contrast, sparse implementations MAY opt
-   to assign this class directly to x660RootArcEntry and x660ArcEntry
-   DIT entries, though this is not required.
+   to assign this class directly to entries bearing 'x660RootArcEntry'
+   and 'x660ArcEntry' object classes, though this is not required.
 
 
 
@@ -1388,10 +1447,9 @@ Coretta                   Expires August 17, 2021              [Page 23]
 
 
 
+Coretta               Expires September 12, 2021               [Page 25]
 
-Coretta                   Expires August 17, 2021              [Page 24]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
      ( 1.3.6.1.4.1.56521.101.2.2.3
@@ -1430,6 +1488,9 @@ Coretta                   Expires August 17, 2021              [Page 24]
    architects and application developers SHOULD be guided during their
    efforts for implementation.
 
+   Note that in various examples shown, some DNs are particularly long
+   and are line-wrapped and indented for readability.
+
 3.1.  Naming Context and Organization Entries
 
    In these examples, a naming context of "dc=example, dc=com" is used
@@ -1444,12 +1505,9 @@ Coretta                   Expires August 17, 2021              [Page 24]
    Directory architects MAY choose to use models of their own design, so
    long as noted requirements in the following sections are satisfied.
 
+Coretta               Expires September 12, 2021               [Page 26]
 
-
-
-Coretta                   Expires August 17, 2021              [Page 25]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
 3.2.  Two-Dimensional Model
@@ -1469,29 +1527,29 @@ Coretta                   Expires August 17, 2021              [Page 25]
 
 3.2.1.  Requirements
 
-   One requirement of this model is strict use of the arcOID attribute
+   One requirement of this model is strict use of the 'arcOID' attribute
    type, covered in Section 2.1.2.  This attribute MUST be used on all
    non-root arc registration entries.
 
-   Root arc registration entries SHALL NOT bear an arcOID value, as the
-   syntax for OIDs (see Section 3.3.26 of [RFC4517]) requires at least
-   two (2) nodes in a given value.
+   Root arc registration entries SHALL NOT bear an 'arcOID' value, as
+   the syntax for OIDs (see Section 3.3.26 of [RFC4517]) requires at
+   least two (2) arc in a given value.
 
-   Uniqueness of arcOID values within a directory structure MUST always
-   be enforced to ensure unambiguous results.  The simplest way to meet
-   this requirement would be to adopt arcOID-based DN structure as shown
-   in the next section.
+   Uniqueness of 'arcOID' values within a directory structure MUST
+   always be enforced to ensure unambiguous results.  The simplest way
+   to meet this requirement would be to adopt a DN structure based on
+   this attribute type, as shown in the next section.
 
 3.2.2.  Distinguished Name Convention
 
    Because all LDAP search requests can be conducted using a "one-level
    scope" below the circumscribing directory branch, a hierarchical DN
    structure is unnecessary.  While the three-dimensional model (shown
-   in Section 3.3) uses the integer-based arc attribute type (defined in
-   Section 2.1.1) to form the effective LDAP RDN of an entry, it is not
-   practical in this model.
+   in Section 3.3) uses the integer-based 'arc' attribute type (defined
+   in Section 2.1.1) to form the effective LDAP RDN of an entry, it is
+   not practical in this model.
 
-   The most sensible convention for DN involves use of the arcOID
+   The most sensible convention for DN involves use of the 'arcOID'
    attribute as shown:
 
      dn: arcOID=1.3,ou=X660,dc=example,dc=com
@@ -1505,9 +1563,9 @@ Coretta                   Expires August 17, 2021              [Page 25]
    as sibling entries.  For example, the addition of deeper arcs would
    be procedurally identical:
 
-Coretta                   Expires August 17, 2021              [Page 26]
+Coretta               Expires September 12, 2021               [Page 27]
 
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
 
 
      dn: arcOID=1.3.6.1,ou=X660,dc=example,dc=com
@@ -1529,7 +1587,7 @@ Coretta                   Expires August 17, 2021              [Page 26]
 
      - Joint-ISO-ITU-T (2)
 
-   As sibling entries, these root arcs MUST use the x660RootArcEntry
+   As sibling entries, these root arcs MUST use the 'x660RootArcEntry'
    class, as shown in Section 2.2.1:
 
      dn: arc=0,ou=X660,dc=example,dc=com
@@ -1557,16 +1615,28 @@ Coretta                   Expires August 17, 2021              [Page 26]
    model may be convenient in situations where DIT content segmentation
    is in effect.
 
+3.2.4.  Arc IRI and ASN.1 Value Storage
+
+   Following this directory model implementation, storage of literal
+   IRI and/or ASN.1 values is required if such values are expected to
+   be present for a given arc entry.
+
+Coretta               Expires September 12, 2021               [Page 28]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
+
+   Unlike the three-dimensional model defined in Section 3.3, there
+   is no inherent hierarchy to traverse for the purpose of reading
+   interim 'arcId' values and composing a resultant IRI or ASN.1 value
+   in this directory model.  As a result, use of the 'arcIRI' and/or
+   'arcASN1' attribute types is necessary.
+
 3.3.  Three-Dimensional Model
 
    This model is hierarchical by nature, providing a means for storing
    arc registration entries in "nested" fashion, thereby reflecting the
-   hierarchy of the [X.660] specification itself.
-
-Coretta                   Expires August 17, 2021              [Page 27]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
+   hierarchical logic of the [X.660] specification itself.
 
    This model is RECOMMENDED for thorough or complete implementations,
    or implementations in which custom solutions (applications) have been
@@ -1606,6 +1676,14 @@ Coretta                   Expires August 17, 2021              [Page 27]
      arc: 6
      arcId: dod
 
+
+
+
+Coretta               Expires September 12, 2021               [Page 29]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
+
    Only once this requirement is satisfied would the administrators be
    able to create the desired registration, such as a registration entry
    for the "internet" OID, as shown in [RFC1155]:
@@ -1616,23 +1694,13 @@ Coretta                   Expires August 17, 2021              [Page 27]
      arc: 1
      arcId: internet
 
-
-
-
-
-
-Coretta                   Expires August 17, 2021              [Page 28]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
-
 3.3.2.  Distinguished Name Convention
 
    Under a strict interpretation of this model, its implementation will
    provide a means for bidirectional resolution of registered arc OIDs.
    LDAP DNs can be deduced from OIDs, and vice versa.
 
-   This is achieved by using the arc attribute type (as discussed in
+   This is achieved by using the 'arc' attribute type (as discussed in
    Section 2.1.1) as components in the effective LDAP DN, but in reverse
    order to reflect the directory hierarchy.
 
@@ -1643,6 +1711,8 @@ Coretta                   Expires August 17, 2021              [Page 28]
              |      |      |      |
              ----------------------
                     1.3.6.1
+
+   As a result, use of the 'arcOID' attribute type becomes unnecessary.
 
 3.3.3.  Root Arc Entries
 
@@ -1656,7 +1726,7 @@ Coretta                   Expires August 17, 2021              [Page 28]
 
      - Joint-ISO-ITU-T (2)
 
-   As sibling entries, these root arcs MUST use the x660RootArcEntry
+   As sibling entries, these root arcs MUST use the 'x660RootArcEntry'
    class, as shown in Section 2.2.1:
 
      dn: arc=0,ou=X660,dc=example,dc=com
@@ -1664,6 +1734,13 @@ Coretta                   Expires August 17, 2021              [Page 28]
      objectClass: x660RootArcEntry
      arc: 0
      arcId: ITU-T
+
+
+
+Coretta               Expires September 12, 2021               [Page 30]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
 
      dn: arc=1,ou=X660,dc=example,dc=com
      objectClass: top
@@ -1677,16 +1754,32 @@ Coretta                   Expires August 17, 2021              [Page 28]
      arc: 2
      arcId: Joint-ISO-ITU-T
 
-
-
-Coretta                   Expires August 17, 2021              [Page 29]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
-
    Depending on the breadth and scope of an implementation, creation and
    use of root arc registration entries is RECOMMENDED, but not required
    in all situations.
+
+3.3.4.  Arc IRI and ASN.1 Value Storage
+
+   Following this directory model implementation, storage of IRI and
+   ASN.1 values is not required, but may still be desirable.
+
+   It is assumed that a suitable DUA (one optimized with this specific
+   specification in mind) would be capable of extrapolating any fully
+   qualified IRI or ASN.1 value by way of traversal of all arcs defined
+   in a given branch path. In other words, a DUA can deduce the IRI for
+   the OID '1.3' is '/ISO/Identified-Organization' by reading the value
+   of the attribute type 'arcId' from both the ISO root arc (1) as well
+   as the specified subordinate arc (3), in that order.
+
+   However this may not be a desirable action from some points of view.
+   It may be more administratively feasible to simply store the literal
+   IRI and/or ASN.1 values for any given arc entry by way of 'arcIRI'
+   or 'arcASN1' attribute type usage respectively.
+
+   In terms of a reasonably sound DUA design, it is RECOMMENDED the
+   client check if the 'arcIRI' and/or 'arcASN1' attribute types are
+   present and, if not, attempt to extrapolate such values as a fall
+   back or optional action.
 
 3.4.  Arc Authority, Sponsorship and Default Contact Info
 
@@ -1694,13 +1787,18 @@ Coretta                   Expires August 17, 2021              [Page 29]
    or generalized contact information in one of two main ways:
 
      - Store default, sponsor or authority contact information within
-       the x660RootArcEntry or x660ArcEntry entries themselves, or ...
+       arc registration entries themselves, or ...
 
      - Store default, sponsor or authority contact information within
-       dedicated x660ContactEntry entries, and reference each
-       entry by DN using arcDefaultContact, arcSponsorContact and/or
-       arcAuthorityContact attribute types stored within an arc
-       registration entry directly.
+       dedicated entries, and reference the DNs of these entries via
+       the 'arcAuthorityContact', 'arcSponsorContact' and/or
+       'arcDefaultContact' attribute types assigned to arc registration
+       entries.
+
+Coretta               Expires September 12, 2021               [Page 31]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
 
 3.4.1.  Examples
 
@@ -1735,21 +1833,13 @@ Coretta                   Expires August 17, 2021              [Page 29]
       arcId: Jesse Coretta
       arc: 56521
 
-
-
-Coretta                   Expires August 17, 2021              [Page 30]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
-
 3.4.1.2.  Dedicated Contact Entries
 
    This is a basic example of a single authority-based contact entry.
 
    Please note that use of the 'organizationalRole' object class (per
    Section 3.10 of [RFC4519]) is purely incidental here.  Directory
-   architects MAY choose to base contact entries upon another suitable
-   STRUCTURAL object class.
+   architects MAY opt for another STRUCTURAL object class.
 
       dn: arcRegId=2c68fc8a-ddec-45fd-9cd9-6a4f4382aee0,ou=Contacts,
        dc=example,dc=com
@@ -1762,6 +1852,11 @@ Coretta                   Expires August 17, 2021              [Page 30]
       arcRegAuthorityCommonName: Jesse Coretta
       arcRegAuthorityEmail: jesse.coretta@example.com
       arcRegAuthorityMobile: +1 123 456 7890
+
+Coretta               Expires September 12, 2021               [Page 32]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
 
    In cases where multiple distinct individuals or addresses are used,
    they can all be combined into a single record:
@@ -1786,6 +1881,18 @@ Coretta                   Expires August 17, 2021              [Page 30]
       arcRegDefaultEmail: default@example.com
       arcRegDefaultMobile: +1 123 456 0123
 
+   Keeping with the example arc described in Section 3.4.1.1, the
+   three-dimensional arc entry would manifest as follows:
+
+      dn: arc=56521,arc=1,arc=4,arc=1,arc=6,arc=3,arc=1,ou=X660,
+       dc=example,dc=com
+      objectClass: x660ArcEntry
+      objectClass: top
+      arcAuthorityContact: arcRegId=2c68fc8a-ddec-45fd-9cd9-6a4f
+       4382aee0,ou=Contacts,dc=example,dc=com
+      arcId: Jesse Coretta
+      arc: 56521
+
 4.  References
 
 4.1.  Normative References
@@ -1794,18 +1901,20 @@ Coretta                   Expires August 17, 2021              [Page 30]
               Information for TCP/IP-based Internets", RFC 1155, May
               1990.
 
-
-Coretta                   Expires August 17, 2021              [Page 31]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
-
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
    [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
               (LDAP): Technical Specification Road Map", RFC 4510, June
               2006.
+
+
+
+
+Coretta               Expires September 12, 2021               [Page 33]
+
+Internet-Draft       X.660 LDAP Schema and Models             March 2021
+
 
    [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
               (LDAP): Directory Information Models", RFC 4512, June
@@ -1843,20 +1952,13 @@ Coretta                   Expires August 17, 2021              [Page 31]
 
    This document focuses on providing flexible directory models and LDAP
    schema elements in order to serve arc registration data, and to allow
-   an LDAP-based means for OID resolution, either within an organization
-   or within the context of personal use.
+   an LDAP-based means for OID resolution.
 
    If some or all of the data in the directory is sensitive in nature,
    directory architects MUST take appropriate steps to secure this
    information.  This concept is out of scope for this document.
 
-
    Beyond this, there are no specific concerns in the area of security.
-
-Coretta                   Expires August 17, 2021              [Page 32]
-
-Internet-Draft        X.660 LDAP Schema and Models        February 2021
-
 
 Author's Address
 
@@ -1868,48 +1970,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Coretta                  Expires August 17, 2021               [Page 33]
+Coretta              Expires September 12, 2021                [Page 34]
