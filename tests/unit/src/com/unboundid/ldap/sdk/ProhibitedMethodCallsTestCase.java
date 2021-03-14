@@ -526,6 +526,44 @@ public final class ProhibitedMethodCallsTestCase
 
   /**
    * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code KeyStore.getDefaultType} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testKeyStoreGetDefaultType(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("KeyStore.getDefaultType"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of KeyStore.getDefaultType, which " +
+             "may be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getDefaultKeyStoreType.  " +
+             "The offense is on the following line (at or near line " +
+             lineNumber + "):" + StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
    * uses of the {@code KeyStore.getInstance} method.
    *
    * @param  f  The source file to examine.
@@ -553,8 +591,8 @@ public final class ProhibitedMethodCallsTestCase
         fail("Source code file " + f.getAbsolutePath() +
              " contains a forbidden use of KeyStore.getInstance, which may " +
              "be inappropriate when running in FIPS mode.  You should " +
-             "replace the call with CryptoHelper.getStore.  The offense is " +
-             "on the following line (at or near line " + lineNumber + "):" +
+             "replace the call with CryptoHelper.getKeyStore.  The offense " +
+             "is on the following line (at or near line " + lineNumber + "):" +
              StaticUtils.EOL + StaticUtils.EOL + line);
       }
     }

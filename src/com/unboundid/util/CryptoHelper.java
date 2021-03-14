@@ -50,6 +50,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
@@ -88,18 +89,18 @@ public final class CryptoHelper
   /**
    * Indicates whether the LDAP SDK should operate in FIPS 140-2-compliant mode.
    */
-  private static final boolean FIPS_MODE;
+  @NotNull private static final AtomicBoolean FIPS_MODE;
   static
   {
     final String propertyValue =
          StaticUtils.getSystemProperty(PROPERTY_NAME_FIPS_MODE);
     if (propertyValue == null)
     {
-      FIPS_MODE = false;
+      FIPS_MODE = new AtomicBoolean(false);
     }
     else if (propertyValue.equalsIgnoreCase("true"))
     {
-      FIPS_MODE = true;
+      FIPS_MODE = new AtomicBoolean(true);
       try
       {
         BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
@@ -115,11 +116,11 @@ public final class CryptoHelper
     }
     else if (propertyValue.equalsIgnoreCase("false"))
     {
-      FIPS_MODE = false;
+      FIPS_MODE = new AtomicBoolean(false);
     }
     else
     {
-      FIPS_MODE = false;
+      FIPS_MODE = new AtomicBoolean(false);
       Validator.violation(
            ERR_CRYPTO_HELPER_INVALID_FIPS_MODE_PROPERTY_VALUE.get(
                 PROPERTY_NAME_FIPS_MODE, propertyValue));
@@ -189,7 +190,7 @@ public final class CryptoHelper
 
   static
   {
-    if (FIPS_MODE)
+    if (FIPS_MODE.get())
     {
       TLS_VERSION_1 = BouncyCastleFIPSHelper.TLS_VERSION_1;
       TLS_VERSION_1_1 = BouncyCastleFIPSHelper.TLS_VERSION_1_1;
@@ -242,7 +243,33 @@ public final class CryptoHelper
    */
   public static boolean usingFIPSMode()
   {
-    return FIPS_MODE;
+    return FIPS_MODE.get();
+  }
+
+
+
+  /**
+   * Specifies whether the LDAP SDK should operate in a strict FIPS
+   * 140-2-compliant mode.  If the LDAP SDK should operate in FIPS mode, then
+   * the necessary Bouncy Castle providers will be loaded if they have
+   *
+   * @param  useFIPSMode  Indicates whether the LDAP SDK should operate in a
+   *                      strict FIPS 140-2-compliant mode.
+   *
+   * @throws  NoSuchProviderException  If FIPS mode should be enabled but the
+   *                                   Bouncy Castle FIPS libraries are not
+   *                                   available.
+   */
+  public static void setUseFIPSMode(final boolean useFIPSMode)
+         throws NoSuchProviderException
+  {
+    if (useFIPSMode)
+    {
+      BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
+      BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+    }
+
+    FIPS_MODE.set(useFIPSMode);
   }
 
 
@@ -838,6 +865,26 @@ public final class CryptoHelper
     }
 
     return KeyPairGenerator.getInstance(algorithmName, provider);
+  }
+
+
+
+  /**
+   * Retrieves the default type of key store that should be used.
+   *
+   * @return  The default type of key store that should be used.
+   */
+  @NotNull()
+  public static String getDefaultKeyStoreType()
+  {
+    if (usingFIPSMode())
+    {
+      return KEY_STORE_TYPE_BCFKS;
+    }
+    else
+    {
+      return KeyStore.getDefaultType();
+    }
   }
 
 

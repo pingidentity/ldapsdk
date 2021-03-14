@@ -285,7 +285,7 @@ public final class KeyStoreKeyManager
 
     if (keyStoreFormat == null)
     {
-      this.keyStoreFormat = KeyStore.getDefaultType();
+      this.keyStoreFormat = CryptoHelper.getDefaultKeyStoreType();
     }
     else
     {
@@ -339,7 +339,7 @@ public final class KeyStoreKeyManager
     String type = keyStoreFormat;
     if (type == null)
     {
-      type = KeyStore.getDefaultType();
+      type = CryptoHelper.getDefaultKeyStoreType();
     }
 
     final File f = new File(keyStoreFile);

@@ -37,6 +37,7 @@ package com.unboundid.util;
 
 
 
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -83,6 +84,22 @@ public final class CryptoHelperTestCase
   public void testUsingFIPSMode()
          throws Exception
   {
+    assertFalse(CryptoHelper.usingFIPSMode());
+
+    try
+    {
+      CryptoHelper.setUseFIPSMode(true);
+      fail("Expected an exception when trying to enable FIPS mode");
+    }
+    catch (final NoSuchProviderException e)
+    {
+      // This was expected.
+    }
+
+    assertFalse(CryptoHelper.usingFIPSMode());
+
+    CryptoHelper.setUseFIPSMode(false);
+
     assertFalse(CryptoHelper.usingFIPSMode());
   }
 
@@ -658,6 +675,23 @@ public final class CryptoHelperTestCase
     {
       // This was expected.
     }
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code getDefaultKeyStoreType} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetDefaultKeyStoreType()
+         throws Exception
+  {
+    assertNotNull(CryptoHelper.getDefaultKeyStoreType());
+
+    assertEquals(CryptoHelper.getDefaultKeyStoreType(),
+         KeyStore.getDefaultType());
   }
 
 

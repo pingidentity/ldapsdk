@@ -192,7 +192,7 @@ public final class TrustStoreTrustManager
 
     if (trustStoreFormat == null)
     {
-      this.trustStoreFormat = KeyStore.getDefaultType();
+      this.trustStoreFormat = CryptoHelper.getDefaultKeyStoreType();
     }
     else
     {
