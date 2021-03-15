@@ -179,32 +179,28 @@ public final class SSLUtil
   /**
    * The name of the SSL protocol that can be used to request TLSv1.3.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1_3 =
-       CryptoHelper.TLS_VERSION_1_3;
+  @NotNull public static final String SSL_PROTOCOL_TLS_1_3 = "TLSv1.3";
 
 
 
   /**
    * The name of the SSL protocol that can be used to request TLSv1.2.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1_2 =
-       CryptoHelper.TLS_VERSION_1_2;
+  @NotNull public static final String SSL_PROTOCOL_TLS_1_2 = "TLSv1.2";
 
 
 
   /**
    * The name of the SSL protocol that can be used to request TLSv1.1.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1_1 =
-       CryptoHelper.TLS_VERSION_1_1;
+  @NotNull public static final String SSL_PROTOCOL_TLS_1_1 = "TLSv1.1";
 
 
 
   /**
    * The name of the SSL protocol that can be used to request TLSv1.
    */
-  @NotNull public static final String SSL_PROTOCOL_TLS_1 =
-       CryptoHelper.TLS_VERSION_1;
+  @NotNull public static final String SSL_PROTOCOL_TLS_1 = "TLSv1";
 
 
 

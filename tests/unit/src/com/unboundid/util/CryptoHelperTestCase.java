@@ -50,6 +50,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.ssl.SSLUtil;
 
 
 
@@ -1372,9 +1373,9 @@ public final class CryptoHelperTestCase
          CryptoHelper.getDefaultSSLContext().getProvider();
 
 
-    assertNotNull(CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2));
+    assertNotNull(CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2));
     assertEquals(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2).
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2).
               getProvider().getName(),
          defaultProvider.getName());
 
@@ -1389,16 +1390,16 @@ public final class CryptoHelperTestCase
     }
 
     assertNotNull(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2, NULL_STRING));
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2, NULL_STRING));
     assertEquals(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
               NULL_STRING).getProvider().getName(),
          defaultProvider.getName());
 
-    assertNotNull(CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+    assertNotNull(CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
          defaultProvider.getName()));
     assertEquals(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
               defaultProvider.getName()).getProvider().getName(),
          defaultProvider.getName());
 
@@ -1424,7 +1425,7 @@ public final class CryptoHelperTestCase
 
     try
     {
-      CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+      CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
            "UnknownProvider");
       fail("Expected a getSSLContext exception with unknown provider");
     }
@@ -1434,18 +1435,18 @@ public final class CryptoHelperTestCase
     }
 
     assertNotNull(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
               NULL_PROVIDER));
     assertEquals(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
               NULL_PROVIDER).getProvider().getName(),
          defaultProvider.getName());
 
     assertNotNull(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
               defaultProvider));
     assertEquals(
-         CryptoHelper.getSSLContext(CryptoHelper.TLS_VERSION_1_2,
+         CryptoHelper.getSSLContext(SSLUtil.SSL_PROTOCOL_TLS_1_2,
               defaultProvider).getProvider().getName(),
          defaultProvider.getName());
 

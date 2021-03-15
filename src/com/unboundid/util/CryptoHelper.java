@@ -160,55 +160,6 @@ public final class CryptoHelper
 
 
   /**
-   * The SSL protocol version string that can be used to request TLS version 1.
-   */
-  @NotNull public static final String TLS_VERSION_1;
-
-
-
-  /**
-   * The SSL protocol version string that can be used to request TLS version
-   * 1.1.
-   */
-  @NotNull public static final String TLS_VERSION_1_1;
-
-
-
-  /**
-   * The SSL protocol version string that can be used to request TLS version
-   * 1.2.
-   */
-  @NotNull public static final String TLS_VERSION_1_2;
-
-
-
-  /**
-   * The SSL protocol version string that can be used to request TLS version
-   * 1.3.
-   */
-  @NotNull public static final String TLS_VERSION_1_3;
-
-  static
-  {
-    if (FIPS_MODE.get())
-    {
-      TLS_VERSION_1 = BouncyCastleFIPSHelper.TLS_VERSION_1;
-      TLS_VERSION_1_1 = BouncyCastleFIPSHelper.TLS_VERSION_1_1;
-      TLS_VERSION_1_2 = BouncyCastleFIPSHelper.TLS_VERSION_1_2;
-      TLS_VERSION_1_3 = BouncyCastleFIPSHelper.TLS_VERSION_1_3;
-    }
-    else
-    {
-      TLS_VERSION_1 = "TLSv1";
-      TLS_VERSION_1_1 = "TLSv1.1";
-      TLS_VERSION_1_2 = "TLSv1.2";
-      TLS_VERSION_1_3 = "TLSv1.3";
-    }
-  }
-
-
-
-  /**
    * The name of the provider service type for secure random number generator
    * algorithms.
    */

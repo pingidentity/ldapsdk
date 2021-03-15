@@ -139,38 +139,6 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
-   * The name of the SSL protocol version that should be used to request TLSv1
-   * in the Bouncy Castle JSSE provider.
-   */
-  @NotNull public static final String TLS_VERSION_1 = "TLSV1";
-
-
-
-  /**
-   * The name of the SSL protocol version that should be used to request TLSv1.1
-   * in the Bouncy Castle JSSE provider.
-   */
-  @NotNull public static final String TLS_VERSION_1_1 = "TLSV1.1";
-
-
-
-  /**
-   * The name of the SSL protocol version that should be used to request TLSv1.2
-   * in the Bouncy Castle JSSE provider.
-   */
-  @NotNull public static final String TLS_VERSION_1_2 = "TLSV1.2";
-
-
-
-  /**
-   * The name of the SSL protocol version that should be used to request TLSv1.3
-   * in the Bouncy Castle JSSE provider.
-   */
-  @NotNull public static final String TLS_VERSION_1_3 = "TLSV1.3";
-
-
-
-  /**
    * Prevents this utility class from being instantiated.
    */
   private BouncyCastleFIPSHelper()
