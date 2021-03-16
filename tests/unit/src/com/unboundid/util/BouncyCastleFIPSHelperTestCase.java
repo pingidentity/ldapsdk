@@ -38,6 +38,8 @@ package com.unboundid.util;
 
 
 import java.security.NoSuchProviderException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.testng.annotations.Test;
 
@@ -78,5 +80,31 @@ public final class BouncyCastleFIPSHelperTestCase
          throws Exception
   {
     BouncyCastleFIPSHelper.getBouncyCastleJSSEProvider();
+  }
+
+
+
+  /**
+   * Provides test coverage for the methods used to control logging.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLogging()
+  {
+    BouncyCastleFIPSHelper.disableLogging();
+
+    Logger logger = BouncyCastleFIPSHelper.enableLogging(Level.WARNING);
+    assertNotNull(logger);
+    assertEquals(logger.getLevel(), Level.WARNING);
+    assertFalse(logger.getUseParentHandlers());
+
+    logger = BouncyCastleFIPSHelper.enableLogging(null);
+    assertNotNull(logger);
+    assertEquals(logger.getLevel(), Level.INFO);
+    assertFalse(logger.getUseParentHandlers());
+
+    BouncyCastleFIPSHelper.disableLogging();
+    assertEquals(logger.getLevel(), Level.OFF);
   }
 }

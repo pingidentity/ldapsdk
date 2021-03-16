@@ -41,6 +41,8 @@ import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.unboundid.util.UtilityMessages.*;
 
@@ -135,6 +137,45 @@ public final class BouncyCastleFIPSHelper
    */
   @NotNull public static final String DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM =
        "PKIX";
+
+
+
+  /**
+   * The name of a Java property that indicates whether to use the Bouncy Castle
+   * JSSE provider's logging.
+   */
+  @NotNull public static final String PROPERTY_LOGGING_ENABLED =
+       BouncyCastleFIPSHelper.class.getName() + ".loggingEnabled";
+
+
+
+  /**
+   * The name of the logger used for Bouncy Castle functionality.
+   */
+  @NotNull private static final String LOGGER_NAME = "org.bouncycastle";
+
+
+
+  /**
+   * The logger for the Bouncy Castle JSSE provider's logging.
+   */
+  @NotNull private static final Logger LOGGER = Logger.getLogger(LOGGER_NAME);
+  static
+  {
+    LOGGER.setUseParentHandlers(false);
+
+    final String propertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_LOGGING_ENABLED);
+    if ("true".equalsIgnoreCase(propertyValue))
+    {
+      StaticUtils.setLoggerLevel(LOGGER, Level.INFO);
+    }
+    else
+    {
+      StaticUtils.setLoggerLevel(LOGGER, Level.OFF);
+    }
+
+  }
 
 
 
@@ -363,5 +404,34 @@ public final class BouncyCastleFIPSHelper
                 BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME,
                 StaticUtils.getExceptionMessage(e)));
     }
+  }
+
+
+
+  /**
+   * Disables logging for Bouncy Castle functionality.
+   */
+  public static void disableLogging()
+  {
+    StaticUtils.setLoggerLevel(LOGGER, Level.OFF);
+    LOGGER.setUseParentHandlers(false);
+  }
+
+
+
+  /**
+   * Enables logging for Bouncy Castle functionality.
+   *
+   * @param  level  The logging level to use.  If it is {@code null}, then a
+   *                default level of {@code INFO} will be used.
+   *
+   * @return  The logger used for Bouncy Castle functionality.
+   */
+  @NotNull()
+  public static Logger enableLogging(@Nullable final Level level)
+  {
+    StaticUtils.setLoggerLevel(LOGGER,
+         (level == null) ? Level.INFO : level);
+    return LOGGER;
   }
 }
