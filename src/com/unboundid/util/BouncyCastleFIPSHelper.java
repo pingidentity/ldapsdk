@@ -141,6 +141,16 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
+   * The name of a Java property that the Bouncy Castle FIPS provider uses to
+   * determine whether to start in approved mode, in which non-approved
+   * functionality will be disabled.
+   */
+  @NotNull public static final String PROPERTY_APPROVED_ONLY =
+       "org.bouncycastle.fips.approved_only";
+
+
+
+  /**
    * The name of a Java property that indicates whether to use the Bouncy Castle
    * JSSE provider's logging.
    */
