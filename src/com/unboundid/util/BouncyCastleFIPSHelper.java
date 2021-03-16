@@ -160,6 +160,20 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
+   * The name of a Java property that can be used to set the default log level
+   * for the Bouncy Castle JSSE provider's logging.  This will only be used if
+   * the {@link #PROPERTY_LOGGING_ENABLED} property is set to {@code true}, and
+   * the value must match the name of one of of the
+   * {@code java.util.logging.Level} constants ({@code SEVERE},
+   * {@code WARNING}, {@code INFO}, {@code CONFIG}, {@code  FINE},
+   * {@code FINER}, {@code FINEST}, {@code ALL}, or {@code OFF}).
+   */
+  @NotNull public static final String PROPERTY_LOG_LEVEL =
+       BouncyCastleFIPSHelper.class.getName() + ".logLevel";
+
+
+
+  /**
    * The name of the logger used for Bouncy Castle functionality.
    */
   @NotNull private static final String LOGGER_NAME = "org.bouncycastle";
@@ -174,11 +188,52 @@ public final class BouncyCastleFIPSHelper
   {
     LOGGER.setUseParentHandlers(false);
 
-    final String propertyValue =
+    final String enabledPropertyValue =
          StaticUtils.getSystemProperty(PROPERTY_LOGGING_ENABLED);
-    if ("true".equalsIgnoreCase(propertyValue))
+    if ("true".equalsIgnoreCase(enabledPropertyValue))
     {
-      StaticUtils.setLoggerLevel(LOGGER, Level.INFO);
+      Level level = Level.INFO;
+      final String levelPropertyValue =
+           StaticUtils.getSystemProperty(PROPERTY_LOG_LEVEL);
+      if (levelPropertyValue != null)
+      {
+        switch (StaticUtils.toUpperCase(levelPropertyValue))
+        {
+          case "SEVERE":
+            level = Level.SEVERE;
+            break;
+          case "WARNING":
+            level = Level.WARNING;
+            break;
+          case "INFO":
+            level = Level.INFO;
+            break;
+          case "CONFIG":
+            level = Level.CONFIG;
+            break;
+          case "FINE":
+            level = Level.FINE;
+            break;
+          case "FINER":
+            level = Level.FINER;
+            break;
+          case "FINEST":
+            level = Level.FINEST;
+            break;
+          case "ALL":
+            level = Level.ALL;
+            break;
+          case "OFF":
+            level = Level.OFF;
+            break;
+          default:
+            Validator.violation("Unsupported " + PROPERTY_LOG_LEVEL +
+                 " property value '" + levelPropertyValue + "'.");
+            break;
+        }
+      }
+
+      StaticUtils.setLoggerLevel(LOGGER, level);
     }
     else
     {
