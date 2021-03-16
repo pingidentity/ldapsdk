@@ -62,6 +62,7 @@ import javax.net.ssl.TrustManagerFactory;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.ssl.TLSCipherSuiteSelector;
 
 import static com.unboundid.util.UtilityMessages.*;
 
@@ -105,6 +106,7 @@ public final class CryptoHelper
       {
         BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
         BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+        TLSCipherSuiteSelector.recompute();
       }
       catch (final Exception e)
       {
@@ -221,6 +223,8 @@ public final class CryptoHelper
     }
 
     FIPS_MODE.set(useFIPSMode);
+
+    TLSCipherSuiteSelector.recompute();
   }
 
 

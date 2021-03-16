@@ -91,6 +91,25 @@ public final class TLSCipherSuiteSelectorTestCase
     assertNotNull(TLSCipherSuiteSelector.getNonRecommendedCipherSuites());
     assertFalse(
          TLSCipherSuiteSelector.getNonRecommendedCipherSuites().isEmpty());
+
+    TLSCipherSuiteSelector.recompute();
+
+    assertNotNull(TLSCipherSuiteSelector.getSupportedCipherSuites());
+    assertFalse(TLSCipherSuiteSelector.getSupportedCipherSuites().isEmpty());
+
+    assertNotNull(TLSCipherSuiteSelector.getDefaultCipherSuites());
+    assertFalse(TLSCipherSuiteSelector.getDefaultCipherSuites().isEmpty());
+
+    assertNotNull(TLSCipherSuiteSelector.getRecommendedCipherSuites());
+    assertFalse(TLSCipherSuiteSelector.getRecommendedCipherSuites().isEmpty());
+
+    assertNotNull(TLSCipherSuiteSelector.getRecommendedCipherSuiteArray());
+    assertEquals(TLSCipherSuiteSelector.getRecommendedCipherSuiteArray().length,
+         TLSCipherSuiteSelector.getRecommendedCipherSuites().size());
+
+    assertNotNull(TLSCipherSuiteSelector.getNonRecommendedCipherSuites());
+    assertFalse(
+         TLSCipherSuiteSelector.getNonRecommendedCipherSuites().isEmpty());
   }
 
 

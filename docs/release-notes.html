@@ -65,6 +65,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the TLS cipher suite selector to provide a way to recompute the sets of
+                  supported, recommended, and non-recommended cipher suites.  This may be
+                  necessary after performing some action that changes the set of cipher suites
+                  available for use in the JVM, like enabling FIPS 140-2-compliant mode or
+                  installing a new cryptographic provider into the running JVM.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new PEMFileKeyManager class that can be used as a Java X.509 key manager
                   that reads the certificate chain and private key from PEM files.
                   <br><br>

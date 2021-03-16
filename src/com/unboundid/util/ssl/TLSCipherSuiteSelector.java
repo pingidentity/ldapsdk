@@ -52,6 +52,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
@@ -133,8 +134,8 @@ public final class TLSCipherSuiteSelector
   /**
    * The singleton instance of this TLS cipher suite selector.
    */
-  @NotNull private static final TLSCipherSuiteSelector INSTANCE =
-       new TLSCipherSuiteSelector();
+  @NotNull private static final AtomicReference<TLSCipherSuiteSelector>
+       INSTANCE = new AtomicReference<>(new TLSCipherSuiteSelector());
 
 
 
@@ -304,7 +305,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedSet<String> getSupportedCipherSuites()
   {
-    return INSTANCE.supportedCipherSuites;
+    return INSTANCE.get().supportedCipherSuites;
   }
 
 
@@ -319,7 +320,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedSet<String> getDefaultCipherSuites()
   {
-    return INSTANCE.defaultCipherSuites;
+    return INSTANCE.get().defaultCipherSuites;
   }
 
 
@@ -335,7 +336,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedSet<String> getRecommendedCipherSuites()
   {
-    return INSTANCE.recommendedCipherSuites;
+    return INSTANCE.get().recommendedCipherSuites;
   }
 
 
@@ -352,7 +353,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static String[] getRecommendedCipherSuiteArray()
   {
-    return INSTANCE.recommendedCipherSuiteArray.clone();
+    return INSTANCE.get().recommendedCipherSuiteArray.clone();
   }
 
 
@@ -371,7 +372,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedMap<String,List<String>> getNonRecommendedCipherSuites()
   {
-    return INSTANCE.nonRecommendedCipherSuites;
+    return INSTANCE.get().nonRecommendedCipherSuites;
   }
 
 
@@ -758,10 +759,10 @@ public final class TLSCipherSuiteSelector
       return Collections.emptySet();
     }
 
-    final int capacity =
-         StaticUtils.computeMapCapacity(INSTANCE.supportedCipherSuites.size());
+    final int capacity = StaticUtils.computeMapCapacity(
+         INSTANCE.get().supportedCipherSuites.size());
     final Map<String,String> supportedMap = new HashMap<>(capacity);
-    for (final String supportedSuite : INSTANCE.supportedCipherSuites)
+    for (final String supportedSuite : INSTANCE.get().supportedCipherSuites)
     {
       supportedMap.put(
            StaticUtils.toUpperCase(supportedSuite).replace('-', '_'),
@@ -780,5 +781,17 @@ public final class TLSCipherSuiteSelector
     }
 
     return Collections.unmodifiableSet(selectedSet);
+  }
+
+
+
+  /**
+   * Re-computes the default instance of this cipher suite selector.  This may
+   * be necessary after certain actions that alter the supported set of TLS
+   * cipher suites (for example, installing a new cryptograhpic provider).
+   */
+  public static void recompute()
+  {
+    INSTANCE.set(new TLSCipherSuiteSelector());
   }
 }
