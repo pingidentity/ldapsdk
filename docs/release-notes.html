@@ -54,6 +54,12 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the TLS cipher suite selector so that cipher suites that rely on the
+                  SHA-1 digest are excluded by default in FIPS 140-2-compliant mode.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved the order in which the LDAP SDK returns the names of the recommended
                   cipher suites chosen by the TLS cipher suite selector.  It now uses more
                   fine-grained ordering based on the key agreement for cipher suites with the

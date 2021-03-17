@@ -590,10 +590,19 @@ public final class TLSCipherSuiteSelector
       // accepted.
       if (name.endsWith("_SHA512") ||
            name.endsWith("_SHA384") ||
-           name.endsWith("_SHA256") ||
-           name.endsWith("_SHA"))
+           name.endsWith("_SHA256"))
       {
         // These are recommended digest algorithms.
+      }
+      else if (name.endsWith("_SHA"))
+      {
+        // We will only recommend this cipher suite in non-FIPS-compliant mode.
+        if (CryptoHelper.usingFIPSMode())
+        {
+          nonRecommendedReasons.add(
+               ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_DIGEST_ALG.
+                    get("SHA-1"));
+        }
       }
       else if (name.endsWith("_MD5"))
       {
@@ -788,7 +797,7 @@ public final class TLSCipherSuiteSelector
   /**
    * Re-computes the default instance of this cipher suite selector.  This may
    * be necessary after certain actions that alter the supported set of TLS
-   * cipher suites (for example, installing a new cryptograhpic provider).
+   * cipher suites (for example, installing a new cryptographic provider).
    */
   public static void recompute()
   {
