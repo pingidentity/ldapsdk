@@ -689,10 +689,21 @@ public final class CryptoHelperTestCase
   public void testGetDefaultKeyStoreType()
          throws Exception
   {
-    assertNotNull(CryptoHelper.getDefaultKeyStoreType());
+    final String initialDefaultType = CryptoHelper.getDefaultKeyStoreType();
+    assertNotNull(initialDefaultType);
+    assertEquals(initialDefaultType, KeyStore.getDefaultType());
 
-    assertEquals(CryptoHelper.getDefaultKeyStoreType(),
-         KeyStore.getDefaultType());
+    CryptoHelper.setDefaultKeyStoreType("PKCS12");
+    assertNotNull(CryptoHelper.getDefaultKeyStoreType());
+    assertEquals(CryptoHelper.getDefaultKeyStoreType(), "PKCS12");
+
+    CryptoHelper.setDefaultKeyStoreType("JKS");
+    assertNotNull(CryptoHelper.getDefaultKeyStoreType());
+    assertEquals(CryptoHelper.getDefaultKeyStoreType(), "JKS");
+
+    CryptoHelper.setDefaultKeyStoreType(initialDefaultType);
+    assertNotNull(CryptoHelper.getDefaultKeyStoreType());
+    assertEquals(CryptoHelper.getDefaultKeyStoreType(), initialDefaultType);
   }
 
 

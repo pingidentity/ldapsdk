@@ -51,6 +51,7 @@ import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
@@ -158,6 +159,47 @@ public final class CryptoHelper
    * The key store type value that should be used for PKCS #12 key stores.
    */
   @NotNull public static final String KEY_STORE_TYPE_PKCS_12 = "PKCS12";
+
+
+
+  /**
+   * The name of the Java system property that can be used to override the
+   * default key store type that will be used by the LDAP SDK.  If this is not
+   * specified, then the default key store type will be BCFKS in FIPS-compliant
+   * mode, or the JVM's default key store type in non-FIPS mode.
+   */
+  @NotNull public static final String PROPERTY_DEFAULT_KEY_STORE_TYPE =
+       "com.unboundid.crypto.DEFAULT_KEY_STORE_TYPE";
+
+
+
+  /**
+   * The default key store type that should be used.
+   */
+  @NotNull private static final AtomicReference<String> DEFAULT_KEY_STORE_TYPE;
+  static
+  {
+    final String defaultKeyStoreType;
+    final String propertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_KEY_STORE_TYPE);
+    if (propertyValue == null)
+    {
+      if (FIPS_MODE.get())
+      {
+        defaultKeyStoreType = KEY_STORE_TYPE_BCFKS;
+      }
+      else
+      {
+        defaultKeyStoreType = KeyStore.getDefaultType();
+      }
+    }
+    else
+    {
+      defaultKeyStoreType = propertyValue;
+    }
+
+    DEFAULT_KEY_STORE_TYPE = new AtomicReference<>(defaultKeyStoreType);
+  }
 
 
 
@@ -832,14 +874,21 @@ public final class CryptoHelper
   @NotNull()
   public static String getDefaultKeyStoreType()
   {
-    if (usingFIPSMode())
-    {
-      return KEY_STORE_TYPE_BCFKS;
-    }
-    else
-    {
-      return KeyStore.getDefaultType();
-    }
+    return DEFAULT_KEY_STORE_TYPE.get();
+  }
+
+
+
+  /**
+   * Specifies the default type of key store that should be used.
+   *
+   * @param  defaultKeyStoreType  The default type of key store that should be
+   *                              used.  It must not be {@code null}.
+   */
+  public static void setDefaultKeyStoreType(
+              @NotNull final String defaultKeyStoreType)
+  {
+    DEFAULT_KEY_STORE_TYPE.set(defaultKeyStoreType);
   }
 
 
