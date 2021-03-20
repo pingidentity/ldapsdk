@@ -142,6 +142,17 @@ public final class BouncyCastleFIPSHelper
 
   /**
    * The name of a Java property that the Bouncy Castle FIPS provider uses to
+   * determine whether to allow the same RSA key to be used for multiple
+   * purposes (for example, both for signing/verifying and encrypting/decrypting
+   * or use in TLS negotiation).
+   */
+  @NotNull public static final String PROPERTY_ALLOW_RSA_MULTI_USE =
+       "org.bouncycastle.rsa.allow_multi_use";
+
+
+
+  /**
+   * The name of a Java property that the Bouncy Castle FIPS provider uses to
    * determine whether to start in approved mode, in which non-approved
    * functionality will be disabled.
    */
@@ -151,18 +162,28 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
+   * The name of a Java property that the Bouncy Castle FIPS provider uses to
+   * determine whether to allow the use of JKS key stores to access
+   * certificates.
+   */
+  @NotNull public static final String PROPERTY_ENABLE_JKS =
+       "org.bouncycastle.jca.enable_jks";
+
+
+
+  /**
    * The name of a Java property that indicates whether to use the Bouncy Castle
    * JSSE provider's logging.
    */
-  @NotNull public static final String PROPERTY_LOGGING_ENABLED =
-       BouncyCastleFIPSHelper.class.getName() + ".loggingEnabled";
+  @NotNull public static final String PROPERTY_ENABLE_LOGGING =
+       BouncyCastleFIPSHelper.class.getName() + ".enableLogging";
 
 
 
   /**
    * The name of a Java property that can be used to set the default log level
    * for the Bouncy Castle JSSE provider's logging.  This will only be used if
-   * the {@link #PROPERTY_LOGGING_ENABLED} property is set to {@code true}, and
+   * the {@link #PROPERTY_ENABLE_LOGGING} property is set to {@code true}, and
    * the value must match the name of one of of the
    * {@code java.util.logging.Level} constants ({@code SEVERE},
    * {@code WARNING}, {@code INFO}, {@code CONFIG}, {@code  FINE},
@@ -189,7 +210,7 @@ public final class BouncyCastleFIPSHelper
     LOGGER.setUseParentHandlers(false);
 
     final String enabledPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_LOGGING_ENABLED);
+         StaticUtils.getSystemProperty(PROPERTY_ENABLE_LOGGING);
     if ("true".equalsIgnoreCase(enabledPropertyValue))
     {
       Level level = Level.INFO;

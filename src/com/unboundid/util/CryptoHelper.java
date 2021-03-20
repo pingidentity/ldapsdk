@@ -83,7 +83,7 @@ public final class CryptoHelper
    * LDAP SDK should operate in FIPS 140-2-compliant mode.  If this property is
    * defined, then it must have a value of either "true" or "false".
    */
-  @NotNull public static final String PROPERTY_NAME_FIPS_MODE =
+  @NotNull public static final String PROPERTY_FIPS_MODE =
        "com.unboundid.crypto.FIPS_MODE";
 
 
@@ -95,7 +95,7 @@ public final class CryptoHelper
   static
   {
     final String propertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_NAME_FIPS_MODE);
+         StaticUtils.getSystemProperty(PROPERTY_FIPS_MODE);
     if (propertyValue == null)
     {
       FIPS_MODE = new AtomicBoolean(false);
@@ -113,7 +113,7 @@ public final class CryptoHelper
       {
         Validator.violation(
              ERR_CRYPTO_HELPER_INSTANTIATION_ERROR_FROM_FIPS_MODE_PROPERTY.get(
-                  PROPERTY_NAME_FIPS_MODE, StaticUtils.getExceptionMessage(e)),
+                  PROPERTY_FIPS_MODE, StaticUtils.getExceptionMessage(e)),
              e);
       }
     }
@@ -126,7 +126,7 @@ public final class CryptoHelper
       FIPS_MODE = new AtomicBoolean(false);
       Validator.violation(
            ERR_CRYPTO_HELPER_INVALID_FIPS_MODE_PROPERTY_VALUE.get(
-                PROPERTY_NAME_FIPS_MODE, propertyValue));
+                PROPERTY_FIPS_MODE, propertyValue));
     }
   }
 
