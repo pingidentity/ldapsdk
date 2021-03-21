@@ -50,6 +50,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.crypto.Cipher;
@@ -79,12 +80,53 @@ import static com.unboundid.util.UtilityMessages.*;
 public final class CryptoHelper
 {
   /**
-   * The name of the Java system property that will be used to indicate that the
-   * LDAP SDK should operate in FIPS 140-2-compliant mode.  If this property is
-   * defined, then it must have a value of either "true" or "false".
+   * The name of the Java property (com.unboundid.crypto.FIPS_MODE) that will be
+   * used to indicate that the LDAP SDK should operate in FIPS 140-2-compliant
+   * mode.  If this property is defined, then it must have a value of either
+   * "true" or "false".
    */
   @NotNull public static final String PROPERTY_FIPS_MODE =
        "com.unboundid.crypto.FIPS_MODE";
+
+
+
+  /**
+   * The name of the Java property
+   * (com.unboundid.crypto.REMOVE_NON_ESSENTIAL_PROVIDERS) that will be used to
+   * indicate that the LDAP SDK should update the JVM to remove providers that
+   * are not believed to be necessary in FIPS 104-2-compliant mode.  This
+   * property will only have any effect if the {@link PROPERTY_FIPS_MODE}
+   * property is set to true.  Also note that this property assumes the use of
+   * an Oracle or OpenJDK-based JVM, and may not work as expected in JVMs from
+   * other vendors that may have different essential providers.  If this
+   * property is defined, then it must have a value of either "true" or "false".
+   */
+  @NotNull public static final String PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS =
+       "com.unboundid.crypto.REMOVE_NON_ESSENTIAL_PROVIDERS";
+
+
+
+  /**
+   * The set of essential providers that will be preserved when pruning
+   * non-essential providers.  Note that this assumes the use of an Oracle or
+   * OpenJDK-based JVM.  JVMs from other vendors may use different provider
+   * classes.
+   */
+  @NotNull private static final Set<String> ESSENTIAL_PROVIDERS_TO_PRESERVE =
+       StaticUtils.setOf(
+            BouncyCastleFIPSHelper.BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME,
+            BouncyCastleFIPSHelper.BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME,
+
+            "com.sun.net.ssl.internal.ssl.Provider",
+            "sun.security.provider.Sun",
+            "sun.security.jgss.SunProvider",
+            "com.sun.security.sasl.Provider",
+            "sun.security.provider.certpath.ldap.JdkLDAP",
+            "com.sun.security.sasl.gsskerb.JdkSASL",
+            "sun.security.pkcs11.SunPKCS11",
+
+            "com.ibm.security.jgss.IBMJGSSProvider",
+            "com.ibm.security.sasl.IBMSASL");
 
 
 
@@ -94,19 +136,37 @@ public final class CryptoHelper
   @NotNull private static final AtomicBoolean FIPS_MODE;
   static
   {
-    final String propertyValue =
+    final String fipsModePropertyValue =
          StaticUtils.getSystemProperty(PROPERTY_FIPS_MODE);
-    if (propertyValue == null)
+    if (fipsModePropertyValue == null)
     {
       FIPS_MODE = new AtomicBoolean(false);
     }
-    else if (propertyValue.equalsIgnoreCase("true"))
+    else if (fipsModePropertyValue.equalsIgnoreCase("true"))
     {
       FIPS_MODE = new AtomicBoolean(true);
       try
       {
         BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
         BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+
+        final String prunePropertyValue = StaticUtils.getSystemProperty(
+             PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS);
+        if (prunePropertyValue != null)
+        {
+          if (prunePropertyValue.equalsIgnoreCase("true"))
+          {
+            removeNonEssentialSecurityProviders();
+          }
+          else if (! prunePropertyValue.equalsIgnoreCase("false"))
+          {
+            Validator.violation(
+                 ERR_CRYPTO_HELPER_INVALID_FIPS_MODE_PROPERTY_VALUE.get(
+                      PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS,
+                      prunePropertyValue));
+          }
+        }
+
         TLSCipherSuiteSelector.recompute();
       }
       catch (final Exception e)
@@ -117,7 +177,7 @@ public final class CryptoHelper
              e);
       }
     }
-    else if (propertyValue.equalsIgnoreCase("false"))
+    else if (fipsModePropertyValue.equalsIgnoreCase("false"))
     {
       FIPS_MODE = new AtomicBoolean(false);
     }
@@ -126,7 +186,7 @@ public final class CryptoHelper
       FIPS_MODE = new AtomicBoolean(false);
       Validator.violation(
            ERR_CRYPTO_HELPER_INVALID_FIPS_MODE_PROPERTY_VALUE.get(
-                PROPERTY_FIPS_MODE, propertyValue));
+                PROPERTY_FIPS_MODE, fipsModePropertyValue));
     }
   }
 
@@ -267,6 +327,26 @@ public final class CryptoHelper
     FIPS_MODE.set(useFIPSMode);
 
     TLSCipherSuiteSelector.recompute();
+  }
+
+
+
+  /**
+   * Attempts to remove any security providers that are not believed to be
+   * needed when operating in FIPS 140-2-compliant mode.  Note that this method
+   * assumes the use of an Oracle or OpenJDK-based JVM and may not work as
+   * expected in JVMs from other vendors that may have a different set of
+   * essential providers.
+   */
+  public static void removeNonEssentialSecurityProviders()
+  {
+    for (final Provider provider : Security.getProviders())
+    {
+      if (! ESSENTIAL_PROVIDERS_TO_PRESERVE.contains(provider))
+      {
+        Security.removeProvider(provider.getName());
+      }
+    }
   }
 
 

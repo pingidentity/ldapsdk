@@ -797,7 +797,8 @@ public final class TLSCipherSuiteSelector
   /**
    * Re-computes the default instance of this cipher suite selector.  This may
    * be necessary after certain actions that alter the supported set of TLS
-   * cipher suites (for example, installing a new cryptographic provider).
+   * cipher suites (for example, installing or removing cryptographic
+   * providers).
    */
   public static void recompute()
   {
