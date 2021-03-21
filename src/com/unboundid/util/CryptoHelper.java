@@ -342,7 +342,8 @@ public final class CryptoHelper
   {
     for (final Provider provider : Security.getProviders())
     {
-      if (! ESSENTIAL_PROVIDERS_TO_PRESERVE.contains(provider.getName()))
+      if (! ESSENTIAL_PROVIDERS_TO_PRESERVE.contains(
+           provider.getClass().getName()))
       {
         Security.removeProvider(provider.getName());
       }
