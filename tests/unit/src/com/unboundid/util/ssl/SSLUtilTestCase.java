@@ -768,17 +768,17 @@ public class SSLUtilTestCase
     {
       assertEquals(SSLUtil.getEnabledSSLProtocols(),
            new LinkedHashSet<>(Arrays.asList(
-                "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1")));
+                "TLSv1.3", "TLSv1.2")));
     }
     else if (SSLUtil.getDefaultSSLProtocol().equals("TLSv1.2"))
     {
       assertEquals(SSLUtil.getEnabledSSLProtocols(),
-           new LinkedHashSet<>(Arrays.asList("TLSv1.2", "TLSv1.1", "TLSv1")));
+           new LinkedHashSet<>(Arrays.asList("TLSv1.2")));
     }
     else if (SSLUtil.getDefaultSSLProtocol().equals("TLSv1.1"))
     {
       assertEquals(SSLUtil.getEnabledSSLProtocols(),
-           new LinkedHashSet<>(Arrays.asList("TLSv1.1", "TLSv1")));
+           new LinkedHashSet<>(Arrays.asList("TLSv1.1")));
     }
     else
     {
@@ -834,7 +834,7 @@ public class SSLUtilTestCase
          throws Exception
   {
     System.setProperty(SSLUtil.PROPERTY_DEFAULT_SSL_PROTOCOL, "TLS");
-    System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS);
+    System.setProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS, "TLS");
     System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_CIPHER_SUITES);
 
     SSLUtil.configureSSLDefaults();
@@ -845,7 +845,7 @@ public class SSLUtilTestCase
     assertNotNull(SSLUtil.getEnabledSSLProtocols());
     assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
     assertEquals(SSLUtil.getEnabledSSLProtocols(),
-         new LinkedHashSet<>(Arrays.asList("TLSv1")));
+         new LinkedHashSet<>(Arrays.asList("TLS")));
 
     assertNotNull(SSLUtil.getEnabledSSLCipherSuites());
     assertFalse(SSLUtil.getEnabledSSLCipherSuites().isEmpty());
@@ -865,7 +865,7 @@ public class SSLUtilTestCase
          throws Exception
   {
     System.setProperty(SSLUtil.PROPERTY_DEFAULT_SSL_PROTOCOL, "TLSv1");
-    System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS);
+    System.setProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS, "TLSv1");
     System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_CIPHER_SUITES);
 
     SSLUtil.configureSSLDefaults();
@@ -896,7 +896,7 @@ public class SSLUtilTestCase
          throws Exception
   {
     System.setProperty(SSLUtil.PROPERTY_DEFAULT_SSL_PROTOCOL, "TLSv1.1");
-    System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS);
+    System.setProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS, "TLSv1.1");
     System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_CIPHER_SUITES);
 
     SSLUtil.configureSSLDefaults();
@@ -907,7 +907,7 @@ public class SSLUtilTestCase
     assertNotNull(SSLUtil.getEnabledSSLProtocols());
     assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
     assertEquals(SSLUtil.getEnabledSSLProtocols(),
-         new LinkedHashSet<>(Arrays.asList("TLSv1.1", "TLSv1")));
+         new LinkedHashSet<>(Arrays.asList("TLSv1.1")));
 
     assertNotNull(SSLUtil.getEnabledSSLCipherSuites());
     assertFalse(SSLUtil.getEnabledSSLCipherSuites().isEmpty());
@@ -927,7 +927,7 @@ public class SSLUtilTestCase
          throws Exception
   {
     System.setProperty(SSLUtil.PROPERTY_DEFAULT_SSL_PROTOCOL, "TLSv1.2");
-    System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS);
+    System.setProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS, "TLSv1.2");
     System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_CIPHER_SUITES);
 
     SSLUtil.configureSSLDefaults();
@@ -938,7 +938,7 @@ public class SSLUtilTestCase
     assertNotNull(SSLUtil.getEnabledSSLProtocols());
     assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
     assertEquals(SSLUtil.getEnabledSSLProtocols(),
-         new LinkedHashSet<>(Arrays.asList("TLSv1.2", "TLSv1.1", "TLSv1")));
+         new LinkedHashSet<>(Arrays.asList("TLSv1.2")));
 
     assertNotNull(SSLUtil.getEnabledSSLCipherSuites());
     assertFalse(SSLUtil.getEnabledSSLCipherSuites().isEmpty());
@@ -958,7 +958,8 @@ public class SSLUtilTestCase
          throws Exception
   {
     System.setProperty(SSLUtil.PROPERTY_DEFAULT_SSL_PROTOCOL, "TLSv1.3");
-    System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS);
+    System.setProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS,
+         "TLSv1.3,TLSv1.2");
     System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_CIPHER_SUITES);
 
     SSLUtil.configureSSLDefaults();
@@ -970,7 +971,7 @@ public class SSLUtilTestCase
     assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
     assertEquals(SSLUtil.getEnabledSSLProtocols(),
          new LinkedHashSet<>(Arrays.asList(
-              "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1")));
+              "TLSv1.3", "TLSv1.2")));
 
     assertNotNull(SSLUtil.getEnabledSSLCipherSuites());
     assertFalse(SSLUtil.getEnabledSSLCipherSuites().isEmpty());
@@ -1087,25 +1088,28 @@ public class SSLUtilTestCase
   public void testApplyEnabledSSLProtocolsEnabledOnlyTLSv1()
          throws Exception
   {
-    final InMemoryDirectoryServer ds = getTestDSWithSSL();
+    if (originalEnabledSSLProtocols.contains("TLSv1"))
+    {
+      final InMemoryDirectoryServer ds = getTestDSWithSSL();
 
-    final SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-    final Socket s = sslUtil.createSSLSocketFactory().createSocket(
-         "localhost", ds.getListenPort("LDAPS"));
-    assertTrue(s instanceof SSLSocket);
+      final SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+      final Socket s = sslUtil.createSSLSocketFactory().createSocket(
+           "localhost", ds.getListenPort("LDAPS"));
+      assertTrue(s instanceof SSLSocket);
 
-    SSLUtil.setEnabledSSLProtocols(Arrays.asList("TLSv1"));
-    SSLUtil.applyEnabledSSLProtocols(s);
+      SSLUtil.setEnabledSSLProtocols(Arrays.asList("TLSv1"));
+      SSLUtil.applyEnabledSSLProtocols(s);
 
-    final SSLSocket sslSocket = (SSLSocket) s;
-    assertNotNull(sslSocket.getEnabledProtocols());
-    assertEquals(sslSocket.getEnabledProtocols().length, 1);
-    assertEquals(sslSocket.getEnabledProtocols()[0], "TLSv1");
+      final SSLSocket sslSocket = (SSLSocket) s;
+      assertNotNull(sslSocket.getEnabledProtocols());
+      assertEquals(sslSocket.getEnabledProtocols().length, 1);
+      assertEquals(sslSocket.getEnabledProtocols()[0], "TLSv1");
 
-    s.getOutputStream().write(new byte[]
-         { 0x30, 0x05, 0x02, 0x01, 0x01, 0x42, 0x00 });
-    s.getOutputStream().flush();
-    s.close();
+      s.getOutputStream().write(new byte[]
+           { 0x30, 0x05, 0x02, 0x01, 0x01, 0x42, 0x00 });
+      s.getOutputStream().flush();
+      s.close();
+    }
   }
 
 

@@ -43,7 +43,6 @@ import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -78,9 +77,11 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 /**
  * This class provides a simple interface for creating {@code SSLContext} and
  * {@code SSLSocketFactory} instances, which may be used to create SSL-based
- * connections, or secure existing connections with StartTLS.  Support for the
- * TLSv1, TLSv1.1, TLSv1.2, and TLSv1.3 protocols will be enabled by default (if
- * the JVM supports them), with TLSv1.3 being the preferred protocol.
+ * connections, or secure existing connections with StartTLS.  By default, only
+ * the TLSv1.2 and TLSv1.3 (if supported by the JVM) will be enabled, with the
+ * higher protocol version being the default and preferred for use.  The TLSv1.1
+ * or TLSv1 protocol will only be enabled if the JVM does not support either
+ * TLSv1.2 or TLSv1.3.
  * <BR><BR>
  * <H2>Example 1</H2>
  * The following example demonstrates the use of the SSL helper to create an
@@ -142,10 +143,12 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 public final class SSLUtil
 {
   /**
-   * The name of the system property that can be used to specify the initial
-   * value for the default SSL protocol that should be used.  If this is not
-   * set, then the default SSL protocol will be dynamically determined.  This
-   * can be overridden via the {@link #setDefaultSSLProtocol(String)} method.
+   * The name of a system property
+   * (com.unboundid.util.SSLUtil.defaultSSLProtocol) that can be used to specify
+   * the initial value for the default SSL protocol that should be used.  If
+   * this is not set, then the default SSL protocol will be dynamically
+   * determined.  This can be overridden via the
+   * {@link #setDefaultSSLProtocol(String)} method.
    */
   @NotNull public static final String PROPERTY_DEFAULT_SSL_PROTOCOL =
        "com.unboundid.util.SSLUtil.defaultSSLProtocol";
@@ -153,10 +156,11 @@ public final class SSLUtil
 
 
   /**
-   * The name of the system property that can be used to provide the initial
-   * set of enabled SSL protocols that should be used, as a comma-delimited
-   * list.  If this is not set, then the enabled SSL protocols will be
-   * dynamically determined.  This can be overridden via the
+   * The name of a system property
+   * (com.unboundid.util.SSLUtil.enabledSSLProtocols) that can be used to
+   * provide the initial set of enabled SSL protocols that should be used, as a
+   * comma-delimited list.  If this is not set, then the enabled SSL protocols
+   * will be dynamically determined.  This can be overridden via the
    * {@link #setEnabledSSLProtocols(Collection)} method.
    */
   @NotNull public static final String PROPERTY_ENABLED_SSL_PROTOCOLS =
@@ -165,10 +169,12 @@ public final class SSLUtil
 
 
   /**
-   * The name of the system property that can be used to provide the initial
-   * set of enabled SSL cipher suites that should be used, as a comma-delimited
-   * list.  If this is not set, then the enabled SSL cipher suites will be
-   * dynamically determined.  This can be overridden via the
+   * The name of a system property
+   * (com.unboundid.util.SSLUtil.enabledSSLCipherSuites) that can be used to
+   * provide the initial set of enabled SSL cipher suites that should be used,
+   * as a comma-delimited list.  If this is not set, then the enabled SSL cipher
+   * suites will be dynamically determined using the
+   * {@link TLSCipherSuiteSelector}.  This can be overridden via the
    * {@link #setEnabledSSLCipherSuites(Collection)} method.
    */
   @NotNull public static final String PROPERTY_ENABLED_SSL_CIPHER_SUITES =
@@ -223,7 +229,7 @@ public final class SSLUtil
    * no explicit protocol is specified.
    */
   @NotNull private static final AtomicReference<String> DEFAULT_SSL_PROTOCOL =
-       new AtomicReference<>(SSL_PROTOCOL_TLS_1);
+       new AtomicReference<>(SSL_PROTOCOL_TLS_1_2);
 
 
 
@@ -232,7 +238,9 @@ public final class SSLUtil
    * available for SSL sockets created within the LDAP SDK.
    */
   @NotNull private static final AtomicReference<Set<String>>
-       ENABLED_SSL_CIPHER_SUITES = new AtomicReference<>();
+       ENABLED_SSL_CIPHER_SUITES = new AtomicReference<>(
+            (Set<String>) new LinkedHashSet<>(
+                 TLSCipherSuiteSelector.getDefaultCipherSuites()));
 
 
 
@@ -241,7 +249,8 @@ public final class SSLUtil
    * for SSL sockets created within the LDAP SDK.
    */
   @NotNull private static final AtomicReference<Set<String>>
-       ENABLED_SSL_PROTOCOLS = new AtomicReference<>();
+       ENABLED_SSL_PROTOCOLS = new AtomicReference<>(
+            StaticUtils.setOf(SSL_PROTOCOL_TLS_1_2));
 
 
 
@@ -1198,131 +1207,127 @@ public final class SSLUtil
    */
   static void configureSSLDefaults()
   {
-    // See if there is a system property that specifies what the default SSL
-    // protocol should be.  If not, then try to dynamically determine it.
-    final String defaultPropValue =
-         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
-    if ((defaultPropValue != null) && (! defaultPropValue.isEmpty()))
+    // Determine the set of TLS protocols that the JVM supports.
+    String tls13Protocol = null;
+    String tls12Protocol = null;
+    String tls11Protocol = null;
+    String tls1Protocol = null;
+    try
     {
-      DEFAULT_SSL_PROTOCOL.set(defaultPropValue);
+      final SSLContext defaultContext = CryptoHelper.getDefaultSSLContext();
+      for (final String supportedProtocol :
+           defaultContext.getSupportedSSLParameters().getProtocols())
+      {
+        if (supportedProtocol.equalsIgnoreCase(SSL_PROTOCOL_TLS_1_3))
+        {
+          tls13Protocol = supportedProtocol;
+        }
+        else if (supportedProtocol.equalsIgnoreCase(SSL_PROTOCOL_TLS_1_2))
+        {
+          tls12Protocol = supportedProtocol;
+        }
+        else if (supportedProtocol.equalsIgnoreCase(SSL_PROTOCOL_TLS_1_1))
+        {
+          tls11Protocol = supportedProtocol;
+        }
+        else if (supportedProtocol.equalsIgnoreCase(SSL_PROTOCOL_TLS_1))
+        {
+          tls1Protocol = supportedProtocol;
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+
+    // Determine the set of TLS protocols that should be enabled.
+    final String enabledProtocolsPropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_PROTOCOLS);
+    final Set<String> enabledProtocols = new LinkedHashSet<>();
+    if (enabledProtocolsPropertyValue != null)
+    {
+      final StringTokenizer tokenizer =
+           new StringTokenizer(enabledProtocolsPropertyValue, ", ", false);
+      while (tokenizer.hasMoreTokens())
+      {
+        final String enabledProtocol = tokenizer.nextToken().trim();
+        if (! enabledProtocol.isEmpty())
+        {
+          enabledProtocols.add(enabledProtocol);
+        }
+      }
     }
     else
     {
-      // We should be able to discover the SSL protocol that offers the best mix
-      // of security and compatibility.  If we see that TLSv1.1, TLSv1.2, and/or
-      // TLSv1.3 are available, then we'll add those to the set of default
-      // enabled protocols.
-      try
+      if (tls13Protocol != null)
       {
-        final SSLContext defaultContext = CryptoHelper.getDefaultSSLContext();
-        final String[] supportedProtocols =
-             defaultContext.getSupportedSSLParameters().getProtocols();
-
-        final LinkedHashSet<String> protocolMap =
-             new LinkedHashSet<>(Arrays.asList(supportedProtocols));
-        if (protocolMap.contains(SSL_PROTOCOL_TLS_1_3))
+        enabledProtocols.add(tls13Protocol);
+        if (tls12Protocol != null)
         {
-          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1_3);
-        }
-        else if (protocolMap.contains(SSL_PROTOCOL_TLS_1_2))
-        {
-          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1_2);
-        }
-        else if (protocolMap.contains(SSL_PROTOCOL_TLS_1_1))
-        {
-          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1_1);
-        }
-        else if (protocolMap.contains(SSL_PROTOCOL_TLS_1))
-        {
-          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1);
+          enabledProtocols.add(tls12Protocol);
         }
       }
-      catch (final Exception e)
+      else if (tls12Protocol != null)
       {
-        Debug.debugException(e);
+        enabledProtocols.add(tls12Protocol);
       }
-    }
-
-    // A set to use for the default set of enabled protocols.  Unless otherwise
-    // specified via system property, we'll always enable TLSv1.  We may enable
-    // other protocols based on the default protocol.  The default set of
-    // enabled protocols will not include SSLv3 even if the JVM might otherwise
-    // include it as a default enabled protocol because of known security
-    // problems with SSLv3.
-    final LinkedHashSet<String> enabledProtocols =
-         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
-    if (DEFAULT_SSL_PROTOCOL.get().equals(SSL_PROTOCOL_TLS_1_3))
-    {
-      enabledProtocols.add(SSL_PROTOCOL_TLS_1_3);
-      enabledProtocols.add(SSL_PROTOCOL_TLS_1_2);
-      enabledProtocols.add(SSL_PROTOCOL_TLS_1_1);
-    }
-    else if (DEFAULT_SSL_PROTOCOL.get().equals(SSL_PROTOCOL_TLS_1_2))
-    {
-      enabledProtocols.add(SSL_PROTOCOL_TLS_1_2);
-      enabledProtocols.add(SSL_PROTOCOL_TLS_1_1);
-    }
-    else if (DEFAULT_SSL_PROTOCOL.get().equals(SSL_PROTOCOL_TLS_1_1))
-    {
-      enabledProtocols.add(SSL_PROTOCOL_TLS_1_1);
-    }
-    enabledProtocols.add(SSL_PROTOCOL_TLS_1);
-
-    // If there is a system property that specifies which enabled SSL protocols
-    // to use, then it will override the defaults.
-    String enabledPropValue =
-         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_PROTOCOLS);
-    if ((enabledPropValue != null) && (! enabledPropValue.isEmpty()))
-    {
-      enabledProtocols.clear();
-
-      final StringTokenizer tokenizer = new StringTokenizer(enabledPropValue,
-           ", ", false);
-      while (tokenizer.hasMoreTokens())
+      else if (tls11Protocol != null)
       {
-        final String token = tokenizer.nextToken();
-        if (! token.isEmpty())
-        {
-          enabledProtocols.add(token);
-        }
+        enabledProtocols.add(tls11Protocol);
+      }
+      else if (tls1Protocol != null)
+      {
+        enabledProtocols.add(tls1Protocol);
       }
     }
 
     ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(enabledProtocols));
 
 
-    // Use the TLS cipher suite selector to set the default set of enabled
-    // cipher suites for any SSL sockets that are created.
-    ENABLED_SSL_CIPHER_SUITES.set(
-         TLSCipherSuiteSelector.getRecommendedCipherSuites());
-
-
-    // If there is a system property that specifies which SSL cipher suites to
-    // use, then it wil override the defaults.
-    enabledPropValue =
-         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_CIPHER_SUITES);
-    if ((enabledPropValue != null) && (! enabledPropValue.isEmpty()))
+    // Determine the default TLS protocol.
+    final String defaultProtocol;
+    final String defaultProtocolPropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
+    if (defaultProtocolPropertyValue != null)
     {
-      final LinkedHashSet<String> enabledCipherSuites =
-           new LinkedHashSet<>(StaticUtils.computeMapCapacity(50));
+      defaultProtocol = defaultProtocolPropertyValue;
+    }
+    else
+    {
+      defaultProtocol = enabledProtocols.iterator().next();
+    }
 
-      final StringTokenizer tokenizer = new StringTokenizer(enabledPropValue,
-           ", ", false);
+    DEFAULT_SSL_PROTOCOL.set(defaultProtocol);
+
+
+    // Determine the set of TLS cipher suites to enable by default.
+    TLSCipherSuiteSelector.recompute();
+    final String enabledSuitesPropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_CIPHER_SUITES);
+    final LinkedHashSet<String> enabledCipherSuites = new LinkedHashSet<>();
+    if ((enabledSuitesPropertyValue != null) &&
+         (! enabledSuitesPropertyValue.isEmpty()))
+    {
+      final StringTokenizer tokenizer =
+           new StringTokenizer(enabledSuitesPropertyValue, ", ", false);
       while (tokenizer.hasMoreTokens())
       {
-        final String token = tokenizer.nextToken();
+        final String token = tokenizer.nextToken().trim();
         if (! token.isEmpty())
         {
           enabledCipherSuites.add(token);
         }
       }
-
-      if (! enabledCipherSuites.isEmpty())
-      {
-        ENABLED_SSL_CIPHER_SUITES.set(
-             Collections.unmodifiableSet(enabledCipherSuites));
-      }
     }
+    else
+    {
+      enabledCipherSuites.addAll(
+           TLSCipherSuiteSelector.getDefaultCipherSuites());
+    }
+
+    ENABLED_SSL_CIPHER_SUITES.set(enabledCipherSuites);
   }
 
 

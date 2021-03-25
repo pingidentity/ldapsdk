@@ -6,6 +6,62 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 5.1.5</h3>
+
+              <p>
+                The following changes were made between the 5.1.4 and 5.1.5 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the logic used to select the set of TLS protocol versions so that only
+                  the TLSv1.2 and TLSv1.3 (if supported by the JVM) will be enabled by default,
+                  with the higher protocol version being the preferred version.  As per RFC 8966,
+                  the older TLSv1 and TLSv1.1 protocol versions are no longer considered secure
+                  and will not be enabled by default.  If necessary or desired, you can override
+                  the enabled set of TLS protocol versions through the
+                  com.unboundid.util.SSLUtil.enabledSSLProtocols system property or by calling the
+                  SSLUtil.setEnabledSSLProtocols method.  You can override the preferred TLS
+                  protocol version using the com.unboundid.util.SSLUtil.defaultSSLProtocol system
+                  property or the SSLUtil.setDefaultSSLProtocol method.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the logic used to select the set of TLS cipher suites so that suites
+                  that use the SHA-1 digest algorithm are no longer enabled by default.  The SHA-1
+                  digest is no longer considered secure, and cipher suites that use it are only
+                  needed by older TLS protocol versions (like TLSv1 and TLSv1.1) that are no
+                  longer enabled by default.  If necessary or desired, you can override the
+                  enabled set of TLS cipher suites using the
+                  com.unboundid.util.SSLUtil.enabledSSLCipherSuites system property or by calling
+                  the SSLUtil.setEnabledSSLCipherSuites method.  You can also use the
+                  com.unboundid.util.ssl.TLSCipherSuiteSelector.allowSHA1 property or the
+                  TLSCipherSuiteSelector.setAllowSHA1 method to override just the restriction on
+                  the use of the SHA-1 digest algorithm.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the logic used to select the set of TLS cipher suites so that suites
+                  that use the RSA key exchange algorithm are no longer enabled by default.  The
+                  RSA key exchange algorithm does not provide forward secrecy, and if a
+                  certificate's private key is compromised, then it may be used to decrypt any TLS
+                  communication in which the RSA key exchange algorithm was used.  If necessary or
+                  desired, you can override the enabled set of TLS cipher suites using the
+                  com.unboundid.util.SSLUtil.enabledSSLCipherSuites system property or by calling
+                  the SSLUtil.setEnabledSSLCipherSuites method.  You can also use the
+                  com.unboundid.util.ssl.TLSCipherSuiteSelector.allowRSAKeyExchange property or the
+                  TLSCipherSuiteSelector.setAllowRSAKeyExchange method to override just the
+                  restriction on the use of the RSA key exchange algorithm.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 5.1.4</h3>
 
               <p>

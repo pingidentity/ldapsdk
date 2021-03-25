@@ -52,6 +52,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
@@ -104,22 +105,28 @@ import static com.unboundid.util.ssl.SSLMessages.*;
  *   </LI>
  *
  *   <LI>
- *     Only cipher suites that use ECDHE, DHE, or RSA key exchange algorithms
- *     will be recommended.  Other key agreement algorithms, including ECDH,
- *     DH, and KRB5, will not be recommended.  Cipher suites that use a
- *     pre-shared key or password will not be recommended.
+ *     By default, only cipher suites that use the ECDHE or DHE key exchange
+ *     algorithms will be recommended, as they allow for forward secrecy.
+ *     Suites that use RSA key exchange algorithms (which don't support forward
+ *     secrecy) will only be recommended if the JVM doesn't support either
+ *     TLSv1.3 or TLSv1.2, or if overridden programmatically or by system
+ *     property.  Other key agreement algorithms (like ECDH, DH, and KRB5) will
+ *     not be recommended.  Similarly, cipher suites that use a pre-shared key
+ *     or password will not be recommended.
  *   </LI>
  *
  *   <LI>
  *     Only cipher suites that use AES or ChaCha20 bulk encryption ciphers will
- *     be recommended.  Other bulk cipher algorithms, including RC4, DES, 3DES,
- *     IDEA, Camellia, and ARIA, will not be recommended.
+ *     be recommended.  Other bulk cipher algorithms (like RC4, DES, 3DES, IDEA,
+ *     Camellia, and ARIA) will not be recommended.
  *   </LI>
  *
  *   <LI>
- *     Only cipher suites that use SHA-1 or SHA-2 digests will be recommended
- *     (although SHA-1 digests are de-prioritized).  Other digest algorithms,
- *     like MD5, will not be recommended.
+ *     By default, only cipher suites that use SHA-2 digests will be
+ *     recommended.  SHA-1 suites will only be recommended if the JVM doesn't
+ *     support either TLSv1.3 or TLSv1.2, or if overridden programmatically or
+ *     by system property.  All other digest algorithms (like MD5) will not be
+ *     recommended.
  *   </LI>
  * </UL>
  * <BR><BR>
@@ -132,10 +139,109 @@ public final class TLSCipherSuiteSelector
        extends CommandLineTool
 {
   /**
+   * The name of a system property
+   * (com.unboundid.util.ssl.TLSCipherSuiteSelector.allowRSAKeyExchange) that
+   * can be used to indicate whether to recommend cipher suites that use the RSA
+   * key exchange algorithm.  RSA key exchange does not support forward secrecy,
+   * so it will not be recommended by default unless the JVM doesn't support
+   * either TLSv1.3 or TLSv1.2.  This can be overridden via the
+   * {@link #setAllowRSAKeyExchange(boolean)} method.
+   */
+  @NotNull public static final String PROPERTY_ALLOW_RSA_KEY_EXCHANGE =
+       TLSCipherSuiteSelector.class.getName() + ".allowRSAKeyExchange";
+
+
+
+  /**
+   * The name of a system property
+   * (com.unboundid.util.ssl.TLSCipherSuiteSelector.allowSHA1) that can be used
+   * to indicate whether to recommend cipher suites that use the SHA-1 digest
+   * algorithm.  The SHA-1 digest is now considered weak, so it will not be
+   * recommended by default unless the JVM doesn't support either TLSv1.3 or
+   * TLSv1.2.  This can be overridden via the {@link #setAllowSHA1(boolean)}
+   * method.
+   */
+  @NotNull public static final String PROPERTY_ALLOW_SHA_1 =
+       TLSCipherSuiteSelector.class.getName() + ".allowSHA1";
+
+
+
+  /**
+   * A flag that indicates whether to allow the RSA key exchange algorithm.
+   */
+  @NotNull private static final AtomicBoolean ALLOW_RSA_KEY_EXCHANGE =
+       new AtomicBoolean(false);
+
+
+
+  /**
+   * A flag that indicates whether to allow cipher suites that use the SHA-1
+   * digest algorithm.
+   */
+  @NotNull private static final AtomicBoolean ALLOW_SHA_1 =
+       new AtomicBoolean(false);
+
+
+
+  /**
    * The singleton instance of this TLS cipher suite selector.
    */
   @NotNull private static final AtomicReference<TLSCipherSuiteSelector>
        INSTANCE = new AtomicReference<>(new TLSCipherSuiteSelector());
+
+
+
+  static
+  {
+    boolean jvmSupportsTLSv13OrTLSv12 = false;
+    try
+    {
+      final SSLContext sslContext = CryptoHelper.getDefaultSSLContext();
+      for (final String supportedProtocol :
+           sslContext.getSupportedSSLParameters().getProtocols())
+      {
+        if (supportedProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_3) ||
+             supportedProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_2))
+        {
+          jvmSupportsTLSv13OrTLSv12 = true;
+          break;
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+
+    final boolean allowRSA;
+    final String allowRSAPropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_ALLOW_RSA_KEY_EXCHANGE);
+    if (allowRSAPropertyValue != null)
+    {
+      allowRSA = allowRSAPropertyValue.equalsIgnoreCase("true");
+    }
+    else
+    {
+      allowRSA = (! jvmSupportsTLSv13OrTLSv12);
+    }
+
+    final boolean allowSHA1;
+    final String allowSHA1PropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_ALLOW_SHA_1);
+    if (allowSHA1PropertyValue != null)
+    {
+      allowSHA1 = allowSHA1PropertyValue.equalsIgnoreCase("true");
+    }
+    else
+    {
+      allowSHA1= (! jvmSupportsTLSv13OrTLSv12);
+    }
+
+    ALLOW_RSA_KEY_EXCHANGE.set(allowRSA);
+    ALLOW_SHA_1.set(allowSHA1);
+    INSTANCE.set(new TLSCipherSuiteSelector());
+  }
 
 
 
@@ -469,10 +575,22 @@ public final class TLSCipherSuiteSelector
         if (name.startsWith("TLS_AES_") ||
              name.startsWith("TLS_CHACHA20_") ||
              name.startsWith("TLS_ECDHE_") ||
-             name.startsWith("TLS_DHE_") ||
-             name.startsWith("TLS_RSA_"))
+             name.startsWith("TLS_DHE_"))
         {
           // These are recommended key exchange algorithms.
+        }
+        else if (name.startsWith("TLS_RSA_"))
+        {
+          if (ALLOW_RSA_KEY_EXCHANGE.get())
+          {
+            // This will be considered a recommended key exchange algorithm.
+          }
+          else
+          {
+            nonRecommendedReasons.add(
+                 ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_KE_ALG.get(
+                      "RSA"));
+          }
         }
         else if (name.startsWith("TLS_ECDH_"))
         {
@@ -596,8 +714,11 @@ public final class TLSCipherSuiteSelector
       }
       else if (name.endsWith("_SHA"))
       {
-        // We will only recommend this cipher suite in non-FIPS-compliant mode.
-        if (CryptoHelper.usingFIPSMode())
+        if (ALLOW_SHA_1.get())
+        {
+          // This will be considered a recommended digest algorithm.
+        }
+        else
         {
           nonRecommendedReasons.add(
                ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_DIGEST_ALG.
@@ -713,6 +834,29 @@ public final class TLSCipherSuiteSelector
    */
   private void generateOutput(@NotNull final PrintStream s)
   {
+    try
+    {
+      final SSLContext sslContext = CryptoHelper.getDefaultSSLContext();
+      s.println("Supported TLS Protocols:");
+      for (final String protocol :
+           sslContext.getSupportedSSLParameters().getProtocols())
+      {
+        s.println("* " + protocol);
+      }
+      s.println();
+
+      s.println("Enabled TLS Protocols:");
+      for (final String protocol : SSLUtil.getEnabledSSLProtocols())
+      {
+        s.println("* " + protocol);
+      }
+      s.println();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
     s.println("Supported TLS Cipher Suites:");
     for (final String cipherSuite : supportedCipherSuites)
     {
@@ -790,6 +934,66 @@ public final class TLSCipherSuiteSelector
     }
 
     return Collections.unmodifiableSet(selectedSet);
+  }
+
+
+
+  /**
+   * Indicates whether cipher suites that use the RSA key exchange algorithm
+   * should be recommended by default.
+   *
+   * @return  {@code true} if cipher suites that use the RSA key exchange
+   *          algorithm should be recommended by default, or {@code false} if
+   *          not.
+   */
+  public static boolean allowRSAKeyExchange()
+  {
+    return ALLOW_RSA_KEY_EXCHANGE.get();
+  }
+
+
+
+  /**
+   * Specifies whether cipher suites that use the RSA key exchange algorithm
+   * should be recommended by default.
+   *
+   * @param  allowRSAKeyExchange  Indicates whether cipher suites that use the
+   *                              RSA key exchange algorithm should be
+   *                              recommended by default.
+   */
+  public static void setAllowRSAKeyExchange(final boolean allowRSAKeyExchange)
+  {
+    ALLOW_RSA_KEY_EXCHANGE.set(allowRSAKeyExchange);
+    recompute();
+  }
+
+
+
+  /**
+   * Indicates whether cipher suites that use the SHA-1 digest algorithm should
+   * be recommended by default.
+   *
+   * @return  {@code true} if cipher suites that use the SHA-1 digest algorithm
+   *          should be recommended by default, or {@code false} if not.
+   */
+  public static boolean allowSHA1()
+  {
+    return ALLOW_SHA_1.get();
+  }
+
+
+
+  /**
+   * Specifies whether cipher suites that use the SHA-1 digest algorithm should
+   * be recommended by default.
+   *
+   * @param  allowSHA1  Indicates whether cipher suites that use the SHA-1
+   *                    digest algorithm should be recommended by default.
+   */
+  public static void setAllowSHA1(final boolean allowSHA1)
+  {
+    ALLOW_SHA_1.set(allowSHA1);
+    recompute();
   }
 
 

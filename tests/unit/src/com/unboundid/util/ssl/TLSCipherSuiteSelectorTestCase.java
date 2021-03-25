@@ -55,6 +55,7 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 
@@ -110,6 +111,92 @@ public final class TLSCipherSuiteSelectorTestCase
     assertNotNull(TLSCipherSuiteSelector.getNonRecommendedCipherSuites());
     assertFalse(
          TLSCipherSuiteSelector.getNonRecommendedCipherSuites().isEmpty());
+
+
+    assertFalse(TLSCipherSuiteSelector.allowRSAKeyExchange());
+    for (final String cipherSuite :
+         TLSCipherSuiteSelector.getRecommendedCipherSuites())
+    {
+      assertFalse(cipherSuite.startsWith("TLS_RSA_"));
+    }
+
+    TLSCipherSuiteSelector.setAllowRSAKeyExchange(true);
+    assertTrue(TLSCipherSuiteSelector.allowRSAKeyExchange());
+
+    boolean jvmSupportsRSAExchangeSuites = false;
+    for (final String suite :
+         CryptoHelper.getDefaultSSLContext().getSupportedSSLParameters().
+              getCipherSuites())
+    {
+      if (suite.startsWith("TLS_RSA_"))
+      {
+        jvmSupportsRSAExchangeSuites = true;
+        break;
+      }
+    }
+
+    if (jvmSupportsRSAExchangeSuites)
+    {
+      boolean foundSuiteUsingRSAKeyExchange = false;
+      for (final String cipherSuite :
+           TLSCipherSuiteSelector.getRecommendedCipherSuites())
+      {
+        foundSuiteUsingRSAKeyExchange = true;
+        break;
+      }
+      assertTrue(foundSuiteUsingRSAKeyExchange);
+    }
+
+    TLSCipherSuiteSelector.setAllowRSAKeyExchange(false);
+    assertFalse(TLSCipherSuiteSelector.allowRSAKeyExchange());
+    for (final String cipherSuite :
+         TLSCipherSuiteSelector.getRecommendedCipherSuites())
+    {
+      assertFalse(cipherSuite.startsWith("TLS_RSA_"));
+    }
+
+
+    assertFalse(TLSCipherSuiteSelector.allowSHA1());
+    for (final String cipherSuite :
+         TLSCipherSuiteSelector.getRecommendedCipherSuites())
+    {
+      assertFalse(cipherSuite.endsWith("_SHA"));
+    }
+
+    TLSCipherSuiteSelector.setAllowSHA1(true);
+    assertTrue(TLSCipherSuiteSelector.allowSHA1());
+
+    boolean jvmSupportsSHA1Suites = false;
+    for (final String suite :
+         CryptoHelper.getDefaultSSLContext().getSupportedSSLParameters().
+              getCipherSuites())
+    {
+      if (suite.endsWith("_SHA"))
+      {
+        jvmSupportsSHA1Suites = true;
+        break;
+      }
+    }
+
+    if (jvmSupportsSHA1Suites)
+    {
+      boolean foundSuiteUsingSHA1Suite = false;
+      for (final String cipherSuite :
+           TLSCipherSuiteSelector.getRecommendedCipherSuites())
+      {
+        foundSuiteUsingSHA1Suite = true;
+        break;
+      }
+      assertTrue(foundSuiteUsingSHA1Suite);
+    }
+
+    TLSCipherSuiteSelector.setAllowSHA1(false);
+    assertFalse(TLSCipherSuiteSelector.allowSHA1());
+    for (final String cipherSuite :
+         TLSCipherSuiteSelector.getRecommendedCipherSuites())
+    {
+      assertFalse(cipherSuite.endsWith("_SHA"));
+    }
   }
 
 
