@@ -83,10 +83,23 @@ public final class CryptoHelper
    * The name of the Java property (com.unboundid.crypto.FIPS_MODE) that will be
    * used to indicate that the LDAP SDK should operate in FIPS 140-2-compliant
    * mode.  If this property is defined, then it must have a value of either
-   * "true" or "false".
+   * "true" or "false".  If the {@link #PROPERTY_FIPS_PROVIDER} property is also
+   * defined, then the specified provider will be used; otherwise, the Bouncy
+   * Castle "BCFIPS" provider will be assumed.
    */
   @NotNull public static final String PROPERTY_FIPS_MODE =
        "com.unboundid.crypto.FIPS_MODE";
+
+
+
+  /**
+   * The name of the Java property (com.unboundid.crypto.FIPS_PROVIDER) that
+   * will be used to specify the name of the security provider to use when
+   * operating in FIPS 140-2-compliant mode.  At present, only the Bouncy Castle
+   * "BCFIPS" provider is supported.
+   */
+  @NotNull public static final String PROPERTY_FIPS_PROVIDER =
+       "com.unboundid.crypto.FIPS_PROVIDER";
 
 
 
@@ -95,7 +108,7 @@ public final class CryptoHelper
    * (com.unboundid.crypto.REMOVE_NON_ESSENTIAL_PROVIDERS) that will be used to
    * indicate that the LDAP SDK should update the JVM to remove providers that
    * are not believed to be necessary in FIPS 104-2-compliant mode.  This
-   * property will only have any effect if the {@link PROPERTY_FIPS_MODE}
+   * property will only have any effect if the {@link #PROPERTY_FIPS_MODE}
    * property is set to true.  Also note that this property assumes the use of
    * an Oracle or OpenJDK-based JVM, and may not work as expected in JVMs from
    * other vendors that may have different essential providers.  If this
@@ -134,6 +147,18 @@ public final class CryptoHelper
    * Indicates whether the LDAP SDK should operate in FIPS 140-2-compliant mode.
    */
   @NotNull private static final AtomicBoolean FIPS_MODE;
+  @NotNull private static final AtomicReference<Provider> FIPS_PROVIDER =
+       new AtomicReference<>();
+  @NotNull private static final AtomicReference<Provider>
+       FIPS_JSSE_PROVIDER = new AtomicReference<>();
+  @NotNull private static final AtomicReference<String>
+       FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM = new AtomicReference<>();
+  @NotNull private static final AtomicReference<String>
+       FIPS_DEFAULT_KEY_STORE_TYPE = new AtomicReference<>();
+  @NotNull private static final AtomicReference<String>
+       FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL = new AtomicReference<>();
+  @NotNull private static final AtomicReference<String>
+       FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM = new AtomicReference<>();
   static
   {
     final String fipsModePropertyValue =
@@ -144,11 +169,33 @@ public final class CryptoHelper
     }
     else if (fipsModePropertyValue.equalsIgnoreCase("true"))
     {
+      final String fipsProviderPropertyValue =
+           StaticUtils.getSystemProperty(PROPERTY_FIPS_PROVIDER);
+      if ((fipsProviderPropertyValue != null) &&
+           (! fipsProviderPropertyValue.equalsIgnoreCase(
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME)))
+      {
+        Validator.violation(
+             ERR_CRYPTO_HELPER_UNSUPPORTED_FIPS_PROVIDER.get(
+                  fipsProviderPropertyValue,
+                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+      }
+
       FIPS_MODE = new AtomicBoolean(true);
       try
       {
-        BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
-        BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+        FIPS_PROVIDER.set(
+             BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true));
+        FIPS_JSSE_PROVIDER.set(
+             BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true));
+        FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.set(
+             BouncyCastleFIPSHelper.DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM);
+        FIPS_DEFAULT_KEY_STORE_TYPE.set(
+             BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE);
+        FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.set(
+             BouncyCastleFIPSHelper.DEFAULT_SSL_CONTEXT_PROTOCOL);
+        FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.set(
+             BouncyCastleFIPSHelper.DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM);
 
         final String prunePropertyValue = StaticUtils.getSystemProperty(
              PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS);
@@ -175,6 +222,7 @@ public final class CryptoHelper
              ERR_CRYPTO_HELPER_INSTANTIATION_ERROR_FROM_FIPS_MODE_PROPERTY.get(
                   PROPERTY_FIPS_MODE, StaticUtils.getExceptionMessage(e)),
              e);
+        FIPS_MODE.set(false);
       }
     }
     else if (fipsModePropertyValue.equalsIgnoreCase("false"))
@@ -306,7 +354,7 @@ public final class CryptoHelper
   /**
    * Specifies whether the LDAP SDK should operate in a strict FIPS
    * 140-2-compliant mode.  If the LDAP SDK should operate in FIPS mode, then
-   * the necessary Bouncy Castle providers will be loaded if they have
+   * the Bouncy Castle FIPS provider will be used by default.
    *
    * @param  useFIPSMode  Indicates whether the LDAP SDK should operate in a
    *                      strict FIPS 140-2-compliant mode.
@@ -320,11 +368,50 @@ public final class CryptoHelper
   {
     if (useFIPSMode)
     {
-      BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
-      BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+      setUseFIPSMode(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME);
+    }
+    else
+    {
+      FIPS_MODE.set(false);
+    }
+  }
+
+
+
+  /**
+   * Specifies that the LDAP SDK should operate in a strict FIPS 140-2-compliant
+   * mode using the specified provider.
+   *
+   * @param  providerName  The name of the security provider to use to provide
+   *                       the FIPS 140-2-compliant functionality.  At present,
+   *                       only the Bouncy Castle "BCFIPS" provider is
+   *                       supported.
+   *
+   * @throws  NoSuchProviderException  If the specified provider is not
+   *                                   supported or available.
+   */
+  public static void setUseFIPSMode(@NotNull final String providerName)
+         throws NoSuchProviderException
+  {
+    final Provider fipsProvider;
+    final Provider jsseProvider;
+
+    if (providerName.equalsIgnoreCase(
+         BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+    {
+      fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
+      jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+    }
+    else
+    {
+      throw new NoSuchProviderException(
+           ERR_CRYPTO_HELPER_UNSUPPORTED_FIPS_PROVIDER.get(providerName,
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
     }
 
-    FIPS_MODE.set(useFIPSMode);
+    FIPS_PROVIDER.set(fipsProvider);
+    FIPS_JSSE_PROVIDER.set(jsseProvider);
+    FIPS_MODE.set(true);
 
     TLSCipherSuiteSelector.recompute();
   }
@@ -429,16 +516,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return CertificateFactory.getInstance(type,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new CertificateException(e.getMessage(), e);
-        }
+        return CertificateFactory.getInstance(type, FIPS_PROVIDER.get());
       }
       else
       {
@@ -449,12 +527,12 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new CertificateException(
              ERR_CRYPTO_HELPER_GET_CERT_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.
                   get(type, providerName,
-                       BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                       FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -550,16 +628,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return Cipher.getInstance(cipherTransformation,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return Cipher.getInstance(cipherTransformation, FIPS_PROVIDER.get());
       }
       else
       {
@@ -570,12 +639,12 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_CIPHER_WRONG_PROVIDER_FOR_FIPS_MODE.get(
                   cipherTransformation, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -657,16 +726,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return KeyFactory.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return KeyFactory.getInstance(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -677,12 +737,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_KEY_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -707,17 +766,9 @@ public final class CryptoHelper
   {
     if (usingFIPSMode())
     {
-      try
-      {
-        return KeyManagerFactory.getInstance(
-             BouncyCastleFIPSHelper.DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM,
-             BouncyCastleFIPSHelper.getBouncyCastleJSSEProvider());
-      }
-      catch (final NoSuchProviderException e)
-      {
-        Debug.debugException(e);
-        throw new NoSuchAlgorithmException(e.getMessage(), e);
-      }
+      return KeyManagerFactory.getInstance(
+           FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.get(),
+           FIPS_JSSE_PROVIDER.get());
     }
     else
     {
@@ -803,16 +854,8 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return KeyManagerFactory.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return KeyManagerFactory.getInstance(algorithmName,
+             FIPS_PROVIDER.get());
       }
       else
       {
@@ -823,12 +866,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_KM_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -913,16 +955,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return KeyPairGenerator.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return KeyPairGenerator.getInstance(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -933,12 +966,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_KP_GEN_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -1092,17 +1124,10 @@ public final class CryptoHelper
 
     if (provider == null)
     {
-      if (keyStoreType.equals(BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE))
+      if (usingFIPSMode() &&
+           keyStoreType.equals(FIPS_DEFAULT_KEY_STORE_TYPE.get()))
       {
-        try
-        {
-          return KeyStore.getInstance(keyStoreType,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          throw new KeyStoreException(e.getMessage(), e);
-        }
+        return KeyStore.getInstance(keyStoreType, FIPS_PROVIDER.get());
       }
       else
       {
@@ -1197,16 +1222,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return Mac.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return Mac.getInstance(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -1217,12 +1233,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_MAC_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -1307,16 +1322,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return MessageDigest.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return MessageDigest.getInstance(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -1327,12 +1333,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_DIGEST_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -1417,16 +1422,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return SecretKeyFactory.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return SecretKeyFactory.getInstance(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -1437,12 +1433,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SK_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -1554,16 +1549,7 @@ public final class CryptoHelper
       {
         if (usingFIPSMode())
         {
-          try
-          {
-            return getSecureRandom(
-                 BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-          }
-          catch (final NoSuchProviderException e)
-          {
-            Debug.debugException(e);
-            throw new NoSuchAlgorithmException(e.getMessage(), e);
-          }
+          return getSecureRandom(FIPS_PROVIDER.get());
         }
         else
         {
@@ -1579,16 +1565,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return getSecureRandom(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return getSecureRandom(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -1600,12 +1577,12 @@ public final class CryptoHelper
       if (usingFIPSMode())
       {
         final String providerName = provider.getName();
-        if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+        if (! providerName.equals(FIPS_PROVIDER.get().getName()))
         {
           throw new NoSuchAlgorithmException(
                ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE.get(
                     algorithmName, providerName,
-                    BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                    FIPS_PROVIDER.get().getName()));
         }
       }
 
@@ -1634,12 +1611,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(
-           BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.
-                  get(providerName, BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  get(providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -1731,16 +1707,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return Signature.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return Signature.getInstance(algorithmName, FIPS_PROVIDER.get());
       }
       else
       {
@@ -1751,12 +1718,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SIGNATURE_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -1779,17 +1745,8 @@ public final class CryptoHelper
   {
     if (usingFIPSMode())
     {
-      try
-      {
-        return SSLContext.getInstance(
-             BouncyCastleFIPSHelper.DEFAULT_SSL_CONTEXT_PROTOCOL,
-             BouncyCastleFIPSHelper.getBouncyCastleJSSEProvider());
-      }
-      catch (final NoSuchProviderException e)
-      {
-        Debug.debugException(e);
-        throw new NoSuchAlgorithmException(e.getMessage(), e);
-      }
+      return SSLContext.getInstance(FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.get(),
+           FIPS_JSSE_PROVIDER.get());
     }
     else
     {
@@ -1872,16 +1829,7 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return SSLContext.getInstance(protocol,
-               BouncyCastleFIPSHelper.getBouncyCastleJSSEProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return SSLContext.getInstance(protocol, FIPS_JSSE_PROVIDER.get());
       }
       else
       {
@@ -1892,12 +1840,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_JSSE_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SSL_CONTEXT_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  protocol, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  protocol, providerName, FIPS_JSSE_PROVIDER.get().getName()));
       }
     }
 
@@ -1922,17 +1869,9 @@ public final class CryptoHelper
   {
     if (usingFIPSMode())
     {
-      try
-      {
-        return TrustManagerFactory.getInstance(
-             BouncyCastleFIPSHelper.DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM,
-             BouncyCastleFIPSHelper.getBouncyCastleJSSEProvider());
-      }
-      catch (final NoSuchProviderException e)
-      {
-        Debug.debugException(e);
-        throw new NoSuchAlgorithmException(e.getMessage(), e);
-      }
+      return TrustManagerFactory.getInstance(
+           FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.get(),
+           FIPS_JSSE_PROVIDER.get());
     }
     else
     {
@@ -2019,16 +1958,8 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        try
-        {
-          return TrustManagerFactory.getInstance(algorithmName,
-               BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
-        }
-        catch (final NoSuchProviderException e)
-        {
-          Debug.debugException(e);
-          throw new NoSuchAlgorithmException(e.getMessage(), e);
-        }
+        return TrustManagerFactory.getInstance(algorithmName,
+             FIPS_PROVIDER.get());
       }
       else
       {
@@ -2039,12 +1970,11 @@ public final class CryptoHelper
     if (usingFIPSMode())
     {
       final String providerName = provider.getName();
-      if (! providerName.equals(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
+      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_TM_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
       }
     }
 
@@ -2056,12 +1986,13 @@ public final class CryptoHelper
   /**
    * Retrieves the provider instance with the specified name.
    *
-   * @param  providerName         The name of the provider to retrieve.  It may
-   *                              be {@code null} if a default provider should
-   *                              be used.
-   * @param  requireBCInFIPSMode  Indicates whether to only allow the BCFIPS
-   *                              provider when the LDAP SDK is operating in
-   *                              FIPS 140-2-compliant mode.
+   * @param  providerName                   The name of the provider to
+   *                                        retrieve.  It may be {@code null} if
+   *                                        a default provider should be used.
+   * @param  requireFIPSProviderInFIPSMode  Indicates whether to only allow the
+   *                                        FIPS provider when the LDAP SDK is
+   *                                        operating in FIPS 140-2-compliant
+   *                                        mode.
    *
    * @return  The provider with the specified name, or {@code null} if the
    *          given provider name was {@code null}.
@@ -2071,7 +2002,7 @@ public final class CryptoHelper
    */
   @Nullable()
   private static Provider getProvider(@Nullable final String providerName,
-                                      final boolean requireBCInFIPSMode)
+               final boolean requireFIPSProviderInFIPSMode)
           throws NoSuchProviderException
   {
     if (providerName == null)
@@ -2089,12 +2020,22 @@ public final class CryptoHelper
     }
     else
     {
-      if (requireBCInFIPSMode && usingFIPSMode())
+      if (usingFIPSMode())
       {
-        throw new NoSuchProviderException(
-             ERR_CRYPTO_HELPER_PROVIDER_NOT_AVAILABLE_IN_FIPS_MODE.get(
-                  providerName,
-                  BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME));
+        if (providerName.equals(FIPS_PROVIDER.get().getName()))
+        {
+          return FIPS_PROVIDER.get();
+        }
+        else if (providerName.equals(FIPS_JSSE_PROVIDER.get().getName()))
+        {
+          return FIPS_JSSE_PROVIDER.get();
+        }
+        else if (requireFIPSProviderInFIPSMode)
+        {
+          throw new NoSuchProviderException(
+               ERR_CRYPTO_HELPER_PROVIDER_NOT_AVAILABLE_IN_FIPS_MODE.get(
+                    providerName, FIPS_PROVIDER.get().getName()));
+        }
       }
 
       final Provider provider = Security.getProvider(providerName);
