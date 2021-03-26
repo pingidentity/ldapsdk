@@ -411,6 +411,14 @@ public final class CryptoHelper
 
     FIPS_PROVIDER.set(fipsProvider);
     FIPS_JSSE_PROVIDER.set(jsseProvider);
+    FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.set(
+         BouncyCastleFIPSHelper.DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM);
+    FIPS_DEFAULT_KEY_STORE_TYPE.set(
+         BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE);
+    FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.set(
+         BouncyCastleFIPSHelper.DEFAULT_SSL_CONTEXT_PROTOCOL);
+    FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.set(
+         BouncyCastleFIPSHelper.DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM);
     FIPS_MODE.set(true);
 
     TLSCipherSuiteSelector.recompute();
