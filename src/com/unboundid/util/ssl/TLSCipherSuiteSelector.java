@@ -139,6 +139,14 @@ public final class TLSCipherSuiteSelector
        extends CommandLineTool
 {
   /**
+   * The singleton instance of this TLS cipher suite selector.
+   */
+  @NotNull private static final AtomicReference<TLSCipherSuiteSelector>
+       INSTANCE = new AtomicReference<>(new TLSCipherSuiteSelector(true));
+
+
+
+  /**
    * The name of a system property
    * (com.unboundid.util.ssl.TLSCipherSuiteSelector.allowRSAKeyExchange) that
    * can be used to indicate whether to recommend cipher suites that use the RSA
@@ -180,14 +188,6 @@ public final class TLSCipherSuiteSelector
    */
   @NotNull private static final AtomicBoolean ALLOW_SHA_1 =
        new AtomicBoolean(false);
-
-
-
-  /**
-   * The singleton instance of this TLS cipher suite selector.
-   */
-  @NotNull private static final AtomicReference<TLSCipherSuiteSelector>
-       INSTANCE = new AtomicReference<>(new TLSCipherSuiteSelector());
 
 
 
@@ -240,7 +240,7 @@ public final class TLSCipherSuiteSelector
 
     ALLOW_RSA_KEY_EXCHANGE.set(allowRSA);
     ALLOW_SHA_1.set(allowSHA1);
-    INSTANCE.set(new TLSCipherSuiteSelector());
+    INSTANCE.set(new TLSCipherSuiteSelector(false));
   }
 
 
@@ -310,10 +310,15 @@ public final class TLSCipherSuiteSelector
   /**
    * Creates a new instance of this TLS cipher suite selector that will suppress
    * all output.
+   *
+   * @param  useJVMDefaults  Indicates whether to use the JVM-default settings.
+   *                         This should only be {@code true} for the initial
+   *                         instance created before the static initializer has
+   *                         run.
    */
-  private TLSCipherSuiteSelector()
+  private TLSCipherSuiteSelector(final boolean useJVMDefaults)
   {
-    this(null, null);
+    this(null, null, useJVMDefaults);
   }
 
 
@@ -331,6 +336,32 @@ public final class TLSCipherSuiteSelector
    */
   public TLSCipherSuiteSelector(@Nullable final OutputStream out,
                                 @Nullable final OutputStream err)
+  {
+    this(out, err, false);
+  }
+
+
+
+
+  /**
+   * Creates a new instance of this TLS cipher suite selector that will use the
+   * provided output streams.  Note that this constructor should only be used
+   * when invoking it as a command-line tool.
+   *
+   * @param  out             The output stream to use for standard output.  It
+   *                         may be {@code null} if standard output should be
+   *                         suppressed.
+   * @param  err             The output stream to use for standard error.  It
+   *                         may be {@code null} if standard error should be
+   *                         suppressed.
+   * @param  useJVMDefaults  Indicates whether to use the JVM-default settings.
+   *                         This should only be {@code true} for the initial
+   *                         instance created before the static initializer has
+   *                         run.
+   */
+  public TLSCipherSuiteSelector(@Nullable final OutputStream out,
+                                @Nullable final OutputStream err,
+                                final boolean useJVMDefaults)
   {
     super(out, err);
 
@@ -352,23 +383,32 @@ public final class TLSCipherSuiteSelector
       defaultSet.addAll(Arrays.asList(defaultParameters.getCipherSuites()));
       defaultCipherSuites = Collections.unmodifiableSortedSet(defaultSet);
 
-      final ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
-           selectedPair = selectCipherSuites(
-                supportedParameters.getCipherSuites());
-      if (selectedPair.getFirst().isEmpty())
+      if (useJVMDefaults)
       {
-        // We couldn't identify any recommended suites.  Just fall back on the
-        // JVM-default suites.
         recommendedCipherSuites = defaultCipherSuites;
         nonRecommendedCipherSuites = Collections.unmodifiableSortedMap(
              new TreeMap<String,List<String>>());
       }
       else
       {
-        recommendedCipherSuites =
-             Collections.unmodifiableSortedSet(selectedPair.getFirst());
-        nonRecommendedCipherSuites =
-             Collections.unmodifiableSortedMap(selectedPair.getSecond());
+        final ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
+             selectedPair = selectCipherSuites(
+             supportedParameters.getCipherSuites());
+        if (selectedPair.getFirst().isEmpty())
+        {
+          // We couldn't identify any recommended suites.  Just fall back on the
+          // JVM-default suites.
+          recommendedCipherSuites = defaultCipherSuites;
+          nonRecommendedCipherSuites = Collections.unmodifiableSortedMap(
+               new TreeMap<String,List<String>>());
+        }
+        else
+        {
+          recommendedCipherSuites =
+               Collections.unmodifiableSortedSet(selectedPair.getFirst());
+          nonRecommendedCipherSuites =
+               Collections.unmodifiableSortedMap(selectedPair.getSecond());
+        }
       }
 
       recommendedCipherSuiteArray =
@@ -1006,6 +1046,6 @@ public final class TLSCipherSuiteSelector
    */
   public static void recompute()
   {
-    INSTANCE.set(new TLSCipherSuiteSelector());
+    INSTANCE.set(new TLSCipherSuiteSelector(false));
   }
 }
