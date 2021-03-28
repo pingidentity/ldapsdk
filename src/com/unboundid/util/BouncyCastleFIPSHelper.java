@@ -37,12 +37,17 @@ package com.unboundid.util;
 
 
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 
 import static com.unboundid.util.UtilityMessages.*;
 
@@ -71,6 +76,24 @@ public final class BouncyCastleFIPSHelper
    */
   @NotNull private static final AtomicReference<Provider>
        BOUNCY_CASTLE_JSSE_PROVIDER = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the class that implements the Bouncy Castle FIPS provider,
+   * if available.
+   */
+  @NotNull private static final AtomicReference<Class<?>>
+       BOUNCY_CASTLE_FIPS_PROVIDER_CLASS = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the class that implements the Bouncy Castle JSSE provider,
+   * if one is available.
+   */
+  @NotNull private static final AtomicReference<Class<?>>
+       BOUNCY_CASTLE_JSSE_PROVIDER_CLASS = new AtomicReference<>();
 
 
 
@@ -262,7 +285,6 @@ public final class BouncyCastleFIPSHelper
     {
       StaticUtils.setLoggerLevel(LOGGER, Level.OFF);
     }
-
   }
 
 
@@ -340,18 +362,82 @@ public final class BouncyCastleFIPSHelper
 
     // Load the provider class.  If this fails, then the Bouncy Castle FIPS
     // provider is not in the classpath.
-    final Class<?> providerClass;
-    try
+    Class<?> fipsProviderClass = BOUNCY_CASTLE_FIPS_PROVIDER_CLASS.get();
+    if (fipsProviderClass == null)
     {
-      providerClass = Class.forName(BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME);
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      throw new NoSuchProviderException(
-           ERR_BC_FIPS_HELPER_CANNOT_LOAD_FIPS_PROVIDER_CLASS.get(
-                BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME,
-                StaticUtils.getExceptionMessage(e)));
+      try
+      {
+        fipsProviderClass =
+             Class.forName(BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME);
+        BOUNCY_CASTLE_FIPS_PROVIDER_CLASS.set(fipsProviderClass);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+
+        // Before giving up, check to see if the LDAP SDK is part of a Ping
+        // Identity Directory Server installation, and if so, whether we can
+        // find the library as part of that installation.
+        boolean shouldThrow = true;
+        try
+        {
+          final File instanceRoot =
+               InternalSDKHelper.getPingIdentityServerRoot();
+          if (instanceRoot != null)
+          {
+            File fipsProviderJarFile = null;
+            File fipsJSSEProviderJarFile = null;
+            final File libDir = new File(instanceRoot, "lib");
+            if (libDir.exists())
+            {
+              for (final File f : libDir.listFiles())
+              {
+                final String name = f.getName();
+                if (name.startsWith("bc-fips-") && name.endsWith(".jar"))
+                {
+                  fipsProviderJarFile = f;
+                }
+                else if (name.startsWith("bctls-fips-") &&
+                     name.endsWith(".jar"))
+                {
+                  fipsJSSEProviderJarFile = f;
+                }
+              }
+            }
+
+            if ((fipsProviderJarFile != null) &&
+                 (fipsJSSEProviderJarFile != null))
+            {
+              final URL[] fileURLs =
+                   {
+                        fipsProviderJarFile.toURI().toURL(),
+                        fipsJSSEProviderJarFile.toURI().toURL()
+                   };
+
+              final URLClassLoader classLoader = new URLClassLoader(fileURLs,
+                   BouncyCastleFIPSHelper.class.getClassLoader());
+              fipsProviderClass = classLoader.loadClass(
+                   BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME);
+              BOUNCY_CASTLE_JSSE_PROVIDER_CLASS.set(classLoader.loadClass(
+                   BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME));
+              BOUNCY_CASTLE_FIPS_PROVIDER_CLASS.set(fipsProviderClass);
+              shouldThrow = false;
+            }
+          }
+        }
+        catch (final Exception e2)
+        {
+          Debug.debugException(e2);
+        }
+
+        if (shouldThrow)
+        {
+          throw new NoSuchProviderException(
+               ERR_BC_FIPS_HELPER_CANNOT_LOAD_FIPS_PROVIDER_CLASS.get(
+                    BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME,
+                    StaticUtils.getExceptionMessage(e)));
+        }
+      }
     }
 
 
@@ -359,7 +445,7 @@ public final class BouncyCastleFIPSHelper
     final Provider provider;
     try
     {
-      provider = (Provider) providerClass.newInstance();
+      provider = (Provider) fipsProviderClass.newInstance();
 
       if (makeDefault)
       {
@@ -451,18 +537,23 @@ public final class BouncyCastleFIPSHelper
 
     // Load the provider class.  If this fails, then the Bouncy Castle JSSE
     // provider is not in the classpath.
-    final Class<?> providerClass;
-    try
+    Class<?> jsseProviderClass = BOUNCY_CASTLE_JSSE_PROVIDER_CLASS.get();
+    if (jsseProviderClass == null)
     {
-      providerClass = Class.forName(BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME);
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      throw new NoSuchProviderException(
-           ERR_BC_FIPS_HELPER_CANNOT_LOAD_JSSE_PROVIDER_CLASS.get(
-                BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME,
-                StaticUtils.getExceptionMessage(e)));
+      try
+      {
+        jsseProviderClass =
+             Class.forName(BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME);
+        BOUNCY_CASTLE_JSSE_PROVIDER_CLASS.set(jsseProviderClass);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new NoSuchProviderException(
+             ERR_BC_FIPS_HELPER_CANNOT_LOAD_JSSE_PROVIDER_CLASS.get(
+                  BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME,
+                  StaticUtils.getExceptionMessage(e)));
+      }
     }
 
 
@@ -470,7 +561,7 @@ public final class BouncyCastleFIPSHelper
     final Provider provider;
     try
     {
-      provider = (Provider) providerClass.newInstance();
+      provider = (Provider) jsseProviderClass.newInstance();
 
       if (makeSecond)
       {
