@@ -843,7 +843,8 @@ public final class ProhibitedMethodCallsTestCase
   public void testSSLContextGetDefault(final File f)
          throws Exception
   {
-    if (f.getName().equals("CryptoHelper.java"))
+    if (f.getName().equals("CryptoHelper.java") ||
+         f.getName().equals("TLSCipherSuiteSelector.java"))
     {
       // We will allow this method in CryptoHelper.
       return;

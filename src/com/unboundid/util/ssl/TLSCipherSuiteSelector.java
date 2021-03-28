@@ -196,7 +196,7 @@ public final class TLSCipherSuiteSelector
     boolean jvmSupportsTLSv13OrTLSv12 = false;
     try
     {
-      final SSLContext sslContext = CryptoHelper.getDefaultSSLContext();
+      final SSLContext sslContext = SSLContext.getDefault();
       for (final String supportedProtocol :
            sslContext.getSupportedSSLParameters().getProtocols())
       {
@@ -235,7 +235,7 @@ public final class TLSCipherSuiteSelector
     }
     else
     {
-      allowSHA1= (! jvmSupportsTLSv13OrTLSv12);
+      allowSHA1 = (! jvmSupportsTLSv13OrTLSv12);
     }
 
     ALLOW_RSA_KEY_EXCHANGE.set(allowRSA);
@@ -367,7 +367,15 @@ public final class TLSCipherSuiteSelector
 
     try
     {
-      final SSLContext sslContext = CryptoHelper.getDefaultSSLContext();
+      final SSLContext sslContext;
+      if (useJVMDefaults)
+      {
+        sslContext = SSLContext.getDefault();
+      }
+      else
+      {
+        sslContext = CryptoHelper.getDefaultSSLContext();
+      }
 
       final SSLParameters supportedParameters =
            sslContext.getSupportedSSLParameters();
