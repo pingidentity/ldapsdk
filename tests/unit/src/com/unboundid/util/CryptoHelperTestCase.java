@@ -102,6 +102,11 @@ public final class CryptoHelperTestCase
     CryptoHelper.setUseFIPSMode(false);
 
     assertFalse(CryptoHelper.usingFIPSMode());
+
+    assertNotNull(CryptoHelper.getAllowedFIPSModeProviders());
+    assertFalse(CryptoHelper.getAllowedFIPSModeProviders().isEmpty());
+    CryptoHelper.addAllowedFIPSModeProvider(
+         CryptoHelper.getAllowedFIPSModeProviders().iterator().next());
   }
 
 

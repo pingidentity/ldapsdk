@@ -50,7 +50,11 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.crypto.Cipher;
@@ -120,26 +124,32 @@ public final class CryptoHelper
 
 
   /**
-   * The set of essential providers that will be preserved when pruning
-   * non-essential providers.  Note that this assumes the use of an Oracle or
-   * OpenJDK-based JVM.  JVMs from other vendors may use different provider
-   * classes.
+   * The name of the Java property
+   * (com.unboundid.crypto.ALLOWED_FIPS_MODE_PROVIDER) whose value may be a
+   * comma-delimited list of the fully qualified names of the Java provider
+   * classes that will be allowed when the LDAP SDK is running in FIPS
+   * 140-2-compliant mode.  If defined, these classes will not be removed from
+   * the JVM when pruning non-essential providers (whether via the
+   * {@link #PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS} property or the
+   * {@link #removeNonEssentialSecurityProviders()} method), and calls to
+   * methods in this class will allow uses of these providers when running in
+   * FIPS-compliant mode.
    */
-  @NotNull private static final Set<String> ESSENTIAL_PROVIDERS_TO_PRESERVE =
-       StaticUtils.setOf(
-            BouncyCastleFIPSHelper.BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME,
-            BouncyCastleFIPSHelper.BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME,
+  @NotNull public static final String PROPERTY_ALLOWED_FIPS_MODE_PROVIDER =
+       "com.unboundid.crypto.ALLOWED_FIPS_MODE_PROVIDER";
 
-            "com.sun.net.ssl.internal.ssl.Provider",
-            "sun.security.provider.Sun",
-            "sun.security.jgss.SunProvider",
-            "com.sun.security.sasl.Provider",
-            "sun.security.provider.certpath.ldap.JdkLDAP",
-            "com.sun.security.sasl.gsskerb.JdkSASL",
-            "sun.security.pkcs11.SunPKCS11",
 
-            "com.ibm.security.jgss.IBMJGSSProvider",
-            "com.ibm.security.sasl.IBMSASL");
+
+  /**
+   * A set containing the fully qualified names of the Java classes for
+   * providers that will be allowed in FIPS 140-2-compliant mode.  By default,
+   * this will include a set of providers from Oracle, OpenJDK-based, and IBM
+   * JVMs.  This default set of providers may be augmented using the
+   * {@link #PROPERTY_ALLOWED_FIPS_MODE_PROVIDER} property or the
+   * {@link #addAllowedFIPSModeProvider} method.
+   */
+  @NotNull private static final Set<String> ALLOWED_FIPS_MODE_PROVIDERS =
+       new CopyOnWriteArraySet<>();
 
 
 
@@ -147,20 +157,94 @@ public final class CryptoHelper
    * Indicates whether the LDAP SDK should operate in FIPS 140-2-compliant mode.
    */
   @NotNull private static final AtomicBoolean FIPS_MODE;
+
+
+
+  /**
+   * A reference to the provider that offers the main FIPS 140-2-compliant
+   * functionality, if enabled.
+   */
   @NotNull private static final AtomicReference<Provider> FIPS_PROVIDER =
        new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the provider that offers the JSSE provider for FIPS
+   * 140-2-compliant functionality.
+   */
   @NotNull private static final AtomicReference<Provider>
        FIPS_JSSE_PROVIDER = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the default key manager factory algorithm that will be used
+   * in FIPS-compliant mode.
+   */
   @NotNull private static final AtomicReference<String>
        FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the default key store type that will be used in
+   * FIPS-compliant mode, if appropriate.
+   */
   @NotNull private static final AtomicReference<String>
        FIPS_DEFAULT_KEY_STORE_TYPE = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the default SSL context protocol that will be used in
+   * FIPS-compliant mode, if appropriate.
+   */
   @NotNull private static final AtomicReference<String>
        FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the default trust manager factory algorithm that will be
+   * used in FIPS-compliant mode.
+   */
   @NotNull private static final AtomicReference<String>
        FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM = new AtomicReference<>();
   static
   {
+    ALLOWED_FIPS_MODE_PROVIDERS.addAll(StaticUtils.setOf(
+         BouncyCastleFIPSHelper.BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME,
+         BouncyCastleFIPSHelper.BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME,
+
+         "com.sun.net.ssl.internal.ssl.Provider",
+         "sun.security.provider.Sun",
+         "sun.security.jgss.SunProvider",
+         "com.sun.security.sasl.Provider",
+         "sun.security.provider.certpath.ldap.JdkLDAP",
+         "com.sun.security.sasl.gsskerb.JdkSASL",
+         "sun.security.pkcs11.SunPKCS11",
+
+         "com.ibm.security.jgss.IBMJGSSProvider",
+         "com.ibm.security.sasl.IBMSASL"));
+
+    final String preserveProviderPropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_ALLOWED_FIPS_MODE_PROVIDER);
+    if (preserveProviderPropertyValue != null)
+    {
+      final StringTokenizer tokenizer = new StringTokenizer(
+           preserveProviderPropertyValue, ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        final String className = tokenizer.nextToken().trim();
+        if (! className.isEmpty())
+        {
+          ALLOWED_FIPS_MODE_PROVIDERS.add(className);
+        }
+      }
+    }
+
+
     final String fipsModePropertyValue =
          StaticUtils.getSystemProperty(PROPERTY_FIPS_MODE);
     if (fipsModePropertyValue == null)
@@ -427,6 +511,42 @@ public final class CryptoHelper
 
 
   /**
+   * Retrieves an unmodifiable set containing the fully qualified names of the
+   * Java provider classes that will be allowed when the LDAP SDK is operating
+   * in FIPS 140-2-compliant mode.  This also represents the set of providers
+   * that will be preserved when calling the
+   * {@link #removeNonEssentialSecurityProviders()} method.
+   *
+   * @return  An unmodifiable set containing the fully qualified names of the
+   *          Java provider classes that will be allowed when the LDAP SDK is
+   *          operating in FIPS 140-2-compliant mode.
+   */
+  @NotNull()
+  public static Set<String> getAllowedFIPSModeProviders()
+  {
+    return Collections.unmodifiableSet(ALLOWED_FIPS_MODE_PROVIDERS);
+  }
+
+
+
+  /**
+   * Adds the specified class to the set of allowed Java provider classes that
+   * will be allowed when the LDAP SDK is operating in FIPS 140-2-complaint
+   * mode.
+   *
+   * @param  providerClass  The fully qualified name of a Java class that
+   *                        references a provider that will be allowed when the
+   *                        LDAP SDK is operating in FIPS 140-2-compliant mode.
+   */
+  public static void addAllowedFIPSModeProvider(
+              @NotNull final String providerClass)
+  {
+    ALLOWED_FIPS_MODE_PROVIDERS.add(providerClass);
+  }
+
+
+
+  /**
    * Attempts to remove any security providers that are not believed to be
    * needed when operating in FIPS 140-2-compliant mode.  Note that this method
    * assumes the use of an Oracle or OpenJDK-based JVM and may not work as
@@ -437,7 +557,7 @@ public final class CryptoHelper
   {
     for (final Provider provider : Security.getProviders())
     {
-      if (! ESSENTIAL_PROVIDERS_TO_PRESERVE.contains(
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(
            provider.getClass().getName()))
       {
         Security.removeProvider(provider.getName());
@@ -534,13 +654,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new CertificateException(
              ERR_CRYPTO_HELPER_GET_CERT_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.
-                  get(type, providerName,
-                       FIPS_PROVIDER.get().getName()));
+                  get(type, providerClass,
+                       StaticUtils.concatenateStrings(new ArrayList<String>(
+                            ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -646,13 +767,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_CIPHER_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  cipherTransformation, providerName,
-                  FIPS_PROVIDER.get().getName()));
+                  cipherTransformation, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -744,12 +866,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_KEY_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -873,12 +997,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_KM_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -973,12 +1099,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_KP_GEN_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -1128,6 +1256,19 @@ public final class CryptoHelper
              ERR_CRYPTO_HELPER_GET_KEY_STORE_WRONG_STORE_TYPE_FOR_FIPS_MODE.get(
                   keyStoreType, KEY_STORE_TYPE_BCFKS, KEY_STORE_TYPE_PKCS_11));
       }
+
+      if (provider != null)
+      {
+        final String providerClass = provider.getClass().getName();
+        if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
+        {
+          throw new KeyStoreException(
+               ERR_CRYPTO_HELPER_GET_KEY_STORE_WRONG_PROVIDER_FOR_FIPS_MODE.get(
+                    keyStoreType, providerClass,
+                    StaticUtils.concatenateStrings(new ArrayList<String>(
+                         ALLOWED_FIPS_MODE_PROVIDERS))));
+        }
+      }
     }
 
     if (provider == null)
@@ -1240,12 +1381,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_MAC_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -1340,12 +1483,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_DIGEST_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -1440,12 +1585,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SK_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -1584,13 +1731,14 @@ public final class CryptoHelper
     {
       if (usingFIPSMode())
       {
-        final String providerName = provider.getName();
-        if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+        final String providerClass = provider.getClass().getName();
+        if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
         {
           throw new NoSuchAlgorithmException(
                ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                    algorithmName, providerName,
-                    FIPS_PROVIDER.get().getName()));
+                    algorithmName, providerClass,
+                    StaticUtils.concatenateStrings(new ArrayList<String>(
+                         ALLOWED_FIPS_MODE_PROVIDERS))));
         }
       }
 
@@ -1725,12 +1873,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SIGNATURE_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -1847,12 +1997,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_JSSE_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_SSL_CONTEXT_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  protocol, providerName, FIPS_JSSE_PROVIDER.get().getName()));
+                  protocol, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -1977,12 +2129,14 @@ public final class CryptoHelper
 
     if (usingFIPSMode())
     {
-      final String providerName = provider.getName();
-      if (! providerName.equals(FIPS_PROVIDER.get().getName()))
+      final String providerClass = provider.getClass().getName();
+      if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_TM_FACTORY_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  algorithmName, providerName, FIPS_PROVIDER.get().getName()));
+                  algorithmName, providerClass,
+                  StaticUtils.concatenateStrings(new ArrayList<String>(
+                       ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
@@ -2028,29 +2182,24 @@ public final class CryptoHelper
     }
     else
     {
-      if (usingFIPSMode())
-      {
-        if (providerName.equals(FIPS_PROVIDER.get().getName()))
-        {
-          return FIPS_PROVIDER.get();
-        }
-        else if (providerName.equals(FIPS_JSSE_PROVIDER.get().getName()))
-        {
-          return FIPS_JSSE_PROVIDER.get();
-        }
-        else if (requireFIPSProviderInFIPSMode)
-        {
-          throw new NoSuchProviderException(
-               ERR_CRYPTO_HELPER_PROVIDER_NOT_AVAILABLE_IN_FIPS_MODE.get(
-                    providerName, FIPS_PROVIDER.get().getName()));
-        }
-      }
-
       final Provider provider = Security.getProvider(providerName);
       if (provider == null)
       {
         throw new NoSuchProviderException(
              ERR_CRYPTO_HELPER_NO_SUCH_PROVIDER.get(providerName));
+      }
+
+      if (usingFIPSMode())
+      {
+        final String providerClass = provider.getClass().getName();
+        if (! ALLOWED_FIPS_MODE_PROVIDERS.contains(providerClass))
+        {
+          throw new NoSuchProviderException(
+               ERR_CRYPTO_HELPER_PROVIDER_NOT_AVAILABLE_IN_FIPS_MODE.get(
+                    providerClass,
+                    StaticUtils.concatenateStrings(new ArrayList<String>(
+                         ALLOWED_FIPS_MODE_PROVIDERS))));
+        }
       }
 
       return provider;
