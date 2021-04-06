@@ -753,15 +753,32 @@ public final class CryptoHelper
                                  @Nullable final Provider provider)
          throws NoSuchAlgorithmException, NoSuchPaddingException
   {
+    // NOTE:  While the standard Java JCA allows "AES/GCM/PKCS5Padding" and
+    // treats it as equivalent to "AES/GCM/NoPadding", some other providers
+    // (including the Bouncy Castle FIPS provider) do not accept the former.
+    // Although the LDAP SDK does not directly use the "AES/GCM/PKCS5Padding",
+    // there are known cases in which something using the LDAP SDK has used that
+    // cipher transformation.  For best compatibility, automatically convert
+    // "AES/GCM/PKCS5Padding" into "AES/GCM/NoPadding".
+    final String transformation;
+    if (cipherTransformation.equalsIgnoreCase("AES/GCM/PKCS5Padding"))
+    {
+      transformation = "AES/GCM/NoPadding";
+    }
+    else
+    {
+      transformation = cipherTransformation;
+    }
+
     if (provider == null)
     {
       if (usingFIPSMode())
       {
-        return Cipher.getInstance(cipherTransformation, FIPS_PROVIDER.get());
+        return Cipher.getInstance(transformation, FIPS_PROVIDER.get());
       }
       else
       {
-        return Cipher.getInstance(cipherTransformation);
+        return Cipher.getInstance(transformation);
       }
     }
 
@@ -772,13 +789,13 @@ public final class CryptoHelper
       {
         throw new NoSuchAlgorithmException(
              ERR_CRYPTO_HELPER_GET_CIPHER_WRONG_PROVIDER_FOR_FIPS_MODE.get(
-                  cipherTransformation, providerClass,
+                  transformation, providerClass,
                   StaticUtils.concatenateStrings(new ArrayList<String>(
                        ALLOWED_FIPS_MODE_PROVIDERS))));
       }
     }
 
-    return Cipher.getInstance(cipherTransformation, provider);
+    return Cipher.getInstance(transformation, provider);
   }
 
 

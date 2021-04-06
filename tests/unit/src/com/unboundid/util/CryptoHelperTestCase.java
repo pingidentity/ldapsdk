@@ -232,6 +232,25 @@ public final class CryptoHelperTestCase
     assertEquals(
          CryptoHelper.getCipher("AES/CBC/PKCS5Padding").getProvider().getName(),
          defaultProvider.getName());
+    assertEquals(
+         CryptoHelper.getCipher("AES/CBC/PKCS5Padding").getAlgorithm(),
+         "AES/CBC/PKCS5Padding");
+
+    assertNotNull(CryptoHelper.getCipher("AES/GCM/NoPadding"));
+    assertEquals(
+         CryptoHelper.getCipher("AES/GCM/NoPadding").getProvider().getName(),
+         defaultProvider.getName());
+    assertEquals(
+         CryptoHelper.getCipher("AES/GCM/NoPadding").getAlgorithm(),
+         "AES/GCM/NoPadding");
+
+    assertNotNull(CryptoHelper.getCipher("AES/GCM/PKCS5Padding"));
+    assertEquals(
+         CryptoHelper.getCipher("AES/GCM/PKCS5Padding").getProvider().getName(),
+         defaultProvider.getName());
+    assertEquals(
+         CryptoHelper.getCipher("AES/GCM/PKCS5Padding").getAlgorithm(),
+         "AES/GCM/NoPadding");
 
     try
     {
