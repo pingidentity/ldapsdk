@@ -74,6 +74,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the FileArgument class to provide better support for interacting with
+                  files that are potentially encrypted or compressed.  The getFileLines,
+                  getNonBlankFileLines, and getFileBytes methods have been updated so that they
+                  can transparently handle reading from files that are gzip-compressed.  Further,
+                  for tools that are associated with a Ping Identity server instance, these
+                  methods can transparently handle reading from files that are encrypted with a
+                  key from the server's encryption settings database.  In addition, a new
+                  getFileInputStream method has been added that can retrieve an input stream for
+                  reading from the file, and that also handles compressed and encrypted files.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the collect-support-data tool so that the keyStoreFormat and
                   trustStoreFormat arguments are allowed when invoking the server-side version of
                   the tool.  Formerly, these arguments were only available when

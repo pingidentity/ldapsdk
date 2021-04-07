@@ -40,16 +40,22 @@ package com.unboundid.util.args;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -68,9 +74,23 @@ public final class FileArgument
        extends Argument
 {
   /**
+   * A pre-allocated list of potential passphrases that may be used when trying
+   * to read from an encrypted file.  The passphrase is not expected to be
+   * correct, but this list is used to ensure that the LDAP SDK does not
+   * unexpectedly prompt for an encryption passphrase if a file is encrypted and
+   * the key is not found in a Ping Identity server's encryption settings
+   * database.
+   */
+  @NotNull private static final List<char[]>
+       POTENTIAL_PASSPHRASES_TO_AVOID_PROMPTING =
+            Collections.singletonList(new char[0]);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -8478637530068695898L;
+  private static final long serialVersionUID = 741228505566416489L;
 
 
 
@@ -568,6 +588,68 @@ public final class FileArgument
 
 
   /**
+   * Retrieves an input stream that may be used to read the contents of the file
+   * specified as the value to this argument.  If there are multiple values for
+   * this argument, then the file specified as the first value will be used.
+   *
+   * @return  An input stream that may be used to read the data from the file,
+   *          or {@code null} if no values were provided.
+   *
+   * @throws  IOException  If the specified file does not exist or if a problem
+   *                       occurs while obtaining the input stream.
+   */
+  @Nullable()
+  public InputStream getFileInputStream()
+         throws IOException
+  {
+    final File f = getValue();
+    if (f == null)
+    {
+      return null;
+    }
+
+    InputStream inputStream = new FileInputStream(f);
+
+    boolean closeStream = true;
+    try
+    {
+      final List<char[]> potentialPassphrases = new ArrayList<>();
+
+
+      try
+      {
+        final ObjectPair<InputStream,char[]> streamPair =
+             ToolUtils.getPossiblyPassphraseEncryptedInputStream(inputStream,
+                  POTENTIAL_PASSPHRASES_TO_AVOID_PROMPTING, false,
+                  INFO_FILE_ENTER_ENC_PW.get(f.getAbsolutePath()),
+                  ERR_FILE_WRONG_ENC_PW.get(f.getAbsolutePath()), System.out,
+                  System.err);
+        inputStream = streamPair.getFirst();
+      }
+      catch (final GeneralSecurityException e)
+      {
+        throw new IOException(
+             ERR_FILE_CANNOT_DECRYPT.get(f.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+
+      inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
+      closeStream = false;
+      return inputStream;
+    }
+    finally
+    {
+      if (closeStream)
+      {
+        inputStream.close();
+      }
+    }
+  }
+
+
+
+  /**
    * Reads the contents of the file specified as the value to this argument and
    * retrieves a list of the lines contained in it.  If there are multiple
    * values for this argument, then the file specified as the first value will
@@ -583,29 +665,7 @@ public final class FileArgument
   public List<String> getFileLines()
          throws IOException
   {
-    final File f = getValue();
-    if (f == null)
-    {
-      return null;
-    }
-
-    final ArrayList<String> lines  = new ArrayList<>(20);
-    final BufferedReader    reader = new BufferedReader(new FileReader(f));
-    try
-    {
-      String line = reader.readLine();
-      while (line != null)
-      {
-        lines.add(line);
-        line = reader.readLine();
-      }
-    }
-    finally
-    {
-      reader.close();
-    }
-
-    return lines;
+    return getFileLines(true);
   }
 
 
@@ -626,32 +686,59 @@ public final class FileArgument
   public List<String> getNonBlankFileLines()
          throws IOException
   {
-    final File f = getValue();
-    if (f == null)
+    return getFileLines(false);
+  }
+
+
+
+  /**
+   * Reads the contents of the file specified as the value to this argument and
+   * retrieves a list of the lines contained in it, optionally omitting blank
+   * lines.  If there are multiple values for this argument, then the file
+   * specified as the first value will be used.
+   *
+   * @param  includeBlank  Indicates whether to include blank lines in the
+   *                       list that is returned.
+   *
+   * @return  A list containing the lines of the target file, or {@code null} if
+   *          no values were provided.
+   *
+   * @throws  IOException  If the specified file does not exist or a problem
+   *                       occurs while reading the contents of the file.
+   */
+  @Nullable()
+  private List<String> getFileLines(final boolean includeBlank)
+          throws IOException
+  {
+    final InputStream inputStream = getFileInputStream();
+    if (inputStream == null)
     {
       return null;
     }
 
-    final ArrayList<String> lines = new ArrayList<>(20);
-    final BufferedReader reader = new BufferedReader(new FileReader(f));
-    try
+    try (InputStreamReader inputStreamReader =
+              new InputStreamReader(inputStream);
+         BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
     {
-      String line = reader.readLine();
-      while (line != null)
+      final List<String> lines = new ArrayList<>();
+      while (true)
       {
-        if (! line.isEmpty())
+        final String line = bufferedReader.readLine();
+        if (line == null)
+        {
+          return lines;
+        }
+
+        if (includeBlank || (! line.isEmpty()))
         {
           lines.add(line);
         }
-        line = reader.readLine();
       }
     }
     finally
     {
-      reader.close();
+      inputStream.close();
     }
-
-    return lines;
   }
 
 
@@ -671,33 +758,17 @@ public final class FileArgument
   public byte[] getFileBytes()
          throws IOException
   {
-    final File f = getValue();
-    if (f == null)
+    final InputStream inputStream = getFileInputStream();
+    if (inputStream == null)
     {
       return null;
     }
 
-    final byte[] fileData = new byte[(int) f.length()];
-    final FileInputStream inputStream = new FileInputStream(f);
     try
     {
-      int startPos  = 0;
-      int length    = fileData.length;
-      int bytesRead = inputStream.read(fileData, startPos, length);
-      while ((bytesRead > 0) && (startPos < fileData.length))
-      {
-        startPos += bytesRead;
-        length   -= bytesRead;
-        bytesRead = inputStream.read(fileData, startPos, length);
-      }
-
-      if (startPos < fileData.length)
-      {
-        throw new IOException(ERR_FILE_CANNOT_READ_FULLY.get(
-                                   f.getAbsolutePath(), getIdentifierString()));
-      }
-
-      return fileData;
+      final ByteStringBuffer buffer = new ByteStringBuffer();
+      buffer.readFrom(inputStream);
+      return buffer.toByteArray();
     }
     finally
     {
