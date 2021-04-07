@@ -766,8 +766,8 @@ public final class CollectSupportData
     // --useRemoteServer argument.
     for (final String argumentIdentifier :
          Arrays.asList("promptForBindPassword", "promptForKeyStorePassword",
-              "keyStoreFormat", "promptForTrustStorePassword",
-              "trustStoreFormat", "enableSSLDebugging", "useSASLExternal"))
+              "promptForTrustStorePassword", "enableSSLDebugging",
+              "useSASLExternal"))
     {
       final Argument arg = parser.getNamedArgument(argumentIdentifier);
       parser.addDependentArgumentSet(arg, useRemoteServerArg);

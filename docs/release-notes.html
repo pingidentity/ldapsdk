@@ -65,6 +65,26 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates tool to add additional alternative long
+                  identifiers for the keystore-type argument.  It was formerly possible to refer
+                  to the argument as either keystore-type or keystoreType.  It is now also
+                  possible to use key-store-type, keystore-format, key-store-format, or
+                  keystoreFormat.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the collect-support-data tool so that the keyStoreFormat and
+                  trustStoreFormat arguments are allowed when invoking the server-side version of
+                  the tool.  Formerly, these arguments were only available when
+                  collect-support-data was run with the useRemoteServer option because the
+                  server-side version of the tool didn't support the arguments used to specify the
+                  key/trust store format, but that will no longer be the case in the next release
+                  of the server.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated to the latest revision of draft-ietf-kitten-password-storage in the set
                   of LDAP-related specifications.
                   <br><br>

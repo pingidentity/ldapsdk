@@ -559,7 +559,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_LIST_CERTS_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    listCertsKeystoreType.addLongIdentifier("key-store-type", true);
     listCertsKeystoreType.addLongIdentifier("keystoreType", true);
+    listCertsKeystoreType.addLongIdentifier("keystore-format", true);
+    listCertsKeystoreType.addLongIdentifier("key-store-format", true);
+    listCertsKeystoreType.addLongIdentifier("keystoreFormat", true);
     listCertsKeystoreType.addLongIdentifier("storetype", true);
     listCertsParser.addArgument(listCertsKeystoreType);
 
@@ -724,7 +728,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    exportCertKeystoreType.addLongIdentifier("key-store-type", true);
     exportCertKeystoreType.addLongIdentifier("keystoreType", true);
+    exportCertKeystoreType.addLongIdentifier("keystore-format", true);
+    exportCertKeystoreType.addLongIdentifier("key-store-format", true);
+    exportCertKeystoreType.addLongIdentifier("keystoreFormat", true);
     exportCertKeystoreType.addLongIdentifier("storetype", true);
     exportCertParser.addArgument(exportCertKeystoreType);
 
@@ -954,7 +962,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    exportKeyKeystoreType.addLongIdentifier("key-store-type", true);
     exportKeyKeystoreType.addLongIdentifier("keystoreType", true);
+    exportKeyKeystoreType.addLongIdentifier("keystore-format", true);
+    exportKeyKeystoreType.addLongIdentifier("key-store-format", true);
+    exportKeyKeystoreType.addLongIdentifier("keystoreFormat", true);
     exportKeyKeystoreType.addLongIdentifier("storetype", true);
     exportKeyParser.addArgument(exportKeyKeystoreType);
 
@@ -1092,7 +1104,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    importCertKeystoreType.addLongIdentifier("key-store-type", true);
     importCertKeystoreType.addLongIdentifier("keystoreType", true);
+    importCertKeystoreType.addLongIdentifier("keystore-format", true);
+    importCertKeystoreType.addLongIdentifier("key-store-format", true);
+    importCertKeystoreType.addLongIdentifier("keystoreFormat", true);
     importCertKeystoreType.addLongIdentifier("storetype", true);
     importCertParser.addArgument(importCertKeystoreType);
 
@@ -1321,7 +1337,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_DELETE_CERT_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    deleteCertKeystoreType.addLongIdentifier("key-store-type", true);
     deleteCertKeystoreType.addLongIdentifier("keystoreType", true);
+    deleteCertKeystoreType.addLongIdentifier("keystore-format", true);
+    deleteCertKeystoreType.addLongIdentifier("key-store-format", true);
+    deleteCertKeystoreType.addLongIdentifier("keystoreFormat", true);
     deleteCertKeystoreType.addLongIdentifier("storetype", true);
     deleteCertParser.addArgument(deleteCertKeystoreType);
 
@@ -1503,7 +1523,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    genCertKeystoreType.addLongIdentifier("key-store-type", true);
     genCertKeystoreType.addLongIdentifier("keystoreType", true);
+    genCertKeystoreType.addLongIdentifier("keystore-format", true);
+    genCertKeystoreType.addLongIdentifier("key-store-format", true);
+    genCertKeystoreType.addLongIdentifier("keystoreFormat", true);
     genCertKeystoreType.addLongIdentifier("storetype", true);
     genCertParser.addArgument(genCertKeystoreType);
 
@@ -2006,7 +2030,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    genCSRKeystoreType.addLongIdentifier("key-store-type", true);
     genCSRKeystoreType.addLongIdentifier("keystoreType", true);
+    genCSRKeystoreType.addLongIdentifier("keystore-format", true);
+    genCSRKeystoreType.addLongIdentifier("key-store-format", true);
+    genCSRKeystoreType.addLongIdentifier("keystoreFormat", true);
     genCSRKeystoreType.addLongIdentifier("storetype", true);
     genCSRParser.addArgument(genCSRKeystoreType);
 
@@ -2487,7 +2515,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_SIGN_CSR_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    signCSRKeystoreType.addLongIdentifier("key-store-type", true);
     signCSRKeystoreType.addLongIdentifier("keystoreType", true);
+    signCSRKeystoreType.addLongIdentifier("keystore-format", true);
+    signCSRKeystoreType.addLongIdentifier("key-store-format", true);
+    signCSRKeystoreType.addLongIdentifier("keystoreFormat", true);
     signCSRKeystoreType.addLongIdentifier("storetype", true);
     signCSRParser.addArgument(signCSRKeystoreType);
 
@@ -3024,7 +3056,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_CHANGE_ALIAS_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    changeAliasKeystoreType.addLongIdentifier("key-store-type", true);
     changeAliasKeystoreType.addLongIdentifier("keystoreType", true);
+    changeAliasKeystoreType.addLongIdentifier("keystore-format", true);
+    changeAliasKeystoreType.addLongIdentifier("key-store-format", true);
+    changeAliasKeystoreType.addLongIdentifier("keystoreFormat", true);
     changeAliasKeystoreType.addLongIdentifier("storetype", true);
     changeAliasParser.addArgument(changeAliasKeystoreType);
 
@@ -3322,7 +3358,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    changePKPWKeystoreType.addLongIdentifier("key-store-type", true);
     changePKPWKeystoreType.addLongIdentifier("keystoreType", true);
+    changePKPWKeystoreType.addLongIdentifier("keystore-format", true);
+    changePKPWKeystoreType.addLongIdentifier("key-store-format", true);
+    changePKPWKeystoreType.addLongIdentifier("keystoreFormat", true);
     changePKPWKeystoreType.addLongIdentifier("storetype", true);
     changePKPWParser.addArgument(changePKPWKeystoreType);
 
@@ -3708,7 +3748,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    trustServerKeystoreType.addLongIdentifier("key-store-type", true);
     trustServerKeystoreType.addLongIdentifier("keystoreType", true);
+    trustServerKeystoreType.addLongIdentifier("keystore-format", true);
+    trustServerKeystoreType.addLongIdentifier("key-store-format", true);
+    trustServerKeystoreType.addLongIdentifier("keystoreFormat", true);
     trustServerKeystoreType.addLongIdentifier("storetype", true);
     trustServerParser.addArgument(trustServerKeystoreType);
 
@@ -3872,7 +3916,11 @@ public final class ManageCertificates
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_CHECK_USABILITY_ARG_KS_TYPE_DESC.get(),
          ALLOWED_KEYSTORE_TYPE_VALUES);
+    checkUsabilityKeystoreType.addLongIdentifier("key-store-type", true);
     checkUsabilityKeystoreType.addLongIdentifier("keystoreType", true);
+    checkUsabilityKeystoreType.addLongIdentifier("keystore-format", true);
+    checkUsabilityKeystoreType.addLongIdentifier("key-store-format", true);
+    checkUsabilityKeystoreType.addLongIdentifier("keystoreFormat", true);
     checkUsabilityKeystoreType.addLongIdentifier("storetype", true);
     checkUsabilityParser.addArgument(checkUsabilityKeystoreType);
 
