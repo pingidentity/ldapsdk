@@ -58,6 +58,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated support for running in a FIPS 140-2-compliant mode using the Bouncy Castle
+                  FIPS provider to reduce the chance that uses of SecureRandom will encounter severe
+                  performance issues as a result of lack of entropy on the underlying system.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to make it possible to customize the providers that will be
                   allowed when it is running in FIPS 140-2-compliant mode.  This can be customized
                   either through a system property or a method call.

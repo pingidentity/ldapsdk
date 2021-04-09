@@ -38,6 +38,7 @@ package com.unboundid.util;
 
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.NoSuchProviderException;
@@ -445,7 +446,9 @@ public final class BouncyCastleFIPSHelper
     final Provider provider;
     try
     {
-      provider = (Provider) fipsProviderClass.newInstance();
+      final Constructor constructor =
+           fipsProviderClass.getConstructor(String.class);
+      provider = (Provider) constructor.newInstance("C:HYBRID;ENABLE{All};");
 
       if (makeDefault)
       {
