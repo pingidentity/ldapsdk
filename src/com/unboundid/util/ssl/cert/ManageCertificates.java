@@ -11099,7 +11099,15 @@ public final class ManageCertificates
     final KeyStore keystore;
     try
     {
-      keystore = CryptoHelper.getKeyStore(keystoreType);
+      if (keystoreType.equals(BCFKS_KEYSTORE_TYPE))
+      {
+        keystore = CryptoHelper.getKeyStore(keystoreType,
+             BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
+      }
+      else
+      {
+        keystore = CryptoHelper.getKeyStore(keystoreType);
+      }
     }
     catch (final Exception e)
     {

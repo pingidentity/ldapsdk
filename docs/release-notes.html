@@ -72,6 +72,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates tool to provide improved support for managing
+                  key stores in the BCFKS (Bouncy Castle FIPS 140-2-compliant key store) format.
+                  Previously, this only worked if the LDAP SDK was running in FIPS-compliant mode.
+                  It will now work as long as the necessary Bouncy Castle provider classes are
+                  found in the classpath, even if the LDAP SDK is not operating in FIPS-compliant
+                  mode.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the manage-certificates tool to add additional alternative long
                   identifiers for the keystore-type argument.  It was formerly possible to refer
                   to the argument as either keystore-type or keystoreType.  It is now also

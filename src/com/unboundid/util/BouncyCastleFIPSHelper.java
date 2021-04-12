@@ -388,10 +388,12 @@ public final class BouncyCastleFIPSHelper
           {
             File fipsProviderJarFile = null;
             File fipsJSSEProviderJarFile = null;
-            final File libDir = new File(instanceRoot, "lib");
-            if (libDir.exists())
+            final File resourceDir = new File(instanceRoot, "resource");
+            final File bcDir = new File(resourceDir, "bc");
+            final File fipsDir = new File(bcDir, "fips");
+            if (fipsDir.exists())
             {
-              for (final File f : libDir.listFiles())
+              for (final File f : fipsDir.listFiles())
               {
                 final String name = f.getName();
                 if (name.startsWith("bc-fips-") && name.endsWith(".jar"))
@@ -410,10 +412,10 @@ public final class BouncyCastleFIPSHelper
                  (fipsJSSEProviderJarFile != null))
             {
               final URL[] fileURLs =
-                   {
-                        fipsProviderJarFile.toURI().toURL(),
-                        fipsJSSEProviderJarFile.toURI().toURL()
-                   };
+              {
+                fipsProviderJarFile.toURI().toURL(),
+                fipsJSSEProviderJarFile.toURI().toURL()
+              };
 
               final URLClassLoader classLoader = new URLClassLoader(fileURLs,
                    BouncyCastleFIPSHelper.class.getClassLoader());
