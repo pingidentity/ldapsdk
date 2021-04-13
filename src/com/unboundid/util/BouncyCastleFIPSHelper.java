@@ -102,8 +102,9 @@ public final class BouncyCastleFIPSHelper
    * The fully qualified name of the Java class that should be used as the
    * Bouncy Castle FIPS provider.
    */
-  @NotNull public static final String BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME =
-       "org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider";
+  @NotNull public static final String
+       BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME =
+            "org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider";
 
 
 
@@ -111,8 +112,9 @@ public final class BouncyCastleFIPSHelper
    * The fully qualified name of the Java class that should be used as the
    * Bouncy Castle JSSE provider.
    */
-  @NotNull public static final String BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME =
-       "org.bouncycastle.jsse.provider.BouncyCastleJsseProvider";
+  @NotNull public static final String
+       BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME =
+            "org.bouncycastle.jsse.provider.BouncyCastleJsseProvider";
 
 
 
@@ -142,8 +144,8 @@ public final class BouncyCastleFIPSHelper
    * The name of the default key manager factory algorithm that should be used
    * with the Bouncy Castle JSSE provider.
    */
-  @NotNull public static final String DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM =
-       "X.509";
+  @NotNull public static final String
+       DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM = "X.509";
 
 
 
@@ -151,7 +153,8 @@ public final class BouncyCastleFIPSHelper
    * The name of the SSLContext protocol that should be used when requesting
    * the default context from the Bouncy Castle JSSE provider.
    */
-  @NotNull public static final String DEFAULT_SSL_CONTEXT_PROTOCOL = "DEFAULT";
+  @NotNull public static final String DEFAULT_SSL_CONTEXT_PROTOCOL =
+       "DEFAULT";
 
 
 
@@ -159,8 +162,8 @@ public final class BouncyCastleFIPSHelper
    * The name of the default key manager factory algorithm that should be used
    * with the Bouncy Castle JSSE provider.
    */
-  @NotNull public static final String DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM =
-       "PKIX";
+  @NotNull public static final String
+       DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM = "PKIX";
 
 
 
@@ -566,7 +569,9 @@ public final class BouncyCastleFIPSHelper
     final Provider provider;
     try
     {
-      provider = (Provider) jsseProviderClass.newInstance();
+      final Constructor constructor =
+           jsseProviderClass.getConstructor(String.class);
+      provider = (Provider) constructor.newInstance("fips:BCFIPS");
 
       if (makeSecond)
       {
