@@ -451,7 +451,7 @@ public final class BouncyCastleFIPSHelper
     final Provider provider;
     try
     {
-      final Constructor constructor =
+      final Constructor<?> constructor =
            fipsProviderClass.getConstructor(String.class);
       provider = (Provider) constructor.newInstance("C:HYBRID;ENABLE{All};");
 
@@ -569,7 +569,7 @@ public final class BouncyCastleFIPSHelper
     final Provider provider;
     try
     {
-      final Constructor constructor =
+      final Constructor<?> constructor =
            jsseProviderClass.getConstructor(String.class);
       provider = (Provider) constructor.newInstance("fips:BCFIPS");
 
