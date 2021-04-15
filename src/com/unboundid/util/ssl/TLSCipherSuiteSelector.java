@@ -139,10 +139,11 @@ public final class TLSCipherSuiteSelector
        extends CommandLineTool
 {
   /**
-   * The singleton instance of this TLS cipher suite selector.
+   * An instance of this TLS cipher suite selector that will be used by the
+   * static methods.
    */
   @NotNull private static final AtomicReference<TLSCipherSuiteSelector>
-       INSTANCE = new AtomicReference<>(new TLSCipherSuiteSelector(true));
+       STATIC_INSTANCE = new AtomicReference<>();
 
 
 
@@ -193,27 +194,6 @@ public final class TLSCipherSuiteSelector
 
   static
   {
-    boolean jvmSupportsTLSv13OrTLSv12 = false;
-    try
-    {
-      final SSLContext sslContext = SSLContext.getDefault();
-      for (final String supportedProtocol :
-           sslContext.getSupportedSSLParameters().getProtocols())
-      {
-        if (supportedProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_3) ||
-             supportedProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_2))
-        {
-          jvmSupportsTLSv13OrTLSv12 = true;
-          break;
-        }
-      }
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-
     final boolean allowRSA;
     final String allowRSAPropertyValue =
          StaticUtils.getSystemProperty(PROPERTY_ALLOW_RSA_KEY_EXCHANGE);
@@ -223,7 +203,7 @@ public final class TLSCipherSuiteSelector
     }
     else
     {
-      allowRSA = (! jvmSupportsTLSv13OrTLSv12);
+      allowRSA = false;
     }
 
     final boolean allowSHA1;
@@ -235,12 +215,11 @@ public final class TLSCipherSuiteSelector
     }
     else
     {
-      allowSHA1 = (! jvmSupportsTLSv13OrTLSv12);
+      allowSHA1 = false;
     }
 
     ALLOW_RSA_KEY_EXCHANGE.set(allowRSA);
     ALLOW_SHA_1.set(allowSHA1);
-    INSTANCE.set(new TLSCipherSuiteSelector(false));
   }
 
 
@@ -459,7 +438,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedSet<String> getSupportedCipherSuites()
   {
-    return INSTANCE.get().supportedCipherSuites;
+    return getStaticInstance().supportedCipherSuites;
   }
 
 
@@ -474,7 +453,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedSet<String> getDefaultCipherSuites()
   {
-    return INSTANCE.get().defaultCipherSuites;
+    return getStaticInstance().defaultCipherSuites;
   }
 
 
@@ -490,7 +469,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedSet<String> getRecommendedCipherSuites()
   {
-    return INSTANCE.get().recommendedCipherSuites;
+    return getStaticInstance().recommendedCipherSuites;
   }
 
 
@@ -507,7 +486,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static String[] getRecommendedCipherSuiteArray()
   {
-    return INSTANCE.get().recommendedCipherSuiteArray.clone();
+    return getStaticInstance().recommendedCipherSuiteArray.clone();
   }
 
 
@@ -526,7 +505,7 @@ public final class TLSCipherSuiteSelector
   @NotNull()
   public static SortedMap<String,List<String>> getNonRecommendedCipherSuites()
   {
-    return INSTANCE.get().nonRecommendedCipherSuites;
+    return getStaticInstance().nonRecommendedCipherSuites;
   }
 
 
@@ -960,10 +939,11 @@ public final class TLSCipherSuiteSelector
       return Collections.emptySet();
     }
 
+    final TLSCipherSuiteSelector instance = getStaticInstance();
     final int capacity = StaticUtils.computeMapCapacity(
-         INSTANCE.get().supportedCipherSuites.size());
+         instance.supportedCipherSuites.size());
     final Map<String,String> supportedMap = new HashMap<>(capacity);
-    for (final String supportedSuite : INSTANCE.get().supportedCipherSuites)
+    for (final String supportedSuite : instance.supportedCipherSuites)
     {
       supportedMap.put(
            StaticUtils.toUpperCase(supportedSuite).replace('-', '_'),
@@ -1047,6 +1027,30 @@ public final class TLSCipherSuiteSelector
 
 
   /**
+   * Retrieves the static instance of this TLS cipher suite selector.
+   *
+   * @return  The static instance of this TLS cipher suite selector.
+   */
+  @NotNull()
+  private static TLSCipherSuiteSelector getStaticInstance()
+  {
+    TLSCipherSuiteSelector instance = STATIC_INSTANCE.get();
+    if (instance == null)
+    {
+      synchronized (TLSCipherSuiteSelector.class)
+      {
+        STATIC_INSTANCE.compareAndSet(null,
+             new TLSCipherSuiteSelector(null, null, false));
+        instance = STATIC_INSTANCE.get();
+      }
+    }
+
+    return instance;
+  }
+
+
+
+  /**
    * Re-computes the default instance of this cipher suite selector.  This may
    * be necessary after certain actions that alter the supported set of TLS
    * cipher suites (for example, installing or removing cryptographic
@@ -1054,6 +1058,9 @@ public final class TLSCipherSuiteSelector
    */
   public static void recompute()
   {
-    INSTANCE.set(new TLSCipherSuiteSelector(false));
+    synchronized (TLSCipherSuiteSelector.class)
+    {
+      STATIC_INSTANCE.set(null);
+    }
   }
 }
