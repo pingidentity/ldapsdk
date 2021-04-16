@@ -300,6 +300,10 @@ public final class InMemoryDirectoryServerTool
   // provided by the useSchemaFile argument.
   @Nullable private BooleanArgument doNotValidateSchemaDefinitions;
 
+  // The argument used to indicate that the server should not generate operational
+  // attributes.
+  @Nullable private BooleanArgument doNotGenerateOperationalAttributesArgument;
+
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
   @Nullable private BooleanArgument dontStartArgument;
@@ -492,6 +496,7 @@ public final class InMemoryDirectoryServerTool
 
     directoryServer = null;
     doNotValidateSchemaDefinitions = null;
+    doNotGenerateOperationalAttributesArgument = null;
     dontStartArgument = null;
     generateSelfSignedCertificateArgument = null;
     useDefaultSchemaArgument = null;
@@ -786,6 +791,19 @@ public final class InMemoryDirectoryServerTool
     doNotValidateSchemaDefinitions.addLongIdentifier(
          "do-not-validate-schema-definitions", true);
     parser.addArgument(doNotValidateSchemaDefinitions);
+
+    doNotGenerateOperationalAttributesArgument = new BooleanArgument(null,
+            "doNotGenerateOperationalAttributes", 1,
+            INFO_MEM_DS_TOOL_ARG_DESC_GENERATE_OPERATIONAL_ATTRIBUTES.get());
+    doNotGenerateOperationalAttributesArgument.setArgumentGroupName(
+            INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    doNotGenerateOperationalAttributesArgument.addLongIdentifier(
+            "doNotGenerateOperationalAttributes", true);
+    doNotGenerateOperationalAttributesArgument.addLongIdentifier(
+            "do-not-generate-operational-attributes", true);
+    doNotGenerateOperationalAttributesArgument.addLongIdentifier(
+            "no-operational-attributes", true);
+    parser.addArgument(doNotGenerateOperationalAttributesArgument);
 
     equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
@@ -1276,6 +1294,9 @@ public final class InMemoryDirectoryServerTool
       serverConfig.setSchema(null);
     }
 
+    if(doNotGenerateOperationalAttributesArgument.isPresent()) {
+      serverConfig.setGenerateOperationalAttributes(false);
+    }
 
     // If an additional bind DN and password are provided, then include them in
     // the configuration.
