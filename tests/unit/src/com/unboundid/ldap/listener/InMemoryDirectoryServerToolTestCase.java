@@ -199,7 +199,8 @@ public final class InMemoryDirectoryServerToolTestCase
          "--trustStoreType", "JKS",
          "--vendorName", "Example Corp.",
          "--vendorVersion", "1.2.3",
-         "--dontStart");
+         "--dontStart",
+         "--doNotGenerateOperationalAttributes");
 
     final InMemoryDirectoryServer ds = tool.getDirectoryServer();
     assertNotNull(ds);

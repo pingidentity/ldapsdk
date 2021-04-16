@@ -58,6 +58,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the in-memory-directory-server command-line tool to add a new
+                  --doNotGenerateOperationalAttributes argument that can be used to prevent the
+                  server from maintaining operational attributes like entryDN, entryUUID,
+                  subschemaSubentry, creatorsName, createTimestamp, modifiersName, and
+                  modifyTimestamp).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated support for running in a FIPS 140-2-compliant mode using the Bouncy Castle
                   FIPS provider to reduce the chance that uses of SecureRandom will encounter severe
                   performance issues as a result of lack of entropy on the underlying system.

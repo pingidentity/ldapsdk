@@ -169,6 +169,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       schema is configured, then the server will validate that schema and
  *       report errors or warnings for any issues that it identifies with that
  *       schema.</LI>
+ *   <LI>"--doNotGenerateOperationalAttributes" -- indicates that the server
+ *       should not maintain any operational attributes (including entryDN,
+ *       entryUUID, subschemaSubentry, creatorsName, createTimestamp,
+ *       modifiersName, and modifyTimestamp) in entries.</LI>
  *   <LI>"-I {attr}" or "--equalityIndex {attr}" -- specifies that an equality
  *       index should be maintained for the specified attribute.  The equality
  *       index may be used to speed up certain kinds of searches, although it
@@ -296,9 +300,12 @@ public final class InMemoryDirectoryServerTool
   // to standard output.
   @Nullable private BooleanArgument accessLogToStandardOutArgument;
 
+  // Indicates that the should not maintain operational attributes in entries.
+  @Nullable private BooleanArgument doNotGenerateOperationalAttributesArgument;
+
   // Indicates that the should not attempt to validate custom schema definitions
   // provided by the useSchemaFile argument.
-  @Nullable private BooleanArgument doNotValidateSchemaDefinitions;
+  @Nullable private BooleanArgument doNotValidateSchemaDefinitionsArgument;
 
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
@@ -491,7 +498,8 @@ public final class InMemoryDirectoryServerTool
     super(outStream, errStream);
 
     directoryServer = null;
-    doNotValidateSchemaDefinitions = null;
+    doNotGenerateOperationalAttributesArgument = null;
+    doNotValidateSchemaDefinitionsArgument = null;
     dontStartArgument = null;
     generateSelfSignedCertificateArgument = null;
     useDefaultSchemaArgument = null;
@@ -777,15 +785,24 @@ public final class InMemoryDirectoryServerTool
     useSchemaFileArgument.addLongIdentifier("use-schema-file", true);
     parser.addArgument(useSchemaFileArgument);
 
-    doNotValidateSchemaDefinitions = new BooleanArgument(null,
+    doNotValidateSchemaDefinitionsArgument = new BooleanArgument(null,
          "doNotValidateSchemaDefinitions", 1,
          INFO_MEM_DS_TOOL_ARG_DESC_DO_NOT_VALIDATE_SCHEMA.get(
               useSchemaFileArgument.getIdentifierString()));
-    doNotValidateSchemaDefinitions.setArgumentGroupName(
+    doNotValidateSchemaDefinitionsArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    doNotValidateSchemaDefinitions.addLongIdentifier(
+    doNotValidateSchemaDefinitionsArgument.addLongIdentifier(
          "do-not-validate-schema-definitions", true);
-    parser.addArgument(doNotValidateSchemaDefinitions);
+    parser.addArgument(doNotValidateSchemaDefinitionsArgument);
+
+    doNotGenerateOperationalAttributesArgument = new BooleanArgument(null,
+         "doNotGenerateOperationalAttributes", 1,
+         INFO_MEM_DS_TOOL_ARG_DESC_DO_NOT_GENERATE_OP_ATTRS.get());
+    doNotGenerateOperationalAttributesArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    doNotGenerateOperationalAttributesArgument.addLongIdentifier(
+         "do-not-generate-operational-attributes");
+    parser.addArgument(doNotGenerateOperationalAttributesArgument);
 
     equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
@@ -968,7 +985,7 @@ public final class InMemoryDirectoryServerTool
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
 
-    parser.addDependentArgumentSet(doNotValidateSchemaDefinitions,
+    parser.addDependentArgumentSet(doNotValidateSchemaDefinitionsArgument,
          useSchemaFileArgument);
 
     parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
@@ -1210,7 +1227,7 @@ public final class InMemoryDirectoryServerTool
         }
       }
 
-      if (! doNotValidateSchemaDefinitions.isPresent())
+      if (! doNotValidateSchemaDefinitionsArgument.isPresent())
       {
         Schema schema = null;
         final List<String> errorMessages = new ArrayList<>();
@@ -1240,7 +1257,8 @@ public final class InMemoryDirectoryServerTool
           err();
           wrapErr(0, WRAP_COLUMN,
                WARN_MEM_DS_TOOL_WILL_CONTINUE_WITH_SCHEMA.get(
-                    doNotValidateSchemaDefinitions.getIdentifierString()));
+                    doNotValidateSchemaDefinitionsArgument.
+                         getIdentifierString()));
           err();
         }
       }
@@ -1694,6 +1712,13 @@ public final class InMemoryDirectoryServerTool
       serverConfig.setEqualityIndexAttributes(
            equalityIndexArgument.getValues());
     }
+
+
+    // Update the configuration to indicate whether to generate operational
+    // attributes.
+    serverConfig.setGenerateOperationalAttributes(
+         ! doNotGenerateOperationalAttributesArgument.isPresent());
+
 
     return serverConfig;
   }
