@@ -57,7 +57,8 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
-import com.unboundid.ldap.sdk.unboundidds.controls.PasswordUpdateBehaviorRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordUpdateBehaviorRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionInMemoryExtendedOperationHandler;
 import com.unboundid.util.Base64;

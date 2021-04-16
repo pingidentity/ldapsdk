@@ -87,6 +87,7 @@ public final class SourceCodeSanityCheckTestCase
     ensureStartsWithCopyrightHeader(f, fileLines, errorMessages);
     ensureNoTrailingWhitespace(f, fileLines, errorMessages);
     ensureNoTabs(f, fileLines, errorMessages);
+    ensureAcceptableLineLengths(f, fileLines, errorMessages);
 
     failIfNecessary(f, errorMessages);
   }
@@ -111,6 +112,7 @@ public final class SourceCodeSanityCheckTestCase
     ensureStartsWithCopyrightHeader(f, fileLines, errorMessages);
     ensureNoTrailingWhitespace(f, fileLines, errorMessages);
     ensureNoTabs(f, fileLines, errorMessages);
+    ensureAcceptableLineLengths(f, fileLines, errorMessages);
 
     failIfNecessary(f, errorMessages);
   }
@@ -134,6 +136,7 @@ public final class SourceCodeSanityCheckTestCase
     ensureStartsWithCopyrightHeader(f, fileLines, errorMessages);
     ensureNoTrailingWhitespace(f, fileLines, errorMessages);
     ensureNoTabs(f, fileLines, errorMessages);
+    ensureAcceptableLineLengths(f, fileLines, errorMessages);
 
     failIfNecessary(f, errorMessages);
   }
@@ -158,6 +161,7 @@ public final class SourceCodeSanityCheckTestCase
     ensureStartsWithCopyrightHeader(f, fileLines, errorMessages);
     ensureNoTrailingWhitespace(f, fileLines, errorMessages);
     ensureNoTabs(f, fileLines, errorMessages);
+    ensureAcceptableLineLengths(f, fileLines, errorMessages);
 
     failIfNecessary(f, errorMessages);
   }
@@ -424,6 +428,33 @@ public final class SourceCodeSanityCheckTestCase
       if (line.indexOf('\t') >= 0)
       {
         errorMessages.add("Tab found on line " + lineNumber);
+      }
+
+      lineNumber++;
+    }
+  }
+
+
+
+  /**
+   * Ensures that none of the lines of the file exceeds 80 columns in length.
+   *
+   * @param  f              The file being processed.
+   * @param  fileLines      The lines that make up the file.
+   * @param  errorMessages  A list to which any error messages should be added.
+   */
+  private static void ensureAcceptableLineLengths(final File f,
+               final List<String> fileLines,
+               final List<String> errorMessages)
+  {
+    int lineNumber=1;
+    for (final String line : fileLines)
+    {
+      if (line.length() > 80)
+      {
+        errorMessages.add("Line " + lineNumber + " has a length of " +
+             line.length() + " characters, which exceeds the maximum allowed " +
+             "length of 80 characters.");
       }
 
       lineNumber++;

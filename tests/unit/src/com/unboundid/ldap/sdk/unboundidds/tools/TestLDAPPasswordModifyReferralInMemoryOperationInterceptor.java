@@ -37,7 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
-import com.unboundid.ldap.listener.interceptor.InMemoryInterceptedExtendedRequest;
+import com.unboundid.ldap.listener.interceptor.
+            InMemoryInterceptedExtendedRequest;
 import com.unboundid.ldap.listener.interceptor.InMemoryInterceptedModifyRequest;
 import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
 import com.unboundid.ldap.sdk.LDAPException;

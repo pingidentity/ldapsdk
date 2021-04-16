@@ -48,7 +48,8 @@ import org.testng.annotations.Test;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
-import com.unboundid.ldap.listener.TestIntermediateResponseExtendedOperationHandler;
+import com.unboundid.ldap.listener.
+            TestIntermediateResponseExtendedOperationHandler;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.TestLogHandler;
 import com.unboundid.util.json.JSONObject;
