@@ -1014,6 +1014,7 @@ public class Task
          new ReloadGlobalIndexTask(),
          new ReloadHTTPConnectionHandlerCertificatesTask(),
          new RemoveAttributeTypeTask(),
+         new RemoveObjectClassTask(),
          new RestoreTask(),
          new RotateLogTask(),
          new SearchTask(),
@@ -2138,6 +2139,11 @@ public class Task
            RemoveAttributeTypeTask.REMOVE_ATTRIBUTE_TYPE_TASK_CLASS))
       {
         return new RemoveAttributeTypeTask(entry);
+      }
+      else if (taskClass.equals(
+           RemoveObjectClassTask.REMOVE_OBJECT_CLASS_TASK_CLASS))
+      {
+        return new RemoveObjectClassTask(entry);
       }
       else if (taskClass.equals(RestoreTask.RESTORE_TASK_CLASS))
       {
