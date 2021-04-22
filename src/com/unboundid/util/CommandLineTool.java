@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -181,6 +182,12 @@ public abstract class CommandLineTool
   public CommandLineTool(@Nullable final OutputStream outStream,
                          @Nullable final OutputStream errStream)
   {
+    if (CryptoHelper.usingFIPSMode())
+    {
+      Debug.debug(Level.INFO, DebugType.OTHER,
+           "Running in FIPS 140-2-compliant mode.");
+    }
+
     if (outStream == null)
     {
       out = NullOutputStream.getPrintStream();
