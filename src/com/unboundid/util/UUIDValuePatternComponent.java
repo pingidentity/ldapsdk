@@ -37,10 +37,6 @@ package com.unboundid.util;
 
 
 
-import java.util.UUID;
-
-
-
 /**
  * This class defines a value pattern component whose values will be randomly
  * generated UUIDs as described in
@@ -72,7 +68,7 @@ final class UUIDValuePatternComponent
   @Override()
   void append(@NotNull final StringBuilder buffer)
   {
-    buffer.append(UUID.randomUUID().toString());
+    buffer.append(CryptoHelper.getRandomUUID());
   }
 
 

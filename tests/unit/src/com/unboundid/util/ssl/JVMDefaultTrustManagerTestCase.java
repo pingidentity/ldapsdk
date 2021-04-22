@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -108,7 +107,7 @@ public final class JVMDefaultTrustManagerTestCase
   public void testCreateTrustManagerWithUnsetJavaHomeProperty()
          throws Exception
   {
-    final String propertyName = UUID.randomUUID().toString();
+    final String propertyName = CryptoHelper.getRandomUUID().toString();
     assertNull(System.getProperty(propertyName));
 
     final JVMDefaultTrustManager trustManager =
@@ -130,7 +129,7 @@ public final class JVMDefaultTrustManagerTestCase
   public void testCreateTrustManagerWithNonexistentJavaHomeDirectory()
          throws Exception
   {
-    final String propertyName = UUID.randomUUID().toString();
+    final String propertyName = CryptoHelper.getRandomUUID().toString();
     assertNull(System.getProperty(propertyName));
 
     try
@@ -165,7 +164,7 @@ public final class JVMDefaultTrustManagerTestCase
   public void testCreateTrustManagerWithJavaHomeEmptyDirectory()
          throws Exception
   {
-    final String propertyName = UUID.randomUUID().toString();
+    final String propertyName = CryptoHelper.getRandomUUID().toString();
     assertNull(System.getProperty(propertyName));
 
     try
@@ -198,7 +197,7 @@ public final class JVMDefaultTrustManagerTestCase
   public void testCreateTrustManagerWithJavaHomeFileInsteadOfDirectory()
          throws Exception
   {
-    final String propertyName = UUID.randomUUID().toString();
+    final String propertyName = CryptoHelper.getRandomUUID().toString();
     assertNull(System.getProperty(propertyName));
 
     try
@@ -234,7 +233,7 @@ public final class JVMDefaultTrustManagerTestCase
   public void testValidFileExistsAtPath(final String[] pathComponents)
          throws Exception
   {
-    final String propertyName = UUID.randomUUID().toString();
+    final String propertyName = CryptoHelper.getRandomUUID().toString();
     assertNull(System.getProperty(propertyName));
 
     try
@@ -344,7 +343,7 @@ public final class JVMDefaultTrustManagerTestCase
   public void testInvalidFileExistsAtPath(final String[] pathComponents)
          throws Exception
   {
-    final String propertyName = UUID.randomUUID().toString();
+    final String propertyName = CryptoHelper.getRandomUUID().toString();
     assertNull(System.getProperty(propertyName));
 
     try

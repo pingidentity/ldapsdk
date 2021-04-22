@@ -43,6 +43,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.cert.CertificateException;
+import java.util.UUID;
 import javax.crypto.NoSuchPaddingException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -1618,5 +1619,33 @@ public final class CryptoHelperTestCase
     {
       // This was expected
     }
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code getRandomUUID} and
+   * {@code getNameUUIDFromBytes} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUUIDMethods()
+         throws Exception
+  {
+    final UUID randomUUID = CryptoHelper.getRandomUUID();
+    assertNotNull(randomUUID);
+    assertEquals(randomUUID.version(), 4);
+    assertEquals(randomUUID.variant(), 2);
+
+    final UUID nameBasedUUID =
+         CryptoHelper.getNameUUIDFromBytes(StaticUtils.getBytes("Hello"));
+    assertNotNull(nameBasedUUID);
+    assertEquals(nameBasedUUID.version(), 3);
+    assertEquals(nameBasedUUID.variant(), 2);
+
+    assertEquals(
+         CryptoHelper.getNameUUIDFromBytes(StaticUtils.getBytes("Hello")),
+         nameBasedUUID);
   }
 }

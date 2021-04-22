@@ -47,10 +47,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotNull;
@@ -635,7 +635,7 @@ public class Task
 
     if (taskID == null)
     {
-      this.taskID = UUID.randomUUID().toString();
+      this.taskID = CryptoHelper.getRandomUUID().toString();
     }
     else
     {
@@ -892,7 +892,7 @@ public class Task
 
     this.taskClassName = taskClassName;
 
-    String                 idStr  = UUID.randomUUID().toString();
+    String                 idStr  = CryptoHelper.getRandomUUID().toString();
     Date                   sst    = null;
     String[]               depIDs = StaticUtils.NO_STRINGS;
     FailedDependencyAction fda    = FailedDependencyAction.CANCEL;

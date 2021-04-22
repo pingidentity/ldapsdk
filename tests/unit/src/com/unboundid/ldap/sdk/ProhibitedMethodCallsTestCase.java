@@ -935,11 +935,87 @@ public final class ProhibitedMethodCallsTestCase
       if (line.contains("TrustManagerFactory.getInstance"))
       {
         fail("Source code file " + f.getAbsolutePath() +
-             " contains a forbidden use of SSLContext.getInstance, which may " +
+             " contains a forbidden use of TrustManagerFactory.getInstance, " +
+             "which may be inappropriate when running in FIPS mode.  You " +
+             "should replace the call with CryptoHelper.getSSLContext.  The " +
+             "offense is on the following line (at or near line " + lineNumber +
+             "):" + StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code UUID.randomUUID} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testUUIDRandomUUID(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("UUID.randomUUID"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of UUID.randomUUID, which may " +
              "be inappropriate when running in FIPS mode.  You should " +
-             "replace the call with CryptoHelper.getSSLContext.  The offense " +
+             "replace the call with CryptoHelper.getRandomUUID.  The offense " +
              "is on the following line (at or near line " + lineNumber + "):" +
              StaticUtils.EOL + StaticUtils.EOL + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Examines all source code files to ensure that there are no inappropriate
+   * uses of the {@code UUID.nameUUIDFromBytes} method.
+   *
+   * @param  f  The source file to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "sourceCodeFiles")
+  public void testUUIDnameUUIDFromBytes(final File f)
+         throws Exception
+  {
+    if (f.getName().equals("CryptoHelper.java"))
+    {
+      // We will allow this method in CryptoHelper.
+      return;
+    }
+
+    final Map<Integer,String> unwrappedLines =
+         unwrapSourceLines(readFileLines(f));
+    for (final Map.Entry<Integer,String> e : unwrappedLines.entrySet())
+    {
+      final int lineNumber = e.getKey();
+      final String line = e.getValue();
+      if (line.contains("UUID.nameUUIDFromBytes"))
+      {
+        fail("Source code file " + f.getAbsolutePath() +
+             " contains a forbidden use of UUID.nameUUIDFromBytes, which may " +
+             "be inappropriate when running in FIPS mode.  You should " +
+             "replace the call with CryptoHelper.getNameUUIDFromBytes.  The " +
+             "offense is on the following line (at or near line " + lineNumber +
+             "):" + StaticUtils.EOL + StaticUtils.EOL + line);
       }
     }
   }

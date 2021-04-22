@@ -37,8 +37,6 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
-import java.util.UUID;
-
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.Control;
@@ -49,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -68,7 +67,7 @@ public class GetServerIDResponseControlTestCase
   public void testGeneralControl()
          throws Exception
   {
-    final String serverID = UUID.randomUUID().toString();
+    final String serverID = CryptoHelper.getRandomUUID().toString();
 
     GetServerIDResponseControl c = new GetServerIDResponseControl(serverID);
     c = new GetServerIDResponseControl().decodeControl(c.getOID(),

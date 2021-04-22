@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -2164,6 +2165,117 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
     }
 
     return TrustManagerFactory.getInstance(algorithmName, provider);
+  }
+
+
+
+  /**
+   * Retrieves a randomly generated UUID.
+   *
+   * @return  A randomly generated UUID.
+   */
+  @NotNull()
+  public static UUID getRandomUUID()
+  {
+    if (usingFIPSMode())
+    {
+      // Generate 128 bits of random data, and then transform it to conform to
+      // the UUID specification in RFC 4122.  This includes:
+      // * The four most significant bits of the seventh byte specify the
+      //   version.  Random UUIDs should have variant bits of 0b0100.
+      // * The two most significant bits of the ninth byte specify the variant.
+      //   RFC 4122 indicates that the variant bits should be 0b10.
+      final byte[] uuidBytes = new byte[16];
+      ThreadLocalSecureRandom.get().nextBytes(uuidBytes);
+      uuidBytes[6] = (byte) ((uuidBytes[6] & 0x0F) | 0x40);
+      uuidBytes[8] = (byte) ((uuidBytes[8] & 0x3F) | 0x80);
+
+      return uuidFromBytes(uuidBytes);
+    }
+    else
+    {
+      return UUID.randomUUID();
+    }
+  }
+
+
+
+  /**
+   * Retrieves a name-based UUID generated from the provided set of bytes.
+   *
+   * @param  name  The bytes that comprise the name to use to generate the UUID.
+   *               It must not be {@code null}.
+   *
+   * @return  A randomly generated UUID.
+   */
+  @NotNull()
+  public static UUID getNameUUIDFromBytes(@NotNull final byte[] name)
+  {
+    if (usingFIPSMode())
+    {
+      try
+      {
+        // Compute a SHA-256 digest of the provided name.
+        final MessageDigest sha256 = getMessageDigest("SHA-256");
+        final byte[] digestBytes = sha256.digest(name);
+
+        // The first 16 bytes of the digest will be the UUID.  Transform it to
+        // conform to the UUID specification in RFC 4122.  This includes:
+        // * The four most significant bits of the seventh byte specify the
+        //   version.  Name-based UUIDs should have variant bits of 0b0011.
+        // * The two most significant bits of the ninth byte specify the
+        //   variant.  RFC 4122 indicates that the variant bits should be 0b10.
+        digestBytes[6] = (byte) ((digestBytes[6] & 0x0F) | 0x30);
+        digestBytes[8] = (byte) ((digestBytes[8] & 0x3F) | 0x80);
+
+        return uuidFromBytes(digestBytes);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new RuntimeException(e);
+      }
+    }
+    else
+    {
+      return UUID.nameUUIDFromBytes(name);
+    }
+  }
+
+
+
+  /**
+   * Creates a UUID from the provided set of bytes.
+   *
+   * @param  uuidBytes  The bytes that comprise the UUID to create.  It must not
+   *                    be {@code null} and must be at least 16 bytes long with
+   *                    the first 16 bytes containing the data to use to create
+   *                    the UUID.
+   *
+   * @return  The UUID created from the provided bytes.
+   */
+  @NotNull()
+  private static UUID uuidFromBytes(@NotNull final byte[] uuidBytes)
+  {
+    final long mostSignificantBits =
+         ((uuidBytes[0] & 0xFFL) << 56) |
+         ((uuidBytes[1] & 0xFFL) << 48) |
+         ((uuidBytes[2] & 0xFFL) << 40) |
+         ((uuidBytes[3] & 0xFFL) << 32) |
+         ((uuidBytes[4] & 0xFFL) << 24) |
+         ((uuidBytes[5] & 0xFFL) << 16) |
+         ((uuidBytes[6] & 0xFFL) << 8) |
+         (uuidBytes[7] & 0xFFL);
+    final long leastSignificantBits =
+         ((uuidBytes[8] & 0xFFL) << 56) |
+         ((uuidBytes[9] & 0xFFL) << 48) |
+         ((uuidBytes[10] & 0xFFL) << 40) |
+         ((uuidBytes[11] & 0xFFL) << 32) |
+         ((uuidBytes[12] & 0xFFL) << 24) |
+         ((uuidBytes[13] & 0xFFL) << 16) |
+         ((uuidBytes[14] & 0xFFL) << 8) |
+         (uuidBytes[15] & 0xFFL);
+    return new UUID(mostSignificantBits, leastSignificantBits);
   }
 
 

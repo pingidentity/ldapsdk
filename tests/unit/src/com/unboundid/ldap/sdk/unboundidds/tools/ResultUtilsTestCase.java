@@ -134,6 +134,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
 import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 
@@ -708,7 +709,7 @@ public final class ResultUtilsTestCase
 
 
     // A valid content synchronization state response control.
-    final UUID uuid = UUID.randomUUID();
+    final UUID uuid = CryptoHelper.getRandomUUID();
     resultList.add(
          new Object[]
          {

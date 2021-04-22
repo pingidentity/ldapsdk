@@ -42,7 +42,6 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,6 +49,7 @@ import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 
 import static com.unboundid.util.StaticUtils.*;
 
@@ -411,7 +411,7 @@ public class TaskManagerTestCase
     }
 
     // We can be pretty doggone confident that no task exists with this ID.
-    String taskID = UUID.randomUUID().toString();
+    String taskID = CryptoHelper.getRandomUUID().toString();
 
     LDAPConnection conn = getAdminConnection();
     try

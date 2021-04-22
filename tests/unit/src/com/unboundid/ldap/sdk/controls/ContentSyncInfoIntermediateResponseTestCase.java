@@ -49,6 +49,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -192,7 +193,8 @@ public final class ContentSyncInfoIntermediateResponseTestCase
          throws Exception
   {
     final List<UUID> uuidList =
-         Arrays.asList(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+         Arrays.asList(CryptoHelper.getRandomUUID(),
+              CryptoHelper.getRandomUUID(), CryptoHelper.getRandomUUID());
 
     ContentSyncInfoIntermediateResponse r =
          ContentSyncInfoIntermediateResponse.createSyncIDSetResponse(

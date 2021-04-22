@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.UUID;
 
 import org.testng.annotations.Test;
 
@@ -92,6 +91,7 @@ import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
 import com.unboundid.ldif.LDIFException;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.MemoryBasedLogHandler;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -4209,7 +4209,7 @@ public final class InMemoryDirectoryServerTestCase
            "objectClass: top",
            "objectClass: organizationalUnit",
            "ou: test",
-           "entryUUID: " + UUID.randomUUID().toString());
+           "entryUUID: " + CryptoHelper.getRandomUUID());
       fail("Expected an exception when trying to add an entry with a " +
            "NO-USER-MODIFICATION attribute.");
     }
@@ -4226,7 +4226,7 @@ public final class InMemoryDirectoryServerTestCase
          "objectClass: top",
          "objectClass: organizationalUnit",
          "ou: test",
-         "entryUUID: " + UUID.randomUUID().toString());
+         "entryUUID: " + CryptoHelper.getRandomUUID());
     addRequest.addControl(new IgnoreNoUserModificationRequestControl());
     assertResultCodeEquals(conn, addRequest, ResultCode.SUCCESS);
     assertResultCodeEquals(conn,
@@ -4240,7 +4240,7 @@ public final class InMemoryDirectoryServerTestCase
            "dn: ou=People,dc=example,dc=com",
            "changetype: modify",
            "replace: entryUUID",
-           "entryUUID: " + UUID.randomUUID().toString());
+           "entryUUID: " + CryptoHelper.getRandomUUID());
       fail("Expected an exception when trying to modify an attribute with " +
            "NO-USER-MODIFICATION.");
     }
@@ -4256,7 +4256,7 @@ public final class InMemoryDirectoryServerTestCase
          "dn: ou=People,dc=example,dc=com",
          "changetype: modify",
          "replace: entryUUID",
-         "entryUUID: " + UUID.randomUUID().toString());
+         "entryUUID: " + CryptoHelper.getRandomUUID());
     modifyRequest.addControl(new Control(
          IgnoreNoUserModificationRequestControl.
               IGNORE_NO_USER_MODIFICATION_REQUEST_OID,
@@ -4292,7 +4292,7 @@ public final class InMemoryDirectoryServerTestCase
     {
 
       conn.modifyDN("entryUUID=" + entryUUID + ",ou=People,dc=example,dc=com",
-           "entryUUID=" + UUID.randomUUID(), true);
+           "entryUUID=" + CryptoHelper.getRandomUUID(), true);
       fail("Expected an exception when trying to insert a new " +
            "NO-USER-MODIFICATION attribute by a modify DN.");
     }

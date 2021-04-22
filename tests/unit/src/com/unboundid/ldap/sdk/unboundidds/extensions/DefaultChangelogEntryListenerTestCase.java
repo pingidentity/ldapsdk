@@ -37,8 +37,6 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
-import java.util.UUID;
-
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -48,6 +46,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.StaticUtils;
 
 
@@ -82,7 +81,7 @@ public final class DefaultChangelogEntryListenerTestCase
        "changeType: add",
        "changes:: " + Base64.encode(changes.toString())));
 
-    final String serverID = UUID.randomUUID().toString();
+    final String serverID = CryptoHelper.getRandomUUID().toString();
 
     final ASN1OctetString resumeToken = new ASN1OctetString("foo");
 

@@ -37,13 +37,12 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
-import java.util.UUID;
-
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DNEntrySource;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
@@ -310,7 +309,7 @@ public final class PersistUtils
     if ((s == null) || ((length = s.length()) == 0))
     {
       // This will be ugly, but safe.
-      return toJavaIdentifier(UUID.randomUUID().toString());
+      return toJavaIdentifier(CryptoHelper.getRandomUUID().toString());
     }
 
     boolean nextUpper = false;
@@ -357,7 +356,7 @@ public final class PersistUtils
     {
       // This should only happen if the provided string wasn't a valid LDAP
       // attribute or object class name to start with.
-      return toJavaIdentifier(UUID.randomUUID().toString());
+      return toJavaIdentifier(CryptoHelper.getRandomUUID().toString());
     }
 
     return b.toString();

@@ -42,7 +42,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -54,6 +53,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -458,7 +458,7 @@ public final class UniquenessRequestControl
          throws LDAPException
   {
     this((uniquenessID == null
-              ? UUID.randomUUID().toString()
+              ? CryptoHelper.getRandomUUID().toString()
               : uniquenessID),
          properties, isCritical);
   }

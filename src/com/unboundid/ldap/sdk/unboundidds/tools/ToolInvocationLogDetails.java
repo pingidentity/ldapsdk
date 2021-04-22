@@ -42,8 +42,8 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -127,7 +127,7 @@ public final class ToolInvocationLogDetails
 
     if (invocationID == null)
     {
-      this.invocationID = UUID.randomUUID().toString();
+      this.invocationID = CryptoHelper.getRandomUUID().toString();
     }
     else
     {

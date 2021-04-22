@@ -69,6 +69,7 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.util.CryptoHelper;
 
 import static com.unboundid.util.StaticUtils.*;
 
@@ -9303,7 +9304,7 @@ public class DefaultObjectEncoderTestCase
     assertNotNull(f);
 
 
-    UUID uuid = UUID.randomUUID();
+    UUID uuid = CryptoHelper.getRandomUUID();
     assertTrue(e.supportsType(uuid.getClass()));
     assertFalse(e.supportsMultipleValues(f));
 
@@ -9369,8 +9370,8 @@ public class DefaultObjectEncoderTestCase
 
 
     UUID[] uuids = new UUID[2];
-    uuids[0] = UUID.randomUUID();
-    uuids[1] = UUID.randomUUID();
+    uuids[0] = CryptoHelper.getRandomUUID();
+    uuids[1] = CryptoHelper.getRandomUUID();
     assertTrue(e.supportsType(uuids.getClass()));
     assertTrue(e.supportsMultipleValues(f));
 
@@ -9437,7 +9438,7 @@ public class DefaultObjectEncoderTestCase
     Method m = o.getClass().getDeclaredMethod("getUUIDM");
     assertNotNull(m);
 
-    UUID uuid = UUID.randomUUID();
+    UUID uuid = CryptoHelper.getRandomUUID();
     assertTrue(e.supportsType(uuid.getClass()));
 
 
@@ -9492,8 +9493,8 @@ public class DefaultObjectEncoderTestCase
     assertNotNull(m);
 
     UUID[] uuids = new UUID[2];
-    uuids[0] = UUID.randomUUID();
-    uuids[1] = UUID.randomUUID();
+    uuids[0] = CryptoHelper.getRandomUUID();
+    uuids[1] = CryptoHelper.getRandomUUID();
     assertTrue(e.supportsType(uuids.getClass()));
 
 
@@ -9548,7 +9549,7 @@ public class DefaultObjectEncoderTestCase
     Method m = o.getClass().getDeclaredMethod("setUUIDM", UUID.class);
     assertNotNull(m);
 
-    UUID uuid = UUID.randomUUID();
+    UUID uuid = CryptoHelper.getRandomUUID();
     assertTrue(e.supportsType(uuid.getClass()));
     assertFalse(e.supportsMultipleValues(m));
 
@@ -9580,8 +9581,8 @@ public class DefaultObjectEncoderTestCase
          new TestDefaultObjectEncoderValidObject();
 
     UUID[] uuids = new UUID[2];
-    uuids[0] = UUID.randomUUID();
-    uuids[1] = UUID.randomUUID();
+    uuids[0] = CryptoHelper.getRandomUUID();
+    uuids[1] = CryptoHelper.getRandomUUID();
     assertTrue(e.supportsType(uuids.getClass()));
 
     Method m = o.getClass().getDeclaredMethod("setUUIDAM", uuids.getClass());

@@ -37,8 +37,6 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
-import java.util.UUID;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -48,6 +46,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -91,7 +90,7 @@ public class RouteToServerRequestControlTestCase
                                        final boolean expectedPreferNonDegraded)
          throws Exception
   {
-    final String serverID = UUID.randomUUID().toString();
+    final String serverID = CryptoHelper.getRandomUUID().toString();
 
     RouteToServerRequestControl c = new RouteToServerRequestControl(isCritical,
          serverID, allowAlternate, preferLocal, preferNonDegraded);

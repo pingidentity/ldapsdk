@@ -1407,7 +1407,7 @@ public class StaticUtilsTestCase
   public void testValidUUIDs()
          throws Exception
   {
-    final UUID randomUUID = UUID.randomUUID();
+    final UUID randomUUID = CryptoHelper.getRandomUUID();
 
     final byte[] uuidBytes = StaticUtils.encodeUUID(randomUUID);
     final UUID decodedUUID = StaticUtils.decodeUUID(uuidBytes);
@@ -3274,7 +3274,7 @@ public class StaticUtilsTestCase
 
     while (true)
     {
-      final String randomKey = UUID.randomUUID().toString();
+      final String randomKey = CryptoHelper.getRandomUUID().toString();
       if (! definedVariables.containsKey(randomKey))
       {
         assertNull(StaticUtils.getEnvironmentVariable(randomKey));

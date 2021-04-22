@@ -39,7 +39,6 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import org.testng.annotations.Test;
 
@@ -55,6 +54,7 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.StaticUtils;
 
 
@@ -194,7 +194,7 @@ public final class GetChangelogBatchExtendedResultTestCase
        "changeType: add",
        "changes:: " + Base64.encode(changes.toString())));
 
-    final String serverID = UUID.randomUUID().toString();
+    final String serverID = CryptoHelper.getRandomUUID().toString();
 
     final ASN1OctetString resumeToken = new ASN1OctetString("foo");
 
@@ -301,7 +301,7 @@ public final class GetChangelogBatchExtendedResultTestCase
        "changeType: add",
        "changes:: " + Base64.encode(changes.toString())));
 
-    final String serverID = UUID.randomUUID().toString();
+    final String serverID = CryptoHelper.getRandomUUID().toString();
 
     final ASN1OctetString resumeToken = new ASN1OctetString("foo");
 

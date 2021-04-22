@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.CryptoHelper;
 
 
 
@@ -68,7 +69,7 @@ public final class ContentSyncStateControlTestCase
   public void testConstructorWithoutCookie()
          throws Exception
   {
-    final UUID uuid = UUID.randomUUID();
+    final UUID uuid = CryptoHelper.getRandomUUID();
 
     ContentSyncStateControl c =
          new ContentSyncStateControl(ContentSyncState.PRESENT, uuid, null);
@@ -107,7 +108,7 @@ public final class ContentSyncStateControlTestCase
   public void testConstructorWithCookie()
          throws Exception
   {
-    final UUID uuid = UUID.randomUUID();
+    final UUID uuid = CryptoHelper.getRandomUUID();
 
     ContentSyncStateControl c = new ContentSyncStateControl(
          ContentSyncState.ADD, uuid, new ASN1OctetString("foo"));
@@ -183,7 +184,8 @@ public final class ContentSyncStateControlTestCase
     new ContentSyncStateControl().decodeControl(
          "1.3.6.1.4.1.4203.1.9.1.2", false,
          new ASN1OctetString(new ASN1Sequence(new ASN1Enumerated(5),
-              new ASN1OctetString(UUID.randomUUID().toString())).encode()));
+              new ASN1OctetString(
+                   CryptoHelper.getRandomUUID().toString())).encode()));
   }
 
 
@@ -239,7 +241,7 @@ public final class ContentSyncStateControlTestCase
     final Control[] controls =
     {
       new ContentSyncStateControl(ContentSyncState.ADD,
-           UUID.randomUUID(), new ASN1OctetString("foo"))
+           CryptoHelper.getRandomUUID(), new ASN1OctetString("foo"))
     };
 
     final SearchResultEntry e = new SearchResultEntry(
@@ -270,7 +272,7 @@ public final class ContentSyncStateControlTestCase
          throws Exception
   {
     final Control tmp = new ContentSyncStateControl(ContentSyncState.ADD,
-         UUID.randomUUID(), new ASN1OctetString("foo"));
+         CryptoHelper.getRandomUUID(), new ASN1OctetString("foo"));
 
     final Control[] controls =
     {
@@ -354,7 +356,7 @@ public final class ContentSyncStateControlTestCase
     final Control[] controls =
     {
       new ContentSyncStateControl(ContentSyncState.ADD,
-           UUID.randomUUID(), new ASN1OctetString("foo"))
+           CryptoHelper.getRandomUUID(), new ASN1OctetString("foo"))
     };
 
     final SearchResultReference r = new SearchResultReference(refs, controls);
@@ -386,7 +388,7 @@ public final class ContentSyncStateControlTestCase
     final String[] refs = { "ldap://server.example.com/dc=example,dc=com" };
 
     final Control tmp = new ContentSyncStateControl(ContentSyncState.ADD,
-         UUID.randomUUID(), new ASN1OctetString("foo"));
+         CryptoHelper.getRandomUUID(), new ASN1OctetString("foo"));
 
     final Control[] controls =
     {

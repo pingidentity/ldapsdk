@@ -1525,7 +1525,7 @@ public final class X509Certificate
   @NotNull()
   private static BigInteger generateSerialNumber()
   {
-    final UUID uuid = UUID.randomUUID();
+    final UUID uuid = CryptoHelper.getRandomUUID();
     final long msb = uuid.getMostSignificantBits() & 0x7FFF_FFFF_FFFF_FFFFL;
     final long lsb = uuid.getLeastSignificantBits() & 0x7FFF_FFFF_FFFF_FFFFL;
     return BigInteger.valueOf(msb).shiftLeft(64).add(BigInteger.valueOf(lsb));

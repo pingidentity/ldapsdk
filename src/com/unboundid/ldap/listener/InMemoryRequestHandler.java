@@ -52,7 +52,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -151,6 +150,7 @@ import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFWriter;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
@@ -475,7 +475,7 @@ public final class InMemoryRequestHandler
            new Attribute("entryDN",
                 DistinguishedNameMatchingRule.getInstance(),
                 "cn=changelog"),
-           new Attribute("entryUUID", UUID.randomUUID().toString()),
+           new Attribute("entryUUID", CryptoHelper.getRandomUUID().toString()),
            new Attribute("creatorsName",
                 DistinguishedNameMatchingRule.getInstance(),
                 DN.NULL_DN.toString()),
@@ -1150,7 +1150,7 @@ public final class InMemoryRequestHandler
         if (! entry.hasAttribute("entryUUID"))
         {
           entry.addAttribute(new Attribute("entryUUID",
-               UUID.randomUUID().toString()));
+               CryptoHelper.getRandomUUID().toString()));
         }
         if (! entry.hasAttribute("subschemaSubentry"))
         {
@@ -5381,7 +5381,8 @@ findEntriesAndRefs:
          subschemaSubentryDN.toString()));
     rootDSEEntry.addAttribute(new Attribute("entryDN",
          DistinguishedNameMatchingRule.getInstance(), ""));
-    rootDSEEntry.addAttribute("entryUUID", UUID.randomUUID().toString());
+    rootDSEEntry.addAttribute("entryUUID",
+         CryptoHelper.getRandomUUID().toString());
 
     rootDSEEntry.addAttribute("supportedFeatures",
          "1.3.6.1.4.1.4203.1.5.1",  // All operational attributes
@@ -5513,7 +5514,7 @@ findEntriesAndRefs:
     }
 
 
-    e.addAttribute("entryUUID", UUID.randomUUID().toString());
+    e.addAttribute("entryUUID", CryptoHelper.getRandomUUID().toString());
     return new ReadOnlyEntry(e);
   }
 
@@ -5836,7 +5837,7 @@ findEntriesAndRefs:
            DistinguishedNameMatchingRule.getInstance(),
            dn.toNormalizedString()));
       entry.addAttribute(new Attribute("entryUUID",
-           UUID.randomUUID().toString()));
+           CryptoHelper.getRandomUUID().toString()));
       entry.addAttribute(new Attribute("subschemaSubentry",
            DistinguishedNameMatchingRule.getInstance(),
            subschemaSubentryDN.toString()));
