@@ -506,7 +506,7 @@ public final class PassphraseEncryptedOutputStream
        @NotNull final PassphraseEncryptedOutputStreamProperties properties)
        throws GeneralSecurityException, IOException
   {
-    final SecureRandom random = CryptoHelper.getSecureRandom();
+    final SecureRandom random = ThreadLocalSecureRandom.get();
 
     final PassphraseEncryptionCipherType cipherType =
          properties.getCipherType();

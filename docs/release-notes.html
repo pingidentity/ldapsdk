@@ -122,6 +122,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a ThreadLocalSecureRandom class that can be used to maintain a set of
+                  per-thread SecureRandom instances that can be used without synchronization or
+                  contention.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the collect-support-data tool so that the keyStoreFormat and
                   trustStoreFormat arguments are allowed when invoking the server-side version of
                   the tool.  Formerly, these arguments were only available when

@@ -40,7 +40,6 @@ package com.unboundid.ldap.listener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.InetAddress;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,11 +51,11 @@ import com.unboundid.ldap.sdk.NameResolver;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
-import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ssl.cert.CertException;
@@ -121,9 +120,8 @@ public final class SelfSignedCertificateGenerator
 
     keyStoreFile.delete();
 
-    final SecureRandom random = CryptoHelper.getSecureRandom();
     final byte[] randomBytes = new byte[50];
-    random.nextBytes(randomBytes);
+    ThreadLocalSecureRandom.get().nextBytes(randomBytes);
     final String keyStorePIN = Base64.encode(randomBytes);
 
     generateSelfSignedCertificate(toolName, keyStoreFile, keyStorePIN,

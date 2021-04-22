@@ -54,6 +54,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -558,7 +559,7 @@ public final class AES256EncodedPassword
               @NotNull final byte[] clearTextPassword)
          throws GeneralSecurityException
   {
-    final SecureRandom random = CryptoHelper.getSecureRandom();
+    final SecureRandom random = ThreadLocalSecureRandom.get();
 
     final byte[] keyFactorySalt =
          new byte[ENCODING_VERSION_0_KEY_FACTORY_SALT_LENGTH_BYTES];

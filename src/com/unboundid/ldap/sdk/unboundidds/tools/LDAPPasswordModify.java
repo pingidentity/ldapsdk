@@ -98,13 +98,13 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionPostConnectProcessor;
-import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -2424,7 +2424,7 @@ public final class LDAPPasswordModify
     final int length = generatedPasswordLength.getValue();
     final StringBuilder generatedPassword = new StringBuilder(length);
 
-    final SecureRandom random = CryptoHelper.getSecureRandom();
+    final SecureRandom random = ThreadLocalSecureRandom.get();
     final StringBuilder allPasswordCharacters = new StringBuilder();
     for (final String charSet : generatedPasswordCharacterSet.getValues())
     {

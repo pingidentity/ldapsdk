@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +78,6 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             TimeWindowCollectSupportDataLogCaptureWindow;
 import com.unboundid.ldap.sdk.unboundidds.tasks.CollectSupportDataSecurityLevel;
 import com.unboundid.util.Base64;
-import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.NotNull;
@@ -87,6 +85,7 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.Argument;
@@ -1261,9 +1260,8 @@ public final class CollectSupportData
       {
         // Generate a passphrase as a base64url-encoded representation of some
         // randomly generated data.
-        final SecureRandom random = CryptoHelper.getSecureRandom();
         final byte[] randomBytes = new byte[64];
-        random.nextBytes(randomBytes);
+        ThreadLocalSecureRandom.get().nextBytes(randomBytes);
         final String passphrase = Base64.urlEncode(randomBytes, false);
 
         try (PrintWriter writer = new PrintWriter(passphraseFile))

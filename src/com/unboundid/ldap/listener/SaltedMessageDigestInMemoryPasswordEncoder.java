@@ -38,7 +38,6 @@ package com.unboundid.ldap.listener;
 
 
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,9 +45,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -85,9 +84,6 @@ public final class SaltedMessageDigestInMemoryPasswordEncoder
   // The message digest instance tha will be used to actually perform the
   // encoding.
   @NotNull private final MessageDigest messageDigest;
-
-  // The secure random number generator used for generating salts.
-  @NotNull private final SecureRandom random;
 
 
 
@@ -153,8 +149,6 @@ public final class SaltedMessageDigestInMemoryPasswordEncoder
 
     this.saltAfterClearPassword = saltAfterClearPassword;
     this.saltAfterMessageDigest = saltAfterMessageDigest;
-
-    random = CryptoHelper.getSecureRandom();
   }
 
 
@@ -242,7 +236,7 @@ public final class SaltedMessageDigestInMemoryPasswordEncoder
             throws LDAPException
   {
     final byte[] salt = new byte[numSaltBytes];
-    random.nextBytes(salt);
+    ThreadLocalSecureRandom.get().nextBytes(salt);
 
     final byte[] saltedPassword;
     if (saltAfterClearPassword)

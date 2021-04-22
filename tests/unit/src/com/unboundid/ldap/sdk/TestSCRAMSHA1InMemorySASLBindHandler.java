@@ -45,9 +45,9 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.listener.InMemoryRequestHandler;
 import com.unboundid.ldap.listener.InMemorySASLBindHandler;
 import com.unboundid.util.Base64;
-import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 
 
 
@@ -153,7 +153,7 @@ public final class TestSCRAMSHA1InMemorySASLBindHandler
 
 
     // Generate a server nonce and append it to the client nonce.
-    final SecureRandom random = CryptoHelper.getSecureRandom();
+    final SecureRandom random = ThreadLocalSecureRandom.get();
     final byte[] serverNonceBytes = new byte[16];
     random.nextBytes(serverNonceBytes);
     final String serverNonce = Base64.urlEncode(serverNonceBytes, false);

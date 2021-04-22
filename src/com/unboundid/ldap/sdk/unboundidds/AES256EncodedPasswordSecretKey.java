@@ -39,7 +39,6 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,6 +53,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -198,10 +198,9 @@ public final class AES256EncodedPasswordSecretKey
               @NotNull final char[] encryptionSettingsDefinitionPassphrase)
          throws GeneralSecurityException
   {
-    final SecureRandom random = CryptoHelper.getSecureRandom();
     final byte[] keyFactorySalt =
          new byte[ENCODING_VERSION_0_KEY_FACTORY_SALT_LENGTH_BYTES];
-    random.nextBytes(keyFactorySalt);
+    ThreadLocalSecureRandom.get().nextBytes(keyFactorySalt);
 
     return generate(encryptionSettingsDefinitionID,
          encryptionSettingsDefinitionPassphrase, keyFactorySalt);
