@@ -4385,6 +4385,11 @@ public final class ManageCertificates
     }
 
 
+    // Display a message with the keystore type.
+    wrapOut(0, WRAP_COLUMN,
+         INFO_MANAGE_CERTS_LIST_KEYSTORE_TYPE.get(keystoreType));
+
+
     // Iterate through the keystore and display the appropriate certificates.
     final Enumeration<String> aliasEnumeration;
     try
