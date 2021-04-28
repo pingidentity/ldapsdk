@@ -90,6 +90,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates tool to add a new copy-keystore subcommand.
+                  This subcommand can be used to copy all or some of the certificates from one key
+                  store to another, creating the destination key store if necessary.  The source
+                  and destination key stores can be of different types, allowing you to convert
+                  one type of key store to another (for example, converting a JKS key store to a
+                  PKCS #12 key store).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the manage-certificates tool to provide improved support for managing
                   key stores in the BCFKS (Bouncy Castle FIPS 140-2-compliant key store) format.
                   Previously, this only worked if the LDAP SDK was running in FIPS-compliant mode.

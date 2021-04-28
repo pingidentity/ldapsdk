@@ -644,7 +644,7 @@ public final class ManageCertificates
     listCertsSubCommand.addName("listCertificates", true);
     listCertsSubCommand.addName("list-certs", true);
     listCertsSubCommand.addName("listCerts", true);
-    listCertsSubCommand.addName("list", false);
+    listCertsSubCommand.addName("list", true);
 
     parser.addSubCommand(listCertsSubCommand);
 
@@ -1272,7 +1272,7 @@ public final class ManageCertificates
     importCertSubCommand.addName("importCertificateChain", true);
     importCertSubCommand.addName("import-chain", true);
     importCertSubCommand.addName("importChain", true);
-    importCertSubCommand.addName("import", false);
+    importCertSubCommand.addName("import", true);
 
     parser.addSubCommand(importCertSubCommand);
 
@@ -3526,6 +3526,373 @@ public final class ManageCertificates
     parser.addSubCommand(changePKPWSubCommand);
 
 
+    // Define the "copy-keystore" subcommand and all of its arguments.
+    final ArgumentParser copyKSParser = new ArgumentParser("copy-keystore",
+         INFO_MANAGE_CERTS_SC_COPY_KS_DESC.get());
+
+    final FileArgument copyKSSourceKeystore = new FileArgument(null,
+         "source-keystore", true, 1, null,
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_SRC_KS_DESC.get(), true, true, true,
+         false);
+    copyKSSourceKeystore.addLongIdentifier("sourceKeystore", true);
+    copyKSSourceKeystore.addLongIdentifier("source-keystore-path", true);
+    copyKSSourceKeystore.addLongIdentifier("sourceKeystorePath", true);
+    copyKSSourceKeystore.addLongIdentifier("source-keystore-file", true);
+    copyKSSourceKeystore.addLongIdentifier("sourceKeystoreFile", true);
+    copyKSParser.addArgument(copyKSSourceKeystore);
+
+    final StringArgument copyKSSourceKeystorePassword = new StringArgument(null,
+         "source-keystore-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_SRC_KS_PW_DESC.get());
+    copyKSSourceKeystorePassword.addLongIdentifier("sourceKeystorePassword",
+         true);
+    copyKSSourceKeystorePassword.addLongIdentifier("source-keystore-passphrase",
+         true);
+    copyKSSourceKeystorePassword.addLongIdentifier("sourceKeystorePassphrase",
+         true);
+    copyKSSourceKeystorePassword.addLongIdentifier("source-keystore-pin", true);
+    copyKSSourceKeystorePassword.addLongIdentifier("sourceKeystorePIN", true);
+    copyKSParser.addArgument(copyKSSourceKeystorePassword);
+
+    final FileArgument copyKSSourceKeystorePasswordFile = new FileArgument(null,
+         "source-keystore-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_SRC_KS_PW_FILE_DESC.get(), true, true,
+         true, false);
+    copyKSSourceKeystorePasswordFile.addLongIdentifier(
+         "sourceKeystorePasswordFile", true);
+    copyKSSourceKeystorePasswordFile.addLongIdentifier(
+         "source-keystore-passphrase-file", true);
+    copyKSSourceKeystorePasswordFile.addLongIdentifier(
+         "sourceKeystorePassphraseFile", true);
+    copyKSSourceKeystorePasswordFile.addLongIdentifier(
+         "source-keystore-pin-file", true);
+    copyKSSourceKeystorePasswordFile.addLongIdentifier(
+         "sourceKeystorePINFile", true);
+    copyKSParser.addArgument(copyKSSourceKeystorePasswordFile);
+
+    final BooleanArgument copyKSPromptForSourceKeystorePassword =
+         new BooleanArgument(null, "prompt-for-source-keystore-password", 1,
+              INFO_MANAGE_CERTS_SC_COPY_KS_ARG_PROMPT_FOR_SRC_KS_PW.get());
+    copyKSPromptForSourceKeystorePassword.addLongIdentifier(
+         "promptForSourceKeystorePassword", true);
+    copyKSPromptForSourceKeystorePassword.addLongIdentifier(
+         "prompt-for-source-keystore-passphrase", true);
+    copyKSPromptForSourceKeystorePassword.addLongIdentifier(
+         "promptForSourceKeystorePassphrase", true);
+    copyKSPromptForSourceKeystorePassword.addLongIdentifier(
+         "prompt-for-source-keystore-pin", true);
+    copyKSPromptForSourceKeystorePassword.addLongIdentifier(
+         "promptForSourceKeystorePIN", true);
+    copyKSParser.addArgument(copyKSPromptForSourceKeystorePassword);
+
+    final StringArgument copyKSSourcePKPassword = new StringArgument(null,
+         "source-private-key-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_SRC_PK_PW_DESC.get());
+    copyKSSourcePKPassword.addLongIdentifier("sourcePrivateKeyPassword", true);
+    copyKSSourcePKPassword.addLongIdentifier("source-private-key-passphrase",
+         true);
+    copyKSSourcePKPassword.addLongIdentifier("sourcePrivateKeyPassphrase",
+         true);
+    copyKSSourcePKPassword.addLongIdentifier("source-private-key-pin", true);
+    copyKSSourcePKPassword.addLongIdentifier("sourcePrivateKeyPIN", true);
+    copyKSParser.addArgument(copyKSSourcePKPassword);
+
+    final FileArgument copyKSSourcePKPasswordFile = new FileArgument(null,
+         "source-private-key-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_SRC_PK_PW_FILE_DESC.get(), true, true,
+         true, false);
+    copyKSSourcePKPasswordFile.addLongIdentifier(
+         "sourcePrivateKeyPasswordFile", true);
+    copyKSSourcePKPasswordFile.addLongIdentifier(
+         "source-private-key-passphrase-file", true);
+    copyKSSourcePKPasswordFile.addLongIdentifier(
+         "sourcePrivateKeyPassphraseFile", true);
+    copyKSSourcePKPasswordFile.addLongIdentifier(
+         "source-private-key-pin-file", true);
+    copyKSSourcePKPasswordFile.addLongIdentifier(
+         "sourcePrivateKeyPINFile", true);
+    copyKSParser.addArgument(copyKSSourcePKPasswordFile);
+
+    final BooleanArgument copyKSPromptForSourcePKPassword =
+         new BooleanArgument(null, "prompt-for-source-private-key-password", 1,
+              INFO_MANAGE_CERTS_SC_COPY_KS_ARG_PROMPT_FOR_SRC_PK_PW.get());
+    copyKSPromptForSourcePKPassword.addLongIdentifier(
+         "promptForSourcePrivateKeyPassword", true);
+    copyKSPromptForSourcePKPassword.addLongIdentifier(
+         "prompt-for-source-private-key-passphrase", true);
+    copyKSPromptForSourcePKPassword.addLongIdentifier(
+         "promptForSourcePrivateKeyPassphrase", true);
+    copyKSPromptForSourcePKPassword.addLongIdentifier(
+         "prompt-for-source-private-key-pin", true);
+    copyKSPromptForSourcePKPassword.addLongIdentifier(
+         "promptForSourcePrivateKeyPIN", true);
+    copyKSParser.addArgument(copyKSPromptForSourcePKPassword);
+
+    final StringArgument copyKSSourceKeystoreType = new StringArgument(null,
+         "source-keystore-type", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_SRC_KS_TYPE.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    copyKSSourceKeystoreType.addLongIdentifier("source-key-store-type", true);
+    copyKSSourceKeystoreType.addLongIdentifier("sourceKeystoreType", true);
+    copyKSSourceKeystoreType.addLongIdentifier("source-keystore-format", true);
+    copyKSSourceKeystoreType.addLongIdentifier("source-key-store-format", true);
+    copyKSSourceKeystoreType.addLongIdentifier("sourceKeystoreFormat", true);
+    copyKSParser.addArgument(copyKSSourceKeystoreType);
+
+    final FileArgument copyKSDestKeystore = new FileArgument(null,
+         "destination-keystore", true, 1, null,
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_DST_KS_DESC.get(), false, true, true,
+         false);
+    copyKSDestKeystore.addLongIdentifier("destinationKeystore", true);
+    copyKSDestKeystore.addLongIdentifier("destination-keystore-path", true);
+    copyKSDestKeystore.addLongIdentifier("destinationKeystorePath", true);
+    copyKSDestKeystore.addLongIdentifier("destination-keystore-file", true);
+    copyKSDestKeystore.addLongIdentifier("destinationKeystoreFile", true);
+    copyKSDestKeystore.addLongIdentifier("target-keystore", true);
+    copyKSDestKeystore.addLongIdentifier("targetKeystore", true);
+    copyKSDestKeystore.addLongIdentifier("target-keystore-path", true);
+    copyKSDestKeystore.addLongIdentifier("targetKeystorePath", true);
+    copyKSDestKeystore.addLongIdentifier("target-keystore-file", true);
+    copyKSDestKeystore.addLongIdentifier("targetKeystoreFile", true);
+    copyKSParser.addArgument(copyKSDestKeystore);
+
+    final StringArgument copyKSDestKeystorePassword = new StringArgument(null,
+         "destination-keystore-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_DST_KS_PW_DESC.get());
+    copyKSDestKeystorePassword.addLongIdentifier("destinationKeystorePassword",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier(
+         "destination-keystore-passphrase", true);
+    copyKSDestKeystorePassword.addLongIdentifier(
+         "destinationKeystorePassphrase", true);
+    copyKSDestKeystorePassword.addLongIdentifier("destination-keystore-pin",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier("destinationKeystorePIN",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier("target-keystore-password",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier("targetKeystorePassword",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier("target-keystore-passphrase",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier("targetKeystorePassphrase",
+         true);
+    copyKSDestKeystorePassword.addLongIdentifier("target-keystore-pin", true);
+    copyKSDestKeystorePassword.addLongIdentifier("targetKeystorePIN", true);
+    copyKSParser.addArgument(copyKSDestKeystorePassword);
+
+    final FileArgument copyKSDestKeystorePasswordFile = new FileArgument(null,
+         "destination-keystore-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_DST_KS_PW_FILE_DESC.get(), true, true,
+         true, false);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "destinationKeystorePasswordFile", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "destination-keystore-passphrase-file", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "destinationKeystorePassphraseFile", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "destination-keystore-pin-file", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "destinationKeystorePINFile", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "target-keystore-password-file", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "targetKeystorePasswordFile", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "target-keystore-passphrase-file", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier(
+         "targetKeystorePassphraseFile", true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier("target-keystore-pin-file",
+         true);
+    copyKSDestKeystorePasswordFile.addLongIdentifier("targetKeystorePINFile",
+         true);
+    copyKSParser.addArgument(copyKSDestKeystorePasswordFile);
+
+    final BooleanArgument copyKSPromptForDestKeystorePassword =
+         new BooleanArgument(null, "prompt-for-destination-keystore-password",
+              1, INFO_MANAGE_CERTS_SC_COPY_KS_ARG_PROMPT_FOR_DST_KS_PW.get());
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "promptForDestinationKeystorePassword", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "prompt-for-Destination-keystore-passphrase", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "promptForDestinationKeystorePassphrase", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "prompt-for-Destination-keystore-pin", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "promptForDestinationKeystorePIN", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "prompt-for-target-keystore-password", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "promptForTargetKeystorePassword", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "prompt-for-Target-keystore-passphrase", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "promptForTargetKeystorePassphrase", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "prompt-for-Target-keystore-pin", true);
+    copyKSPromptForDestKeystorePassword.addLongIdentifier(
+         "promptForTargetKeystorePIN", true);
+    copyKSParser.addArgument(copyKSPromptForDestKeystorePassword);
+
+    final StringArgument copyKSDestPKPassword = new StringArgument(null,
+         "destination-private-key-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_DST_PK_PW_DESC.get());
+    copyKSDestPKPassword.addLongIdentifier("destinationPrivateKeyPassword",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("destination-private-key-passphrase",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("destinationPrivateKeyPassphrase",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("destination-private-key-pin", true);
+    copyKSDestPKPassword.addLongIdentifier("destinationPrivateKeyPIN", true);
+    copyKSDestPKPassword.addLongIdentifier("target-private-key-password",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("targetPrivateKeyPassword",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("target-private-key-passphrase",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("targetPrivateKeyPassphrase",
+         true);
+    copyKSDestPKPassword.addLongIdentifier("target-private-key-pin", true);
+    copyKSDestPKPassword.addLongIdentifier("targetPrivateKeyPIN", true);
+    copyKSParser.addArgument(copyKSDestPKPassword);
+
+    final FileArgument copyKSDestPKPasswordFile = new FileArgument(null,
+         "destination-private-key-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_DST_PK_PW_FILE_DESC.get(), true, true,
+         true, false);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "destinationPrivateKeyPasswordFile", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "destination-private-key-passphrase-file", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "destinationPrivateKeyPassphraseFile", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "destination-private-key-pin-file", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "destinationPrivateKeyPINFile", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "target-private-key-password-file", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "targetPrivateKeyPasswordFile", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "target-private-key-passphrase-file", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "targetPrivateKeyPassphraseFile", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "target-private-key-pin-file", true);
+    copyKSDestPKPasswordFile.addLongIdentifier(
+         "targetPrivateKeyPINFile", true);
+    copyKSParser.addArgument(copyKSDestPKPasswordFile);
+
+    final BooleanArgument copyKSPromptForDestPKPassword =
+         new BooleanArgument(null,
+              "prompt-for-destination-private-key-password", 1,
+              INFO_MANAGE_CERTS_SC_COPY_KS_ARG_PROMPT_FOR_DST_PK_PW.get());
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "promptForDestinationPrivateKeyPassword", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "prompt-for-Destination-private-key-passphrase", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "promptForDestinationPrivateKeyPassphrase", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "prompt-for-Destination-private-key-pin", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "promptForDestinationPrivateKeyPIN", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "prompt-for-target-private-key-password", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "promptForTargetPrivateKeyPassword", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "prompt-for-Target-private-key-passphrase", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "promptForTargetPrivateKeyPassphrase", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "prompt-for-Target-private-key-pin", true);
+    copyKSPromptForDestPKPassword.addLongIdentifier(
+         "promptForTargetPrivateKeyPIN", true);
+    copyKSParser.addArgument(copyKSPromptForDestPKPassword);
+
+    final StringArgument copyKSDestKeystoreType = new StringArgument(null,
+         "destination-keystore-type", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_DST_KS_TYPE.get(),
+         ALLOWED_KEYSTORE_TYPE_VALUES);
+    copyKSDestKeystoreType.addLongIdentifier("destination-key-store-type",
+         true);
+    copyKSDestKeystoreType.addLongIdentifier("destinationKeystoreType", true);
+    copyKSDestKeystoreType.addLongIdentifier("destination-keystore-format",
+         true);
+    copyKSDestKeystoreType.addLongIdentifier("destination-key-store-format",
+         true);
+    copyKSDestKeystoreType.addLongIdentifier("destinationKeystoreFormat", true);
+    copyKSDestKeystoreType.addLongIdentifier("target-key-store-type", true);
+    copyKSDestKeystoreType.addLongIdentifier("targetKeystoreType", true);
+    copyKSDestKeystoreType.addLongIdentifier("target-keystore-format", true);
+    copyKSDestKeystoreType.addLongIdentifier("target-key-store-format", true);
+    copyKSDestKeystoreType.addLongIdentifier("targetKeystoreFormat", true);
+    copyKSParser.addArgument(copyKSDestKeystoreType);
+
+    final StringArgument copyKSAlias = new StringArgument(null, "alias", false,
+         0, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
+         INFO_MANAGE_CERTS_SC_COPY_KS_ARG_ALIAS.get());
+    copyKSAlias.addLongIdentifier("nickname", true);
+    copyKSParser.addArgument(copyKSAlias);
+
+    copyKSParser.addRequiredArgumentSet(copyKSSourceKeystorePassword,
+         copyKSSourceKeystorePasswordFile,
+         copyKSPromptForSourceKeystorePassword);
+    copyKSParser.addExclusiveArgumentSet(copyKSSourceKeystorePassword,
+         copyKSSourceKeystorePasswordFile,
+         copyKSPromptForSourceKeystorePassword);
+    copyKSParser.addExclusiveArgumentSet(copyKSSourcePKPassword,
+         copyKSSourcePKPasswordFile, copyKSPromptForDestPKPassword);
+    copyKSParser.addExclusiveArgumentSet(copyKSDestKeystorePassword,
+         copyKSDestKeystorePasswordFile, copyKSPromptForDestKeystorePassword);
+    copyKSParser.addExclusiveArgumentSet(copyKSDestPKPassword,
+         copyKSDestPKPasswordFile, copyKSPromptForDestPKPassword);
+
+    final LinkedHashMap<String[],String> copyKeyStoreExamples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
+    copyKeyStoreExamples.put(
+         new String[]
+         {
+           "copy-keystore",
+           "--source-keystore",
+                getPlatformSpecificPath("config", "keystore.jks"),
+           "--source-keystore-password-file",
+                getPlatformSpecificPath("config", "keystore.pin"),
+           "--source-keystore-type", "JKS",
+           "--destination-keystore",
+                getPlatformSpecificPath("config", "keystore.p12"),
+           "--destination-keystore-password-file",
+                getPlatformSpecificPath("config", "keystore.pin"),
+           "--destination-keystore-type", "PKCS12"
+         },
+         INFO_MANAGE_CERTS_SC_COPY_KS_EXAMPLE_1.get("keystore.jks",
+              "keystore.p12"));
+
+    final SubCommand copyKeyStoreSubCommand = new SubCommand("copy-keystore",
+         INFO_MANAGE_CERTS_SC_COPY_KS_DESC.get(), copyKSParser,
+         copyKeyStoreExamples);
+    copyKeyStoreSubCommand.addName("copy-key-store", true);
+    copyKeyStoreSubCommand.addName("copyKeyStore", true);
+    copyKeyStoreSubCommand.addName("import-keystore", true);
+    copyKeyStoreSubCommand.addName("import-key-store", true);
+    copyKeyStoreSubCommand.addName("importKeyStore", true);
+    copyKeyStoreSubCommand.addName("convert-keystore", true);
+    copyKeyStoreSubCommand.addName("convert-key-store", true);
+    copyKeyStoreSubCommand.addName("convertKeyStore", true);
+
+    parser.addSubCommand(copyKeyStoreSubCommand);
+
     // Define the "retrieve-server-certificate" subcommand and all of its
     // arguments.
     final ArgumentParser retrieveCertParser = new ArgumentParser(
@@ -4229,6 +4596,10 @@ public final class ManageCertificates
     else if (selectedSubCommand.hasName("change-private-key-password"))
     {
       return doChangePrivateKeyPassword();
+    }
+    else if (selectedSubCommand.hasName("copy-keystore"))
+    {
+      return doCopyKeystore();
     }
     else if (selectedSubCommand.hasName("retrieve-server-certificate"))
     {
@@ -8237,6 +8608,275 @@ public final class ManageCertificates
 
 
   /**
+   * Performs the necessary processing for the copy-keystore subcommand.
+   *
+   * @return  A result code that indicates whether the processing completed
+   *          successfully.
+   */
+  @NotNull()
+  private ResultCode doCopyKeystore()
+  {
+    // Get the source key store.
+    final String sourceKeyStoreType;
+    final File sourceKeyStorePath = getKeystorePath("source-keystore");
+    try
+    {
+      sourceKeyStoreType = inferKeystoreType(sourceKeyStorePath, "source");
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final char[] sourceKeyStorePassword;
+    try
+    {
+      sourceKeyStorePassword =
+           getKeystorePassword(sourceKeyStorePath, "source");
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final KeyStore sourceKeyStore;
+    try
+    {
+      sourceKeyStore = getKeystore(sourceKeyStoreType, sourceKeyStorePath,
+           sourceKeyStorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Get the destination key store.
+    final String destinationKeyStoreType;
+    final File destinationKeyStorePath =
+         getKeystorePath("destination-keystore");
+    try
+    {
+      destinationKeyStoreType = inferKeystoreType(destinationKeyStorePath,
+           "destination");
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final boolean destinationExists = destinationKeyStorePath.exists();
+
+    char[] destinationKeyStorePassword;
+    try
+    {
+      destinationKeyStorePassword =
+           getKeystorePassword(destinationKeyStorePath, "destination");
+      if (destinationKeyStorePassword == null)
+      {
+        destinationKeyStorePassword = sourceKeyStorePassword;
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final KeyStore destinationKeyStore;
+    try
+    {
+      destinationKeyStore = getKeystore(destinationKeyStoreType,
+           destinationKeyStorePath, destinationKeyStorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Get the value of the aliases argument, if it was provided.
+    final Set<String> aliases = new LinkedHashSet<>();
+    try
+    {
+      final StringArgument aliasArg =
+           subCommandParser.getStringArgument("alias");
+      if ((aliasArg != null) && aliasArg.isPresent())
+      {
+        for (final String alias : aliasArg.getValues())
+        {
+          aliases.add(alias);
+          if (! sourceKeyStore.containsAlias(alias))
+          {
+            wrapErr(0, WRAP_COLUMN,
+                 ERR_MANAGE_CERTS_COPY_KS_NO_SUCH_SOURCE_ALIAS.get(
+                      sourceKeyStorePath.getAbsolutePath(), alias));
+            return ResultCode.PARAM_ERROR;
+          }
+        }
+      }
+      else
+      {
+        final Enumeration<String> sourceAliases = sourceKeyStore.aliases();
+        while (sourceAliases.hasMoreElements())
+        {
+          aliases.add(sourceAliases.nextElement());
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_COPY_KS_CANNOT_GET_SOURCE_ALIASES.get(
+                sourceKeyStorePath.getAbsolutePath(),
+                StaticUtils.getExceptionMessage(e)));
+      return ResultCode.LOCAL_ERROR;
+    }
+
+
+    // If the set of aliases is empty and the destination key store already
+    // exists, then exit without doing anything.
+    if (aliases.isEmpty() && destinationExists)
+    {
+      wrapOut(0, WRAP_COLUMN,
+           INFO_MANAGE_CERTS_COPY_KS_NO_CERTS_COPIED_EXISTING_KS.get(
+                sourceKeyStorePath.getAbsolutePath(),
+                destinationKeyStorePath.getAbsolutePath()));
+      return ResultCode.SUCCESS;
+    }
+
+
+    // Make sure that none of the target aliases exist in the destination key
+    // store.
+    for (final String alias : aliases)
+    {
+      try
+      {
+        if (destinationKeyStore.containsAlias(alias))
+        {
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_COPY_KS_CONFLICTING_ALIAS.get(alias,
+                    destinationKeyStorePath.getAbsolutePath(),
+                    subCommandParser.getCommandName()));
+          return ResultCode.CONSTRAINT_VIOLATION;
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_COPY_KS_CANNOT_CHECK_DEST_ALIAS.get(alias,
+                  destinationKeyStorePath.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)));
+        return ResultCode.LOCAL_ERROR;
+      }
+    }
+
+
+    // Copy each of the targeted entries from the source key store into the
+    // destination key store.
+    char[] sourcePrivateKeyPassword = null;
+    char[] destinationPrivateKeyPassword = null;
+    for (final String alias : aliases)
+    {
+      try
+      {
+        if (sourceKeyStore.isCertificateEntry(alias))
+        {
+          final Certificate certificate = sourceKeyStore.getCertificate(alias);
+          destinationKeyStore.setCertificateEntry(alias, certificate);
+        }
+        else
+        {
+          if (sourcePrivateKeyPassword == null)
+          {
+            sourcePrivateKeyPassword = getPrivateKeyPassword(sourceKeyStore,
+                 alias, "source", sourceKeyStorePassword);
+          }
+
+          if (destinationPrivateKeyPassword == null)
+          {
+            destinationPrivateKeyPassword = getPrivateKeyPassword(
+                 destinationKeyStore, alias, "destination",
+                 destinationKeyStorePassword);
+          }
+
+          final Certificate[] chain = sourceKeyStore.getCertificateChain(alias);
+          final Key key =
+               sourceKeyStore.getKey(alias, sourcePrivateKeyPassword);
+          destinationKeyStore.setKeyEntry(alias, key,
+               destinationPrivateKeyPassword, chain);
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_COPY_KS_ERROR_COPYING_ENTRY.get(alias,
+                  sourceKeyStorePath.getAbsolutePath(),
+                  destinationKeyStorePath.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)));
+        return ResultCode.LOCAL_ERROR;
+      }
+    }
+
+
+    // Rewrite the destination keystore.
+    try
+    {
+      writeKeystore(destinationKeyStore, destinationKeyStorePath,
+           destinationKeyStorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    if (aliases.isEmpty())
+    {
+      // This should only happen if the alias argument was not provided, the
+      // source key store is empty, and the destination key store doesn't exist.
+      // In that case, the destination key store will have been created.
+      wrapOut(0, WRAP_COLUMN,
+           INFO_MANAGE_CERTS_COPY_KS_NO_CERTS_COPIED_KS_CREATED.get(
+                sourceKeyStorePath.getAbsolutePath(),
+                destinationKeyStoreType,
+                destinationKeyStorePath.getAbsolutePath()));
+    }
+    else
+    {
+      // Write a message about the entries that were successfully copied.
+      wrapOut(0, WRAP_COLUMN,
+           INFO_MANAGE_CERTS_COPY_KS_CERTS_COPIED_HEADER.get(
+                sourceKeyStorePath.getAbsolutePath(),
+                destinationKeyStoreType,
+                destinationKeyStorePath.getAbsolutePath()));
+      for (final String alias : aliases)
+      {
+        out("* ", alias);
+      }
+    }
+
+    return ResultCode.SUCCESS;
+  }
+
+
+
+  /**
    * Performs the necessary processing for the retrieve-server-certificate
    * subcommand.
    *
@@ -10367,16 +11007,33 @@ public final class ManageCertificates
 
 
   /**
-   * Retrieves the path to the target keystore file.
+   * Retrieves the path to the target key store file.
    *
-   * @return  The path to the target keystore file, or {@code null} if no
+   * @return  The path to the target key store file, or {@code null} if no
    *          keystore path was configured.
    */
   @Nullable()
   private File getKeystorePath()
   {
+    return getKeystorePath("keystore");
+  }
+
+
+
+  /**
+   * Retrieves the path to the target key store file.
+   *
+   * @param  keystoreArgumentName  The name of the argument used to specify the
+   *                               path to the target key store.
+   *
+   * @return  The path to the target keystore file, or {@code null} if no
+   *          keystore path was configured.
+   */
+  @Nullable()
+  private File getKeystorePath(@NotNull final String keystoreArgumentName)
+  {
     final FileArgument keystoreArgument =
-         subCommandParser.getFileArgument("keystore");
+         subCommandParser.getFileArgument(keystoreArgumentName);
     if ((keystoreArgument != null) && keystoreArgument.isPresent())
     {
       return keystoreArgument.getValue();
@@ -10858,7 +11515,7 @@ public final class ManageCertificates
       {
         if ((hasKeyAlias(keystore, alias) ||
              hasCertificateAlias(keystore, alias)) &&
-            (! "new".equals(prefix)))
+            (! "new".equals(prefix)) && (! "destination".equals(prefix)))
         {
           // This means that the private key already exists, so we just need to
           // prompt once.
@@ -10953,9 +11610,41 @@ public final class ManageCertificates
   private String inferKeystoreType(@NotNull final File keystorePath)
           throws LDAPException
   {
+    return inferKeystoreType(keystorePath, null);
+  }
+
+
+
+  /**
+   * Infers the keystore type from the provided keystore file.
+   *
+   * @param  keystorePath  The path to the file to examine.
+   * @param  prefix        The prefix string to use for the arguments.  This
+   *                       may be {@code null} if no prefix is needed.
+   *
+   * @return  The keystore type inferred from the provided keystore file.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to infer
+   *                         the keystore type.
+   */
+  @NotNull()
+  private String inferKeystoreType(@NotNull final File keystorePath,
+                                   @Nullable final String prefix)
+          throws LDAPException
+  {
     // If the keystore type argument was specified, then use its value.
-    final StringArgument keystoreTypeArgument =
-         subCommandParser.getStringArgument("keystore-type");
+    final StringArgument keystoreTypeArgument;
+    if (prefix == null)
+    {
+      keystoreTypeArgument =
+           subCommandParser.getStringArgument("keystore-type");
+    }
+    else
+    {
+      keystoreTypeArgument =
+           subCommandParser.getStringArgument(prefix + "-keystore-type");
+    }
+
     if ((keystoreTypeArgument != null) && keystoreTypeArgument.isPresent())
     {
       final String ktaValue = keystoreTypeArgument.getValue();
@@ -12771,6 +13460,24 @@ public final class ManageCertificates
          },
          INFO_MANAGE_CERTS_SC_RETRIEVE_CERT_EXAMPLE_1.get(
               getPlatformSpecificPath("config", "truststore")));
+
+    examples.put(
+         new String[]
+         {
+           "copy-keystore",
+           "--source-keystore",
+                getPlatformSpecificPath("config", "keystore.jks"),
+           "--source-keystore-password-file",
+                getPlatformSpecificPath("config", "keystore.pin"),
+           "--source-keystore-type", "JKS",
+           "--destination-keystore",
+                getPlatformSpecificPath("config", "keystore.p12"),
+           "--destination-keystore-password-file",
+                getPlatformSpecificPath("config", "keystore.pin"),
+           "--destination-keystore-type", "PKCS12"
+         },
+         INFO_MANAGE_CERTS_SC_COPY_KS_EXAMPLE_1.get("keystore.jks",
+              "keystore.p12"));
 
     examples.put(
          new String[]

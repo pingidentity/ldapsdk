@@ -8365,6 +8365,312 @@ public final class ManageCertificatesTestCase
 
 
   /**
+   * Tests the behavior of the copy-keystore subcommand.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCopyKeystore()
+         throws Exception
+  {
+    // Create a new JKS key store with a self-signed certificate.
+    final File ksPWFile = createTempFile("keystore-password");
+    final File ks1File = createTempFile();
+    assertTrue(ks1File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "generate-self-signed-certificate",
+         "--keystore", ks1File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--keystore-type", "JKS",
+         "--alias", "ca-cert",
+         "--subject-dn", "CN=Example CA,O=Example Corp,C=US");
+
+
+    // Make sure that we can copy the JKS key store to a new PKCS #12 key store.
+    // Make sure that the resulting key store has the self-signed certificate.
+    final File ks2File = createTempFile();
+    assertTrue(ks2File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks2File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "PKCS12");
+
+    final KeyStore ks2 =
+         getKeystore(ks2File.getAbsolutePath(), "PKCS12", "keystore-password");
+    assertFalse(getAliases(ks2, true, false).isEmpty());
+    assertEquals(getAliases(ks2, true, false).size(), 1);
+    assertEquals(getAliases(ks2, true, false), StaticUtils.setOf("ca-cert"));
+
+    assertTrue(getAliases(ks2, false, true).isEmpty());
+
+
+    // Make sure that we can copy the PKCS #12 keystore to a new JKS key store.
+    final File ks3File = createTempFile();
+    assertTrue(ks3File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks2File.getAbsolutePath(),
+         "--source-keystore-password", "keystore-password",
+         "--destination-keystore", ks3File.getAbsolutePath(),
+         "--destination-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore-type", "JKS");
+
+    KeyStore ks3 =
+         getKeystore(ks3File.getAbsolutePath(), "JKS", "keystore-password");
+    assertFalse(getAliases(ks3, true, false).isEmpty());
+    assertEquals(getAliases(ks3, true, false).size(), 1);
+    assertEquals(getAliases(ks3, true, false), StaticUtils.setOf("ca-cert"));
+
+    assertTrue(getAliases(ks3, false, true).isEmpty());
+
+
+    // Export the CA certificate to a PEM file and import it into the first
+    // key store under a different alias.  This will be a certificate entry
+    // rather than a key entry.
+    final File caCertFile = createTempFile();
+    assertTrue(caCertFile.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "export-certificate",
+         "--keystore", ks1File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--alias", "ca-cert",
+         "--output-file", caCertFile.getAbsolutePath(),
+         "--output-format", "PEM");
+
+    manageCertificates(
+         "import-certificate",
+         "--keystore", ks1File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--alias", "ca-cert-without-key",
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--no-prompt");
+
+
+    // Create and validate a copy of the updated key store.  Some older versions
+    // of Java don't support PKCS #12 key stores with trusted certificate
+    // entries, so we'll copy the existing JKS key store to another JKS key
+    // store.
+    final File ks4File = createTempFile();
+    assertTrue(ks4File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks4File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "JKS");
+
+    final KeyStore ks4 =
+         getKeystore(ks4File.getAbsolutePath(), "JKS", "keystore-password");
+    assertFalse(getAliases(ks4, true, false).isEmpty());
+    assertEquals(getAliases(ks4, true, false).size(), 1);
+    assertEquals(getAliases(ks4, true, false), StaticUtils.setOf("ca-cert"));
+
+    assertFalse(getAliases(ks4, false, true).isEmpty());
+    assertEquals(getAliases(ks4, false, true).size(), 1);
+    assertEquals(getAliases(ks4, false, true),
+         StaticUtils.setOf("ca-cert-without-key"));
+
+
+    // Update the first key store with a second certificate.  Sign it with the
+    // first certificate.
+    final File serverCertCSRFile = createTempFile();
+    assertTrue(serverCertCSRFile.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "generate-certificate-signing-request",
+         "--keystore", ks1File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US",
+         "--output-file", serverCertCSRFile.getAbsolutePath(),
+         "--output-format", "PEM");
+
+    final File serverCertFile = createTempFile();
+    assertTrue(serverCertFile.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "sign-certificate-signing-request",
+         "--keystore", ks1File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--signing-certificate-alias", "ca-cert",
+         "--request-input-file", serverCertCSRFile.getAbsolutePath(),
+         "--output-file", serverCertFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--no-prompt");
+
+    manageCertificates(ResultCode.SUCCESS, null,
+         "import-certificate",
+         "--keystore", ks1File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--certificate-file", serverCertFile.getAbsolutePath(),
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--no-prompt");
+
+
+    // Create another copy of the initial key store and make sure it contains
+    // all of the expected entries.
+    final File ks5File = createTempFile();
+    assertTrue(ks5File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks5File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "JKS");
+
+    final KeyStore ks5 =
+         getKeystore(ks5File.getAbsolutePath(), "JKS", "keystore-password");
+    assertFalse(getAliases(ks5, true, false).isEmpty());
+    assertEquals(getAliases(ks5, true, false).size(), 2);
+    assertEquals(getAliases(ks5, true, false),
+         StaticUtils.setOf("ca-cert", "server-cert"));
+
+    assertFalse(getAliases(ks5, false, true).isEmpty());
+    assertEquals(getAliases(ks5, false, true).size(), 1);
+    assertEquals(getAliases(ks5, false, true),
+         StaticUtils.setOf("ca-cert-without-key"));
+
+
+    // Make sure that we can use the alias argument to copy only a single entry
+    // from the original key store to a new key store.
+    final File ks6File = createTempFile();
+    assertTrue(ks6File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks6File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "JKS",
+         "--alias", "ca-cert");
+
+    KeyStore ks6 =
+         getKeystore(ks6File.getAbsolutePath(), "JKS", "keystore-password");
+    assertFalse(getAliases(ks6, true, false).isEmpty());
+    assertEquals(getAliases(ks6, true, false).size(), 1);
+    assertEquals(getAliases(ks6, true, false), StaticUtils.setOf("ca-cert"));
+
+    assertTrue(getAliases(ks6, false, true).isEmpty());
+
+
+    // Make sure that manage-certificates copy-keystore fails if we provide an
+    // alias that doesn't exist in the source key store.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks6File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "JKS",
+         "--alias", "no-such-alias");
+
+
+    // Make sure that manage-certificates copy-keystore fails if we provide an
+    // alias that already exists in the destination key store.
+    manageCertificates(ResultCode.CONSTRAINT_VIOLATION, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks6File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "JKS",
+         "--alias", "ca-cert");
+
+
+    // Make sure that manage-certificates copy-keystore works if we specify
+    // multiple aliases, and also if the destination key store already exists.
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks6File.getAbsolutePath(),
+         "--destination-keystore-password", "keystore-password",
+         "--destination-keystore-type", "JKS",
+         "--alias", "server-cert",
+         "--alias", "ca-cert-without-key");
+
+    ks6 = getKeystore(ks5File.getAbsolutePath(), "JKS", "keystore-password");
+    assertFalse(getAliases(ks6, true, false).isEmpty());
+    assertEquals(getAliases(ks6, true, false).size(), 2);
+    assertEquals(getAliases(ks6, true, false),
+         StaticUtils.setOf("ca-cert", "server-cert"));
+
+    assertFalse(getAliases(ks6, false, true).isEmpty());
+    assertEquals(getAliases(ks6, false, true).size(), 1);
+    assertEquals(getAliases(ks6, false, true),
+         StaticUtils.setOf("ca-cert-without-key"));
+
+
+    // Make sure that we can copy an empty key store to a new key store.  To get
+    // an empty key store, delete the ca-cert entry from ks3.  Also, when
+    // copying the key store, don't provide a destination key store password,
+    // which will cause the source key store password to be used.
+    manageCertificates(ResultCode.SUCCESS, null,
+         "delete-certificate",
+         "--keystore", ks3File.getAbsolutePath(),
+         "--keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--alias", "ca-cert",
+         "--no-prompt");
+
+    ks3 = getKeystore(ks3File.getAbsolutePath(), "JKS", "keystore-password");
+    assertTrue(getAliases(ks3, true, true).isEmpty());
+
+    final File ks7File = createTempFile();
+    assertTrue(ks7File.delete());
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks3File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks7File.getAbsolutePath(),
+         "--destination-keystore-type", "JKS");
+
+    assertTrue(ks7File.exists());
+
+    final KeyStore ks7 =
+         getKeystore(ks7File.getAbsolutePath(), "JKS", "keystore-password");
+    assertTrue(getAliases(ks7, true, true).isEmpty());
+
+
+    // Repeat the previous manage-certificates copy-keystore command.  This
+    // should also succeed, but the processing is a little different because
+    // we don't need to create the new, empty key store.
+    manageCertificates(ResultCode.SUCCESS, null,
+         "copy-keystore",
+         "--source-keystore", ks3File.getAbsolutePath(),
+         "--source-keystore-password-file", ksPWFile.getAbsolutePath(),
+         "--destination-keystore", ks7File.getAbsolutePath(),
+         "--destination-keystore-type", "JKS");
+
+
+    // Tests the behavior when providing the wrong password for the source key
+    // store.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", "wrong-keystore-password",
+         "--destination-keystore", ks7File.getAbsolutePath(),
+         "--source-keystore-password-file", "keystore-password",
+         "--destination-keystore-type", "JKS");
+
+
+    // Tests the behavior when providing the wrong password for the destination
+    // key store.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "copy-keystore",
+         "--source-keystore", ks1File.getAbsolutePath(),
+         "--source-keystore-password-file", "keystore-password",
+         "--destination-keystore", ks7File.getAbsolutePath(),
+         "--source-keystore-password-file", "wrong-keystore-password",
+         "--destination-keystore-type", "JKS");
+  }
+
+
+
+  /**
    * Runs the manage-certificates tool with the provided arguments and expects
    * a success result code.
    *
