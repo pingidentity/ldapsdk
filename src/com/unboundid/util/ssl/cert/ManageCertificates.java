@@ -54,6 +54,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
@@ -109,6 +110,7 @@ import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.TimestampArgument;
 import com.unboundid.util.args.SubCommand;
 import com.unboundid.util.ssl.JVMDefaultTrustManager;
+import com.unboundid.util.ssl.PKCS11KeyManager;
 
 import static com.unboundid.util.ssl.cert.CertMessages.*;
 
@@ -213,7 +215,9 @@ public final class ManageCertificates
    * The set of values that will be allowed for the keystore type argument.
    */
   @NotNull private static final Set<String> ALLOWED_KEYSTORE_TYPE_VALUES =
-       StaticUtils.setOf("jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12",
+       StaticUtils.setOf("jks",
+            "pkcs11", "pkcs 11", "pkcs#11", "pkcs #11",
+            "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12",
             BCFKS_KEYSTORE_TYPE_LC);
 
 
@@ -11648,7 +11652,14 @@ public final class ManageCertificates
     if ((keystoreTypeArgument != null) && keystoreTypeArgument.isPresent())
     {
       final String ktaValue = keystoreTypeArgument.getValue();
-      if (ktaValue.equalsIgnoreCase("PKCS12") ||
+      if (ktaValue.equalsIgnoreCase("PKCS11") ||
+          ktaValue.equalsIgnoreCase("PKCS 11") ||
+          ktaValue.equalsIgnoreCase("PKCS#11") ||
+          ktaValue.equalsIgnoreCase("PKCS #11"))
+      {
+        return CryptoHelper.KEY_STORE_TYPE_PKCS_11;
+      }
+      else if (ktaValue.equalsIgnoreCase("PKCS12") ||
           ktaValue.equalsIgnoreCase("PKCS 12") ||
           ktaValue.equalsIgnoreCase("PKCS#12") ||
           ktaValue.equalsIgnoreCase("PKCS #12"))
@@ -11752,6 +11763,13 @@ public final class ManageCertificates
     {
       return "JKS";
     }
+    else if (keystoreType.equalsIgnoreCase("PKCS11") ||
+         keystoreType.equalsIgnoreCase("PKCS 11") ||
+         keystoreType.equalsIgnoreCase("PKCS#11") ||
+         keystoreType.equalsIgnoreCase("PKCS #11"))
+    {
+      return "PKCS #11";
+    }
     else if (keystoreType.equalsIgnoreCase("PKCS12") ||
          keystoreType.equalsIgnoreCase("PKCS 12") ||
          keystoreType.equalsIgnoreCase("PKCS#12") ||
@@ -11793,7 +11811,15 @@ public final class ManageCertificates
     final KeyStore keystore;
     try
     {
-      if (keystoreType.equals(BCFKS_KEYSTORE_TYPE))
+      if (keystoreType.equals(CryptoHelper.KEY_STORE_TYPE_PKCS_11))
+      {
+        // NOTE:  For PKCS #11 key store types, the key store path will be
+        // treated as the path to the provider configuration file.
+        final Provider pkcs11Provider = PKCS11KeyManager.getProvider(null,
+             keystorePath, keystoreType, true);
+        keystore = CryptoHelper.getKeyStore(keystoreType, pkcs11Provider);
+      }
+      else if (keystoreType.equals(BCFKS_KEYSTORE_TYPE))
       {
         keystore = CryptoHelper.getKeyStore(keystoreType,
              BouncyCastleFIPSHelper.getBouncyCastleFIPSProvider());
@@ -11817,7 +11843,8 @@ public final class ManageCertificates
     final InputStream inputStream;
     try
     {
-      if (keystorePath.exists())
+      if (keystorePath.exists() &&
+           (! keystoreType.equals(CryptoHelper.KEY_STORE_TYPE_PKCS_11)))
       {
         inputStream = new FileInputStream(keystorePath);
       }
@@ -12915,6 +12942,26 @@ public final class ManageCertificates
                             @Nullable final char[] keystorePassword)
           throws LDAPException
   {
+    // If the key store type is PKCS #11, then we don't need to worry about a
+    // key store file.
+    if (keystore.getType().equals(CryptoHelper.KEY_STORE_TYPE_PKCS_11))
+    {
+      try
+      {
+        keystore.store(null);
+        return;
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MANAGE_CERTS_PKCS11_WRITE_ERROR.get(
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
     File copyOfExistingKeystore = null;
     final String timestamp =
          StaticUtils.encodeGeneralizedTime(System.currentTimeMillis());

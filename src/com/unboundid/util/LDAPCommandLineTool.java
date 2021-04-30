@@ -37,6 +37,7 @@ package com.unboundid.util;
 
 
 
+import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,6 +79,7 @@ import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.ssl.AggregateTrustManager;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.PKCS11KeyManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
@@ -1315,8 +1317,19 @@ public abstract class LDAPCommandLineTool
 
         try
         {
-          keyManager = new KeyStoreKeyManager(keyStorePath.getValue(), pw,
-               keyStoreFormat.getValue(), certificateNickname.getValue(), true);
+          if (keyStoreFormat.isPresent() &&
+               keyStoreFormat.getValue().equalsIgnoreCase("PKCS11"))
+          {
+            keyManager = new PKCS11KeyManager(null,
+                 new File(keyStorePath.getValue()), null, pw,
+                 certificateNickname.getValue());
+          }
+          else
+          {
+            keyManager = new KeyStoreKeyManager(keyStorePath.getValue(), pw,
+                 keyStoreFormat.getValue(), certificateNickname.getValue(),
+                 true);
+          }
         }
         catch (final Exception e)
         {

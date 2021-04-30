@@ -58,6 +58,33 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the PKCS #11 key manager to make it easier to interact with PKCS #11
+                  tokens without needing to alter the JVM configuration.  The key manager can now
+                  dynamically instantiate the provider (either using a class specified by the
+                  caller or one inferred by the LDAP SDK) and optionally configure it with
+                  information from a specified provider configuration file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the manage-certificates tool to add support for interacting with
+                  PKCS #11 key stores.  The --keystore-type argument must be provided with a
+                  value of PKCS11, and the --keystore argument must be provided with a value of
+                  the path to the provider configuration file.  The types of operations that can
+                  be performed in PKCS #11 key stores may depend on what is allowed by the token
+                  being used.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP command-line tool framework to add support for using PKCS #11
+                  key stores.  The --keyStoreFormat argument must be provided with a value of
+                  PKCS11, and the --keyStorePath argument must be provided with a value of the
+                  path to the provider configuration file.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the in-memory-directory-server command-line tool to add a new
                   --doNotGenerateOperationalAttributes argument that can be used to prevent the
                   server from maintaining operational attributes like entryDN, entryUUID,
