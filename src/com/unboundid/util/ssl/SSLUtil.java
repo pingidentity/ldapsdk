@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
+import java.security.Provider;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,6 +67,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -254,12 +256,25 @@ public final class SSLUtil
 
 
 
+  /**
+   * The name of the service type that providers use to indicate the
+   * {@code SSLContext} algorithms that they support.
+   */
+  @NotNull static final String PROVIDER_SERVICE_TYPE_SSL_CONTEXT =
+       "SSLContext";
+
+
+
   static
   {
     configureSSLDefaults();
   }
 
 
+
+  // Indicates whether any of the provided key managers is a PKCS #11 key
+  // manager.
+  private final boolean usingPKCS11KeyManager;
 
   // The set of key managers to be used.
   @Nullable private final KeyManager[] keyManagers;
@@ -279,6 +294,7 @@ public final class SSLUtil
   {
     keyManagers   = null;
     trustManagers = null;
+    usingPKCS11KeyManager = false;
   }
 
 
@@ -297,6 +313,7 @@ public final class SSLUtil
   public SSLUtil(@Nullable final TrustManager trustManager)
   {
     keyManagers = null;
+    usingPKCS11KeyManager = false;
 
     if (trustManager == null)
     {
@@ -324,6 +341,7 @@ public final class SSLUtil
   public SSLUtil(@Nullable final TrustManager[] trustManagers)
   {
     keyManagers = null;
+    usingPKCS11KeyManager = false;
 
     if ((trustManagers == null) || (trustManagers.length == 0))
     {
@@ -358,10 +376,12 @@ public final class SSLUtil
     if (keyManager == null)
     {
       keyManagers = null;
+      usingPKCS11KeyManager = false;
     }
     else
     {
       keyManagers = new KeyManager[] { keyManager };
+      usingPKCS11KeyManager = (keyManager instanceof PKCS11KeyManager);
     }
 
     if (trustManager == null)
@@ -397,10 +417,23 @@ public final class SSLUtil
     if ((keyManagers == null) || (keyManagers.length == 0))
     {
       this.keyManagers = null;
+      usingPKCS11KeyManager = false;
     }
     else
     {
       this.keyManagers = keyManagers;
+
+      boolean usingPKCS11 = false;
+      for (final KeyManager km : keyManagers)
+      {
+        if (km instanceof PKCS11KeyManager)
+        {
+          usingPKCS11 = true;
+          break;
+        }
+      }
+
+      usingPKCS11KeyManager = usingPKCS11;
     }
 
     if ((trustManagers == null) || (trustManagers.length == 0))
@@ -485,8 +518,24 @@ public final class SSLUtil
   {
     Validator.ensureNotNull(protocol);
 
-    final SSLContext sslContext = CryptoHelper.getSSLContext(protocol);
-    sslContext.init(keyManagers, trustManagers, null);
+    SSLContext sslContext = null;
+    if (usingPKCS11KeyManager)
+    {
+      final Provider pkcs11JSSEProvider =
+           PKCS11KeyManager.getPKCS11JSSESProvider();
+      if ((pkcs11JSSEProvider != null) && (pkcs11JSSEProvider.getService(
+           PROVIDER_SERVICE_TYPE_SSL_CONTEXT, protocol) != null))
+      {
+        sslContext = CryptoHelper.getSSLContext(protocol, pkcs11JSSEProvider);
+      }
+    }
+
+    if (sslContext == null)
+    {
+      sslContext = CryptoHelper.getSSLContext(protocol);
+    }
+
+    sslContext.init(keyManagers, trustManagers, ThreadLocalSecureRandom.get());
     return sslContext;
   }
 

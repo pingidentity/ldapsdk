@@ -38,11 +38,14 @@ package com.unboundid.util.ssl;
 
 
 import java.net.Socket;
+import java.security.Provider;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 
@@ -158,63 +161,39 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
-    String p = c.getProvider().getName();
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    Provider provider = c.getProvider();
+    assertNotNull(provider);
+
+    String providerName = provider.getName();
+    assertNotNull(providerName);
+
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", providerName));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    if (originalEnabledSSLProtocols.contains("TLSv1.1"))
-    {
-      assertNotNull(sslUtil.createSSLContext("TLSv1.1"));
-
-      c = CryptoHelper.getSSLContext("TLSv1.1");
-      p = c.getProvider().getName();
-
-      assertNotNull(sslUtil.createSSLContext("TLSv1.1", p));
-
-      assertNotNull(sslUtil.createSSLSocketFactory());
-
-      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.1"));
-
-      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.1", p));
-    }
-
-    if (originalEnabledSSLProtocols.contains("TLSv1.2"))
-    {
-      assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
-
-      c = CryptoHelper.getSSLContext("TLSv1.2");
-      p = c.getProvider().getName();
-
-      assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
-
-      assertNotNull(sslUtil.createSSLSocketFactory());
-
-      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
-
-      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
-    }
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", providerName));
 
     if (originalEnabledSSLProtocols.contains("TLSv1.3"))
     {
       assertNotNull(sslUtil.createSSLContext("TLSv1.3"));
 
       c = CryptoHelper.getSSLContext("TLSv1.3");
-      p = c.getProvider().getName();
+      provider = c.getProvider();
+      providerName = provider.getName();
 
-      assertNotNull(sslUtil.createSSLContext("TLSv1.3", p));
+      assertNotNull(sslUtil.createSSLContext("TLSv1.3", providerName));
 
       assertNotNull(sslUtil.createSSLSocketFactory());
 
       assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.3"));
 
-      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.3", p));
+      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.3", providerName));
     }
   }
 
@@ -237,18 +216,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -270,18 +249,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -303,18 +282,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -336,18 +315,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -370,18 +349,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -403,18 +382,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -438,24 +417,24 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLServerSocketFactory());
 
-    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1.2", p));
   }
 
 
@@ -477,18 +456,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -510,18 +489,18 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
   }
 
 
@@ -546,24 +525,24 @@ public class SSLUtilTestCase
 
     assertNotNull(sslUtil.createSSLContext());
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1"));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2"));
 
-    SSLContext c = CryptoHelper.getSSLContext("TLSv1");
+    SSLContext c = CryptoHelper.getSSLContext("TLSv1.2");
     String p = c.getProvider().getName();
 
-    assertNotNull(sslUtil.createSSLContext("TLSv1", p));
+    assertNotNull(sslUtil.createSSLContext("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLSocketFactory());
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
 
     assertNotNull(sslUtil.createSSLServerSocketFactory());
 
-    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1"));
+    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1.2"));
 
-    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1", p));
+    assertNotNull(sslUtil.createSSLServerSocketFactory("TLSv1.2", p));
   }
 
 
@@ -653,8 +632,8 @@ public class SSLUtilTestCase
     SSLUtil.setDefaultSSLProtocol("SSLv3");
     assertEquals(SSLUtil.getDefaultSSLProtocol(), "SSLv3");
 
-    SSLUtil.setDefaultSSLProtocol("TLSv1");
-    assertEquals(SSLUtil.getDefaultSSLProtocol(), "TLSv1");
+    SSLUtil.setDefaultSSLProtocol("TLSv1.2");
+    assertEquals(SSLUtil.getDefaultSSLProtocol(), "TLSv1.2");
 
     SSLUtil.setDefaultSSLProtocol(defaultProtocol);
     assertEquals(SSLUtil.getDefaultSSLProtocol(), defaultProtocol);
@@ -783,7 +762,7 @@ public class SSLUtilTestCase
     else
     {
       assertEquals(SSLUtil.getEnabledSSLProtocols(),
-           new LinkedHashSet<>(Arrays.asList("TLSv1")));
+           new LinkedHashSet<>(Arrays.asList("TLSv1.2")));
     }
   }
 
@@ -1080,7 +1059,7 @@ public class SSLUtilTestCase
 
   /**
    * Tests the {@code applyEnabledSSLProtocols} method with an SSL socket and
-   * only "TLSv1" in the set of enabled protocols.
+   * only "TLSv1.2" in the set of enabled protocols.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -1232,6 +1211,17 @@ public class SSLUtilTestCase
   public void testApplyEnabledSSLProtocolsEnabledFullSet()
          throws Exception
   {
+    final SSLContext defaultSSLContext = CryptoHelper.getDefaultSSLContext();
+    final SSLParameters supportedParameters =
+         defaultSSLContext.getSupportedSSLParameters();
+
+    final Set<String> supportedProtocols = new HashSet<>();
+    supportedProtocols.addAll(
+         Arrays.asList(supportedParameters.getProtocols()));
+    supportedProtocols.remove("SSLv2");
+    supportedProtocols.remove("SSLv3");
+    supportedProtocols.remove("SSLv2Hello");
+
     final InMemoryDirectoryServer ds = getTestDSWithSSL();
 
     final SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
@@ -1239,65 +1229,15 @@ public class SSLUtilTestCase
          "localhost", ds.getListenPort("LDAPS"));
     assertTrue(s instanceof SSLSocket);
 
-    SSLUtil.setEnabledSSLProtocols(Arrays.asList("SSLv3", "TLSv1", "TLSv1.1",
-         "TLSv1.2", "TLSv1.3"));
+    SSLUtil.setEnabledSSLProtocols(supportedProtocols);
     SSLUtil.applyEnabledSSLProtocols(s);
 
     final SSLSocket sslSocket = (SSLSocket) s;
     assertNotNull(sslSocket.getEnabledProtocols());
     assertTrue(sslSocket.getEnabledProtocols().length > 0);
 
-    boolean sslV3Enabled = false;
-    boolean tlsV1Enabled = false;
-    boolean tlsV11Enabled = false;
-    boolean tlsV12Enabled = false;
-    boolean tlsV13Enabled = false;
-    for (final String p : sslSocket.getEnabledProtocols())
-    {
-      if (p.equals("SSLv3"))
-      {
-        sslV3Enabled = true;
-      }
-      else if (p.equals("TLSv1"))
-      {
-        tlsV1Enabled = true;
-      }
-      else if (p.equals("TLSv1.1"))
-      {
-        tlsV11Enabled = true;
-      }
-      else if (p.equals("TLSv1.2"))
-      {
-        tlsV12Enabled = true;
-      }
-      else if (p.equals("TLSv1.3"))
-      {
-        tlsV13Enabled = true;
-      }
-      else
-      {
-        fail("Unexpected enabled protocol '" + p + '\'');
-      }
-    }
-
-    assertTrue(sslV3Enabled);
-    assertTrue(tlsV1Enabled);
-
-    if (originalDefaultSSLProtocol.equals("TLSv1.3"))
-    {
-      assertTrue(tlsV11Enabled);
-      assertTrue(tlsV12Enabled);
-      assertTrue(tlsV13Enabled);
-    }
-    else if (originalDefaultSSLProtocol.equals("TLSv1.2"))
-    {
-      assertTrue(tlsV11Enabled);
-      assertTrue(tlsV12Enabled);
-    }
-    else if (originalDefaultSSLProtocol.equals("TLSv1.1"))
-    {
-      assertTrue(tlsV11Enabled);
-    }
+    assertEquals(new HashSet<>(Arrays.asList(sslSocket.getEnabledProtocols())),
+         supportedProtocols);
 
     s.getOutputStream().write(new byte[]
          { 0x30, 0x05, 0x02, 0x01, 0x01, 0x42, 0x00 });

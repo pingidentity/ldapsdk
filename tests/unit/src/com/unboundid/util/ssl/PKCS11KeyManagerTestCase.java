@@ -60,11 +60,48 @@ public class PKCS11KeyManagerTestCase
   {
     try
     {
-      new PKCS11KeyManager("doesntmatter".toCharArray(), "alsodoesntmatter");
+      final PKCS11KeyManager keyManager = new PKCS11KeyManager(
+           "doesntmatter".toCharArray(), "alsodoesntmatter");
     }
     catch (Exception e)
     {
       // This is OK, since we're just trying to get some coverage in this class.
     }
+  }
+
+
+
+  /**
+   * Tests the second constructor.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor2()
+         throws Exception
+  {
+    try
+    {
+      final PKCS11KeyManager keyManager = new PKCS11KeyManager((String) null,
+           null, null, "doesnotmatter".toCharArray(), "alsodoesntmatter");
+    }
+    catch (Exception e)
+    {
+      // This is OK, since we're just trying to get some coverage in this class.
+    }
+  }
+
+
+
+  /**
+   * Tests the {@code getPKCS11JSSEProvider} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetPKCS11JSSEProvider()
+         throws Exception
+  {
+    assertNotNull(PKCS11KeyManager.getPKCS11JSSESProvider());
   }
 }

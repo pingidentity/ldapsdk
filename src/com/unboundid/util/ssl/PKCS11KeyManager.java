@@ -94,6 +94,66 @@ public final class PKCS11KeyManager
 
 
   /**
+   * The name used for the SunJSSE provider.
+   */
+  @NotNull private static final String SUN_JSSE_PROVIDER_NAME = "SunJSSE";
+
+
+
+  /**
+   * The JSSE provider that should be used when interacting with PKCS #11
+   * tokens.  This may be {@code null} if we can't automatically determine an
+   * appropriate provider.
+   */
+  @Nullable private static final Provider PKCS11_JSSE_PROVIDER;
+  static
+  {
+    // NOTE:  Even when we're operating in FIPS 140-2-compliant mode, we will
+    // likely want to use the SunJSSE provider in conjunction with PKCS #11
+    // tokens because the Bouncy Castle FIPS-compliant BCJSSE provider does not
+    // work well in conjunction with PKCS #11 tokens.
+    final Provider sunJSSEProvider =
+         Security.getProvider(SUN_JSSE_PROVIDER_NAME);
+    if (sunJSSEProvider != null)
+    {
+      PKCS11_JSSE_PROVIDER = sunJSSEProvider;
+    }
+    else
+    {
+      // Select the first provider that offers support for TLSv1.3.  If we
+      // can't find one, then select the first provider that offer support for
+      // TLSv1.2.
+      Provider tls13Provider = null;
+      Provider tls12Provider = null;
+      for (final Provider provider : Security.getProviders())
+      {
+        if (provider.getService(SSLUtil.PROVIDER_SERVICE_TYPE_SSL_CONTEXT,
+             SSLUtil.SSL_PROTOCOL_TLS_1_3) != null)
+        {
+          tls13Provider = provider;
+          break;
+        }
+        else if (provider.getService(SSLUtil.PROVIDER_SERVICE_TYPE_SSL_CONTEXT,
+             SSLUtil.SSL_PROTOCOL_TLS_1_2) != null)
+        {
+          tls12Provider = provider;
+        }
+      }
+
+      if (tls13Provider != null)
+      {
+        PKCS11_JSSE_PROVIDER = tls13Provider;
+      }
+      else
+      {
+        PKCS11_JSSE_PROVIDER = tls12Provider;
+      }
+    }
+  }
+
+
+
+  /**
    * Creates a new instance of this PKCS #11 key manager with the provided
    * information.
    *
@@ -580,5 +640,24 @@ public final class PKCS11KeyManager
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
+  }
+
+
+
+  /**
+   * Retrieves an instance of a Java security provider that should be used when
+   * performing JSSE-related operations in conjunction with PKCS #11 tokens.
+   * The JVM's preferred JSSE provider may not be the best choice when using a
+   * PKCS #11 token (including when operating in FIPS-compliant mode).
+   *
+   * @return  An instance of a Java security provider that should be used when
+   *          performing JSSE-related operations in conjunction with PKCS #11
+   *          tokens.  It may be {@code null} if the best provider cannot be
+   *          determined.
+   */
+  @Nullable()
+  public static Provider getPKCS11JSSESProvider()
+  {
+    return PKCS11_JSSE_PROVIDER;
   }
 }
