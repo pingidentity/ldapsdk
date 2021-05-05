@@ -1782,6 +1782,24 @@ public final class ManageCertificates
     genCertExtension.addLongIdentifier("ext", true);
     genCertParser.addArgument(genCertExtension);
 
+    final FileArgument genCertOutputFile = new FileArgument(null, "output-file",
+         false, 1, null,
+         INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_OUTPUT_FILE_DESC.get(), false, true,
+         true, false);
+    genCertOutputFile.addLongIdentifier("outputFile", true);
+    genCertOutputFile.addLongIdentifier("filename", true);
+    genCertOutputFile.addLongIdentifier("file", true);
+    genCertParser.addArgument(genCertOutputFile);
+
+    final Set<String> genCertOutputFormatAllowedValues = StaticUtils.setOf(
+         "PEM", "text", "txt", "RFC", "DER", "binary", "bin");
+    final StringArgument genCertOutputFormat = new StringArgument(null,
+         "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
+         INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_FORMAT_DESC.get(),
+         genCertOutputFormatAllowedValues, "PEM");
+    genCertOutputFormat.addLongIdentifier("outputFormat", true);
+    genCertParser.addArgument(genCertOutputFormat);
+
     final BooleanArgument genCertDisplayCommand = new BooleanArgument(null,
          "display-keytool-command", 1,
          INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_DISPLAY_COMMAND_DESC.get());
@@ -1802,6 +1820,8 @@ public final class ManageCertificates
          genCertSignatureAlgorithm);
     genCertParser.addDependentArgumentSet(genCertBasicConstraintsPathLength,
          genCertBasicConstraintsIsCA);
+    genCertParser.addDependentArgumentSet(genCertOutputFormat,
+         genCertOutputFile);
 
     final LinkedHashMap<String[],String> genCertExamples =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
@@ -7389,6 +7409,40 @@ public final class ManageCertificates
              INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_SELF_CERT.
                   get());
         printCertificate(certificate, "", false);
+
+
+        // If we should write an output file, then do that now.
+        if (outputFile != null)
+        {
+          try (PrintStream ps = new PrintStream(outputFile))
+          {
+            final byte[] certBytes = certificate.getX509CertificateBytes();
+            if (outputPEM)
+            {
+              writePEMCertificate(ps, certBytes);
+            }
+            else
+            {
+              ps.write(certBytes);
+            }
+
+            out();
+            wrapOut(0, WRAP_COLUMN,
+                 INFO_MANAGE_CERTS_GEN_CERT_WROTE_OUTPUT_FILE.get(
+                      outputFile.getAbsolutePath()));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            err();
+            wrapErr(0, WRAP_COLUMN,
+                 ERR_MANAGE_CERTS_GEN_CERT_ERROR_WRITING_CERT.get(
+                      outputFile.getAbsolutePath()));
+            e.printStackTrace(getErr());
+            return ResultCode.LOCAL_ERROR;
+          }
+        }
+
         return ResultCode.SUCCESS;
       }
       else
@@ -7653,13 +7707,47 @@ public final class ManageCertificates
 
 
       // If we're just generating a self-signed certificate, then display the
-      // certificate that we generated.
+      // certificate that we generated and potentially write it to an output
+      // file.
       if (isGenerateCertificate)
       {
         out();
         wrapOut(0, WRAP_COLUMN,
              INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_SELF_CERT.get());
         printCertificate(certificate, "", false);
+
+
+        // If we should write an output file, then do that now.
+        if (outputFile != null)
+        {
+          try (PrintStream ps = new PrintStream(outputFile))
+          {
+            final byte[] certBytes = certificate.getX509CertificateBytes();
+            if (outputPEM)
+            {
+              writePEMCertificate(ps, certBytes);
+            }
+            else
+            {
+              ps.write(certBytes);
+            }
+
+            out();
+            wrapOut(0, WRAP_COLUMN,
+                 INFO_MANAGE_CERTS_GEN_CERT_WROTE_OUTPUT_FILE.get(
+                      outputFile.getAbsolutePath()));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            err();
+            wrapErr(0, WRAP_COLUMN,
+                 ERR_MANAGE_CERTS_GEN_CERT_ERROR_WRITING_CERT.get(
+                      outputFile.getAbsolutePath()));
+            e.printStackTrace(getErr());
+            return ResultCode.LOCAL_ERROR;
+          }
+        }
 
         return ResultCode.SUCCESS;
       }

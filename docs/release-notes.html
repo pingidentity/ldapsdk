@@ -127,6 +127,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates tool to add optional --output-file and
+                  --output-format arguments to the generate-self-signed-certificate subcommand.
+                  This allows you to obtain a PEM or DER representation of the certificate in the
+                  same command used to generate it, whereas it was previously necessary to use a
+                  separate command to export the certificate.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the manage-certificates tool to provide improved support for managing
                   key stores in the BCFKS (Bouncy Castle FIPS 140-2-compliant key store) format.
                   Previously, this only worked if the LDAP SDK was running in FIPS-compliant mode.

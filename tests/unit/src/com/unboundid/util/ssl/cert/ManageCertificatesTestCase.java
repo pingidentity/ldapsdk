@@ -238,14 +238,8 @@ public final class ManageCertificatesTestCase
          "--subject-alternative-name-email-address", "ca@example.com",
          "--basic-constraints-is-ca", "true",
          "--key-usage", "key-cert-sign",
-         "--display-keytool-command");
-    manageCertificates(
-         "export-certificate",
-         "--keystore", rootCAKeyStorePath,
-         "--keystore-password", "password",
-         "--alias", rootCACertificateAlias,
-         "--output-format", "PEM",
          "--output-file", rootCACertificatePath,
+         "--output-format", "PEM",
          "--display-keytool-command");
     manageCertificates(
          "export-private-key",
@@ -2478,12 +2472,16 @@ public final class ManageCertificatesTestCase
     assertTrue(ksFile.delete());
     assertFalse(ksFile.exists());
 
+    final File pemFile = createTempFile();
+    assertTrue(pemFile.delete());
     manageCertificates(
          "generate-self-signed-certificate",
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--output-file", pemFile.getAbsolutePath(),
+         "--output-format", "PEM");
 
     assertTrue(ksFile.exists());
     KeyStore keystore = getKeystore(ksFile.getAbsolutePath(), "JKS");
@@ -2498,6 +2496,9 @@ public final class ManageCertificatesTestCase
     assertEquals(chain[0].getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
 
+    assertTrue(pemFile.exists());
+    assertTrue(pemFile.length() > 0);
+
     manageCertificates(
          "list-certificates",
          "--keystore", ksFile.getAbsolutePath(),
@@ -2507,12 +2508,16 @@ public final class ManageCertificatesTestCase
 
     // Tests with a minimal set of arguments for a replacement certificate in a
     // JKS keystore.
+    final File derFile = createTempFile();
+    assertTrue(derFile.delete());
     manageCertificates(
          "generate-self-signed-certificate",
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate");
+         "--replace-existing-certificate",
+         "--output-file", derFile.getAbsolutePath(),
+         "--output-format", "DER");
 
     keystore = getKeystore(ksFile.getAbsolutePath(), "JKS");
     assertEquals(getAliases(keystore, true, true), setOf("server-cert"));
@@ -2525,6 +2530,9 @@ public final class ManageCertificatesTestCase
     assertEquals(chain.length, 1);
     assertEquals(chain[0].getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
+
+    assertTrue(derFile.exists());
+    assertTrue(derFile.length() > 0);
 
     manageCertificates(
          "list-certificates",
@@ -2539,13 +2547,16 @@ public final class ManageCertificatesTestCase
     assertTrue(ksFile.delete());
     assertFalse(ksFile.exists());
 
+    assertTrue(derFile.delete());
     manageCertificates(
          "generate-self-signed-certificate",
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--keystore-type", "PKCS12",
          "--alias", "server-cert",
-         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--output-file", derFile.getAbsolutePath(),
+         "--output-format", "DER");
 
     assertTrue(ksFile.exists());
     keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
@@ -2560,6 +2571,9 @@ public final class ManageCertificatesTestCase
     assertEquals(chain[0].getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
 
+    assertTrue(derFile.exists());
+    assertTrue(derFile.length() > 0);
+
     manageCertificates(
          "list-certificates",
          "--keystore", ksFile.getAbsolutePath(),
@@ -2569,12 +2583,15 @@ public final class ManageCertificatesTestCase
 
     // Tests with a minimal set of arguments for a replacement certificate in a
     // PKCS #12 keystore.
+    assertTrue(pemFile.delete());
     manageCertificates(
          "generate-self-signed-certificate",
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate");
+         "--replace-existing-certificate",
+         "--output-file", pemFile.getAbsolutePath(),
+         "--output-format", "PEM");
 
     keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
     assertEquals(getAliases(keystore, true, true), setOf("server-cert"));
@@ -2587,6 +2604,9 @@ public final class ManageCertificatesTestCase
     assertEquals(chain.length, 1);
     assertEquals(chain[0].getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
+
+    assertTrue(pemFile.exists());
+    assertTrue(pemFile.length() > 0);
 
     manageCertificates(
          "list-certificates",
