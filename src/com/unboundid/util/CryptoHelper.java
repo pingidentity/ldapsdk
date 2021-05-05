@@ -329,6 +329,15 @@ public final class CryptoHelper
 
 
   /**
+   * The default provider that should be used for JSSE operations, regardless of
+   * whether the LDAP SDK is operating in FIPS-compliant mode.
+   */
+  @NotNull private static final AtomicReference<Provider>
+       DEFAULT_JSSE_PROVIDER = new AtomicReference<>();
+
+
+
+  /**
    * The key store type value that should be used for BCFKS (Bouncy Castle
    * FIPS 140-2-compliant) key stores.
    */
@@ -568,6 +577,39 @@ public final class CryptoHelper
         Security.removeProvider(provider.getName());
       }
     }
+  }
+
+
+
+  /**
+   * Specifies the default provider that should be used for JSSE operations,
+   * regardless of whether the LDAP SDK is operating in FIPS 140-2-compliant
+   * mode.
+   *
+   * @param  defaultJSSEProvider  The default provider that should be used for
+   *                              JSSE operations, regardless of whether the
+   *                              LDAP SDK is operating in FIPS 140-2-compliant
+   *                              mode.
+   */
+  public static void setDefaultJSSEProvider(
+              @NotNull final Provider defaultJSSEProvider)
+  {
+    Validator.ensureNotNull(defaultJSSEProvider);
+    DEFAULT_JSSE_PROVIDER.set(defaultJSSEProvider);
+
+    // If the LDAP SDK is running in FIPS-compliant mode, then give the new
+    // provider the second-highest priority.  Otherwise, give it the highest
+    // priority.
+    if (usingFIPSMode())
+    {
+      Security.insertProviderAt(defaultJSSEProvider, 2);
+    }
+    else
+    {
+      Security.insertProviderAt(defaultJSSEProvider, 1);
+    }
+
+    TLSCipherSuiteSelector.recompute();
   }
 
 
@@ -918,6 +960,52 @@ public final class CryptoHelper
   public static KeyManagerFactory getKeyManagerFactory()
          throws NoSuchAlgorithmException
   {
+    final Provider defaultJSSEProvider = DEFAULT_JSSE_PROVIDER.get();
+    if (defaultJSSEProvider != null)
+    {
+      // See if the provider supports the default key manager factory algorithm.
+      NoSuchAlgorithmException noSuchAlgorithmException = null;
+      final String defaultAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
+      try
+      {
+        return KeyManagerFactory.getInstance(defaultAlgorithm,
+             defaultJSSEProvider);
+      }
+      catch (final NoSuchAlgorithmException e)
+      {
+        Debug.debugException(e);
+        noSuchAlgorithmException = e;
+      }
+
+
+      // If we have a FIPS-default key manager factory algorithm, then try that.
+      final String fipsDefaultAlgorithm =
+           FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.get();
+      if (fipsDefaultAlgorithm != null)
+      {
+        try
+        {
+          return KeyManagerFactory.getInstance(fipsDefaultAlgorithm,
+               defaultJSSEProvider);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+
+      for (final Provider.Service service : defaultJSSEProvider.getServices())
+      {
+        if (service.getType().equalsIgnoreCase("KeyManagerFactory"))
+        {
+          return KeyManagerFactory.getInstance(service.getAlgorithm(),
+               defaultJSSEProvider);
+        }
+      }
+
+      throw noSuchAlgorithmException;
+    }
+
     if (usingFIPSMode())
     {
       return KeyManagerFactory.getInstance(
@@ -1006,6 +1094,13 @@ public final class CryptoHelper
   {
     if (provider == null)
     {
+      final Provider defaultJSSEProvider = DEFAULT_JSSE_PROVIDER.get();
+      if (defaultJSSEProvider != null)
+      {
+        return KeyManagerFactory.getInstance(algorithmName,
+             defaultJSSEProvider);
+      }
+
       if (usingFIPSMode())
       {
         return KeyManagerFactory.getInstance(algorithmName,
@@ -1926,6 +2021,26 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
   public static SSLContext getDefaultSSLContext()
          throws NoSuchAlgorithmException
   {
+    final Provider defaultJSSEProvider = DEFAULT_JSSE_PROVIDER.get();
+    if (defaultJSSEProvider != null)
+    {
+      final SSLContext defaultContext = SSLContext.getDefault();
+      if (defaultContext.getProvider().equals(defaultJSSEProvider))
+      {
+        return defaultContext;
+      }
+
+      for (final Provider.Service service : defaultJSSEProvider.getServices())
+      {
+        if (service.getType().equalsIgnoreCase("SSLContext") &&
+             service.getAlgorithm().equalsIgnoreCase("default"))
+        {
+          return SSLContext.getInstance(service.getAlgorithm(),
+               defaultJSSEProvider);
+        }
+      }
+    }
+
     if (usingFIPSMode())
     {
       return SSLContext.getInstance(FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.get(),
@@ -2010,6 +2125,12 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
   {
     if (provider == null)
     {
+      final Provider defaultJSSEProvider = DEFAULT_JSSE_PROVIDER.get();
+      if (defaultJSSEProvider != null)
+      {
+        return SSLContext.getInstance(protocol, defaultJSSEProvider);
+      }
+
       if (usingFIPSMode())
       {
         return SSLContext.getInstance(protocol, FIPS_JSSE_PROVIDER.get());
@@ -2052,6 +2173,55 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
   public static TrustManagerFactory getTrustManagerFactory()
          throws NoSuchAlgorithmException
   {
+    final Provider defaultJSSEProvider = DEFAULT_JSSE_PROVIDER.get();
+    if (defaultJSSEProvider != null)
+    {
+      // See if the provider supports the default trust manager factory
+      // algorithm.
+      NoSuchAlgorithmException noSuchAlgorithmException = null;
+      final String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+      try
+      {
+        return TrustManagerFactory.getInstance(defaultAlgorithm,
+             defaultJSSEProvider);
+      }
+      catch (final NoSuchAlgorithmException e)
+      {
+        Debug.debugException(e);
+        noSuchAlgorithmException = e;
+      }
+
+
+      // If we have a FIPS-default trust manager factory algorithm, then try
+      // that.
+      final String fipsDefaultAlgorithm =
+           FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.get();
+      if (fipsDefaultAlgorithm != null)
+      {
+        try
+        {
+          return TrustManagerFactory.getInstance(fipsDefaultAlgorithm,
+               defaultJSSEProvider);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+
+      for (final Provider.Service service : defaultJSSEProvider.getServices())
+      {
+        if (service.getType().equalsIgnoreCase("TrustManagerFactory"))
+        {
+          return TrustManagerFactory.getInstance(service.getAlgorithm(),
+               defaultJSSEProvider);
+        }
+      }
+
+      throw noSuchAlgorithmException;
+    }
+
+
     if (usingFIPSMode())
     {
       return TrustManagerFactory.getInstance(
@@ -2140,6 +2310,13 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
   {
     if (provider == null)
     {
+      final Provider defaultJSSEProvider = DEFAULT_JSSE_PROVIDER.get();
+      if (defaultJSSEProvider != null)
+      {
+        return TrustManagerFactory.getInstance(algorithmName,
+             defaultJSSEProvider);
+      }
+
       if (usingFIPSMode())
       {
         return TrustManagerFactory.getInstance(algorithmName,
