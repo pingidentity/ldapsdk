@@ -242,7 +242,7 @@ public final class SSLUtil
   @NotNull private static final AtomicReference<Set<String>>
        ENABLED_SSL_CIPHER_SUITES = new AtomicReference<>(
             (Set<String>) new LinkedHashSet<>(
-                 TLSCipherSuiteSelector.getDefaultCipherSuites()));
+                 TLSCipherSuiteSelector.getRecommendedCipherSuites()));
 
 
 
@@ -1111,7 +1111,6 @@ public final class SSLUtil
     final String[] cipherSuitesToEnable =
          getSSLCipherSuitesToEnable(cipherSuites,
               sslSocket.getSupportedCipherSuites());
-
     try
     {
       sslSocket.setEnabledCipherSuites(cipherSuitesToEnable);
@@ -1373,7 +1372,7 @@ public final class SSLUtil
     else
     {
       enabledCipherSuites.addAll(
-           TLSCipherSuiteSelector.getDefaultCipherSuites());
+           TLSCipherSuiteSelector.getRecommendedCipherSuites());
     }
 
     ENABLED_SSL_CIPHER_SUITES.set(enabledCipherSuites);

@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue that could cause the LDAP SDK to use the JVM's default set of
+                  TLS cipher suites instead of the recommended set as determined by the
+                  TLSCipherSuiteSelector class.  This could have allowed certain less-desirable
+                  suites to have been enabled, and could have prevented certain desirable
+                  suites from being enabled.  In some cases, this could have also affected the set
+                  of TLS protocols that were available for use (for example, in cases where the
+                  JVM supports TLSv1.3 but does not enable TLSv1.3 cipher suites by default).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the logic used to select the set of TLS protocol versions so that only
                   the TLSv1.2 and TLSv1.3 (if supported by the JVM) will be enabled by default,
                   with the higher protocol version being the preferred version.  As per RFC 8966,

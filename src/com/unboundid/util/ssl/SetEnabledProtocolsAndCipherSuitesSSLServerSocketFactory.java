@@ -98,18 +98,25 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
     this.delegateFactory = delegateFactory;
     this.cipherSuites = cipherSuites;
 
-    if (defaultProtocol.equalsIgnoreCase("TLSv1.2"))
+    if (defaultProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_3))
     {
-      protocols = new HashSet<>(
-           Arrays.asList("TLSv1.2", "TLSv1.1", "TLSv1"));
+      protocols = new HashSet<>(Arrays.asList(SSLUtil.SSL_PROTOCOL_TLS_1_3,
+           SSLUtil.SSL_PROTOCOL_TLS_1_2));
     }
-    else if (defaultProtocol.equalsIgnoreCase("TLSv1.1"))
+    else if (defaultProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_2))
     {
-      protocols = new HashSet<>(Arrays.asList("TLSv1.1", "TLSv1"));
+      protocols = new HashSet<>(Collections.singletonList(
+           SSLUtil.SSL_PROTOCOL_TLS_1_2));
     }
-    else if (defaultProtocol.equalsIgnoreCase("TLSv1"))
+    else if (defaultProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_1))
     {
-      protocols = new HashSet<>(Collections.singletonList("TLSv1"));
+      protocols = new HashSet<>(Arrays.asList(SSLUtil.SSL_PROTOCOL_TLS_1_1,
+           SSLUtil.SSL_PROTOCOL_TLS_1));
+    }
+    else if (defaultProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1))
+    {
+      protocols = new HashSet<>(Collections.singletonList(
+           SSLUtil.SSL_PROTOCOL_TLS_1));
     }
     else
     {
@@ -128,7 +135,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                          processing will be delegated.
    * @param  protocols        The protocols to be enabled on sockets created by
    *                          this socket factory.
-   * @param  cipherSuites     The cipher suties to be enabled on sockets created
+   * @param  cipherSuites     The cipher suites to be enabled on sockets created
    *                          by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
