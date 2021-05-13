@@ -852,6 +852,81 @@ public final class StaticUtils
 
 
   /**
+   * Indicates whether the specified Unicode code point represents a character
+   * that is believed to be displayable.  Displayable characters include
+   * letters, numbers, spaces, dashes, punctuation, and symbols.
+   * Non-displayable characters include control characters, combining marks,
+   * enclosing marks, directionality indicators, format characters, and
+   * surrogate characters.
+   *
+   * @param  codePoint  The code point for which to make the determination.
+   *
+   * @return  {@code true} if the specified Unicode character is believed to be
+   *          displayable, or {@code false} if not.
+   */
+  public static boolean isLikelyDisplayableCharacter(final int codePoint)
+  {
+    final int charType = Character.getType(codePoint);
+    switch (charType)
+    {
+      case Character.UPPERCASE_LETTER:
+      case Character.LOWERCASE_LETTER:
+      case Character.TITLECASE_LETTER:
+      case Character.MODIFIER_LETTER:
+      case Character.OTHER_LETTER:
+      case Character.DECIMAL_DIGIT_NUMBER:
+      case Character.LETTER_NUMBER:
+      case Character.OTHER_NUMBER:
+      case Character.SPACE_SEPARATOR:
+      case Character.DASH_PUNCTUATION:
+      case Character.START_PUNCTUATION:
+      case Character.END_PUNCTUATION:
+      case Character.CONNECTOR_PUNCTUATION:
+      case Character.OTHER_PUNCTUATION:
+      case Character.INITIAL_QUOTE_PUNCTUATION:
+      case Character.FINAL_QUOTE_PUNCTUATION:
+      case Character.MATH_SYMBOL:
+      case Character.CURRENCY_SYMBOL:
+      case Character.OTHER_SYMBOL:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+
+
+  /**
+   *Indicates whether the provided string is comprised entirely of characters
+   * that are believed to be displayable (as determined by the
+   * {@link #isLikelyDisplayableCharacter} method).
+   *
+   * @param  s  The string for which to make the determination.  It must not e
+   *            {@code null}.
+   *
+   * @return  {@code true} if the provided string is believed to be displayable,
+   *          or {@code false} if not.
+   */
+  public static boolean isLikelyDisplayableString(@NotNull final String s)
+  {
+    int pos = 0;
+    while (pos < s.length())
+    {
+      final int codePoint = s.codePointAt(pos);
+      if (! isLikelyDisplayableCharacter(codePoint))
+      {
+        return false;
+      }
+
+      pos += Character.charCount(codePoint);
+    }
+
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether the contents of the provided array are valid UTF-8.
    *
    * @param  b  The byte array to examine.  It must not be {@code null}.

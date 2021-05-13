@@ -117,6 +117,46 @@ public final class LDIFWriter
 
 
   /**
+   * The name of a system property that can be used to specify the default
+   * base64-encoding strategy that should be used for values.  If this property
+   * is defined, the value should be one of "DEFAULT", "MINIMAL, or "MAXIMAL";
+   */
+  @NotNull private static final String PROPERTY_BASE64_ENCODING_STRATEGY =
+       "com.unboundid.ldif.base64EncodingStrategy";
+
+
+
+  /**
+   * The strategy that should be used for determining whether values need to be
+   * base64-encoded.
+   */
+  @NotNull private static volatile Base64EncodingStrategy
+       base64EncodingStrategy = Base64EncodingStrategy.DEFAULT;
+  static
+  {
+    final String propertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_BASE64_ENCODING_STRATEGY);
+    if (propertyValue != null)
+    {
+      switch (StaticUtils.toUpperCase(propertyValue))
+      {
+        case "MINIMAL":
+          base64EncodingStrategy = Base64EncodingStrategy.MINIMAL;
+          break;
+        case "MAXIMAL":
+          base64EncodingStrategy = Base64EncodingStrategy.MAXIMAL;
+          break;
+        case "DEFAULT":
+        default:
+          base64EncodingStrategy = Base64EncodingStrategy.DEFAULT;
+          break;
+      }
+    }
+  }
+
+
+
+  /**
    * The bytes that comprise the LDIF version header.
    */
   @NotNull private static final byte[] VERSION_1_HEADER_BYTES =
@@ -492,6 +532,38 @@ public final class LDIFWriter
   {
     LDIFWriter.commentAboutBase64EncodedValues =
          commentAboutBase64EncodedValues;
+  }
+
+
+
+  /**
+   * Retrieves the strategy that the LDIF writer should use for determining
+   * whether values need to be base64-encoded.
+   *
+   * @return  The strategy that the LDIF writer should use for determining
+   *          whether values need to be base64-encoded.
+   */
+  @NotNull()
+  public static Base64EncodingStrategy getBase64EncodingStrategy()
+  {
+    return base64EncodingStrategy;
+  }
+
+
+
+  /**
+   * Specifies the strategy that the LDIF writer should use for determining
+   * whether values need to be base64-encoded.
+   *
+   * @param  base64EncodingStrategy  The strategy that the LDIF writer should
+   *                                 use for determining whether values need to
+   *                                 be base64-encoded.
+   */
+  public static void setBase64EncodingStrategy(
+       @NotNull final Base64EncodingStrategy base64EncodingStrategy)
+  {
+    Validator.ensureNotNull(base64EncodingStrategy);
+    LDIFWriter.base64EncodingStrategy = base64EncodingStrategy;
   }
 
 
@@ -1065,62 +1137,17 @@ public final class LDIFWriter
       buffer.append(name);
       buffer.append(':');
 
-      final int length = valueBytes.length;
-      if (length == 0)
-      {
-        buffer.append(' ');
-        return;
-      }
-
-      // If the value starts with a space, colon, or less-than character, then
-      // it must be base64-encoded.
-      switch (valueBytes[0])
-      {
-        case ' ':
-        case ':':
-        case '<':
-          buffer.append(": ");
-          Base64.encode(valueBytes, buffer);
-          base64Encoded = true;
-          return;
-      }
-
-      // If the value ends with a space, then it should be base64-encoded.
-      if (valueBytes[length-1] == ' ')
+      if (base64EncodingStrategy.shouldBase64Encode(value))
       {
         buffer.append(": ");
         Base64.encode(valueBytes, buffer);
         base64Encoded = true;
-        return;
       }
-
-      // If any character in the value is outside the ASCII range, or is the
-      // NUL, LF, or CR character, then the value should be base64-encoded.
-      for (int i=0; i < length; i++)
+      else
       {
-        if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
-        {
-          buffer.append(": ");
-          Base64.encode(valueBytes, buffer);
-          base64Encoded = true;
-          return;
-        }
-
-        switch (valueBytes[i])
-        {
-          case 0x00:  // The NUL character
-          case 0x0A:  // The LF character
-          case 0x0D:  // The CR character
-            buffer.append(": ");
-            Base64.encode(valueBytes, buffer);
-            base64Encoded = true;
-            return;
-        }
+        buffer.append(' ');
+        buffer.append(value.stringValue());
       }
-
-      // If we've gotten here, then the string value is acceptable.
-      buffer.append(' ');
-      buffer.append(value.stringValue());
     }
     finally
     {
@@ -1130,12 +1157,21 @@ public final class LDIFWriter
         if (length > wrapColumn)
         {
           final String EOL_PLUS_SPACE = StaticUtils.EOL + ' ';
-          buffer.insert((bufferStartPos+wrapColumn), EOL_PLUS_SPACE);
 
-          int pos = bufferStartPos + (2*wrapColumn) +
-                    EOL_PLUS_SPACE.length() - 1;
+          // Be careful not to wrap in the middle of a multi-byte character.
+          // Select the position where we want to wrap, but if the character
+          // in that position is a low surrogate character, then it needs to
+          // stay with the previous character so we shouldn't wrap there.
+          int pos = bufferStartPos + wrapColumn;
           while (pos < buffer.length())
           {
+            final char c = buffer.charAt(pos);
+            if (Character.isLowSurrogate(c))
+            {
+              pos++;
+              continue;
+            }
+
             buffer.insert(pos, EOL_PLUS_SPACE);
             pos += (wrapColumn - 1 + EOL_PLUS_SPACE.length());
           }
@@ -1245,12 +1281,33 @@ public final class LDIFWriter
                            StaticUtils.EOL_BYTES.length);
           EOL_BYTES_PLUS_SPACE[StaticUtils.EOL_BYTES.length] = ' ';
 
-          buffer.insert((bufferStartPos+wrapColumn), EOL_BYTES_PLUS_SPACE);
-
-          int pos = bufferStartPos + (2*wrapColumn) +
-                    EOL_BYTES_PLUS_SPACE.length - 1;
+          // Be careful not to wrap in the middle of a multi-byte character.
+          // Select a byte where we expect to wrap and use the following logic
+          // to determine if it's safe to wrap there:
+          //
+          // - If the most significant bit of a byte is set to zero, then it's
+          //   not a multi-byte character and it's safe to wrap before it.
+          //
+          // - If the most significant bit of a byte is set to one and the
+          //   second-most significant bit is also set to one, then it's the
+          //   first byte of a multi-byte UTF-8 character and it's safe to wrap
+          //   before it.
+          //
+          // - If the most significant bit of a byte is set to one and the
+          //   second-most significant bit is set to zero, then it's either in
+          //   the middle of a UTF-8 character or not part of a valid UTF-8
+          //   string.  In either case, we'll read ahead until we find a byte
+          //   where it's safe to wrap.
+          int pos = bufferStartPos + wrapColumn;
           while (pos < buffer.length())
           {
+            final byte byteAtPos = buffer.byteAt(pos);
+            if ((byteAtPos & 0xC0) == 0x80)
+            {
+              pos++;
+              continue;
+            }
+
             buffer.insert(pos, EOL_BYTES_PLUS_SPACE);
             pos += (wrapColumn - 1 + EOL_BYTES_PLUS_SPACE.length);
           }
@@ -1284,64 +1341,18 @@ public final class LDIFWriter
     buffer.append(':');
 
     final byte[] valueBytes = value.getValue();
-    final int length = valueBytes.length;
-    if (length == 0)
+    if (base64EncodingStrategy.shouldBase64Encode(valueBytes))
     {
-      buffer.append(' ');
-      return false;
-    }
-
-    // If the value starts with a space, colon, or less-than character, then
-    // it must be base64-encoded.
-    switch (valueBytes[0])
-    {
-      case ' ':
-      case ':':
-      case '<':
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return true;
-    }
-
-    // If the value ends with a space, then it should be base64-encoded.
-    if (valueBytes[length-1] == ' ')
-    {
-      buffer.append(':');
-      buffer.append(' ');
+      buffer.append(": ");
       Base64.encode(valueBytes, buffer);
       return true;
     }
-
-    // If any character in the value is outside the ASCII range, or is the
-    // NUL, LF, or CR character, then the value should be base64-encoded.
-    for (int i=0; i < length; i++)
+    else
     {
-      if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
-      {
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return true;
-      }
-
-      switch (valueBytes[i])
-      {
-        case 0x00:  // The NUL character
-        case 0x0A:  // The LF character
-        case 0x0D:  // The CR character
-          buffer.append(':');
-          buffer.append(' ');
-
-          Base64.encode(valueBytes, buffer);
-          return true;
-      }
+      buffer.append(' ');
+      buffer.append(valueBytes);
+      return false;
     }
-
-    // If we've gotten here, then the string value is acceptable.
-    buffer.append(' ');
-    buffer.append(valueBytes);
-    return false;
   }
 
 
@@ -1480,62 +1491,40 @@ public final class LDIFWriter
             // As a last resort, just print a hex representation of the bytes
             // that make up the
             final int codePoint = Character.codePointAt(valueString, i);
-            final int[] codePointArray = { codePoint };
-            final String codePointString = new String(codePointArray, 0, 1);
-
-            final int charType = Character.getType(codePoint);
-            switch (charType)
+            if (StaticUtils.isLikelyDisplayableCharacter(codePoint))
             {
-              case Character.UPPERCASE_LETTER:
-              case Character.LOWERCASE_LETTER:
-              case Character.TITLECASE_LETTER:
-              case Character.MODIFIER_LETTER:
-              case Character.OTHER_LETTER:
-              case Character.DECIMAL_DIGIT_NUMBER:
-              case Character.LETTER_NUMBER:
-              case Character.OTHER_NUMBER:
-              case Character.SPACE_SEPARATOR:
-              case Character.DASH_PUNCTUATION:
-              case Character.START_PUNCTUATION:
-              case Character.END_PUNCTUATION:
-              case Character.CONNECTOR_PUNCTUATION:
-              case Character.OTHER_PUNCTUATION:
-              case Character.INITIAL_QUOTE_PUNCTUATION:
-              case Character.FINAL_QUOTE_PUNCTUATION:
-              case Character.MATH_SYMBOL:
-              case Character.CURRENCY_SYMBOL:
-                // These characters should be printable.
-                buffer.append(codePointString);
-                break;
+              final int[] codePointArray = { codePoint };
+              buffer.append(new String(codePointArray, 0, 1));
+            }
+            else
+            {
+              // See if we can get a name for the character.  If so, then use
+              // it.  Otherwise, just print the escaped hex representation.
+              String codePointName;
+              try
+              {
+                codePointName = Character.getName(codePoint);
+              }
+              catch (final Exception e)
+              {
+                Debug.debugException(e);
+                codePointName = null;
+              }
 
-              default:
-                // See if we can get a name for the character.  If so, then use
-                // it.  Otherwise, just print the escaped hex representation.
-                String codePointName;
-                try
-                {
-                  codePointName = Character.getName(codePoint);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                  codePointName = null;
-                }
-
-                if ((codePointName == null) || codePointName.isEmpty())
-                {
-                  final byte[] codePointBytes =
-                       StaticUtils.getBytes(codePointString);
-                  buffer.append(INFO_LDIF_WRITER_CHAR_HEX.get(
-                       StaticUtils.toHex(codePointBytes)));
-                }
-                else
-                {
-                  buffer.append("{");
-                  buffer.append(codePointName);
-                  buffer.append('}');
-                }
-                break;
+              if ((codePointName == null) || codePointName.isEmpty())
+              {
+                final int[] codePointArray = { codePoint };
+                final byte[] codePointBytes =
+                     StaticUtils.getBytes(new String(codePointArray, 0, 1));
+                buffer.append(INFO_LDIF_WRITER_CHAR_HEX.get(
+                     StaticUtils.toHex(codePointBytes)));
+              }
+              else
+              {
+                buffer.append("{");
+                buffer.append(codePointName);
+                buffer.append('}');
+              }
             }
 
             final int numChars = Character.charCount(codePoint);

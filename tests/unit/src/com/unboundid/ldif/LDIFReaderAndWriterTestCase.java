@@ -4727,8 +4727,8 @@ public class LDIFReaderAndWriterTestCase
       "objectClass:  organizationalUnit",
       "ou:     People",
       "",
-      "dn:: b3U9R3JvcHVzLGRjPWV4YW1wbGUsZGM9Y29t", // Everything in base64
-      "objectClass::dg9w",
+      "dn:: b3U9R3JvdXBzLGRjPWV4YW1wbGUsZGM9Y29t", // Everything in base64
+      "objectClass::dG9w",
       "objectClass::     b3JnYW5pemF0aW9uYWxVbml0",
       "ou:: R3JvdXBz",
       "",
@@ -5465,7 +5465,9 @@ public class LDIFReaderAndWriterTestCase
       {
         for (int i=0; i < ldifLines.length; i++)
         {
-          assertTrue(ldifLines[i].length() <= wrapColumn);
+          assertTrue(ldifLines[i].length() <= wrapColumn,
+               "Offending line:  " + i + "; LDIF:\n" +
+                    buffer.toString());
           if (ldifLines[i].startsWith(" "))
           {
             assertEquals(ldifLines[i-1].length(), wrapColumn,
@@ -9650,11 +9652,6 @@ public class LDIFReaderAndWriterTestCase
       {
         "<<",
         "{LEADING LESS THAN}<"
-      },
-      new Object[]
-      {
-        "{\ud83d\ude00}",
-        "{OPENING CURLY BRACE}{GRINNING FACE}{CLOSING CURLY BRACE}"
       },
       new Object[]
       {

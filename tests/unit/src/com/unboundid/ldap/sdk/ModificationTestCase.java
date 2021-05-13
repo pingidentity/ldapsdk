@@ -45,6 +45,8 @@ import org.testng.annotations.Test;
 import com.unboundid.asn1.ASN1Enumerated;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
+import com.unboundid.ldif.Base64EncodingStrategy;
+import com.unboundid.ldif.LDIFWriter;
 
 
 
@@ -552,6 +554,10 @@ public class ModificationTestCase
   public void testToString()
          throws Exception
   {
+    final Base64EncodingStrategy initialBase64EncodingStrategy =
+         LDIFWriter.getBase64EncodingStrategy();
+    LDIFWriter.setBase64EncodingStrategy(Base64EncodingStrategy.MAXIMAL);
+
     final Modification asciiMod = new Modification(ModificationType.REPLACE,
          "value 1",
          "value 2",
@@ -599,5 +605,7 @@ public class ModificationTestCase
     toCodeLines.clear();
     mixedMod.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
     assertFalse(toCodeLines.isEmpty());
+
+    LDIFWriter.setBase64EncodingStrategy(initialBase64EncodingStrategy);
   }
 }

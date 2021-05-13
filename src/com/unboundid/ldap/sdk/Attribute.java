@@ -61,6 +61,7 @@ import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -1666,43 +1667,7 @@ public final class Attribute
    */
   public static boolean needsBase64Encoding(@NotNull final byte[] v)
   {
-    if (v.length == 0)
-    {
-      return false;
-    }
-
-    switch (v[0] & 0xFF)
-    {
-      case 0x20: // Space
-      case 0x3A: // Colon
-      case 0x3C: // Less-than
-        return true;
-    }
-
-    if ((v[v.length-1] & 0xFF) == 0x20)
-    {
-      return true;
-    }
-
-    for (final byte b : v)
-    {
-      switch (b & 0xFF)
-      {
-        case 0x00: // NULL
-        case 0x0A: // LF
-        case 0x0D: // CR
-          return true;
-
-        default:
-          if ((b & 0x80) != 0x00)
-          {
-            return true;
-          }
-          break;
-      }
-    }
-
-    return false;
+    return LDIFWriter.getBase64EncodingStrategy().shouldBase64Encode(v);
   }
 
 
