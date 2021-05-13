@@ -151,7 +151,7 @@ public final class DN
    * is defined, the value should be one of "DEFAULT", "MINIMAL, or "MAXIMAL";
    */
   @NotNull private static final String PROPERTY_DN_ESCAPING_STRATEGY =
-       "com.unboundid.ldif.dnEscapingStrategy";
+       "com.unboundid.ldap.dnEscapingStrategy";
 
 
 
