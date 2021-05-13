@@ -44,6 +44,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -417,8 +418,8 @@ public final class RDNNameValuePair
   {
     if (stringRepresentation == null)
     {
-      final StringBuilder buffer = new StringBuilder();
-      toString(buffer, false);
+      final ByteStringBuffer buffer = new ByteStringBuffer();
+      toString(buffer, DN.getDNEscapingStrategy());
       stringRepresentation = buffer.toString();
     }
 
@@ -439,8 +440,8 @@ public final class RDNNameValuePair
   @NotNull()
   public String toMinimallyEncodedString()
   {
-    final StringBuilder buffer = new StringBuilder();
-    toString(buffer, true);
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    toString(buffer, DNEscapingStrategy.MINIMAL);
     return buffer.toString();
   }
 
@@ -463,22 +464,32 @@ public final class RDNNameValuePair
   public void toString(@NotNull final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
-    if ((stringRepresentation != null) && (! minimizeEncoding))
-    {
-      buffer.append(stringRepresentation);
-      return;
-    }
+    final ByteStringBuffer byteStringBuffer = new ByteStringBuffer();
+    final DNEscapingStrategy escapingStrategy = (minimizeEncoding
+         ? DNEscapingStrategy.MINIMAL
+         : DN.getDNEscapingStrategy());
+    toString(byteStringBuffer, escapingStrategy);
+    buffer.append(byteStringBuffer.toString());
+  }
 
-    final boolean bufferWasEmpty = (buffer.length() == 0);
 
+
+  /**
+   * Appends a string representation of this RDN name-value pair to the provided
+   * buffer.
+   *
+   * @param  buffer            The buffer to which the string representation is
+   *                           to be appended.  It must not be {@code null}.
+   * @param  escapingStrategy  The strategy to use to determine which types of
+   *                           optional escaping should be used for values.  It
+   *                           must not be {@code null}.
+   */
+  public void toString(@NotNull final ByteStringBuffer buffer,
+                       @NotNull final DNEscapingStrategy escapingStrategy)
+  {
     buffer.append(attributeName);
     buffer.append('=');
-    RDN.appendValue(buffer, attributeValue, minimizeEncoding);
-
-    if (bufferWasEmpty && (! minimizeEncoding))
-    {
-      stringRepresentation = buffer.toString();
-    }
+    escapingStrategy.escape(attributeValue, buffer);
   }
 
 

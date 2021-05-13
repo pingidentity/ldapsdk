@@ -69,6 +69,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved the logic used to decide which types of optional escaping should be used
+                  when generating the string representation of a DN or RDN.  If a DN or RDN was
+                  created from a string representation, then that string representation will
+                  generally be preserved.  However, if a DN or RDN is created from its component
+                  parts, then the string representation will be generated, and the LDAP SDK may
+                  choose to escape more characters than are required by RFC 4514.  Previously, the
+                  LDAP SDK always escaped all ASCII control characters and all non-ASCII
+                  characters.  It will now still escape all ASCII control characters, but it will
+                  only escape non-ASCII characters if it does not believe that they are
+                  displayable.  If it believes that a non-ASCII character is displayable
+                  (including Latin characters with diacritics and letters, digits, spacing,
+                  punctuation, and symbols from languages that use non-Latin characters), that
+                  character now be left unescaped.  The default behavior can be overridden either
+                  programmatically or through a system property.  The logic used to generate
+                  normalized representations of DNs and RDNs has not changed.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDIF writer to improve the logic that it uses when deciding whether
                   values should be base64-encoded.  Previously, it would always base64-encode
                   values with non-ASCII characters, regardless of whether those characters may be
@@ -79,7 +98,9 @@ ${TARGET="offline"}                <br>
                   non-UTF-8 data.  By default, it will now always base64-encode values that
                   contain ASCII control characters, and it will base64-encode values that contain
                   non-displayable non-ASCII characters, but the presence of displayable non-ASCII
-                  characters will no longer by themselves cause values to be base64-encoded.
+                  characters will no longer by themselves cause values to be base64-encoded.  The
+                  default behavior can be overridden programmatically or through a system
+                  property.
                   <br><br>
                 </li>
 

@@ -39,7 +39,7 @@ package com.unboundid.ldif;
 
 import java.io.Serializable;
 
-import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.ByteString;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
@@ -66,12 +66,12 @@ public final class Base64EncodingStrategy
    *     base64-encoded.
    *   </LI>
    *   <LI>
-   *     The presence of displayable non-ASCII control characters will not cause
-   *     a value to be base64-encoded.
+   *     The presence of displayable non-ASCII characters will not cause a value
+   *     to be base64-encoded.
    *   </LI>
    *   <LI>
-   *     The presence of non-displayable non-ASCII control characters will cause
-   *     a value to be base64-encoded.
+   *     The presence of non-displayable non-ASCII characters will cause a value
+   *     to be base64-encoded.
    *   </LI>
    *   <LI>
    *     The presence of non-UTF-8 data will cause a value to be base64-encoded.
@@ -494,7 +494,7 @@ public final class Base64EncodingStrategy
    * @return  {@code true} if the provided value should be base64-encoded in
    *          accordance with this strategy, or {@code false} if not.
    */
-  public boolean shouldBase64Encode(@NotNull final ASN1OctetString value)
+  public boolean shouldBase64Encode(@NotNull final ByteString value)
   {
     return shouldBase64Encode(value.getValue());
   }

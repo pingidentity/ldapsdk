@@ -50,6 +50,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -1495,8 +1496,8 @@ valueLoop:
   {
     if (rdnString == null)
     {
-      final StringBuilder buffer = new StringBuilder();
-      toString(buffer, false);
+      final ByteStringBuffer buffer = new ByteStringBuffer();
+      toString(buffer, DN.getDNEscapingStrategy());
       rdnString = buffer.toString();
     }
 
@@ -1517,8 +1518,8 @@ valueLoop:
   @NotNull()
   public String toMinimallyEncodedString()
   {
-    final StringBuilder buffer = new StringBuilder();
-    toString(buffer, true);
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    toString(buffer, DNEscapingStrategy.MINIMAL);
     return buffer.toString();
   }
 
@@ -1553,12 +1554,28 @@ valueLoop:
   public void toString(@NotNull final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
-    if ((rdnString != null) && (! minimizeEncoding))
-    {
-      buffer.append(rdnString);
-      return;
-    }
+    final ByteStringBuffer byteStringBuffer = new ByteStringBuffer();
+    final DNEscapingStrategy escapingStrategy = (minimizeEncoding
+         ? DNEscapingStrategy.MINIMAL
+         : DN.getDNEscapingStrategy());
+    toString(byteStringBuffer, escapingStrategy);
+    buffer.append(byteStringBuffer.toString());
+  }
 
+
+
+  /**
+   * Appends a string representation of this RDN to the provided buffer.
+   *
+   * @param  buffer            The buffer to which the string representation is
+   *                           to be appended.  It must not be {@code null}.
+   * @param  escapingStrategy  The strategy to use to determine which types of
+   *                           optional escaping should be used for values.  It
+   *                           must not be {@code null}.
+   */
+  public void toString(@NotNull final ByteStringBuffer buffer,
+                       @NotNull final DNEscapingStrategy escapingStrategy)
+  {
     for (int i=0; i < attributeNames.length; i++)
     {
       if (i > 0)
@@ -1568,93 +1585,7 @@ valueLoop:
 
       buffer.append(attributeNames[i]);
       buffer.append('=');
-      appendValue(buffer, attributeValues[i], minimizeEncoding);
-    }
-  }
-
-
-
-  /**
-   * Appends an appropriately escaped version of the provided value to the given
-   * buffer.
-   *
-   * @param  buffer            The buffer to which the value should be appended.
-   *                           It must not be {@code null}.
-   * @param  value             The value to be appended in an appropriately
-   *                           escaped form.  It must not be {@code null}.
-   * @param  minimizeEncoding  Indicates whether to restrict the encoding of
-   *                           special characters to the bare minimum required
-   *                           by LDAP (as per RFC 4514 section 2.4).  If this
-   *                           is {@code true}, then only leading and trailing
-   *                           spaces, double quotes, plus signs, commas,
-   *                           semicolons, greater-than, less-than, and
-   *                           backslash characters will be encoded.
-   */
-  static void appendValue(@NotNull final StringBuilder buffer,
-                          @NotNull final ASN1OctetString value,
-                          final boolean minimizeEncoding)
-  {
-    final String valueString = value.stringValue();
-    final int length = valueString.length();
-    for (int j=0; j < length; j++)
-    {
-      final char c = valueString.charAt(j);
-      switch (c)
-      {
-        case '\\':
-        case '=':
-        case '"':
-        case '+':
-        case ',':
-        case ';':
-        case '<':
-        case '>':
-          // These characters will always be escaped.
-          buffer.append('\\');
-          buffer.append(c);
-          break;
-
-        case '#':
-          // Escape the octothorpe only if it's the first character.
-          if (j == 0)
-          {
-            buffer.append("\\#");
-          }
-          else
-          {
-            buffer.append('#');
-          }
-          break;
-
-        case ' ':
-          // Escape this space only if it's the first or last character.
-          if ((j == 0) || ((j+1) == length))
-          {
-            buffer.append("\\ ");
-          }
-          else
-          {
-            buffer.append(' ');
-          }
-          break;
-
-        case '\u0000':
-          buffer.append("\\00");
-          break;
-
-        default:
-          // If it's not a printable ASCII character, then hex-encode it
-          // unless we're using minimized encoding.
-          if ((! minimizeEncoding) && ((c < ' ') || (c > '~')))
-          {
-            StaticUtils.hexEncode(c, buffer);
-          }
-          else
-          {
-            buffer.append(c);
-          }
-          break;
-      }
+      escapingStrategy.escape(attributeValues[i], buffer);
     }
   }
 

@@ -44,6 +44,7 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -145,6 +146,46 @@ public final class DN
 
 
   /**
+   * The name of a system property that can be used to specify the default
+   * escaping strategy that should be used for RDN values.  If this property
+   * is defined, the value should be one of "DEFAULT", "MINIMAL, or "MAXIMAL";
+   */
+  @NotNull private static final String PROPERTY_DN_ESCAPING_STRATEGY =
+       "com.unboundid.ldif.dnEscapingStrategy";
+
+
+
+  /**
+   * The strategy that should be used for determining what types of optional
+   * escaping should be used for RDN values.
+   */
+  @NotNull private static volatile DNEscapingStrategy
+       dnEscapingStrategy = DNEscapingStrategy.DEFAULT;
+  static
+  {
+    final String propertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_DN_ESCAPING_STRATEGY);
+    if (propertyValue != null)
+    {
+      switch (StaticUtils.toUpperCase(propertyValue))
+      {
+        case "MINIMAL":
+          dnEscapingStrategy = DNEscapingStrategy.MINIMAL;
+          break;
+        case "MAXIMAL":
+          dnEscapingStrategy = DNEscapingStrategy.MAXIMAL;
+          break;
+        case "DEFAULT":
+        default:
+          dnEscapingStrategy = DNEscapingStrategy.DEFAULT;
+          break;
+      }
+    }
+  }
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -5272968942085729346L;
@@ -185,14 +226,14 @@ public final class DN
     else
     {
       Schema s = null;
-      final StringBuilder buffer = new StringBuilder();
+      final ByteStringBuffer buffer = new ByteStringBuffer();
       for (final RDN rdn : rdns)
       {
-        if (buffer.length() > 0)
+        if (! buffer.isEmpty())
         {
           buffer.append(',');
         }
-        rdn.toString(buffer, false);
+        rdn.toString(buffer, dnEscapingStrategy);
 
         if (s == null)
         {
@@ -228,14 +269,14 @@ public final class DN
       this.rdns = rdns.toArray(new RDN[rdns.size()]);
 
       Schema s = null;
-      final StringBuilder buffer = new StringBuilder();
+      final ByteStringBuffer buffer = new ByteStringBuffer();
       for (final RDN rdn : this.rdns)
       {
-        if (buffer.length() > 0)
+        if (! buffer.isEmpty())
         {
           buffer.append(',');
         }
-        rdn.toString(buffer, false);
+        rdn.toString(buffer, dnEscapingStrategy);
 
         if (s == null)
         {
@@ -266,14 +307,14 @@ public final class DN
     System.arraycopy(parentDN.rdns, 0, rdns, 1, parentDN.rdns.length);
 
     Schema s = null;
-    final StringBuilder buffer = new StringBuilder();
+    final ByteStringBuffer buffer = new ByteStringBuffer();
     for (final RDN r : rdns)
     {
-      if (buffer.length() > 0)
+      if (! buffer.isEmpty())
       {
         buffer.append(',');
       }
-      r.toString(buffer, false);
+      r.toString(buffer, dnEscapingStrategy);
 
       if (s == null)
       {
@@ -1483,6 +1524,39 @@ rdnLoop:
 
 
   /**
+   * Retrieves the escaping strategy that should be used by default when
+   * constructing the string representations of DNs and RDNs.
+   *
+   * @return  The escaping strategy that should be used by default when
+   *          constructing the string representations of DNs and RDNs.
+   */
+  @NotNull()
+  public static DNEscapingStrategy getDNEscapingStrategy()
+  {
+    return dnEscapingStrategy;
+  }
+
+
+
+  /**
+   * Specifies the escaping strategy that should be used by default when
+   * constructing the string representations of DNs and RDNs.
+   *
+   * @param  dnEscapingStrategy  The escaping strategy that should be used by
+   *                             default when constructing the string
+   *                             representations of DNs and RDNs.  It must not
+   *                             be {@code null}.
+   */
+  public static void setDNEscapingStrategy(
+              @NotNull final DNEscapingStrategy dnEscapingStrategy)
+  {
+    Validator.ensureNotNull(dnEscapingStrategy);
+    DN.dnEscapingStrategy = dnEscapingStrategy;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this DN.
    *
    * @return  A string representation of this DN.
@@ -1508,8 +1582,8 @@ rdnLoop:
   @NotNull()
   public String toMinimallyEncodedString()
   {
-    final StringBuilder buffer = new StringBuilder();
-    toString(buffer, true);
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    toString(buffer, DNEscapingStrategy.MINIMAL);
     return buffer.toString();
   }
 
@@ -1544,6 +1618,28 @@ rdnLoop:
   public void toString(@NotNull final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
+    final ByteStringBuffer byteStringBuffer = new ByteStringBuffer();
+    final DNEscapingStrategy escapingStrategy = (minimizeEncoding
+         ? DNEscapingStrategy.MINIMAL
+         : dnEscapingStrategy);
+    toString(byteStringBuffer, escapingStrategy);
+    buffer.append(byteStringBuffer.toString());
+  }
+
+
+
+  /**
+   * Appends a string representation of this DN to the provided buffer.
+   *
+   * @param  buffer            The buffer to which the string representation is
+   *                           to be appended.  It must not be {@code null}.
+   * @param  escapingStrategy  The strategy to use to determine which types of
+   *                           optional escaping should be used for values.  It
+   *                           must not be {@code null}.
+   */
+  public void toString(@NotNull final ByteStringBuffer buffer,
+                       @NotNull final DNEscapingStrategy escapingStrategy)
+  {
     for (int i=0; i < rdns.length; i++)
     {
       if (i > 0)
@@ -1551,7 +1647,7 @@ rdnLoop:
         buffer.append(',');
       }
 
-      rdns[i].toString(buffer, minimizeEncoding);
+      rdns[i].toString(buffer, escapingStrategy);
     }
   }
 

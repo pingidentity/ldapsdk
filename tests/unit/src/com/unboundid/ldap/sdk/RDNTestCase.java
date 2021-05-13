@@ -1991,15 +1991,15 @@ public class RDNTestCase
       {
         new String[] { "cn" },
         new String[] { "\\#=+, ; <\u0000>\"" },
-        "cn=\\\\#\\=\\+\\, \\; \\<\\00\\>\\\"",
-        "cn=\\\\#\\=\\+\\, \\; \\<\\00\\>\\\""
+        "cn=\\\\#=\\+\\, \\; \\<\\00\\>\\\"",
+        "cn=\\\\#=\\+\\, \\; \\<\\00\\>\\\""
       },
 
       new Object[]
       {
         new String[] { "givenName", "sn" },
         new String[] { "Jos\u00e9", "Jalape\u00f1o" },
-        "givenName=Jos\\c3\\a9+sn=Jalape\\c3\\b1o",
+        "givenName=Jos\u00e9+sn=Jalape\u00f1o",
         "givenName=Jos\u00e9+sn=Jalape\u00f1o"
       },
 
@@ -2007,7 +2007,7 @@ public class RDNTestCase
       {
         new String[] { "givenName", "sn" },
         new String[] { "JOS\u00c9", "JALAPE\u00d1O" },
-        "givenName=JOS\\c3\\89+sn=JALAPE\\c3\\91O",
+        "givenName=JOS\u00c9+sn=JALAPE\u00d1O",
         "givenName=JOS\u00c9+sn=JALAPE\u00d1O"
       },
     };

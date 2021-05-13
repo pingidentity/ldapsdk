@@ -368,7 +368,7 @@ public final class Base64EncodingStrategyTestCase
    * characters.
    *
    * @return  A set of strings that contain non-displayable non-ASCII
-   * characters.
+   *          characters.
    */
   private String[] getNonDisplayableNonASCIICharacterStrings()
   {
