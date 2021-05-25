@@ -27,7 +27,7 @@ ${TARGET="offline"}                <br>
                 <li>
                   Updated the logic used to select the set of TLS protocol versions so that only
                   the TLSv1.2 and TLSv1.3 (if supported by the JVM) will be enabled by default,
-                  with the higher protocol version being the preferred version.  As per RFC 8966,
+                  with the higher protocol version being the preferred version.  As per RFC 8996,
                   the older TLSv1 and TLSv1.1 protocol versions are no longer considered secure
                   and will not be enabled by default.  If necessary or desired, you can override
                   the enabled set of TLS protocol versions through the
