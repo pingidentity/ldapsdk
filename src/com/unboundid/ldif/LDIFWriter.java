@@ -138,10 +138,16 @@ public final class LDIFWriter
          StaticUtils.getSystemProperty(PROPERTY_BASE64_ENCODING_STRATEGY);
     if (propertyValue != null)
     {
-      switch (StaticUtils.toUpperCase(propertyValue))
+      switch (StaticUtils.toUpperCase(propertyValue).replace('-', '_'))
       {
         case "MINIMAL":
-          base64EncodingStrategy = Base64EncodingStrategy.MINIMAL;
+        case "MINIMAL_COMPLIANT":
+          base64EncodingStrategy = Base64EncodingStrategy.MINIMAL_COMPLIANT;
+          break;
+        case "USER_FRIENDLY":
+        case "USER_FRIENDLY_NON_COMPLIANT":
+          base64EncodingStrategy =
+               Base64EncodingStrategy.USER_FRIENDLY_NON_COMPLIANT;
           break;
         case "MAXIMAL":
           base64EncodingStrategy = Base64EncodingStrategy.MAXIMAL;

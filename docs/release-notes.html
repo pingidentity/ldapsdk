@@ -88,19 +88,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Updated the LDIF writer to improve the logic that it uses when deciding whether
-                  values should be base64-encoded.  Previously, it would always base64-encode
-                  values with non-ASCII characters, regardless of whether those characters may be
-                  suitable for display, but it would not have encoded all bytes of ASCII control
-                  characters.  It is now possible to specify the strategy that it should use for
-                  optional base64 encoding, including for values with ASCII control characters,
-                  non-ASCII characters (based on whether those characters are displayable), and
-                  non-UTF-8 data.  By default, it will now always base64-encode values that
-                  contain ASCII control characters, and it will base64-encode values that contain
-                  non-displayable non-ASCII characters, but the presence of displayable non-ASCII
-                  characters will no longer by themselves cause values to be base64-encoded.  The
-                  default behavior can be overridden programmatically or through a system
-                  property.
+                  Updated the LDIF writer to make it possible to customize the logic that it uses
+                  when deciding which whether values should be base64-encoded.  Previously, it
+                  would always base64-encode values with non-ASCII characters, regardless of
+                  whether those characters may be suitable for display, but it would not
+                  necessarily encode values with ASCII control characters (other than NUL, LF, or
+                  CR, which are required to always be encoded by the LDIF specification).  It will
+                  now always base64 encode values with any ASCII control characters.  It also
+                  provides an option to skip base64 encoding for different classes of non-ASCII
+                  data, which would technically violate the LDIF specification but may be more
+                  user-friendly for cases in which the value is to be displayed.  The default
+                  behavior can be overridden programmatically or through a system property.
                   <br><br>
                 </li>
 

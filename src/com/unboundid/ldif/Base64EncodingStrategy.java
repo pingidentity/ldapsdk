@@ -58,56 +58,73 @@ public final class Base64EncodingStrategy
        implements Serializable
 {
   /**
-   * A base64-encoding strategy that represents a default, user-friendly
-   * configuration.  This includes:
+   * A base64-encoding strategy that represents a safe default configuration.
+   * This includes:
    * <UL>
    *   <LI>
    *     The presence of ASCII control characters will cause a value to be
-   *     base64-encoded.
+   *     base64-encoded.  This is not required by the LDIF specification, but is
+   *     recommended.
    *   </LI>
    *   <LI>
-   *     The presence of displayable non-ASCII characters will not cause a value
-   *     to be base64-encoded.
+   *     The presence of any non-ASCII characters (whether they may be
+   *     displayable or not) will cause a value to be base64-encoded as required
+   *     by the LDIF specification.
    *   </LI>
    *   <LI>
-   *     The presence of non-displayable non-ASCII characters will cause a value
-   *     to be base64-encoded.
-   *   </LI>
-   *   <LI>
-   *     The presence of non-UTF-8 data will cause a value to be base64-encoded.
+   *     The presence of non-UTF-8 data will cause a value to be base64-encoded
+   *     as required by the LDIF specification.
    *   </LI>
    * </UL>
    */
   @NotNull public static final Base64EncodingStrategy DEFAULT =
-       new Base64EncodingStrategy(true, false, true, true);
-
-
-
-  /**
-   * A base64-encoding strategy that indicates that the LDAP SDK should only
-   * perform required base64 encoding and should not perform any optional
-   * base64-encoding.
-   */
-  @NotNull public static final Base64EncodingStrategy MINIMAL =
-       new Base64EncodingStrategy(false, false, false, false);
-
-
-
-  /**
-   * A base64-encoding strategy that indicates that the LDAP SDK should
-   * perform the maximum amount of base64 encoding that is considered
-   * reasonable.  Any value containing ASCII control characters, non-ASCII
-   * characters of any kind, or non-UTF-8 data will be base64-encoded.
-   */
-  @NotNull public static final Base64EncodingStrategy MAXIMAL =
        new Base64EncodingStrategy(true, true, true, true);
+
+
+
+  /**
+   * A base64-encoding strategy that indicates that the LDAP SDK should perform
+   * the minimum amount of encoding required by the specification.  The presence
+   * of ASCII control characters (other than NUL, LF, and CR, which must always
+   * be base64-encoded) will not cause values to be encoded.  However, the
+   * presence of any non-ASCII characters or non-UTF-8 data will cause a value
+   * to be base64-=encoded as required by the LDIF specification.
+   */
+  @NotNull public static final Base64EncodingStrategy MINIMAL_COMPLIANT =
+       new Base64EncodingStrategy(false, true, true, true);
+
+
+
+  /**
+   * A base64-encoding strategy that indicates that the presence of non-ASCII
+   * characters that the LDAP SDK considers displayable should not cause a
+   * value to be encoded.  ASCII control characters, non-displayable non-ASCII
+   * characters, and non-UTF-8 data will cause a value to be base64-encoded.
+   * Note that this NOT compliant with the LDIF specification (which technically
+   * requires base64 encoding for all non-ASCII data), but it may be user
+   * friendly in some cases.
+   */
+  @NotNull public static final Base64EncodingStrategy
+       USER_FRIENDLY_NON_COMPLIANT =
+            new Base64EncodingStrategy(true, false, true, true);
+
+
+
+  /**
+   * A base64-encoding strategy that indicates that the LDAP SDK should perform
+   * the maximum amount of base64 encoding that it considers necessary.  Any
+   * ASCII control characters, any non-ASCII data, and any non-UTF-8 data will
+   * cause a value to be base64 encoded.  This is equivalent to the
+   * {@link #DEFAULT} strategy.
+   */
+  @NotNull public static final Base64EncodingStrategy MAXIMAL = DEFAULT;
 
 
 
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -2972495773823480376L;
+  private static final long serialVersionUID = -5787811215448347345L;
 
 
 
@@ -178,7 +195,9 @@ public final class Base64EncodingStrategy
 
   /**
    * Indicates whether the presence of one or more ASCII control characters
-   * should cause a value to be base64-encoded.
+   * should cause a value to be base64-encoded.  ASCII control characters other
+   * than NUL, LF, and CR are not required to be base64-encoded by the LDIF
+   * specification, but it is generally recommended that they be encoded.
    *
    * @return  {@code true} if the presence of one or more ASCII control
    *          characters should cause a value to be base64-encoded, or
@@ -198,6 +217,9 @@ public final class Base64EncodingStrategy
    * value to be base64-encoded.  Note that this only applies to values that
    * represent valid UTF-8 strings.  Values that are not valid UTF-8 strings
    * will use the setting represented by the {@link #encodeNonUTF8Data} method.
+   * Also note that all non-ASCII characters are required to be base64 encoded
+   * by the LDIF specification, but there may be cases in which it may be
+   * desirable to relax this behavior when displaying to an end user.
    *
    * @return  {@code true} if the presence of one or more displayable
    *          non-ASCII characters should cause a value to be base64-encoded,
@@ -217,6 +239,9 @@ public final class Base64EncodingStrategy
    * value to be base64-encoded.  Note that this only applies to values that
    * represent valid UTF-8 strings.  Values that are not valid UTF-8 strings
    * will use the setting represented by the {@link #encodeNonUTF8Data} method.
+   * Also note that all non-ASCII characters are required to be base64 encoded
+   * by the LDIF specification, but there may be cases in which it may be
+   * desirable to relax this behavior when displaying to an end user.
    *
    * @return  {@code true} if the presence of one or more non-displayable
    *          non-ASCII characters should cause a value to be base64-encoded,
@@ -232,7 +257,10 @@ public final class Base64EncodingStrategy
   /**
    * Indicates whether values that do not represent valid UTF-8 strings (as
    * determined by the {@link StaticUtils#isValidUTF8} method) should be
-   * base64-encoded.
+   * base64-encoded.  Note that all non-ASCII data (which includes all non-UTF-8
+   * data) is required to be base64 encoded, but there may be cases in which it
+   * may be desirable to relax this behavior when displaying to an end user,
+   * especially when using non-UTF-8 character sets.
    *
    * @return  {@code true} if values that do not represent valid UTF-8 strings
    *          should be base64-encoded, or {@code false} if not.

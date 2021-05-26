@@ -66,6 +66,140 @@ public final class Base64EncodingStrategyTestCase
 
     assertTrue(strategy.encodeASCIIControlCharacters());
 
+    assertTrue(strategy.encodeDisplayableNonASCIICharacters());
+
+    assertTrue(strategy.encodeNonDisplayableNonASCIICharacters());
+
+    assertTrue(strategy.encodeNonUTF8Data());
+
+    assertNotNull(strategy.toString());
+
+    for (final String s : getAlwaysEncodeStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getNeverEncodeStrings())
+    {
+      assertFalse(strategy.shouldBase64Encode(s));
+      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getControlCharacterStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getDisplayableNonASCIICharacterStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getNonDisplayableNonASCIICharacterStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final byte[] b : getNonUTF8DataByteArrays())
+    {
+      assertTrue(strategy.shouldBase64Encode(b));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(b)));
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the minimal compliant strategy.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMinimalCompliantStrategy()
+         throws Exception
+  {
+    final Base64EncodingStrategy strategy =
+         Base64EncodingStrategy.MINIMAL_COMPLIANT;
+    assertNotNull(strategy);
+
+    assertFalse(strategy.encodeASCIIControlCharacters());
+
+    assertTrue(strategy.encodeDisplayableNonASCIICharacters());
+
+    assertTrue(strategy.encodeNonDisplayableNonASCIICharacters());
+
+    assertTrue(strategy.encodeNonUTF8Data());
+
+    assertNotNull(strategy.toString());
+
+    for (final String s : getAlwaysEncodeStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getNeverEncodeStrings())
+    {
+      assertFalse(strategy.shouldBase64Encode(s));
+      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getControlCharacterStrings())
+    {
+      assertFalse(strategy.shouldBase64Encode(s));
+      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getDisplayableNonASCIICharacterStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final String s : getNonDisplayableNonASCIICharacterStrings())
+    {
+      assertTrue(strategy.shouldBase64Encode(s));
+      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
+    }
+
+    for (final byte[] b : getNonUTF8DataByteArrays())
+    {
+      assertTrue(strategy.shouldBase64Encode(b));
+      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(b)));
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the user-friendly non-compliant strategy.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUserFriendlyNonCompliantStrategy()
+         throws Exception
+  {
+    final Base64EncodingStrategy strategy =
+         Base64EncodingStrategy.USER_FRIENDLY_NON_COMPLIANT;
+    assertNotNull(strategy);
+
+    assertTrue(strategy.encodeASCIIControlCharacters());
+
     assertFalse(strategy.encodeDisplayableNonASCIICharacters());
 
     assertTrue(strategy.encodeNonDisplayableNonASCIICharacters());
@@ -113,72 +247,6 @@ public final class Base64EncodingStrategyTestCase
     {
       assertTrue(strategy.shouldBase64Encode(b));
       assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(b)));
-    }
-  }
-
-
-
-  /**
-   * Tests the behavior for the minimal strategy.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testMinimalStrategy()
-         throws Exception
-  {
-    final Base64EncodingStrategy strategy = Base64EncodingStrategy.MINIMAL;
-    assertNotNull(strategy);
-
-    assertFalse(strategy.encodeASCIIControlCharacters());
-
-    assertFalse(strategy.encodeDisplayableNonASCIICharacters());
-
-    assertFalse(strategy.encodeNonDisplayableNonASCIICharacters());
-
-    assertFalse(strategy.encodeNonUTF8Data());
-
-    assertNotNull(strategy.toString());
-
-    for (final String s : getAlwaysEncodeStrings())
-    {
-      assertTrue(strategy.shouldBase64Encode(s));
-      assertTrue(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
-      assertTrue(strategy.shouldBase64Encode(new ASN1OctetString(s)));
-    }
-
-    for (final String s : getNeverEncodeStrings())
-    {
-      assertFalse(strategy.shouldBase64Encode(s));
-      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
-      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
-    }
-
-    for (final String s : getControlCharacterStrings())
-    {
-      assertFalse(strategy.shouldBase64Encode(s));
-      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
-      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
-    }
-
-    for (final String s : getDisplayableNonASCIICharacterStrings())
-    {
-      assertFalse(strategy.shouldBase64Encode(s));
-      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
-      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
-    }
-
-    for (final String s : getNonDisplayableNonASCIICharacterStrings())
-    {
-      assertFalse(strategy.shouldBase64Encode(s));
-      assertFalse(strategy.shouldBase64Encode(StaticUtils.getBytes(s)));
-      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(s)));
-    }
-
-    for (final byte[] b : getNonUTF8DataByteArrays())
-    {
-      assertFalse(strategy.shouldBase64Encode(b));
-      assertFalse(strategy.shouldBase64Encode(new ASN1OctetString(b)));
     }
   }
 
