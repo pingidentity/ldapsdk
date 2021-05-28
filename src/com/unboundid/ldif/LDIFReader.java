@@ -232,6 +232,34 @@ public final class LDIFReader
 
 
 
+  /**
+   * A flag that indicates whether to support LDIF records that include
+   * controls.  If this is {@code true} (which is the default, unless the
+   * {@code com.unboundid.ldif.LDIFReader.disableControlSupport} system property
+   * is defined and set to a value of {@code true}), then a change record in
+   * which the line immediately after the DN starts with "control" will be
+   * interpreted as a control specification.
+   */
+  @NotNull private static final AtomicBoolean SUPPORT_CONTROLS;
+  static
+  {
+    final String propertyName =
+         LDIFReader.class.getName() + ".disableControlSupport";
+    final String disableControlSupportPropertyValue =
+         StaticUtils.getSystemProperty(propertyName);
+    if ((disableControlSupportPropertyValue != null) &&
+         (disableControlSupportPropertyValue.equalsIgnoreCase("true")))
+    {
+      SUPPORT_CONTROLS = new AtomicBoolean(false);
+    }
+    else
+    {
+      SUPPORT_CONTROLS = new AtomicBoolean(true);
+    }
+  }
+
+
+
   // The buffered reader that will be used to read LDIF data.
   @NotNull private final BufferedReader reader;
 
@@ -1145,6 +1173,52 @@ public final class LDIFReader
 
 
   /**
+   * Indicates whether the LDIF reader will attempt to handle LDAP controls
+   * contained in LDIF records.  See the documentation for the
+   * {@link #setSupportControls} method for a more complete explanation.
+   *
+   * @return  {@code true} if the LDIF reader will attempt to handle controls
+   *          contained in LDIF records, or {@code false} if it will not and
+   *          they will be treated as regular attributes.
+   */
+  public static boolean supportControls()
+  {
+    return SUPPORT_CONTROLS.get();
+  }
+
+
+
+  /**
+   * Specifies whether the LDIF reader will attempt to handle LDAP controls
+   * contained in LDIF records.  By default, the LDAP SDK will handle controls
+   * in accordance with RFC 2849, so that if the first unwrapped line after the
+   * DN starts with "control:", then that record will be assumed to be an LDIF
+   * change record that contains one or more LDAP controls.  However, this can
+   * potentially cause a problem in one corner case:  the case in which an LDIF
+   * record represents an entry in which the first attribute in the entry is
+   * named "control", and when you're either reading a generic LDIF record or
+   * you're reading an LDIF change record with {@code defaultAdd} set to
+   * {@code true}.  In such case, the LDIF reader would assume that the
+   * "control" attribute is trying to specify an LDAP control, and it would
+   * either throw an exception if it can't parse the value as a control, or it
+   * would return an LDIF add change record without the "control" attribute but
+   * with an LDAP control.  Calling this method with a value of {@code false}
+   * will disable the LDIF reader's support for controls so that any record in
+   * which the unwrapped line immediately following the DN starts with
+   * "control:" will be treated as specifying an attribute named "control"
+   * rather than an LDAP control.
+   *
+   * @param  supportControls  Specifies whether the LDIF reader will attempt to
+   *                          handle LDAP controls contained in LDIF records.
+   */
+  public static void setSupportControls(final boolean supportControls)
+  {
+    SUPPORT_CONTROLS.set(supportControls);
+  }
+
+
+
+  /**
    * Retrieves the base path that will be prepended to relative paths in order
    * to obtain an absolute path.  This will only be used for "file:" URLs that
    * have paths which do not begin with a slash.
@@ -1253,6 +1327,70 @@ public final class LDIFReader
     {
       return readLDIFRecordInternal();
     }
+  }
+
+
+
+  /**
+   * Decodes the provided set of lines as an LDIF record.  It may be either an
+   * entry or an LDIF change record.
+   *
+   * @param  ldifLines  The set of lines that comprise the LDIF representation
+   *                    of the entry or change record.  It must not be
+   *                    {@code null} or empty.
+   *
+   * @return  The decoded LDIF entry or change record.
+   *
+   * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
+   *                         LDIF record.
+   */
+  @NotNull()
+  public static LDIFRecord decodeLDIFRecord(@NotNull final String... ldifLines)
+         throws LDIFException
+  {
+    return decodeLDIFRecord(DuplicateValueBehavior.STRIP,
+         TrailingSpaceBehavior.REJECT, null, ldifLines);
+  }
+
+
+
+  /**
+   * Decodes the provided set of lines as an LDIF record.  It may be either an
+   * entry or an LDIF change record.
+   *
+   * @param  duplicateValueBehavior  The behavior that should be exhibited when
+   *                                 encountering LDIF records that have
+   *                                 duplicate attribute values.  It must not be
+   *                                 {@code null}.
+   * @param  trailingSpaceBehavior   The behavior that should be exhibited when
+   *                                 encountering attribute values which are not
+   *                                 base64-encoded but contain trailing spaces.
+   *                                 It must not be {@code null}.
+   * @param  schema                  The schema to use when processing the
+   *                                 change record, or {@code null} if no schema
+   *                                 should be used and all values should be
+   *                                 treated as case-insensitive strings.
+   * @param  ldifLines               The set of lines that comprise the LDIF
+   *                                 representation of the entry or change
+   *                                 record.  It must not be {@code null} or
+   *                                 empty.
+   *
+   * @return  The decoded LDIF entry or change record.
+   *
+   * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
+   *                         LDIF record.
+   */
+  @NotNull()
+  public static LDIFRecord decodeLDIFRecord(
+              @NotNull final DuplicateValueBehavior duplicateValueBehavior,
+              @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
+              @Nullable final Schema schema,
+              @NotNull final String... ldifLines)
+         throws LDIFException
+  {
+    final UnparsedLDIFRecord unparsedRecord = prepareRecord(
+         duplicateValueBehavior, trailingSpaceBehavior, schema, ldifLines);
+    return decodeRecord(unparsedRecord, DEFAULT_RELATIVE_BASE_PATH, schema);
   }
 
 
@@ -2305,8 +2443,11 @@ public final class LDIFReader
     {
       final String lowerSecondLine =
            StaticUtils.toLowerCase(lineList.get(1).toString());
-      if (lowerSecondLine.startsWith("control:") ||
-          lowerSecondLine.startsWith("changetype:"))
+      if (lowerSecondLine.startsWith("changetype:"))
+      {
+        r = decodeChangeRecord(unparsedRecord, relativeBasePath, true, schema);
+      }
+      else if (lowerSecondLine.startsWith("control:") && SUPPORT_CONTROLS.get())
       {
         r = decodeChangeRecord(unparsedRecord, relativeBasePath, true, schema);
       }
@@ -2567,7 +2708,11 @@ public final class LDIFReader
     // the controls signified by the changetype.  The changetype element must be
     // present, unless defaultAdd is true in which case the first thing that is
     // neither control or changetype will trigger the start of add attribute
-    // parsing.
+    // parsing.  If support for controls has been disabled, then a control
+    // element before the changetype will be treated in the same way as any
+    // other attribute before the changetype, and it will either be treated as
+    // an attribute as part of an add change record (if defaultAdd is true) or
+    // the LDIF record will be rejected as missing the changetype.
     if (! iterator.hasNext())
     {
       throw new LDIFException(ERR_READ_CR_TOO_SHORT.get(firstLineNumber),
@@ -2590,7 +2735,7 @@ public final class LDIFReader
       }
 
       final String token = StaticUtils.toLowerCase(line.substring(0, colonPos));
-      if (token.equals("control"))
+      if (token.equals("control") && SUPPORT_CONTROLS.get())
       {
         if (controls == null)
         {
@@ -4182,12 +4327,25 @@ public final class LDIFReader
    */
   private static final class UnparsedLDIFRecord
   {
+    // The list of lines contained in this record.
     @Nullable private final ArrayList<StringBuilder> lineList;
+
+    // The first line number for the LDIF record.
     private final long firstLineNumber;
+
+    // The exception thrown while reading from the input.
     @Nullable private final Exception failureCause;
+
+    // Indicates whether the end of the input has been reached.
     private final boolean isEOF;
+
+    // The duplicate value behavior to use when parsing the record.
     @NotNull private final DuplicateValueBehavior duplicateValueBehavior;
+
+    // The schema to use when parsing the record.
     @Nullable private final Schema schema;
+
+    // The trailing space behavior to use when parsing the record.
     @NotNull private final TrailingSpaceBehavior trailingSpaceBehavior;
 
 
@@ -4354,7 +4512,7 @@ public final class LDIFReader
        extends Thread
   {
     /**
-     * Creates a new instance o fthis thread.
+     * Creates a new instance of this thread.
      */
     private LineReaderThread()
     {

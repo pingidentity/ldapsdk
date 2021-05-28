@@ -103,6 +103,35 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDIF reader to add decodeLDIFRecord methods that can be used to
+                  decode a set of LDIF lines as a generic LDIF record, which may represent either
+                  an entry or an LDIF change record.  There were already methods for decoding an
+                  array of lines as an entry or as a change record if you knew what type of record
+                  that it represented, and it was already possible to read a generic LDIF record
+                  from an LDIF file, but there was not a public method for decoding an array of
+                  lines as a generic LDIF record.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF reader to make it possible to disable support for LDAP controls
+                  in LDIF records.  By default, the LDAP SDK will handle controls in accordance
+                  with RFC 2849, so that if the first unwrapped line after the DN starts with
+                  "control", then that record will be treated as an LDIF change record with one or
+                  more LDAP controls.  However, this may cause a problem when the LDIF record
+                  represents an entry rather than a change record, and when the first attribute in
+                  the LDIF representation of that entry is named "control".  In such cases,
+                  attempting to read that record as a generic LDIF record or as an LDIF change
+                  record with defaultAdd set to true (rather than trying to read it as an LDIF
+                  entry) will cause the LDIF reader to attempt to treat that control element as an
+                  LDAP control rather than an attribute named "control".  It is now possible to
+                  disable support for controls to handle this corner case in cases where you may
+                  have an LDAP attribute named "control" that may be the first attribute of an
+                  entry, and in which LDIF change records do not contain LDAP controls.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the PKCS #11 key manager to make it easier to interact with PKCS #11
                   tokens without needing to alter the JVM configuration.  The key manager can now
                   dynamically instantiate the provider (either using a class specified by the

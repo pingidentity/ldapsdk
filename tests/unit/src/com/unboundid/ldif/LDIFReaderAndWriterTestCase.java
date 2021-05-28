@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9659,5 +9660,232 @@ public class LDIFReaderAndWriterTestCase
         "{0xf09f9bbf}"
       },
     };
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code decodeLDIFRecord} method for decoding
+   * entries and change records.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeLDIFRecord()
+         throws Exception
+  {
+    LDIFRecord record = LDIFReader.decodeLDIFRecord(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+    assertNotNull(record);
+    assertTrue(record instanceof Entry);
+
+    record = LDIFReader.decodeLDIFRecord(
+         "dn: dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+    assertNotNull(record);
+    assertTrue(record instanceof LDIFAddChangeRecord);
+
+    record = LDIFReader.decodeLDIFRecord(
+         "dn: dc=example,dc=com",
+         "changetype: delete");
+    assertNotNull(record);
+    assertTrue(record instanceof LDIFDeleteChangeRecord);
+
+    record = LDIFReader.decodeLDIFRecord(
+         "dn: dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo");
+    assertNotNull(record);
+    assertTrue(record instanceof LDIFModifyChangeRecord);
+
+    record = LDIFReader.decodeLDIFRecord(
+         "dn: ou=People,dc=example,dc=com",
+         "changetype: moddn",
+         "newrdn: ou=Users",
+         "deleteoldrdn: 1");
+    assertNotNull(record);
+    assertTrue(record instanceof LDIFModifyDNChangeRecord);
+  }
+
+
+
+  /**
+   * Tests the behavior of the LDIF reader when support for controls has been
+   * disabled.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSupportControls()
+         throws Exception
+  {
+    // Define a set of data to use for testing.
+    // First, test the default behavior in which the LDIF reader does support
+    // controls.
+    String[] ldifLines =
+    {
+      "dn: control=1.2.3.4,dc=example,dc=com",
+      "control: 1.2.3.4",
+      "objectClass: top",
+      "objectClass: customOCThatAllowsControls"
+    };
+
+    final File ldifFile = createTempFile(ldifLines);
+
+
+    // Test the default behavior, in which controls should be supported.
+    assertTrue(LDIFReader.supportControls());
+
+    LDIFRecord record = LDIFReader.decodeLDIFRecord(ldifLines);
+    assertNotNull(record);
+    assertTrue(record instanceof LDIFAddChangeRecord);
+    assertFalse(hasControlAttribute(
+         ((LDIFAddChangeRecord) record).getAttributes()));
+
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readLDIFRecord();
+      assertNotNull(record);
+      assertTrue(record instanceof LDIFAddChangeRecord);
+      assertFalse(hasControlAttribute(
+           ((LDIFAddChangeRecord) record).getAttributes()));
+    }
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readEntry();
+      assertNotNull(record);
+      assertTrue(hasControlAttribute(((Entry) record).getAttributes()));
+    }
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readChangeRecord(true);
+      assertNotNull(record);
+      assertTrue(record instanceof LDIFAddChangeRecord);
+      assertFalse(hasControlAttribute(
+           ((LDIFAddChangeRecord) record).getAttributes()));
+    }
+
+
+    // Disable support for controls and test again.
+    LDIFReader.setSupportControls(false);
+    assertFalse(LDIFReader.supportControls());
+
+    record = LDIFReader.decodeLDIFRecord(ldifLines);
+    assertNotNull(record);
+    assertTrue(record instanceof Entry);
+    assertTrue(hasControlAttribute(((Entry) record).getAttributes()));
+
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readLDIFRecord();
+      assertNotNull(record);
+      assertTrue(record instanceof Entry);
+      assertTrue(hasControlAttribute(((Entry) record).getAttributes()));
+    }
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readEntry();
+      assertNotNull(record);
+      assertTrue(hasControlAttribute(((Entry) record).getAttributes()));
+    }
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readChangeRecord(true);
+      assertNotNull(record);
+      assertTrue(record instanceof LDIFAddChangeRecord);
+      assertTrue(hasControlAttribute(
+           ((LDIFAddChangeRecord) record).getAttributes()));
+    }
+
+
+    // Re-enable support for controls and test one more time.
+    LDIFReader.setSupportControls(true);
+    assertTrue(LDIFReader.supportControls());
+
+    record = LDIFReader.decodeLDIFRecord(ldifLines);
+    assertNotNull(record);
+    assertTrue(record instanceof LDIFAddChangeRecord);
+    assertFalse(hasControlAttribute(
+         ((LDIFAddChangeRecord) record).getAttributes()));
+
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readLDIFRecord();
+      assertNotNull(record);
+      assertTrue(record instanceof LDIFAddChangeRecord);
+      assertFalse(hasControlAttribute(
+           ((LDIFAddChangeRecord) record).getAttributes()));
+    }
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readEntry();
+      assertNotNull(record);
+      assertTrue(hasControlAttribute(((Entry) record).getAttributes()));
+    }
+
+    try (LDIFReader reader = new LDIFReader(ldifFile))
+    {
+      record = reader.readChangeRecord(true);
+      assertNotNull(record);
+      assertTrue(record instanceof LDIFAddChangeRecord);
+      assertFalse(hasControlAttribute(
+           ((LDIFAddChangeRecord) record).getAttributes()));
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided set of attributes includes one named
+   * "control".
+   *
+   * @param  attributes  The set of attributes to examine.
+   *
+   * @return  {@code true} if there is an attribute named "control", or
+   *          {@code false} if not.
+   */
+  private static boolean hasControlAttribute(final Attribute... attributes)
+  {
+    return hasControlAttribute(Arrays.asList(attributes));
+  }
+
+
+
+  /**
+   * Indicates whether the provided set of attributes includes one named
+   * "control".
+   *
+   * @param  attributes  The set of attributes to examine.
+   *
+   * @return  {@code true} if there is an attribute named "control", or
+   *          {@code false} if not.
+   */
+  private static boolean hasControlAttribute(
+                              final Collection<Attribute> attributes)
+  {
+    for (final Attribute a : attributes)
+    {
+      if (a.getName().equalsIgnoreCase("control"))
+      {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
