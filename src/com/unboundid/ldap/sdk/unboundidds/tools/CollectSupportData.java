@@ -1531,9 +1531,9 @@ public final class CollectSupportData
          Arrays.asList("hostname", "port", "bindDN", "bindPassword",
               "bindPasswordFile", "useSSL", "useStartTLS", "trustAll",
               "keyStorePath", "keyStorePassword", "keyStorePasswordFile",
-              "trustStorePath", "trustStorePassword", "trustStorePasswordFile",
-              "certNickname", "saslOption", "propertiesFilePath",
-              "noPropertiesFile"))
+              "keyStoreFormat", "trustStorePath", "trustStorePassword",
+              "trustStorePasswordFile", "trustStoreFormat", "certNickname",
+              "saslOption", "propertiesFilePath", "noPropertiesFile"))
     {
       final Argument arg = parser.getNamedArgument(argumentIdentifier);
       if (arg.getNumOccurrences() > 0)
