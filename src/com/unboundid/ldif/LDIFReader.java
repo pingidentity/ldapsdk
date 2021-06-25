@@ -260,6 +260,38 @@ public final class LDIFReader
 
 
 
+  /**
+   * The maximum allowed file size that we will attempt to read from a file
+   * referenced by a URL.  A default size limit of 10 megabytes will be imposed
+   * unless overridden by the
+   * {@code com.unboundid.ldif.LDIFReader.maxURLFileSizeBytes} system property.
+   */
+  private static final long MAX_URL_FILE_SIZE;
+  static
+  {
+    // Use a default size of 10 megabytes, but allow it to be o
+    long maxURLFileSize = 10L * 1024L * 1024L;
+
+    final String propertyName =
+         LDIFReader.class.getName() + ".maxURLFileSizeBytes";
+    final String propertyValue = StaticUtils.getSystemProperty(propertyName);
+    if (propertyValue != null)
+    {
+      try
+      {
+        maxURLFileSize = Long.parseLong(propertyValue);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    MAX_URL_FILE_SIZE = maxURLFileSize;
+  }
+
+
+
   // The buffered reader that will be used to read LDIF data.
   @NotNull private final BufferedReader reader;
 
@@ -3572,11 +3604,11 @@ public final class LDIFReader
     // In order to conserve memory, we'll only allow values to be read from
     // files no larger than 10 megabytes.
     final long fileSize = f.length();
-    if (fileSize > (10 * 1024 * 1024))
+    if (fileSize > MAX_URL_FILE_SIZE)
     {
       throw new LDIFException(
            ERR_READ_URL_FILE_TOO_LARGE.get(urlString, f.getAbsolutePath(),
-                (10*1024*1024)),
+                MAX_URL_FILE_SIZE),
            firstLineNumber, true);
     }
 

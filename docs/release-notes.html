@@ -14,6 +14,15 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the LDIF reader to make it possible to override the default 10MB size
+                  limit that will be imposed when reading an attribute value from a file
+                  referenced by a URL.  The 10MB size limit will continue to be enforced by
+                  default, but the com.unboundid.ldif.LDIFReader.maxURLFileSizeBytes system
+                  property can now be used to specify an alternative limit if desired.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the LDAP SDK's wrapper for the Ping Identity Directory
                   Server's collect-support-data command-line tool that prevents it from passing
                   the keyStoreFormat and trustStoreFormat arguments to the server tool.
