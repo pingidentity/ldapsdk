@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.OperationType;
@@ -2643,6 +2644,42 @@ public final class ResultUtils
          INFO_RESULT_UTILS_MATCHING_ENTRY_COUNT_INDEXED.get(
               decoded.searchIndexed()),
          indentPrefix, maxWidth);
+
+    final Boolean shortCircuited = decoded.getShortCircuited();
+    if (shortCircuited != null)
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_MATCHING_ENTRY_COUNT_SHORT_CIRCUITED.get(
+                String.valueOf(shortCircuited)),
+           indentPrefix, maxWidth);
+    }
+
+    final Boolean fullyIndexed = decoded.getFullyIndexed();
+    if (fullyIndexed != null)
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_MATCHING_ENTRY_COUNT_FULLY_INDEXED.get(
+                String.valueOf(fullyIndexed)),
+           indentPrefix, maxWidth);
+    }
+
+    final Boolean candidatesAreInScope = decoded.getCandidatesAreInScope();
+    if (candidatesAreInScope != null)
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_MATCHING_ENTRY_COUNT_CANDIDATES_IN_SCOPE.get(
+                String.valueOf(candidatesAreInScope)),
+           indentPrefix, maxWidth);
+    }
+
+    final Filter remainingFilter = decoded.getRemainingFilter();
+    if (remainingFilter != null)
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_MATCHING_ENTRY_COUNT_REMAINING_FILTER.get(
+                String.valueOf(remainingFilter)),
+           indentPrefix, maxWidth);
+    }
 
     final List<String> debugInfo = decoded.getDebugInfo();
     if ((debugInfo != null) && (! debugInfo.isEmpty()))

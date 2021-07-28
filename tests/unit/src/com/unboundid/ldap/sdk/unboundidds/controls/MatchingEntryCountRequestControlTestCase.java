@@ -89,6 +89,8 @@ public final class MatchingEntryCountRequestControlTestCase
 
     assertNull(c.getSlowShortCircuitThreshold());
 
+    assertFalse(c.includeExtendedResponseData());
+
     assertFalse(c.includeDebugInfo());
 
     assertNotNull(c.getControlName());
@@ -136,6 +138,116 @@ public final class MatchingEntryCountRequestControlTestCase
     assertNotNull(c.getSlowShortCircuitThreshold());
     assertEquals(c.getSlowShortCircuitThreshold().longValue(), 20L);
 
+    assertFalse(c.includeExtendedResponseData());
+
+    assertTrue(c.includeDebugInfo());
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior of a matching entry count request control when created
+   * from properties with all default settings.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDefaultProperties()
+         throws Exception
+  {
+    final MatchingEntryCountRequestControlProperties properties =
+         new MatchingEntryCountRequestControlProperties();
+
+    MatchingEntryCountRequestControl c =
+         new MatchingEntryCountRequestControl(true, properties);
+    c = new MatchingEntryCountRequestControl(c);
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.36");
+    assertEquals(c.getOID(),
+         MatchingEntryCountRequestControl.MATCHING_ENTRY_COUNT_REQUEST_OID);
+
+    assertTrue(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertEquals(c.getMaxCandidatesToExamine(), 0);
+
+    assertFalse(c.alwaysExamineCandidates());
+
+    assertFalse(c.processSearchIfUnindexed());
+
+    assertFalse(c.skipResolvingExplodedIndexes());
+
+    assertNull(c.getFastShortCircuitThreshold());
+
+    assertNull(c.getSlowShortCircuitThreshold());
+
+    assertFalse(c.includeExtendedResponseData());
+
+    assertFalse(c.includeDebugInfo());
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior of a matching entry count request control when created
+   * from properties with all non-default settings.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNonDefaultProperties()
+         throws Exception
+  {
+    final MatchingEntryCountRequestControlProperties properties =
+         new MatchingEntryCountRequestControlProperties();
+    properties.setMaxCandidatesToExamine(123);
+    properties.setAlwaysExamineCandidates(true);
+    properties.setProcessSearchIfUnindexed(true);
+    properties.setSkipResolvingExplodedIndexes(true);
+    properties.setFastShortCircuitThreshold(5L);
+    properties.setSlowShortCircuitThreshold(20L);
+    properties.setIncludeExtendedResponseData(true);
+    properties.setIncludeDebugInfo(true);
+
+    MatchingEntryCountRequestControl c =
+         new MatchingEntryCountRequestControl(false, properties);
+    c = new MatchingEntryCountRequestControl(c);
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.36");
+    assertEquals(c.getOID(),
+         MatchingEntryCountRequestControl.MATCHING_ENTRY_COUNT_REQUEST_OID);
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertEquals(c.getMaxCandidatesToExamine(), 123);
+
+    assertTrue(c.alwaysExamineCandidates());
+
+    assertTrue(c.processSearchIfUnindexed());
+
+    assertTrue(c.skipResolvingExplodedIndexes());
+
+    assertNotNull(c.getFastShortCircuitThreshold());
+    assertEquals(c.getFastShortCircuitThreshold().longValue(), 5L);
+
+    assertNotNull(c.getSlowShortCircuitThreshold());
+    assertEquals(c.getSlowShortCircuitThreshold().longValue(), 20L);
+
+    assertTrue(c.includeExtendedResponseData());
+
     assertTrue(c.includeDebugInfo());
 
     assertNotNull(c.getControlName());
@@ -174,26 +286,6 @@ public final class MatchingEntryCountRequestControlTestCase
     new MatchingEntryCountRequestControl(
          new Control("1.3.6.1.4.1.30221.2.5.36", true,
               new ASN1OctetString("foo")));
-  }
-
-
-
-  /**
-   * Tests the behavior when trying to decode a control whose value sequence
-   * includes an element with an unexpected type.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(expectedExceptions = { LDAPException.class })
-  public void testDecodeValueSequenceInvalidElementType()
-         throws Exception
-  {
-    final ASN1Sequence valueSequence = new ASN1Sequence(
-         new ASN1OctetString((byte) 0x12, "foo"));
-
-    new MatchingEntryCountRequestControl(
-         new Control("1.3.6.1.4.1.30221.2.5.36", true,
-              new ASN1OctetString(valueSequence.encode())));
   }
 
 

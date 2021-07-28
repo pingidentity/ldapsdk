@@ -53,6 +53,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
@@ -1755,7 +1756,8 @@ public final class ResultUtilsTestCase
          new Object[]
          {
            MatchingEntryCountResponseControl.createExactCountResponse(
-                12345, true, true,
+                12345, true, true, true, false, true,
+                Filter.createEqualityFilter("objectClass", "person"),
                 Arrays.asList(
                      "debug message 1",
                      "debug message 2")),
@@ -1766,6 +1768,10 @@ public final class ResultUtilsTestCase
                 "#           Count Type:  Examined",
                 "#           Count Value:  12345",
                 "#           Search Is Indexed:  true",
+                "#           Short Circuited:  true",
+                "#           Fully Indexed:  false",
+                "#           Candidates Are in Scope:  true",
+                "#           Remaining Filter:  (objectClass=person)",
                 "#           Debug Info:",
                 "#                debug message 1",
                 "#                debug message 2")

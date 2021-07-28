@@ -109,6 +109,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *        skipResolvingExplodedIndexes     [4] BOOLEAN DEFAULT FALSE,
  *        fastShortCircuitThreshold        [5] INTEGER (0 .. MAX) OPTIONAL,
  *        slowShortCircuitThreshold        [6] INTEGER (0 .. MAX) OPTIONAL,
+ *        includeExtendedResponseData      [7] BOOLEAN DEFAULT FALSE,
  *        ... }
  * </PRE>
  *
@@ -125,6 +126,21 @@ public final class MatchingEntryCountRequestControl
    */
   @NotNull public static final String MATCHING_ENTRY_COUNT_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.36";
+
+
+
+  /**
+   * The OID (1.3.6.1.4.1.30221.2.12.7) for the supportedFeature value that a
+   * server should advertise in its root DSE if it supports returning extended
+   * information in the response control that older clients may not be able to
+   * handle.  Clients that wish to use the {@code includeExtendedResponseData}
+   * element of the request control should check the target server's root DSE
+   * to determine whether it supports this feature before requesting it because
+   * older versions of the server that do not support it may not accept a
+   * control that requests it.
+   */
+  @NotNull public static final String EXTENDED_RESPONSE_DATA_FEATURE_OID =
+       "1.3.6.1.4.1.30221.2.12.7";
 
 
 
@@ -189,9 +205,20 @@ public final class MatchingEntryCountRequestControl
 
 
   /**
+   * The BER type for the element that indicates whether the client wants the
+   * server to return extended information in the response, including elements
+   * that may indicate whether all of the identified candidate entries are
+   * within the scope of the search and any portion of the filter that is
+   * unindexed or unevaluated.
+   */
+  private static final byte TYPE_INCLUDE_EXTENDED_RESPONSE_DATA = (byte) 0x87;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 7981532783303485308L;
+  private static final long serialVersionUID = 8670611963939571953L;
 
 
 
@@ -202,6 +229,9 @@ public final class MatchingEntryCountRequestControl
 
   // Indicates whether to include debug information in the response control.
   private final boolean includeDebugInfo;
+
+  // Indicates whether to include extended information in the response.
+  private final boolean includeExtendedResponseData;
 
   // Indicates whether the server should attempt to actually iterate through the
   // entries in the backend in order to obtain the count if the search criteria
@@ -376,8 +406,8 @@ public final class MatchingEntryCountRequestControl
    *                                       candidates is less than
    *                                       {@code maxCandidatesToExamine} and
    *                                       {@code alwaysExamineCandidates} is
-   *                                       true in order to allow the entry
-   *                                       count that is returned to be
+   *                                       {@code true} in order to allow the
+   *                                       entry count that is returned to be
    *                                       restricted to only those entries that
    *                                       would actually be returned to the
    *                                       client.  This will be ignored for
@@ -417,9 +447,10 @@ public final class MatchingEntryCountRequestControl
    *                                       LDAP subentry, replication conflict
    *                                       entry, soft-deleted entry, or other
    *                                       type of entry that is normally
-   *                                       hidden) so that an exact count can be
-   *                                       returned.  If this is {@code false}
-   *                                       or the number of candidates exceeds
+   *                                       hidden, etc.) so that an exact count
+   *                                       can be returned.  If this is
+   *                                       {@code false} or the number of
+   *                                       candidates exceeds
    *                                       {@code maxCandidatesToExamine}, then
    *                                       the server will only be able to
    *                                       return an unexamined count which may
@@ -500,7 +531,7 @@ public final class MatchingEntryCountRequestControl
    *                                       when performing slow index
    *                                       processing.  A value of {@code null}
    *                                       indicates that the server should
-   *                                       determine the appropriate fast
+   *                                       determine the appropriate slow
    *                                       short-circuit threshold to use.
    * @param  includeDebugInfo              Indicates whether the server should
    *                                       include debug information in the
@@ -523,7 +554,7 @@ public final class MatchingEntryCountRequestControl
     super(MATCHING_ENTRY_COUNT_REQUEST_OID, isCritical,
          encodeValue(maxCandidatesToExamine, alwaysExamineCandidates,
               processSearchIfUnindexed, skipResolvingExplodedIndexes,
-              fastShortCircuitThreshold, slowShortCircuitThreshold,
+              fastShortCircuitThreshold, slowShortCircuitThreshold, false,
               includeDebugInfo));
 
     Validator.ensureTrue(maxCandidatesToExamine >= 0);
@@ -551,6 +582,42 @@ public final class MatchingEntryCountRequestControl
     {
       this.slowShortCircuitThreshold = Math.max(0L, slowShortCircuitThreshold);
     }
+
+    includeExtendedResponseData = false;
+  }
+
+
+
+  /**
+   * Creates a new matching entry count request control with the provided
+   * properties.
+   *
+   * @param  isCritical  Indicates whether the control should be critical.
+   * @param  properties  The properties that should be used to create this
+   *                     matching entry count request control.  It must not be
+   *                     {@code null}.
+   */
+  public MatchingEntryCountRequestControl(final boolean isCritical,
+       @NotNull final MatchingEntryCountRequestControlProperties properties)
+  {
+    super(MATCHING_ENTRY_COUNT_REQUEST_OID, isCritical,
+         encodeValue(properties.getMaxCandidatesToExamine(),
+              properties.alwaysExamineCandidates(),
+              properties.processSearchIfUnindexed(),
+              properties.skipResolvingExplodedIndexes(),
+              properties.getFastShortCircuitThreshold(),
+              properties.getSlowShortCircuitThreshold(),
+              properties.includeExtendedResponseData(),
+              properties.includeDebugInfo()));
+
+    maxCandidatesToExamine = properties.getMaxCandidatesToExamine();
+    alwaysExamineCandidates = properties.alwaysExamineCandidates();
+    processSearchIfUnindexed = properties.processSearchIfUnindexed();
+    skipResolvingExplodedIndexes = properties.skipResolvingExplodedIndexes();
+    fastShortCircuitThreshold = properties.getFastShortCircuitThreshold();
+    slowShortCircuitThreshold = properties.getSlowShortCircuitThreshold();
+    includeExtendedResponseData = properties.includeExtendedResponseData();
+    includeDebugInfo = properties.includeDebugInfo();
   }
 
 
@@ -581,6 +648,7 @@ public final class MatchingEntryCountRequestControl
     {
       boolean alwaysExamine    = false;
       boolean debug            = false;
+      boolean includeExtended  = false;
       boolean processUnindexed = false;
       boolean skipExploded     = false;
       int     maxCandidates    = 0;
@@ -627,10 +695,9 @@ public final class MatchingEntryCountRequestControl
                  Math.max(0L, ASN1Long.decodeAsLong(e).longValue());
             break;
 
-          default:
-            throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_MATCHING_ENTRY_COUNT_REQUEST_INVALID_ELEMENT_TYPE.get(
-                      StaticUtils.toHex(e.getType())));
+          case TYPE_INCLUDE_EXTENDED_RESPONSE_DATA:
+            includeExtended = ASN1Boolean.decodeAsBoolean(e).booleanValue();
+            break;
         }
       }
 
@@ -638,6 +705,7 @@ public final class MatchingEntryCountRequestControl
       alwaysExamineCandidates      = alwaysExamine;
       processSearchIfUnindexed     = processUnindexed;
       includeDebugInfo             = debug;
+      includeExtendedResponseData  = includeExtended;
       skipResolvingExplodedIndexes = skipExploded;
       fastShortCircuitThreshold    = fastSCThreshold;
       slowShortCircuitThreshold    = slowSCThreshold;
@@ -692,6 +760,9 @@ public final class MatchingEntryCountRequestControl
    *                                       determining whether to continue with
    *                                       index processing for slow index
    *                                       processing.
+   * @param  includeExtendedResponseData  Indicates whether the server may
+   *                                      include extended response data in the
+   *                                      corresponding response control.
    * @param  includeDebugInfo              Indicates whether the server should
    *                                       include debug information in the
    *                                       response that may help better
@@ -708,6 +779,7 @@ public final class MatchingEntryCountRequestControl
                       final boolean skipResolvingExplodedIndexes,
                       @Nullable final Long fastShortCircuitThreshold,
                       @Nullable final Long slowShortCircuitThreshold,
+                      final boolean includeExtendedResponseData,
                       final boolean includeDebugInfo)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(4);
@@ -748,6 +820,11 @@ public final class MatchingEntryCountRequestControl
     {
       elements.add(new ASN1Long(TYPE_SLOW_SHORT_CIRCUIT_THRESHOLD,
            Math.max(0L, slowShortCircuitThreshold)));
+    }
+
+    if (includeExtendedResponseData)
+    {
+      elements.add(new ASN1Boolean(TYPE_INCLUDE_EXTENDED_RESPONSE_DATA, true));
     }
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
@@ -797,7 +874,7 @@ public final class MatchingEntryCountRequestControl
    *
    * @return  {@code true} if the server should attempt to internally retrieve
    *          and examine matching entries to determine whether they would
-   *          normally be returned to the client (i.e.., that the client has
+   *          normally be returned to the client (e.g., that the client has
    *          permission to access the entry and that it is not a
    *          normally-hidden entry like an LDAP subentry, a replication
    *          conflict entry, or a soft-deleted entry), or {@code false} if the
@@ -917,6 +994,22 @@ public final class MatchingEntryCountRequestControl
 
 
   /**
+   * Indicates whether the server may include extended response data in the
+   * corresponding response control, which may provide information like whether
+   * all of the identified candidate entries are within the scope of the search
+   * and any unindexed or unevaluated portion of the search filter.
+   *
+   * @return  {@code true} if the server may include extended response data
+   *          in the corresponding response control, or {@code false} if not.
+   */
+  public boolean includeExtendedResponseData()
+  {
+    return includeExtendedResponseData;
+  }
+
+
+
+  /**
    * Indicates whether the server should include debug information in the
    * response control that provides additional information about how the server
    * arrived at the result.  If debug information is to be provided, it will be
@@ -964,6 +1057,8 @@ public final class MatchingEntryCountRequestControl
     buffer.append(fastShortCircuitThreshold);
     buffer.append(", slowShortCircuitThreshold=");
     buffer.append(slowShortCircuitThreshold);
+    buffer.append(", includeExtendedResponseData=");
+    buffer.append(includeExtendedResponseData);
     buffer.append(", includeDebugInfo=");
     buffer.append(includeDebugInfo);
     buffer.append(')');

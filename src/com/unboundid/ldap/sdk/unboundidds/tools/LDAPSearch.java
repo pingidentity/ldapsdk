@@ -118,6 +118,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.JoinRule;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             MatchingEntryCountRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            MatchingEntryCountRequestControlProperties;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             OverrideSearchLimitsRequestControl;
@@ -1020,7 +1022,8 @@ public final class LDAPSearch
          "{examineCount=NNN[:alwaysExamine][:allowUnindexed]" +
               "[:skipResolvingExplodedIndexes]" +
               "[:fastShortCircuitThreshold=NNN]" +
-              "[:slowShortCircuitThreshold=NNN][:debug]}",
+              "[:slowShortCircuitThreshold=NNN][:extendedResponseData]" +
+              "[:debug]}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MATCHING_ENTRY_COUNT_CONTROL.get());
     matchingEntryCountControl.addLongIdentifier("matchingEntryCount", true);
     matchingEntryCountControl.addLongIdentifier(
@@ -1615,14 +1618,10 @@ public final class LDAPSearch
     // the argument value and pre-create the control.
     if (matchingEntryCountControl.isPresent())
     {
-      boolean allowUnindexed               = false;
-      boolean alwaysExamine                = false;
-      boolean debug                        = false;
-      boolean skipResolvingExplodedIndexes = false;
-      Integer examineCount                 = null;
-      Long    fastShortCircuitThreshold    = null;
-      Long    slowShortCircuitThreshold    = null;
+      final MatchingEntryCountRequestControlProperties properties =
+           new MatchingEntryCountRequestControlProperties();
 
+      Integer examineCount                 = null;
       try
       {
         for (final String element :
@@ -1634,27 +1633,33 @@ public final class LDAPSearch
           }
           else if (element.equals("allowunindexed"))
           {
-            allowUnindexed = true;
+            properties.setProcessSearchIfUnindexed(true);
           }
           else if (element.equals("alwaysexamine"))
           {
-            alwaysExamine = true;
+            properties.setAlwaysExamineCandidates(true);
           }
           else if (element.equals("skipresolvingexplodedindexes"))
           {
-            skipResolvingExplodedIndexes = true;
+            properties.setSkipResolvingExplodedIndexes(true);
           }
           else if (element.startsWith("fastshortcircuitthreshold="))
           {
-            fastShortCircuitThreshold = Long.parseLong(element.substring(26));
+            properties.setFastShortCircuitThreshold(
+                 Long.parseLong(element.substring(26)));
           }
           else if (element.startsWith("slowshortcircuitthreshold="))
           {
-            slowShortCircuitThreshold = Long.parseLong(element.substring(26));
+            properties.setSlowShortCircuitThreshold(
+                 Long.parseLong(element.substring(26)));
+          }
+          else if (element.equals("extendedresponsedata"))
+          {
+            properties.setIncludeExtendedResponseData(true);
           }
           else if (element.equals("debug"))
           {
-            debug = true;
+            properties.setIncludeDebugInfo(true);
           }
           else
           {
@@ -1684,11 +1689,13 @@ public final class LDAPSearch
              ERR_LDAPSEARCH_MATCHING_ENTRY_COUNT_INVALID_VALUE.get(
                   matchingEntryCountControl.getIdentifierString()));
       }
+      else
+      {
+        properties.setMaxCandidatesToExamine(examineCount);
+      }
 
-      matchingEntryCountRequestControl = new MatchingEntryCountRequestControl(
-           true, examineCount, alwaysExamine, allowUnindexed,
-           skipResolvingExplodedIndexes, fastShortCircuitThreshold,
-           slowShortCircuitThreshold, debug);
+      matchingEntryCountRequestControl =
+           new MatchingEntryCountRequestControl(true, properties);
     }
 
 

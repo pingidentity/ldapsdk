@@ -500,7 +500,7 @@ public final class LDAPSearchTestCase
          "--matchingEntryCountControl",
               "examineCount=100:alwaysExamine:allowUnindexed" +
                    ":skipResolvingExplodedIndexes:fastShortCircuitThreshold=5" +
-                   ":slowShortCircuitThreshold=100:debug",
+                   ":slowShortCircuitThreshold=100:extendedResponseData:debug",
          "--overrideSearchLimit", "name1=value1",
          "--overrideSearchLimit", "name2=value2",
          "--operationPurpose", "Testing",

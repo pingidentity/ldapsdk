@@ -45,6 +45,7 @@ import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -60,12 +61,13 @@ public final class MatchingEntryCountResponseControlTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Tests the behavior of the control for an examined response.
+   * Tests the behavior of the control for an examined response created with a
+   * minimal set of fields.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testExaminedCountResponse()
+  public void testMinimalExaminedCountResponse()
          throws Exception
   {
     MatchingEntryCountResponseControl c =
@@ -88,6 +90,69 @@ public final class MatchingEntryCountResponseControlTestCase
 
     assertTrue(c.searchIndexed());
 
+    assertNull(c.getShortCircuited());
+
+    assertNull(c.getFullyIndexed());
+
+    assertNull(c.getCandidatesAreInScope());
+
+    assertNull(c.getRemainingFilter());
+
+    assertNotNull(c.getDebugInfo());
+    assertEquals(c.getDebugInfo().size(), 2);
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior of the control for an examined response created with an
+   * extended set of fields.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExtendedExaminedCountResponse()
+         throws Exception
+  {
+    MatchingEntryCountResponseControl c =
+         MatchingEntryCountResponseControl.createExactCountResponse(1, true,
+              true, true, false, true,
+              Filter.createEqualityFilter("objectClass", "person"),
+              Arrays.asList("debug1", "debug2"));
+    c = new MatchingEntryCountResponseControl().decodeControl(c.getOID(),
+         c.isCritical(), c.getValue());
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.37");
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertNotNull(c.getCountType());
+    assertEquals(c.getCountType(), MatchingEntryCountType.EXAMINED_COUNT);
+
+    assertEquals(c.getCountValue(), 1);
+
+    assertTrue(c.searchIndexed());
+
+    assertNotNull(c.getShortCircuited());
+    assertTrue(c.getShortCircuited());
+
+    assertNotNull(c.getFullyIndexed());
+    assertFalse(c.getFullyIndexed());
+
+    assertNotNull(c.getCandidatesAreInScope());
+    assertTrue(c.getCandidatesAreInScope());
+
+    assertNotNull(c.getRemainingFilter());
+    assertEquals(c.getRemainingFilter(),
+         Filter.createEqualityFilter("objectClass", "person"));
+
     assertNotNull(c.getDebugInfo());
     assertEquals(c.getDebugInfo().size(), 2);
 
@@ -104,7 +169,7 @@ public final class MatchingEntryCountResponseControlTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testUnexaminedCountResponse()
+  public void testMinimalUnexaminedCountResponse()
          throws Exception
   {
     MatchingEntryCountResponseControl c =
@@ -126,6 +191,14 @@ public final class MatchingEntryCountResponseControlTestCase
     assertEquals(c.getCountValue(), 123);
 
     assertTrue(c.searchIndexed());
+
+    assertNull(c.getShortCircuited());
+
+    assertNull(c.getFullyIndexed());
+
+    assertNull(c.getCandidatesAreInScope());
+
+    assertNull(c.getRemainingFilter());
 
     assertNotNull(c.getDebugInfo());
     assertEquals(c.getDebugInfo().size(), 0);
@@ -149,7 +222,8 @@ public final class MatchingEntryCountResponseControlTestCase
   {
     MatchingEntryCountResponseControl c =
          MatchingEntryCountResponseControl.createExactCountResponse(123, false,
-              false, null);
+              false, false, false, true,
+              Filter.createEqualityFilter("objectClass", "person"), null);
     c = new MatchingEntryCountResponseControl().decodeControl(c.getOID(),
          c.isCritical(), c.getValue());
 
@@ -167,6 +241,19 @@ public final class MatchingEntryCountResponseControlTestCase
 
     assertFalse(c.searchIndexed());
 
+    assertNotNull(c.getShortCircuited());
+    assertFalse(c.getShortCircuited());
+
+    assertNotNull(c.getFullyIndexed());
+    assertFalse(c.getFullyIndexed());
+
+    assertNotNull(c.getCandidatesAreInScope());
+    assertTrue(c.getCandidatesAreInScope());
+
+    assertNotNull(c.getRemainingFilter());
+    assertEquals(c.getRemainingFilter(),
+         Filter.createEqualityFilter("objectClass", "person"));
+
     assertNotNull(c.getDebugInfo());
     assertEquals(c.getDebugInfo().size(), 0);
 
@@ -183,7 +270,7 @@ public final class MatchingEntryCountResponseControlTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testUpperBoundResponse()
+  public void testMinimalUpperBoundResponse()
          throws Exception
   {
     MatchingEntryCountResponseControl c =
@@ -205,6 +292,14 @@ public final class MatchingEntryCountResponseControlTestCase
     assertEquals(c.getCountValue(), 456);
 
     assertTrue(c.searchIndexed());
+
+    assertNull(c.getShortCircuited());
+
+    assertNull(c.getFullyIndexed());
+
+    assertNull(c.getCandidatesAreInScope());
+
+    assertNull(c.getRemainingFilter());
 
     assertNotNull(c.getDebugInfo());
     assertEquals(c.getDebugInfo().size(), 0);
@@ -228,6 +323,7 @@ public final class MatchingEntryCountResponseControlTestCase
   {
     MatchingEntryCountResponseControl c =
          MatchingEntryCountResponseControl.createUpperBoundResponse(456, false,
+              false, false, false, Filter.createPresenceFilter("objectClass"),
               Arrays.<String>asList());
     c = new MatchingEntryCountResponseControl().decodeControl(c.getOID(),
          c.isCritical(), c.getValue());
@@ -245,6 +341,19 @@ public final class MatchingEntryCountResponseControlTestCase
     assertEquals(c.getCountValue(), 456);
 
     assertFalse(c.searchIndexed());
+
+    assertNotNull(c.getShortCircuited());
+    assertFalse(c.getShortCircuited());
+
+    assertNotNull(c.getFullyIndexed());
+    assertFalse(c.getFullyIndexed());
+
+    assertNotNull(c.getCandidatesAreInScope());
+    assertFalse(c.getCandidatesAreInScope());
+
+    assertNotNull(c.getRemainingFilter());
+    assertEquals(c.getRemainingFilter(),
+         Filter.createPresenceFilter("objectClass"));
 
     assertNotNull(c.getDebugInfo());
     assertEquals(c.getDebugInfo().size(), 0);
@@ -284,6 +393,14 @@ public final class MatchingEntryCountResponseControlTestCase
     assertEquals(c.getCountValue(), -1);
 
     assertFalse(c.searchIndexed());
+
+    assertNull(c.getShortCircuited());
+
+    assertNull(c.getFullyIndexed());
+
+    assertNull(c.getCandidatesAreInScope());
+
+    assertNull(c.getRemainingFilter());
 
     assertNotNull(c.getDebugInfo());
     assertEquals(c.getDebugInfo().size(), 1);
@@ -382,26 +499,6 @@ public final class MatchingEntryCountResponseControlTestCase
   {
     final ASN1Sequence valueSequence = new ASN1Sequence(
          new ASN1Integer((byte) 0x84, 12345));
-
-    new MatchingEntryCountResponseControl("1.3.6.1.4.1.30221.2.5.37", false,
-         new ASN1OctetString(valueSequence.encode()));
-  }
-
-
-
-  /**
-   * Tests the behavior when trying to decode a control whose value sequence
-   * contains an element with an unexpected BER type.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(expectedExceptions = { LDAPException.class })
-  public void testDecodeValueInvalidElementType()
-         throws Exception
-  {
-    final ASN1Sequence valueSequence = new ASN1Sequence(
-         new ASN1Integer((byte) 0x80, 12345),
-         new ASN1OctetString((byte) 0x12, "foo"));
 
     new MatchingEntryCountResponseControl("1.3.6.1.4.1.30221.2.5.37", false,
          new ASN1OctetString(valueSequence.encode()));

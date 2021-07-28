@@ -51,6 +51,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
@@ -89,14 +90,18 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * following encoding:
  * <PRE>
  *   MatchingEntryCountResponse ::= SEQUENCE {
- *        entryCount        CHOICE {
- *             examinedCount       [0] INTEGER,
- *             unexaminedCount     [1] INTEGER,
- *             upperBound          [2] INTEGER,
- *             unknown             [3] NULL,
+ *        entryCount               CHOICE {
+ *             examinedCount            [0] INTEGER,
+ *             unexaminedCount          [1] INTEGER,
+ *             upperBound               [2] INTEGER,
+ *             unknown                  [3] NULL,
  *             ... }
- *        debugInfo         [0] SEQUENCE OF OCTET STRING OPTIONAL,
- *        searchIndexed     [1] BOOLEAN DEFAULT TRUE,
+ *        debugInfo                [0] SEQUENCE OF OCTET STRING OPTIONAL,
+ *        searchIndexed            [1] BOOLEAN DEFAULT TRUE,
+ *        shortCircuited           [2] BOOLEAN OPTIONAL,
+ *        fullyIndexed             [3] BOOLEAN OPTIONAL,
+ *        candidatesAreInScope     [4] BOOLEAN OPTIONAL,
+ *        remainingFilter          [5] Filter OPTIONAL,
  *        ... }
  * </PRE>
  *
@@ -133,15 +138,66 @@ public final class MatchingEntryCountResponseControl
 
 
   /**
+   * The BER type for the element used to indicate whether the server
+   * short-circuited during candidate set processing before evaluating all
+   * elements of the search criteria (the filter and scope).
+   */
+  private static final byte TYPE_SHORT_CIRCUITED = (byte) 0x82;
+
+
+
+  /**
+   * The BER type for the element used to indicate whether the search criteria
+   * is fully indexed.
+   */
+  private static final byte TYPE_FULLY_INDEXED = (byte) 0x83;
+
+
+
+  /**
+   * The BER type for the element used to indicate whether all the identified
+   * candidate entries are within the scope of the search.
+   */
+  private static final byte TYPE_CANDIDATES_ARE_IN_SCOPE = (byte) 0x84;
+
+
+
+  /**
+   * The BER type for the element used to provide the remaining filter for the
+   * search operation, which is the portion of the filter that was determined
+   * to be unindexed, or that was unevaluated if processing short-circuited in
+   * the course of building the candidate set.
+   */
+  private static final byte TYPE_REMAINING_FILTER = (byte) 0xA5;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -5488025806310455564L;
+  private static final long serialVersionUID = -7808452580964236458L;
 
 
 
   // Indicates whether the search criteria is considered at least partially
   // indexed by the server.
   private final boolean searchIndexed;
+
+  // Indicates whether all the identified candidate entries are within the scope
+  // of the search.
+  @Nullable private final Boolean candidatesAreInScope;
+
+  // Indicates whether the search criteria is considered fully indexed.
+  @Nullable private final Boolean fullyIndexed;
+
+  // Indicates whether the server short-circuited during candidate set
+  // processing before evaluating all elements of the search criteria (the
+  // filter and scope).
+  @Nullable private final Boolean shortCircuited;
+
+  // The portion of the filter that was either identified as unindexed or that
+  // was not evaluated in the course of building the candidate set.
+  @Nullable private final Filter remainingFilter;
 
   // The count value for this matching entry count response control.
   private final int countValue;
@@ -162,9 +218,13 @@ public final class MatchingEntryCountResponseControl
   MatchingEntryCountResponseControl()
   {
     searchIndexed = false;
-    countType     = null;
-    countValue    = -1;
-    debugInfo     = null;
+    candidatesAreInScope = null;
+    fullyIndexed = null;
+    shortCircuited = null;
+    remainingFilter = null;
+    countValue = -1;
+    countType = null;
+    debugInfo = null;
   }
 
 
@@ -173,35 +233,77 @@ public final class MatchingEntryCountResponseControl
    * Creates a new matching entry count response control with the provided
    * information.
    *
-   * @param  countType      The matching entry count type.  It must not be
-   *                        {@code null}.
-   * @param  countValue     The matching entry count value.  It must be greater
-   *                        than or equal to zero for a count type of either
-   *                        {@code EXAMINED_COUNT} or {@code UNEXAMINED_COUNT}.
-   *                        It must be greater than zero for a count type of
-   *                        {@code UPPER_BOUND}.  It must be -1 for a count type
-   *                        of {@code UNKNOWN}.
-   * @param  searchIndexed  Indicates whether the search criteria is considered
-   *                        at least partially indexed and could be processed
-   *                        more efficiently than examining all entries with a
-   *                        full database scan.
-   * @param  debugInfo      An optional list of messages providing debug
-   *                        information about the processing performed by the
-   *                        server.  It may be {@code null} or empty if no debug
-   *                        messages should be included.
+   * @param  countType             The matching entry count type.  It must not
+   *                               be {@code null}.
+   * @param  countValue            The matching entry count value.  It must be
+   *                               greater than or equal to zero for a count
+   *                               type of either {@code EXAMINED_COUNT} or
+   *                               {@code UNEXAMINED_COUNT}.  It must be greater
+   *                               than zero for a count type of
+   *                               {@code UPPER_BOUND}.  It must be -1 for a
+   *                               count type of {@code UNKNOWN}.
+   * @param  searchIndexed         Indicates whether the search criteria is
+   *                               considered at least partially indexed and
+   *                               could be processed more efficiently than
+   *                               examining all entries with a full database
+   *                               scan.
+   * @param  shortCircuited        Indicates whether the server short-circuited
+   *                               during candidate set processing before
+   *                               evaluating all elements of the search
+   *                               criteria (the filter and scope).  This may be
+   *                               {@code null} if it is not available (e.g.,
+   *                               because extended response data was not
+   *                               requested).
+   * @param  fullyIndexed          Indicates whether the search is considered
+   *                               fully indexed.  Note that this may be
+   *                               {@code false} even if the filter is actually
+   *                               fully indexed if server index processing
+   *                               short-circuited before evaluating all
+   *                               components of the filter.  To avoid this,
+   *                               issue the request control with both fast and
+   *                               slow short-circuit thresholds set to zero.
+   *                               This may be {@code null} if this is not
+   *                               available (e.g., because extended response
+   *                               data was not requested).
+   * @param  candidatesAreInScope  Indicates whether all the identified
+   *                               candidate entries are within the scope of
+   *                               the search.  It may be {@code null} if this
+   *                               is not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  remainingFilter       The portion of the filter that was either
+   *                               identified as unindexed or that was not
+   *                               evaluated because processing short-circuited
+   *                               in the course of building the candidate set.
+   *                               It may be {@code null} if there is no
+   *                               remaining filter or if this information is
+   *                               not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  debugInfo             An optional list of messages providing debug
+   *                               information about the processing performed by
+   *                               the server.  It may be {@code null} or empty
+   *                               if no debug messages should be included.
    */
   private MatchingEntryCountResponseControl(
                @NotNull final MatchingEntryCountType countType,
                final int countValue,
                final boolean searchIndexed,
+               @Nullable final Boolean shortCircuited,
+               @Nullable final Boolean fullyIndexed,
+               @Nullable final Boolean candidatesAreInScope,
+               @Nullable final Filter remainingFilter,
                @Nullable final Collection<String> debugInfo)
   {
     super(MATCHING_ENTRY_COUNT_RESPONSE_OID, false,
-         encodeValue(countType, countValue, searchIndexed, debugInfo));
+         encodeValue(countType, countValue, searchIndexed, shortCircuited,
+              fullyIndexed, candidatesAreInScope, remainingFilter, debugInfo));
 
-    this.countType     = countType;
-    this.countValue    = countValue;
+    this.countType = countType;
+    this.countValue = countValue;
     this.searchIndexed = searchIndexed;
+    this.shortCircuited = shortCircuited;
+    this.fullyIndexed = fullyIndexed;
+    this.candidatesAreInScope = candidatesAreInScope;
+    this.remainingFilter = remainingFilter;
 
     if (debugInfo == null)
     {
@@ -282,7 +384,12 @@ public final class MatchingEntryCountResponseControl
           break;
       }
 
-      boolean isIndexed = (countType != MatchingEntryCountType.UNKNOWN);
+      boolean decodedSearchIndexed =
+           (countType != MatchingEntryCountType.UNKNOWN);
+      Boolean decodedFullyIndexed = null;
+      Boolean decodedCandidatesAreInScope = null;
+      Boolean decodedShortCircuited = null;
+      Filter decodedRemainingFilter = null;
       List<String> debugMessages = Collections.emptyList();
       for (int i=1; i < elements.length; i++)
       {
@@ -300,17 +407,38 @@ public final class MatchingEntryCountResponseControl
             break;
 
           case TYPE_SEARCH_INDEXED:
-            isIndexed = ASN1Boolean.decodeAsBoolean(elements[i]).booleanValue();
+            decodedSearchIndexed =
+                 ASN1Boolean.decodeAsBoolean(elements[i]).booleanValue();
             break;
 
-          default:
-            throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_MATCHING_ENTRY_COUNT_RESPONSE_UNKNOWN_ELEMENT_TYPE.get(
-                      StaticUtils.toHex(elements[i].getType())));
+          case TYPE_SHORT_CIRCUITED:
+            decodedShortCircuited =
+                 ASN1Boolean.decodeAsBoolean(elements[i]).booleanValue();
+            break;
+
+          case TYPE_FULLY_INDEXED:
+            decodedFullyIndexed =
+                 ASN1Boolean.decodeAsBoolean(elements[i]).booleanValue();
+            break;
+
+          case TYPE_CANDIDATES_ARE_IN_SCOPE:
+            decodedCandidatesAreInScope =
+                 ASN1Boolean.decodeAsBoolean(elements[i]).booleanValue();
+            break;
+
+          case TYPE_REMAINING_FILTER:
+            final ASN1Element filterElement =
+                 ASN1Element.decode(elements[i].getValue());
+            decodedRemainingFilter = Filter.decode(filterElement);
+            break;
         }
       }
 
-      searchIndexed = isIndexed;
+      searchIndexed = decodedSearchIndexed;
+      shortCircuited = decodedShortCircuited;
+      fullyIndexed = decodedFullyIndexed;
+      candidatesAreInScope = decodedCandidatesAreInScope;
+      remainingFilter = decodedRemainingFilter;
       debugInfo = Collections.unmodifiableList(debugMessages);
     }
     catch (final LDAPException le)
@@ -385,6 +513,76 @@ public final class MatchingEntryCountResponseControl
                      final boolean searchIndexed,
                      @Nullable final Collection<String> debugInfo)
   {
+    return createExactCountResponse(count, examined, searchIndexed, null, null,
+         null, null, debugInfo);
+  }
+
+
+
+  /**
+   * Creates a new matching entry count response control for the case in which
+   * the exact number of matching entries is known.
+   *
+   * @param  count                 The exact number of entries matching the
+   *                               associated search criteria.  It must be
+   *                               greater than or equal to zero.
+   * @param  examined              Indicates whether the server examined the
+   *                               entries to exclude those entries that would
+   *                               not be returned to the client in a normal
+   *                               search with the same criteria.
+   * @param  searchIndexed         Indicates whether the search criteria is
+   *                               considered at least partially indexed and
+   *                               could be processed more efficiently than
+   *                               examining all entries with a full database
+   *                               scan.
+   * @param  shortCircuited        Indicates whether the server short-circuited
+   *                               during candidate set processing before
+   *                               evaluating all elements of the search
+   *                               criteria (the filter and scope).  This may be
+   *                               {@code null} if it is not available (e.g.,
+   *                               because extended response data was not
+   *                               requested).
+   * @param  fullyIndexed          Indicates whether the search is considered
+   *                               fully indexed.  Note that this may be
+   *                               {@code false} even if the filter is actually
+   *                               fully indexed if server index processing
+   *                               short-circuited before evaluating all
+   *                               components of the filter.  To avoid this,
+   *                               issue the request control with both fast and
+   *                               slow short-circuit thresholds set to zero.
+   *                               This may be {@code null} if this is not
+   *                               available (e.g., because extended response
+   *                               data was not requested).
+   * @param  candidatesAreInScope  Indicates whether all the identified
+   *                               candidate entries are within the scope of
+   *                               the search.  It may be {@code null} if this
+   *                               is not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  remainingFilter       The portion of the filter that was either
+   *                               identified as unindexed or that was not
+   *                               evaluated because processing short-circuited
+   *                               in the course of building the candidate set.
+   *                               It may be {@code null} if there is no
+   *                               remaining filter or if this information is
+   *                               not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  debugInfo             An optional list of messages providing debug
+   *                               information about the processing performed by
+   *                               the server.  It may be {@code null} or empty
+   *                               if no debug messages should be included.
+   *
+   * @return  The matching entry count response control that was created.
+   */
+  @NotNull()
+  public static MatchingEntryCountResponseControl createExactCountResponse(
+                     final int count, final boolean examined,
+                     final boolean searchIndexed,
+                     @Nullable final Boolean shortCircuited,
+                     @Nullable final Boolean fullyIndexed,
+                     @Nullable final Boolean candidatesAreInScope,
+                     @Nullable final Filter remainingFilter,
+                     @Nullable final Collection<String> debugInfo)
+  {
     Validator.ensureTrue(count >= 0);
 
     final MatchingEntryCountType countType;
@@ -398,7 +596,8 @@ public final class MatchingEntryCountResponseControl
     }
 
     return new MatchingEntryCountResponseControl(countType, count,
-         searchIndexed, debugInfo);
+         searchIndexed, shortCircuited, fullyIndexed, candidatesAreInScope,
+         remainingFilter, debugInfo);
   }
 
 
@@ -460,10 +659,81 @@ public final class MatchingEntryCountResponseControl
                      final int upperBound, final boolean searchIndexed,
                      @Nullable final Collection<String> debugInfo)
   {
+    return createUpperBoundResponse(upperBound, searchIndexed, null, null, null,
+         null, debugInfo);
+  }
+
+
+
+  /**
+   * Creates a new matching entry count response control for the case in which
+   * the exact number of matching entries is not known, but the server was able
+   * to determine an upper bound on the number of matching entries.  This upper
+   * bound count may include entries that do not match the search filter, that
+   * are outside the scope of the search, and/or that match the search criteria
+   * but would not have been returned to the client in a normal search with the
+   * same criteria.
+   *
+   * @param  upperBound            The upper bound on the number of entries that
+   *                               match the associated search criteria.  It
+   *                               must be greater than zero.
+   * @param  searchIndexed         Indicates whether the search criteria is
+   *                               considered at least partially indexed and
+   *                               could be processed more efficiently than
+   *                               examining all entries with a full database
+   *                               scan.
+   * @param  shortCircuited        Indicates whether the server short-circuited
+   *                               during candidate set processing before
+   *                               evaluating all elements of the search
+   *                               criteria (the filter and scope).  This may be
+   *                               {@code null} if it is not available (e.g.,
+   *                               because extended response data was not
+   *                               requested).
+   * @param  fullyIndexed          Indicates whether the search is considered
+   *                               fully indexed.  Note that this may be
+   *                               {@code false} even if the filter is actually
+   *                               fully indexed if server index processing
+   *                               short-circuited before evaluating all
+   *                               components of the filter.  To avoid this,
+   *                               issue the request control with both fast and
+   *                               slow short-circuit thresholds set to zero.
+   *                               This may be {@code null} if this is not
+   *                               available (e.g., because extended response
+   *                               data was not requested).
+   * @param  candidatesAreInScope  Indicates whether all the identified
+   *                               candidate entries are within the scope of
+   *                               the search.  It may be {@code null} if this
+   *                               is not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  remainingFilter       The portion of the filter that was either
+   *                               identified as unindexed or that was not
+   *                               evaluated because processing short-circuited
+   *                               in the course of building the candidate set.
+   *                               It may be {@code null} if there is no
+   *                               remaining filter or if this information is
+   *                               not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  debugInfo             An optional list of messages providing debug
+   *                               information about the processing performed by
+   *                               the server.  It may be {@code null} or empty
+   *                               if no debug messages should be included.
+   *
+   * @return  The matching entry count response control that was created.
+   */
+  @NotNull()
+  public static MatchingEntryCountResponseControl createUpperBoundResponse(
+                     final int upperBound, final boolean searchIndexed,
+                     @Nullable final Boolean shortCircuited,
+                     @Nullable final Boolean fullyIndexed,
+                     @Nullable final Boolean candidatesAreInScope,
+                     @Nullable final Filter remainingFilter,
+                     @Nullable final Collection<String> debugInfo)
+  {
     Validator.ensureTrue(upperBound > 0);
 
     return new MatchingEntryCountResponseControl(
          MatchingEntryCountType.UPPER_BOUND, upperBound, searchIndexed,
+         shortCircuited, fullyIndexed, candidatesAreInScope, remainingFilter,
          debugInfo);
   }
 
@@ -486,7 +756,7 @@ public final class MatchingEntryCountResponseControl
                      @Nullable final Collection<String> debugInfo)
   {
     return new MatchingEntryCountResponseControl(MatchingEntryCountType.UNKNOWN,
-         -1, false, debugInfo);
+         -1, false, null, null, null, null, debugInfo);
   }
 
 
@@ -494,30 +764,66 @@ public final class MatchingEntryCountResponseControl
   /**
    * Encodes a control value with the provided information.
    *
-   * @param  countType      The matching entry count type.  It must not be
-   *                        {@code null}.
-   * @param  countValue     The matching entry count value.  It must be greater
-   *                        than or equal to zero for a count type of either
-   *                        {@code EXAMINED_COUNT} or {@code UNEXAMINED_COUNT}.
-   *                        It must be greater than zero for a count type of
-   *                        {@code UPPER_BOUND}.  It must be -1 for a count type
-   *                        of {@code UNKNOWN}.
-   * @param  searchIndexed  Indicates whether the search criteria is considered
-   *                        at least partially indexed and could be processed
-   *                        more efficiently than examining all entries with a
-   *                        full database scan.
-   * @param  debugInfo      An optional list of messages providing debug
-   *                        information about the processing performed by the
-   *                        server.  It may be {@code null} or empty if no debug
-   *                        messages should be included.
+   * @param  countType             The matching entry count type.  It must not
+   *                               be {@code null}.
+   * @param  countValue            The matching entry count value.  It must be
+   *                               greater than or equal to zero for a count
+   *                               type of either {@code EXAMINED_COUNT} or
+   *                               {@code UNEXAMINED_COUNT}.  It must be greater
+   *                               than zero for a count type of
+   *                               {@code UPPER_BOUND}.  It must be -1 for a
+   *                               count type of {@code UNKNOWN}.
+   * @param  searchIndexed         Indicates whether the search criteria is
+   *                               considered at least partially indexed and
+   *                               could be processed more efficiently than
+   *                               examining all entries with a full database
+   *                               scan.
+   * @param  shortCircuited        Indicates whether the server short-circuited
+   *                               during candidate set processing before
+   *                               evaluating all elements of the search
+   *                               criteria (the filter and scope).  This may be
+   *                               {@code null} if it is not available (e.g.,
+   *                               because extended response data was not
+   *                               requested).
+   * @param  fullyIndexed          Indicates whether the search is considered
+   *                               fully indexed.  Note that this may be
+   *                               {@code false} even if the filter is actually
+   *                               fully indexed if server index processing
+   *                               short-circuited before evaluating all
+   *                               components of the filter.  To avoid this,
+   *                               issue the request control with both fast and
+   *                               slow short-circuit thresholds set to zero.
+   *                               This may be {@code null} if this is not
+   *                               available (e.g., because extended response
+   *                               data was not requested).
+   * @param  candidatesAreInScope  Indicates whether all the identified
+   *                               candidate entries are within the scope of
+   *                               the search.  It may be {@code null} if this
+   *                               is not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  remainingFilter       The portion of the filter that was either
+   *                               identified as unindexed or that was not
+   *                               evaluated because processing short-circuited
+   *                               in the course of building the candidate set.
+   *                               It may be {@code null} if there is no
+   *                               remaining filter or if this information is
+   *                               not available (e.g., because extended
+   *                               response data was not requested).
+   * @param  debugInfo             An optional list of messages providing debug
+   *                               information about the processing performed by
+   *                               the server.  It may be {@code null} or empty
+   *                               if no debug messages should be included.
    *
    * @return  The encoded control value.
    */
   @NotNull()
   private static ASN1OctetString encodeValue(
                @NotNull final MatchingEntryCountType countType,
-               final int countValue,
-               final boolean searchIndexed,
+               final int countValue, final boolean searchIndexed,
+               @Nullable final Boolean shortCircuited,
+               @Nullable final Boolean fullyIndexed,
+               @Nullable final Boolean candidatesAreInScope,
+               @Nullable final Filter remainingFilter,
                @Nullable final Collection<String> debugInfo)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(3);
@@ -549,6 +855,28 @@ public final class MatchingEntryCountResponseControl
     if (! searchIndexed)
     {
       elements.add(new ASN1Boolean(TYPE_SEARCH_INDEXED, searchIndexed));
+    }
+
+    if (shortCircuited != null)
+    {
+      elements.add(new ASN1Boolean(TYPE_SHORT_CIRCUITED, shortCircuited));
+    }
+
+    if (fullyIndexed != null)
+    {
+      elements.add(new ASN1Boolean(TYPE_FULLY_INDEXED, fullyIndexed));
+    }
+
+    if (candidatesAreInScope != null)
+    {
+      elements.add(new ASN1Boolean(TYPE_CANDIDATES_ARE_IN_SCOPE,
+           candidatesAreInScope));
+    }
+
+    if (remainingFilter != null)
+    {
+      elements.add(new ASN1OctetString(TYPE_REMAINING_FILTER,
+           remainingFilter.encode().encode()));
     }
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
@@ -599,6 +927,89 @@ public final class MatchingEntryCountResponseControl
   public boolean searchIndexed()
   {
     return searchIndexed;
+  }
+
+
+
+  /**
+   * Indicates whether the server short-circuited during candidate set
+   * processing before evaluating all elements of the search criteria (the
+   * filter and scope).
+   *
+   * @return  {@code Boolean.TRUE} if the server did short-circuit during
+   *          candidate set processing before evaluating all elements of the
+   *          search criteria, {@code Boolean.FALSE} if the server evaluated all
+   *          elements of the search criteria, or {@code null} if this
+   *          information is not available (e.g., because extended response data
+   *          was not requested).
+   */
+  @Nullable()
+  public Boolean getShortCircuited()
+  {
+    return shortCircuited;
+  }
+
+
+
+  /**
+   * Indicates whether the server considers the search criteria to be fully
+   * indexed.  Note that if the server short-circuited during candidate set
+   * processing before evaluating all search criteria (the filter and scope),
+   * this may be {@code Boolean.FALSE} even if the search is actually completely
+   * indexed.
+   *
+   * @return  {@code Boolean.TRUE} if the server considers the search criteria
+   *          to be fully indexed, {@code Boolean.FALSE} if the search criteria
+   *          is not known to be fully indexed, or {@code null} if this
+   *          information is not available (e.g., because extended response data
+   *          was not requested).
+   */
+  @Nullable()
+  public Boolean getFullyIndexed()
+  {
+    return fullyIndexed;
+  }
+
+
+
+  /**
+   * Indicates whether the server can determine that all the identified
+   * candidates are within the scope of the search.  Note that even if the
+   * server returns {@code Boolean.FALSE}, it does not necessarily mean that
+   * not all the candidates are within the scope of the search, but just that
+   * the server is not certain that is the case.
+   *
+   * @return  {@code Boolean.TRUE} if the server can determine that all the
+   *          identified candidates are within the scope of the search,
+   *          {@code Boolean.FALSE} if the server cannot determine that all the
+   *          identified candidates are within the scope of the search, or
+   *          {@code null} if this information is not available (e.g., because
+   *          extended response data was not requested).
+   */
+  @Nullable()
+  public Boolean getCandidatesAreInScope()
+  {
+    return candidatesAreInScope;
+  }
+
+
+
+  /**
+   * Retrieves the portion of the filter that was either identified as not
+   * indexed or that was not evaluated during candidate processing (e.g.,
+   * because the server short-circuited processing before examining all filter
+   * components).
+   *
+   * @return  The portion of the filter that was either identified as not
+   *          indexed or that was not evaluated during candidate processing, or
+   *          {@code null} if there was no remaining filter or if this
+   *          information is not available (e.g., because extended response data
+   *          was not requested).
+   */
+  @Nullable()
+  public Filter getRemainingFilter()
+  {
+    return remainingFilter;
   }
 
 
@@ -715,6 +1126,31 @@ public final class MatchingEntryCountResponseControl
 
     buffer.append(", searchIndexed=");
     buffer.append(searchIndexed);
+
+    if (shortCircuited != null)
+    {
+      buffer.append(", shortCircuited=");
+      buffer.append(shortCircuited);
+    }
+
+    if (fullyIndexed != null)
+    {
+      buffer.append(", fullyIndexed=");
+      buffer.append(fullyIndexed);
+    }
+
+    if (candidatesAreInScope != null)
+    {
+      buffer.append(", candidatesAreInScope=");
+      buffer.append(candidatesAreInScope);
+    }
+
+    if (remainingFilter != null)
+    {
+      buffer.append(", remainingFilter='");
+      remainingFilter.toString(buffer);
+      buffer.append('\'');
+    }
 
     if (! debugInfo.isEmpty())
     {

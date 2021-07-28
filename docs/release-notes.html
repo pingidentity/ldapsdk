@@ -39,6 +39,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated support for the Ping Identity Directory Server's matching entry count
+                  request and response controls to make it possible to request that the server
+                  return extended response data.  If this is requested, then the server may return
+                  additional information like whether the server short-circuited during index
+                  processing, whether the search is fully indexed, whether all the identified
+                  candidate entries are known to be within the scope of the search, and any
+                  remaining filter that is either unindexed or unevaluated during search
+                  processing.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated to the latest revision of draft-coretta-x660-ldap in the set of
                   LDAP-related specifications.
                   <br><br>
