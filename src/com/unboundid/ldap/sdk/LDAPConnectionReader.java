@@ -250,7 +250,7 @@ final class LDAPConnectionReader
             // This is rarely a problem, so we can make the debug message for
             // this exception only visible at a verbose log level.
             final SocketTimeoutException ste = (SocketTimeoutException) t;
-            Debug.debugException(Level.FINEST,  ste);
+            Debug.debugException(Level.FINEST, ste);
             if (sslSocketFactory != null)
             {
               final LDAPConnectionOptions connectionOptions =
@@ -715,16 +715,18 @@ final class LDAPConnectionReader
       }
       catch (final LDAPException le)
       {
-        Debug.debugException(le);
-        final Throwable t = le.getCause();
-
-
         // If the cause was a SocketTimeoutException, then we shouldn't
         // terminate the connection, but we should propagate the failure to
         // the client with the appropriate result.
+        final Throwable t = le.getCause();
         if ((t != null) && (t instanceof SocketTimeoutException))
         {
+          Debug.debugException(Level.FINEST, le);
           throw new LDAPException(ResultCode.TIMEOUT, le.getMessage(), le);
+        }
+        else
+        {
+          Debug.debugException(le);
         }
 
 

@@ -23,6 +23,22 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Lowered the debug level for exception messages that may be logged as a result of
+                  a SocketTimeoutException caught internally in the course of trying whether to
+                  determine whether a pooled connection operating in synchronous mode is still
+                  valid.  If the connection pool is configured to attempt a synchronous read as
+                  part of each connection during health checking (which is the default), then we
+                  expect a timeout for that read attempt if the connection is still valid.
+                  Previously, a debug message created in response to that timeout was logged at a
+                  WARNING level, which is not appropriate for an expected condition when
+                  everything is operating normally, and it could make it harder to see debug
+                  messages for legitimate problems.  The debug message is now logged at the FINEST
+                  level so that it will only appear if debugging is enabled at the highest level of
+                  verbosity.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the LDAP SDK's wrapper for the Ping Identity Directory
                   Server's collect-support-data command-line tool that prevents it from passing
                   the keyStoreFormat and trustStoreFormat arguments to the server tool.

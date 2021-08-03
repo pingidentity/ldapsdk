@@ -1203,13 +1203,18 @@ public final class LDAPMessage
     }
     catch (final IOException ioe)
     {
-      if (! ((ioe instanceof SocketTimeoutException) ||
-             (ioe instanceof InterruptedIOException)))
+      final ResultCode resultCode;
+      if (ioe instanceof SocketTimeoutException)
+      {
+        resultCode = ResultCode.TIMEOUT;
+      }
+      else
       {
         Debug.debugException(ioe);
+        resultCode = ResultCode.SERVER_DOWN;
       }
 
-      throw new LDAPException(ResultCode.SERVER_DOWN,
+      throw new LDAPException(resultCode,
            ERR_MESSAGE_IO_ERROR.get(StaticUtils.getExceptionMessage(ioe)), ioe);
     }
     catch (final Exception e)
