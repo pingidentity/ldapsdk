@@ -47,7 +47,9 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.RootDSE;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -1005,6 +1007,53 @@ public final class MatchingEntryCountRequestControl
   public boolean includeExtendedResponseData()
   {
     return includeExtendedResponseData;
+  }
+
+
+
+  /**
+   * Attempts to determine whether the server to which the provided connection
+   * is established supports including extended response data in the matching
+   * entry count response control.
+   *
+   * @param  connection  The connection (or connection pool or other interface)
+   *                     to use to communicate with the server.  It must not be
+   *                     {@code null} and must be established.
+   *
+   * @return  {@code true} if the server reports that supports including
+   *          extended response data in the matching entry count response
+   *          control, or {@code false} if it does not indicate that it is
+   *          supported.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to communicate
+   *                         with the server.
+   */
+  public static boolean serverSupportsExtendedResponseData(
+              @NotNull final LDAPInterface connection)
+         throws LDAPException
+  {
+    final RootDSE rootDSE = connection.getRootDSE();
+    return ((rootDSE != null) && serverSupportsExtendedResponseData(rootDSE));
+  }
+
+
+
+  /**
+   * Determines whether the provided root DSE indicates that the associated
+   * server supports including extended response data in the matching entry
+   * count response control.
+   *
+   * @param  rootDSE  The root DSE retrieved from the server for which to make
+   *                  the determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the root DSE indicates that supports including
+   *          extended response data in the matching entry count response
+   *          control, or {@code false} if not.
+   */
+  public static boolean serverSupportsExtendedResponseData(
+              @NotNull final RootDSE rootDSE)
+  {
+    return rootDSE.supportsFeature(EXTENDED_RESPONSE_DATA_FEATURE_OID);
   }
 
 

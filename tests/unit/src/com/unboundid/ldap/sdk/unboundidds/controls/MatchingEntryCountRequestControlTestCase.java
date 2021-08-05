@@ -42,9 +42,13 @@ import org.testng.annotations.Test;
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.RootDSE;
 
 
 
@@ -306,5 +310,42 @@ public final class MatchingEntryCountRequestControlTestCase
     new MatchingEntryCountRequestControl(
          new Control("1.3.6.1.4.1.30221.2.5.36", true,
               new ASN1OctetString(valueSequence.encode())));
+  }
+
+
+
+  /**
+   * Provides test coverage for the methods used to determine whether a server
+   * supports including extended response data in the matching entry count
+   * response control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testServerSupportsExtendedResponseData()
+         throws Exception
+  {
+    final RootDSE rootDSEWithoutSupport;
+    final InMemoryDirectoryServer ds = getTestDS();
+    try (LDAPConnection conn = ds.getConnection())
+    {
+      rootDSEWithoutSupport = conn.getRootDSE();
+      assertNotNull(rootDSEWithoutSupport);
+      assertFalse(rootDSEWithoutSupport.supportsFeature(
+           "1.3.6.1.4.1.30221.2.12.7"));
+
+      assertFalse(MatchingEntryCountRequestControl.
+           serverSupportsExtendedResponseData(conn));
+      assertFalse(MatchingEntryCountRequestControl.
+           serverSupportsExtendedResponseData(rootDSEWithoutSupport));
+    }
+
+
+    final Entry rootDSEEntryWithSupport = rootDSEWithoutSupport.duplicate();
+    rootDSEEntryWithSupport.addAttribute("supportedFeatures",
+         "1.3.6.1.4.1.30221.2.12.7");
+    final RootDSE rootDSEWithSupport = new RootDSE(rootDSEEntryWithSupport);
+    assertTrue(MatchingEntryCountRequestControl.
+         serverSupportsExtendedResponseData(rootDSEWithSupport));
   }
 }
