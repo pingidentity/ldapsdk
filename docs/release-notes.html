@@ -14,6 +14,18 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a new ldap-diff command-line tool that can be used to compare the contents
+                  of two LDAPv3 servers to identify any differences between them.  Any differences
+                  will be written as LDIF change records to a specified output file, and the
+                  changes in that file can be applied to the source server (using a tool like
+                  ldapmodify or parallel-update) to bring it in sync with the target server.  It
+                  can also use multiple passes when examining differences to avoid potential false
+                  positives that result from delays in replication or changes that are made while
+                  the tool is running.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDIF reader to make it possible to override the default 10MB size
                   limit that will be imposed when reading an attribute value from a file
                   referenced by a URL.  The 10MB size limit will continue to be enforced by

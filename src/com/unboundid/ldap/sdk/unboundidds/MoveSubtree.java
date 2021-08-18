@@ -259,6 +259,17 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void addNonLDAPArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {

@@ -69,6 +69,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.CollectSupportData;
 import com.unboundid.ldap.sdk.unboundidds.tools.GenerateTOTPSharedSecret;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPCompare;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPDelete;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPDiff;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPPasswordModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPResultCode;
@@ -143,6 +144,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>ldappasswordmodify -- Launch the {@link LDAPPasswordModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
+ *   <LI>ldap-diff -- Launch the {@link LDAPDiff} tool.</LI>
  *   <LI>ldap-result-code -- Launch the {@link LDAPResultCode} tool.</LI>
  *   <LI>ldifmodify -- Launch the {@link LDIFModify} tool.</LI>
  *   <LI>ldifsearch -- Launch the {@link LDIFSearch} tool.</LI>
@@ -317,6 +319,10 @@ public final class Launcher
     {
       return LDAPDebugger.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("ldap-diff"))
+    {
+      return LDAPDiff.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("ldap-result-code"))
     {
       return LDAPResultCode.main(outStream, errStream, remainingArgs);
@@ -428,6 +434,7 @@ public final class Launcher
         err.println("     ldappasswordmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
+        err.println("     ldap-diff");
         err.println("     ldap-result-code");
         err.println("     ldifmodify");
         err.println("     ldifsearch");
@@ -485,6 +492,7 @@ public final class Launcher
          LDAPCompare.class,
          LDAPDebugger.class,
          LDAPDelete.class,
+         LDAPDiff.class,
          LDAPModify.class,
          LDAPPasswordModify.class,
          LDAPResultCode.class,

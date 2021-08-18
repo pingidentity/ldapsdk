@@ -310,6 +310,14 @@ public abstract class MultiServerLDAPCommandLineTool
       host[i] = new StringArgument(null, genArgName(i, "hostname"), true, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_HOST.get(),
            INFO_LDAP_TOOL_DESCRIPTION_HOST.get(), "localhost");
+      if (includeAlternateLongIdentifiers())
+      {
+        host[i].addLongIdentifier(genDashedArgName(i, "hostname"), true);
+        host[i].addLongIdentifier(genArgName(i, "host"), true);
+        host[i].addLongIdentifier(genDashedArgName(i, "host"), true);
+        host[i].addLongIdentifier(genArgName(i, "address"), true);
+        host[i].addLongIdentifier(genDashedArgName(i, "address"), true);
+      }
       host[i].setArgumentGroupName(groupName);
       parser.addArgument(host[i]);
 
@@ -317,17 +325,30 @@ public abstract class MultiServerLDAPCommandLineTool
            INFO_LDAP_TOOL_PLACEHOLDER_PORT.get(),
            INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65_535, 389);
       port[i].setArgumentGroupName(groupName);
+      if (includeAlternateLongIdentifiers())
+      {
+        port[i].addLongIdentifier(genDashedArgName(i, "port"), true);
+      }
       parser.addArgument(port[i]);
 
       bindDN[i] = new DNArgument(null, genArgName(i, "bindDN"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        bindDN[i].addLongIdentifier(genDashedArgName(i, "bind-dn"), true);
+      }
       bindDN[i].setArgumentGroupName(groupName);
       parser.addArgument(bindDN[i]);
 
       bindPassword[i] = new StringArgument(null, genArgName(i, "bindPassword"),
            false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        bindPassword[i].addLongIdentifier(genDashedArgName(i, "bind-password"),
+             true);
+      }
       bindPassword[i].setSensitive(true);
       bindPassword[i].setArgumentGroupName(groupName);
       parser.addArgument(bindPassword[i]);
@@ -337,27 +358,50 @@ public abstract class MultiServerLDAPCommandLineTool
            INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
            false);
+      if (includeAlternateLongIdentifiers())
+      {
+        bindPasswordFile[i].addLongIdentifier(genDashedArgName(i,
+             "bind-password-file"), true);
+      }
       bindPasswordFile[i].setArgumentGroupName(groupName);
       parser.addArgument(bindPasswordFile[i]);
 
       useSSL[i] = new BooleanArgument(null, genArgName(i, "useSSL"), 1,
            INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        useSSL[i].addLongIdentifier(genDashedArgName(i, "use-ssl"), true);
+      }
       useSSL[i].setArgumentGroupName(groupName);
       parser.addArgument(useSSL[i]);
 
       useStartTLS[i] = new BooleanArgument(null, genArgName(i, "useStartTLS"),
            1, INFO_LDAP_TOOL_DESCRIPTION_USE_START_TLS.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        useStartTLS[i].addLongIdentifier(genDashedArgName(i, "use-start-tls"),
+             true);
+      }
       useStartTLS[i].setArgumentGroupName(groupName);
       parser.addArgument(useStartTLS[i]);
 
       trustAll[i] = new BooleanArgument(null, genArgName(i, "trustAll"), 1,
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        trustAll[i].addLongIdentifier(genDashedArgName(i, "trust-all"), true);
+      }
       trustAll[i].setArgumentGroupName(groupName);
       parser.addArgument(trustAll[i]);
 
       keyStorePath[i] = new StringArgument(null, genArgName(i, "keyStorePath"),
            false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PATH.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        keyStorePath[i].addLongIdentifier(genDashedArgName(i, "key-store-path"),
+             true);
+      }
       keyStorePath[i].setArgumentGroupName(groupName);
       parser.addArgument(keyStorePath[i]);
 
@@ -365,6 +409,11 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "keyStorePassword"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        keyStorePassword[i].addLongIdentifier(genDashedArgName(i,
+             "key-store-password"), true);
+      }
       keyStorePassword[i].setSensitive(true);
       keyStorePassword[i].setArgumentGroupName(groupName);
       parser.addArgument(keyStorePassword[i]);
@@ -374,6 +423,11 @@ public abstract class MultiServerLDAPCommandLineTool
            INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get(), true,
            true, true, false);
+      if (includeAlternateLongIdentifiers())
+      {
+        keyStorePasswordFile[i].addLongIdentifier(genDashedArgName(i,
+             "key-store-password-file"), true);
+      }
       keyStorePasswordFile[i].setArgumentGroupName(groupName);
       parser.addArgument(keyStorePasswordFile[i]);
 
@@ -381,6 +435,15 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "keyStoreFormat"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
            INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_FORMAT.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        keyStoreFormat[i].addLongIdentifier(genDashedArgName(i,
+             "key-store-format"), true);
+        keyStoreFormat[i].addLongIdentifier(genArgName(i, "keyStoreType"),
+             true);
+        keyStoreFormat[i].addLongIdentifier(genDashedArgName(i,
+             "key-store-type"), true);
+      }
       keyStoreFormat[i].setArgumentGroupName(groupName);
       parser.addArgument(keyStoreFormat[i]);
 
@@ -388,6 +451,11 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "trustStorePath"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PATH.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        trustStorePath[i].addLongIdentifier(genDashedArgName(i,
+             "trust-store-path"), true);
+      }
       trustStorePath[i].setArgumentGroupName(groupName);
       parser.addArgument(trustStorePath[i]);
 
@@ -395,6 +463,11 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "trustStorePassword"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        trustStorePassword[i].addLongIdentifier(genDashedArgName(i,
+             "trust-store-password"), true);
+      }
       trustStorePassword[i].setSensitive(true);
       trustStorePassword[i].setArgumentGroupName(groupName);
       parser.addArgument(trustStorePassword[i]);
@@ -404,6 +477,11 @@ public abstract class MultiServerLDAPCommandLineTool
            INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get(), true,
            true, true, false);
+      if (includeAlternateLongIdentifiers())
+      {
+        trustStorePasswordFile[i].addLongIdentifier(genDashedArgName(i,
+             "trust-store-password-file"), true);
+      }
       trustStorePasswordFile[i].setArgumentGroupName(groupName);
       parser.addArgument(trustStorePasswordFile[i]);
 
@@ -411,6 +489,15 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "trustStoreFormat"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_FORMAT.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        trustStoreFormat[i].addLongIdentifier(genDashedArgName(i,
+             "trust-store-format"), true);
+        trustStoreFormat[i].addLongIdentifier(genArgName(i, "trustStoreType"),
+             true);
+        trustStoreFormat[i].addLongIdentifier(genDashedArgName(i,
+             "trust-store-type"), true);
+      }
       trustStoreFormat[i].setArgumentGroupName(groupName);
       parser.addArgument(trustStoreFormat[i]);
 
@@ -418,12 +505,26 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "certNickname"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_CERT_NICKNAME.get(),
            INFO_LDAP_TOOL_DESCRIPTION_CERT_NICKNAME.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        certificateNickname[i].addLongIdentifier(genDashedArgName(i,
+             "cert-nickname"), true);
+        certificateNickname[i].addLongIdentifier(genArgName(i,
+             "certificateNickname"), true);
+        certificateNickname[i].addLongIdentifier(genDashedArgName(i,
+             "certificate-nickname"), true);
+      }
       certificateNickname[i].setArgumentGroupName(groupName);
       parser.addArgument(certificateNickname[i]);
 
       saslOption[i] = new StringArgument(null, genArgName(i, "saslOption"),
            false, 0, INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
            INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
+      if (includeAlternateLongIdentifiers())
+      {
+        saslOption[i].addLongIdentifier(genDashedArgName(i, "sasl-option"),
+             true);
+      }
       saslOption[i].setArgumentGroupName(groupName);
       parser.addArgument(saslOption[i]);
 
@@ -482,6 +583,56 @@ public abstract class MultiServerLDAPCommandLineTool
     }
 
     return buffer.toString();
+  }
+
+
+
+  /**
+   * Constructs the name to use for an argument from the given base and the
+   * appropriate prefix and suffix.  In this case, dashes will be used to
+   * separate words rather than capitalization.
+   *
+   * @param  index  The index into the set of prefixes and suffixes.
+   * @param  base   The base name for the argument.
+   *
+   * @return  The constructed argument name.
+   */
+  @NotNull()
+  private String genDashedArgName(final int index, @NotNull final String base)
+  {
+    final StringBuilder buffer = new StringBuilder();
+
+    if (serverNamePrefixes != null)
+    {
+      buffer.append(serverNamePrefixes[index]);
+      buffer.append('-');
+    }
+
+    buffer.append(base);
+
+    if (serverNameSuffixes != null)
+    {
+      buffer.append('-');
+      buffer.append(serverNameSuffixes[index]);
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return false;
   }
 
 
