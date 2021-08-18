@@ -484,7 +484,8 @@ public final class LDAPDiff
     parser.addArgument(baseDNArg);
 
     sourceDNsFileArg = new FileArgument(null, "sourceDNsFile", false, 1, null,
-         INFO_LDAP_DIFF_ARG_DESC_SOURCE_DNS_FILE.get());
+         INFO_LDAP_DIFF_ARG_DESC_SOURCE_DNS_FILE.get(), true, true, true,
+         false);
     sourceDNsFileArg.addLongIdentifier("source-dns-file", true);
     sourceDNsFileArg.addLongIdentifier("sourceDNFile", true);
     sourceDNsFileArg.addLongIdentifier("source-dn-file", true);
@@ -493,7 +494,8 @@ public final class LDAPDiff
     parser.addArgument(sourceDNsFileArg);
 
     targetDNsFileArg = new FileArgument(null, "targetDNsFile", false, 1, null,
-         INFO_LDAP_DIFF_ARG_DESC_TARGET_DNS_FILE.get());
+         INFO_LDAP_DIFF_ARG_DESC_TARGET_DNS_FILE.get(), true, true, true,
+         false);
     targetDNsFileArg.addLongIdentifier("target-dns-file", true);
     targetDNsFileArg.addLongIdentifier("targetDNFile", true);
     targetDNsFileArg.addLongIdentifier("target-dn-file", true);
