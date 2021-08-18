@@ -63,6 +63,35 @@ public final class LDAPDiffProcessorResultTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  public void testEntryMissingResult()
+         throws Exception
+  {
+    final LDAPDiffProcessorResult result =
+         LDAPDiffProcessorResult.createEntryMissingResult("dc=example,dc=com");
+    assertNotNull(result);
+
+    assertNotNull(result.getDN());
+    assertEquals(result.getDN(), "dc=example,dc=com");
+
+    assertTrue(result.isEntryMissing());
+
+    assertNull(result.getChangeType());
+
+    assertNull(result.getEntry());
+
+    assertNull(result.getModifications());
+
+    assertNotNull(result.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior for a result that indicates that there are no changes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
   public void testNoChangesResult()
          throws Exception
   {
@@ -72,6 +101,8 @@ public final class LDAPDiffProcessorResultTestCase
 
     assertNotNull(result.getDN());
     assertEquals(result.getDN(), "dc=example,dc=com");
+
+    assertFalse(result.isEntryMissing());
 
     assertNull(result.getChangeType());
 
@@ -104,6 +135,8 @@ public final class LDAPDiffProcessorResultTestCase
 
     assertNotNull(result.getDN());
     assertEquals(result.getDN(), "dc=example,dc=com");
+
+    assertFalse(result.isEntryMissing());
 
     assertNotNull(result.getChangeType());
     assertEquals(result.getChangeType(), ChangeType.ADD);
@@ -144,6 +177,8 @@ public final class LDAPDiffProcessorResultTestCase
     assertNotNull(result.getDN());
     assertEquals(result.getDN(), "dc=example,dc=com");
 
+    assertFalse(result.isEntryMissing());
+
     assertNotNull(result.getChangeType());
     assertEquals(result.getChangeType(), ChangeType.DELETE);
 
@@ -181,6 +216,8 @@ public final class LDAPDiffProcessorResultTestCase
 
     assertNotNull(result.getDN());
     assertEquals(result.getDN(), "dc=example,dc=com");
+
+    assertFalse(result.isEntryMissing());
 
     assertNotNull(result.getChangeType());
     assertEquals(result.getChangeType(), ChangeType.MODIFY);

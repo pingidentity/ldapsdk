@@ -210,7 +210,7 @@ final class LDAPDiffProcessor
     {
       if (targetEntry == null)
       {
-        return LDAPDiffProcessorResult.createNoChangesResult(dnString);
+        return LDAPDiffProcessorResult.createEntryMissingResult(dnString);
       }
       else
       {

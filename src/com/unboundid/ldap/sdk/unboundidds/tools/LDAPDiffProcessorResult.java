@@ -78,6 +78,9 @@ final class LDAPDiffProcessorResult
 
 
 
+  // Indicates whether the entry was missing from both servers.
+  private final boolean entryMissing;
+
   // The change type associated with the result.
   @Nullable private final ChangeType changeType;
 
@@ -97,6 +100,8 @@ final class LDAPDiffProcessorResult
    *
    * @param  dn             A string representation of the DN for the target
    *                        entry.  It must not be {@code null}.
+   * @param  entryMissing   Indicates whether the entry was missing from both
+   *                        servers.
    * @param  changeType     The change type with which this change is
    *                        associated.  It must be {@link ChangeType#ADD} for
    *                        the case in which the entry exists only in the
@@ -121,14 +126,34 @@ final class LDAPDiffProcessorResult
    */
   private LDAPDiffProcessorResult(
                @NotNull final String dn,
+               final boolean entryMissing,
                @Nullable final ChangeType changeType,
                @Nullable final ReadOnlyEntry entry,
                @Nullable final List<Modification> modifications)
   {
     this.dn = dn;
+    this.entryMissing = entryMissing;
     this.changeType = changeType;
     this.entry = entry;
     this.modifications = modifications;
+  }
+
+
+
+  /**
+   * Creates a result indicating that the associated entry was missing from
+   * both the source and target servers.
+   *
+   * @param  dn  A string representation of the DN for the target entry.  It
+   *             must not be {@code null}.
+   *
+   * @return  The entry missing result that was created.
+   */
+  @NotNull()
+  static LDAPDiffProcessorResult createEntryMissingResult(
+              @NotNull final String dn)
+  {
+    return new LDAPDiffProcessorResult(dn, true, null, null, null);
   }
 
 
@@ -146,7 +171,7 @@ final class LDAPDiffProcessorResult
   static LDAPDiffProcessorResult createNoChangesResult(
               @NotNull final String dn)
   {
-    return new LDAPDiffProcessorResult(dn, null, null, null);
+    return new LDAPDiffProcessorResult(dn, false, null, null, null);
   }
 
 
@@ -164,8 +189,8 @@ final class LDAPDiffProcessorResult
   static LDAPDiffProcessorResult createAddResult(
               @NotNull final ReadOnlyEntry entry)
   {
-    return new LDAPDiffProcessorResult(entry.getDN(), ChangeType.ADD, entry,
-         null);
+    return new LDAPDiffProcessorResult(entry.getDN(), false, ChangeType.ADD,
+         entry, null);
   }
 
 
@@ -183,8 +208,8 @@ final class LDAPDiffProcessorResult
   static LDAPDiffProcessorResult createDeleteResult(
               @NotNull final ReadOnlyEntry entry)
   {
-    return new LDAPDiffProcessorResult(entry.getDN(), ChangeType.DELETE, entry,
-         null);
+    return new LDAPDiffProcessorResult(entry.getDN(), false,
+         ChangeType.DELETE, entry, null);
   }
 
 
@@ -207,7 +232,7 @@ final class LDAPDiffProcessorResult
               @NotNull final String dn,
               @NotNull final List<Modification> modifications)
   {
-    return new LDAPDiffProcessorResult(dn, ChangeType.MODIFY, null,
+    return new LDAPDiffProcessorResult(dn, false, ChangeType.MODIFY, null,
          Collections.unmodifiableList(modifications));
   }
 
@@ -222,6 +247,19 @@ final class LDAPDiffProcessorResult
   String getDN()
   {
     return dn;
+  }
+
+
+
+  /**
+   * Indicates whether the associated entry was missing from both servers.
+   *
+   * @return  {@code true} if the entry was missing from both servers, or
+   *          {@code false} if not.
+   */
+  public boolean isEntryMissing()
+  {
+    return entryMissing;
   }
 
 
@@ -297,6 +335,8 @@ final class LDAPDiffProcessorResult
   {
     buffer.append("LDAPDiffProcessorResult(dn='");
     buffer.append(dn);
+    buffer.append("', entryMissing=");
+    buffer.append(entryMissing);
     buffer.append(", changeType=");
     buffer.append(changeType);
     buffer.append(')');

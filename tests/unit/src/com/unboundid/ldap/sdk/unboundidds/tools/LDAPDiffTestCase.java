@@ -711,6 +711,64 @@ public final class LDAPDiffTestCase
 
 
   /**
+   * Tests the behavior for the case in which the tool is invoked in a manner
+   * that it attempts to compare entries that do not actually exist in either
+   * server.
+   *
+   * @throws  Exception  If an  unexpected problem occurs.
+   */
+  @Test()
+  public void testEntryMissing()
+         throws Exception
+  {
+    try (InMemoryDirectoryServer sourceDS = createTestDS(true, true, 1);
+         InMemoryDirectoryServer targetDS = createTestDS(true, true, 1))
+    {
+      // Make sure that the servers are in sync when running without any DN
+      // files.
+      File outputFile = runTool(sourceDS, targetDS, ResultCode.SUCCESS);
+      List<LDIFChangeRecord> changeRecords = readChangeRecords(outputFile);
+      assertEquals(changeRecords.size(), 0, String.valueOf(changeRecords));
+
+
+      // Create source and target DN files that each contain a different entry
+      // that doesn't exist on either server.  Verify that the tool still
+      // reports that the servers are in sync even when using those DN files.
+      // But this will at least get coverage for the code used to report on
+      // missing entries.
+      final File sourceDNFile = createTempFile(
+           "dc=example,dc=com",
+           "ou=People,dc=example,dc=com",
+           "uid=user.1,ou=People,dc=example,dc=com",
+           "uid=source.nonexistent,ou=People,dc=example,dc=com");
+      final File targetDNFile = createTempFile(
+           "dc=example,dc=com",
+           "ou=People,dc=example,dc=com",
+           "uid=user.1,ou=People,dc=example,dc=com",
+           "uid=target.nonexistent,ou=People,dc=example,dc=com");
+
+      outputFile = runTool(sourceDS, targetDS, ResultCode.SUCCESS,
+           "--sourceDNsFile", sourceDNFile.getAbsolutePath(),
+           "--targetDNsFile", targetDNFile.getAbsolutePath());
+      changeRecords = readChangeRecords(outputFile);
+      assertEquals(changeRecords.size(), 0, String.valueOf(changeRecords));
+
+
+      // Run the same test, but this time add the --missingOnly argument.  This
+      // still shouldn't change the result, but it will exercise a slightly
+      // different code path for some of the processing.
+      outputFile = runTool(sourceDS, targetDS, ResultCode.SUCCESS,
+           "--sourceDNsFile", sourceDNFile.getAbsolutePath(),
+           "--targetDNsFile", targetDNFile.getAbsolutePath(),
+           "--missingOnly");
+      changeRecords = readChangeRecords(outputFile);
+      assertEquals(changeRecords.size(), 0, String.valueOf(changeRecords));
+    }
+  }
+
+
+
+  /**
    * Tests the behavior when using legacy arguments.
    *
    * @throws  Exception  If an unexpected problem occurs.

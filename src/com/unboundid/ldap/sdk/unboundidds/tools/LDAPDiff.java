@@ -192,6 +192,14 @@ public final class LDAPDiff
 
 
 
+  /**
+   * The default value that will be used for the default bind DN if none is
+   * specified.
+   */
+  @NotNull private static final String DEFAULT_BIND_DN = "cn=Directory Manager";
+
+
+
   // A reference to the tool completion message for this tool.
   @NotNull private final AtomicReference<String> toolCompletionMessageRef;
 
@@ -811,11 +819,39 @@ public final class LDAPDiff
     }
 
 
-    // If a source bind DN and password were but a target bind DN and password
-    // were not, then use the source values for the target server.
+    // If no source bind DN was specified, then use a default of
+    // "cn=Directory Manager".
     final DNArgument sourceBindDNArg = parser.getDNArgument("sourceBindDN");
+    if (! sourceBindDNArg.isPresent())
+    {
+      try
+      {
+        final Method addValueMethod =
+             Argument.class.getDeclaredMethod("addValue", String.class);
+        addValueMethod.setAccessible(true);
+        addValueMethod.invoke(sourceBindDNArg, DEFAULT_BIND_DN);
+
+        final Method incrementOccurrencesMethod =
+             Argument.class.getDeclaredMethod("incrementOccurrences");
+        incrementOccurrencesMethod.setAccessible(true);
+        incrementOccurrencesMethod.invoke(sourceBindDNArg);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new ArgumentException(
+             ERR_LDAP_DIFF_CANNOT_SET_DEFAULT_BIND_DN.get(
+                  DEFAULT_BIND_DN, sourceBindDNArg.getIdentifierString(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
+    // If a source bind DN and password were provided but a target bind DN and
+    // password were not, then use the source values for the target server.
     final DNArgument targetBindDNArg = parser.getDNArgument("targetBindDN");
-    if (sourceBindDNArg.isPresent() && (! targetBindDNArg.isPresent()))
+    if (! targetBindDNArg.isPresent())
     {
       setArgumentValueFromArgument(sourceBindDNArg, "targetBindDN");
     }
@@ -1062,6 +1098,7 @@ public final class LDAPDiff
         final long addCount = entryCounts[1];
         final long delCount = entryCounts[2];
         final long modCount = entryCounts[3];
+        final long missingCount = entryCounts[4];
         final long totalDifferenceCount = addCount + delCount + modCount;
         final long totalExaminedCount = inSyncCount + totalDifferenceCount;
 
@@ -1084,6 +1121,13 @@ public final class LDAPDiff
              INFO_LDAP_DIFF_SUMMARY_MOD_COUNT.get(modCount));
         wrapOut(0, WRAP_COLUMN,
              INFO_LDAP_DIFF_SUMMARY_IN_SYNC_COUNT.get(inSyncCount));
+
+        if (missingCount > 0)
+        {
+          wrapOut(0, WRAP_COLUMN,
+               INFO_LDAP_DIFF_SUMMARY_MISSING_COUNT.get(missingCount));
+        }
+
         out();
 
         if (totalDifferenceCount == 0)
@@ -1309,7 +1353,7 @@ public final class LDAPDiff
    *
    * @return  An array of {@code long} values that provide the number of entries
    *          in each result category.  The array that is returned will contain
-   *          four elements.  The first will be the number of entries that were
+   *          five elements.  The first will be the number of entries that were
    *          found to be in sync between the source and target servers.  The
    *          second will be the number of entries that were present only in the
    *          target server and need to be added to the source server.  The
@@ -1317,6 +1361,8 @@ public final class LDAPDiff
    *          source server and need to be removed.  The fourth will be the
    *          number of entries that were present in both servers but were not
    *          equivalent and therefore need to be modified in the source server.
+   *          The fifth will be the number of entries that were initially
+   *          identified but were subsequently not found in either server.
    *
    * @throws  LDAPException  If an unrecoverable error occurs during processing.
    */
@@ -1346,12 +1392,14 @@ public final class LDAPDiff
     long addCount = 0L;
     long deleteCount = 0L;
     long modifyCount = 0L;
+    long missingCount = 0L;
     ParallelProcessor<LDAPDiffCompactDN,LDAPDiffProcessorResult>
          parallelProcessor = null;
     final String sourceHostPort =
          getServerHostPort("sourceHostname", "sourcePort");
     final String targetHostPort =
          getServerHostPort("targetHostname", "targetPort");
+    final TreeSet<LDAPDiffCompactDN> missingEntryDNs = new TreeSet<>();
     try (LDIFWriter mergedWriter = createLDIFWriter(mergedOutputFile,
               INFO_LDAP_DIFF_MERGED_FILE_COMMENT.get(sourceHostPort,
                    targetHostPort));
@@ -1460,6 +1508,21 @@ public final class LDAPDiff
             final ChangeType changeType = resultOutput.getChangeType();
             if (changeType == null)
             {
+              // This indicates that either the entry is in sync between the
+              // source and target servers or that it was missing from both
+              // servers.  If it's the former, then we just need to increment
+              // a counter.  If it's the latter, then we also need to hold onto
+              // the DN for including in a comment at the end of the LDIF file.
+              if (resultOutput.isEntryMissing())
+              {
+                missingCount++;
+                missingEntryDNs.add(result.getInput());
+              }
+              else
+              {
+                inSyncCount++;
+              }
+
               // This indicates that the entry is in sync between the source
               // and target servers.  We don't need to do anything in this case.
               inSyncCount++;
@@ -1565,6 +1628,16 @@ public final class LDAPDiff
       }
 
 
+      // If we've gotten here, then we've completed all of the passes.  If no
+      // differences were identified, then write a comment indicating that to
+      // the end of the LDIF file.
+      if ((addCount == 0) && (deleteCount == 0) && (modifyCount == 0))
+      {
+        mergedWriter.writeComment(INFO_LDAP_DIFF_SERVERS_IN_SYNC.get(), true,
+             false);
+      }
+
+
       // If we've gotten here, then we've completed all of the passes.  If we've
       // identified any deleted entries, then add them to the output first (in
       // descending order so that children are deleted before parents).  The
@@ -1572,6 +1645,9 @@ public final class LDAPDiff
       // the writers.
       if (! deletedEntryDNs.isEmpty())
       {
+        mergedWriter.writeComment(INFO_LDAP_DIFF_COMMENT_DELETED_ENTRIES.get(),
+             true, true);
+
         if (! quietArg.isPresent())
         {
           out();
@@ -1639,6 +1715,7 @@ public final class LDAPDiff
     }
     catch (final IOException e)
     {
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_LDAP_DIFF_ERROR_WRITING_OUTPUT.get(getToolName(),
                 StaticUtils.getExceptionMessage(e)),
@@ -1664,7 +1741,8 @@ public final class LDAPDiff
     // file to the merged change file.
     if (modifyCount > 0L)
     {
-      appendFileToFile(modFile, mergedOutputFile);
+      appendFileToFile(modFile, mergedOutputFile,
+           INFO_LDAP_DIFF_COMMENT_ADDED_ENTRIES.get());
       modFile.delete();
     }
 
@@ -1673,11 +1751,48 @@ public final class LDAPDiff
     // the merged change file.
     if (addCount > 0L)
     {
-      appendFileToFile(addFile, mergedOutputFile);
+      appendFileToFile(addFile, mergedOutputFile,
+           INFO_LDAP_DIFF_COMMENT_MODIFIED_ENTRIES.get());
       addFile.delete();
     }
 
-    return new long[] { inSyncCount, addCount, deleteCount, modifyCount };
+
+    // If there are any missing entries, then update the merged LDIF file to
+    // list them.
+    if (! missingEntryDNs.isEmpty())
+    {
+      try (FileOutputStream outputStream =
+                new FileOutputStream(mergedOutputFile, true);
+           LDIFWriter ldifWriter = new LDIFWriter(outputStream))
+      {
+        ldifWriter.writeComment(INFO_LDAP_DIFF_COMMENT_MISSING_ENTRIES.get(),
+             true, true);
+        for (final LDAPDiffCompactDN missingEntryDN : missingEntryDNs)
+        {
+          ldifWriter.writeComment(
+               INFO_LDAP_DIFF_COMMENT_MISSING_ENTRY.get(missingEntryDN.toDN(
+                    baseDN, schema).toString()),
+               false, true);
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_LDAP_DIFF_ERROR_WRITING_OUTPUT.get(getToolName(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+    return new long[]
+    {
+      inSyncCount,
+      addCount,
+      deleteCount,
+      modifyCount,
+      missingCount
+    };
   }
 
 
@@ -1758,19 +1873,32 @@ public final class LDAPDiff
    * @param  fileToAppend        The file whose contents should be appended to
    *                             the end of the indicated file.  It must not be
    *                             {@code null}, and the file must exist.
-   * @param  fileToBeAppendedTo  The file to which the
+   * @param  fileToBeAppendedTo  The file to which the source file should be
+   *                             appended.  It must not be {@code null}, and the
+   *                             file must exist.
+   * @param  comment             A comment that should be placed before the
+   *                             content of the file to append.  It must not be
+   *                             {@code null} or empty.
    *
    * @throws  LDAPException  If a problem occurs while reading from the file to
    *                         append or writing to the file to be appended to.
    */
   private void appendFileToFile(@NotNull final File fileToAppend,
-                                @NotNull final File fileToBeAppendedTo)
+                                @NotNull final File fileToBeAppendedTo,
+                                @NotNull final String comment)
           throws LDAPException
   {
     try (FileInputStream inputStream = new FileInputStream(fileToAppend);
          FileOutputStream outputStream =
               new FileOutputStream(fileToBeAppendedTo, true))
     {
+      outputStream.write(StaticUtils.getBytes(StaticUtils.EOL));
+      for (final String line : StaticUtils.wrapLine(comment, (WRAP_COLUMN - 2)))
+      {
+        outputStream.write(StaticUtils.getBytes("# " + line + StaticUtils.EOL));
+      }
+      outputStream.write(StaticUtils.getBytes(StaticUtils.EOL));
+
       final byte[] buffer = new byte[1024 * 1024];
       while (true)
       {
