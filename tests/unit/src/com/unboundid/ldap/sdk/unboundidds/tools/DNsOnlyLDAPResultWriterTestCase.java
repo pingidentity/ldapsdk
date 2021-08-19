@@ -38,20 +38,60 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.io.ByteArrayOutputStream;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.NullOutputStream;
+import com.unboundid.util.StaticUtils;
 
 
 
 /**
  * Provides test coverage for the values-only output handler.
  */
-public final class ValuesOnlyLDAPSearchOutputHandlerTestCase
+public final class DNsOnlyLDAPResultWriterTestCase
        extends LDAPSDKTestCase
 {
+  /**
+   * Test with a tool that has a byte array output stream.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testByteArrayOutputStream()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    final DNsOnlyLDAPResultWriter writer =
+         new DNsOnlyLDAPResultWriter(out);
+
+    writer.writeHeader();
+
+    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
+         "dn: dc=example,dc=com",
+         "dc: example")));
+
+    writer.writeSearchResultReference(null);
+
+    writer.writeResult(null);
+
+    writer.writeUnsolicitedNotification(null, null);
+
+    final ByteStringBuffer expectedOutputBuffer = new ByteStringBuffer();
+    expectedOutputBuffer.append("dc=example,dc=com");
+    expectedOutputBuffer.append(StaticUtils.EOL_BYTES);
+
+    assertEquals(out.toByteArray(), expectedOutputBuffer.toByteArray());
+  }
+
+
+
   /**
    * Test with a tool that has a null output stream.
    *
@@ -61,21 +101,19 @@ public final class ValuesOnlyLDAPSearchOutputHandlerTestCase
   public void testNullOutputStream()
          throws Exception
   {
-    final LDAPSearch ldapSearch = new LDAPSearch(null, null);
+    final DNsOnlyLDAPResultWriter writer =
+         new DNsOnlyLDAPResultWriter(NullOutputStream.getInstance());
 
-    final ValuesOnlyLDAPSearchOutputHandler handler =
-         new ValuesOnlyLDAPSearchOutputHandler(ldapSearch);
+    writer.writeHeader();
 
-    handler.formatHeader();
-
-    handler.formatSearchResultEntry(new SearchResultEntry(new Entry(
+    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: dc=example,dc=com",
          "dc: example")));
 
-    handler.formatSearchResultReference(null);
+    writer.writeSearchResultReference(null);
 
-    handler.formatResult(null);
+    writer.writeResult(null);
 
-    handler.formatUnsolicitedNotification(null, null);
+    writer.writeUnsolicitedNotification(null, null);
   }
 }

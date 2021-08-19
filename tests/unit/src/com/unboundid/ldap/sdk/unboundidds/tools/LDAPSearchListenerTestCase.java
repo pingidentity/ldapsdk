@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.NullOutputStream;
 
 
 
@@ -62,11 +63,9 @@ public final class LDAPSearchListenerTestCase
   public void testSearchEntryReturned()
          throws Exception
   {
-    final LDAPSearch ldapSearch = new LDAPSearch(null, null);
-
     final LDAPSearchListener listener =
-         new LDAPSearchListener(new LDIFLDAPSearchOutputHandler(ldapSearch,
-              Integer.MAX_VALUE), null);
+         new LDAPSearchListener(new LDIFLDAPResultWriter(
+              NullOutputStream.getPrintStream(), Integer.MAX_VALUE), null);
 
     listener.searchEntryReturned(new SearchResultEntry(new Entry(
          "dn: dc=example,dc=com",
@@ -92,11 +91,9 @@ public final class LDAPSearchListenerTestCase
   public void testSearchReferenceReturned()
          throws Exception
   {
-    final LDAPSearch ldapSearch = new LDAPSearch(null, null);
-
     final LDAPSearchListener listener =
-         new LDAPSearchListener(new LDIFLDAPSearchOutputHandler(ldapSearch,
-              Integer.MAX_VALUE), null);
+         new LDAPSearchListener(new LDIFLDAPResultWriter(
+              NullOutputStream.getPrintStream(), Integer.MAX_VALUE), null);
 
     final String[] referralURLs =
     {

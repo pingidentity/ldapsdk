@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -52,8 +53,8 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This class provides an {@link LDAPSearchOutputHandler} instance that formats
- * results in LDIF.
+ * This class provides an {@link LDAPResultWriter} instance that formats results
+ * in LDIF.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -66,8 +67,8 @@ import com.unboundid.util.ThreadSafetyLevel;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-final class LDIFLDAPSearchOutputHandler
-      extends LDAPSearchOutputHandler
+public final class LDIFLDAPResultWriter
+       extends LDAPResultWriter
 {
   // A list used to hold the lines for a formatted representation of a search
   // result entry or reference.
@@ -76,9 +77,6 @@ final class LDIFLDAPSearchOutputHandler
   // The maximum width to use for output content.
   private final int maxWidth;
 
-  // The associated LDAPSearch tool instance.
-  @NotNull private final LDAPSearch ldapSearch;
-
   // A string builder used to hold the formatted representation of the lines
   // that comprise a search result entry or reference.
   @NotNull private final StringBuilder formattedLineBuffer;
@@ -86,16 +84,18 @@ final class LDIFLDAPSearchOutputHandler
 
 
   /**
-   * Creates a new instance of this output handler.
+   * Creates a new instance of this LDAP result writer.
    *
-   * @param  ldapSearch  The {@link LDAPSearch} tool instance.
-   * @param  maxWidth    The maximum width to use for the output.
+   * @param  outputStream  The output stream to which the output will be
+   *                       written.
+   * @param  maxWidth      The maximum width to use for the output.
    */
-  LDIFLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch,
+  public LDIFLDAPResultWriter(@NotNull final OutputStream outputStream,
                               final int maxWidth)
   {
-    this.ldapSearch = ldapSearch;
-    this.maxWidth   = maxWidth;
+    super(outputStream);
+
+    this.maxWidth = maxWidth;
 
     formattedLines = new ArrayList<>(20);
     formattedLineBuffer = new StringBuilder(100);
@@ -107,7 +107,22 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatHeader()
+  public void writeComment(@NotNull final String comment)
+  {
+    for (final String line : StaticUtils.wrapLine(comment, maxWidth - 2))
+    {
+      print("# ");
+      println(line);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void writeHeader()
   {
     // No header is required for this format.
   }
@@ -118,7 +133,7 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
+  public void writeSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -130,7 +145,7 @@ final class LDIFLDAPSearchOutputHandler
       formattedLineBuffer.append(StaticUtils.EOL);
     }
 
-    ldapSearch.writeOut(formattedLineBuffer.toString());
+    println(formattedLineBuffer.toString());
   }
 
 
@@ -139,7 +154,7 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(
+  public void writeSearchResultReference(
                    @NotNull final SearchResultReference ref)
   {
     formattedLines.clear();
@@ -152,7 +167,7 @@ final class LDIFLDAPSearchOutputHandler
       formattedLineBuffer.append(StaticUtils.EOL);
     }
 
-    ldapSearch.writeOut(formattedLineBuffer.toString());
+    println(formattedLineBuffer.toString());
   }
 
 
@@ -161,7 +176,7 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(@NotNull final LDAPResult result)
+  public void writeResult(@NotNull final LDAPResult result)
   {
     formattedLines.clear();
     formattedLineBuffer.setLength(0);
@@ -172,7 +187,7 @@ final class LDIFLDAPSearchOutputHandler
       formattedLineBuffer.append(s);
       formattedLineBuffer.append(StaticUtils.EOL);
     }
-    ldapSearch.writeOut(formattedLineBuffer.toString());
+    println(formattedLineBuffer.toString());
   }
 
 
@@ -181,7 +196,7 @@ final class LDIFLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(
+  public void writeUnsolicitedNotification(
                    @NotNull final LDAPConnection connection,
                    @NotNull final ExtendedResult notification)
   {
@@ -195,6 +210,6 @@ final class LDIFLDAPSearchOutputHandler
       formattedLineBuffer.append(s);
       formattedLineBuffer.append(StaticUtils.EOL);
     }
-    ldapSearch.writeOut(formattedLineBuffer.toString());
+    println(formattedLineBuffer.toString());
   }
 }

@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.unboundid.ldap.sdk.Attribute;
@@ -57,8 +58,8 @@ import com.unboundid.util.json.JSONBuffer;
 
 
 /**
- * This class provides an {@link LDAPSearchOutputHandler} instance that formats
- * results in JSON.
+ * This class provides an {@link LDAPResultWriter} instance that formats results
+ * in JSON.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -71,8 +72,8 @@ import com.unboundid.util.json.JSONBuffer;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-final class JSONLDAPSearchOutputHandler
-      extends LDAPSearchOutputHandler
+public final class JSONLDAPResultWriter
+       extends LDAPResultWriter
 {
   // A list that may be used in the course of formatting result lines.
   @NotNull private final ArrayList<String> formattedLines;
@@ -80,19 +81,16 @@ final class JSONLDAPSearchOutputHandler
   // The JSON buffer used to construct the formatted output.
   @NotNull private final JSONBuffer jsonBuffer;
 
-  // The associated LDAPSearch tool instance.
-  @NotNull private final LDAPSearch ldapSearch;
-
 
 
   /**
-   * Creates a new instance of this output handler.
+   * Creates a new instance of this LDAP result writer.
    *
-   * @param  ldapSearch  The {@link LDAPSearch} tool instance.
+   * @param  outputStream  The output stream to which output will be written.
    */
-  JSONLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch)
+  public JSONLDAPResultWriter(@NotNull final OutputStream outputStream)
   {
-    this.ldapSearch = ldapSearch;
+    super(outputStream);
 
     formattedLines = new ArrayList<>(10);
     jsonBuffer = new JSONBuffer(null, 0, true);
@@ -104,7 +102,18 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatHeader()
+  public void writeComment(@NotNull final String comment)
+  {
+    // Comments will not be written in this format.
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void writeHeader()
   {
     // No header is required for this format.
   }
@@ -115,7 +124,7 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
+  public void writeSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();
@@ -142,7 +151,7 @@ final class JSONLDAPSearchOutputHandler
 
     jsonBuffer.endObject();
 
-    ldapSearch.writeOut(jsonBuffer.toString());
+    println(jsonBuffer.toString());
   }
 
 
@@ -151,7 +160,7 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(
+  public void writeSearchResultReference(
                    @NotNull final SearchResultReference ref)
   {
     jsonBuffer.clear();
@@ -169,7 +178,7 @@ final class JSONLDAPSearchOutputHandler
 
     jsonBuffer.endObject();
 
-    ldapSearch.writeOut(jsonBuffer.toString());
+    println(jsonBuffer.toString());
   }
 
 
@@ -178,7 +187,7 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(@NotNull final LDAPResult result)
+  public void writeResult(@NotNull final LDAPResult result)
   {
     jsonBuffer.clear();
     jsonBuffer.beginObject();
@@ -231,7 +240,7 @@ final class JSONLDAPSearchOutputHandler
 
     jsonBuffer.endObject();
 
-    ldapSearch.writeOut(jsonBuffer.toString());
+    println(jsonBuffer.toString());
   }
 
 
@@ -240,7 +249,7 @@ final class JSONLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(
+  public void writeUnsolicitedNotification(
                    @NotNull final LDAPConnection connection,
                    @NotNull final ExtendedResult notification)
   {
@@ -303,7 +312,7 @@ final class JSONLDAPSearchOutputHandler
 
     jsonBuffer.endObject();
 
-    ldapSearch.writeOut(jsonBuffer.toString());
+    println(jsonBuffer.toString());
   }
 
 

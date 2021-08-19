@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
@@ -57,6 +58,11 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.PasswordFileReader;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONObjectReader;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -1268,6 +1274,534 @@ public final class LDIFSearchTestCase
          "(objectClass=*)");
 
     assertFalse(resultCode == ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the LDIF output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLDIFOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "ldif",
+              "--wrapColumn", "100",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    try (LDIFReader ldifReader = new LDIFReader(outputFile))
+    {
+      Entry entry = ldifReader.readEntry();
+      assertNotNull(entry);
+      assertEquals(entry,
+           new Entry(
+                "dn: uid=test.user,ou=People,dc=example,dc=com",
+                "objectClass: top",
+                "objectClass: person",
+                "objectClass: organizationalPerson",
+                "objectClass: inetOrgPerson",
+                "uid: test.user",
+                "cn: Test User"));
+
+      entry = ldifReader.readEntry();
+      assertNull(entry);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the CSV output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCSVOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    // Make sure that the tool fails if no attributes were requested.
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "csv",
+              "(objectClass=person)"),
+         ResultCode.PARAM_ERROR);
+
+    // Make sure that the tool fails if an LDAP URL file is provided.
+    out.reset();
+    final File ldapURLFile = new File(
+         "ldap:///dc=example,dc=com?objectClass,uid,cn?sub?" +
+              "(objectClass=person)");
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--ldapURLFile", ldapURLFile.getAbsolutePath(),
+              "--outputFormat", "csv"),
+         ResultCode.PARAM_ERROR);
+
+    // Make sure that the tool succeeds when invoked with an appropriate set of
+    // arguments.
+    out.reset();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "csv",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    final List<String> lines = readFileLines(outputFile);
+    final List<String> expected = Arrays.asList(
+         "# DN,objectClass,uid,cn",
+         "\"uid=test.user,ou=People,dc=example,dc=com\",top,test.user," +
+              "Test User");
+    assertEquals(lines, expected,
+         "Expected:  " + expected + "; got:  " + lines);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the multi-valued CSV output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMultiValuedCSVOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-csv",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    final List<String> lines = readFileLines(outputFile);
+    final List<String> expected = Arrays.asList(
+         "# DN,objectClass,uid,cn",
+         "\"uid=test.user,ou=People,dc=example,dc=com\"," +
+              "top|person|organizationalPerson|inetOrgPerson,test.user," +
+              "Test User");
+    assertEquals(lines, expected,
+         "Expected:  " + expected + "; got:  " + lines);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the tab-delimited output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTabDelimitedOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "tab-delimited",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    final List<String> lines = readFileLines(outputFile);
+    final List<String> expected = Arrays.asList(
+         "# DN\tobjectClass\tuid\tcn",
+         "uid=test.user,ou=People,dc=example,dc=com\ttop\ttest.user\t" +
+              "Test User");
+    assertEquals(lines, expected,
+         "Expected:  " + expected + "; got:  " + lines);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the multi-valued tab-delimited output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMultiValuedTabDelimitedOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-tab-delimited",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    final List<String> lines = readFileLines(outputFile);
+    final List<String> expected = Arrays.asList(
+         "# DN\tobjectClass\tuid\tcn",
+         "uid=test.user,ou=People,dc=example,dc=com\t" +
+              "top|person|organizationalPerson|inetOrgPerson\ttest.user\t" +
+              "Test User");
+    assertEquals(lines, expected,
+         "Expected:  " + expected + "; got:  " + lines);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the JSON output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "json",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    try (FileInputStream inputStream = new FileInputStream(outputFile);
+         JSONObjectReader jsonReader = new JSONObjectReader(inputStream))
+    {
+      JSONObject jsonObject = jsonReader.readObject();
+      assertNotNull(jsonObject);
+      assertEquals(jsonObject,
+           new JSONObject(
+                new JSONField("result-type", "entry"),
+                new JSONField("dn",
+                     "uid=test.user,ou=People,dc=example,dc=com"),
+                new JSONField("attributes", new JSONArray(
+                     new JSONObject(
+                          new JSONField("name", "objectClass"),
+                          new JSONField("values", new JSONArray(
+                               new JSONString("top"),
+                               new JSONString("person"),
+                               new JSONString("organizationalPerson"),
+                               new JSONString("inetOrgPerson")))),
+                     new JSONObject(
+                          new JSONField("name", "uid"),
+                          new JSONField("values", new JSONArray(
+                               new JSONString("test.user")))),
+                     new JSONObject(
+                          new JSONField("name", "cn"),
+                          new JSONField("values", new JSONArray(
+                               new JSONString("Test User"))))))));
+
+      jsonObject = jsonReader.readObject();
+      assertNull(jsonObject);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the DNs only output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDNsOnlyOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "dns-only",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    final List<String> lines = readFileLines(outputFile);
+    final List<String> expected = Collections.singletonList(
+         "uid=test.user,ou=People,dc=example,dc=com");
+    assertEquals(lines, expected,
+         "Expected:  " + expected + "; got:  " + lines);
+  }
+
+
+
+  /**
+   * Tests the behavior when using the values only output format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValuesOnlyOutputFormat()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.exists());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--baseDN", "ou=People,dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "values-only",
+              "(objectClass=person)",
+              "objectClass",
+              "uid",
+              "cn"),
+         ResultCode.SUCCESS);
+
+    final List<String> lines = readFileLines(outputFile);
+    final List<String> expected = Arrays.asList(
+         "top",
+         "person",
+         "organizationalPerson",
+         "inetOrgPerson",
+         "test.user",
+         "Test User");
+    assertEquals(lines, expected,
+         "Expected:  " + expected + "; got:  " + lines);
   }
 
 

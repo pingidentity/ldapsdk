@@ -66,9 +66,9 @@ import com.unboundid.util.OutputFormat;
 
 /**
  * Provides test coverage for the column-formatted LDAPSearch output handler
- * when using the tab-delimited format.
+ * when using the multi-valued CSV format.
  */
-public final class TabDelimitedLDAPSearchOutputHandlerTestCase
+public final class MultiValuedCSVLDAPResultWriterTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -81,23 +81,20 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
          "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
-    outputHandler.formatHeader();
+    outputHandler.writeHeader();
 
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "# DN\tobjectClass\tuid\tgivenName\tsn\tundefined\tmail"));
+              "# DN,objectClass,uid,givenName,sn,undefined,mail"));
   }
 
 
@@ -113,24 +110,21 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
          "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(
+    outputHandler.writeSearchResultEntry(new SearchResultEntry(
          new Entry("uid=jdoe,ou=People,dc=example,dc=com")));
 
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "uid=jdoe,ou=People,dc=example,dc=com\t\t\t\t\t\t"));
+              "\"uid=jdoe,ou=People,dc=example,dc=com\",,,,,,"));
   }
 
 
@@ -146,18 +140,15 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
          "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
+    outputHandler.writeSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: uid=jdoe,ou=People,dc=example,dc=com",
          "objectClass: ",
          "uid: ",
@@ -169,7 +160,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "uid=jdoe,ou=People,dc=example,dc=com\t\t\t\t\t\t"));
+              "\"uid=jdoe,ou=People,dc=example,dc=com\",,,,,,"));
   }
 
 
@@ -185,18 +176,15 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
          "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
+    outputHandler.writeSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: uid=jdoe,ou=People,dc=example,dc=com",
          "objectClass: top",
          "objectClass: person",
@@ -211,8 +199,9 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "uid=jdoe,ou=People,dc=example,dc=com\ttop\tjdoe\tJohn\tDoe\t\t" +
-                   "jdoe@example.com"));
+              "\"uid=jdoe,ou=People,dc=example,dc=com\"," +
+                   "top|person|organizationalPerson|inetOrgPerson,jdoe,John," +
+                   "Doe,,jdoe@example.com"));
   }
 
 
@@ -228,18 +217,15 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
          "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(
+    outputHandler.writeSearchResultEntry(new SearchResultEntry(
          new Entry(
               "dn: uid=jdoe,ou=People,dc=example,dc=com",
               "objectClass: top",
@@ -257,8 +243,9 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "uid=jdoe,ou=People,dc=example,dc=com\ttop\tjdoe\tJohn\tDoe\t\t" +
-                   "jdoe@example.com"));
+              "\"uid=jdoe,ou=People,dc=example,dc=com\"," +
+                   "top|person|organizationalPerson|inetOrgPerson,jdoe,John," +
+                   "Doe,,jdoe@example.com"));
   }
 
 
@@ -274,23 +261,20 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
          "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
       "ldap://ds.example.com:389/dc=example,dc=com"
     };
 
-    outputHandler.formatSearchResultReference(
+    outputHandler.writeSearchResultReference(
          new SearchResultReference(referralURLs, null));
 
     assertTrue(outputStream.size() > 0);
@@ -309,16 +293,13 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes =
          Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -326,7 +307,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
       "ldap://ds2.example.com:389/dc=example,dc=com"
     };
 
-    outputHandler.formatSearchResultReference(
+    outputHandler.writeSearchResultReference(
          new SearchResultReference(referralURLs, null));
 
     assertTrue(outputStream.size() > 0);
@@ -345,16 +326,13 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes =
          Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -368,7 +346,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatSearchResultReference(
+    outputHandler.writeSearchResultReference(
          new SearchResultReference(referralURLs, controls));
 
     assertTrue(outputStream.size() > 0);
@@ -387,16 +365,13 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes =
          Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -410,7 +385,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatResult(new LDAPResult(1,
+    outputHandler.writeResult(new LDAPResult(1,
          ResultCode.UNWILLING_TO_PERFORM, "I don't feel like it",
          "dc=example,dc=com", referralURLs, controls));
 
@@ -430,18 +405,15 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes =
          Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
-    outputHandler.formatResult(new SearchResult(2, ResultCode.SUCCESS, null,
+    outputHandler.writeResult(new SearchResult(2, ResultCode.SUCCESS, null,
          null, null, 123, 456, null));
 
     assertTrue(outputStream.size() > 0);
@@ -460,16 +432,13 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes =
          Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -483,7 +452,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatUnsolicitedNotification(null,
+    outputHandler.writeUnsolicitedNotification(null,
          new NoticeOfDisconnectionExtendedResult(0, ResultCode.OTHER,
               "Connection terminated", "dc=example,dc=com", referralURLs,
               controls));
@@ -504,16 +473,13 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
     final List<String> requestedAttributes =
          Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    final ColumnFormatterLDAPSearchOutputHandler outputHandler =
-         new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE, false);
+    final ColumnBasedLDAPResultWriter outputHandler =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -527,7 +493,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatUnsolicitedNotification(null,
+    outputHandler.writeUnsolicitedNotification(null,
          new ExtendedResult(0, ResultCode.OTHER, "Diagnostic Message",
               "o=Matched DN", referralURLs, "1.2.3.3",
               new ASN1OctetString("bar"), controls));

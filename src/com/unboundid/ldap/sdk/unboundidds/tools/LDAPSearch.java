@@ -319,9 +319,8 @@ public final class LDAPSearch
   @Nullable private volatile PrintStream errStream = null;
   @Nullable private volatile PrintStream outStream = null;
 
-  // The output handler for this tool.
-  @NotNull private volatile LDAPSearchOutputHandler outputHandler =
-       new LDIFLDAPSearchOutputHandler(this, WRAP_COLUMN);
+  // The LDAP result writer for this tool.
+  @NotNull private volatile LDAPResultWriter resultWriter;
 
   // The list of entry transformations to apply.
   @Nullable private volatile List<EntryTransformation> entryTransformations =
@@ -384,6 +383,8 @@ public final class LDAPSearch
                     @Nullable final OutputStream err)
   {
     super(out, err);
+
+    resultWriter = new LDIFLDAPResultWriter(getOut(), WRAP_COLUMN);
   }
 
 
@@ -2214,12 +2215,12 @@ public final class LDAPSearch
     }
 
 
-    // Create the output handler.
+    // Create the result writer.
     final String outputFormatStr =
          StaticUtils.toLowerCase(outputFormat.getValue());
     if (outputFormatStr.equals("json"))
     {
-      outputHandler = new JSONLDAPSearchOutputHandler(this);
+      resultWriter = new JSONLDAPResultWriter(getOutStream());
     }
     else if (outputFormatStr.equals("csv") ||
              outputFormatStr.equals("multi-valued-csv") ||
@@ -2296,20 +2297,20 @@ public final class LDAPSearch
       }
 
 
-      outputHandler = new ColumnFormatterLDAPSearchOutputHandler(this,
+      resultWriter = new ColumnBasedLDAPResultWriter(getOutStream(),
            format, requestedAttributes, WRAP_COLUMN, includeAllValues);
     }
     else if (outputFormatStr.equals("dns-only"))
     {
-      outputHandler = new DNsOnlyLDAPSearchOutputHandler(this);
+      resultWriter = new DNsOnlyLDAPResultWriter(getOutStream());
     }
     else if (outputFormatStr.equals("values-only"))
     {
-      outputHandler = new ValuesOnlyLDAPSearchOutputHandler(this);
+      resultWriter = new ValuesOnlyLDAPResultWriter(getOutStream());
     }
     else
     {
-      outputHandler = new LDIFLDAPSearchOutputHandler(this, WRAP_COLUMN);
+      resultWriter = new LDIFLDAPResultWriter(getOutStream(), WRAP_COLUMN);
     }
   }
 
@@ -2403,6 +2404,7 @@ public final class LDAPSearch
           {
             outStream = new PrintStream(s);
           }
+          resultWriter.updateOutputStream(outStream);
           errStream = outStream;
         }
         catch (final Exception e)
@@ -2414,12 +2416,12 @@ public final class LDAPSearch
           return ResultCode.LOCAL_ERROR;
         }
 
-        outputHandler.formatHeader();
+        resultWriter.writeHeader();
       }
     }
     else
     {
-      outputHandler.formatHeader();
+      resultWriter.writeHeader();
     }
 
 
@@ -2705,7 +2707,7 @@ public final class LDAPSearch
           }
 
           final SearchRequest searchRequest = new SearchRequest(
-               new LDAPSearchListener(outputHandler, entryTransformations),
+               new LDAPSearchListener(resultWriter, entryTransformations),
                url.getBaseDN().toString(), url.getScope(), derefPolicy,
                sizeLimit.getValue(), timeLimitSeconds.getValue(),
                typesOnly.isPresent(), url.getFilter(), url.getAttributes());
@@ -2888,7 +2890,7 @@ public final class LDAPSearch
     }
 
     final SearchRequest searchRequest = new SearchRequest(
-         new LDAPSearchListener(outputHandler, entryTransformations),
+         new LDAPSearchListener(resultWriter, entryTransformations),
          baseDNString, scope.getValue(), derefPolicy, sizeLimit.getValue(),
          timeLimitSeconds.getValue(), typesOnly.isPresent(), filter,
          attributes);
@@ -2942,6 +2944,7 @@ public final class LDAPSearch
         {
           outStream = new PrintStream(s);
         }
+        resultWriter.updateOutputStream(outStream);
         errStream = outStream;
       }
       catch (final Exception e)
@@ -2953,7 +2956,7 @@ public final class LDAPSearch
         return ResultCode.LOCAL_ERROR;
       }
 
-      outputHandler.formatHeader();
+      resultWriter.writeHeader();
     }
 
     try
@@ -3375,7 +3378,7 @@ public final class LDAPSearch
    */
   private void displayResult(@NotNull final LDAPResult result)
   {
-    outputHandler.formatResult(result);
+    resultWriter.writeResult(result);
   }
 
 
@@ -3499,11 +3502,11 @@ public final class LDAPSearch
    * Sets the output handler that should be used by this tool  This is primarily
    * intended for testing purposes.
    *
-   * @param  outputHandler  The output handler that should be used by this tool.
+   * @param  resultWriter  The result writer that should be used by this tool.
    */
-  void setOutputHandler(@NotNull final LDAPSearchOutputHandler outputHandler)
+  void setResultWriter(@NotNull final LDAPResultWriter resultWriter)
   {
-    this.outputHandler = outputHandler;
+    this.resultWriter = resultWriter;
   }
 
 
@@ -3516,7 +3519,7 @@ public final class LDAPSearch
                    @NotNull final LDAPConnection connection,
                    @NotNull final ExtendedResult notification)
   {
-    outputHandler.formatUnsolicitedNotification(connection, notification);
+    resultWriter.writeUnsolicitedNotification(connection, notification);
   }
 
 

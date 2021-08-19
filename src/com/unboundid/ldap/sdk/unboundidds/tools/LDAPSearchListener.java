@@ -77,8 +77,8 @@ final class LDAPSearchListener
 
 
 
-  // The output handler to use to display the results.
-  @NotNull private final LDAPSearchOutputHandler outputHandler;
+  // The result writer to use to output the results.
+  @NotNull private final LDAPResultWriter resultWriter;
 
   // The entry transformations to apply.
   @Nullable private final List<EntryTransformation> entryTransformations;
@@ -88,16 +88,16 @@ final class LDAPSearchListener
   /**
    * Creates a new LDAP search listener with the provided output handler.
    *
-   * @param  outputHandler         The output handler to use to display the
-   *                               results.
+   * @param  resultWriter          The result writer to use to output the
+   *                               results.  It must not be {@code null}.
    * @param  entryTransformations  The entry transformations to apply.  It may
    *                               be {@code null} or empty if no
    *                               transformations are needed.
    */
-  LDAPSearchListener(@NotNull final LDAPSearchOutputHandler outputHandler,
+  LDAPSearchListener(@NotNull final LDAPResultWriter resultWriter,
        @Nullable final List<EntryTransformation> entryTransformations)
   {
-    this.outputHandler        = outputHandler;
+    this.resultWriter = resultWriter;
     this.entryTransformations = entryTransformations;
   }
 
@@ -130,7 +130,7 @@ final class LDAPSearchListener
            searchEntry.getControls());
     }
 
-    outputHandler.formatSearchResultEntry(sre);
+    resultWriter.writeSearchResultEntry(sre);
   }
 
 
@@ -142,6 +142,6 @@ final class LDAPSearchListener
   public void searchReferenceReturned(
                    @NotNull final SearchResultReference searchReference)
   {
-    outputHandler.formatSearchResultReference(searchReference);
+    resultWriter.writeSearchResultReference(searchReference);
   }
 }

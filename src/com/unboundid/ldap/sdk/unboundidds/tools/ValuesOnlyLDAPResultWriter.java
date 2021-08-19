@@ -37,22 +37,32 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.io.OutputStream;
+
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.LDAPRuntimeException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+
+import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
 
 
 /**
- * This class provides an {@link LDAPSearchOutputHandler} instance that simply
- * prints the DNs of the entries that are returned, with a separate DN per line.
- * There will not be any blank lines between DNs, and there will not be any
- * prefix (for example, "dn:") before each DN.
+ * This class provides an {@link LDAPResultWriter} instance that simply prints
+ * the values of all attributes in the entries that are returned, with each
+ * value on a line by itself.  Entry DNs will not be included, and there will
+ * not be any blank lines between entries.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -65,22 +75,18 @@ import com.unboundid.util.ThreadSafetyLevel;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-final class DNsOnlyLDAPSearchOutputHandler
-      extends LDAPSearchOutputHandler
+public final class ValuesOnlyLDAPResultWriter
+       extends LDAPResultWriter
 {
-  // The associated LDAPSearch tool instance.
-  @NotNull private final LDAPSearch ldapSearch;
-
-
-
   /**
-   * Creates a new instance of this output handler.
+   * Creates a new instance of this LDAP result writer.
    *
-   * @param  ldapSearch  The {@link LDAPSearch} tool instance.
+   * @param  outputStream  The output stream to which the output will be
+   *                       written.
    */
-  DNsOnlyLDAPSearchOutputHandler(@NotNull final LDAPSearch ldapSearch)
+  public ValuesOnlyLDAPResultWriter(@NotNull final OutputStream outputStream)
   {
-    this.ldapSearch = ldapSearch;
+    super(outputStream);
   }
 
 
@@ -89,7 +95,18 @@ final class DNsOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatHeader()
+  public void writeComment(@NotNull final String comment)
+  {
+    // Comments will not be written in this format.
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void writeHeader()
   {
     // No header is required for this format.
   }
@@ -100,9 +117,27 @@ final class DNsOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultEntry(@NotNull final SearchResultEntry entry)
+  public void writeSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
-    ldapSearch.getOutStream().println(entry.getDN());
+    try
+    {
+      for (final Attribute a : entry.getAttributes())
+      {
+        for (final byte[] value : a.getValueByteArrays())
+        {
+          getPrintStream().write(value);
+          getPrintStream().write(StaticUtils.EOL_BYTES);
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPRuntimeException(new LDAPException(ResultCode.OTHER,
+           ERR_VALUES_ONLY_OUTPUT_FORMAT_WRITE_ERROR.get(
+                StaticUtils.getExceptionMessage(e)),
+           e));
+    }
   }
 
 
@@ -111,7 +146,7 @@ final class DNsOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatSearchResultReference(
+  public void writeSearchResultReference(
                    @NotNull final SearchResultReference ref)
   {
     // No output is needed for search result reference messages.
@@ -123,9 +158,9 @@ final class DNsOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatResult(@NotNull final LDAPResult result)
+  public void writeResult(@NotNull final LDAPResult result)
   {
-    ldapSearch.getOutStream().flush();
+    getPrintStream().flush();
   }
 
 
@@ -134,10 +169,10 @@ final class DNsOnlyLDAPSearchOutputHandler
    * {@inheritDoc}
    */
   @Override()
-  public void formatUnsolicitedNotification(
+  public void writeUnsolicitedNotification(
                    @NotNull final LDAPConnection connection,
                    @NotNull final ExtendedResult notification)
   {
-    ldapSearch.getOutStream().flush();
+    getPrintStream().flush();
   }
 }

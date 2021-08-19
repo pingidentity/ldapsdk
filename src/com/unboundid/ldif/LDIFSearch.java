@@ -67,16 +67,24 @@ import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldap.sdk.unboundidds.tools.ColumnBasedLDAPResultWriter;
+import com.unboundid.ldap.sdk.unboundidds.tools.DNsOnlyLDAPResultWriter;
+import com.unboundid.ldap.sdk.unboundidds.tools.JSONLDAPResultWriter;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPResultWriter;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDIFLDAPResultWriter;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
+import com.unboundid.ldap.sdk.unboundidds.tools.ValuesOnlyLDAPResultWriter;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.OutputFormat;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -88,6 +96,7 @@ import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
+import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.ldif.LDIFMessages.*;
 
@@ -143,6 +152,9 @@ public final class LDIFSearch
   // corresponding search entry parers.
   @NotNull private final List<LDAPURL> searchURLs;
 
+  // The LDAP result writer for this tool.
+  @NotNull private volatile LDAPResultWriter resultWriter;
+
   // The command-line arguments supported by this tool.
   @Nullable private BooleanArgument checkSchema;
   @Nullable private BooleanArgument compressOutput;
@@ -164,6 +176,7 @@ public final class LDIFSearch
   @Nullable private IntegerArgument timeLimitSeconds;
   @Nullable private IntegerArgument wrapColumn;
   @Nullable private ScopeArgument scope;
+  @Nullable private StringArgument outputFormat = null;
 
 
 
@@ -224,6 +237,8 @@ public final class LDIFSearch
   {
     super(out, err);
 
+    resultWriter = new LDIFLDAPResultWriter(getOut(), WRAP_COLUMN);
+
     parser = null;
     completionMessage = new AtomicReference<>();
     inputEncryptionPassphrases = new ArrayList<>(5);
@@ -244,6 +259,7 @@ public final class LDIFSearch
     ldifEncryptionPassphraseFile = null;
     ldifFile = null;
     outputFile = null;
+    outputFormat = null;
     outputEncryptionPassphraseFile = null;
     schemaPath = null;
     sizeLimit = null;
@@ -569,6 +585,19 @@ public final class LDIFSearch
     parser.addArgument(overwriteExistingOutputFile);
 
 
+    final Set<String> outputFormatAllowedValues = StaticUtils.setOf("ldif",
+         "json", "csv", "multi-valued-csv", "tab-delimited",
+         "multi-valued-tab-delimited", "dns-only", "values-only");
+    outputFormat = new StringArgument(null, "outputFormat", false, 1,
+         "{ldif|json|csv|multi-valued-csv|tab-delimited|" +
+              "multi-valued-tab-delimited|dns-only|values-only}",
+         INFO_LDIFSEARCH_ARG_DESC_OUTPUT_FORMAT.get(),
+         outputFormatAllowedValues, "ldif");
+    outputFormat.addLongIdentifier("output-format", true);
+    outputFormat.setArgumentGroupName(INFO_LDIFSEARCH_ARG_GROUP_OUTPUT.get());
+    parser.addArgument(outputFormat);
+
+
     wrapColumn = new IntegerArgument(null, "wrapColumn", false, 1, null,
          INFO_LDIFSEARCH_ARG_DESC_WRAP_COLUMN.get(), 5, Integer.MAX_VALUE);
     wrapColumn.addLongIdentifier("wrap-column", true);
@@ -655,6 +684,7 @@ public final class LDIFSearch
     parser.addExclusiveArgumentSet(baseDN, ldapURLFile);
     parser.addExclusiveArgumentSet(scope, ldapURLFile);
     parser.addExclusiveArgumentSet(filterFile, ldapURLFile);
+    parser.addExclusiveArgumentSet(outputFormat, separateOutputFilePerSearch);
   }
 
 
@@ -683,6 +713,7 @@ public final class LDIFSearch
 
     // Create the set of LDAP URLs to use when issuing the searches.
     final List<String> trailingArgs = parser.getTrailingArguments();
+    final List<String> requestedAttributes = new ArrayList<>();
     if (filterFile.isPresent())
     {
       // If there are trailing arguments, then make sure the first one is not a
@@ -701,6 +732,7 @@ public final class LDIFSearch
         }
       }
 
+      requestedAttributes.addAll(trailingArgs);
       readFilterFile();
     }
     else if (ldapURLFile.isPresent())
@@ -750,12 +782,16 @@ public final class LDIFSearch
 
 
       final Filter filter;
-      final String[] requestedAttributes;
       try
       {
         final List<String> trailingArgList = new ArrayList<>(trailingArgs);
-        filter = Filter.create(trailingArgList.remove(0));
-        requestedAttributes = trailingArgList.toArray(StaticUtils.NO_STRINGS);
+        final Iterator<String> trailingArgIterator = trailingArgList.iterator();
+        filter = Filter.create(trailingArgIterator.next());
+
+        while (trailingArgIterator.hasNext())
+        {
+          requestedAttributes.add(trailingArgIterator.next());
+        }
       }
       catch (final LDAPException e)
       {
@@ -779,7 +815,8 @@ public final class LDIFSearch
 
       try
       {
-        searchURLs.add(new LDAPURL("ldap", null, null, dn, requestedAttributes,
+        searchURLs.add(new LDAPURL("ldap", null, null, dn,
+             requestedAttributes.toArray(StaticUtils.NO_STRINGS),
              searchScope, filter));
       }
       catch (final LDAPException e)
@@ -788,6 +825,90 @@ public final class LDIFSearch
         // This should never happen.
         throw new ArgumentException(StaticUtils.getExceptionMessage(e), e);
       }
+    }
+
+
+    // Create the result writer.
+    final String outputFormatStr =
+         StaticUtils.toLowerCase(outputFormat.getValue());
+    if (outputFormatStr.equals("json"))
+    {
+      resultWriter = new JSONLDAPResultWriter(getOut());
+    }
+    else if (outputFormatStr.equals("csv") ||
+             outputFormatStr.equals("multi-valued-csv") ||
+             outputFormatStr.equals("tab-delimited") ||
+             outputFormatStr.equals("multi-valued-tab-delimited"))
+    {
+      // These output formats cannot be used with the --ldapURLFile argument.
+      if (ldapURLFile.isPresent())
+      {
+        throw new ArgumentException(
+             ERR_LDIFSEARCH_OUTPUT_FORMAT_NOT_SUPPORTED_WITH_URLS.get(
+                  outputFormat.getValue(), ldapURLFile.getIdentifierString()));
+      }
+
+
+      // These output formats require a set of requested attributes.
+      if (requestedAttributes.isEmpty())
+      {
+        throw new ArgumentException(
+             ERR_LDIFSEARCH_OUTPUT_FORMAT_REQUIRES_REQUESTED_ATTRS.get(
+                  outputFormat.getValue()));
+      }
+
+      final OutputFormat format;
+      final boolean includeAllValues;
+      switch (outputFormatStr)
+      {
+        case "multi-valued-csv":
+          format = OutputFormat.CSV;
+          includeAllValues = true;
+          break;
+        case "tab-delimited":
+          format = OutputFormat.TAB_DELIMITED_TEXT;
+          includeAllValues = false;
+          break;
+        case "multi-valued-tab-delimited":
+          format = OutputFormat.TAB_DELIMITED_TEXT;
+          includeAllValues = true;
+          break;
+        case "csv":
+        default:
+          format = OutputFormat.CSV;
+          includeAllValues = false;
+          break;
+      }
+
+
+      resultWriter = new ColumnBasedLDAPResultWriter(getOut(),
+           format, requestedAttributes, WRAP_COLUMN, includeAllValues);
+    }
+    else if (outputFormatStr.equals("dns-only"))
+    {
+      resultWriter = new DNsOnlyLDAPResultWriter(getOut());
+    }
+    else if (outputFormatStr.equals("values-only"))
+    {
+      resultWriter = new ValuesOnlyLDAPResultWriter(getOut());
+    }
+    else
+    {
+      final int wc;
+      if (doNotWrap.isPresent())
+      {
+        wc = Integer.MAX_VALUE;
+      }
+      else if (wrapColumn.isPresent())
+      {
+        wc = wrapColumn.getValue();
+      }
+      else
+      {
+        wc = WRAP_COLUMN;
+      }
+
+      resultWriter = new LDIFLDAPResultWriter(getOut(), wc);
     }
   }
 
@@ -1036,8 +1157,7 @@ public final class LDIFSearch
 
 
     // Create the output files, if appropriate.
-    boolean closewriter = true;
-    LDIFWriter singleWriter = null;
+    FileOutputStream fileOutputStream = null;
     SearchEntryParer singleParer = null;
     final Map<LDAPURL,LDIFSearchSeparateSearchDetails> separateWriters =
          new LinkedHashMap<>();
@@ -1062,13 +1182,29 @@ public final class LDIFSearch
         }
         else
         {
-          singleWriter = createLDIFWriter(outputFile.getValue(), null);
+          try
+          {
+            fileOutputStream = new FileOutputStream(outputFile.getValue());
+            resultWriter.updateOutputStream(fileOutputStream);
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_LDIFSEARCH_CANNOT_WRITE_TO_FILE.get(
+                      outputFile.getValue().getAbsolutePath(),
+                      StaticUtils.getExceptionMessage(e)),
+                 e);
+          }
         }
       }
-      else
+
+
+      // If we're not using separate writers, then write any appropriate header
+      // to the top of the output.
+      if (separateWriters.isEmpty())
       {
-        singleWriter = new LDIFWriter(getOut());
-        closewriter = false;
+        resultWriter.writeHeader();
       }
 
 
@@ -1161,7 +1297,7 @@ public final class LDIFSearch
               }
             }
 
-            if (singleWriter != null)
+            if (separateWriters.isEmpty())
             {
               matchingURLs.clear();
               for (final LDAPURL url : searchURLs)
@@ -1181,12 +1317,11 @@ public final class LDIFSearch
               {
                 if (searchURLs.size() > 1)
                 {
-                  singleWriter.writeComment(
-                       INFO_LDIFSEARCH_ENTRY_MATCHES_URLS.get(entry.getDN()),
-                       false, false);
+                  resultWriter.writeComment(
+                       INFO_LDIFSEARCH_ENTRY_MATCHES_URLS.get(entry.getDN()));
                   for (final LDAPURL url : matchingURLs)
                   {
-                    singleWriter.writeComment(url.toString(), false, false);
+                    resultWriter.writeComment(url.toString());
                   }
                 }
 
@@ -1197,12 +1332,12 @@ public final class LDIFSearch
                        schema);
                 }
 
-                final Entry paredEntry = singleParer.pareEntry(entry);
-                singleWriter.writeEntry(paredEntry);
+                resultWriter.writeSearchResultEntry(
+                     new SearchResultEntry(singleParer.pareEntry(entry)));
 
                 if (! outputFile.isPresent())
                 {
-                  singleWriter.flush();
+                  resultWriter.flush();
                 }
               }
               catch (final Exception e)
@@ -1286,21 +1421,17 @@ public final class LDIFSearch
     }
     finally
     {
-      if (singleWriter != null)
+      try
       {
-        try
+        resultWriter.flush();
+        if (fileOutputStream != null)
         {
-          singleWriter.flush();
-
-          if (closewriter)
-          {
-            singleWriter.close();
-          }
+          fileOutputStream.close();
         }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
       }
 
       for (final LDIFSearchSeparateSearchDetails details :
@@ -1692,13 +1823,9 @@ public final class LDIFSearch
   {
     completionMessage.compareAndSet(null, message);
 
-    if (isError)
+    if (! outputFile.isPresent())
     {
-      commentToErr(message);
-    }
-    else
-    {
-      commentToOut(message);
+      resultWriter.writeComment(message);
     }
   }
 

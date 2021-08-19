@@ -37,7 +37,6 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.testng.annotations.Test;
@@ -53,14 +52,14 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
-import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.json.JSONObject;
 
 
 
 /**
- * Provides test coverage for the LDIF LDAPSearch output handler.
+ * Provides test coverage for the JSON LDAPSearch output handler.
  */
-public final class LDIFLDAPSearchOutputHandlerTestCase
+public final class JSONLDAPResultWriterTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -73,13 +72,11 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
-    outputHandler.formatHeader();
+    writer.writeHeader();
 
     assertEquals(outputStream.size(), 0);
   }
@@ -97,23 +94,14 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(
+    writer.writeSearchResultEntry(new SearchResultEntry(
          new Entry("dc=example,dc=com")));
 
-    final ByteArrayInputStream inputStream =
-         new ByteArrayInputStream(outputStream.toByteArray());
-    final LDIFReader ldifReader = new LDIFReader(inputStream);
-
-    final Entry e = ldifReader.readEntry();
-    assertEquals(e, new Entry("dc=example,dc=com"));
-
-    ldifReader.close();
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -129,29 +117,16 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
+    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: dc=example,dc=com",
          "objectClass: ",
          "dc: ")));
 
-    final ByteArrayInputStream inputStream =
-         new ByteArrayInputStream(outputStream.toByteArray());
-    final LDIFReader ldifReader = new LDIFReader(inputStream);
-
-    final Entry e = ldifReader.readEntry();
-    assertEquals(e,
-         new Entry(
-              "dn: dc=example,dc=com",
-              "objectClass:",
-              "dc:"));
-
-    ldifReader.close();
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -167,31 +142,17 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
+    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: dc=example,dc=com",
          "objectClass: top",
          "objectClass: domain",
          "dc: example")));
 
-    final ByteArrayInputStream inputStream =
-         new ByteArrayInputStream(outputStream.toByteArray());
-    final LDIFReader ldifReader = new LDIFReader(inputStream);
-
-    final Entry e = ldifReader.readEntry();
-    assertEquals(e,
-         new Entry(
-              "dn: dc=example,dc=com",
-              "objectClass: top",
-              "objectClass: domain",
-              "dc: example"));
-
-    ldifReader.close();
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -207,13 +168,11 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(
+    writer.writeSearchResultEntry(new SearchResultEntry(
          new Entry(
               "dn: dc=example,dc=com",
               "objectClass: top",
@@ -222,19 +181,7 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          new Control("1.2.3.4"),
          new Control("1.2.3.5", true, new ASN1OctetString("foo"))));
 
-    final ByteArrayInputStream inputStream =
-         new ByteArrayInputStream(outputStream.toByteArray());
-    final LDIFReader ldifReader = new LDIFReader(inputStream);
-
-    final Entry e = ldifReader.readEntry();
-    assertEquals(e,
-         new Entry(
-              "dn: dc=example,dc=com",
-              "objectClass: top",
-              "objectClass: domain",
-              "dc: example"));
-
-    ldifReader.close();
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -250,21 +197,19 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
     final String[] referralURLs =
     {
       "ldap://ds.example.com:389/dc=example,dc=com"
     };
 
-    outputHandler.formatSearchResultReference(
+    writer.writeSearchResultReference(
          new SearchResultReference(referralURLs, null));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -280,11 +225,9 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
     final String[] referralURLs =
     {
@@ -292,10 +235,10 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
       "ldap://ds2.example.com:389/dc=example,dc=com"
     };
 
-    outputHandler.formatSearchResultReference(
+    writer.writeSearchResultReference(
          new SearchResultReference(referralURLs, null));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -311,11 +254,9 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
     final String[] referralURLs =
     {
@@ -329,10 +270,10 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatSearchResultReference(
+    writer.writeSearchResultReference(
          new SearchResultReference(referralURLs, controls));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -348,11 +289,9 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
     final String[] referralURLs =
     {
@@ -366,11 +305,11 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatResult(new LDAPResult(1,
+    writer.writeResult(new LDAPResult(1,
          ResultCode.UNWILLING_TO_PERFORM, "I don't feel like it",
          "dc=example,dc=com", referralURLs, controls));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -386,16 +325,14 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final LDIFLDAPSearchOutputHandler outputHandler =
-         new LDIFLDAPSearchOutputHandler(ldapSearch, Integer.MAX_VALUE);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
-    outputHandler.formatResult(new SearchResult(2, ResultCode.SUCCESS, null,
+    writer.writeResult(new SearchResult(2, ResultCode.SUCCESS, null,
          null, null, 123, 456, null));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -411,11 +348,9 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
     final String[] referralURLs =
     {
@@ -429,12 +364,12 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatUnsolicitedNotification(null,
+    writer.writeUnsolicitedNotification(null,
          new NoticeOfDisconnectionExtendedResult(0, ResultCode.OTHER,
               "Connection terminated", "dc=example,dc=com", referralURLs,
               controls));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
   }
 
 
@@ -450,11 +385,9 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
 
     final String[] referralURLs =
     {
@@ -468,11 +401,27 @@ public final class LDIFLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatUnsolicitedNotification(null,
+    writer.writeUnsolicitedNotification(null,
          new ExtendedResult(0, ResultCode.OTHER, "Diagnostic Message",
               "o=Matched DN", referralURLs, "1.2.3.3",
               new ASN1OctetString("bar"), controls));
 
-    assertTrue(outputStream.size() > 0);
+    assertValidJSONObject(outputStream);
+  }
+
+
+
+  /**
+   * Ensures that the provided byte array output stream contains a valid JSON
+   * object.
+   *
+   * @param  os  The byte array output stream containing the data to verify.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  private static void assertValidJSONObject(final ByteArrayOutputStream os)
+          throws  Exception
+  {
+    new JSONObject(new String(os.toByteArray(), "UTF-8"));
   }
 }

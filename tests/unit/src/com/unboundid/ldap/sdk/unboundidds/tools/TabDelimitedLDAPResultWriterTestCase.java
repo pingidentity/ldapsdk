@@ -37,7 +37,15 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -52,14 +60,15 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
-import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.OutputFormat;
 
 
 
 /**
- * Provides test coverage for the JSON LDAPSearch output handler.
+ * Provides test coverage for the column-formatted LDAPSearch output handler
+ * when using the tab-delimited format.
  */
-public final class JSONLDAPSearchOutputHandlerTestCase
+public final class TabDelimitedLDAPResultWriterTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -72,15 +81,21 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
+         "givenName", "sn", "undefined", "mail");
 
-    outputHandler.formatHeader();
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
-    assertEquals(outputStream.size(), 0);
+    writer.writeHeader();
+
+    assertEquals(
+         getOutputLines(outputStream),
+         Collections.singletonList(
+              "# DN\tobjectClass\tuid\tgivenName\tsn\tundefined\tmail"));
   }
 
 
@@ -96,16 +111,22 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
+         "givenName", "sn", "undefined", "mail");
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(
-         new Entry("dc=example,dc=com")));
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
-    assertValidJSONObject(outputStream);
+    writer.writeSearchResultEntry(new SearchResultEntry(
+         new Entry("uid=jdoe,ou=People,dc=example,dc=com")));
+
+    assertEquals(
+         getOutputLines(outputStream),
+         Collections.singletonList(
+              "uid=jdoe,ou=People,dc=example,dc=com\t\t\t\t\t\t"));
   }
 
 
@@ -121,18 +142,28 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
+         "givenName", "sn", "undefined", "mail");
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
-         "dn: dc=example,dc=com",
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
+
+    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
+         "dn: uid=jdoe,ou=People,dc=example,dc=com",
          "objectClass: ",
-         "dc: ")));
+         "uid: ",
+         "givenName: ",
+         "sn: ",
+         "cn: ",
+         "mail: ")));
 
-    assertValidJSONObject(outputStream);
+    assertEquals(
+         getOutputLines(outputStream),
+         Collections.singletonList(
+              "uid=jdoe,ou=People,dc=example,dc=com\t\t\t\t\t\t"));
   }
 
 
@@ -148,19 +179,32 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
+         "givenName", "sn", "undefined", "mail");
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
-         "dn: dc=example,dc=com",
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
+
+    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
+         "dn: uid=jdoe,ou=People,dc=example,dc=com",
          "objectClass: top",
-         "objectClass: domain",
-         "dc: example")));
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: jdoe",
+         "givenName: John",
+         "sn: Doe",
+         "cn: John Doe",
+         "mail: jdoe@example.com")));
 
-    assertValidJSONObject(outputStream);
+    assertEquals(
+         getOutputLines(outputStream),
+         Collections.singletonList(
+              "uid=jdoe,ou=People,dc=example,dc=com\ttop\tjdoe\tJohn\tDoe\t\t" +
+                   "jdoe@example.com"));
   }
 
 
@@ -176,22 +220,35 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
+         "givenName", "sn", "undefined", "mail");
 
-    outputHandler.formatSearchResultEntry(new SearchResultEntry(
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
+
+    writer.writeSearchResultEntry(new SearchResultEntry(
          new Entry(
-              "dn: dc=example,dc=com",
+              "dn: uid=jdoe,ou=People,dc=example,dc=com",
               "objectClass: top",
-              "objectClass: domain",
-              "dc: example"),
+              "objectClass: person",
+              "objectClass: organizationalPerson",
+              "objectClass: inetOrgPerson",
+              "uid: jdoe",
+              "givenName: John",
+              "sn: Doe",
+              "cn: John Doe",
+              "mail: jdoe@example.com"),
          new Control("1.2.3.4"),
          new Control("1.2.3.5", true, new ASN1OctetString("foo"))));
 
-    assertValidJSONObject(outputStream);
+    assertEquals(
+         getOutputLines(outputStream),
+         Collections.singletonList(
+              "uid=jdoe,ou=People,dc=example,dc=com\ttop\tjdoe\tJohn\tDoe\t\t" +
+                   "jdoe@example.com"));
   }
 
 
@@ -207,21 +264,24 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes = Arrays.asList("objectClass", "uid",
+         "givenName", "sn", "undefined", "mail");
+
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
       "ldap://ds.example.com:389/dc=example,dc=com"
     };
 
-    outputHandler.formatSearchResultReference(
+    writer.writeSearchResultReference(
          new SearchResultReference(referralURLs, null));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
@@ -237,11 +297,14 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes =
+         Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
+
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -249,10 +312,10 @@ public final class JSONLDAPSearchOutputHandlerTestCase
       "ldap://ds2.example.com:389/dc=example,dc=com"
     };
 
-    outputHandler.formatSearchResultReference(
+    writer.writeSearchResultReference(
          new SearchResultReference(referralURLs, null));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
@@ -268,11 +331,14 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes =
+         Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
+
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -286,10 +352,10 @@ public final class JSONLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatSearchResultReference(
+    writer.writeSearchResultReference(
          new SearchResultReference(referralURLs, controls));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
@@ -305,11 +371,14 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes =
+         Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
+
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -323,11 +392,11 @@ public final class JSONLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatResult(new LDAPResult(1,
+    writer.writeResult(new LDAPResult(1,
          ResultCode.UNWILLING_TO_PERFORM, "I don't feel like it",
          "dc=example,dc=com", referralURLs, controls));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
@@ -343,16 +412,19 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes =
+         Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
 
-    outputHandler.formatResult(new SearchResult(2, ResultCode.SUCCESS, null,
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
+
+    writer.writeResult(new SearchResult(2, ResultCode.SUCCESS, null,
          null, null, 123, 456, null));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
@@ -368,11 +440,14 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes =
+         Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
+
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -386,12 +461,12 @@ public final class JSONLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatUnsolicitedNotification(null,
+    writer.writeUnsolicitedNotification(null,
          new NoticeOfDisconnectionExtendedResult(0, ResultCode.OTHER,
               "Connection terminated", "dc=example,dc=com", referralURLs,
               controls));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
@@ -407,11 +482,14 @@ public final class JSONLDAPSearchOutputHandlerTestCase
          throws Exception
   {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    final LDAPSearch ldapSearch =
-         new LDAPSearch(outputStream, outputStream);
 
-    final JSONLDAPSearchOutputHandler outputHandler =
-         new JSONLDAPSearchOutputHandler(ldapSearch);
+    final List<String> requestedAttributes =
+         Arrays.asList("uid", "givenName", "sn", "undefined", "mail");
+
+    final ColumnBasedLDAPResultWriter writer =
+         new ColumnBasedLDAPResultWriter(outputStream,
+              OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -425,27 +503,47 @@ public final class JSONLDAPSearchOutputHandlerTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    outputHandler.formatUnsolicitedNotification(null,
+    writer.writeUnsolicitedNotification(null,
          new ExtendedResult(0, ResultCode.OTHER, "Diagnostic Message",
               "o=Matched DN", referralURLs, "1.2.3.3",
               new ASN1OctetString("bar"), controls));
 
-    assertValidJSONObject(outputStream);
+    assertTrue(outputStream.size() > 0);
   }
 
 
 
   /**
-   * Ensures that the provided byte array output stream contains a valid JSON
-   * object.
+   * Retrieves the lines of output written to the provided output stream.
    *
-   * @param  os  The byte array output stream containing the data to verify.
+   * @param  os  The output stream to process.
+   *
+   * @return  The lines of output written to the provided output stream.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  private static void assertValidJSONObject(final ByteArrayOutputStream os)
-          throws  Exception
+  private static List<String> getOutputLines(final ByteArrayOutputStream os)
+          throws Exception
   {
-    new JSONObject(new String(os.toByteArray(), "UTF-8"));
+    final ArrayList<String> lines = new ArrayList<String>(10);
+
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(
+         new ByteArrayInputStream(os.toByteArray())));
+
+    while (true)
+    {
+      final String line = reader.readLine();
+      if (line == null)
+      {
+        break;
+      }
+      else
+      {
+        lines.add(line);
+      }
+    }
+
+    reader.close();
+    return lines;
   }
 }
