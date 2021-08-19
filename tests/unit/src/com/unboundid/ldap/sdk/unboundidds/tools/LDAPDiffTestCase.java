@@ -573,6 +573,61 @@ public final class LDAPDiffTestCase
 
 
   /**
+   * Tests the behavior for the byteForByte argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testByteForByte()
+         throws Exception
+  {
+    try (InMemoryDirectoryServer sourceDS = createTestDS(true, true, 1);
+         InMemoryDirectoryServer targetDS = createTestDS(true, true, 1))
+    {
+      // Alter the user entry on each server to set description values that are
+      // logically equivalent but not byte-for-byte equivalent.
+      sourceDS.modify(
+           "dn: uid=user.1,ou=People,dc=example,dc=com",
+           "changetype: modify",
+           "replace: description",
+           "description: logically equivalent");
+      targetDS.modify(
+           "dn: uid=user.1,ou=People,dc=example,dc=com",
+           "changetype: modify",
+           "replace: description",
+           "description: Logically    Equivalent");
+
+
+      // Test the tool without the --byteForByte argument and verify that the
+      // servers are considered in sync.
+      File outputFile = runTool(sourceDS, targetDS, ResultCode.SUCCESS);
+      List<LDIFChangeRecord> changeRecords = readChangeRecords(outputFile);
+      assertEquals(changeRecords.size(), 0, String.valueOf(changeRecords));
+
+
+      // Test with the --byteForByte argument and verify that the different
+      // description value is identified.
+      outputFile = runTool(sourceDS, targetDS, ResultCode.COMPARE_FALSE,
+           "--byteForByte");
+      changeRecords = readChangeRecords(outputFile);
+      assertEquals(changeRecords.size(), 1, String.valueOf(changeRecords));
+
+      assertEquals(changeRecords.get(0),
+           new LDIFModifyChangeRecord(new ModifyRequest(
+                "dn: uid=user.1,ou=People,dc=example,dc=com",
+                "changetype: modify",
+                "delete: description",
+                "description: logically equivalent",
+                "-",
+                "add: description",
+                "description: Logically    Equivalent")),
+           changeRecords.get(0).toLDIFString());
+    }
+  }
+
+
+
+  /**
    * Tests the behavior for the missingOnly argument.
    *
    * @throws  Exception  If an unexpected problem occurs.

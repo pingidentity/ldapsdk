@@ -92,13 +92,9 @@ final class LDAPDiffProcessor
 
 
 
-  /**
-   * A flag that indicates that the diffing should perform a byte-for-byte
-   * comparison of the values.
-   */
-  private static final boolean USE_BYTE_FOR_BYTE_COMPARISON = true;
-
-
+  // Indicates whether to use a byte-for-byte comparison rather than logical
+  // equivalence.
+  private final boolean byteForByte;
 
   // Indicates whether to only report entries that exist on one server but not
   // the other.
@@ -134,6 +130,9 @@ final class LDAPDiffProcessor
    *                      be {@code null}.
    * @param  schema       The schema to use in processing.  It may optionally be
    *                      {@code null} if no schema is available.
+   * @param  byteForByte  Indicates whether to use a byte-for-byte comparison
+   *                      rather than logical equivalence when comparing
+   *                      entries.
    * @param  attributes   The set of attributes to request when retrieving
    *                      entries from the source and target servers.  It must
    *                      not be {@code null} but may be empty.
@@ -145,6 +144,7 @@ final class LDAPDiffProcessor
        @NotNull final LDAPConnectionPool targetPool,
        @NotNull final DN baseDN,
        @Nullable final Schema schema,
+       final boolean byteForByte,
        @NotNull final String[] attributes,
        final boolean missingOnly)
   {
@@ -152,6 +152,7 @@ final class LDAPDiffProcessor
     this.targetPool = targetPool;
     this.baseDN = baseDN;
     this.schema = schema;
+    this.byteForByte = byteForByte;
     this.attributes = attributes;
     this.missingOnly = missingOnly;
   }
@@ -236,8 +237,7 @@ final class LDAPDiffProcessor
     else
     {
       final List<Modification> mods = Entry.diff(sourceEntry, targetEntry,
-           DO_NOT_IGNORE_RDN, USE_REVERSIBLE_MODE,
-           USE_BYTE_FOR_BYTE_COMPARISON);
+           DO_NOT_IGNORE_RDN, USE_REVERSIBLE_MODE, byteForByte);
       if (mods.isEmpty())
       {
         return LDAPDiffProcessorResult.createNoChangesResult(

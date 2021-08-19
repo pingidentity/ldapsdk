@@ -207,6 +207,7 @@ public final class LDAPDiff
   @Nullable private ArgumentParser parser;
 
   // Arguments to use when processing.
+  @Nullable private BooleanArgument byteForByteArg;
   @Nullable private BooleanArgument missingOnlyArg;
   @Nullable private BooleanArgument quietArg;
   @Nullable private DNArgument baseDNArg;
@@ -581,8 +582,15 @@ public final class LDAPDiff
          INFO_LDAP_DIFF_ARG_GROUP_PROCESSING_ARGS.get());
     parser.addArgument(secondsBetweenPassesArg);
 
+    byteForByteArg = new BooleanArgument(null, "byteForByte", 1,
+         INFO_LDAP_DIFF_ARG_DESC_BYTE_FOR_BYTE.get());
+    byteForByteArg.addLongIdentifier("byte-for-byte", true);
+    byteForByteArg.setArgumentGroupName(
+         INFO_LDAP_DIFF_ARG_GROUP_PROCESSING_ARGS.get());
+    parser.addArgument(byteForByteArg);
+
     missingOnlyArg = new BooleanArgument(null, "missingOnly", 1,
-         INFO_LDAP_DIFF_MISSING_ONLY.get());
+         INFO_LDAP_DIFF_ARG_DESC_MISSING_ONLY.get());
     missingOnlyArg.addLongIdentifier("missing-only", true);
     missingOnlyArg.addLongIdentifier("onlyMissing", true);
     missingOnlyArg.addLongIdentifier("only-missing", true);
@@ -1414,7 +1422,8 @@ public final class LDAPDiff
            parser.getTrailingArguments().toArray(StaticUtils.NO_STRINGS);
 
       final LDAPDiffProcessor processor = new LDAPDiffProcessor(sourcePool,
-           targetPool, baseDN, schema, attributes, missingOnlyArg.isPresent());
+           targetPool, baseDN, schema, byteForByteArg.isPresent(), attributes,
+           missingOnlyArg.isPresent());
 
       parallelProcessor = new ParallelProcessor<>(processor,
            new LDAPSDKThreadFactory("LDAPDiff Compare Processor", true),
