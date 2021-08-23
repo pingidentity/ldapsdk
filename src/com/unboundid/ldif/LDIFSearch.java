@@ -1184,7 +1184,8 @@ public final class LDIFSearch
         {
           try
           {
-            fileOutputStream = new FileOutputStream(outputFile.getValue());
+            fileOutputStream = new FileOutputStream(outputFile.getValue(),
+                 ! overwriteExistingOutputFile.isPresent());
             resultWriter.updateOutputStream(fileOutputStream);
           }
           catch (final Exception e)
