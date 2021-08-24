@@ -254,7 +254,7 @@ public final class LDAPDiff
     final ResultCode resultCode = main(System.out, System.err, args);
     if (resultCode != ResultCode.SUCCESS)
     {
-      System.exit(Math.max(resultCode.intValue(), 255));
+      System.exit(Math.min(resultCode.intValue(), 255));
     }
   }
 
