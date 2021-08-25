@@ -222,7 +222,7 @@ public final class ParallelUpdateTestCase
 
     assertEquals(parallelUpdate.getRejectCount(), 0L);
 
-    assertTrue(parallelUpdate.getTotalOpDurationMillis() > 0L);
+    assertTrue(parallelUpdate.getTotalOpDurationMillis() >= 0L);
   }
 
 
