@@ -1157,7 +1157,7 @@ public final class LDIFSearch
 
 
     // Create the output files, if appropriate.
-    FileOutputStream fileOutputStream = null;
+    OutputStream outputStream = null;
     SearchEntryParer singleParer = null;
     final Map<LDAPURL,LDIFSearchSeparateSearchDetails> separateWriters =
          new LinkedHashMap<>();
@@ -1184,9 +1184,8 @@ public final class LDIFSearch
         {
           try
           {
-            fileOutputStream = new FileOutputStream(outputFile.getValue(),
-                 ! overwriteExistingOutputFile.isPresent());
-            resultWriter.updateOutputStream(fileOutputStream);
+            outputStream = createOutputStream(outputFile.getValue());
+            resultWriter.updateOutputStream(outputStream);
           }
           catch (final Exception e)
           {
@@ -1425,9 +1424,9 @@ public final class LDIFSearch
       try
       {
         resultWriter.flush();
-        if (fileOutputStream != null)
+        if (outputStream != null)
         {
-          fileOutputStream.close();
+          outputStream.close();
         }
       }
       catch (final Exception e)
@@ -1618,20 +1617,17 @@ public final class LDIFSearch
 
 
   /**
-   * Creates an LDIF writer to write to the specified file.
+   * Creates an output stream that may be used to write to the specified file.
    *
-   * @param  f        The file to be written.
-   * @param  ldapURL  The LDAP URL with which the file will be associated.  It
-   *                  may be {@code null} if the file is shared across multiple
-   *                  URLs.
+   * @param  f  The file to be written.
    *
-   * @return  The LDIF writer that was created.
+   * @return  The output stream that was created.
    *
-   * @throws  LDAPException  If a problem occurs while creating the LDIF writer.
+   * @throws  LDAPException  If a problem occurs while creating the output
+   *                         stream.
    */
   @NotNull()
-  private LDIFWriter createLDIFWriter(@NotNull final File f,
-                                      @Nullable final LDAPURL ldapURL)
+  private OutputStream createOutputStream(@NotNull final File f)
           throws LDAPException
   {
     OutputStream outputStream = null;
@@ -1700,6 +1696,48 @@ public final class LDIFSearch
         }
       }
 
+      closeOutputStream = false;
+      return outputStream;
+    }
+    finally
+    {
+      if (closeOutputStream && (outputStream != null))
+      {
+        try
+        {
+          outputStream.close();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+    }
+  }
+
+
+
+  /**
+   * Creates an LDIF writer to write to the specified file.
+   *
+   * @param  f        The file to be written.
+   * @param  ldapURL  The LDAP URL with which the file will be associated.  It
+   *                  may be {@code null} if the file is shared across multiple
+   *                  URLs.
+   *
+   * @return  The LDIF writer that was created.
+   *
+   * @throws  LDAPException  If a problem occurs while creating the LDIF writer.
+   */
+  @NotNull()
+  private LDIFWriter createLDIFWriter(@NotNull final File f,
+                                      @Nullable final LDAPURL ldapURL)
+          throws LDAPException
+  {
+    boolean closeOutputStream = true;
+    final OutputStream outputStream = createOutputStream(f);
+    try
+    {
       final LDIFWriter ldifWriter = new LDIFWriter(outputStream);
       if (doNotWrap.isPresent())
       {
@@ -1733,7 +1771,7 @@ public final class LDIFSearch
     }
     finally
     {
-      if (closeOutputStream && (outputStream != null))
+      if (closeOutputStream)
       {
         try
         {
