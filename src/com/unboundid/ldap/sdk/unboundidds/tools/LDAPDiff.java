@@ -1102,13 +1102,16 @@ public final class LDAPDiff
       // Compare the entries in each server and write the results.
       try
       {
+        final AtomicReference<ResultCode> resultCodeRef =
+             new AtomicReference<>();
         final long[] entryCounts = identifyDifferences(sourcePool, targetPool,
-             baseDN, schema, dnsToExamine);
+             baseDN, schema, resultCodeRef, dnsToExamine);
         final long inSyncCount = entryCounts[0];
         final long addCount = entryCounts[1];
         final long delCount = entryCounts[2];
         final long modCount = entryCounts[3];
         final long missingCount = entryCounts[4];
+        final long errorCount = entryCounts[5];
         final long totalDifferenceCount = addCount + delCount + modCount;
         final long totalExaminedCount = inSyncCount + totalDifferenceCount;
 
@@ -1138,13 +1141,27 @@ public final class LDAPDiff
                INFO_LDAP_DIFF_SUMMARY_MISSING_COUNT.get(missingCount));
         }
 
+        if (errorCount > 0)
+        {
+          wrapOut(0, WRAP_COLUMN,
+               INFO_LDAP_DIFF_SUMMARY_ERROR_COUNT.get(errorCount));
+        }
+
         out();
 
-        if (totalDifferenceCount == 0)
+        if (errorCount > 0)
+        {
+          writeCompletionMessage(false,
+               INFO_LDAP_DIFF_ERRORS_IDENTIFYING_ENTRIES.get());
+          resultCodeRef.compareAndSet(null, ResultCode.LOCAL_ERROR);
+          return resultCodeRef.get();
+        }
+        else if (totalDifferenceCount == 0)
         {
           writeCompletionMessage(false,
                INFO_LDAP_DIFF_SERVERS_IN_SYNC.get());
-          return ResultCode.SUCCESS;
+          resultCodeRef.compareAndSet(null, ResultCode.SUCCESS);
+          return resultCodeRef.get();
         }
         else
         {
@@ -1159,7 +1176,8 @@ public final class LDAPDiff
                  WARN_LDAP_DIFF_DIFFERENCES_FOUND.get(totalDifferenceCount));
           }
 
-          return ResultCode.COMPARE_FALSE;
+          resultCodeRef.compareAndSet(null, ResultCode.COMPARE_FALSE);
+          return resultCodeRef.get();
         }
       }
       catch (final LDAPException e)
@@ -1350,20 +1368,25 @@ public final class LDAPDiff
    * output files, and the return value will provide information about the
    * number of entries in each result category.
    *
-   * @param  sourcePool    A connection pool that may be used to communicate
-   *                       with the source server.  It must not be {@code null}.
-   * @param  targetPool    A connection pool that may be used to communicate
-   *                       with the target server.  It must not be {@code null}.
-   * @param  baseDN        The base DN for entries to examine.  It must not be
-   *                       {@code null}.
-   * @param  schema        The schema to use in processing.  It may optionally
-   *                       be {@code null} if no schema is available.
-   * @param  dnsToExamine  The set of DNs to examine.  It must not be
-   *                       {@code null}.
+   * @param  sourcePool     A connection pool that may be used to communicate
+   *                        with the source server.  It must not be
+   *                        {@code null}.
+   * @param  targetPool     A connection pool that may be used to communicate
+   *                        with the target server.  It must not be
+   *                        {@code null}.
+   * @param  baseDN         The base DN for entries to examine.  It must not be
+   *                        {@code null}.
+   * @param  schema         The schema to use in processing.  It may optionally
+   *                        be {@code null} if no schema is available.
+   * @param  resultCodeRef  A reference that may be updated to set the result
+   *                        code that should be returned.  It must not be
+   *                        {@code null} but may be unset.
+   * @param  dnsToExamine   The set of DNs to examine.  It must not be
+   *                        {@code null}.
    *
    * @return  An array of {@code long} values that provide the number of entries
    *          in each result category.  The array that is returned will contain
-   *          five elements.  The first will be the number of entries that were
+   *          six elements.  The first will be the number of entries that were
    *          found to be in sync between the source and target servers.  The
    *          second will be the number of entries that were present only in the
    *          target server and need to be added to the source server.  The
@@ -1372,7 +1395,9 @@ public final class LDAPDiff
    *          number of entries that were present in both servers but were not
    *          equivalent and therefore need to be modified in the source server.
    *          The fifth will be the number of entries that were initially
-   *          identified but were subsequently not found in either server.
+   *          identified but were subsequently not found in either server.  The
+   *          sixth element will be the number of errors encountered while
+   *          attempting to examine entries.
    *
    * @throws  LDAPException  If an unrecoverable error occurs during processing.
    */
@@ -1382,6 +1407,7 @@ public final class LDAPDiff
                       @NotNull final LDAPConnectionPool targetPool,
                       @NotNull final DN baseDN,
                       @Nullable final Schema schema,
+                      @NotNull final AtomicReference<ResultCode> resultCodeRef,
                       @NotNull final TreeSet<LDAPDiffCompactDN> dnsToExamine)
           throws LDAPException
   {
@@ -1403,6 +1429,7 @@ public final class LDAPDiff
     long deleteCount = 0L;
     long modifyCount = 0L;
     long missingCount = 0L;
+    long errorCount = 0L;
     ParallelProcessor<LDAPDiffCompactDN,LDAPDiffProcessorResult>
          parallelProcessor = null;
     final String sourceHostPort =
@@ -1501,18 +1528,55 @@ public final class LDAPDiff
             final Throwable exception = result.getFailureCause();
             if (exception != null)
             {
-              if (exception instanceof LDAPException)
+              final LDAPDiffCompactDN compactDN = result.getInput();
+              if (! isLastPass)
               {
-                throw (LDAPException) exception;
+                nextPassDNs.add(compactDN);
+                differencesIdentifiedCount++;
               }
               else
               {
-                throw new LDAPException(ResultCode.LOCAL_ERROR,
-                     ERR_LDAP_DIFF_ERROR_COMPARING_ENTRY.get(
-                          result.getInput().toDN(baseDN, schema).toString(),
-                          StaticUtils.getExceptionMessage(exception)),
-                     exception);
+                final LDAPException reportException;
+                if (exception instanceof LDAPException)
+                {
+                  final LDAPException caughtException =
+                       (LDAPException) exception;
+                  reportException = new LDAPException(
+                       caughtException.getResultCode(),
+                       ERR_LDAP_DIFF_ERROR_COMPARING_ENTRY.get(
+                            compactDN.toDN(baseDN, schema).toString(),
+                            caughtException.getMessage()),
+                       caughtException.getMatchedDN(),
+                       caughtException.getReferralURLs(),
+                       caughtException.getResponseControls(),
+                       caughtException.getCause());
+                }
+                else
+                {
+                  reportException = new LDAPException(ResultCode.LOCAL_ERROR,
+                       ERR_LDAP_DIFF_ERROR_COMPARING_ENTRY.get(
+                            compactDN.toDN(baseDN, schema).toString(),
+                            StaticUtils.getExceptionMessage(exception)),
+                       exception);
+                }
+
+                errorCount++;
+                resultCodeRef.compareAndSet(null,
+                     reportException.getResultCode());
+
+                final List<String> formattedResultLines =
+                     ResultUtils.formatResult(reportException, false, 0,
+                          (WRAP_COLUMN - 2));
+                final Iterator<String> resultLineIterator =
+                     formattedResultLines.iterator();
+                while (resultLineIterator.hasNext())
+                {
+                  mergedWriter.writeComment(resultLineIterator.next(), false,
+                       (! resultLineIterator.hasNext()));
+                }
               }
+
+              continue;
             }
 
             final LDAPDiffProcessorResult resultOutput = result.getOutput();
@@ -1670,7 +1734,8 @@ public final class LDAPDiff
         for (final LDAPDiffCompactDN compactDN :
              deletedEntryDNs.descendingSet())
         {
-          final SearchResultEntry entry;
+          SearchResultEntry entry = null;
+          LDAPException ldapException = null;
           final String dnString = compactDN.toDN(baseDN, schema).toString();
           try
           {
@@ -1679,11 +1744,10 @@ public final class LDAPDiff
           catch (final LDAPException e)
           {
             Debug.debugException(e);
-            throw new LDAPException(e.getResultCode(),
+            ldapException = new LDAPException(e.getResultCode(),
                  ERR_LDAP_DIFF_CANNOT_GET_ENTRY_TO_DELETE.get(dnString,
                       StaticUtils.getExceptionMessage(e)),
                  e);
-
           }
 
           if (entry != null)
@@ -1698,6 +1762,13 @@ public final class LDAPDiff
               mergedWriter.writeComment(line, false, false);
             }
 
+            mergedWriter.writeChangeRecord(
+                 new LDIFDeleteChangeRecord(entry.getDN()));
+          }
+          else if (ldapException != null)
+          {
+            mergedWriter.writeComment(ldapException.getExceptionMessage(),
+                 false, false);
             mergedWriter.writeChangeRecord(
                  new LDIFDeleteChangeRecord(entry.getDN()));
           }
@@ -1802,7 +1873,8 @@ public final class LDAPDiff
       addCount,
       deleteCount,
       modifyCount,
-      missingCount
+      missingCount,
+      errorCount
     };
   }
 
