@@ -44,6 +44,7 @@ import java.util.EnumSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -171,6 +172,19 @@ public final class Debug
 
 
   /**
+   * The name of the system property that will be used to indicate that debug
+   * log messages should be written to the specified file.  The fully-qualified
+   * name for this property is "{@code com.unboundid.ldap.sdk.debug.file}".  If
+   * it is set, then its value should be a pattern that describes the path to
+   * the log file to create as described in the Javadoc documentation for the
+   * {@code java.util.logging.FileHandler} class.
+   */
+  @NotNull public static final String PROPERTY_DEBUG_FILE =
+       "com.unboundid.ldap.sdk.debug.file";
+
+
+
+  /**
    * The name that will be used for the Java logger that will actually handle
    * the debug messages if debugging is enabled.
    */
@@ -219,6 +233,26 @@ public final class Debug
     initialize(StaticUtils.getSystemProperties(PROPERTY_DEBUG_ENABLED,
          PROPERTY_DEBUG_LEVEL, PROPERTY_DEBUG_TYPE,
          PROPERTY_INCLUDE_STACK_TRACE));
+
+    final String logFilePropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_DEBUG_FILE);
+    if (logFilePropertyValue != null)
+    {
+      try
+      {
+        logger.setUseParentHandlers(false);
+
+        final FileHandler fileHandler =
+             new FileHandler(logFilePropertyValue, true);
+        fileHandler.setFormatter(
+             new MinimalLogFormatter(null, false, false, true));
+        logger.addHandler(fileHandler);
+      }
+      catch (final Exception e)
+      {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
 

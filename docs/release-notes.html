@@ -42,6 +42,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added support for a new "com.unboundid.ldap.sdk.debug.file" property that can be
+                  used to indicate that LDAP SDK debug log messages should be written to a
+                  specified file.  This is intended to be used in conjunction with other
+                  debugging-related properties that can enable and configure debug logging without
+                  a code change in the underlying application.  Previously, the output was always
+                  written to the JVM's standard error stream, but this property will cause it to
+                  be written to a file instead.
+                  <br><br>
+                </li>
+
+                <li>
                   Lowered the debug level for exception messages that may be logged as a result of
                   a SocketTimeoutException caught internally in the course of trying whether to
                   determine whether a pooled connection operating in synchronous mode is still

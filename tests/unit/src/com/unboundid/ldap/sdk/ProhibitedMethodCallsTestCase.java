@@ -298,7 +298,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "Debug.java", StaticUtils.setOf(91),
+         "Debug.java", StaticUtils.setOf(92),
          "StaticUtils.java", StaticUtils.setOf(563, 586));
 
     final Map<Integer,String> unwrappedLines =
