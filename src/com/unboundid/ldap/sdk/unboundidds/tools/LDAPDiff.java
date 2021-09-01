@@ -200,6 +200,44 @@ public final class LDAPDiff
 
 
 
+  /**
+   * The legacy version of the result code that will be used to indicate that
+   * an error occurred while processing command-line arguments for the tool.
+   */
+  @NotNull private static final ResultCode LEGACY_EXIT_CODE_ARG_PARSING_ERROR =
+       ResultCode.PROTOCOL_ERROR;
+
+
+
+  /**
+   * The legacy version of the result code that will be used to indicate that
+   * all processing completed successfully, but that one or more differences
+   * were identified between the source and target servers.
+   */
+  @NotNull private static final ResultCode LEGACY_EXIT_CODE_OUT_OF_SYNC =
+       ResultCode.TIME_LIMIT_EXCEEDED;
+
+
+
+  /**
+   * The legacy version of the result code that will be used to indicate that
+   * all processing completed successfully and no differences were identified
+   * between the source and target servers.
+   */
+  @NotNull private static final ResultCode LEGACY_EXIT_CODE_SUCCESS =
+       ResultCode.SUCCESS;
+
+
+
+  /**
+   * The legacy version of the result code that will be used to indicate that
+   * an unexpected error occurred during processing.
+   */
+  @NotNull private static final ResultCode LEGACY_EXIT_CODE_UNEXPECTED_ERROR =
+       ResultCode.OPERATIONS_ERROR;
+
+
+
   // A reference to the tool completion message for this tool.
   @NotNull private final AtomicReference<String> toolCompletionMessageRef;
 
@@ -225,6 +263,7 @@ public final class LDAPDiff
   // Legacy arguments used only to provide compatibility with an older version
   // of this tool.
   @Nullable private BooleanArgument legacyTrustAllArg;
+  @Nullable private BooleanArgument useLegacyExitCodeArg;
   @Nullable private DNArgument legacySourceBindDNArg;
   @Nullable private FileArgument legacyKeyStorePathArg;
   @Nullable private FileArgument legacyKeyStorePasswordFileArg;
@@ -285,7 +324,29 @@ public final class LDAPDiff
                                 @NotNull final String... args)
   {
     final LDAPDiff ldapDiff = new LDAPDiff(out, err);
-    return ldapDiff.runTool(args);
+
+    ResultCode resultCode = ldapDiff.runTool(args);
+    if ((ldapDiff.useLegacyExitCodeArg != null) &&
+         (ldapDiff.useLegacyExitCodeArg.isPresent()))
+    {
+      switch (resultCode.intValue())
+      {
+        case ResultCode.SUCCESS_INT_VALUE:
+          resultCode = LEGACY_EXIT_CODE_SUCCESS;
+          break;
+        case ResultCode.COMPARE_FALSE_INT_VALUE:
+          resultCode = LEGACY_EXIT_CODE_OUT_OF_SYNC;
+          break;
+        case ResultCode.PARAM_ERROR_INT_VALUE:
+          resultCode = LEGACY_EXIT_CODE_ARG_PARSING_ERROR;
+          break;
+        default:
+          resultCode = LEGACY_EXIT_CODE_UNEXPECTED_ERROR;
+          break;
+      }
+    }
+
+    return resultCode;
   }
 
 
@@ -322,6 +383,7 @@ public final class LDAPDiff
     searchScopeArg = null;
 
     legacyTrustAllArg = null;
+    useLegacyExitCodeArg = null;
     legacySourceBindDNArg = null;
     legacyKeyStorePathArg = null;
     legacyKeyStorePasswordFileArg = null;
@@ -601,6 +663,20 @@ public final class LDAPDiff
 
     // Add legacy arguments that will be used to help provide compatibility with
     // an older version of this tool.
+    useLegacyExitCodeArg = new BooleanArgument(null, "useLegacyExitCode", 1,
+         INFO_LDAP_DIFF_ARG_DESC_USE_LEGACY_EXIT_CODE.get());
+    useLegacyExitCodeArg.addLongIdentifier("use-legacy-exit-code", true);
+    useLegacyExitCodeArg.addLongIdentifier("useLegacyResultCode", true);
+    useLegacyExitCodeArg.addLongIdentifier("use-legacy-result-code", true);
+    useLegacyExitCodeArg.addLongIdentifier("legacyExitCode", true);
+    useLegacyExitCodeArg.addLongIdentifier("legacy-exit-code", true);
+    useLegacyExitCodeArg.addLongIdentifier("legacyResultCode", true);
+    useLegacyExitCodeArg.addLongIdentifier("legacy-result-code", true);
+    useLegacyExitCodeArg.setArgumentGroupName(
+         INFO_LDAP_DIFF_ARG_GROUP_PROCESSING_ARGS.get());
+    parser.addArgument(useLegacyExitCodeArg);
+
+
     legacySourceHostArg = new StringArgument('h', null, false, 1, null, "");
     legacySourceHostArg.setHidden(true);
     parser.addArgument(legacySourceHostArg);

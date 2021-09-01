@@ -995,6 +995,203 @@ public final class LDAPDiffTestCase
 
 
   /**
+   * Tests to ensure that the appropriate exit code is used when processing
+   * is successful, no differences are identified, and legacy exit codes should
+   * be used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLegacyExitCodeSuccess()
+         throws Exception
+  {
+    try (InMemoryDirectoryServer sourceDS = createTestDS(false, false, 0);
+         InMemoryDirectoryServer targetDS = createTestDS(false, false, 0))
+    {
+      final File outputFile = createTempFile();
+      assertTrue(outputFile.delete());
+
+      final List<String> argsList = new ArrayList<>();
+      argsList.addAll(Arrays.asList(
+           "--sourceHostname", "localhost",
+           "--sourcePort", String.valueOf(sourceDS.getListenPort()),
+           "--sourceBindDN", "cn=Directory Manager",
+           "--sourceBindPassword", "password",
+           "--targetHostname", "localhost",
+           "--targetPort", String.valueOf(targetDS.getListenPort()),
+           "--targetBindDN", "cn=Directory Manager",
+           "--targetBindPassword", "password",
+           "--baseDN", "dc=example,dc=com",
+           "--secondsBetweenPasses", "0",
+           "--outputLDIF", outputFile.getAbsolutePath()));
+      String[] argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.SUCCESS);
+
+      assertTrue(outputFile.delete());
+      argsList.add("--useLegacyExitCode");
+      argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.SUCCESS);
+    }
+  }
+
+
+
+  /**
+   * Tests to ensure that the appropriate exit code is used when processing
+   * is successful, differences are identified, and legacy exit codes should
+   * be used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLegacyExitCodeOutOfSync()
+         throws Exception
+  {
+    try (InMemoryDirectoryServer sourceDS = createTestDS(false, false, 0);
+         InMemoryDirectoryServer targetDS = createTestDS(false, false, 0))
+    {
+      sourceDS.add(
+           "dn: dc=example,dc=com",
+           "objectClass: top",
+           "objectClass: domain",
+           "dc: example",
+           "description: source description");
+      targetDS.add(
+           "dn: dc=example,dc=com",
+           "objectClass: top",
+           "objectClass: domain",
+           "dc: example",
+           "description: target description");
+
+      final File outputFile = createTempFile();
+      assertTrue(outputFile.delete());
+
+      final List<String> argsList = new ArrayList<>();
+      argsList.addAll(Arrays.asList(
+           "--sourceHostname", "localhost",
+           "--sourcePort", String.valueOf(sourceDS.getListenPort()),
+           "--sourceBindDN", "cn=Directory Manager",
+           "--sourceBindPassword", "password",
+           "--targetHostname", "localhost",
+           "--targetPort", String.valueOf(targetDS.getListenPort()),
+           "--targetBindDN", "cn=Directory Manager",
+           "--targetBindPassword", "password",
+           "--baseDN", "dc=example,dc=com",
+           "--secondsBetweenPasses", "0",
+           "--outputLDIF", outputFile.getAbsolutePath()));
+      String[] argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.COMPARE_FALSE);
+
+      assertTrue(outputFile.delete());
+      argsList.add("--useLegacyExitCode");
+      argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.TIME_LIMIT_EXCEEDED);
+    }
+  }
+
+
+
+  /**
+   * Tests to ensure that the appropriate exit code is used when an argument
+   * processing error occurs and legacy exit codes should be used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLegacyExitCodeArgParsingError()
+         throws Exception
+  {
+    try (InMemoryDirectoryServer sourceDS = createTestDS(false, false, 0);
+         InMemoryDirectoryServer targetDS = createTestDS(false, false, 0))
+    {
+      final File outputFile = createTempFile();
+      assertTrue(outputFile.delete());
+
+      final List<String> argsList = new ArrayList<>();
+      argsList.addAll(Arrays.asList(
+           "--sourceHostname", "localhost",
+           "--sourcePort", String.valueOf(sourceDS.getListenPort()),
+           "--sourceBindDN", "cn=Directory Manager",
+           "--sourceBindPassword", "password",
+           "--targetHostname", "localhost",
+           "--targetPort", String.valueOf(targetDS.getListenPort()),
+           "--targetBindDN", "cn=Directory Manager",
+           "--targetBindPassword", "password",
+           "--baseDN", "",
+           "--secondsBetweenPasses", "0",
+           "--outputLDIF", outputFile.getAbsolutePath()));
+      String[] argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.PARAM_ERROR);
+
+      argsList.add("--useLegacyExitCode");
+      argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.PROTOCOL_ERROR);
+    }
+  }
+
+
+
+  /**
+   * Tests to ensure that the appropriate exit code is used when a
+   * non-argument-related error occurs during processing and legacy exit codes
+   * should be used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLegacyExitCodeUnknownError()
+         throws Exception
+  {
+    try (InMemoryDirectoryServer sourceDS = createTestDS(false, false, 0);
+         InMemoryDirectoryServer targetDS = createTestDS(false, false, 0))
+    {
+      final File outputFile = createTempFile();
+      assertTrue(outputFile.delete());
+
+      final List<String> argsList = new ArrayList<>();
+      argsList.addAll(Arrays.asList(
+           "--sourceHostname", "localhost",
+           "--sourcePort", String.valueOf(sourceDS.getListenPort()),
+           "--sourceBindDN", "cn=Directory Manager",
+           "--sourceBindPassword", "password",
+           "--targetHostname", "localhost",
+           "--targetPort", String.valueOf(targetDS.getListenPort()),
+           "--targetBindDN", "cn=Directory Manager",
+           "--targetBindPassword", "password",
+           "--baseDN", "dc=example,dc=com",
+           "--secondsBetweenPasses", "0",
+           "--outputLDIF", outputFile.getAbsolutePath()));
+      String[] argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      sourceDS.shutDown(true);
+      targetDS.shutDown(true);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.CONNECT_ERROR);
+
+      argsList.add("--useLegacyExitCode");
+      argsArray = argsList.toArray(StaticUtils.NO_STRINGS);
+
+      assertEquals(LDAPDiff.main(null, null, argsArray),
+           ResultCode.OPERATIONS_ERROR);
+    }
+  }
+
+
+
+  /**
    * Creates a new in-memory directory server instance with the specified
    * number of entries.
    *
