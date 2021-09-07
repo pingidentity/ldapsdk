@@ -68,6 +68,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
@@ -6608,5 +6609,300 @@ public final class InMemoryDirectoryServerTestCase
 
 
     ds.shutDown(true);
+  }
+
+
+
+  /**
+   * Tests to ensure that the in-memory directory server properly returns
+   * referrals when expected.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReferrals()
+         throws Exception
+  {
+    // Get an in-memory directory server instance with a basic structure.
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    // Add a smart referral entry to the server.
+    LDAPURL referralURL = new LDAPURL("ldap", "127.0.0.1", ds.getListenPort(),
+         new DN("ou=People,dc=example,dc=com"), null, null, null);
+    ds.add(
+         "dn: ou=Users,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: referral",
+         "objectClass: extensibleObject",
+         "ou: Users",
+         "ref: " + referralURL.toString());
+
+
+    try (LDAPConnection conn = ds.getConnection())
+    {
+      // Test to ensure that an appropriate referral is returned when attempting
+      // an add.
+      final LDAPResult addResult = assertResultCodeEquals(conn,
+           new AddRequest(
+                "dn: uid=referral.test,ou=Users,dc=example,dc=com",
+                "objectClass: top",
+                "objectClass: person",
+                "objectClass: organizationalPerson",
+                "objectClass: inetOrgPerson",
+                "uid: referral.test",
+                "givenName: Referral",
+                "sn: Test",
+                "cn: Referral Test"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(addResult.getReferralURLs());
+      assertEquals(addResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(addResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("uid=referral.test,ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // the referral entry itself with a compare operation.
+      LDAPResult compareResult = assertResultCodeEquals(conn,
+           new CompareRequest("ou=Users,dc=example,dc=com", "objectClass",
+                "organizationalUnit"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(compareResult.getReferralURLs());
+      assertEquals(compareResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(compareResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // an entry below the referral entry with a compare operation.
+      compareResult = assertResultCodeEquals(conn,
+           new CompareRequest("uid=test.user,ou=Users,dc=example,dc=com",
+                "objectClass", "person"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(compareResult.getReferralURLs());
+      assertEquals(compareResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(compareResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("uid=test.user,ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // the referral entry itself with a delete operation.
+      LDAPResult deleteResult = assertResultCodeEquals(conn,
+           new DeleteRequest("ou=Users,dc=example,dc=com"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(deleteResult.getReferralURLs());
+      assertEquals(deleteResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(deleteResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // an entry below the referral entry with a delete operation.
+      deleteResult = assertResultCodeEquals(conn,
+           new DeleteRequest("uid=test.user,ou=Users,dc=example,dc=com"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(deleteResult.getReferralURLs());
+      assertEquals(deleteResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(deleteResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("uid=test.user,ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // the referral entry itself with a modify operation.
+      LDAPResult modifyResult = assertResultCodeEquals(conn,
+           new ModifyRequest(
+                "dn: ou=Users,dc=example,dc=com",
+                "changetype: modify",
+                "replace: description",
+                "description: foo"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(modifyResult.getReferralURLs());
+      assertEquals(modifyResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(modifyResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // an entry below the referral entry with a modify operation.
+      modifyResult = assertResultCodeEquals(conn,
+           new ModifyRequest(
+                "dn: uid=test.user,ou=Users,dc=example,dc=com",
+                "changetype: modify",
+                "replace: description",
+                "description: bar"),
+           ResultCode.REFERRAL);
+
+      assertNotNull(modifyResult.getReferralURLs());
+      assertEquals(modifyResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(modifyResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("uid=test.user,ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // the referral entry itself with a modify DN operation.
+      LDAPResult modifyDNResult = assertResultCodeEquals(conn,
+           new ModifyDNRequest("ou=Users,dc=example,dc=com", "ou=Persons",
+                true),
+           ResultCode.REFERRAL);
+
+      assertNotNull(modifyDNResult.getReferralURLs());
+      assertEquals(modifyDNResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(modifyDNResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when targeting
+      // an entry below the referral entry with a modify operation.
+      modifyDNResult = assertResultCodeEquals(conn,
+           new ModifyDNRequest("uid=test.user,ou=Users,dc=example,dc=com",
+                "cn=Test User", false),
+           ResultCode.REFERRAL);
+
+      assertNotNull(modifyDNResult.getReferralURLs());
+      assertEquals(modifyDNResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(modifyDNResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("uid=test.user,ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+
+      // Test to ensure that an appropriate referral is returned when performing
+      // a search in which the base entry itself is a referral entry.
+      SearchResult searchResult = (SearchResult) assertResultCodeEquals(conn,
+           new SearchRequest("ou=Users,dc=example,dc=com", SearchScope.SUB,
+                Filter.createEqualityFilter("objectClass", "person")),
+           ResultCode.REFERRAL);
+
+      assertNotNull(searchResult.getReferralURLs());
+      assertEquals(searchResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(searchResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+      assertEquals(searchResult.getSearchEntries().size(), 0);
+      assertEquals(searchResult.getSearchReferences().size(), 0);
+
+
+      // Test to ensure that an appropriate referral is returned when performing
+      // a search in which the base entry itself is below a referral entry.
+      searchResult = (SearchResult) assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=Users,dc=example,dc=com",
+                SearchScope.SUB,
+                Filter.createEqualityFilter("objectClass", "person")),
+           ResultCode.REFERRAL);
+
+      assertNotNull(searchResult.getReferralURLs());
+      assertEquals(searchResult.getReferralURLs().length, 1);
+      referralURL = new LDAPURL(searchResult.getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("uid=test.user,ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+
+      assertEquals(searchResult.getSearchEntries().size(), 0);
+      assertEquals(searchResult.getSearchReferences().size(), 0);
+
+
+      // Test to ensure that a search result reference is returned when
+      // performing a search in which the base entry is above a smart referral
+      // entry.  The search itself should have a success result.
+      searchResult = (SearchResult) assertResultCodeEquals(conn,
+           new SearchRequest("dc=example,dc=com", SearchScope.SUB,
+                Filter.createEqualityFilter("objectClass", "person")),
+           ResultCode.SUCCESS);
+
+      assertNotNull(searchResult.getReferralURLs());
+      assertEquals(searchResult.getReferralURLs().length, 0);
+
+      assertEquals(searchResult.getSearchEntries().size(), 1);
+      assertEquals(searchResult.getSearchReferences().size(), 1);
+
+      referralURL = new LDAPURL(
+           searchResult.getSearchReferences().get(0).getReferralURLs()[0]);
+      assertEquals(referralURL.getScheme(), "ldap");
+      assertEquals(referralURL.getHost(), "127.0.0.1");
+      assertEquals(referralURL.getPort(), ds.getListenPort());
+      assertEquals(referralURL.getBaseDN(),
+           new DN("ou=People,dc=example,dc=com"));
+      assertFalse(referralURL.scopeProvided());
+      assertFalse(referralURL.attributesProvided());
+      assertFalse(referralURL.filterProvided());
+    }
   }
 }

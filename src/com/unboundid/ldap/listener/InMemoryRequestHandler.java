@@ -3849,12 +3849,17 @@ findEntriesAndRefs:
             final Entry entry = me.getValue();
             try
             {
-              if (dn.matchesBaseAndScope(baseDN, scope) &&
-                   filter.matchesEntry(entry, schema))
+              if (dn.matchesBaseAndScope(baseDN, scope))
               {
-                processSearchEntry(entry, includeSubEntries,
-                     includeNonSubEntries, includeChangeLog, hasManageDsaIT,
-                     fullEntryList, referenceList);
+                if (filter.matchesEntry(entry, schema) ||
+                     (((! hasManageDsaIT) &&
+                          entry.hasObjectClass("referral") &&
+                          entry.hasAttribute("ref"))))
+                {
+                  processSearchEntry(entry, includeSubEntries,
+                       includeNonSubEntries, includeChangeLog, hasManageDsaIT,
+                       fullEntryList, referenceList);
+                }
               }
             }
             catch (final Exception e)
@@ -3875,7 +3880,10 @@ findEntriesAndRefs:
               }
 
               final Entry entry = entryMap.get(dn);
-              if (filter.matchesEntry(entry, schema))
+              if (filter.matchesEntry(entry, schema) ||
+                   (((! hasManageDsaIT) &&
+                        entry.hasObjectClass("referral") &&
+                        entry.hasAttribute("ref"))))
               {
                 processSearchEntry(entry, includeSubEntries,
                      includeNonSubEntries, includeChangeLog, hasManageDsaIT,
