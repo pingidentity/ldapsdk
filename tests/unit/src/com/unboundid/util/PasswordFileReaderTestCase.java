@@ -312,6 +312,35 @@ public final class PasswordFileReaderTestCase
 
 
   /**
+   * Tests the behavior when trying to read a password from a file that is
+   * encrypted, but when the encryption key is not available and the reader is
+   * not allowed to prompt for it.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCannotDecryptNoPrompt()
+         throws Exception
+  {
+    final PasswordFileReader reader = new PasswordFileReader(false);
+
+    final File f = writeFile("right-passphrase", false, "password");
+
+    try
+    {
+      reader.readPassword(f.getAbsolutePath());
+      fail("Expected an exception when trying to read from an encrypted file " +
+           "when the passphrase cannot be obtained.");
+    }
+    catch (final IOException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
    * Creates a file with the provided information.
    *
    * @param  encryptionPassphrase  The passphrase used to encrypt the contents

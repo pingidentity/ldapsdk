@@ -41,6 +41,9 @@ import java.io.File;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -52,6 +55,10 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.ServerSet;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.SingleServerSet;
+import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
 
 
 
@@ -715,5 +722,83 @@ public final class MultiServerLDAPCommandLineToolTestCase
     final TestMultiServerLDAPCommandLineTool t =
          new TestMultiServerLDAPCommandLineTool(prefixes, suffixes);
     assertNull(t.getExampleUsages());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to communicate with a server over SSL when
+   * the defaultTrust argument is provided and the certificate cannot be trusted
+   * using the default trust mechanism.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSSLWithUnsatisfiedDefaultTrust()
+         throws Exception
+  {
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com",
+              "o=example.com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+    cfg.addAdditionalBindCredentials("cn=Manager", "password");
+    cfg.setSchema(Schema.getDefaultStandardSchema());
+
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File serverKeyStore   = new File(resourceDir, "server.keystore");
+
+    final SSLUtil serverSSLUtil = new SSLUtil(
+         new KeyStoreKeyManager(serverKeyStore, "password".toCharArray(),
+              "JKS", "server-cert"),
+         new TrustAllTrustManager());
+    final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
+
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPSConfig("LDAPS",
+         null, 0, serverSSLUtil.createSSLServerSocketFactory(),
+         clientSSLUtil.createSSLSocketFactory()));
+
+    try (InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg))
+    {
+      ds.startListening();
+
+      final String[] prefixes = { "source", "target" };
+      final String[] suffixes = null;
+
+      final TestMultiServerLDAPCommandLineTool t =
+           new TestMultiServerLDAPCommandLineTool(prefixes, suffixes);
+      t.runTool(
+           "--sourceHostname", "127.0.0.1",
+           "--sourcePort", String.valueOf(ds.getListenPort()),
+           "--sourceUseSSL",
+           "--sourceTrustAll",
+
+           "--targetHostname", "127.0.0.1",
+           "--targetPort", String.valueOf(ds.getListenPort()),
+           "--targetUseSSL",
+           "--targetDefaultTrust");
+
+      // Make sure that we can successfully get a connection to the source
+      // server, which uses SSL with blind trust.
+      try (LDAPConnection conn = t.getConnection(0))
+      {
+        assertNotNull(conn.getRootDSE());
+      }
+
+      // Make sure that we can't get a connection to the target server, which
+      // uses default trust.
+      try
+      {
+        try (LDAPConnection conn = t.getConnection(1))
+        {
+          assertNotNull(conn.getRootDSE());
+        }
+        fail("Expected an exception when connecting with an unsatisfied " +
+             "default trust");
+      }
+      catch (final LDAPException e)
+      {
+        // This was expected
+      }
+    }
   }
 }

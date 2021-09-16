@@ -91,6 +91,10 @@ import static com.unboundid.util.UtilityMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class PasswordFileReader
 {
+  // Indicates whether to allow interactively prompting for a passphrase if the
+  // specified file is encrypted and the key cannot be automatically obtained.
+  private final boolean allowPromptingForPassphrase;
+
   // A list of passwords that will be tried as encryption keys if an encrypted
   // password file is encountered.
   @NotNull private final CopyOnWriteArrayList<char[]> encryptionPasswordCache;
@@ -109,17 +113,38 @@ public final class PasswordFileReader
 
   /**
    * Creates a new instance of this password file reader.  The JVM-default
-   * standard output and error streams will be used.
+   * standard output and error streams will be used if it is necessary to
+   * interactively prompt the user for an encryption passphrase.
    */
   public PasswordFileReader()
   {
-    this(System.out, System.err);
+    this(true);
   }
 
 
 
   /**
-   * Creates a new instance of this password file reader.
+   * Creates a new instance of this password file reader.  The JVM-default
+   * standard output and error streams will be used if it is necessary to
+   * interactively prompt the user for an encryption passphrase.
+   *
+   * @param  allowPromptingForPassphrase
+   *              Indicates whether to allow interactively prompting the end
+   *              user for the encryption passphrase if the file is encrypted
+   *              and the key cannot be automatically obtained (for example,
+   *              from a Ping Identity server's encryption settings database).
+   */
+  public PasswordFileReader(final boolean allowPromptingForPassphrase)
+  {
+    this(System.out, System.err, allowPromptingForPassphrase);
+  }
+
+
+
+  /**
+   * Creates a new instance of this password file reader using the specified
+   * output and error streams if it is necessary to interactively prompt the
+   * user for an encryption passphrase.
    *
    * @param  standardOutput  The print stream that should be used as standard
    *                         output if an encrypted password file is encountered
@@ -135,6 +160,38 @@ public final class PasswordFileReader
   public PasswordFileReader(@NotNull final PrintStream standardOutput,
                             @NotNull final PrintStream standardError)
   {
+    this(standardOutput, standardError, true);
+  }
+
+
+
+  /**
+   * Creates a new instance of this password file reader.
+   *
+   * @param  standardOutput
+   *              The print stream that should be used as standard output if an
+   *              encrypted password file is encountered and it is necessary to
+   *              prompt for the password used as the encryption key.  This must
+   *              not be {@code null}, but the provided stream will not be used
+   *              if the tool should not (or does not need to) prompt for an
+   *              encryption passphrase.
+   * @param  standardError
+   *              The print stream that should be used as standard error if an
+   *              encrypted password file is encountered and it is necessary to
+   *              prompt for the password used as the encryption key.  This must
+   *              not be {@code null}, but the provided stream will not be used
+   *              if the tool should not (or does not need to) prompt for an
+   *              encryption passphrase.
+   * @param  allowPromptingForPassphrase
+   *              Indicates whether to allow interactively prompting the end
+   *              user for the encryption passphrase if the file is encrypted
+   *              and the key cannot be automatically obtained (for example,
+   *              from a Ping Identity server's encryption settings database).
+   */
+  private PasswordFileReader(@NotNull final PrintStream standardOutput,
+                             @NotNull final PrintStream standardError,
+                             final boolean allowPromptingForPassphrase)
+  {
     Validator.ensureNotNullWithMessage(standardOutput,
          "PasswordFileReader.standardOutput must not be null.");
     Validator.ensureNotNullWithMessage(standardError,
@@ -142,6 +199,7 @@ public final class PasswordFileReader
 
     this.standardOutput = standardOutput;
     this.standardError = standardError;
+    this.allowPromptingForPassphrase = allowPromptingForPassphrase;
 
     encryptionPasswordCache = new CopyOnWriteArrayList<>();
   }
@@ -208,35 +266,43 @@ public final class PasswordFileReader
     {
       try
       {
-        final ObjectPair<InputStream, char[]> encryptedFileData =
-             ToolUtils.getPossiblyPassphraseEncryptedInputStream(inputStream,
-                  encryptionPasswordCache, true,
-                  INFO_PW_FILE_READER_ENTER_PW_PROMPT
-                       .get(file.getAbsolutePath()),
-                  ERR_PW_FILE_READER_WRONG_PW.get(file.getAbsolutePath()),
-                  standardOutput, standardError);
-        inputStream = encryptedFileData.getFirst();
-
-        final char[] encryptionPassword = encryptedFileData.getSecond();
-        if (encryptionPassword != null)
+        if (allowPromptingForPassphrase)
         {
-          synchronized (encryptionPasswordCache)
+          final ObjectPair<InputStream, char[]> encryptedFileData =
+               ToolUtils.getPossiblyPassphraseEncryptedInputStream(inputStream,
+                    encryptionPasswordCache, true,
+                    INFO_PW_FILE_READER_ENTER_PW_PROMPT
+                         .get(file.getAbsolutePath()),
+                    ERR_PW_FILE_READER_WRONG_PW.get(file.getAbsolutePath()),
+                    standardOutput, standardError);
+          inputStream = encryptedFileData.getFirst();
+
+          final char[] encryptionPassword = encryptedFileData.getSecond();
+          if (encryptionPassword != null)
           {
-            boolean passwordIsAlreadyCached = false;
-            for (final char[] cachedPassword : encryptionPasswordCache)
+            synchronized (encryptionPasswordCache)
             {
-              if (Arrays.equals(encryptionPassword, cachedPassword))
+              boolean passwordIsAlreadyCached = false;
+              for (final char[] cachedPassword : encryptionPasswordCache)
               {
-                passwordIsAlreadyCached = true;
-                break;
+                if (Arrays.equals(encryptionPassword, cachedPassword))
+                {
+                  passwordIsAlreadyCached = true;
+                  break;
+                }
+              }
+
+              if (!passwordIsAlreadyCached)
+              {
+                encryptionPasswordCache.add(encryptionPassword);
               }
             }
-
-            if (!passwordIsAlreadyCached)
-            {
-              encryptionPasswordCache.add(encryptionPassword);
-            }
           }
+        }
+        else
+        {
+          inputStream =
+               ToolUtils.getPossiblyPassphraseEncryptedInputStream(inputStream);
         }
       }
       catch (final GeneralSecurityException e)

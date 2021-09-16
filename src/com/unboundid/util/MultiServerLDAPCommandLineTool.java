@@ -102,6 +102,9 @@ import static com.unboundid.util.UtilityMessages.*;
  *       secured using SSL.</LI>
  *   <LI>useStartTLS -- Indicates that communication with the server should be
  *       secured using StartTLS.</LI>
+ *   <LI>"--defaultTrust" -- Indicates that the client should use a default,
+ *       non-interactive mechanism for determining whether to trust any
+ *       presented server certificate.</LI>
  *   <LI>trustAll -- Indicates that the client should trust any certificate
  *       that the server presents to it.</LI>
  *   <LI>keyStorePath -- Specifies the path to the key store to use to obtain
@@ -140,6 +143,7 @@ public abstract class MultiServerLDAPCommandLineTool
   @Nullable private final String[] serverNameSuffixes;
 
   // The set of arguments used to hold information about connection properties.
+  @NotNull private final BooleanArgument[] defaultTrust;
   @NotNull private final BooleanArgument[] trustAll;
   @NotNull private final BooleanArgument[] useSSL;
   @NotNull private final BooleanArgument[] useStartTLS;
@@ -249,6 +253,7 @@ public abstract class MultiServerLDAPCommandLineTool
            ERR_MULTI_LDAP_TOOL_PREFIXES_AND_SUFFIXES_EMPTY.get());
     }
 
+    defaultTrust           = new BooleanArgument[numServers];
     trustAll               = new BooleanArgument[numServers];
     useSSL                 = new BooleanArgument[numServers];
     useStartTLS            = new BooleanArgument[numServers];
@@ -384,6 +389,31 @@ public abstract class MultiServerLDAPCommandLineTool
       }
       useStartTLS[i].setArgumentGroupName(groupName);
       parser.addArgument(useStartTLS[i]);
+
+      final String defaultTrustArgDesc;
+      if (InternalSDKHelper.getPingIdentityServerRoot() != null)
+      {
+        defaultTrustArgDesc =
+             INFO_LDAP_TOOL_DESCRIPTION_DEFAULT_TRUST_WITH_PING_DS.get();
+      }
+      else
+      {
+        defaultTrustArgDesc =
+             INFO_LDAP_TOOL_DESCRIPTION_DEFAULT_TRUST_WITHOUT_PING_DS.get();
+      }
+      defaultTrust[i] = new BooleanArgument(null,
+           genArgName(i, "defaultTrust"), 1, defaultTrustArgDesc);
+      defaultTrust[i].setArgumentGroupName(groupName);
+      if (includeAlternateLongIdentifiers())
+      {
+        defaultTrust[i].addLongIdentifier(
+             genDashedArgName(i, "default-trust"), true);
+        defaultTrust[i].addLongIdentifier(
+             genArgName(i, "useDefaultTrust"), true);
+        defaultTrust[i].addLongIdentifier(
+             genDashedArgName(i, "use-default-trust"), true);
+      }
+      parser.addArgument(defaultTrust[i]);
 
       trustAll[i] = new BooleanArgument(null, genArgName(i, "trustAll"), 1,
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
@@ -538,6 +568,7 @@ public abstract class MultiServerLDAPCommandLineTool
       parser.addExclusiveArgumentSet(trustStorePassword[i],
            trustStorePasswordFile[i]);
       parser.addExclusiveArgumentSet(trustAll[i], trustStorePath[i]);
+      parser.addExclusiveArgumentSet(trustAll[i], defaultTrust[i]);
     }
 
     addNonLDAPArguments(parser);
@@ -985,9 +1016,22 @@ public abstract class MultiServerLDAPCommandLineTool
           }
         }
 
-        tm = new TrustStoreTrustManager(
-             trustStorePath[serverIndex].getValue(), pw,
-             trustStoreFormat[serverIndex].getValue(), true);
+        final TrustStoreTrustManager trustStoreTrustManager =
+             new TrustStoreTrustManager(trustStorePath[serverIndex].getValue(),
+                  pw, trustStoreFormat[serverIndex].getValue(), true);
+        if (defaultTrust[serverIndex].isPresent())
+        {
+          tm = InternalSDKHelper.getPreferredNonInteractiveTrustManagerChain(
+               trustStoreTrustManager);
+        }
+        else
+        {
+          tm = trustStoreTrustManager;
+        }
+      }
+      else if (defaultTrust[serverIndex].isPresent())
+      {
+        tm = InternalSDKHelper.getPreferredNonInteractiveTrustManagerChain();
       }
       else
       {

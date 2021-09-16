@@ -20,6 +20,19 @@ ${TARGET="offline"}                <br>
                   the reference regardless of whether the smart referral entry matches the filter.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the LDAP command-line tool framework to add a --defaultTrust argument
+                  that can be used to use a default set of non-interactive trust managers
+                  (including at least the JVM's default trust store, and potentially other
+                  mechanisms for tools included with the Ping Identity Directory Server) when
+                  determining whether to trust a certificate chain presented during TLS
+                  negotiation.  This uses the same logic that the tool would employ when it is
+                  invoked without any trust-related arguments, except that it will not
+                  interactively prompt about whether to trust the certificate chain if it is not
+                  trusted by any of the default mechanisms.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

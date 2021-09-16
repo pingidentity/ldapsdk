@@ -48,6 +48,8 @@ import java.util.zip.GZIPOutputStream;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
@@ -55,8 +57,12 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.TestLDAPConnectionPoolHealthCheck;
 import com.unboundid.ldap.sdk.TestPostConnectProcessor;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.MoveSubtree;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
 
 
 
@@ -1156,6 +1162,59 @@ public class LDAPCommandLineToolTestCase
          "--propertiesFilepath", propertiesFile.getAbsolutePath());
     assertEquals(rc, ResultCode.SUCCESS);
     assertTrue(out.toByteArray().length > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to communicate with a server over SSL when
+   * the defaultTrust argument is provided and the certificate cannot be trusted
+   * using the default trust mechanism.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSSLWithUnsatisfiedDefaultTrust()
+         throws Exception
+  {
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com",
+              "o=example.com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+    cfg.addAdditionalBindCredentials("cn=Manager", "password");
+    cfg.setSchema(Schema.getDefaultStandardSchema());
+
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File serverKeyStore   = new File(resourceDir, "server.keystore");
+
+    final SSLUtil serverSSLUtil = new SSLUtil(
+         new KeyStoreKeyManager(serverKeyStore, "password".toCharArray(),
+              "JKS", "server-cert"),
+         new TrustAllTrustManager());
+    final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
+
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPSConfig("LDAPS",
+         null, 0, serverSSLUtil.createSSLServerSocketFactory(),
+         clientSSLUtil.createSSLSocketFactory()));
+
+    try (InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg))
+    {
+      ds.startListening();
+
+      final LDAPSearch ldapSearch = new LDAPSearch(null, null);
+
+      final ResultCode rc = ldapSearch.runTool(
+           "--hostname", "127.0.0.1",
+           "--port", String.valueOf(ds.getListenPort()),
+           "--useSSL",
+           "--defaultTrust",
+           "--bindDN", "cn=Directory Manager",
+           "--bindPassword", "password",
+           "--baseDN", "",
+           "--scope", "base",
+           "(objectClass=*)");
+      assertFalse(rc.equals(ResultCode.SUCCESS));
+    }
   }
 
 

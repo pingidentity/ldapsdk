@@ -118,6 +118,9 @@ import static com.unboundid.util.UtilityMessages.*;
  *       should be secured using SSL.</LI>
  *   <LI>"-q" or "--useStartTLS" -- Indicates that the communication with the
  *       server should be secured using StartTLS.</LI>
+ *   <LI>"--defaultTrust" -- Indicates that the client should use a default,
+ *       non-interactive mechanism for determining whether to trust any
+ *       presented server certificate.</LI>
  *   <LI>"-X" or "--trustAll" -- Indicates that the client should trust any
  *       certificate that the server presents to it.</LI>
  *   <LI>"-K {path}" or "--keyStorePath {path}" -- Specifies the path to the
@@ -213,6 +216,7 @@ public abstract class LDAPCommandLineTool
        extends CommandLineTool
 {
   // Arguments used to communicate with an LDAP directory server.
+  @Nullable private BooleanArgument defaultTrust                = null;
   @Nullable private BooleanArgument helpSASL                    = null;
   @Nullable private BooleanArgument enableSSLDebugging          = null;
   @Nullable private BooleanArgument promptForBindPassword       = null;
@@ -307,6 +311,7 @@ public abstract class LDAPCommandLineTool
 
     ids.add("useSSL");
     ids.add("useStartTLS");
+    ids.add("defaultTrust");
     ids.add("trustAll");
     ids.add("keyStorePath");
     ids.add("keyStorePassword");
@@ -472,12 +477,34 @@ public abstract class LDAPCommandLineTool
     useStartTLS = new BooleanArgument(getShortIdentifierIfNotSuppressed('q'),
          "useStartTLS", 1, INFO_LDAP_TOOL_DESCRIPTION_USE_START_TLS.get());
     useStartTLS.setArgumentGroupName(argumentGroup);
-      if (includeAlternateLongIdentifiers())
-      {
-        useStartTLS.addLongIdentifier("use-starttls", true);
-        useStartTLS.addLongIdentifier("use-start-tls", true);
-      }
+    if (includeAlternateLongIdentifiers())
+    {
+      useStartTLS.addLongIdentifier("use-starttls", true);
+      useStartTLS.addLongIdentifier("use-start-tls", true);
+    }
     parser.addArgument(useStartTLS);
+
+    final String defaultTrustArgDesc;
+    if (InternalSDKHelper.getPingIdentityServerRoot() != null)
+    {
+      defaultTrustArgDesc =
+           INFO_LDAP_TOOL_DESCRIPTION_DEFAULT_TRUST_WITH_PING_DS.get();
+    }
+    else
+    {
+      defaultTrustArgDesc =
+           INFO_LDAP_TOOL_DESCRIPTION_DEFAULT_TRUST_WITHOUT_PING_DS.get();
+    }
+    defaultTrust = new BooleanArgument(null, "defaultTrust", 1,
+         defaultTrustArgDesc);
+    defaultTrust.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      defaultTrust.addLongIdentifier("default-trust", true);
+      defaultTrust.addLongIdentifier("useDefaultTrust", true);
+      defaultTrust.addLongIdentifier("use-default-trust", true);
+    }
+    parser.addArgument(defaultTrust);
 
     trustAll = new BooleanArgument(getShortIdentifierIfNotSuppressed('X'),
          "trustAll", 1, INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
@@ -698,6 +725,10 @@ public abstract class LDAPCommandLineTool
     parser.addExclusiveArgumentSet(trustStorePassword, trustStorePasswordFile,
          promptForTrustStorePassword);
 
+    // The defaultTrust argument cannot be used in conjunction with the
+    // trustAll argument.
+    parser.addExclusiveArgumentSet(defaultTrust, trustAll);
+
     // It doesn't make sense to provide a trust store path if any server
     // certificate should be trusted.
     parser.addExclusiveArgumentSet(trustAll, trustStorePath);
@@ -718,6 +749,10 @@ public abstract class LDAPCommandLineTool
     // SSL or StartTLS.
     parser.addDependentArgumentSet(keyStorePath, useSSL, useStartTLS);
     parser.addDependentArgumentSet(trustStorePath, useSSL, useStartTLS);
+
+    // If the default trust argument was used, then the tool must either use
+    // SSL or StartTLS.
+    parser.addDependentArgumentSet(defaultTrust, useSSL, useStartTLS);
 
     // If the tool should trust all server certificates, then the tool must
     // either use SSL or StartTLS.
@@ -1376,8 +1411,22 @@ public abstract class LDAPCommandLineTool
           getOut().println();
         }
 
-        tm = new TrustStoreTrustManager(trustStorePath.getValue(), pw,
-             trustStoreFormat.getValue(), true);
+        final TrustStoreTrustManager trustStoreTrustManager =
+             new TrustStoreTrustManager(trustStorePath.getValue(), pw,
+                  trustStoreFormat.getValue(), true);
+        if (defaultTrust.isPresent())
+        {
+          tm = InternalSDKHelper.getPreferredNonInteractiveTrustManagerChain(
+               trustStoreTrustManager);
+        }
+        else
+        {
+          tm = trustStoreTrustManager;
+        }
+      }
+      else if (defaultTrust.isPresent())
+      {
+        tm = InternalSDKHelper.getPreferredNonInteractiveTrustManagerChain();
       }
       else if (promptTrustManager.get() != null)
       {

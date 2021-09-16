@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -52,11 +53,13 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.TopologyRegistryTrustManager;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PasswordFileReader;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -651,6 +654,47 @@ public final class InternalSDKHelper
 
 
   /**
+   * Retrieves an aggregate trust manager that can be used to non-interactively
+   * determine whether to trust a presented certificate chain.  It will check
+   * the JVM-default trust store, and if the tool is run with access to a Ping
+   * Identity Directory Server instance, then it will also try to use the
+   * server's default trust store and information in the topology registry.  It
+   * may optionally include other provided trust managers.
+   *
+   * @param  additionalTrustManagers  An optional set of additional trust
+   *                                  managers that should be included in the
+   *                                  aggregate trust manager that is returned.
+   *                                  This may be useful if one or more
+   *                                  additional file-based trust stores are to
+   *                                  be checked in addition to the default set
+   *                                  identified here.  It may be {@code null}
+   *                                  or empty if no other trust managers should
+   *                                  be checked.
+   *
+   * @return  An aggregate trust manager that can be used to interactively
+   *          prompt the user about whether to trust a presented certificate
+   *          chain as a last resort, but will try other alternatives first.
+   */
+  @InternalUseOnly()
+  @NotNull()
+  public static AggregateTrustManager
+              getPreferredNonInteractiveTrustManagerChain(
+                   @Nullable final X509TrustManager... additionalTrustManagers)
+  {
+    final List<X509TrustManager> trustManagers = new ArrayList<>(4);
+    if (additionalTrustManagers != null)
+    {
+      trustManagers.addAll(Arrays.asList(additionalTrustManagers));
+    }
+
+    selectDefaultNonInteractiveTrustManagers(trustManagers);
+
+    return new AggregateTrustManager(false, trustManagers);
+  }
+
+
+
+  /**
    * Retrieves an aggregate trust manager that can be used to interactively
    * prompt the user about whether to trust a presented certificate chain as a
    * last resort, but will try other alternatives first, including the
@@ -705,5 +749,83 @@ public final class InternalSDKHelper
          null, null));
 
     return new AggregateTrustManager(false, trustManagers);
+  }
+
+
+
+  /**
+   * Selects an appropriate set of default trust managers that may be used for
+   * non-interactively determining whether to trust a presented certificate
+   * chain.
+   *
+   * @param  trustManagers  The list to which the selected trust managers will
+   *                        be added.  It must not be {@code null}, and it must
+   *                        be updatable.
+   */
+  private static void selectDefaultNonInteractiveTrustManagers(
+               @NotNull final List<X509TrustManager> trustManagers)
+  {
+    trustManagers.add(JVMDefaultTrustManager.getInstance());
+
+    final File pingIdentityServerRoot =
+         InternalSDKHelper.getPingIdentityServerRoot();
+    if (pingIdentityServerRoot != null)
+    {
+      // Check to see if a trust store file exists.  If a config/truststore file
+      // exists, then we'll use that.  Otherwise, if a config/truststore.pin
+      // file exists and either config/truststore.p12 or config/truststore.bcfks
+      // exists, then we'll use one of those.
+      final File defaultJKSServerTrustStore = StaticUtils.constructPath(
+           pingIdentityServerRoot, "config", "truststore");
+      if (defaultJKSServerTrustStore.exists())
+      {
+        trustManagers.add(
+             new TrustStoreTrustManager(defaultJKSServerTrustStore, null,
+                  CryptoHelper.KEY_STORE_TYPE_JKS, true));
+      }
+      else
+      {
+        final File trustStorePINFile = StaticUtils.constructPath(
+             pingIdentityServerRoot, "config", "truststore.pin");
+        final File defaultPKCS12TrustStore = StaticUtils.constructPath(
+             pingIdentityServerRoot, "config", "truststore.p12");
+        final File defaultBCFKSTrustStore = StaticUtils.constructPath(
+             pingIdentityServerRoot, "config", "truststore.bcfks");
+        if (trustStorePINFile.exists() &&
+             (defaultPKCS12TrustStore.exists() ||
+                  defaultBCFKSTrustStore.exists()))
+        {
+          try
+          {
+            final char[] trustStorePIN =
+                 new PasswordFileReader(false).readPassword(trustStorePINFile);
+            if (defaultPKCS12TrustStore.exists())
+            {
+              trustManagers.add(new TrustStoreTrustManager(
+                   defaultPKCS12TrustStore, trustStorePIN,
+                   CryptoHelper.KEY_STORE_TYPE_PKCS_12, true));
+            }
+            else if (defaultBCFKSTrustStore.exists())
+            {
+              trustManagers.add(new TrustStoreTrustManager(
+                   defaultPKCS12TrustStore, trustStorePIN,
+                   CryptoHelper.KEY_STORE_TYPE_BCFKS, true));
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+          }
+        }
+      }
+
+      final File serverConfigFile = StaticUtils.constructPath(
+           pingIdentityServerRoot, "config", "config.ldif");
+      if (serverConfigFile.exists())
+      {
+        trustManagers.add(new TopologyRegistryTrustManager(serverConfigFile,
+             TimeUnit.MINUTES.toMillis(5L)));
+      }
+    }
   }
 }
