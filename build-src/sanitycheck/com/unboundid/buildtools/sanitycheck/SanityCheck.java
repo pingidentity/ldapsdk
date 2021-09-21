@@ -42,8 +42,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -93,7 +96,7 @@ public class SanityCheck
    * other package will generate an error.  Note that sub-packages are NOT
    * automatically included.
    */
-  public static final String[] PACKAGES =
+  private static final String[] PACKAGES =
   {
     "com.unboundid.asn1",
     "com.unboundid.ldap.listener",
@@ -127,6 +130,19 @@ public class SanityCheck
     "com.unboundid.util.ssl",
     "com.unboundid.util.ssl.cert"
   };
+
+
+
+  /**
+   * A set of directories that may appear in the javadoc output that contain
+   * files to be ignored.
+   */
+  private static final Set<String> IGNORED_JAVADOC_DIRECTORIES =
+       Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
+            "jquery",
+            "legal",
+            "resources",
+            "script-dir")));
 
 
 
@@ -404,13 +420,12 @@ public class SanityCheck
           throws BuildException
   {
     // Look at all of the directories below the javadocDir and ensure that they
-    // only contain files that relate to the expected packages.  The only
-    // exception to this should be the top-level resources directory.
+    // only contain files that relate to the expected packages.
     for (final File f : javadocDir.listFiles())
     {
       if (f.isDirectory())
       {
-        if (f.getName().equals("resources") || f.getName().equals("jquery"))
+        if (IGNORED_JAVADOC_DIRECTORIES.contains(f.getName()))
         {
           continue;
         }

@@ -900,8 +900,6 @@
         <jvmarg value="-noverify" />
         <jvmarg value="-Xms${MEM}" />
         <jvmarg value="-Xmx${MEM}" />
-        <jvmarg value="-XX:+UseBiasedLocking" />
-        <jvmarg value="-XX:+UseMembar" />
         <jvmarg value="-Dcom.unboundid.ldap.sdk.RunningUnitTests=true" />
         <jvmarg value="-Dbasedir=${basedir}" />
         <jvmarg value="-Dunit.resource.dir=${unit.resource.dir}" />
