@@ -37,7 +37,12 @@ package com.unboundid.util;
 
 
 
+import java.io.File;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
@@ -60,6 +65,8 @@ import com.unboundid.ldap.sdk.LDAPRequest;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFRecord;
 import com.unboundid.util.json.JSONBuffer;
+
+import static com.unboundid.util.UtilityMessages.*;
 
 
 
@@ -1701,5 +1708,111 @@ public final class Debug
                           @Nullable final Throwable thrown)
   {
     logger.log(level, buffer.toString(), thrown);
+  }
+
+
+
+  /**
+   * Appends the provided debug message to the specified file.  This method
+   * should be safe to call concurrently, even across multiple processes.
+   *
+   * @param  path     The path to the file to which the message should be
+   *                  appended.  It must not be {@code null}.
+   * @param  message  The debug message to be appended to the file.  It must not
+   *                  be {@code null}.
+   */
+  public static void debugToFile(@NotNull final String path,
+                                 @NotNull final String message)
+  {
+    debugToFile(new File(path), true, true, message);
+  }
+
+
+
+  /**
+   * Appends the provided debug message to the specified file.  This method
+   * should be safe to call concurrently, even across multiple processes.
+   *
+   * @param  file     The file to which the message should be appended.  It must
+   *                  not be {@code null}.
+   * @param  message  The debug message to be appended to the file.  It must not
+   *                  be {@code null}.
+   */
+  public static void debugToFile(@NotNull final File file,
+                                 @NotNull final String message)
+  {
+    debugToFile(file, true, true, message);
+  }
+
+
+
+  /**
+   * Appends the provided debug message to the specified file.  This method
+   * should be safe to call concurrently, even across multiple processes.
+   *
+   * @param  file               The file to which the message should be
+   *                            appended.  It must not be {@code null}.
+   * @param  includeTimestamp   Indicates whether to include a timestamp along
+   *                            with the debug message.
+   * @param  includeStackTrace  Indicates whether to include a stack trace along
+   *                            with the debug message.
+   * @param  message            The debug message to be appended to the file.
+   *                            It must not be {@code null}.
+   */
+  public static synchronized void debugToFile(@NotNull final File file,
+                                              final boolean includeTimestamp,
+                                              final boolean includeStackTrace,
+                                              @NotNull final String message)
+  {
+    try
+    {
+      try (FileChannel fileChannel = FileChannel.open(
+           file.toPath(),
+           StaticUtils.setOf(
+                StandardOpenOption.WRITE,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND,
+                StandardOpenOption.SYNC)))
+      {
+        try (FileLock fileLock = fileChannel.lock())
+        {
+          final ByteStringBuffer messageBuffer = new ByteStringBuffer();
+
+          if (fileChannel.size() > 0L)
+          {
+            messageBuffer.append(StaticUtils.EOL_BYTES);
+          }
+
+          if (includeTimestamp)
+          {
+            messageBuffer.append(
+                 StaticUtils.encodeRFC3339Time(System.currentTimeMillis()));
+            messageBuffer.append(StaticUtils.EOL_BYTES);
+          }
+
+          messageBuffer.append(message);
+          messageBuffer.append(StaticUtils.EOL_BYTES);
+
+          if (includeStackTrace)
+          {
+            messageBuffer.append(StaticUtils.getStackTrace(
+                 Thread.currentThread().getStackTrace()));
+            messageBuffer.append(StaticUtils.EOL_BYTES);
+          }
+
+          fileChannel.write(ByteBuffer.wrap(
+               messageBuffer.getBackingArray(), 0, messageBuffer.length()));
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      // An error occurred while attempting to write to the file.  As a
+      // fallback, print a message about it to standard error.
+      Debug.debugException(e);
+      System.err.println(ERR_DEBUG_CANNOT_WRITE_TO_FILE.get(
+           file.getAbsolutePath(), StaticUtils.getExceptionMessage(e),
+           message));
+    }
   }
 }

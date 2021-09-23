@@ -38,10 +38,14 @@ package com.unboundid.util;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -4822,5 +4826,55 @@ public class DebugTestCase
     }
 
     return nameSet;
+  }
+
+
+
+  /**
+   * Tests the behavior of the methods that can be used to write debug
+   * messages to a specified file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDebugToFile()
+         throws Exception
+  {
+    final List<String> messages = new ArrayList<>();
+
+    final File debugFile = createTempFile();
+    assertTrue(debugFile.delete());
+
+    String uuid = UUID.randomUUID().toString();
+    messages.add(uuid);
+    Debug.debugToFile(debugFile.getAbsolutePath(), uuid);
+
+    uuid = UUID.randomUUID().toString();
+    messages.add(uuid);
+    Debug.debugToFile(debugFile, uuid);
+
+    uuid = UUID.randomUUID().toString();
+    messages.add(uuid);
+    Debug.debugToFile(debugFile, true, true, uuid);
+
+    uuid = UUID.randomUUID().toString();
+    messages.add(uuid);
+    Debug.debugToFile(debugFile, false, true, uuid);
+
+    uuid = UUID.randomUUID().toString();
+    messages.add(uuid);
+    Debug.debugToFile(debugFile, true, false, uuid);
+
+    uuid = UUID.randomUUID().toString();
+    messages.add(uuid);
+    Debug.debugToFile(debugFile, false, false, uuid);
+
+    final List<String> lines = StaticUtils.readFileLines(debugFile);
+    for (final String message : messages)
+    {
+      assertTrue(lines.contains(message));
+    }
+
+    assertTrue(lines.contains(""));
   }
 }
