@@ -64,7 +64,7 @@ If you run into a problem when using the LDAP SDK and you can't figure it out fr
 
 * If you'd rather not have the communication in public, send an email message to [ldapsdk-support@pingidentity.com](mailto:ldapsdk-support@pingidentity.com).
 
-* If you have a support contract with Ping Identity, you may get assistance with the LDAP SDK in the same way that you get support for other Ping Identity products. Contact [ldapsdk-support@pingidentity.com](mailto:ldapsdk-support@pingidentity.com) for more information about obtaining a support contract for the LDAP SDK.
+* If you have a support contract with Ping Identity, you may get assistance with the LDAP SDK in the same way that you get support for other Ping Identity products.
 
 ## Contributing to the UnboundID LDAP SDK for Java
 

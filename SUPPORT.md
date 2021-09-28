@@ -17,6 +17,5 @@ following options:
 
 - If you have an UnboundID or Ping Identity support contract, you may get
   assistance with the LDAP SDK in the same way as for other UnboundID/Ping
-  Identity products.  Contact ldapsdk-support@pingidentity.com for more
-  information about obtaining a support contract specifically for the LDAP SDK.
+  Identity products.
 
