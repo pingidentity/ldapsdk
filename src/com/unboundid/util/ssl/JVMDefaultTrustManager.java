@@ -710,15 +710,13 @@ filesInDirectoryLoop:
 
     // It is possible that the chain could rely on cross-signed certificates,
     // and that we need to use a different path than the one presented in the
-    // provided chain.  This could happen if the presented chain relies includes
-    // an issuer certificate that is expired, but the JVM-default trust store
-    // includes a non-expired alternate version of that issuer certificate (with
-    // the same public key, but signed by a different issuer).  Check for that,
-    // which will also involve checking validity dates for certificates in that
-    // chain.  If the chain we get back is different from the one that was
-    // provided to this method, then we should not need to perform any further
-    // validation.
-    final X509Certificate[] chainToValidate = getChainToValidate(chain);
+    // provided chain.  This requires us to potentially compute signatures using
+    // each certificate in the JVM's default trust store, which can be
+    // expensive.  To avoid that, we'll first only try it if the presented
+    // chain has any certificates that are outside of their current validity
+    // window.  If we get back a chain that is different from the one provided
+    // to this method, then we shouldn't need to do any further validation.
+    final X509Certificate[] chainToValidate = getChainToValidate(chain, true);
     if (chainToValidate != chain)
     {
       return;
@@ -743,9 +741,22 @@ filesInDirectoryLoop:
 
     if (! foundIssuer)
     {
-      throw new CertificateException(
-           ERR_JVM_DEFAULT_TRUST_MANGER_NO_TRUSTED_ISSUER_FOUND.get(
-                chainToString(chain)));
+      // We couldn't validate the presented chain, so see if we can find an
+      // alternative chain using a cross-signed certificate.  In this case,
+      // we'll perform the expensive check regardless of the validity dates in
+      // the presented chain.  If the attempt to find an alternative chain
+      // fails, then the getChainToValidate method will throw an exception.
+      // However, if the alternative chain contains only a single certificate,
+      // then that suggests the certificate is self-signed and not signed by
+      // any trusted issuer.
+      final X509Certificate[] alternativeChain =
+           getChainToValidate(chain, false);
+      if (alternativeChain.length == 1)
+      {
+        throw new CertificateException(
+             ERR_JVM_DEFAULT_TRUST_MANGER_NO_TRUSTED_ISSUER_FOUND.get(
+                  chainToString(chain)));
+      }
     }
   }
 
@@ -756,8 +767,21 @@ filesInDirectoryLoop:
    * actually be validated.  All certificates in the chain will have been
    * confirmed to be in their validity window.
    *
-   * @param  chain  The chain for which to obtain the path to validate.  It
-   *                must not be {@code null} or empty.
+   * @param  chain                     The chain for which to obtain the path to
+   *                                   validate.  It must not be {@code null} or
+   *                                   empty.
+   * @param  checkChainValidityWindow  Indicates whether to examine the validity
+   *                                   of certificates in the presented chain
+   *                                   when determining whether to examine
+   *                                   certificates by signature.  If this is
+   *                                   {@code true}, then the provided chain
+   *                                   will be returned as long as all of the
+   *                                   certificates in it are within their
+   *                                   validity window.  If this is
+   *                                   {@code false}, then an attempt to find a
+   *                                   chain based on signatures will be used
+   *                                   even if all of the certificates in the
+   *                                   presented chain are considered valid.
    *
    * @return  The chain to be validated.  It may be the same as the provided
    *          chain, or an alternate chain if any certificate in the provided
@@ -771,7 +795,8 @@ filesInDirectoryLoop:
    */
   @NotNull()
   private X509Certificate[] getChainToValidate(
-                                 @NotNull final X509Certificate[] chain)
+                                 @NotNull final X509Certificate[] chain,
+                                 final boolean checkChainValidityWindow)
           throws CertificateException
   {
     final Date currentDate = new Date();
@@ -779,93 +804,105 @@ filesInDirectoryLoop:
     // Check to see if any certificate in the provided chain is outside the
     // current validity window.  If not, then just use the provided chain.
     CertificateException firstException = null;
-    for (int i=0; i < chain.length; i++)
+    if (checkChainValidityWindow)
     {
-      final X509Certificate cert = chain[i];
-
-      final Date notBefore = cert.getNotBefore();
-      if (currentDate.before(notBefore))
+      for (int i=0; i < chain.length; i++)
       {
-        if (firstException == null)
+        final X509Certificate cert = chain[i];
+
+        final Date notBefore = cert.getNotBefore();
+        if (currentDate.before(notBefore))
         {
-          firstException = new CertificateNotYetValidException(
-               ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_NOT_YET_VALID.get(
-                    chainToString(chain), String.valueOf(cert.getSubjectDN()),
-                    String.valueOf(notBefore)));
+          if (firstException == null)
+          {
+            firstException = new CertificateNotYetValidException(
+                 ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_NOT_YET_VALID.get(
+                      chainToString(chain), String.valueOf(cert.getSubjectDN()),
+                      String.valueOf(notBefore)));
+          }
+
+          if (i == 0)
+          {
+            // If the peer certificate is not yet valid, then the entire chain
+            // must be considered invalid.
+            throw firstException;
+          }
+          else
+          {
+            break;
+          }
         }
 
-        if (i == 0)
+        final Date notAfter = cert.getNotAfter();
+        if (currentDate.after(notAfter))
         {
-          // If the peer certificate is not yet valid, then the entire chain
-          // must be considered invalid.
-          throw firstException;
-        }
-        else
-        {
-          break;
+          if (firstException == null)
+          {
+            firstException = new CertificateExpiredException(
+                 ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_EXPIRED.get(
+                      chainToString(chain),
+                      String.valueOf(cert.getSubjectDN()),
+                      String.valueOf(notAfter)));
+          }
+
+          if (i == 0)
+          {
+            // If the peer certificate is expired, then the entire chain must be
+            // considered invalid.
+            throw firstException;
+          }
+          else
+          {
+            break;
+          }
         }
       }
 
-      final Date notAfter = cert.getNotAfter();
-      if (currentDate.after(notAfter))
-      {
-        if (firstException == null)
-        {
-          firstException = new CertificateExpiredException(
-               ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_EXPIRED.get(
-                    chainToString(chain),
-                    String.valueOf(cert.getSubjectDN()),
-                    String.valueOf(notAfter)));
-        }
 
-        if (i == 0)
-        {
-          // If the peer certificate is expired, then the entire chain must be
-          // considered invalid.
-          throw firstException;
-        }
-        else
-        {
-          break;
-        }
+      // If all the certificates in the chain were within their validity window,
+      // then just use the provided chain.
+      if (firstException == null)
+      {
+        return chain;
       }
     }
 
 
-    // If all the certificates in the chain were within their validity window,
-    // then just use the provided chain.
-    if (firstException == null)
-    {
-      return chain;
-    }
-
-
-    // Try to find an alternate trusted chain.
+    // Try to find a certificate chain
     final Set<X509Certificate> alreadyExamined = new HashSet<>();
-    final List<X509Certificate> alternateChain = new ArrayList<>();
+    final List<X509Certificate> alternativeChain = new ArrayList<>();
     for (int i=0; i < chain.length; i++)
     {
       if (isCurrentlyValid(chain[i], currentDate))
       {
-        alternateChain.add(chain[i]);
+        alternativeChain.add(chain[i]);
       }
       else
       {
-        final List<X509Certificate> alt = findAlternateChain(chain[i],
+        final List<X509Certificate> alt = findAlternativeChain(chain[i],
              chain[i-1], currentDate, alreadyExamined);
         if (alt == null)
         {
-          throw firstException;
+          if (firstException == null)
+          {
+            throw new CertificateException(
+                 ERR_JVM_DEFAULT_TRUST_MANGER_NO_TRUSTED_ISSUER_FOUND.get(
+                      chainToString(chain)));
+          }
+          else
+          {
+            throw firstException;
+          }
         }
         else
         {
-          alternateChain.addAll(alt);
+          alternativeChain.addAll(alt);
           break;
         }
       }
     }
 
-    return alternateChain.toArray(NO_CERTIFICATES);
+    return alternativeChain.toArray(NO_CERTIFICATES);
   }
 
 
@@ -890,7 +927,7 @@ filesInDirectoryLoop:
    *          if no alternate chain could be found.
    */
   @Nullable()
-  private List<X509Certificate> findAlternateChain(
+  private List<X509Certificate> findAlternativeChain(
                @NotNull final X509Certificate cert,
                @NotNull final X509Certificate certIsIssuerOf,
                @NotNull final Date currentDate,

@@ -14,6 +14,22 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue that could prevent the JVM-default trust manager from properly
+                  trusting a certificate chain that relies on a cross-signed certificate, which
+                  may include those signed by the Let's Encrypt service.  Previously, the trust
+                  manager would only check for a cross-signed certificate if the current time was
+                  outside the validity window for one or more of the certificates in the presented
+                  chain, but that could prevent a chain from being properly trusted if all of its
+                  certificates were within their respective validity windows, but still could not
+                  be directly trusted using certificates in the JVM's default trust store (for
+                  example, if they are using a new root that is not itself in the default trust
+                  store).  The trust manager will now fall back to checking for cross-signed
+                  certificates if the chain cannot be validated as provided, even if all
+                  certificates in the provided chain are within their validity window.
+                  <br><br>
+                </li>
+
+                <li>
                   Added the ability to use the tls-server-end-point channel binding type when
                   using GSSAPI authentication.  This feature is dependent on support from the
                   underlying JVM and will likely require running on Java 13 or later.
