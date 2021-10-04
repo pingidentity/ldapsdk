@@ -1776,6 +1776,10 @@ public final class Debug
       {
         try (FileLock fileLock = fileChannel.lock())
         {
+          // We need to reference the fileLock variable inside the try block to
+          // avoid a compiler warning.
+          Validator.ensureTrue(fileLock.isValid());
+
           final ByteStringBuffer messageBuffer = new ByteStringBuffer();
 
           if (fileChannel.size() > 0L)
