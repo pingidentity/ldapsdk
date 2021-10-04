@@ -993,4 +993,48 @@ public class GSSAPIBindRequestTestCase
     assertNotNull(r.getText());
     assertEquals(r.getText(), "EXAMPLE.COM");
   }
+
+
+
+  /**
+   * Provides coverage for the method used to generate channel binding data for
+   * the tls-server-end-point channel binding type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGenerateTLSServerEndPointChannelBindingData()
+         throws Exception
+  {
+    // First, try with an insecure connection.  This should fail.
+    try (LDAPConnection conn = getTestDS().getConnection())
+    {
+      try
+      {
+        GSSAPIBindRequest.generateTLSServerEndPointChannelBindingData(conn);
+        fail("Expected an exception when using an insecure connection");
+      }
+      catch (final LDAPException e)
+      {
+        // This was expected.
+      }
+    }
+
+
+    // Next, try with a secure connection.  This should succeed.
+    try (LDAPConnection conn = getTestDSWithSSL().getConnection())
+    {
+      final byte[] channelBindingData =
+           GSSAPIBindRequest.generateTLSServerEndPointChannelBindingData(conn);
+      assertNotNull(channelBindingData);
+
+      final String prefix = "tls-server-end-point:";
+      assertTrue(channelBindingData.length > prefix.length());
+      for (int i=0; i < prefix.length(); i++)
+      {
+        assertEquals(channelBindingData[i],
+             (byte) prefix.charAt(i));
+      }
+    }
+  }
 }

@@ -108,7 +108,10 @@ public final class GSSAPIBindRequestProperties
   // Indicates whether to enable the use of a ticket cache.
   private boolean useTicketCache;
 
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
+  // The type of channel binding to use for the bind request.
+  @NotNull private GSSAPIChannelBindingType channelBindingType;
+
+  // The SASL quality of protection value(s) allowed for the GSSAPI bind
   // request.
   @NotNull private List<SASLQualityOfProtection> allowedQoP;
 
@@ -245,6 +248,7 @@ public final class GSSAPIBindRequestProperties
     suppressedSystemProperties = Collections.emptySet();
     allowedQoP                 =
          Collections.singletonList(SASLQualityOfProtection.AUTH);
+    channelBindingType         = GSSAPIChannelBindingType.NONE;
   }
 
 
@@ -941,6 +945,46 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
+   * Retrieves the type of channel binding that should be used for the GSSAPI
+   * bind request.
+   *
+   * @return  The type of channel binding that should be used for the GSSAPI
+   *          bind request.
+   */
+  @NotNull()
+  public GSSAPIChannelBindingType getChannelBindingType()
+  {
+    return channelBindingType;
+  }
+
+
+
+  /**
+   * Specifies the type of channel binding that should be used for the GSSAPI
+   * bind request.  Note that channel binding support is dependent upon the
+   * underlying JVM and may not be available in all cases.
+   *
+   * @param  channelBindingType  The type of channel binding that should be used
+   *                             for the GSSAPI bind request.  It may be
+   *                             {@code null} or {@code NONE} if no channel
+   *                             binding should be used.
+   */
+  public void setChannelBindingType(
+       @Nullable final GSSAPIChannelBindingType channelBindingType)
+  {
+    if (channelBindingType == null)
+    {
+      this.channelBindingType = GSSAPIChannelBindingType.NONE;
+    }
+    else
+    {
+      this.channelBindingType = channelBindingType;
+    }
+  }
+
+
+
+  /**
    * Retrieves a set of system properties that will not be altered by GSSAPI
    * processing.
    *
@@ -1134,6 +1178,8 @@ public final class GSSAPIBindRequestProperties
 
     buffer.append("servicePrincipalProtocol='");
     buffer.append(servicePrincipalProtocol);
+    buffer.append("', channelBindingType='");
+    buffer.append(channelBindingType.getName());
     buffer.append("', suppressedSystemProperties={");
 
     final Iterator<String> propIterator = suppressedSystemProperties.iterator();

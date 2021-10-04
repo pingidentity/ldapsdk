@@ -83,6 +83,10 @@ public final class GSSAPIBindRequestPropertiesTestCase
     assertNull(properties.getAuthenticationID());
     assertNotNull(properties.toString());
 
+    assertNotNull(properties.getChannelBindingType());
+    assertEquals(properties.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
     assertNotNull(properties.toString());
   }
 
@@ -540,6 +544,33 @@ public final class GSSAPIBindRequestPropertiesTestCase
 
 
   /**
+   * Provides test coverage for the useSubjectCredentialsOnly property.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUseSubjectCredentialsOnly()
+         throws Exception
+  {
+    final GSSAPIBindRequestProperties properties =
+         new GSSAPIBindRequestProperties("test.user@EXAMPLE.COM", "password");
+
+    assertNotNull(properties.toString());
+
+    assertTrue(properties.useSubjectCredentialsOnly());
+
+    properties.setUseSubjectCredentialsOnly(false);
+    assertFalse(properties.useSubjectCredentialsOnly());
+    assertNotNull(properties.toString());
+
+    properties.setUseSubjectCredentialsOnly(true);
+    assertTrue(properties.useSubjectCredentialsOnly());
+    assertNotNull(properties.toString());
+  }
+
+
+
+  /**
    * Provides test coverage for properties related to the use of a keytab.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -614,6 +645,50 @@ public final class GSSAPIBindRequestPropertiesTestCase
     properties.setIsInitiator(null);
     assertNull(properties.getIsInitiator());
     assertNotNull(properties.toString());
+  }
+
+
+
+  /**
+   * Provides test coverage for properties related to the use of channel
+   * binding.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testChannelBindingType()
+         throws Exception
+  {
+    final GSSAPIBindRequestProperties properties =
+         new GSSAPIBindRequestProperties("test.user@EXAMPLE.COM", "password");
+
+    assertNotNull(properties.toString());
+
+    assertNotNull(properties.getChannelBindingType());
+    assertEquals(properties.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
+    properties.setChannelBindingType(
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT);
+    assertNotNull(properties.getChannelBindingType());
+    assertEquals(properties.getChannelBindingType(),
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT);
+
+    properties.setChannelBindingType(null);
+    assertNotNull(properties.getChannelBindingType());
+    assertEquals(properties.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
+    properties.setChannelBindingType(
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT);
+    assertNotNull(properties.getChannelBindingType());
+    assertEquals(properties.getChannelBindingType(),
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT);
+
+    properties.setChannelBindingType(GSSAPIChannelBindingType.NONE);
+    assertNotNull(properties.getChannelBindingType());
+    assertEquals(properties.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
   }
 
 

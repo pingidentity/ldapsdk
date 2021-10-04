@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added the ability to use the tls-server-end-point channel binding type when
+                  using GSSAPI authentication.  This feature is dependent on support from the
+                  underlying JVM and will likely require running on Java 13 or later.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the in-memory directory server in which it would only return
                   search result references for smart referral entries within the scope of the
                   search if those entries matched the search filter.  It will now correctly return

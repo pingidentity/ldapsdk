@@ -40,13 +40,17 @@ package com.unboundid.ldap.sdk;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.security.MessageDigest;
 import java.security.PrivilegedExceptionAction;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
+import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -55,11 +59,14 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.x500.X500Principal;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
@@ -188,6 +195,15 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * The name of a SASL server property that may be used to provide a TLS
+   * channel binding token.
+   */
+  @NotNull private static final String PROPERTY_CHANNEL_BINDING_DATA =
+       "jdk.internal.sasl.tlschannelbinding";
+
+
+
+  /**
    * The value for the java.security.auth.login.config property at the time that
    * this class was loaded.  If this is set, then it will be used in place of
    * an automatically-generated config file.
@@ -256,6 +272,9 @@ public final class GSSAPIBindRequest
 
   // Indicates whether to enable the use pf a ticket cache.
   private final boolean useTicketCache;
+
+  // The type of channel binding to use.
+  @NotNull private final GSSAPIChannelBindingType channelBindingType;
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
@@ -599,6 +618,7 @@ public final class GSSAPIBindRequest
     keyTabPath                 = gssapiProperties.getKeyTabPath();
     ticketCachePath            = gssapiProperties.getTicketCachePath();
     isInitiator                = gssapiProperties.getIsInitiator();
+    channelBindingType         = gssapiProperties.getChannelBindingType();
     suppressedSystemProperties =
          gssapiProperties.getSuppressedSystemProperties();
 
@@ -1383,6 +1403,24 @@ public final class GSSAPIBindRequest
     saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 
+    switch (channelBindingType)
+    {
+      case NONE:
+        // No action is required.
+        break;
+
+      case TLS_SERVER_END_POINT:
+        saslProperties.put(PROPERTY_CHANNEL_BINDING_DATA,
+             generateTLSServerEndPointChannelBindingData(connection));
+        break;
+
+      default:
+        // This should never happen.
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_GSSAPI_UNSUPPORTED_CHANNEL_BINDING_TYPE.get(
+                  channelBindingType.getName()));
+    }
+
     final SaslClient saslClient;
     try
     {
@@ -1417,6 +1455,157 @@ public final class GSSAPIBindRequest
     {
       messageID = bindHandler.getMessageID();
     }
+  }
+
+
+
+  /**
+   * Generates an appropriate value to use for TLS server endpoint channel
+   * binding.  See RFC 5929 section 4 for a description of this channel binding
+   * type.
+   *
+   * @param  connection  The connection used to communicate with the server.  It
+   *                     must not be {@code null}.
+   *
+   * @return  The bytes that comprise the TLS server endpoint channel binding
+   *          data.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to generate
+   *                         the channel binding data.
+   */
+  @NotNull()
+  static byte[] generateTLSServerEndPointChannelBindingData(
+                     @NotNull final LDAPConnection connection)
+         throws LDAPException
+  {
+    // Make sure that the connection has an associated SSL session.
+    final String channelBindingType =
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT.getName();
+
+    final SSLSession sslSession = connection.getSSLSession();
+    if (sslSession == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_NO_SSL_SESSION.get(channelBindingType));
+    }
+
+
+    // Get the certificate presented by the server during TLS negotiation.
+    final Certificate[] serverCertificateChain;
+    try
+    {
+      serverCertificateChain = sslSession.getPeerCertificates();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_CANNOT_GET_PEER_CERTS.get(
+                channelBindingType, StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    if ((serverCertificateChain == null) ||
+         (serverCertificateChain.length == 0))
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_NO_CERTS.get(channelBindingType));
+    }
+
+    if (! (serverCertificateChain[0] instanceof X509Certificate))
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_SERVER_CERT_NOT_X509.get(channelBindingType,
+                serverCertificateChain[0].getType()));
+    }
+
+    final X509Certificate serverCertificate =
+         (X509Certificate) serverCertificateChain[0];
+
+
+    // Determine the appropriate digest algorithm to use for generating the
+    // channel binding data.
+    final String signatureAlgorithmName =
+         StaticUtils.toUpperCase(serverCertificate.getSigAlgName());
+    if (signatureAlgorithmName == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_NO_SIG_ALG.get(channelBindingType,
+                serverCertificate.getSubjectX500Principal().getName(
+                     X500Principal.RFC2253)));
+    }
+
+    final int withPos = signatureAlgorithmName.indexOf("WITH");
+    if (withPos <= 0)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_CANNOT_DETERMINE_SIG_DIGEST_ALG.get(
+                channelBindingType, serverCertificate.getSigAlgName(),
+                serverCertificate.getSubjectX500Principal().getName(
+                     X500Principal.RFC2253)));
+    }
+
+    String digestAlgorithm = signatureAlgorithmName.substring(0, withPos);
+    switch (digestAlgorithm)
+    {
+      case "MD5":
+      case "SHA":
+      case "SHA1":
+      case "SHA-1":
+        // All of these will be overridden to use the SHA-256 algorithm.
+        digestAlgorithm = "SHA-256";
+        break;
+
+      case "SHA256":
+      case "SHA-256":
+        digestAlgorithm = "SHA-256";
+        break;
+
+      case "SHA384":
+      case "SHA-384":
+        digestAlgorithm = "SHA-384";
+        break;
+
+      case "SHA512":
+      case "SHA-512":
+        digestAlgorithm = "SHA-512";
+        break;
+
+      default:
+        // Just use the digest algorithm extracted from the certificate.
+        break;
+    }
+
+
+    // Generate a digest of the X.509 certificate using the selected digest
+    // algorithm.
+    final byte[] digestBytes;
+    try
+    {
+      final MessageDigest messageDigest =
+           CryptoHelper.getMessageDigest(digestAlgorithm);
+      digestBytes = messageDigest.digest(serverCertificate.getEncoded());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_GSSAPI_TLS_SERVER_CB_CANNOT_DIGEST_CERT.get(channelBindingType,
+                digestAlgorithm,
+                serverCertificate.getSubjectX500Principal().getName(
+                     X500Principal.RFC2253),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // The channel binding data will be a concatenation of the channel binding
+    // type, a colon, and the digest bytes.
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.append(channelBindingType);
+    buffer.append(':');
+    buffer.append(digestBytes);
+    return buffer.toByteArray();
   }
 
 
