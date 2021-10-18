@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.net.SocketFactory;
 
@@ -128,7 +129,7 @@ public final class RoundRobinServerSet
 
 
   // A counter used to determine the next slot that should be used.
-  @NotNull private final AtomicLong nextSlot;
+  @NotNull private final AtomicLong nextSlotCounter;
 
   // The bind request to use to authenticate connections created by this
   // server set.
@@ -383,7 +384,7 @@ public final class RoundRobinServerSet
       this.connectionOptions = connectionOptions;
     }
 
-    nextSlot = new AtomicLong(0L);
+    nextSlotCounter = new AtomicLong(0L);
 
     if (blacklistCheckIntervalMillis > 0L)
     {
@@ -529,36 +530,84 @@ public final class RoundRobinServerSet
               @Nullable final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
-    final int initialSlotNumber =
-         (int) (nextSlot.getAndIncrement() %  addresses.length);
-
-    LDAPException lastException = null;
-    List<ObjectPair<String,Integer>> blacklistedServers = null;
-    for (int i=0; i < addresses.length; i++)
+    // Create arrays of blacklisted and non-blacklisted servers.
+    final int[] blacklistedPorts;
+    final int[] nonBlacklistedPorts;
+    final String[] blacklistedAddresses;
+    final String[] nonBlacklistedAddresses;
+    if ((blacklistManager == null) || blacklistManager.isEmpty())
     {
-      final int slotNumber = ((initialSlotNumber + i) % addresses.length);
-      final String address = addresses[slotNumber];
-      final int port = ports[slotNumber];
-      if ((blacklistManager != null) &&
-           blacklistManager.isBlacklisted(address, port))
-      {
-        if (blacklistedServers == null)
-        {
-          blacklistedServers = new ArrayList<>(addresses.length);
-        }
+      nonBlacklistedAddresses = addresses;
+      nonBlacklistedPorts = ports;
 
-        blacklistedServers.add(new ObjectPair<>(address, port));
-        continue;
+      blacklistedAddresses = StaticUtils.NO_STRINGS;
+      blacklistedPorts = StaticUtils.NO_INTS;
+    }
+    else
+    {
+      final Set<ObjectPair<String,Integer>> blacklistedHostPorts =
+           blacklistManager.getBlacklistedServers();
+      final List<String> nonBLAddresses = new ArrayList<>(addresses.length);
+      final List<Integer> nonBLPorts = new ArrayList<>(addresses.length);
+
+      final List<String> blAddresses = new ArrayList<>(addresses.length);
+      final List<Integer> blPorts = new ArrayList<>(addresses.length);
+
+      for (int i=0; i < addresses.length; i++)
+      {
+        final ObjectPair<String,Integer> hostPort =
+             new ObjectPair<>(addresses[i], ports[i]);
+        if (blacklistedHostPorts.contains(hostPort))
+        {
+          blAddresses.add(addresses[i]);
+          blPorts.add(ports[i]);
+        }
+        else
+        {
+          nonBLAddresses.add(addresses[i]);
+          nonBLPorts.add(ports[i]);
+        }
       }
+
+      nonBlacklistedAddresses = new String[nonBLAddresses.size()];
+      nonBlacklistedPorts = new int[nonBlacklistedAddresses.length];
+      for (int i=0; i < nonBlacklistedAddresses.length; i++)
+      {
+        nonBlacklistedAddresses[i] = nonBLAddresses.get(i);
+        nonBlacklistedPorts[i] = nonBLPorts.get(i);
+      }
+
+      blacklistedAddresses = new String[blAddresses.size()];
+      blacklistedPorts = new int[blacklistedAddresses.length];
+      for (int i=0; i < blacklistedAddresses.length; i++)
+      {
+        blacklistedAddresses[i] = blAddresses.get(i);
+        blacklistedPorts[i] = blPorts.get(i);
+      }
+    }
+
+
+    // Get the value for the counter.
+    final long counterValue = nextSlotCounter.getAndIncrement();
+
+
+    // If there are any non-blacklisted servers, then try them first.
+    LDAPException lastException = null;
+    for (int i=0; i < nonBlacklistedAddresses.length; i++)
+    {
+      final int slotNumber =
+           (int) ((counterValue + i) % nonBlacklistedAddresses.length);
+      final String address = nonBlacklistedAddresses[slotNumber];
+      final int port = nonBlacklistedPorts[slotNumber];
 
       try
       {
-        final LDAPConnection c = new LDAPConnection(socketFactory,
-             connectionOptions, addresses[slotNumber], ports[slotNumber]);
-        doBindPostConnectAndHealthCheckProcessing(c, bindRequest,
+        final LDAPConnection conn = new LDAPConnection(socketFactory,
+             connectionOptions, address, port);
+        doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
              postConnectProcessor, healthCheck);
-        associateConnectionWithThisServerSet(c);
-        return c;
+        associateConnectionWithThisServerSet(conn);
+        return conn;
       }
       catch (final LDAPException e)
       {
@@ -573,27 +622,29 @@ public final class RoundRobinServerSet
 
 
     // If we've gotten here, then we couldn't get a connection from a
-    // non-blacklisted server.  If there were any blacklisted servers, then try
-    // them as a last resort.
-    if (blacklistedServers != null)
+    // non-blacklisted server.  Fall back to trying blacklisted servers.
+    for (int i=0; i < blacklistedAddresses.length; i++)
     {
-      for (final ObjectPair<String,Integer> hostPort : blacklistedServers)
+      final int slotNumber =
+           (int) ((counterValue + i) % blacklistedAddresses.length);
+      final String address = blacklistedAddresses[slotNumber];
+      final int port = blacklistedPorts[slotNumber];
+
+      try
       {
-        try
-        {
-          final LDAPConnection c = new LDAPConnection(socketFactory,
-               connectionOptions, hostPort.getFirst(), hostPort.getSecond());
-          doBindPostConnectAndHealthCheckProcessing(c, bindRequest,
-               postConnectProcessor, healthCheck);
-          associateConnectionWithThisServerSet(c);
-          blacklistManager.removeFromBlacklist(hostPort);
-          return c;
-        }
-        catch (final LDAPException e)
-        {
-          Debug.debugException(e);
-          lastException = e;
-        }
+        final LDAPConnection conn = new LDAPConnection(socketFactory,
+             connectionOptions, address, port);
+        doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
+             postConnectProcessor, healthCheck);
+        associateConnectionWithThisServerSet(conn);
+        blacklistManager.removeFromBlacklist(new ObjectPair<>(
+             conn.getConnectedAddress(), conn.getConnectedPort()));
+        return conn;
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        lastException = e;
       }
     }
 

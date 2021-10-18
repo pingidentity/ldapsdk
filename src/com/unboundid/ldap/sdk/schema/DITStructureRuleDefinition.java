@@ -68,13 +68,6 @@ public final class DITStructureRuleDefinition
        extends SchemaElement
 {
   /**
-   * A pre-allocated zero-element integer array.
-   */
-  @NotNull private static final int[] NO_INTS = new int[0];
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -3233223742542121140L;
@@ -439,7 +432,7 @@ public final class DITStructureRuleDefinition
 
     if (superiorRuleIDs == null)
     {
-      this.superiorRuleIDs = NO_INTS;
+      this.superiorRuleIDs = StaticUtils.NO_INTS;
     }
     else
     {

@@ -534,8 +534,8 @@ public class RoundRobinServerSetTestCase
 
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
-      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 2);
 
       conn1.close();
       conn2.close();
@@ -564,8 +564,8 @@ public class RoundRobinServerSetTestCase
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
 
-      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 1);
 
       conn1.close();
       conn2.close();
@@ -579,8 +579,8 @@ public class RoundRobinServerSetTestCase
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
 
-      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 1);
 
       conn1.close();
       conn2.close();
@@ -684,8 +684,8 @@ public class RoundRobinServerSetTestCase
 
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
-      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 2);
 
       conn1.close();
       conn2.close();
@@ -698,8 +698,8 @@ public class RoundRobinServerSetTestCase
 
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
-      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 2);
 
       conn1.close();
       conn2.close();
@@ -713,8 +713,8 @@ public class RoundRobinServerSetTestCase
 
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
-      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 1);
 
       conn1.close();
       conn2.close();
@@ -726,8 +726,8 @@ public class RoundRobinServerSetTestCase
 
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
-      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 1);
 
       conn1.close();
       conn2.close();
@@ -740,8 +740,8 @@ public class RoundRobinServerSetTestCase
 
       conn1 = serverSet.getConnection();
       conn2 = serverSet.getConnection();
-      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
-      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn1, ds1, ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 2);
 
       conn1.close();
       conn2.close();

@@ -114,6 +114,13 @@ public final class StaticUtils
 
 
   /**
+   * A pre-allocated empty integer array.
+   */
+  @NotNull public static final int[] NO_INTS = new int[0];
+
+
+
+  /**
    * A pre-allocated empty string array.
    */
   @NotNull public static final String[] NO_STRINGS = new String[0];

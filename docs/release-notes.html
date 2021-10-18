@@ -6,6 +6,27 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 6.0.3</h3>
+
+              <p>
+                The following changes were made between the 6.0.2 and 6.0.3 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed an issue with the round-robin server set that could arise if any of the
+                  servers in the set became temporarily unavailable.  In such cases, the server
+                  set could have connected to some of the remaining available servers with a
+                  higher frequency than others instead of balancing requests evenly across
+                  those servers.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 6.0.2</h3>
 
               <p>
