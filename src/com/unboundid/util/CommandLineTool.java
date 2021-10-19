@@ -1146,8 +1146,8 @@ public abstract class CommandLineTool
    * exited with an error message, it may be useful for this method to return
    * that error message.
    * <BR><BR>
-   * The message returned by this method is intended for purposes and is not
-   * meant to be parsed or programmatically interpreted.
+   * The message returned by this method is intended for informational purposes
+   * and is not meant to be parsed or programmatically interpreted.
    *
    * @return  An optional message that may provide additional information about
    *          the completion state for this tool, or {@code null} if no
