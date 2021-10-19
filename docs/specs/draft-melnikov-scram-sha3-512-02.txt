@@ -4,18 +4,18 @@
 
 Network Working Group                                   A. Melnikov, Ed.
 Internet-Draft                                                 Isode Ltd
-Intended status: Standards Track                       November 18, 2020
-Expires: May 22, 2021
+Intended status: Standards Track                         19 October 2021
+Expires: 22 April 2022
 
 
-SCRAM-SHA-512 and SCRAM-SHA-512-PLUS Simple Authentication and Security
-                        Layer (SASL) Mechanisms
-                    draft-melnikov-scram-sha-512-01
+    SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS Simple Authentication and
+                    Security Layer (SASL) Mechanisms
+                    draft-melnikov-scram-sha3-512-02
 
 Abstract
 
    This document registers the Simple Authentication and Security Layer
-   (SASL) mechanisms SCRAM-SHA-512 and SCRAM-SHA-512-PLUS.
+   (SASL) mechanisms SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS.
 
 Status of This Memo
 
@@ -32,52 +32,55 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 22, 2021.
+   This Internet-Draft will expire on 22 April 2022.
 
 Copyright Notice
 
-   Copyright (c) 2020 IETF Trust and the persons identified as the
+   Copyright (c) 2021 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
-   publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
-   include Simplified BSD License text as described in Section 4.e of
-   the Trust Legal Provisions and are provided without warranty as
-   described in the Simplified BSD License.
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Simplified BSD License text
+   as described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Simplified BSD License.
 
 
 
 
 
-Melnikov                  Expires May 22, 2021                  [Page 1]
+
+Melnikov                  Expires 22 April 2022                 [Page 1]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS    October 2021
 
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Key Word Definitions  . . . . . . . . . . . . . . . . . . . .   2
-   3.  SCRAM-SHA-512 and SCRAM-SHA-512-PLUS  . . . . . . . . . . . .   2
+   3.  SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS  . . . . . . . . . . .   2
    4.  Security Considerations . . . . . . . . . . . . . . . . . . .   3
    5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   3
    6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
      6.1.  Normative References  . . . . . . . . . . . . . . . . . .   4
      6.2.  Informative References  . . . . . . . . . . . . . . . . .   5
-   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   7
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   7
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
 
 1.  Introduction
 
-   This document registers the SASL [RFC4422] mechanisms SCRAM-SHA-512
-   and SCRAM-SHA-512-PLUS.  SHA-512 has stronger security properties
+   This document registers the SASL [RFC4422] mechanisms SCRAM-SHA3-512
+   and SCRAM-SHA3-512-PLUS.  SHA3-512 has stronger security properties
    than SHA-1, and it is expected that SCRAM mechanisms based on it will
    have greater predicted longevity than the SCRAM mechanisms based on
-   SHA-1.
+   SHA-1.  SHA3-512 works differently from SHA-2 family of hash
+   functions, so it is also expected that vulnerabilities in SHA-2 hash
+   functions are not going to necessarily affect SHA-3 family of hash
+   functions.
 
 2.  Key Word Definitions
 
@@ -86,51 +89,48 @@ Table of Contents
    "OPTIONAL" in this document are to be interpreted as described in BCP
    14 [RFC2119] [RFC8174] when, and only when, they appear in all
 
-3.  SCRAM-SHA-512 and SCRAM-SHA-512-PLUS
+3.  SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS
 
-   The SCRAM-SHA-512 and SCRAM-SHA-512-PLUS SASL mechanisms are defined
-   in the same way that SCRAM-SHA-1 and SCRAM-SHA-1-PLUS are defined in
-   [RFC5802], except that the hash function for HMAC() and H() uses
-   SHA-512 instead of SHA-1 [RFC6234].
+   The SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS SASL mechanisms are
+   defined in the same way that SCRAM-SHA-1 and SCRAM-SHA-1-PLUS are
+   defined in [RFC5802], except that the hash function for HMAC() and
+   H() uses SHA3-512 [NIST.FIPS.202] instead of SHA-1.
 
-   For the SCRAM-SHA-512 and SCRAM-SHA-512-PLUS SASL mechanisms, the
+   For the SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS SASL mechanisms, the
    hash iteration-count announced by a server SHOULD be at least 10000.
 
-   The GSS-API mechanism OID for SCRAM-SHA-512 is 1.3.6.1.5.5.<TBD> (see
-   Section 5).
+   The GSS-API mechanism OID for SCRAM-SHA3-512 is 1.3.6.1.5.5.<TBD>
+   (see Section 5).
 
-   This is a simple example of a SCRAM-SHA-512 authentication exchange
+   This is a simple example of a SCRAM-SHA3-512 authentication exchange
    when the client doesn't support channel bindings.  The username
    'user' and password 'pencil' are being used.
 
-   [[TBD: Add an example]]
 
 
 
-
-
-Melnikov                  Expires May 22, 2021                  [Page 2]
+Melnikov                  Expires 22 April 2022                 [Page 2]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS    October 2021
 
 
 4.  Security Considerations
 
    The security considerations from [RFC5802] still apply.
 
-   To be secure, either SCRAM-SHA-512-PLUS and SCRAM-SHA-1-PLUS MUST be
-   used over a TLS channel that has had the session hash extension
-   [RFC7627] negotiated, or session resumption MUST NOT have been used.
-   When using SCRAM over TLS 1.2 [RFC5246], the "tls-unique" channel
-   binding is still the default channel binding to use (see Section 6.1
-   of [RFC5802]), assuming the above conditions are satisfied.  As "tls-
-   unique" channel binding is not defined for TLS 1.3 [RFC8446], when
-   using SCRAM over TLS 1.3, the "tls-exporter" channel binding
-   [tls-1.3-channel-binding] MUST be the default channel binding (in the
-   sense specified in Section 6.1 of [RFC5802]) to use.
+   To be secure, SCRAM-SHA3-512-PLUS MUST be used over a TLS channel
+   that has had the session hash extension [RFC7627] negotiated, or
+   session resumption MUST NOT have been used.  When using SCRAM over
+   TLS 1.2 [RFC5246], the "tls-unique" channel binding is still the
+   default channel binding to use (see Section 6.1 of [RFC5802]),
+   assuming the above conditions are satisfied.  As "tls-unique" channel
+   binding is not defined for TLS 1.3 [RFC8446], when using SCRAM over
+   TLS 1.3, the "tls-exporter" channel binding [tls-1.3-channel-binding]
+   MUST be the default channel binding (in the sense specified in
+   Section 6.1 of [RFC5802]) to use.
 
    See [RFC4270] and [RFC6194] for reasons to move from SHA-1 to a
-   strong security mechanism like SHA-512.
+   strong security mechanism like SHA3-512.
 
    The strength of this mechanism is dependent in part on the hash
    iteration-count, as denoted by "i" in [RFC5802].  As a rule of thumb,
@@ -152,25 +152,23 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
    IANA is requested to add the following new SASL SCRAM mechanisms to
    the "SASL SCRAM Family Mechanisms" registry:
 
-
-
       To:  iana@iana.org
 
       Subject:  Registration of a new SASL SCRAM Family mechanism SCRAM-
-         SHA-512
+         SHA3-512
 
-      SASL mechanism name (or prefix for the family):  SCRAM-SHA-512
+      SASL mechanism name (or prefix for the family):  SCRAM-SHA3-512
 
       Security considerations:  Section 4 of RFC XXXX
 
-
-
-Melnikov                  Expires May 22, 2021                  [Page 3]
-
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
-
-
       Published specification (optional, recommended):  RFC XXXX
+
+
+
+Melnikov                  Expires 22 April 2022                 [Page 3]
+
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS    October 2021
+
 
       Minimum iteration-count:  10000
 
@@ -188,10 +186,10 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
       To:  iana@iana.org
 
       Subject:  Registration of a new SASL SCRAM Family mechanism SCRAM-
-         SHA-512-PLUS
+         SHA3-512-PLUS
 
-      SASL mechanism name (or prefix for the family):  SCRAM-SHA-
-         512-PLUS
+      SASL mechanism name (or prefix for the family):  SCRAM-
+         SHA3-512-PLUS
 
       Security considerations:  Section 4 of RFC XXXX
 
@@ -221,9 +219,11 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
 
 
 
-Melnikov                  Expires May 22, 2021                  [Page 4]
+
+
+Melnikov                  Expires 22 April 2022                 [Page 4]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS    October 2021
 
 
    [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
@@ -242,11 +242,6 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
               DOI 10.17487/RFC5802, July 2010,
               <https://www.rfc-editor.org/info/rfc5802>.
 
-   [RFC6234]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
-              (SHA and SHA-based HMAC and HKDF)", RFC 6234,
-              DOI 10.17487/RFC6234, May 2011,
-              <https://www.rfc-editor.org/info/rfc6234>.
-
    [RFC7627]  Bhargavan, K., Ed., Delignat-Lavaud, A., Pironti, A.,
               Langley, A., and M. Ray, "Transport Layer Security (TLS)
               Session Hash and Extended Master Secret Extension",
@@ -262,25 +257,35 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
               <https://www.rfc-editor.org/info/rfc8446>.
 
    [tls-1.3-channel-binding]
-              Whited, S., "Channel Bindings for TLS 1.3", draft-ietf-
-              kitten-tls-channel-bindings-for-tls13-00 (work in
-              progress), June 2020.
+              Whited, S., "Channel Bindings for TLS 1.3", Work in
+              Progress, Internet-Draft, draft-ietf-kitten-tls-channel-
+              bindings-for-tls13-11, 18 October 2021,
+              <https://www.ietf.org/archive/id/draft-ietf-kitten-tls-
+              channel-bindings-for-tls13-11.txt>.
+
+   [NIST.FIPS.202]
+              Dworkin, M., "SHA-3 Standard: Permutation-Based Hash and
+              Extendable-Output Functions", FIPS PUB 202,
+              DOI 10.6028/nist.fips.202, August 2015,
+              <https://nvlpubs.nist.gov/nistpubs/FIPS/
+              NIST.FIPS.202.pdf>.
 
 6.2.  Informative References
+
+
+
+
+
+
+Melnikov                  Expires 22 April 2022                 [Page 5]
+
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS    October 2021
+
 
    [RFC4270]  Hoffman, P. and B. Schneier, "Attacks on Cryptographic
               Hashes in Internet Protocols", RFC 4270,
               DOI 10.17487/RFC4270, November 2005,
               <https://www.rfc-editor.org/info/rfc4270>.
-
-
-
-
-
-Melnikov                  Expires May 22, 2021                  [Page 5]
-
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
-
 
    [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
               IANA Considerations Section in RFCs", RFC 5226,
@@ -292,68 +297,22 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
               Algorithms", RFC 6194, DOI 10.17487/RFC6194, March 2011,
               <https://www.rfc-editor.org/info/rfc6194>.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Melnikov                  Expires May 22, 2021                  [Page 6]
-
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS    November 2020
-
-
 Acknowledgements
 
    This document is based on RFC 7677 by Tony Hansen.
+
+   Thank you to Ludovic Bocquet for comments and corrections.
 
 Author's Address
 
    Alexey Melnikov (editor)
    Isode Ltd
    14 Castle Mews
-   Hampton, Middlesex  TW12 2NP
-   UK
+   Hampton
+   TW12 2NP
+   United Kingdom
 
-   EMail: alexey.melnikov@isode.com
-
-
-
+   Email: alexey.melnikov@isode.com
 
 
 
@@ -374,19 +333,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Melnikov                  Expires May 22, 2021                  [Page 7]
+Melnikov                  Expires 22 April 2022                 [Page 6]
