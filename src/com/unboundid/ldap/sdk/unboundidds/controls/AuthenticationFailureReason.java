@@ -58,8 +58,8 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 /**
  * This class defines a data structure that will provide information about
  * errors that could cause an authentication attempt to fail.  It includes a
- * number of predefined failure types, but but also allows for the possibility
- * of additional failure types that have not been defined.
+ * number of predefined failure types, but also allows for the possibility of
+ * additional failure types that have not been defined.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -367,9 +367,26 @@ public final class AuthenticationFailureReason
 
 
   /**
+   * The numeric value for the failure type that indicates that a pass-through
+   * authentication attempt failed.
+   */
+  public static final int FAILURE_TYPE_PASS_THROUGH_AUTH_FAILURE = 18;
+
+
+
+  /**
+   * The name for the failure type that indicates that a pass-through
+   * authentication attempt failed.
+   */
+  @NotNull public static final String FAILURE_NAME_PASS_THROUGH_AUTH_FAILURE =
+       "pass-through-authentication-failure";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -4331994950570326032L;
+  private static final long serialVersionUID = 534691737103560809L;
 
 
 
