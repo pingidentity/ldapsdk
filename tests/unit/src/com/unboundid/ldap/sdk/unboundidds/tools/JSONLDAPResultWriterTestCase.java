@@ -42,6 +42,8 @@ import java.io.ByteArrayOutputStream;
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -77,6 +79,7 @@ public final class JSONLDAPResultWriterTestCase
          new JSONLDAPResultWriter(outputStream);
 
     writer.writeHeader();
+    writer.writeComment("foo");
 
     assertEquals(outputStream.size(), 0);
   }
@@ -98,10 +101,13 @@ public final class JSONLDAPResultWriterTestCase
     final JSONLDAPResultWriter writer =
          new JSONLDAPResultWriter(outputStream);
 
-    writer.writeSearchResultEntry(new SearchResultEntry(
-         new Entry("dc=example,dc=com")));
+    final SearchResultEntry entry =
+         new SearchResultEntry(new Entry("dc=example,dc=com"));
+    writer.writeSearchResultEntry(entry);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(entry));
   }
 
 
@@ -121,12 +127,15 @@ public final class JSONLDAPResultWriterTestCase
     final JSONLDAPResultWriter writer =
          new JSONLDAPResultWriter(outputStream);
 
-    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
+    final SearchResultEntry entry = new SearchResultEntry(new Entry(
          "dn: dc=example,dc=com",
          "objectClass: ",
-         "dc: ")));
+         "dc: "));
+    writer.writeSearchResultEntry(entry);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(entry));
   }
 
 
@@ -146,13 +155,16 @@ public final class JSONLDAPResultWriterTestCase
     final JSONLDAPResultWriter writer =
          new JSONLDAPResultWriter(outputStream);
 
-    writer.writeSearchResultEntry(new SearchResultEntry(new Entry(
+    final SearchResultEntry entry = new SearchResultEntry(new Entry(
          "dn: dc=example,dc=com",
          "objectClass: top",
          "objectClass: domain",
-         "dc: example")));
+         "dc: example"));
+    writer.writeSearchResultEntry(entry);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(entry));
   }
 
 
@@ -172,16 +184,19 @@ public final class JSONLDAPResultWriterTestCase
     final JSONLDAPResultWriter writer =
          new JSONLDAPResultWriter(outputStream);
 
-    writer.writeSearchResultEntry(new SearchResultEntry(
+    final SearchResultEntry entry = new SearchResultEntry(
          new Entry(
               "dn: dc=example,dc=com",
               "objectClass: top",
               "objectClass: domain",
               "dc: example"),
          new Control("1.2.3.4"),
-         new Control("1.2.3.5", true, new ASN1OctetString("foo"))));
+         new Control("1.2.3.5", true, new ASN1OctetString("foo")));
+    writer.writeSearchResultEntry(entry);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(entry));
   }
 
 
@@ -206,10 +221,13 @@ public final class JSONLDAPResultWriterTestCase
       "ldap://ds.example.com:389/dc=example,dc=com"
     };
 
-    writer.writeSearchResultReference(
-         new SearchResultReference(referralURLs, null));
+    final SearchResultReference reference =
+         new SearchResultReference(referralURLs, null);
+    writer.writeSearchResultReference(reference);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(reference));
   }
 
 
@@ -235,10 +253,13 @@ public final class JSONLDAPResultWriterTestCase
       "ldap://ds2.example.com:389/dc=example,dc=com"
     };
 
-    writer.writeSearchResultReference(
-         new SearchResultReference(referralURLs, null));
+    final SearchResultReference reference =
+         new SearchResultReference(referralURLs, null);
+    writer.writeSearchResultReference(reference);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(reference));
   }
 
 
@@ -270,10 +291,13 @@ public final class JSONLDAPResultWriterTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    writer.writeSearchResultReference(
-         new SearchResultReference(referralURLs, controls));
+    final SearchResultReference reference =
+         new SearchResultReference(referralURLs, controls);
+    writer.writeSearchResultReference(reference);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(reference));
   }
 
 
@@ -305,11 +329,14 @@ public final class JSONLDAPResultWriterTestCase
       new Control("1.2.3.5", true, new ASN1OctetString("foo"))
     };
 
-    writer.writeResult(new LDAPResult(1,
+    final LDAPResult result = new LDAPResult(1,
          ResultCode.UNWILLING_TO_PERFORM, "I don't feel like it",
-         "dc=example,dc=com", referralURLs, controls));
+         "dc=example,dc=com", referralURLs, controls);
+    writer.writeResult(result);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(result));
   }
 
 
@@ -329,10 +356,94 @@ public final class JSONLDAPResultWriterTestCase
     final JSONLDAPResultWriter writer =
          new JSONLDAPResultWriter(outputStream);
 
-    writer.writeResult(new SearchResult(2, ResultCode.SUCCESS, null,
-         null, null, 123, 456, null));
+    final SearchResult searchResult = new SearchResult(2, ResultCode.SUCCESS,
+         null, null, null, 123, 456, null);
+    writer.writeResult(searchResult);
 
     assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(searchResult));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code formatResult} method for a
+   * {@code BindResult}.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFormatBindResult()
+         throws Exception
+  {
+    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
+
+    final BindResult bindResult = new BindResult(2,
+         ResultCode.INVALID_CREDENTIALS, "The bind failed", null, null,
+         null);
+    writer.writeResult(bindResult);
+
+    assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(bindResult));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code formatResult} method for a
+   * {@code CompareResult}.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFormatCompareResult()
+         throws Exception
+  {
+    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
+
+    final CompareResult compareResult = new CompareResult(2,
+         ResultCode.COMPARE_TRUE, "The compare assertion matched", null, null,
+         null);
+    writer.writeResult(compareResult);
+
+    assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(compareResult));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code formatResult} method for an
+   * {@code ExtendedResult}.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFormatExtendedResult()
+         throws Exception
+  {
+    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    final JSONLDAPResultWriter writer =
+         new JSONLDAPResultWriter(outputStream);
+
+    final ExtendedResult extendedResult = new ExtendedResult(2,
+         ResultCode.SUCCESS, null, null, null, "1.2.3.4",
+         new ASN1OctetString("extended-result-value"), null);
+    writer.writeResult(extendedResult);
+
+    assertValidJSONObject(outputStream);
+
+    assertNotNull(JSONLDAPResultWriter.toJSON(extendedResult));
   }
 
 

@@ -39,21 +39,31 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.LDAPRuntimeException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Base64;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONBuffer;
+import com.unboundid.util.json.JSONException;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -127,6 +137,77 @@ public final class JSONLDAPResultWriter
   public void writeSearchResultEntry(@NotNull final SearchResultEntry entry)
   {
     jsonBuffer.clear();
+    toJSON(entry, jsonBuffer, formattedLines);
+    println(jsonBuffer.toString());
+  }
+
+
+
+  /**
+   * Encodes the provided entry as a JSON object.
+   *
+   * @param  entry  The entry to be encoded as a JSON object.  It must not be
+   *                {@code null}.
+   *
+   * @return  The JSON object containing the encoded representation of the
+   *          entry.
+   */
+  @NotNull()
+  public static JSONObject toJSON(@NotNull final Entry entry)
+  {
+    try
+    {
+      final JSONBuffer jsonBuffer = new JSONBuffer();
+      toJSON(entry, jsonBuffer);
+      return jsonBuffer.toJSONObject();
+    }
+    catch (final JSONException e)
+    {
+      // This should never happen.
+      Debug.debugException(e);
+      throw new LDAPRuntimeException(new LDAPException(
+           ResultCode.ENCODING_ERROR, e.getMessage(), e));
+    }
+  }
+
+
+
+  /**
+   * Appends a JSON object representation of the provided entry to the given
+   * buffer.
+   *
+   * @param  entry       The entry to be encoded as a JSON object.  It must not
+   *                     be {@code null}.
+   * @param  jsonBuffer  The JSON buffer to which the encoded representation
+   *                     of the entry is to be appended.  It must not be
+   *                     {@code null}.
+   */
+  public static void toJSON(@NotNull final Entry entry,
+                            @NotNull final JSONBuffer jsonBuffer)
+  {
+    toJSON(entry, jsonBuffer, null);
+  }
+
+
+
+  /**
+   * Appends a JSON object representation of the provided entry to the given
+   * buffer.
+   *
+   * @param  entry           The entry to be encoded as a JSON object.  It must
+   *                         not be {@code null}.
+   * @param  jsonBuffer      The JSON buffer to which the encoded representation
+   *                         of the entry is to be appended.  It must not be
+   *                         {@code null}.
+   * @param  formattedLines  A list that will be used for temporary storage
+   *                         during processing.  It must not be {@code null},
+   *                         must be updatable, and must not contain any data
+   *                         that you care about being preserved.
+   */
+  private static void toJSON(@NotNull final Entry entry,
+                             @NotNull final JSONBuffer jsonBuffer,
+                             @Nullable final List<String> formattedLines)
+  {
     jsonBuffer.beginObject();
     jsonBuffer.appendString("result-type", "entry");
     jsonBuffer.appendString("dn", entry.getDN());
@@ -147,11 +228,24 @@ public final class JSONLDAPResultWriter
     }
     jsonBuffer.endArray();
 
-    handleControls(entry.getControls());
+    if (entry instanceof SearchResultEntry)
+    {
+      final SearchResultEntry searchResultEntry = (SearchResultEntry) entry;
+      final Control[] controls = searchResultEntry.getControls();
+      if ((controls != null) && (controls.length > 0))
+      {
+        if (formattedLines == null)
+        {
+          handleControls(controls, jsonBuffer, new ArrayList<String>());
+        }
+        else
+        {
+          handleControls(controls, jsonBuffer, formattedLines);
+        }
+      }
+    }
 
     jsonBuffer.endObject();
-
-    println(jsonBuffer.toString());
   }
 
 
@@ -164,6 +258,78 @@ public final class JSONLDAPResultWriter
                    @NotNull final SearchResultReference ref)
   {
     jsonBuffer.clear();
+    toJSON(ref, jsonBuffer, formattedLines);
+    println(jsonBuffer.toString());
+  }
+
+
+
+  /**
+   * Encodes the provided search result reference as a JSON object.
+   *
+   * @param  ref  The search result reference to be encoded as a JSON object.
+   *              It must not be {@code null}.
+   *
+   * @return  The JSON object containing the encoded representation of the
+   *          search result reference.
+   */
+  @NotNull()
+  public static JSONObject toJSON(
+              @NotNull final SearchResultReference ref)
+  {
+    try
+    {
+      final JSONBuffer jsonBuffer = new JSONBuffer();
+      toJSON(ref, jsonBuffer);
+      return jsonBuffer.toJSONObject();
+    }
+    catch (final JSONException e)
+    {
+      // This should never happen.
+      Debug.debugException(e);
+      throw new LDAPRuntimeException(new LDAPException(
+           ResultCode.ENCODING_ERROR, e.getMessage(), e));
+    }
+  }
+
+
+
+  /**
+   * Appends a JSON object representation of the provided search result
+   * reference to the given buffer.
+   *
+   * @param  ref         The search result reference to be encoded as a JSON
+   *                     object.  It must not be {@code null}.
+   * @param  jsonBuffer  The JSON buffer to which the encoded representation
+   *                     of the reference is to be appended.  It must not be
+   *                     {@code null}.
+   */
+  public static void toJSON(@NotNull final SearchResultReference ref,
+                            @NotNull final JSONBuffer jsonBuffer)
+  {
+    toJSON(ref, jsonBuffer, null);
+  }
+
+
+
+  /**
+   * Appends a JSON object representation of the provided search result
+   * reference to the given buffer.
+   *
+   * @param  ref             The search result reference to be encoded as a JSON
+   *                         object.  It must not be {@code null}.
+   * @param  jsonBuffer      The JSON buffer to which the encoded representation
+   *                         of the reference is to be appended.  It must not be
+   *                         {@code null}.
+   * @param  formattedLines  A list that will be used for temporary storage
+   *                         during processing.  It must not be {@code null},
+   *                         must be updatable, and must not contain any data
+   *                         that you care about being preserved.
+   */
+  private static void toJSON(@NotNull final SearchResultReference ref,
+                             @NotNull final JSONBuffer jsonBuffer,
+                             @Nullable final List<String> formattedLines)
+  {
     jsonBuffer.beginObject();
     jsonBuffer.appendString("result-type", "reference");
 
@@ -174,11 +340,21 @@ public final class JSONLDAPResultWriter
     }
     jsonBuffer.endArray();
 
-    handleControls(ref.getControls());
+    final Control[] controls = ref.getControls();
+    if ((controls != null) && (controls.length > 0))
+    {
+      if (formattedLines == null)
+      {
+        handleControls(controls, jsonBuffer, new ArrayList<String>());
+      }
+      else
+      {
+        handleControls(controls, jsonBuffer, formattedLines);
+      }
+    }
 
     jsonBuffer.endObject();
 
-    println(jsonBuffer.toString());
   }
 
 
@@ -190,11 +366,94 @@ public final class JSONLDAPResultWriter
   public void writeResult(@NotNull final LDAPResult result)
   {
     jsonBuffer.clear();
+    toJSON(result, jsonBuffer, formattedLines);
+    println(jsonBuffer.toString());
+  }
+
+
+
+  /**
+   * Encodes the provided LDAP result as a JSON object.
+   *
+   * @param  result  The LDAP result to be encoded as a JSON object.  It must
+   *                 not be {@code null}.
+   *
+   * @return  The JSON object containing the encoded representation of the
+   *          LDAP result.
+   */
+  @NotNull()
+  public static JSONObject toJSON(@NotNull final LDAPResult result)
+  {
+    try
+    {
+      final JSONBuffer jsonBuffer = new JSONBuffer();
+      toJSON(result, jsonBuffer);
+      return jsonBuffer.toJSONObject();
+    }
+    catch (final JSONException e)
+    {
+      // This should never happen.
+      Debug.debugException(e);
+      throw new LDAPRuntimeException(new LDAPException(
+           ResultCode.ENCODING_ERROR, e.getMessage(), e));
+    }
+  }
+
+
+
+  /**
+   * Appends a JSON object representation of the provided entry to the given
+   * buffer.
+   *
+   * @param  result      The LDAP result to be encoded as a JSON object.  It
+   *                     must not be {@code null}.
+   * @param  jsonBuffer  The JSON buffer to which the encoded representation
+   *                     of the LDAP result is to be appended.  It must not be
+   *                     {@code null}.
+   */
+  public static void toJSON(@NotNull final LDAPResult result,
+                            @NotNull final JSONBuffer jsonBuffer)
+  {
+    toJSON(result, jsonBuffer, null);
+  }
+
+
+
+  /**
+   * Appends a JSON object representation of the provided LDAP result to the
+   * given buffer.
+   *
+   * @param  result          The LDAP result to be encoded as a JSON object.  It
+   *                         must not be {@code null}.
+   * @param  jsonBuffer      The JSON buffer to which the encoded representation
+   *                         of the LDAP result is to be appended.  It must not
+   *                         be {@code null}.
+   * @param  formattedLines  A list that will be used for temporary storage
+   *                         during processing.  It must not be {@code null},
+   *                         must be updatable, and must not contain any data
+   *                         that you care about being preserved.
+   */
+  private static void toJSON(@NotNull final LDAPResult result,
+                             @NotNull final JSONBuffer jsonBuffer,
+                             @Nullable final List<String> formattedLines)
+  {
     jsonBuffer.beginObject();
 
     if (result instanceof SearchResult)
     {
       jsonBuffer.appendString("result-type", "search-result");
+    }
+    else if (result instanceof BindResult)
+    {
+      jsonBuffer.appendString("result-type", "bind-result");
+    }
+    else if (result instanceof CompareResult)
+    {
+      jsonBuffer.appendString("result-type", "compare-result");
+    }
+    else if (result instanceof ExtendedResult)
+    {
+      jsonBuffer.appendString("result-type", "extended-result");
     }
     else
     {
@@ -235,12 +494,36 @@ public final class JSONLDAPResultWriter
       jsonBuffer.appendNumber("references-returned",
            searchResult.getReferenceCount());
     }
+    else if (result instanceof ExtendedResult)
+    {
+      final ExtendedResult extendedResult = (ExtendedResult) result;
+      final String oid = extendedResult.getOID();
+      if (oid != null)
+      {
+        jsonBuffer.appendString("oid", oid);
+      }
 
-    handleControls(result.getResponseControls());
+      if (extendedResult.hasValue())
+      {
+        jsonBuffer.appendString("base64-encoded-value",
+             Base64.encode(extendedResult.getValue().getValue()));
+      }
+    }
+
+    final Control[] controls = result.getResponseControls();
+    if ((controls != null) && (controls.length > 0))
+    {
+      if (formattedLines == null)
+      {
+        handleControls(controls, jsonBuffer, new ArrayList<String>());
+      }
+      else
+      {
+        handleControls(controls, jsonBuffer, formattedLines);
+      }
+    }
 
     jsonBuffer.endObject();
-
-    println(jsonBuffer.toString());
   }
 
 
@@ -320,15 +603,33 @@ public final class JSONLDAPResultWriter
   /**
    * Handles the necessary processing for the provided set of controls.
    *
-   * @param  controls  The controls to be processed.
+   * @param  controls  The controls to be processed.  It may be {@code null} or
+   *                   empty if there are no controls to be processed.
    */
   private void handleControls(@Nullable final Control[] controls)
   {
-    if ((controls == null) || (controls.length == 0))
-    {
-      return;
-    }
+    handleControls(controls, jsonBuffer, formattedLines);
+  }
 
+
+
+  /**
+   * Handles the necessary processing for the provided set of controls.
+   *
+   * @param  controls        The controls to be processed.  It must not be
+   *                         {@code null} or emtpy.
+   * @param  jsonBuffer      The buffer to which the encoded representation of
+   *                         the controls should be appended.  It must not be
+   *                         {@code null}.
+   * @param  formattedLines  A list that will be used for temporary storage
+   *                         during processing.  It must not be {@code null},
+   *                         must be updatable, and must not contain any data
+   *                         that you care about being preserved.
+   */
+  private static void handleControls(@Nullable final Control[] controls,
+                                     @NotNull final JSONBuffer jsonBuffer,
+                                     @NotNull final List<String> formattedLines)
+  {
     jsonBuffer.beginArray("controls");
 
     for (final Control c : controls)
