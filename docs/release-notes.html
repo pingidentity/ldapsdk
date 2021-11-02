@@ -23,6 +23,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the in-memory directory server that could cause it to include
+                  a matched DN in certain bind response messages.  Bind responses should not
+                  include a matched DN, as that may disclose information about the presence or
+                  absence of the target entry.  Further, there were cases in which the server
+                  could have included a matched DN even in cases where the target entry existed
+                  but the bind failed for some other reason (for example, because of a wrong
+                  password).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the JSONLDAPResultWriter class to add static methods for encoding
                   entries, search result references, and LDAP results to JSON objects.
                   <br><br>

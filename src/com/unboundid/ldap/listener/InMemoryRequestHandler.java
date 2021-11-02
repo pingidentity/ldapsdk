@@ -1503,8 +1503,7 @@ public final class InMemoryRequestHandler
         else
         {
           return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.INVALID_CREDENTIALS_INT_VALUE,
-               getMatchedDNString(bindDN),
+               ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
                ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()),
                null, null));
         }
@@ -1542,8 +1541,7 @@ public final class InMemoryRequestHandler
         else
         {
           return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.INVALID_CREDENTIALS_INT_VALUE,
-               getMatchedDNString(bindDN),
+               ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
                ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()),
                null, null));
         }
@@ -1554,8 +1552,7 @@ public final class InMemoryRequestHandler
       if (userEntry == null)
       {
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.INVALID_CREDENTIALS_INT_VALUE,
-             getMatchedDNString(bindDN),
+             ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
              ERR_MEM_HANDLER_BIND_NO_SUCH_USER.get(request.getBindDN()), null,
              null));
       }
@@ -1569,8 +1566,7 @@ public final class InMemoryRequestHandler
       if (matchingPasswords.isEmpty())
       {
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.INVALID_CREDENTIALS_INT_VALUE,
-             getMatchedDNString(bindDN),
+             ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
              ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()), null,
              null));
       }

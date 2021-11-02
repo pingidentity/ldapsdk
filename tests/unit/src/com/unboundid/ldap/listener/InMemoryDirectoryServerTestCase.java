@@ -1495,14 +1495,17 @@ public final class InMemoryDirectoryServerTestCase
     BindResult bindResult =
          conn.bind("uid=test.user,ou=People,dc=example,dc=com", "password");
     assertEquals(bindResult.getResultCode(), ResultCode.SUCCESS);
+    assertMissingMatchedDN(bindResult);
 
     //  Test the ability to with additional bind credentials.
     bindResult = conn.bind("cn=Directory Manager", "password");
     assertEquals(bindResult.getResultCode(), ResultCode.SUCCESS);
+    assertMissingMatchedDN(bindResult);
 
     //  Test the ability to bind with anonymous credentials.
     bindResult = conn.bind("", "");
     assertEquals(bindResult.getResultCode(), ResultCode.SUCCESS);
+    assertMissingMatchedDN(bindResult);
 
     // Test the behavior when trying to bind as a user that doesn't exist.
     try
@@ -1514,6 +1517,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.INVALID_CREDENTIALS);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind with the wrong password for a
@@ -1527,6 +1531,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.INVALID_CREDENTIALS);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind with the wrong password for an
@@ -1540,6 +1545,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.INVALID_CREDENTIALS);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind with a malformed DN.
@@ -1551,6 +1557,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.INVALID_DN_SYNTAX);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind with a non-empty DN and an empty
@@ -1564,6 +1571,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.UNWILLING_TO_PERFORM);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind with a null DN and non-empty
@@ -1577,6 +1585,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.INVALID_CREDENTIALS);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind as a user without a password.
@@ -1600,6 +1609,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.INVALID_CREDENTIALS);
+      assertMissingMatchedDN(le);
     }
 
     // Test the behavior when trying to bind using SASL authentication.
@@ -1613,6 +1623,7 @@ public final class InMemoryDirectoryServerTestCase
     catch (final LDAPException le)
     {
       assertEquals(le.getResultCode(), ResultCode.AUTH_METHOD_NOT_SUPPORTED);
+      assertMissingMatchedDN(le);
     }
 
     final Control[] unbindControls =
