@@ -11782,52 +11782,14 @@ public final class ManageCertificates
     }
 
 
-    try (FileInputStream inputStream = new FileInputStream(keystorePath))
+    try
     {
-      final int firstByte = inputStream.read();
-      if (firstByte < 0)
-      {
-        throw new LDAPException(ResultCode.PARAM_ERROR,
-             ERR_MANAGE_CERTS_INFER_KS_TYPE_EMPTY_FILE.get(
-                  keystorePath.getAbsolutePath()));
-      }
-
-      if (firstByte == 0x30)
-      {
-        // This suggests that the file is encoded as a DER sequence.  This
-        // encoding is used for both the PKCS #12 and BCFKS key stores, but we
-        // will always assume the PKCS #12 key store type unless we're running
-        // in FIPS mode or the keystore-type argument was provided, and both of
-        // those cases will have already been handled.
-        return CryptoHelper.KEY_STORE_TYPE_PKCS_12;
-      }
-      else if (firstByte == 0xFE)
-      {
-        // This is the correct first byte of a Java JKS keystore, which starts
-        // with bytes 0xFEEDFEED.
-        return CryptoHelper.KEY_STORE_TYPE_JKS;
-      }
-      else
-      {
-        throw new LDAPException(ResultCode.PARAM_ERROR,
-             ERR_MANAGE_CERTS_INFER_KS_TYPE_UNEXPECTED_FIRST_BYTE.get(
-                  keystorePath.getAbsolutePath(),
-                  StaticUtils.toHex((byte) (firstByte & 0xFF))));
-      }
-    }
-    catch (final LDAPException e)
-    {
-      Debug.debugException(e);
-      throw e;
+      return CryptoHelper.inferKeyStoreType(keystorePath);
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_MANAGE_CERTS_INFER_KS_TYPE_ERROR_READING_FILE.get(
-                keystorePath.getAbsolutePath(),
-                StaticUtils.getExceptionMessage(e)),
-           e);
+      throw new LDAPException(ResultCode.PARAM_ERROR, e.getMessage(), e);
     }
   }
 

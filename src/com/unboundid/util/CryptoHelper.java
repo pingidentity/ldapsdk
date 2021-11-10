@@ -37,6 +37,9 @@ package com.unboundid.util;
 
 
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -66,6 +69,9 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import com.unboundid.asn1.ASN1Constants;
+import com.unboundid.asn1.ASN1StreamReader;
+import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -1256,6 +1262,117 @@ public final class CryptoHelper
               @NotNull final String defaultKeyStoreType)
   {
     DEFAULT_KEY_STORE_TYPE.set(defaultKeyStoreType);
+  }
+
+
+
+  /**
+   * Attempts to automatically determine the type of key store that the
+   * specified file represents.  This method supports JKS, PKCS #12, and BCFKS
+   * key store types.
+   *
+   * @param  keyStoreFile  The key store file to examine.  It must not be
+   *                       {@code null}, and the file must exist.
+   *
+   * @return  The inferred key store type for the specified key store.
+   *
+   * @throws  KeyStoreException  If the key store type cannot be inferred.
+   */
+  @NotNull()
+  public static String inferKeyStoreType(@NotNull final File keyStoreFile)
+         throws KeyStoreException
+  {
+    if (! keyStoreFile.exists())
+    {
+      throw new KeyStoreException(
+           ERR_CRYPTO_HELPER_INFER_KS_TYPE_NO_SUCH_FILE.get(
+                keyStoreFile.getAbsolutePath()));
+    }
+
+    try (FileInputStream fis = new FileInputStream(keyStoreFile);
+         BufferedInputStream bis = new BufferedInputStream(fis))
+    {
+      // Read the first byte from the file.  Set a mark so that we can back up
+      // and re-read it if we need to make a more complete determination.
+      bis.mark(1);
+      final int firstByte = bis.read();
+      bis.reset();
+
+
+      // If the file is empty, then that's an error.
+      if (firstByte < 0)
+      {
+        throw new KeyStoreException(
+             ERR_CRYPTO_HELPER_INFER_KS_TYPE_EMPTY_FILE.get(
+                  keyStoreFile.getAbsolutePath()));
+      }
+
+
+      // If the first byte is 0xFE, then assume a key store type of JKS, since
+      // JKS key stores should start with 0xFEEDFEED.
+      if (firstByte == 0xFE)
+      {
+        return KEY_STORE_TYPE_JKS;
+      }
+
+
+      // If the first byte is 0x30, then that suggests it may be either a
+      // PKCS #12 key store or a BCFKS key store, both of which are DER-encoded.
+      // Try to read the contents of the file as an ASN.1 element.  If it's a
+      // PKCS #12 key store, then the first element of the sequence should be
+      // an integer with a value of 3.  If it's a BCFKS key store, then the
+      // first element of the sequence will be another sequence.
+      if (firstByte == 0x30)
+      {
+        try (ASN1StreamReader asn1StreamReader = new ASN1StreamReader(bis))
+        {
+          final ASN1StreamReaderSequence sequenceHeader =
+               asn1StreamReader.beginSequence();
+          if (sequenceHeader.hasMoreElements())
+          {
+            final int firstSequenceElementType = asn1StreamReader.peek();
+            if (firstSequenceElementType ==
+                 ASN1Constants.UNIVERSAL_INTEGER_TYPE)
+            {
+              final int intValue = asn1StreamReader.readInteger();
+              if (intValue == 3)
+              {
+                return KEY_STORE_TYPE_PKCS_12;
+              }
+            }
+            else if (firstSequenceElementType ==
+                 ASN1Constants.UNIVERSAL_SEQUENCE_TYPE)
+            {
+              return KEY_STORE_TYPE_BCFKS;
+            }
+          }
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+
+
+      // If we've gotten here, then we can't infer the key store type.
+      throw new KeyStoreException(
+           ERR_CRYPTO_HELPER_INFER_KS_TYPE_UNRECOGNIZED.get(
+                keyStoreFile.getAbsolutePath()));
+    }
+    catch (final KeyStoreException e)
+    {
+      Debug.debugException(e);
+      throw e;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new KeyStoreException(
+           ERR_CRYPTO_HELPER_INFER_KS_TYPE_READ_ERROR.get(
+                keyStoreFile.getAbsolutePath(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
   }
 
 

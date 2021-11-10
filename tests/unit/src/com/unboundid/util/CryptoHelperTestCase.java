@@ -37,6 +37,8 @@ package com.unboundid.util;
 
 
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -50,6 +52,9 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.asn1.ASN1Boolean;
+import com.unboundid.asn1.ASN1Integer;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.ssl.SSLUtil;
 
@@ -1647,5 +1652,283 @@ public final class CryptoHelperTestCase
     assertEquals(
          CryptoHelper.getNameUUIDFromBytes(StaticUtils.getBytes("Hello")),
          nameBasedUUID);
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a key
+   * store file that does not exist.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeNonexistentFile()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with a nonexistent " +
+           "file.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a key
+   * store file that is empty.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeEmptyFile()
+         throws Exception
+  {
+    final File f = createTempFile();
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with an empty file.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method for a valid
+   * JKS key store.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeJKS()
+         throws Exception
+  {
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File keyStoreFile = new File(resourceDir, "keystore.jks");
+
+    final String inferredKeyStoreType =
+         CryptoHelper.inferKeyStoreType(keyStoreFile);
+    assertNotNull(inferredKeyStoreType);
+    assertEquals(inferredKeyStoreType, CryptoHelper.KEY_STORE_TYPE_JKS);
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method for a valid
+   * PKCS #12 key store.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypePKCS12()
+         throws Exception
+  {
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File keyStoreFile = new File(resourceDir, "keystore.p12");
+
+    final String inferredKeyStoreType =
+         CryptoHelper.inferKeyStoreType(keyStoreFile);
+    assertNotNull(inferredKeyStoreType);
+    assertEquals(inferredKeyStoreType, CryptoHelper.KEY_STORE_TYPE_PKCS_12);
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method for a valid
+   * BCFKS key store.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeBCFKS()
+         throws Exception
+  {
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File keyStoreFile = new File(resourceDir, "keystore.bcfks");
+
+    final String inferredKeyStoreType =
+         CryptoHelper.inferKeyStoreType(keyStoreFile);
+    assertNotNull(inferredKeyStoreType);
+    assertEquals(inferredKeyStoreType, CryptoHelper.KEY_STORE_TYPE_BCFKS);
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a file
+   * that does not represent a recognized key store type and does not format its
+   * content as an ASN.1 sequence.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeUnrecognizedNonASN1Type()
+         throws Exception
+  {
+    final File f = createTempFile(
+         "not-a-recognized-key-store-type-and-not-asn1");
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with an " +
+           "unrecognized non-ASN.1 file.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a file
+   * that contains an empty ASN.1 sequence.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeEmptySequence()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    try (FileOutputStream fos = new FileOutputStream(f))
+    {
+      new ASN1Sequence().writeTo(fos);
+    }
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with a file " +
+           "containing an empty ASN.1 sequence");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a file
+   * that contains an empty ASN.1 sequence in which the first element has an
+   * unexpected BER type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeSequenceFirstElementUnexpectedType()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    try (FileOutputStream fos = new FileOutputStream(f))
+    {
+      new ASN1Sequence(ASN1Boolean.UNIVERSAL_BOOLEAN_TRUE_ELEMENT).writeTo(fos);
+    }
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with a file " +
+           "containing an ASN.1 sequence in which the first element has an " +
+           "unexpected type");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a file
+   * that contains an empty ASN.1 sequence in which the first element is an
+   * integer with a value that is not 3 (the expected value for a PKCS #12 key
+   * store).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeSequenceFirstElementIntegerUnexpectedValue()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    try (FileOutputStream fos = new FileOutputStream(f))
+    {
+      new ASN1Sequence(new ASN1Integer(0)).writeTo(fos);
+    }
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with a file " +
+           "containing an ASN.1 sequence in which the first element is an " +
+           "integer with a value that is not 3");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code inferKeyStoreType} method with a file
+   * that starts with the ASN.1 sequence type, but is not actually a valid
+   * ASN.1 sequence.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInferKeyStoreTypeNotValidSequence()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    try (FileOutputStream fos = new FileOutputStream(f))
+    {
+      fos.write(StaticUtils.byteArray(0x30));
+    }
+
+    try
+    {
+      CryptoHelper.inferKeyStoreType(f);
+      fail("Expected an exception from inferKeyStoreType with a file " +
+           "that starts with the ASN.1 sequence header but does not contain " +
+           "a valid sequence");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
   }
 }
