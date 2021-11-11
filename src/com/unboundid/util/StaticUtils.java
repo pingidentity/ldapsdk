@@ -67,6 +67,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -245,6 +246,33 @@ public final class StaticUtils
 
     TERMINAL_WIDTH_COLUMNS = terminalWidth;
   }
+
+
+
+  /**
+   * An array containing the set of lowercase ASCII letters.
+   */
+  @NotNull private static final char[] LOWERCASE_LETTERS =
+       "abcdefghijklmnopqrstuvwxyz".toCharArray();
+
+
+
+  /**
+   * An array containing the set of ASCII numeric digits.
+   */
+  @NotNull private static final char[] NUMERIC_DIGITS =
+       "0123456789".toCharArray();
+
+
+
+  /**
+   * An array containing the set of ASCII alphanumeric characters.  It will
+   * include both uppercase and lowercase letters.
+   */
+  @NotNull private static final char[] ALPHANUMERIC_CHARACTERS =
+       ("abcdefghijklmnopqrstuvwxyz" +
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+        "0123456789").toCharArray();
 
 
 
@@ -5950,6 +5978,176 @@ public final class StaticUtils
           writer.println(line);
         }
       }
+    }
+  }
+
+
+
+  /**
+   * Retrieves a byte array with the specified number of randomly selected
+   * bytes.
+   *
+   * @param  numBytes  The number of bytes of random data to retrieve.  It must
+   *                   be greater than or equal to zero.
+   * @param  secure    Indicates whether to use a cryptographically secure
+   *                   random number generator.
+   *
+   * @return  A byte array with the specified number of randomly selected
+   *          bytes.
+   */
+  @NotNull()
+  public static byte[] randomBytes(final int numBytes,
+                                   final boolean secure)
+  {
+    final byte[] byteArray = new byte[numBytes];
+    getThreadLocalRandom(secure).nextBytes(byteArray);
+    return byteArray;
+  }
+
+
+
+  /**
+   * Retrieves a randomly selected integer between the given upper and lower
+   * bounds.
+   *
+   * @param  lowerBound  The lowest value that may be selected at random.  It
+   *                     must be less than or equal to the upper bound.
+   * @param  upperBound  The highest value that may be selected at random.  It
+   *                     must be greater than or equal to the lower bound.
+   * @param  secure      Indicates whether to use a cryptographically secure
+   *                     random number generator.
+   *
+   * @return  A randomly selected integer between the given upper and lower
+   *          bounds.
+   */
+  public static int randomInt(final int lowerBound, final int upperBound,
+                              final boolean secure)
+  {
+    // Compute the span of values.  We need to use a long for this, because it's
+    // possible that this could cause an integer overflow.
+    final long span = 1L + upperBound - lowerBound;
+
+
+    // Select a random long value between zero and that span.
+    final long randomLong = getThreadLocalRandom(secure).nextLong();
+    final long positiveLong = randomLong & 0x7F_FF_FF_FF_FF_FF_FF_FFL;
+    final long valueWithinSpan = positiveLong % span;
+    return (int) (lowerBound + valueWithinSpan);
+  }
+
+
+
+  /**
+   * Retrieves a string containing the specified number of randomly selected
+   * ASCII letters.  It will contain only lowercase letters.
+   *
+   * @param  length  The number of letters to include in the string.  It must be
+   *                 greater than or equal to zero.
+   * @param  secure  Indicates whether to use a cryptographically secure random
+   *                 number generator.
+   *
+   * @return  The randomly generated alphabetic string.
+   */
+  @NotNull()
+  public static String randomAlphabeticString(final int length,
+                                              final boolean secure)
+  {
+    return randomString(length, LOWERCASE_LETTERS, secure);
+  }
+
+
+
+  /**
+   * Retrieves a string containing the specified number of randomly selected
+   * ASCII numeric digits.
+   *
+   * @param  length  The number of digits to include in the string.  It must be
+   *                 greater than or equal to zero.
+   * @param  secure  Indicates whether to use a cryptographically secure random
+   *                 number generator.
+   *
+   * @return  The randomly generated numeric string.
+   */
+  @NotNull()
+  public static String randomNumericString(final int length,
+                                           final boolean secure)
+  {
+    return randomString(length, NUMERIC_DIGITS, secure);
+  }
+
+
+
+  /**
+   * Retrieves a string containing the specified number of randomly selected
+   * ASCII alphanumeric characters.  It may contain a mix of lowercase letters,
+   * uppercase letters, and numeric digits.
+   *
+   * @param  length  The number of characters to include in the string.  It must
+   *                 be greater than or equal to zero.
+   * @param  secure  Indicates whether to use a cryptographically secure random
+   *                 number generator.
+   *
+   * @return  The randomly generated alphanumeric string.
+   */
+  @NotNull()
+  public static String randomAlphanumericString(final int length,
+                                                final boolean secure)
+  {
+    return randomString(length, ALPHANUMERIC_CHARACTERS, secure);
+  }
+
+
+
+  /**
+   * Retrieves a string containing the specified number of randomly selected
+   * characters from the given set.
+   *
+   * @param  length        The number of characters to include in the string.
+   *                       It must be greater than or equal to zero.
+   * @param  allowedChars  The set of characters that are allowed to be included
+   *                       in the string.  It must not be {@code null} or
+   *                       empty.
+   * @param  secure        Indicates whether to use a cryptographically secure
+   *                       random number generator.
+   *
+   * @return  The randomly generated string.
+   */
+  @NotNull()
+  public static String randomString(final int length,
+                                    @NotNull final char[] allowedChars,
+                                    final boolean secure)
+  {
+    final StringBuilder buffer = new StringBuilder(length);
+
+    final Random random = getThreadLocalRandom(secure);
+    for (int i=0; i < length; i++)
+    {
+      buffer.append(allowedChars[random.nextInt(allowedChars.length)]);
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Retrieves a thread-local random number generator.
+   *
+   * @param  secure  Indicates whether to retrieve a cryptographically secure
+   *                 random number generator.
+   *
+   * @return  The thread-local random number generator.
+   */
+  @NotNull()
+  private static Random getThreadLocalRandom(final boolean secure)
+  {
+    if (secure)
+    {
+      return ThreadLocalSecureRandom.get();
+    }
+    else
+    {
+      return ThreadLocalRandom.get();
     }
   }
 }

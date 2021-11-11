@@ -4228,4 +4228,171 @@ public class StaticUtilsTestCase
       }
     };
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code randomBytes} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRandomBytes()
+         throws Exception
+  {
+    for (int i=0; i < 100; i++)
+    {
+      final byte[] nonSecureBytes = StaticUtils.randomBytes(i, false);
+      assertNotNull(nonSecureBytes);
+      assertEquals(nonSecureBytes.length, i);
+
+      final byte[] secureBytes = StaticUtils.randomBytes(i, true);
+      assertNotNull(secureBytes);
+      assertEquals(secureBytes.length, i);
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code randomInt} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRandomInt()
+         throws Exception
+  {
+    // Test with the lower bound and upper bound values the same.
+    assertEquals(StaticUtils.randomInt(0, 0, false), 0);
+    assertEquals(StaticUtils.randomInt(0, 0, true), 0);
+
+    assertEquals(StaticUtils.randomInt(100, 100, false), 100);
+    assertEquals(StaticUtils.randomInt(100, 100, true), 100);
+
+    assertEquals(StaticUtils.randomInt(-1, -1, false), -1);
+    assertEquals(StaticUtils.randomInt(-1, -1, true), -1);
+
+    assertEquals(
+         StaticUtils.randomInt(Integer.MIN_VALUE, Integer.MIN_VALUE, false),
+         Integer.MIN_VALUE);
+    assertEquals(
+         StaticUtils.randomInt(Integer.MIN_VALUE, Integer.MIN_VALUE, true),
+         Integer.MIN_VALUE);
+
+    assertEquals(
+         StaticUtils.randomInt(Integer.MAX_VALUE, Integer.MAX_VALUE, false),
+         Integer.MAX_VALUE);
+    assertEquals(
+         StaticUtils.randomInt(Integer.MAX_VALUE, Integer.MAX_VALUE, true),
+         Integer.MAX_VALUE);
+
+
+    // Test with a variety of ranges.
+    final int[][] ranges =
+    {
+      new int[] { 0, 10 },
+      new int[] { 1, 10 },
+      new int[] { 50, 75 },
+      new int[] { -10, 0 },
+      new int[] { -10, -1 },
+      new int[] { -75, -50 },
+      new int[] { 0, Integer.MAX_VALUE },
+      new int[] { Integer.MIN_VALUE, 0 },
+      new int[] { Integer.MIN_VALUE, Integer.MAX_VALUE },
+    };
+
+    for (final int[] range : ranges)
+    {
+      for (int i=0; i < 100; i++)
+      {
+        final int lowerBound = range[0];
+        final int upperBound = range[1];
+
+        final int nonSecureValue =
+             StaticUtils.randomInt(lowerBound, upperBound, false);
+        assertTrue(nonSecureValue >= lowerBound);
+        assertTrue(nonSecureValue <= upperBound);
+
+        final int secureValue =
+             StaticUtils.randomInt(lowerBound, upperBound, true);
+        assertTrue(secureValue >= lowerBound);
+        assertTrue(secureValue <= upperBound);
+      }
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the methods that may be used to obtain random
+   * strings.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRandomString()
+         throws Exception
+  {
+    for (int i=0; i < 100; i++)
+    {
+      final String nonSecureAlphabeticString =
+           StaticUtils.randomAlphabeticString(i, false);
+      assertNotNull(nonSecureAlphabeticString);
+      assertEquals(nonSecureAlphabeticString.length(), i);
+      for (final char c : nonSecureAlphabeticString.toCharArray())
+      {
+        assertTrue((c >= 'a') && (c <= 'z'));
+      }
+
+      final String secureAlphabeticString =
+           StaticUtils.randomAlphabeticString(i, true);
+      assertNotNull(secureAlphabeticString);
+      assertEquals(secureAlphabeticString.length(), i);
+      for (final char c : secureAlphabeticString.toCharArray())
+      {
+        assertTrue((c >= 'a') && (c <= 'z'));
+      }
+
+      final String nonSecureNumericString =
+           StaticUtils.randomNumericString(i, false);
+      assertNotNull(nonSecureNumericString);
+      assertEquals(nonSecureNumericString.length(), i);
+      for (final char c : nonSecureNumericString.toCharArray())
+      {
+        assertTrue((c >= '0') && (c <= '9'));
+      }
+
+      final String secureNumericString =
+           StaticUtils.randomNumericString(i, true);
+      assertNotNull(secureNumericString);
+      assertEquals(secureNumericString.length(), i);
+      for (final char c : secureNumericString.toCharArray())
+      {
+        assertTrue((c >= '0') && (c <= '9'));
+      }
+
+      final String nonSecureAlphabumericString =
+           StaticUtils.randomAlphanumericString(i, false);
+      assertNotNull(nonSecureAlphabumericString);
+      assertEquals(nonSecureAlphabumericString.length(), i);
+      for (final char c : nonSecureAlphabumericString.toCharArray())
+      {
+        assertTrue(((c >= 'a') && (c <= 'z')) ||
+             ((c >= 'A') && (c <= 'Z')) ||
+             ((c >= '0') && (c <= '9')));
+      }
+
+      final String secureAlphanumericString =
+           StaticUtils.randomAlphanumericString(i, true);
+      assertNotNull(secureAlphanumericString);
+      assertEquals(secureAlphanumericString.length(), i);
+      for (final char c : secureAlphanumericString.toCharArray())
+      {
+        assertTrue(((c >= 'a') && (c <= 'z')) ||
+             ((c >= 'A') && (c <= 'Z')) ||
+             ((c >= '0') && (c <= '9')));
+      }
+    }
+  }
 }
