@@ -43,6 +43,7 @@ import java.util.List;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
@@ -157,6 +158,34 @@ public final class TaskManager
                              @NotNull final LDAPConnection connection)
          throws LDAPException, TaskException
   {
+    return getTask(taskID, (LDAPInterface) connection);
+  }
+
+
+
+  /**
+   * Retrieves the task with the specified task ID using the given connection.
+   *
+   * @param  connection  The connection to the Directory Server from which to
+   *                     retrieve the task.  It must not be {@code null}.
+   * @param  taskID      The task ID for the task to retrieve.  It must not be
+   *                     {@code null}.
+   *
+   * @return  The requested task, or {@code null} if no such task exists in the
+   *          server.  An attempt will be made to instantiate the task as the
+   *          most appropriate task type, but if this is not possible then it
+   *          will be a generic {@code Task} object.
+   *
+   * @throws  LDAPException  If a problem occurs while communicating with the
+   *                         Directory Server over the provided connection.
+   *
+   * @throws  TaskException  If the retrieved entry cannot be parsed as a task.
+   */
+  @Nullable()
+  public static Task getTask(@NotNull final String taskID,
+                             @NotNull final LDAPInterface connection)
+         throws LDAPException, TaskException
+  {
     try
     {
       final Entry taskEntry = connection.getEntry(getTaskDN(taskID));
@@ -195,6 +224,27 @@ public final class TaskManager
    */
   @NotNull()
   public static List<Task> getTasks(@NotNull final LDAPConnection connection)
+         throws LDAPException
+  {
+    return getTasks((LDAPInterface) connection);
+  }
+
+
+
+  /**
+   * Retrieves all of the tasks defined in the Directory Server using the
+   * provided connection.
+   *
+   * @param  connection  The connection to the Directory Server instance from
+   *                     which to retrieve the defined tasks.
+   *
+   * @return  A list of all tasks defined in the associated Directory Server.
+   *
+   * @throws  LDAPException  If a problem occurs while communicating with the
+   *                         Directory Server over the provided connection.
+   */
+  @NotNull()
+  public static List<Task> getTasks(@NotNull final LDAPInterface connection)
          throws LDAPException
   {
     final Filter filter =
@@ -246,6 +296,32 @@ public final class TaskManager
                                   @NotNull final LDAPConnection connection)
          throws LDAPException, TaskException
   {
+    return scheduleTask(task, (LDAPInterface) connection);
+  }
+
+
+
+  /**
+   * Schedules a new instance of the provided task in the Directory Server.
+   *
+   * @param  task        The task to be scheduled.
+   * @param  connection  The connection to the Directory Server in which the
+   *                     task is to be scheduled.
+   *
+   * @return  A {@code Task} object representing the task that was scheduled and
+   *          re-read from the server.
+   *
+   * @throws  LDAPException  If a problem occurs while communicating with the
+   *                         Directory Server, or if it rejects the task.
+   *
+   * @throws  TaskException  If the entry read back from the server after the
+   *                         task was created could not be parsed as a task.
+   */
+  @NotNull()
+  public static Task scheduleTask(@NotNull final Task task,
+                                  @NotNull final LDAPInterface connection)
+         throws LDAPException, TaskException
+  {
     final Entry taskEntry = task.createTaskEntry();
     connection.add(task.createTaskEntry());
 
@@ -278,6 +354,28 @@ public final class TaskManager
                                 @NotNull final LDAPConnection connection)
          throws LDAPException
   {
+    cancelTask(taskID, (LDAPInterface) connection);
+  }
+
+
+
+  /**
+   * Submits a request to cancel the task with the specified task ID.  Note that
+   * some tasks may not support being canceled.  Further, for tasks that do
+   * support being canceled it may take time for the cancel request to be
+   * processed and for the task to actually be canceled.
+   *
+   * @param  taskID      The task ID of the task to be canceled.
+   * @param  connection  The connection to the Directory Server in which to
+   *                     perform the operation.
+   *
+   * @throws  LDAPException  If a problem occurs while communicating with the
+   *                         Directory Server.
+   */
+  public static void cancelTask(@NotNull final String taskID,
+                                @NotNull final LDAPInterface connection)
+         throws LDAPException
+  {
     // Note:  we should use the CANCELED_BEFORE_STARTING state when we want to
     // cancel a task regardless of whether it's pending or running.  If the
     // task is running, the server will convert it to STOPPED_BY_ADMINISTRATOR.
@@ -301,6 +399,25 @@ public final class TaskManager
    */
   public static void deleteTask(@NotNull final String taskID,
                                 @NotNull final LDAPConnection connection)
+         throws LDAPException
+  {
+    deleteTask(taskID, (LDAPInterface) connection);
+  }
+
+
+
+  /**
+   * Attempts to delete the task with the specified task ID.
+   *
+   * @param  taskID      The task ID of the task to be deleted.
+   * @param  connection  The connection to the Directory Server in which to
+   *                     perform the operation.
+   *
+   * @throws  LDAPException  If a problem occurs while communicating with the
+   *                         Directory Server.
+   */
+  public static void deleteTask(@NotNull final String taskID,
+                                @NotNull final LDAPInterface connection)
          throws LDAPException
   {
     connection.delete(getTaskDN(taskID));
@@ -337,6 +454,45 @@ public final class TaskManager
   @NotNull()
   public static Task waitForTask(@NotNull final String taskID,
                                  @NotNull final LDAPConnection connection,
+                                 final long pollFrequency,
+                                 final long maxWaitTime)
+         throws LDAPException, TaskException
+  {
+    return waitForTask(taskID, (LDAPInterface) connection, pollFrequency,
+         maxWaitTime);
+  }
+
+
+
+  /**
+   * Waits for the specified task to complete.
+   *
+   * @param  taskID         The task ID of the task to poll.
+   * @param  connection     The connection to the Directory Server containing
+   *                        the desired task.
+   * @param  pollFrequency  The minimum length of time in milliseconds between
+   *                        checks to see if the task has completed.  A value
+   *                        less than or equal to zero will cause the client to
+   *                        check as quickly as possible.
+   * @param  maxWaitTime    The maximum length of time in milliseconds to wait
+   *                        for the task to complete before giving up.  A value
+   *                        less than or equal to zero indicates that it will
+   *                        keep checking indefinitely until the task has
+   *                        completed.
+   *
+   * @return  Task  The decoded task after it has completed, or after the
+   *                maximum wait time has expired.
+   *
+   * @throws  LDAPException  If a problem occurs while communicating with the
+   *                         Directory Server.
+   *
+   * @throws  TaskException  If a problem occurs while attempting to parse the
+   *                         task entry as a task, or if the specified task
+   *                         entry could not be found.
+   */
+  @NotNull()
+  public static Task waitForTask(@NotNull final String taskID,
+                                 @NotNull final LDAPInterface connection,
                                  final long pollFrequency,
                                  final long maxWaitTime)
          throws LDAPException, TaskException

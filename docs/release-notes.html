@@ -64,6 +64,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the TaskManager class to add support for using LDAPInterface objects as
+                  an alternative to LDAPConnection objects for interacting with the directory
+                  server.  This makes it easier to interact with tasks from a connection pool or
+                  other types of LDAP interfaces.
+                  <br><br>
+                </li>
+
+                <li>
                   Added StaticUtils convenience methods that can be used to generate random bytes,
                   integers, and strings, optionally using a cryptographically secure random number
                   generator.
