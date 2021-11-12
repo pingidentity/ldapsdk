@@ -112,8 +112,8 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *     ... }
  * </PRE>
  * <BR><BR>
- * The server will return a generic extended result in response to this request,
- * with neither an OID nor a value.
+ *
+ * @see  ReplaceInterServerCertificateExtendedResult
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

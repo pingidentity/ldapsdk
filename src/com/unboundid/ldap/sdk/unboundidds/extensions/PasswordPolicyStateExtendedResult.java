@@ -189,6 +189,7 @@ public final class PasswordPolicyStateExtendedResult
   /**
    * Creates a new password policy state extended result with the provided
    * information.
+   *
    * @param  messageID          The message ID for the LDAP message that is
    *                            associated with this LDAP result.
    * @param  resultCode         The result code from the response.

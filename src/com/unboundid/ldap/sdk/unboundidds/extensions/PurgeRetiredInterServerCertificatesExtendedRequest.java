@@ -57,8 +57,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * Ping Identity Directory Server instance (or related Ping Identity server
  * product) purge information about any retired inter-server certificates from
  * its topology registry.  This extended request has an OID of
- * 1.3.6.1.4.1.30221.2.6.71 and no value.  The server will return a generic
- * extended result in response to this request, with neither an OID nor a value.
+ * 1.3.6.1.4.1.30221.2.6.71 and no value.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -69,6 +68,8 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   considered stable or mature enough to be guaranteed to work in an
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
+ *
+ * @see  PurgeRetiredInterServerCertificatesExtendedResult
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
