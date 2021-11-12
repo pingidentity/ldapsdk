@@ -83,17 +83,18 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * <PRE>
  *   ReplaceListenerCertificateValue ::= SEQUENCE {
  *     keyStoreContent                         CHOICE {
- *       keyStoreFile                            [0] KeyStoreFileSequence,
- *       keyStoreData                            [1] KeyStoreDataSequence,
- *       certificateData                         [2] CertificateDataSequence,
+ *       keyStoreFile                            [0]  KeyStoreFileSequence,
+ *       keyStoreData                            [1]  KeyStoreDataSequence,
+ *       certificateData                         [2]  CertificateDataSequence,
  *       ... },
- *    keyManagerProvider                       [3] OCTET STRING,
+ *    keyManagerProvider                       [3]  OCTET STRING,
  *    trustBehavior                            CHOICE {
  *      trustManagerProvider                     [4] OCTET STRING,
  *      useJVMDefaultTrustManagerProvider        [5] NULL,
  *      ... },
- *    targetCertificateAlias                   [6] OCTET STRING OPTIONAL,
- *    reloadHTTPConnectionHandlerCertificates  [7] BOOLEAN DEFAULT FALSE,
+ *    targetCertificateAlias                   [6]  OCTET STRING OPTIONAL,
+ *    reloadHTTPConnectionHandlerCertificates  [7]  BOOLEAN DEFAULT FALSE,
+ *    skipCertificateValidation                [16] BOOLEAN DEFAULT FALSE,
  *    ... }
  *
  *   KeyStoreFileSequence ::= SEQUENCE {
@@ -162,6 +163,14 @@ public final class ReplaceListenerCertificateExtendedRequest
 
 
   /**
+   * The BER type for the request value element that indicates whether to
+   * skip validation for the new certificate chain.
+   */
+  private static final byte TYPE_SKIP_CERT_VALIDATION = (byte) 0x90;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 3947876247774857671L;
@@ -171,6 +180,9 @@ public final class ReplaceListenerCertificateExtendedRequest
   // Indicates whether to trigger a certificate reload in any configured HTTP
   // connection handlers.
   private final boolean reloadHTTPConnectionHandlerCertificates;
+
+  // Indicates whether to skip validation for the new certificate chain.
+  private final boolean skipCertificateValidation;
 
   // The object providing information about how the server should obtain the new
   // listener certificate data.
@@ -221,6 +233,9 @@ public final class ReplaceListenerCertificateExtendedRequest
    *              that this could potentially cause issues with resuming TLS
    *              sessions for HTTPS clients that were negotiated before the
    *              listener certificate was updated.
+   * @param  skipCertificateValidation
+   *              Indicates whether to skip validation for the new certificate
+   *              chain.
    * @param  requestControls
    *              The set of controls to include in the extended request.  It
    *              may be {@code null} or empty if no request controls should be
@@ -232,11 +247,13 @@ public final class ReplaceListenerCertificateExtendedRequest
               @NotNull final ReplaceCertificateTrustBehavior trustBehavior,
               @Nullable final String targetCertificateAlias,
               final boolean reloadHTTPConnectionHandlerCertificates,
+              final boolean skipCertificateValidation,
               @Nullable final Control... requestControls)
   {
     super(REPLACE_LISTENER_CERT_REQUEST_OID,
          encodeValue(keyStoreContent, keyManagerProvider, trustBehavior,
-              targetCertificateAlias, reloadHTTPConnectionHandlerCertificates),
+              targetCertificateAlias, reloadHTTPConnectionHandlerCertificates,
+              skipCertificateValidation),
          requestControls);
 
     this.keyStoreContent = keyStoreContent;
@@ -245,6 +262,7 @@ public final class ReplaceListenerCertificateExtendedRequest
     this.targetCertificateAlias = targetCertificateAlias;
     this.reloadHTTPConnectionHandlerCertificates =
          reloadHTTPConnectionHandlerCertificates;
+    this.skipCertificateValidation = skipCertificateValidation;
   }
 
 
@@ -281,6 +299,9 @@ public final class ReplaceListenerCertificateExtendedRequest
    *              that this could potentially cause issues with resuming TLS
    *              sessions for HTTPS clients that were negotiated before the
    *              listener certificate was updated.
+   * @param  skipCertificateValidation
+   *              Indicates whether to skip validation for the new certificate
+   *              chain.
    *
    * @return  An ASN.1 octet string containing the encoded request value.
    */
@@ -290,7 +311,8 @@ public final class ReplaceListenerCertificateExtendedRequest
                @NotNull final String keyManagerProvider,
                @NotNull final ReplaceCertificateTrustBehavior trustBehavior,
                @Nullable final String targetCertificateAlias,
-               final boolean reloadHTTPConnectionHandlerCertificates)
+               final boolean reloadHTTPConnectionHandlerCertificates,
+               final boolean skipCertificateValidation)
   {
     Validator.ensureNotNullWithMessage(keyStoreContent,
          "ReplaceListenerCertificateExtendedRequest.keyStoreContent must not " +
@@ -302,7 +324,7 @@ public final class ReplaceListenerCertificateExtendedRequest
          "ReplaceListenerCertificateExtendedRequest.trustBehavior must not " +
               "be null.");
 
-    final List<ASN1Element> valueElements = new ArrayList<>(5);
+    final List<ASN1Element> valueElements = new ArrayList<>(6);
     valueElements.add(keyStoreContent.encode());
     valueElements.add(new ASN1OctetString(TYPE_KEY_MANAGER_PROVIDER,
          keyManagerProvider));
@@ -318,6 +340,11 @@ public final class ReplaceListenerCertificateExtendedRequest
     {
       valueElements.add(new ASN1Boolean(
            TYPE_RELOAD_HTTP_CONNECTION_HANDLER_CERTS, true));
+    }
+
+    if (skipCertificateValidation)
+    {
+      valueElements.add(new ASN1Boolean(TYPE_SKIP_CERT_VALIDATION, true));
     }
 
     return new ASN1OctetString(new ASN1Sequence(valueElements).encode());
@@ -361,6 +388,7 @@ public final class ReplaceListenerCertificateExtendedRequest
 
       String targetAlias = null;
       boolean reloadHTTPCerts = false;
+      boolean skipValidation = false;
       for (int i=3; i < elements.length; i++)
       {
         switch (elements[i].getType())
@@ -371,11 +399,15 @@ public final class ReplaceListenerCertificateExtendedRequest
           case TYPE_RELOAD_HTTP_CONNECTION_HANDLER_CERTS:
             reloadHTTPCerts = elements[i].decodeAsBoolean().booleanValue();
             break;
+          case TYPE_SKIP_CERT_VALIDATION:
+            skipValidation = elements[i].decodeAsBoolean().booleanValue();
+            break;
         }
       }
 
       targetCertificateAlias = targetAlias;
       reloadHTTPConnectionHandlerCertificates = reloadHTTPCerts;
+      skipCertificateValidation = skipValidation;
     }
     catch (final Exception e)
     {
@@ -474,6 +506,20 @@ public final class ReplaceListenerCertificateExtendedRequest
 
 
   /**
+   * Indicates whether the server should skip validation processing for the
+   * new certificate chain.
+   *
+   * @return  {@code true} if the server should skip validation processing for
+   *          the new certificate chain, or {@code false} if not.
+   */
+  public boolean skipCertificateValidation()
+  {
+    return skipCertificateValidation;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -509,6 +555,8 @@ public final class ReplaceListenerCertificateExtendedRequest
 
     buffer.append(", reloadHTTPConnectionHandlerCertificates=");
     buffer.append(reloadHTTPConnectionHandlerCertificates);
+    buffer.append(", skipCertificateValidation=");
+    buffer.append(skipCertificateValidation);
 
     final Control[] controls = getControls();
     if (controls.length > 0)

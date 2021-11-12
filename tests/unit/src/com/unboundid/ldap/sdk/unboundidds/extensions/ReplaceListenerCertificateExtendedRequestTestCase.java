@@ -69,7 +69,7 @@ public final class ReplaceListenerCertificateExtendedRequestTestCase
                    "test-pin", null, null, null),
               "KMP",
               new TrustManagerProviderReplaceCertificateTrustBehavior("TMP"),
-              null, false);
+              null, false, false);
 
     r = new ReplaceListenerCertificateExtendedRequest(r);
 
@@ -90,6 +90,8 @@ public final class ReplaceListenerCertificateExtendedRequestTestCase
     assertNull(r.getTargetCertificateAlias());
 
     assertFalse(r.reloadHTTPConnectionHandlerCertificates());
+
+    assertFalse(r.skipCertificateValidation());
 
     assertNotNull(r.getExtendedRequestName());
 
@@ -113,7 +115,7 @@ public final class ReplaceListenerCertificateExtendedRequestTestCase
                    "test-pin", null, null, null),
               "KMP",
               new TrustManagerProviderReplaceCertificateTrustBehavior("TMP"),
-              "alias", true,
+              "alias", true, true,
               new Control("1.2.3.4"),
               new Control("1.2.3.5", true, new ASN1OctetString("foo")));
 
@@ -137,6 +139,8 @@ public final class ReplaceListenerCertificateExtendedRequestTestCase
     assertEquals(r.getTargetCertificateAlias(), "alias");
 
     assertTrue(r.reloadHTTPConnectionHandlerCertificates());
+
+    assertTrue(r.skipCertificateValidation());
 
     assertNotNull(r.getExtendedRequestName());
 

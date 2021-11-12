@@ -37,6 +37,10 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
@@ -78,11 +82,12 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * the following encoding:
  * <PRE>
  *   ReplaceInterServerCertificateValue ::= SEQUENCE {
- *     keyStoreContent                         CHOICE {
- *       keyStoreFile                            [0] KeyStoreFileSequence,
- *       keyStoreData                            [1] KeyStoreDataSequence,
- *       certificateData                         [2] CertificateDataSequence,
+ *     keyStoreContent           CHOICE {
+ *       keyStoreFile              [0] KeyStoreFileSequence,
+ *       keyStoreData              [1] KeyStoreDataSequence,
+ *       certificateData            [2] CertificateDataSequence,
  *       ... },
+ *    skipCertificateValidation  [16] BOOLEAN DEFAULT FALSE,
  *    ... }
  *
  *   KeyStoreFileSequence ::= SEQUENCE {
@@ -125,11 +130,22 @@ public final class ReplaceInterServerCertificateExtendedRequest
 
 
   /**
+   * The BER type for the request value element that indicates whether to
+   * skip validation for the new certificate chain.
+   */
+  private static final byte TYPE_SKIP_CERT_VALIDATION = (byte) 0x90;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 2244751901271649579L;
 
 
+
+  // Indicates whether to skip validation for the new certificate chain.
+  private final boolean skipCertificateValidation;
 
   // The object providing information about how the server should obtain the new
   // inter-server certificate data.
@@ -141,21 +157,29 @@ public final class ReplaceInterServerCertificateExtendedRequest
    * Creates a new replace inter-server certificate extended request with the
    * provided information.
    *
-   * @param  keyStoreContent  An object with information about how the server
-   *                          should obtain the new inter-server certificate
-   *                          data.  It must not be {@code null}.
-   * @param  requestControls  The set of controls to include in the extended
-   *                          request.  It may be {@code null} or empty if no
-   *                          request controls should be included.
+   * @param  keyStoreContent
+   *              An object with information about how the server should obtain
+   *              the new inter-server certificate data.  It must not be
+   *              {@code null}.
+   * @param  skipCertificateValidation
+   *              Indicates whether to skip validation for the new certificate
+   *              chain.
+   * @param  requestControls
+   *              The set of controls to include in the extended request.  It
+   *              may be {@code null} or empty if no request controls should be
+   *              included.
    */
   public ReplaceInterServerCertificateExtendedRequest(
               @NotNull final ReplaceCertificateKeyStoreContent keyStoreContent,
+              final boolean skipCertificateValidation,
               @Nullable final Control... requestControls)
   {
-    super(REPLACE_INTER_SERVER_CERT_REQUEST_OID, encodeValue(keyStoreContent),
+    super(REPLACE_INTER_SERVER_CERT_REQUEST_OID,
+         encodeValue(keyStoreContent, skipCertificateValidation),
          requestControls);
 
     this.keyStoreContent = keyStoreContent;
+    this.skipCertificateValidation = skipCertificateValidation;
   }
 
 
@@ -165,22 +189,34 @@ public final class ReplaceInterServerCertificateExtendedRequest
    * use as the encoded value for a replace inter-server certificate extended
    * request.
    *
-   * @param  keyStoreContent  An object with information about how the server
-   *                          should obtain the new inter-server certificate
-   *                          data.  It must not be {@code null}.
+   * @param  keyStoreContent
+   *              An object with information about how the server should obtain
+   *              the new inter-server certificate data.  It must not be
+   *              {@code null}.
+   * @param  skipCertificateValidation
+   *              Indicates whether to skip validation for the new certificate
+   *              chain.
    *
    * @return  An ASN.1 octet string containing the encoded request value.
    */
   @NotNull()
   private static ASN1OctetString encodeValue(
-              @NotNull final ReplaceCertificateKeyStoreContent keyStoreContent)
+              @NotNull final ReplaceCertificateKeyStoreContent keyStoreContent,
+              final boolean skipCertificateValidation)
   {
     Validator.ensureNotNullWithMessage(keyStoreContent,
          "ReplaceInterServerCertificateExtendedRequest.keyStoreContent must " +
               "not be null.");
 
-    return new ASN1OctetString(
-         new ASN1Sequence(keyStoreContent.encode()).encode());
+    final List<ASN1Element> elements = new ArrayList<>();
+    elements.add(keyStoreContent.encode());
+
+    if (skipCertificateValidation)
+    {
+      elements.add(new ASN1Boolean(TYPE_SKIP_CERT_VALIDATION, true));
+    }
+
+    return new ASN1OctetString(new ASN1Sequence(elements).encode());
   }
 
 
@@ -215,6 +251,19 @@ public final class ReplaceInterServerCertificateExtendedRequest
       final ASN1Element[] elements =
            ASN1Sequence.decodeAsSequence(value.getValue()).elements();
       keyStoreContent = ReplaceCertificateKeyStoreContent.decode(elements[0]);
+
+      boolean skipValidation = false;
+      for (int i=1; i < elements.length; i++)
+      {
+        switch (elements[i].getType())
+        {
+          case TYPE_SKIP_CERT_VALIDATION:
+            skipValidation = elements[i].decodeAsBoolean().booleanValue();
+            break;
+        }
+      }
+
+      skipCertificateValidation = skipValidation;
     }
     catch (final Exception e)
     {
@@ -244,6 +293,20 @@ public final class ReplaceInterServerCertificateExtendedRequest
 
 
   /**
+   * Indicates whether the server should skip validation processing for the
+   * new certificate chain.
+   *
+   * @return  {@code true} if the server should skip validation processing for
+   *          the new certificate chain, or {@code false} if not.
+   */
+  public boolean skipCertificateValidation()
+  {
+    return skipCertificateValidation;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -265,6 +328,8 @@ public final class ReplaceInterServerCertificateExtendedRequest
     buffer.append(getOID());
     buffer.append("', keyStoreContent=");
     keyStoreContent.toString(buffer);
+    buffer.append(", skipCertificateValidation=");
+    buffer.append(skipCertificateValidation);
 
     final Control[] controls = getControls();
     if (controls.length > 0)

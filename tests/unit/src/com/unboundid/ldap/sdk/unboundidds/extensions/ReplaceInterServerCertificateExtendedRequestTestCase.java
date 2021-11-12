@@ -66,7 +66,8 @@ public final class ReplaceInterServerCertificateExtendedRequestTestCase
     ReplaceInterServerCertificateExtendedRequest r =
          new ReplaceInterServerCertificateExtendedRequest(
               new KeyStoreFileReplaceCertificateKeyStoreContent("test-file",
-                   "test-pin", null, null, null));
+                   "test-pin", null, null, null),
+              false);
 
     r = new ReplaceInterServerCertificateExtendedRequest(r);
 
@@ -76,6 +77,8 @@ public final class ReplaceInterServerCertificateExtendedRequestTestCase
     assertNotNull(r.getKeyStoreContent());
     assertTrue(r.getKeyStoreContent() instanceof
          KeyStoreFileReplaceCertificateKeyStoreContent);
+
+    assertFalse(r.skipCertificateValidation());
 
     assertNotNull(r.getExtendedRequestName());
 
@@ -97,6 +100,7 @@ public final class ReplaceInterServerCertificateExtendedRequestTestCase
          new ReplaceInterServerCertificateExtendedRequest(
               new KeyStoreFileReplaceCertificateKeyStoreContent("test-file",
                    "test-pin", null, null, null),
+              true,
               new Control("1.2.3.4"),
               new Control("1.2.3.5", true, new ASN1OctetString("foo")));
 
@@ -108,6 +112,8 @@ public final class ReplaceInterServerCertificateExtendedRequestTestCase
     assertNotNull(r.getKeyStoreContent());
     assertTrue(r.getKeyStoreContent() instanceof
          KeyStoreFileReplaceCertificateKeyStoreContent);
+
+    assertTrue(r.skipCertificateValidation());
 
     assertNotNull(r.getExtendedRequestName());
 
