@@ -46,6 +46,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedRequest;
+import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -515,6 +517,21 @@ public final class ReplaceListenerCertificateExtendedRequest
   public boolean skipCertificateValidation()
   {
     return skipCertificateValidation;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public ReplaceListenerCertificateExtendedResult process(
+              @NotNull final LDAPConnection connection, final int depth)
+         throws LDAPException
+  {
+    final ExtendedResult extendedResponse = super.process(connection, depth);
+    return new ReplaceListenerCertificateExtendedResult(extendedResponse);
   }
 
 

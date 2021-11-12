@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedRequest;
+import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -132,6 +134,21 @@ public final class PurgeRetiredListenerCertificatesExtendedRequest
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_PURGE_RETIRED_LISTENER_CERTS_REQ_HAS_VALUE.get());
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public PurgeRetiredListenerCertificatesExtendedResult process(
+              @NotNull final LDAPConnection connection, final int depth)
+         throws LDAPException
+  {
+    final ExtendedResult extendedResponse = super.process(connection, depth);
+    return new PurgeRetiredListenerCertificatesExtendedResult(extendedResponse);
   }
 
 
