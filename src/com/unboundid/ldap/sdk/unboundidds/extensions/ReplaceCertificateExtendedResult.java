@@ -214,8 +214,8 @@ public abstract class ReplaceCertificateExtendedResult
    *          no value should be included.
    */
   @Nullable()
-  private static ASN1OctetString encodeValue(@Nullable final String oid,
-                                             @Nullable final String toolOutput)
+  public static ASN1OctetString encodeValue(@Nullable final String oid,
+                                            @Nullable final String toolOutput)
   {
     if ((oid == null) && (toolOutput == null))
     {
