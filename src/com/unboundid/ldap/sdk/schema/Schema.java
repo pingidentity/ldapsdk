@@ -313,55 +313,55 @@ public final class Schema
    *
    * @param  schemaEntry                  The schema entry to decode.  It must
    *                                      not be {@code null}.
-   * @param  unparsableAttributeSyntaxes  A map that will be updated with with
+   * @param  unparsableAttributeSyntaxes  A map that will be updated with
    *                                      information about any attribute syntax
    *                                      definitions that cannot be parsed.  It
    *                                      may be {@code null} if unparsable
    *                                      attribute syntax definitions should be
    *                                      silently ignored.
-   * @param  unparsableMatchingRules      A map that will be updated with with
+   * @param  unparsableMatchingRules      A map that will be updated with
    *                                      information about any matching rule
    *                                      definitions that cannot be parsed.  It
    *                                      may be {@code null} if unparsable
-   *                                      attribute syntax definitions should be
+   *                                      matching rule definitions should be
    *                                      silently ignored.
-   * @param  unparsableAttributeTypes     A map that will be updated with with
+   * @param  unparsableAttributeTypes     A map that will be updated with
    *                                      information about any attribute type
    *                                      definitions that cannot be parsed.  It
    *                                      may be {@code null} if unparsable
-   *                                      attribute syntax definitions should be
+   *                                      attribute type definitions should be
    *                                      silently ignored.
-   * @param  unparsableObjectClasses      A map that will be updated with with
+   * @param  unparsableObjectClasses      A map that will be updated with
    *                                      information about any object class
    *                                      definitions that cannot be parsed.  It
    *                                      may be {@code null} if unparsable
-   *                                      attribute syntax definitions should be
+   *                                      object class definitions should be
    *                                      silently ignored.
-   * @param  unparsableDITContentRules    A map that will be updated with with
+   * @param  unparsableDITContentRules    A map that will be updated with
    *                                      information about any DIT content rule
    *                                      definitions that cannot be parsed.  It
    *                                      may be {@code null} if unparsable
-   *                                      attribute syntax definitions should be
+   *                                      DIT content rule definitions should be
    *                                      silently ignored.
-   * @param  unparsableDITStructureRules  A map that will be updated with with
+   * @param  unparsableDITStructureRules  A map that will be updated with
    *                                      information about any DIT structure
    *                                      rule definitions that cannot be
    *                                      parsed.  It may be {@code null} if
-   *                                      unparsable attribute syntax
-   *                                      definitions should be silently
+   *                                      unparsable attribute DIT structure
+   *                                      rule definitions should be silently
    *                                      ignored.
-   * @param  unparsableNameForms          A map that will be updated with with
+   * @param  unparsableNameForms          A map that will be updated with
    *                                      information about any name form
    *                                      definitions that cannot be parsed.  It
    *                                      may be {@code null} if unparsable
-   *                                      attribute syntax definitions should be
+   *                                      name form definitions should be
    *                                      silently ignored.
-   * @param  unparsableMatchingRuleUses   A map that will be updated with with
+   * @param  unparsableMatchingRuleUses   A map that will be updated with
    *                                      information about any matching rule
    *                                      use definitions that cannot be parsed.
    *                                      It may be {@code null} if unparsable
-   *                                      attribute syntax definitions should be
-   *                                      silently ignored.
+   *                                      matching rule use definitions should
+   *                                      be silently ignored.
    */
   public Schema(@NotNull final Entry schemaEntry,
        @Nullable final Map<String,LDAPException> unparsableAttributeSyntaxes,
