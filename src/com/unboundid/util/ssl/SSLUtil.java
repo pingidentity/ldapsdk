@@ -44,6 +44,7 @@ import java.security.GeneralSecurityException;
 import java.security.Provider;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -262,6 +263,15 @@ public final class SSLUtil
    */
   @NotNull static final String PROVIDER_SERVICE_TYPE_SSL_CONTEXT =
        "SSLContext";
+
+
+
+  /**
+   * Indicates whether SSL/TLS debugging is expected to be enabled, based on
+   * the javax.net.debug system property.
+   */
+  private static final boolean JVM_SSL_DEBUGGING_ENABLED =
+       TLSCipherSuiteSelector.jvmSSLDebuggingEnabled();
 
 
 
@@ -526,12 +536,24 @@ public final class SSLUtil
       if ((pkcs11JSSEProvider != null) && (pkcs11JSSEProvider.getService(
            PROVIDER_SERVICE_TYPE_SSL_CONTEXT, protocol) != null))
       {
+        if (JVM_SSL_DEBUGGING_ENABLED)
+        {
+          System.err.println("SSLUtil.createSSLContext creating a PKCS #11 " +
+               "SSLContext for protocol " + protocol);
+        }
+
         sslContext = CryptoHelper.getSSLContext(protocol, pkcs11JSSEProvider);
       }
     }
 
     if (sslContext == null)
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.createSSLContext creating an SSLContext" +
+             "protocol " + protocol);
+      }
+
       sslContext = CryptoHelper.getSSLContext(protocol);
     }
 
@@ -565,6 +587,12 @@ public final class SSLUtil
   {
     Validator.ensureNotNull(protocol, provider);
 
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLContext creating an SSLContext " +
+           "for protocol " + protocol + " and provider " + provider);
+    }
+
     final SSLContext sslContext =
          CryptoHelper.getSSLContext(protocol, provider);
     sslContext.init(keyManagers, trustManagers, null);
@@ -587,6 +615,14 @@ public final class SSLUtil
   public SSLSocketFactory createSSLSocketFactory()
          throws GeneralSecurityException
   {
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLSocketFactory creating a " +
+           "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with enabled " +
+           "protocols " + ENABLED_SSL_PROTOCOLS.get() +
+           " and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
+    }
+
     return new SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
          createSSLContext().getSocketFactory(),
          ENABLED_SSL_PROTOCOLS.get(), ENABLED_SSL_CIPHER_SUITES.get());
@@ -614,6 +650,14 @@ public final class SSLUtil
                                @NotNull final String protocol)
          throws GeneralSecurityException
   {
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLSocketFactory creating a " +
+           "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with protocol " +
+           protocol + " and enabled cipher suites " +
+           ENABLED_SSL_CIPHER_SUITES.get());
+    }
+
     return new SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
          createSSLContext(protocol).getSocketFactory(), protocol,
          ENABLED_SSL_CIPHER_SUITES.get());
@@ -642,7 +686,18 @@ public final class SSLUtil
                                                  @NotNull final String provider)
          throws GeneralSecurityException
   {
-    return createSSLContext(protocol, provider).getSocketFactory();
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLSocketFactory creating an " +
+
+           "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with protocol " +
+           protocol + ", provider " + provider +
+           ", and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
+    }
+
+    return new SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
+         createSSLContext(protocol, provider).getSocketFactory(), protocol,
+         ENABLED_SSL_CIPHER_SUITES.get());
   }
 
 
@@ -662,6 +717,14 @@ public final class SSLUtil
   public SSLServerSocketFactory createSSLServerSocketFactory()
          throws GeneralSecurityException
   {
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLServerSocketFactory creating a " +
+           "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
+           "enabled protocols " + ENABLED_SSL_PROTOCOLS.get() +
+           " and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
+    }
+
     return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
          createSSLContext().getServerSocketFactory(),
          ENABLED_SSL_PROTOCOLS.get(), ENABLED_SSL_CIPHER_SUITES.get());
@@ -690,6 +753,14 @@ public final class SSLUtil
                                      @NotNull final String protocol)
          throws GeneralSecurityException
   {
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLServerSocketFactory creating a " +
+           "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
+           "protocol " + protocol + " and enabled cipher suites " +
+           ENABLED_SSL_CIPHER_SUITES.get());
+    }
+
     return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
          createSSLContext(protocol).getServerSocketFactory(), protocol,
          ENABLED_SSL_CIPHER_SUITES.get());
@@ -721,7 +792,17 @@ public final class SSLUtil
                                      @NotNull final String provider)
          throws GeneralSecurityException
   {
-    return createSSLContext(protocol, provider).getServerSocketFactory();
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.createSSLServerSocketFactory creating a " +
+           "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
+           "protocol " + protocol + ", provider " + provider +
+           ", and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
+    }
+
+    return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
+         createSSLContext(protocol, provider).getServerSocketFactory(),
+         protocol, ENABLED_SSL_CIPHER_SUITES.get());
   }
 
 
@@ -756,6 +837,12 @@ public final class SSLUtil
                           @NotNull final String defaultSSLProtocol)
   {
     Validator.ensureNotNull(defaultSSLProtocol);
+
+    if (JVM_SSL_DEBUGGING_ENABLED)
+    {
+      System.err.println("SSLUtil.setDefaultSSLProtocol setting the " +
+           "default SSL protocol to " + defaultSSLProtocol);
+    }
 
     DEFAULT_SSL_PROTOCOL.set(defaultSSLProtocol);
   }
@@ -798,10 +885,22 @@ public final class SSLUtil
   {
     if (enabledSSLProtocols == null)
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.setEnabledSSLProtocols setting the " +
+             "enabled SSL protocols to an empty set");
+      }
+
       ENABLED_SSL_PROTOCOLS.set(Collections.<String>emptySet());
     }
     else
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.setEnabledSSLProtocols setting the " +
+             "enabled SSL protocols to " + enabledSSLProtocols);
+      }
+
       ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(
            new LinkedHashSet<>(enabledSSLProtocols)));
     }
@@ -870,6 +969,13 @@ public final class SSLUtil
 
     try
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.applyEnabledSSLProtocols applying " +
+             "protocolsToEnable " + Arrays.toString(protocolsToEnable) +
+             " to SSLSocket " + sslSocket);
+      }
+
       sslSocket.setEnabledProtocols(protocolsToEnable);
     }
     catch (final Exception e)
@@ -914,6 +1020,13 @@ public final class SSLUtil
 
     try
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.applyEnabledSSLProtocols applying " +
+             "protocolsToEnable " + Arrays.toString(protocolsToEnable) +
+             " to SSLServerSocket " + sslServerSocket);
+      }
+
       sslServerSocket.setEnabledProtocols(protocolsToEnable);
     }
     catch (final Exception e)
@@ -1040,10 +1153,22 @@ public final class SSLUtil
   {
     if (enabledSSLCipherSuites == null)
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.setEnabledSSLCipherSuites setting the " +
+             "enabled SSL cipher suites to an empty set");
+      }
+
       ENABLED_SSL_CIPHER_SUITES.set(Collections.<String>emptySet());
     }
     else
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.setEnabledSSLCipherSuites setting the " +
+             "enabled SSL cipher suites to " + enabledSSLCipherSuites);
+      }
+
       ENABLED_SSL_CIPHER_SUITES.set(Collections.unmodifiableSet(
            new LinkedHashSet<>(enabledSSLCipherSuites)));
     }
@@ -1113,6 +1238,13 @@ public final class SSLUtil
               sslSocket.getSupportedCipherSuites());
     try
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.applyEnabledSSLCipherSuites applying " +
+             "cinpherSuitesToEnable " + Arrays.toString(cipherSuitesToEnable) +
+             " to SSLSocket " + sslSocket);
+      }
+
       sslSocket.setEnabledCipherSuites(cipherSuitesToEnable);
     }
     catch (final Exception e)
@@ -1158,6 +1290,13 @@ public final class SSLUtil
 
     try
     {
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println("SSLUtil.applyEnabledSSLCipherSuites applying " +
+             "cinpherSuitesToEnable " + Arrays.toString(cipherSuitesToEnable) +
+             " to SSLServerSocket " + sslServerSocket);
+      }
+
       sslServerSocket.setEnabledCipherSuites(cipherSuitesToEnable);
     }
     catch (final Exception e)

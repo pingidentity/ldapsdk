@@ -34,6 +34,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved support for SSL/TLS debugging for SSLUtil operations.  If the
+                  javax.net.debug system property is set to "all" or "ssl" (which causes the JVM
+                  to write a lot of SSL-related debugging output to the JVM's standard error
+                  stream), then many SSLUtil methods will now also write debug information to
+                  standard error.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for four new extended operations meant to help manage
                   listener and inter-server certificates in the Ping Identity Directory Server and
                   other related Ping Identity server products.  The new operations provide the

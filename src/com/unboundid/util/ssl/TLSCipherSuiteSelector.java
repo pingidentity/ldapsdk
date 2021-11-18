@@ -224,6 +224,10 @@ public final class TLSCipherSuiteSelector
 
 
 
+  // Indicates whether SSL/TLS debugging is expected to be enabled in the JVM,
+  // based on the value of the javax.net.debug system property.
+  private final boolean jvmSSLDebuggingEnabled;
+
   // Retrieves a map of the supported cipher suites that are not recommended
   // for use, mapped to a list of the reasons that the cipher suites are not
   // recommended.
@@ -413,16 +417,27 @@ public final class TLSCipherSuiteSelector
     }
 
 
-    // If the JVM's TLS debugging support is enabled, then invoke the tool
-    // and send its output to standard error.
-    final String debugProperty =
+    // See if the JVM's TLS debugging support is enabled. If so, then invoke the
+    // tool and send its output to standard error.
+    final String javaxNetDebugPropertyValue =
          StaticUtils.getSystemProperty("javax.net.debug");
-    if ((debugProperty != null) && debugProperty.equals("all"))
+    if (javaxNetDebugPropertyValue == null)
     {
-      System.err.println();
-      System.err.println(getClass().getName() + " Results:");
-      generateOutput(System.err);
-      System.err.println();
+      jvmSSLDebuggingEnabled = false;
+    }
+    else
+    {
+      final String lowerValue =
+           StaticUtils.toLowerCase(javaxNetDebugPropertyValue);
+      jvmSSLDebuggingEnabled =
+           (lowerValue.contains("all") || lowerValue.contains("ssl"));
+      if (jvmSSLDebuggingEnabled)
+      {
+        System.err.println();
+        System.err.println(getClass().getName() + " Results:");
+        generateOutput(System.err);
+        System.err.println();
+      }
     }
   }
 
@@ -1062,5 +1077,19 @@ public final class TLSCipherSuiteSelector
     {
       STATIC_INSTANCE.set(null);
     }
+  }
+
+
+
+  /**
+   * Indicates whether SSL/TLS debugging is expected to be enabled in the JVM,
+   * based on the value of the javax.net.debug system property.
+   *
+   * @return  {@code true} if SSL/TLS debugging is expected to be enabled in
+   *          the JVM, ro {@code false} if not.
+   */
+  static boolean jvmSSLDebuggingEnabled()
+  {
+    return getStaticInstance().jvmSSLDebuggingEnabled;
   }
 }
