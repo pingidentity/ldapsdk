@@ -550,8 +550,8 @@ public final class SSLUtil
     {
       if (JVM_SSL_DEBUGGING_ENABLED)
       {
-        System.err.println("SSLUtil.createSSLContext creating an SSLContext" +
-             "protocol " + protocol);
+        System.err.println("SSLUtil.createSSLContext creating an SSLContext " +
+             "for protocol " + protocol);
       }
 
       sslContext = CryptoHelper.getSSLContext(protocol);
