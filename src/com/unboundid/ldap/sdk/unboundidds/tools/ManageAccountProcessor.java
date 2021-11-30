@@ -632,6 +632,10 @@ final class ManageAccountProcessor
       {
         e.addAttribute(attrName, "");
       }
+      else if (subcommandType == null)
+      {
+        e.addAttribute(attrName, values);
+      }
       else
       {
         // There may be some subcommands that require special treatment.  Handle

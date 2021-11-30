@@ -43,6 +43,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue that could cause the manage-account tool to fail if it receives a
+                  response with an unrecognized password policy state operation type.  This is
+                  most likely to occur when the version of the manage-account tool does not align
+                  with the version of the Ping Identity Directory Server instance from which the
+                  response was retrieved.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for four new extended operations meant to help manage
                   listener and inter-server certificates in the Ping Identity Directory Server and
                   other related Ping Identity server products.  The new operations provide the
