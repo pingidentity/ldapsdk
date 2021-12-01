@@ -23,6 +23,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a potential race condition that could leave a background Timer thread
+                  running when a connection was closed while waiting for a response to one or more
+                  asynchronous operations.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the in-memory directory server that could cause it to include
                   a matched DN in certain bind response messages.  Bind responses should not
                   include a matched DN, as that may disclose information about the presence or

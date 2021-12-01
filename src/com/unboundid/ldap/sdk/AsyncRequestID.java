@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
+import java.util.Timer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -365,7 +366,13 @@ public final class AsyncRequestID
     if (t != null)
     {
       t.cancel();
-      connection.getTimer().purge();
+
+      final Timer timer = connection.getTimerNullable();
+      if (timer != null)
+      {
+        timer.purge();
+      }
+
       timerTask = null;
     }
   }

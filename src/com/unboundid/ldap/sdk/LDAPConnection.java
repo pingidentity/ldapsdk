@@ -4914,12 +4914,44 @@ public final class LDAPConnection
    * Retrieves a timer for use with this connection, creating one if necessary.
    *
    * @return  A timer for use with this connection.
+   *
+   * @throws  LDAPException  If the connection has been closed.
    */
   @NotNull()
-  synchronized Timer getTimer()
+  Timer getTimer()
+        throws LDAPException
+  {
+    final Timer t = getTimerNullable();
+    if (t == null)
+    {
+      throw new LDAPException(ResultCode.SERVER_DOWN,
+           ERR_CONN_NOT_ESTABLISHED.get());
+    }
+    else
+    {
+      return t;
+    }
+  }
+
+
+
+  /**
+   * Retrieves a timer for use with this connection, creating one if necessary
+   * and the connection is established.
+   *
+   * @return  A timer for use with this connection, or {@code null} if the
+   *          connection is not established.
+   */
+  @Nullable()
+  synchronized Timer getTimerNullable()
   {
     if (timer == null)
     {
+      if (closeRequested || (connectionInternals == null))
+      {
+        return null;
+      }
+
       timer = new Timer("Timer thread for " + toString(), true);
     }
 
