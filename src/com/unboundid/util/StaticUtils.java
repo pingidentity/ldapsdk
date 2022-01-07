@@ -664,6 +664,31 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves a byte array containing the UTF-8 representation of the bytes
+   * that comprise the provided Unicode code point.
+   *
+   * @param  codePoint  The code point for which to retrieve the UTF-8 bytes.
+   *
+   * @return  A byte array containing the UTF-8 representation of the bytes that
+   *          comprise the provided Unicode code point.
+   */
+  @NotNull()
+  public static byte[] getBytesForCodePoint(final int codePoint)
+  {
+    if (codePoint <= 0x7F)
+    {
+      return new byte[] { (byte) codePoint };
+    }
+    else
+    {
+      final String codePointString = new String(new int[] { codePoint }, 0, 1);
+      return codePointString.getBytes(StandardCharsets.UTF_8);
+    }
+  }
+
+
+
+  /**
    * Indicates whether the contents of the provided byte array represent an
    * ASCII string, which is also known in LDAP terminology as an IA5 string.
    * An ASCII string is one that contains only bytes in which the most
@@ -1589,6 +1614,123 @@ public final class StaticUtils
         break;
       case 0x0F:
         buffer.append('f');
+        break;
+    }
+  }
+
+
+
+  /**
+   * Appends a hexadecimal representation of the provided byte to the given
+   * buffer.
+   *
+   * @param  b       The byte to encode as hexadecimal.
+   * @param  buffer  The buffer to which the hexadecimal representation is to be
+   *                 appended.
+   */
+  public static void toHex(final byte b, @NotNull final ByteStringBuffer buffer)
+  {
+    switch (b & 0xF0)
+    {
+      case 0x00:
+        buffer.append((byte) '0');
+        break;
+      case 0x10:
+        buffer.append((byte) '1');
+        break;
+      case 0x20:
+        buffer.append((byte) '2');
+        break;
+      case 0x30:
+        buffer.append((byte) '3');
+        break;
+      case 0x40:
+        buffer.append((byte) '4');
+        break;
+      case 0x50:
+        buffer.append((byte) '5');
+        break;
+      case 0x60:
+        buffer.append((byte) '6');
+        break;
+      case 0x70:
+        buffer.append((byte) '7');
+        break;
+      case 0x80:
+        buffer.append((byte) '8');
+        break;
+      case 0x90:
+        buffer.append((byte) '9');
+        break;
+      case 0xA0:
+        buffer.append((byte) 'a');
+        break;
+      case 0xB0:
+        buffer.append((byte) 'b');
+        break;
+      case 0xC0:
+        buffer.append((byte) 'c');
+        break;
+      case 0xD0:
+        buffer.append((byte) 'd');
+        break;
+      case 0xE0:
+        buffer.append((byte) 'e');
+        break;
+      case 0xF0:
+        buffer.append((byte) 'f');
+        break;
+    }
+
+    switch (b & 0x0F)
+    {
+      case 0x00:
+        buffer.append((byte) '0');
+        break;
+      case 0x01:
+        buffer.append((byte) '1');
+        break;
+      case 0x02:
+        buffer.append((byte) '2');
+        break;
+      case 0x03:
+        buffer.append((byte) '3');
+        break;
+      case 0x04:
+        buffer.append((byte) '4');
+        break;
+      case 0x05:
+        buffer.append((byte) '5');
+        break;
+      case 0x06:
+        buffer.append((byte) '6');
+        break;
+      case 0x07:
+        buffer.append((byte) '7');
+        break;
+      case 0x08:
+        buffer.append((byte) '8');
+        break;
+      case 0x09:
+        buffer.append((byte) '9');
+        break;
+      case 0x0A:
+        buffer.append((byte) 'a');
+        break;
+      case 0x0B:
+        buffer.append((byte) 'b');
+        break;
+      case 0x0C:
+        buffer.append((byte) 'c');
+        break;
+      case 0x0D:
+        buffer.append((byte) 'd');
+        break;
+      case 0x0E:
+        buffer.append((byte) 'e');
+        break;
+      case 0x0F:
+        buffer.append((byte) 'f');
         break;
     }
   }

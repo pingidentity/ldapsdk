@@ -418,6 +418,15 @@ public final class MessageFormatStringsTestCase
       Integer highestSeenReference = null;
       while (openBracePos >= 0)
       {
+        if ((openBracePos > 0) &&
+             (formatString.indexOf("'{'", (openBracePos - 1)) ==
+                  (openBracePos - 1)))
+        {
+          openBracePos = formatString.indexOf('{', (openBracePos+1));
+          continue;
+        }
+
+
         final int closeBracePos = formatString.indexOf('}', openBracePos);
         assertTrue((closeBracePos > 0),
              "Message properties file '" + propertiesFile.getName() +
@@ -544,6 +553,14 @@ public final class MessageFormatStringsTestCase
       Integer highestSeenReference = null;
       while (openBracePos >= 0)
       {
+        if ((openBracePos > 0) &&
+             (formatString.indexOf("'{'", (openBracePos - 1)) ==
+                  (openBracePos - 1)))
+        {
+          openBracePos = formatString.indexOf('{', (openBracePos+1));
+          continue;
+        }
+
         final int closeBracePos = formatString.indexOf('}', openBracePos);
 
         Integer referenceNumber = null;

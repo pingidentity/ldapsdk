@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -224,9 +225,13 @@ public class StaticUtilsTestCase
   {
     assertEquals(StaticUtils.toHex(b), hexString);
 
-    StringBuilder buffer = new StringBuilder();
-    StaticUtils.toHex(b, buffer);
-    assertEquals(buffer.toString(), hexString);
+    final StringBuilder sb = new StringBuilder();
+    StaticUtils.toHex(b, sb);
+    assertEquals(sb.toString(), hexString);
+
+    final ByteStringBuffer bsb = new ByteStringBuffer();
+    StaticUtils.toHex(b, bsb);
+    assertEquals(bsb.toString(), hexString);
   }
 
 
@@ -4394,5 +4399,93 @@ public class StaticUtilsTestCase
              ((c >= '0') && (c <= '9')));
       }
     }
+  }
+
+
+
+  /**
+   * Tests the behavior of the getBytesForCodePoint method for code points in
+   * the ASCII character set.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetBytesForASCIICodePoint()
+         throws Exception
+  {
+    for (int i=0; i < 128; i++)
+    {
+      final byte b = (byte) i;
+      assertEquals(StaticUtils.getBytesForCodePoint(i), new byte[] { b });
+
+      final String s = new String(new int[] { i }, 0, 1);
+      assertEquals(s.getBytes(StandardCharsets.UTF_8),
+           StaticUtils.getBytesForCodePoint(i));
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the getBytesForCodePoint method for non-ASCII code
+   * points.
+   *
+   * @param  codePoint       The code point to examine.
+   * @param  codePointBytes  The bytes that comprise the UTF-8 representation
+   *                         of the provided code point.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="nonASCIICodePointTestData")
+  public void testGetBytesForNonASCIICodePoint(int codePoint,
+                                               byte[] codePointBytes)
+         throws Exception
+  {
+    assertEquals(StaticUtils.getBytesForCodePoint(codePoint),
+         codePointBytes);
+  }
+
+
+
+  /**
+   * Retrieves a set of data that may be used for testing with non-ASCII code
+   * points.
+   *
+   * @return  A set of data that may be used for testing with non-ASCII code
+   *          points.
+   */
+  @DataProvider(name="nonASCIICodePointTestData")
+  public Object[][] getNonASCIICodePointTestData()
+  {
+    return new Object[][]
+    {
+      // Lowercase n with tilde
+      new Object[]
+      {
+        "\u00F1".codePointAt(0),
+        StaticUtils.byteArray(0xC3, 0xB1)
+      },
+
+      // Latin Capital Letter OO
+      new Object[]
+      {
+        "\uA74E".codePointAt(0),
+        StaticUtils.byteArray(0xEA, 0x9D, 0x8E)
+      },
+
+      // Deseret Capital Letter Long I
+      new Object[]
+      {
+        "\uD801\uDC00".codePointAt(0),
+        StaticUtils.byteArray(0xF0, 0x90, 0x90, 0x80)
+      },
+
+      // Smiley Face Emoji
+      new Object[]
+      {
+        "\uD83D\uDE00".codePointAt(0),
+        StaticUtils.byteArray(0xF0, 0x9F, 0x98, 0x80)
+      }
+    };
   }
 }

@@ -583,6 +583,33 @@ public final class ByteStringBuffer
 
 
   /**
+   * Appends the provided code point to this buffer.
+   *
+   * @param  codePoint  The code point to append to this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  @NotNull()
+  public ByteStringBuffer appendCodePoint(final int codePoint)
+  {
+    final int charByte = codePoint & 0x7F;
+    if (charByte == codePoint)
+    {
+      return append((byte) charByte);
+    }
+    else if (Character.isBmpCodePoint(codePoint))
+    {
+      return append((char) codePoint);
+    }
+    else
+    {
+      return append(Character.toChars(codePoint));
+    }
+  }
+
+
+
+  /**
    * Inserts the provided boolean value to this buffer.
    *
    * @param  pos  The position at which the value is to be inserted.
@@ -1050,6 +1077,38 @@ public final class ByteStringBuffer
   {
     final int length = getBytes(l);
     return insert(pos, TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
+   * Inserts the provided code point into this buffer.
+   *
+   * @param  pos        The position at which the code point is to be inserted.
+   * @param  codePoint  The code point to be inserted.
+   *
+   * @return  A reference to this buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the specified position is negative
+   *                                     or greater than the current length.
+   */
+  @NotNull()
+  public ByteStringBuffer insertCodePoint(final int pos, final int codePoint)
+         throws IndexOutOfBoundsException
+  {
+    final int charByte = codePoint & 0x7F;
+    if (charByte == codePoint)
+    {
+      return insert(pos, (byte) charByte);
+    }
+    else if (Character.isBmpCodePoint(codePoint))
+    {
+      return insert(pos, (char) codePoint);
+    }
+    else
+    {
+      return insert(pos, Character.toChars(codePoint));
+    }
   }
 
 

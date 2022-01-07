@@ -5202,4 +5202,65 @@ public class ByteStringBufferTestCase
       // This was expected.
     }
   }
+
+
+
+  /**
+   * Tests the behavior of the appendCodePoint method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAppendCodePoint()
+         throws Exception
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.appendCodePoint("a".codePointAt(0));
+
+    // Lowercase n with tilde
+    buffer.appendCodePoint("\u00F1".codePointAt(0));
+
+    // Latin capital letter OO
+    buffer.appendCodePoint("\uA74E".codePointAt(0));
+
+    // Deseret capital letter long I
+    buffer.appendCodePoint("\uD801\uDC00".codePointAt(0));
+
+    // Smiley face emoji
+    buffer.appendCodePoint("\uD83D\uDE00".codePointAt(0));
+
+    assertEquals(buffer.toString(),
+         "a\u00F1\uA74E\uD801\uDC00\uD83D\uDE00");
+  }
+
+
+
+  /**
+   * Tests the behavior of the appendCodePoint method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInsertCodePoint()
+         throws Exception
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.insertCodePoint(0, "a".codePointAt(0));
+    buffer.insertCodePoint(0, "b".codePointAt(0));
+
+    // Lowercase n with tilde
+    buffer.insertCodePoint(1, "\u00F1".codePointAt(0));
+
+    // Latin capital letter OO
+    buffer.insertCodePoint(buffer.length(), "\uA74E".codePointAt(0)); // bñaOO
+
+    // Deseret capital letter long I
+    buffer.insertCodePoint(0, "\uD801\uDC00".codePointAt(0));
+
+    // Smiley face emoji
+    buffer.insertCodePoint(0, "\uD83D\uDE00".codePointAt(0));
+
+    assertEquals(buffer.toString(),
+         "\uD83D\uDE00\uD801\uDC00b\u00F1a\uA74E");
+  }
 }

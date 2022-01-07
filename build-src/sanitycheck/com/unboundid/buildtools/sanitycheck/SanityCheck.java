@@ -119,6 +119,7 @@ public class SanityCheck
     "com.unboundid.ldap.sdk.unboundidds.extensions",
     "com.unboundid.ldap.sdk.unboundidds.jsonfilter",
     "com.unboundid.ldap.sdk.unboundidds.logs",
+    "com.unboundid.ldap.sdk.unboundidds.logs.v2",
     "com.unboundid.ldap.sdk.unboundidds.monitors",
     "com.unboundid.ldap.sdk.unboundidds.tasks",
     "com.unboundid.ldap.sdk.unboundidds.tools",
