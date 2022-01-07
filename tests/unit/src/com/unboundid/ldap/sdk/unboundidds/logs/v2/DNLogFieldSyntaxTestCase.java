@@ -51,10 +51,9 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the DN access log field
- * syntax.
+ * This class provides a set of test cases for the DN log field syntax.
  */
-public final class DNAccessLogFieldSyntaxTestCase
+public final class DNLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -66,8 +65,7 @@ public final class DNAccessLogFieldSyntaxTestCase
   public void testBasic()
          throws Exception
   {
-    final DNAccessLogFieldSyntax syntax =
-         new DNAccessLogFieldSyntax(10, null, null, null);
+    final DNLogFieldSyntax syntax = new DNLogFieldSyntax(10, null, null, null);
 
     assertEquals(syntax.getMaxStringLengthCharacters(), 10);
 
@@ -256,9 +254,8 @@ public final class DNAccessLogFieldSyntaxTestCase
     final Set<String> includedAttributes = StaticUtils.setOf("cn", "ou");
     final Set<String> excludedAttributes = Collections.emptySet();
 
-    final DNAccessLogFieldSyntax syntax =
-         new DNAccessLogFieldSyntax(10, schema, includedAttributes,
-              excludedAttributes);
+    final DNLogFieldSyntax syntax = new DNLogFieldSyntax(10, schema,
+         includedAttributes, excludedAttributes);
 
     assertEquals(syntax.getMaxStringLengthCharacters(), 10);
 
@@ -373,9 +370,8 @@ public final class DNAccessLogFieldSyntaxTestCase
     final Set<String> includedAttributes = Collections.emptySet();
     final Set<String> excludedAttributes = StaticUtils.setOf("dc", "ou");
 
-    final DNAccessLogFieldSyntax syntax =
-         new DNAccessLogFieldSyntax(10, null, includedAttributes,
-              excludedAttributes);
+    final DNLogFieldSyntax syntax = new DNLogFieldSyntax(10, null,
+         includedAttributes, excludedAttributes);
 
     assertEquals(syntax.getMaxStringLengthCharacters(), 10);
 

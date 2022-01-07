@@ -37,13 +37,9 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -52,13 +48,12 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 
 /**
- * This class defines an access log field syntax for values that are timestamps
- * represented in the generalized time format.  This syntax does not support
- * redacting or tokenizing individual components within the timestamps.
- * Redacted generalized time values will have a string representation of
- * "99990101000000.000Z", which corresponds to midnight UTC of January 1 in the
- * year 9999.  Tokenized values will have a year of 8888 (in the UTC time
- * zone).
+ * This class defines a log field syntax for values that are floating-point
+ * numbers.  This syntax does not support redacting or tokenizing individual
+ * components within the numbers.  Redacted floating-point values will have a
+ * string representation of "-999999.999999".  Tokenized floating-point string
+ * values will have a string representation of "-999999." followed by six digits
+ * that correspond to a token value generated from the actual value.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -71,45 +66,37 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class GeneralizedTimeAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<Date>
+public final class FloatingPointLogFieldSyntax
+       extends LogFieldSyntax<Double>
 {
   /**
    * The name for this syntax.
    */
-  @NotNull public static final String SYNTAX_NAME = "generalized-time";
+  @NotNull public static final String SYNTAX_NAME = "floating-point";
 
 
 
   /**
-   * The string that will be used for completely redacted generalized time
-   * values.
+   * The string representation that will be used for a floating-point value that
+   * is completely redacted.
    */
-  @NotNull private static final String REDACTED_GENERALIZED_TIME_STRING =
-       "99990101000000.000Z";
+  @NotNull private static final String REDACTED_FLOATING_POINT_STRING =
+       "-999999.999999";
 
 
 
   /**
-   * The year that will be used for dates that represent tokenized generalized
-   * time values.
+   * A singleton instance of this log field syntax.
    */
-  private static final int TOKENIZED_DATE_YEAR = 8888;
+  @NotNull private static final FloatingPointLogFieldSyntax INSTANCE =
+       new FloatingPointLogFieldSyntax();
 
 
 
   /**
-   * A singleton instance of this access log field syntax.
+   * Creates a new instance of this log field syntax implementation.
    */
-  @NotNull private static final GeneralizedTimeAccessLogFieldSyntax INSTANCE =
-       new GeneralizedTimeAccessLogFieldSyntax();
-
-
-
-  /**
-   * Creates a new instance of this access log field syntax implementation.
-   */
-  private GeneralizedTimeAccessLogFieldSyntax()
+  private FloatingPointLogFieldSyntax()
   {
     super(100);
   }
@@ -117,12 +104,12 @@ public final class GeneralizedTimeAccessLogFieldSyntax
 
 
   /**
-   * Retrieves a singleton instance of this access log field syntax.
+   * Retrieves a singleton instance of this log field syntax.
    *
-   * @return  A singleton instance of this access log field syntax.
+   * @return  A singleton instance of this log field syntax.
    */
   @NotNull()
-  public static GeneralizedTimeAccessLogFieldSyntax getInstance()
+  public static FloatingPointLogFieldSyntax getInstance()
   {
     return INSTANCE;
   }
@@ -142,13 +129,45 @@ public final class GeneralizedTimeAccessLogFieldSyntax
 
 
   /**
+   * Appends a sanitized string representation of the provided float to the
+   * given buffer.
+   *
+   * @param  value   The value to be appended.
+   * @param  buffer  The buffer to which the string representation should be
+   *                 appended.  It must not be {@code null}.
+   */
+  public void valueToSanitizedString(final float value,
+                            @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(String.valueOf(value));
+  }
+
+
+
+  /**
+   * Appends a sanitized string representation of the provided double to the
+   * given buffer.
+   *
+   * @param  value   The value to be appended.
+   * @param  buffer  The buffer to which the string representation should be
+   *                 appended.  It must not be {@code null}.
+   */
+  public void valueToSanitizedString(final double value,
+                                     @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(String.valueOf(value));
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
-  public void valueToSanitizedString(@NotNull final Date value,
+  public void valueToSanitizedString(@NotNull final Double value,
                                      @NotNull final ByteStringBuffer buffer)
   {
-    buffer.append(StaticUtils.encodeGeneralizedTime(value));
+    buffer.append(value.toString());
   }
 
 
@@ -158,13 +177,13 @@ public final class GeneralizedTimeAccessLogFieldSyntax
    */
   @Override()
   @NotNull()
-  public Date parseValue(@NotNull final String valueString)
+  public Double parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
                 LogSyntaxException
   {
     try
     {
-      return StaticUtils.decodeGeneralizedTime(valueString);
+      return Double.parseDouble(valueString);
     }
     catch (final Exception e)
     {
@@ -172,17 +191,17 @@ public final class GeneralizedTimeAccessLogFieldSyntax
       if (valueStringIncludesRedactedComponent(valueString))
       {
         throw new RedactedValueException(
-             ERR_GEN_TIME_ACCESS_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
+             ERR_FP_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
       }
       else if (valueStringIncludesTokenizedComponent(valueString))
       {
         throw new TokenizedValueException(
-             ERR_GEN_TIME_ACCESS_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
+             ERR_FP_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
       }
       else
       {
         throw new LogSyntaxException(
-             ERR_GEN_TIME_ACCESS_LOG_SYNTAX_CANNOT_PARSE.get(), e);
+             ERR_FP_LOG_SYNTAX_CANNOT_PARSE.get(), e);
       }
     }
   }
@@ -197,18 +216,7 @@ public final class GeneralizedTimeAccessLogFieldSyntax
                       @NotNull final String valueString)
   {
     return valueString.equals(REDACTED_STRING) ||
-         valueString.equals(REDACTED_GENERALIZED_TIME_STRING);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void redactEntireValue(@NotNull final ByteStringBuffer buffer)
-  {
-    buffer.append(REDACTED_GENERALIZED_TIME_STRING);
+         valueString.equals(REDACTED_FLOATING_POINT_STRING);
   }
 
 
@@ -220,6 +228,17 @@ public final class GeneralizedTimeAccessLogFieldSyntax
   public boolean completelyRedactedValueConformsToSyntax()
   {
     return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void redactEntireValue(@NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(REDACTED_FLOATING_POINT_STRING);
   }
 
 
@@ -270,7 +289,9 @@ public final class GeneralizedTimeAccessLogFieldSyntax
       return true;
     }
 
-    return valueString.startsWith("8888");
+    return ((valueString.length() == 14) &&
+         valueString.startsWith("-999999.") &&
+         (! valueString.equals(REDACTED_FLOATING_POINT_STRING)));
   }
 
 
@@ -290,17 +311,32 @@ public final class GeneralizedTimeAccessLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void tokenizeEntireValue(@NotNull final Date value,
+  public void tokenizeEntireValue(@NotNull final Double value,
                                   @NotNull final byte[] pepper,
                                   @NotNull final ByteStringBuffer buffer)
   {
-    // Concatenate the long value of the provided date and the pepper, and
-    // generate a SHA-256 digest from the result.
+    // Get the bytes that comprise the bitwise encoding of the provided value.
+    final long valueBitsLong = Double.doubleToLongBits(value);
+    final byte[] valueBytes =
+    {
+      (byte) ((valueBitsLong >> 56) & 0xFFL),
+      (byte) ((valueBitsLong >> 48) & 0xFFL),
+      (byte) ((valueBitsLong >> 40) & 0xFFL),
+      (byte) ((valueBitsLong >> 32) & 0xFFL),
+      (byte) ((valueBitsLong >> 24) & 0xFFL),
+      (byte) ((valueBitsLong >> 16) & 0xFFL),
+      (byte) ((valueBitsLong >> 8) & 0xFFL),
+      (byte) (valueBitsLong & 0xFFL)
+    };
+
+
+    // Concatenate the value bytes and the pepper and compute a SHA-256 digest
+    // of the result.
     final byte[] tokenDigest;
     final ByteStringBuffer tempBuffer = getTemporaryBuffer();
     try
     {
-      tempBuffer.append(value.getTime());
+      tempBuffer.append(valueBytes);
       tempBuffer.append(pepper);
       tokenDigest = sha256(tempBuffer);
     }
@@ -310,26 +346,37 @@ public final class GeneralizedTimeAccessLogFieldSyntax
     }
 
 
-    // Generate a long value from the first eight digits of the digest.
-    long tokenizedTime = 0L;
-    for (int i=0; i < 8; i++)
+    // Use the first four bytes of the token digest to generate a positive
+    // integer whose string representation is exactly ten digits long.  To do
+    // this, AND the first byte with 0x7F (which will make it positive) and OR
+    // the first byte with 0x40 (which will ensure that the value will be
+    // greater than or equal to 1073741824, and we already know that int
+    // values cannot exceed 2147483647, so that means it will be exactly ten
+    // digits).
+    final int fractionalDigitsInt =
+         (((tokenDigest[0] & 0x7F) | 0x40) << 24) |
+         ((tokenDigest[1] & 0xFF) << 16) |
+         ((tokenDigest[2] & 0xFF) << 8) |
+         (tokenDigest[3] & 0xFF);
+
+
+    // Take the last six digits of the string representation of the generated
+    // integer.
+    String fractionalDigits = String.valueOf(fractionalDigitsInt).substring(4);
+
+
+    // Make sure that the resulting six-digit string is not "999999", so that
+    // the tokenized value won't be confused with a redacted value.
+    if (fractionalDigits.equals("999999"))
     {
-      tokenizedTime <<= 8;
-      tokenizedTime |= (tokenDigest[i] & 0xFFL);
+      fractionalDigits = "000000";
     }
 
 
-    // Create a Gregorian calendar in the UTC time zone, seed it with the
-    // tokenized time, and set the year to 8888.
-    final GregorianCalendar tokenCalendar =
-         new GregorianCalendar(StaticUtils.getUTCTimeZone());
-    tokenCalendar.setTimeInMillis(tokenizedTime);
-    tokenCalendar.set(GregorianCalendar.YEAR, TOKENIZED_DATE_YEAR);
-
-
-    // Append a generalized time representation of the calendar value to the
-    // provided buffer.
-    buffer.append(StaticUtils.encodeGeneralizedTime(tokenCalendar.getTime()));
+    // Finally, generate the tokenized representation.  It will be "-999999."
+    // followed by the fractional digits generated above.
+    buffer.append("-999999.");
+    buffer.append(fractionalDigits);
   }
 
 

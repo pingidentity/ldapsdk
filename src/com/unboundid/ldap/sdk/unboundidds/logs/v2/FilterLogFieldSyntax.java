@@ -57,9 +57,9 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 
 /**
- * This class defines an access log field syntax for search filter values.  This
- * syntax allows individual attribute values to be redacted or tokenized within
- * the filters.  If a filter is completely redacted, then the redacted
+ * This class defines a log field syntax for search filter values.  This syntax
+ * allows individual attribute values to be redacted or tokenized within the
+ * filters.  If a filter is completely redacted, then the redacted
  * representation will be "<code>(redacted={REDACTED})</code>".  If a filter is
  * completely tokenized, then the tokenized representation will be
  * "<code>(tokenized={TOKENIZED:token-value})</code>", where token-value will be
@@ -76,8 +76,8 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class FilterAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<Filter>
+public final class FilterLogFieldSyntax
+       extends LogFieldSyntax<Filter>
 {
   /**
    * The name for this syntax.
@@ -110,7 +110,7 @@ public final class FilterAccessLogFieldSyntax
 
 
   /**
-   * Creates a new filter access log field syntax instance that can optionally
+   * Creates a new filter log field syntax instance that can optionally
    * define specific attributes to include in or exclude from redaction or
    * tokenization.  If any include attributes are specified, then only the
    * values of those attributes will be considered sensitive and will have
@@ -148,7 +148,7 @@ public final class FilterAccessLogFieldSyntax
    *                                      sensitive attributes should be
    *                                      defined.
    */
-  public FilterAccessLogFieldSyntax(
+  public FilterLogFieldSyntax(
               final int maxStringLengthCharacters,
               @Nullable final Schema schema,
               @Nullable final Collection<String> includedSensitiveAttributes,
@@ -330,17 +330,17 @@ public final class FilterAccessLogFieldSyntax
       if (valueStringIsCompletelyRedacted(valueString))
       {
         throw new RedactedValueException(
-             ERR_FILTER_ACCESS_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
+             ERR_FILTER_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
       }
       else if (valueStringIsCompletelyTokenized(valueString))
       {
         throw new TokenizedValueException(
-             ERR_FILTER_ACCESS_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
+             ERR_FILTER_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
       }
       else
       {
         throw new LogSyntaxException(
-             ERR_FILTER_ACCESS_LOG_SYNTAX_CANNOT_PARSE.get(), e);
+             ERR_FILTER_LOG_SYNTAX_CANNOT_PARSE.get(), e);
       }
     }
   }

@@ -37,20 +37,18 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 
-import java.util.Date;
-
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
 
 
 
 /**
- * This class provides a set of test cases for the RFC 3339 timestamp access log
- * field syntax.
+ * This class provides a set of test cases for the Boolean log field syntax.
  */
-public final class RFC3339TimestampAccessLogFieldSyntaxTestCase
+public final class BooleanLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -62,19 +60,23 @@ public final class RFC3339TimestampAccessLogFieldSyntaxTestCase
   public void testSyntax()
          throws Exception
   {
-    final RFC3339TimestampAccessLogFieldSyntax syntax =
-         RFC3339TimestampAccessLogFieldSyntax.getInstance();
+    final BooleanLogFieldSyntax syntax = BooleanLogFieldSyntax.getInstance();
 
     assertNotNull(syntax.getSyntaxName());
-    assertEquals(syntax.getSyntaxName(), "rfc-3339-timestamp");
+    assertEquals(syntax.getSyntaxName(), "boolean");
 
-    final Date now = new Date();
-    final String nowString = syntax.valueToSanitizedString(now);
-    assertNotNull(nowString);
-    assertEquals(StaticUtils.decodeRFC3339Time(nowString), now);
+    assertNotNull(syntax.valueToSanitizedString(true));
+    assertEquals(syntax.valueToSanitizedString(true), "true");
 
-    assertNotNull(syntax.parseValue(nowString));
-    assertEquals(syntax.parseValue(nowString), now);
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.valueToSanitizedString(false, buffer);
+    assertEquals(buffer.toString(), "false");
+
+    assertNotNull(syntax.parseValue("true"));
+    assertEquals(syntax.parseValue("true"), Boolean.TRUE);
+
+    assertNotNull(syntax.parseValue("false"));
+    assertEquals(syntax.parseValue("false"), Boolean.FALSE);
 
     try
     {
@@ -88,12 +90,12 @@ public final class RFC3339TimestampAccessLogFieldSyntaxTestCase
 
     try
     {
-      syntax.parseValue("{TOKENIZED:abcdef}");
+      syntax.parseValue("{TOKENIZED:1234567890ABCDEF}");
       fail("Expected an exception when trying to parse a tokenized value.");
     }
     catch (final TokenizedValueException e)
     {
-      // This was expected.
+      // This was expected
     }
 
     try
@@ -103,50 +105,50 @@ public final class RFC3339TimestampAccessLogFieldSyntaxTestCase
     }
     catch (final LogSyntaxException e)
     {
+      // This was expected.
       assertFalse((e instanceof RedactedValueException) ||
            (e instanceof TokenizedValueException));
     }
 
-    assertFalse(syntax.valueStringIsCompletelyRedacted(nowString));
-    assertTrue(syntax.valueStringIsCompletelyRedacted("{REDACTED}"));
-    assertTrue(syntax.valueStringIsCompletelyRedacted(
-         "9999-01-01T00:00:00.000Z"));
+    assertFalse(syntax.completelyRedactedValueConformsToSyntax());
 
     assertNotNull(syntax.redactEntireValue());
-    assertEquals(syntax.redactEntireValue(), "9999-01-01T00:00:00.000Z");
-
-    assertTrue(syntax.completelyRedactedValueConformsToSyntax());
+    assertEquals(syntax.redactEntireValue(), "{REDACTED}");
 
     assertFalse(syntax.supportsRedactedComponents());
 
-    assertFalse(syntax.valueStringIncludesRedactedComponent(nowString));
+    assertFalse(syntax.valueStringIncludesRedactedComponent("true"));
     assertTrue(syntax.valueStringIncludesRedactedComponent("{REDACTED}"));
-    assertTrue(syntax.valueStringIncludesRedactedComponent(
-         "9999-01-01T00:00:00.000Z"));
+    assertTrue(syntax.valueStringIncludesRedactedComponent("a{REDACTED}b"));
 
-    assertTrue(syntax.valueWithRedactedComponentsConformsToSyntax());
+    assertFalse(syntax.valueWithRedactedComponentsConformsToSyntax());
 
-    assertFalse(syntax.valueStringIsCompletelyTokenized(nowString));
-    assertTrue(syntax.valueStringIsCompletelyTokenized("{TOKENIZED:abcdef}"));
-    assertTrue(syntax.valueStringIsCompletelyTokenized(
-         "8888-01-02T12:34:56.789Z"));
+    assertNotNull(syntax.redactComponents(true));
+    assertEquals(syntax.redactComponents(true), "{REDACTED}");
 
-    assertTrue(syntax.completelyTokenizedValueConformsToSyntax());
+    assertNotNull(syntax.redactComponents(false));
+    assertEquals(syntax.redactComponents(false), "{REDACTED}");
+
+    assertFalse(syntax.valueStringIsCompletelyTokenized("true"));
+    assertFalse(syntax.valueStringIsCompletelyTokenized("false"));
+
+    assertFalse(syntax.completelyTokenizedValueConformsToSyntax());
 
     final byte[] pepper = StaticUtils.randomBytes(8, false);
-    final String tokenizedNow = syntax.tokenizeEntireValue(now, pepper);
-    assertNotNull(tokenizedNow);
-    assertTrue(tokenizedNow.startsWith("8888-"));
-    assertTrue(syntax.valueStringIsCompletelyTokenized(tokenizedNow));
+    assertNotNull(syntax.tokenizeEntireValue(true, pepper));
+    assertTrue(syntax.tokenizeEntireValue(true, pepper).startsWith(
+         "{TOKENIZED:"));
+    assertTrue(syntax.tokenizeEntireValue(true, pepper).endsWith("}"));
 
     assertFalse(syntax.supportsTokenizedComponents());
-    assertFalse(syntax.valueStringIncludesTokenizedComponent(nowString));
-    assertTrue(syntax.valueStringIncludesTokenizedComponent(
-         "{TOKENIZED:abcdef}"));
-    assertTrue(syntax.valueStringIncludesTokenizedComponent(
-         "8888-01-02T12:34:56.789Z"));
-    assertTrue(syntax.valueStringIncludesTokenizedComponent(tokenizedNow));
 
-    assertTrue(syntax.valueWithTokenizedComponentsConformsToSyntax());
+    assertFalse(syntax.valueStringIncludesTokenizedComponent("test"));
+
+    assertFalse(syntax.valueWithTokenizedComponentsConformsToSyntax());
+
+    assertNotNull(syntax.tokenizeComponents(true, pepper));
+    assertTrue(syntax.tokenizeComponents(true, pepper).
+         startsWith("{TOKENIZED:"));
+    assertTrue(syntax.tokenizeComponents(true, pepper).endsWith("}"));
   }
 }

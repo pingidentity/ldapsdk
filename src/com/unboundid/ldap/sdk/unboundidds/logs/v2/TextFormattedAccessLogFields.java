@@ -65,7 +65,7 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  *
- * @see  AccessLogField
+ * @see  LogField
  * @see  JSONFormattedAccessLogFields
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -81,7 +81,7 @@ public final class TextFormattedAccessLogFields
   /**
    * A map containing all of the defined fields in this class.
    */
-  @NotNull() private static final Map<String,AccessLogField> DEFINED_FIELDS =
+  @NotNull() private static final Map<String,LogField> DEFINED_FIELDS =
        new ConcurrentHashMap<>();
 
 
@@ -89,7 +89,7 @@ public final class TextFormattedAccessLogFields
   /**
    * A map containing all of the defined fields in this class.
    */
-  @NotNull() private static final AtomicReference<Map<String,AccessLogField>>
+  @NotNull() private static final AtomicReference<Map<String,LogField>>
        READ_ONLY_DEFINED_FIELDS_REF = new AtomicReference<>();
 
 
@@ -98,8 +98,8 @@ public final class TextFormattedAccessLogFields
    * The default syntax instance that will be used for fields with Boolean
    * values.
    */
-  @NotNull private static final BooleanAccessLogFieldSyntax BOOLEAN_SYNTAX =
-       BooleanAccessLogFieldSyntax.getInstance();
+  @NotNull private static final BooleanLogFieldSyntax BOOLEAN_SYNTAX =
+       BooleanLogFieldSyntax.getInstance();
 
 
 
@@ -107,9 +107,9 @@ public final class TextFormattedAccessLogFields
    * The default syntax instance that will be used for fields whose values are
    * a comma-delimited list of strings.
    */
-  @NotNull private static final CommaDelimitedStringListAccessLogFieldSyntax
+  @NotNull private static final CommaDelimitedStringListLogFieldSyntax
        COMMA_DELIMITED_STRING_LIST_SYNTAX =
-            new CommaDelimitedStringListAccessLogFieldSyntax(
+            new CommaDelimitedStringListLogFieldSyntax(
                  DEFAULT_MAX_CHARACTERS_PER_STRING);
 
 
@@ -122,8 +122,8 @@ public final class TextFormattedAccessLogFields
    * will also use a default escaping strategy for determining which special
    * characters should be escaped.
    */
-  @NotNull private static final DNAccessLogFieldSyntax DN_SYNTAX =
-       new DNAccessLogFieldSyntax(DEFAULT_MAX_CHARACTERS_PER_STRING, null, null,
+  @NotNull private static final DNLogFieldSyntax DN_SYNTAX =
+       new DNLogFieldSyntax(DEFAULT_MAX_CHARACTERS_PER_STRING, null, null,
             null);
 
 
@@ -134,8 +134,8 @@ public final class TextFormattedAccessLogFields
    * or excluded sensitive attributes, so all attribute values will be redacted
    * or tokenized when calling methods that redact or tokenize components.
    */
-  @NotNull private static final FilterAccessLogFieldSyntax FILTER_SYNTAX =
-       new FilterAccessLogFieldSyntax(DEFAULT_MAX_CHARACTERS_PER_STRING, null,
+  @NotNull private static final FilterLogFieldSyntax FILTER_SYNTAX =
+       new FilterLogFieldSyntax(DEFAULT_MAX_CHARACTERS_PER_STRING, null,
             null, null);
 
 
@@ -144,8 +144,8 @@ public final class TextFormattedAccessLogFields
    * The default syntax instance that will be used for fields whose values are
    * floating-point numbers.
    */
-  @NotNull private static final FloatingPointAccessLogFieldSyntax
-       FLOATING_POINT_SYNTAX = FloatingPointAccessLogFieldSyntax.getInstance();
+  @NotNull private static final FloatingPointLogFieldSyntax
+       FLOATING_POINT_SYNTAX = FloatingPointLogFieldSyntax.getInstance();
 
 
 
@@ -153,8 +153,8 @@ public final class TextFormattedAccessLogFields
    * The default syntax instance that will be used for fields whose values are
    * integers.
    */
-  @NotNull private static final IntegerAccessLogFieldSyntax INTEGER_SYNTAX =
-       IntegerAccessLogFieldSyntax.getInstance();
+  @NotNull private static final IntegerLogFieldSyntax INTEGER_SYNTAX =
+       IntegerLogFieldSyntax.getInstance();
 
 
 
@@ -162,8 +162,8 @@ public final class TextFormattedAccessLogFields
    * The default syntax instance that will be used for fields whose values are
    * strings.
    */
-  @NotNull private static final StringAccessLogFieldSyntax STRING_SYNTAX =
-       new StringAccessLogFieldSyntax(DEFAULT_MAX_CHARACTERS_PER_STRING);
+  @NotNull private static final StringLogFieldSyntax STRING_SYNTAX =
+       new StringLogFieldSyntax(DEFAULT_MAX_CHARACTERS_PER_STRING);
 
 
 
@@ -171,7 +171,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the message ID for an operation to be abandoned.  This
    * field may appear in access log messages for abandon operations.
    */
-  @NotNull public static final AccessLogField ABANDON_MESSAGE_ID =
+  @NotNull public static final LogField ABANDON_MESSAGE_ID =
        createField("ABANDON_MESSAGE_ID", "idToAbandon", INTEGER_SYNTAX);
 
 
@@ -180,7 +180,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds a comma-delimited list of the names of the attributes to
    * be added.  This field may appear in access log messages for add operations.
    */
-  @NotNull public static final AccessLogField ADD_ATTRIBUTES = createField(
+  @NotNull public static final LogField ADD_ATTRIBUTES = createField(
        "ADD_ATTRIBUTES", "attrs", COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
@@ -189,7 +189,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the entry to be added.  This field may appear
    * in access log messages for add operations.
    */
-  @NotNull public static final AccessLogField ADD_ENTRY_DN =
+  @NotNull public static final LogField ADD_ENTRY_DN =
        createField("ADD_ENTRY_DN", "dn", DN_SYNTAX);
 
 
@@ -198,7 +198,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the soft-deleted entry being undeleted.  This
    * field may appear in access log messages for add operations.
    */
-  @NotNull public static final AccessLogField ADD_UNDELETE_FROM_DN =
+  @NotNull public static final LogField ADD_UNDELETE_FROM_DN =
        createField("ADD_UNDELETE_FROM_DN", "undeleteFromDN", DN_SYNTAX);
 
 
@@ -209,7 +209,7 @@ public final class TextFormattedAccessLogFields
    * client.  This field may appear in all types of operation result access log
    * messages.
    */
-  @NotNull public static final AccessLogField ADDITIONAL_INFO =
+  @NotNull public static final LogField ADDITIONAL_INFO =
        createField("ADDITIONAL_INFO", "additionalInfo", STRING_SYNTAX);
 
 
@@ -220,7 +220,7 @@ public final class TextFormattedAccessLogFields
    * message (if any) contained in that control.  This field may appear in all
    * types of access log messages that are associated with an operation.
    */
-  @NotNull public static final AccessLogField ADMINISTRATIVE_OPERATION =
+  @NotNull public static final LogField ADMINISTRATIVE_OPERATION =
        createField("ADMINISTRATIVE_OPERATION", "administrativeOperation",
             STRING_SYNTAX);
 
@@ -231,7 +231,7 @@ public final class TextFormattedAccessLogFields
    * milliseconds.  This field may appear in all types of operation result
    * access log messages.
    */
-  @NotNull public static final AccessLogField ASSURANCE_TIMEOUT_MILLIS =
+  @NotNull public static final LogField ASSURANCE_TIMEOUT_MILLIS =
        createField("ASSURANCE_TIMEOUT_MILLIS", "assuranceTimeoutMillis",
             INTEGER_SYNTAX);
 
@@ -242,7 +242,7 @@ public final class TextFormattedAccessLogFields
    * identity for the operation.  This field may appear in all types of
    * operation result access log messages.
    */
-  @NotNull public static final AccessLogField AUTHORIZATION_DN =
+  @NotNull public static final LogField AUTHORIZATION_DN =
        createField("AUTHORIZATION_DN", "authzDN", DN_SYNTAX);
 
 
@@ -253,7 +253,7 @@ public final class TextFormattedAccessLogFields
    * security negotiation.  This field may appear in SECURITY-NEGOTIATION
    * access log messages.
    */
-  @NotNull public static final AccessLogField AUTO_AUTHENTICATED_AS =
+  @NotNull public static final LogField AUTO_AUTHENTICATED_AS =
        createField("AUTO_AUTHENTICATED_AS", "autoAuthenticatedAs", DN_SYNTAX);
 
 
@@ -262,7 +262,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the user that was authenticated in a bind
    * operation.  This field may appear in bind result access log messages.
    */
-  @NotNull public static final AccessLogField BIND_AUTHENTICATION_DN =
+  @NotNull public static final LogField BIND_AUTHENTICATION_DN =
        createField("BIND_AUTHENTICATION_DN", "authDN", DN_SYNTAX);
 
 
@@ -272,7 +272,7 @@ public final class TextFormattedAccessLogFields
    * general reason for the authentication failure.  This field may appear in
    * bind result access log messages.
    */
-  @NotNull public static final AccessLogField BIND_AUTHENTICATION_FAILURE_ID =
+  @NotNull public static final LogField BIND_AUTHENTICATION_FAILURE_ID =
        createField("BIND_AUTHENTICATION_FAILURE_ID", "authFailureID",
             INTEGER_SYNTAX);
 
@@ -282,9 +282,8 @@ public final class TextFormattedAccessLogFields
    * A field that holds a message providing a reason for a failed authentication
    * attempt.  This field may appear in bind result access log messages.
    */
-  @NotNull public static final AccessLogField
-       BIND_AUTHENTICATION_FAILURE_REASON = createField(
-            "BIND_AUTHENTICATION_FAILURE_REASON", "authFailureReason",
+  @NotNull public static final LogField BIND_AUTHENTICATION_FAILURE_REASON =
+       createField("BIND_AUTHENTICATION_FAILURE_REASON", "authFailureReason",
             STRING_SYNTAX);
 
 
@@ -293,7 +292,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the authentication type for a bind request.  This field
    * may appear in access log messages for bind operations.
    */
-  @NotNull public static final AccessLogField BIND_AUTHENTICATION_TYPE =
+  @NotNull public static final LogField BIND_AUTHENTICATION_TYPE =
        createField("BIND_AUTHENTICATION_TYPE", "authType", STRING_SYNTAX);
 
 
@@ -302,7 +301,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the authorization identity resulting from a
    * bind operation.  This field may appear in bind result access log messages.
    */
-  @NotNull public static final AccessLogField BIND_AUTHORIZATION_DN =
+  @NotNull public static final LogField BIND_AUTHORIZATION_DN =
        createField("BIND_AUTHORIZATION_DN", "authzDN", DN_SYNTAX);
 
 
@@ -311,7 +310,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the bind DN for a bind request.  This field may appear
    * in access log messages for bind operations.
    */
-  @NotNull public static final AccessLogField BIND_DN =
+  @NotNull public static final LogField BIND_DN =
        createField("BIND_DN", "dn", DN_SYNTAX);
 
 
@@ -320,7 +319,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the protocol version for a bind request.  This field may
    * appear in access log messages for bind operations.
    */
-  @NotNull public static final AccessLogField BIND_PROTOCOL_VERSION =
+  @NotNull public static final LogField BIND_PROTOCOL_VERSION =
        createField("BIND_PROTOCOL_VERSION", "version", STRING_SYNTAX);
 
 
@@ -329,7 +328,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the protocol version for a bind request.  This field may
    * appear in bind result access log messages.
    */
-  @NotNull public static final AccessLogField BIND_RETIRED_PASSWORD_USED =
+  @NotNull public static final LogField BIND_RETIRED_PASSWORD_USED =
        createField("BIND_RETIRED_PASSWORD_USED", "retiredPasswordUsed",
             BOOLEAN_SYNTAX);
 
@@ -339,7 +338,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the name of the SASL mechanism used for a bind request.
    * This field may appear in access log messages for bind operations.
    */
-  @NotNull public static final AccessLogField BIND_SASL_MECHANISM =
+  @NotNull public static final LogField BIND_SASL_MECHANISM =
        createField("BIND_SASL_MECHANISM", "saslMechanism", STRING_SYNTAX);
 
 
@@ -349,7 +348,7 @@ public final class TextFormattedAccessLogFields
    * a soft-deleted entry.  This field may appear in access log messages for
    * modify and delete operations.
    */
-  @NotNull public static final AccessLogField CHANGE_TO_SOFT_DELETED_ENTRY =
+  @NotNull public static final LogField CHANGE_TO_SOFT_DELETED_ENTRY =
        createField("CHANGE_TO_SOFT_DELETED_ENTRY", "changeToSoftDeletedEntry",
             BOOLEAN_SYNTAX);
 
@@ -360,7 +359,7 @@ public final class TextFormattedAccessLogFields
    * the client connection.  This field may appear in SECURITY-NEGOTIATION
    * access log messages.
    */
-  @NotNull public static final AccessLogField CIPHER =
+  @NotNull public static final LogField CIPHER =
        createField("CIPHER", "cipher", STRING_SYNTAX);
 
 
@@ -372,7 +371,7 @@ public final class TextFormattedAccessLogFields
    * operations that may cause a new client connection policy to be assigned
    * to the connection (including bind and StartTLS).
    */
-  @NotNull public static final AccessLogField CLIENT_CONNECTION_POLICY =
+  @NotNull public static final LogField CLIENT_CONNECTION_POLICY =
        createField("CLIENT_CONNECTION_POLICY", "clientConnectionPolicy",
             STRING_SYNTAX);
 
@@ -382,7 +381,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the assertion value included in a compare operation.
    * This field may appear in access log messages for compare operations.
    */
-  @NotNull public static final AccessLogField COMPARE_ASSERTION_VALUE =
+  @NotNull public static final LogField COMPARE_ASSERTION_VALUE =
        createField("COMPARE_ASSERTION_VALUE", "assertionValue", STRING_SYNTAX);
 
 
@@ -392,7 +391,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in access log messages for compare
    * operations.
    */
-  @NotNull public static final AccessLogField COMPARE_ATTRIBUTE_NAME =
+  @NotNull public static final LogField COMPARE_ATTRIBUTE_NAME =
        createField("COMPARE_ATTRIBUTE_NAME", "attr", STRING_SYNTAX);
 
 
@@ -401,7 +400,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the entry targeted by a compare operation.
    * This field may appear in access log messages for compare operations.
    */
-  @NotNull public static final AccessLogField COMPARE_ENTRY_DN =
+  @NotNull public static final LogField COMPARE_ENTRY_DN =
        createField("COMPARE_ENTRY_DN", "dn", DN_SYNTAX);
 
 
@@ -410,7 +409,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the address of the client from which a connection has
    * been established.  This field may appear in CONNECT access log messages.
    */
-  @NotNull public static final AccessLogField CONNECT_FROM_ADDRESS =
+  @NotNull public static final LogField CONNECT_FROM_ADDRESS =
        createField("CONNECT_FROM_ADDRESS", "from", STRING_SYNTAX);
 
 
@@ -419,7 +418,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the remote port for a client connection that has been
    * established.  This field may appear in CONNECT access log messages.
    */
-  @NotNull public static final AccessLogField CONNECT_FROM_PORT =
+  @NotNull public static final LogField CONNECT_FROM_PORT =
        createField("CONNECT_FROM_PORT", "fromPort", INTEGER_SYNTAX);
 
 
@@ -428,7 +427,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the server address to which a connection has been
    * established.  This field may appear in CONNECT access log messages.
    */
-  @NotNull public static final AccessLogField CONNECT_TO_ADDRESS =
+  @NotNull public static final LogField CONNECT_TO_ADDRESS =
        createField("CONNECT_TO_ADDRESS", "to", STRING_SYNTAX);
 
 
@@ -437,7 +436,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the server port to which a connection has been
    * established.  This field may appear in CONNECT access log messages.
    */
-  @NotNull public static final AccessLogField CONNECT_TO_PORT =
+  @NotNull public static final LogField CONNECT_TO_PORT =
        createField("CONNECT_TO_PORT", "toPort", INTEGER_SYNTAX);
 
 
@@ -454,7 +453,7 @@ public final class TextFormattedAccessLogFields
    * needed to distinguish between connections to different instances.  This
    * field may appear in all types of access log messages.
    */
-  @NotNull public static final AccessLogField CONNECTION_ID =
+  @NotNull public static final LogField CONNECTION_ID =
        createField("CONNECTION_ID", "conn", INTEGER_SYNTAX);
 
 
@@ -463,7 +462,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the entry targeted by a delete operation.
    * This field may appear in access log messages for delete operations.
    */
-  @NotNull public static final AccessLogField DELETE_ENTRY_DN =
+  @NotNull public static final LogField DELETE_ENTRY_DN =
        createField("DELETE_ENTRY_DN", "dn", DN_SYNTAX);
 
 
@@ -473,7 +472,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in access log messages for delete
    * operations.
    */
-  @NotNull public static final AccessLogField DELETE_SOFT_DELETED_ENTRY_DN =
+  @NotNull public static final LogField DELETE_SOFT_DELETED_ENTRY_DN =
        createField("DELETE_SOFT_DELETED_ENTRY_DN", "softDeleteEntryDN",
             DN_SYNTAX);
 
@@ -484,7 +483,7 @@ public final class TextFormattedAccessLogFields
   * message that is returned to the client.  This field may appear in all types
   * of operation result access log messages.
    */
-  @NotNull public static final AccessLogField DIAGNOSTIC_MESSAGE =
+  @NotNull public static final LogField DIAGNOSTIC_MESSAGE =
       createField("DIAGNOSTIC_MESSAGE", "message", STRING_SYNTAX);
 
 
@@ -494,7 +493,7 @@ public final class TextFormattedAccessLogFields
   * provide additional details about the disconnect.  This field may appear in
   * DISCONNECT access log messages.
    */
-  @NotNull public static final AccessLogField DISCONNECT_MESSAGE =
+  @NotNull public static final LogField DISCONNECT_MESSAGE =
        createField("DISCONNECT_MESSAGE", "msg", STRING_SYNTAX);
 
 
@@ -503,7 +502,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds a reason for a connection closure.  This field may
    * appear in DISCONNECT access log messages.
    */
-  @NotNull public static final AccessLogField DISCONNECT_REASON =
+  @NotNull public static final LogField DISCONNECT_REASON =
        createField("DISCONNECT_REASON", "reason", STRING_SYNTAX);
 
 
@@ -513,10 +512,9 @@ public final class TextFormattedAccessLogFields
    * required after an entry rebalancing operation.  This field may appear in
    * entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField
-       ENTRY_REBALANCING_ADMIN_ACTION_MESSAGE = createField(
-            "ENTRY_REBALANCING_ADMIN_ACTION_MESSAGE", "adminActionRequired",
-            STRING_SYNTAX);
+  @NotNull public static final LogField ENTRY_REBALANCING_ADMIN_ACTION_MESSAGE =
+       createField("ENTRY_REBALANCING_ADMIN_ACTION_MESSAGE",
+            "adminActionRequired", STRING_SYNTAX);
 
 
 
@@ -524,7 +522,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the base DN for an entry rebalancing operation.  This
    * field may appear in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField ENTRY_REBALANCING_BASE_DN =
+  @NotNull public static final LogField ENTRY_REBALANCING_BASE_DN =
        createField("ENTRY_REBALANCING_BASE_DN", "baseDN", DN_SYNTAX);
 
 
@@ -534,7 +532,7 @@ public final class TextFormattedAccessLogFields
    * course of processing an entry rebalancing operation.  This field may appear
    * in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        ENTRY_REBALANCING_ENTRIES_ADDED_TO_TARGET = createField(
             "ENTRY_REBALANCING_ENTRIES_ADDED_TO_TARGET", "entriesAddedToTarget",
             INTEGER_SYNTAX);
@@ -546,7 +544,7 @@ public final class TextFormattedAccessLogFields
    * the course of processing an entry rebalancing operation.  This field may
    * appear in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        ENTRY_REBALANCING_ENTRIES_DELETED_FROM_SOURCE = createField(
             "ENTRY_REBALANCING_ENTRIES_DELETED_FROM_SOURCE",
             "entriesDeletedFromSource", INTEGER_SYNTAX);
@@ -558,7 +556,7 @@ public final class TextFormattedAccessLogFields
    * course of processing an entry rebalancing operation.  This field may appear
    * in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        ENTRY_REBALANCING_ENTRIES_READ_FROM_SOURCE = createField(
             "ENTRY_REBALANCING_ENTRIES_READ_FROM_SOURCE",
             "entriesReadFromSource", INTEGER_SYNTAX);
@@ -569,7 +567,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds an error message for an entry rebalancing operation.
    * This field may appear in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField ENTRY_REBALANCING_ERROR_MESSAGE =
+  @NotNull public static final LogField ENTRY_REBALANCING_ERROR_MESSAGE =
        createField("ENTRY_REBALANCING_ERROR_MESSAGE", "errorMessage",
             STRING_SYNTAX);
 
@@ -579,7 +577,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the operation ID for an entry rebalancing operation.
    * This field may appear in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField ENTRY_REBALANCING_OPERATION_ID =
+  @NotNull public static final LogField ENTRY_REBALANCING_OPERATION_ID =
        createField("ENTRY_REBALANCING_OPERATION_ID", "rebalancingOp",
             INTEGER_SYNTAX);
 
@@ -589,7 +587,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the size limit for an entry rebalancing operation.
    * This field may appear in entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField ENTRY_REBALANCING_SIZE_LIMIT =
+  @NotNull public static final LogField ENTRY_REBALANCING_SIZE_LIMIT =
        createField("ENTRY_REBALANCING_SIZE_LIMIT", "sizeLimit", INTEGER_SYNTAX);
 
 
@@ -599,9 +597,8 @@ public final class TextFormattedAccessLogFields
    * rebalancing operation.  This field may appear in entry rebalancing access
    * log messages.
    */
-  @NotNull public static final AccessLogField
-       ENTRY_REBALANCING_SOURCE_BACKEND_SET = createField(
-            "ENTRY_REBALANCING_SOURCE_BACKEND_SET",  "sourceBackendSet",
+  @NotNull public static final LogField ENTRY_REBALANCING_SOURCE_BACKEND_SET =
+       createField("ENTRY_REBALANCING_SOURCE_BACKEND_SET", "sourceBackendSet",
             STRING_SYNTAX);
 
 
@@ -611,7 +608,7 @@ public final class TextFormattedAccessLogFields
    * rebalancing operation.  This field may appear in entry rebalancing access
    * log messages.
    */
-  @NotNull public static final AccessLogField ENTRY_REBALANCING_SOURCE_SERVER =
+  @NotNull public static final LogField ENTRY_REBALANCING_SOURCE_SERVER =
        createField("ENTRY_REBALANCING_SOURCE_SERVER", "sourceServer",
             STRING_SYNTAX);
 
@@ -622,7 +619,7 @@ public final class TextFormattedAccessLogFields
    * of processing an entry rebalancing operation.  This field may appear in
    * entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        ENTRY_REBALANCING_SOURCE_SERVER_ALTERED = createField(
             "ENTRY_REBALANCING_SOURCE_SERVER_ALTERED", "sourceAltered",
             BOOLEAN_SYNTAX);
@@ -634,9 +631,8 @@ public final class TextFormattedAccessLogFields
    * rebalancing operation.  This field may appear in entry rebalancing access
    * log messages.
    */
-  @NotNull public static final AccessLogField
-       ENTRY_REBALANCING_TARGET_BACKEND_SET = createField(
-            "ENTRY_REBALANCING_TARGET_BACKEND_SET", "targetBackendSet",
+  @NotNull public static final LogField ENTRY_REBALANCING_TARGET_BACKEND_SET =
+       createField("ENTRY_REBALANCING_TARGET_BACKEND_SET", "targetBackendSet",
             STRING_SYNTAX);
 
 
@@ -646,7 +642,7 @@ public final class TextFormattedAccessLogFields
    * rebalancing operation.  This field may appear in entry rebalancing access
    * log messages.
    */
-  @NotNull public static final AccessLogField ENTRY_REBALANCING_TARGET_SERVER =
+  @NotNull public static final LogField ENTRY_REBALANCING_TARGET_SERVER =
        createField("ENTRY_REBALANCING_TARGET_SERVER", "targetServer",
             STRING_SYNTAX);
 
@@ -657,7 +653,7 @@ public final class TextFormattedAccessLogFields
    * of processing an entry rebalancing operation.  This field may appear in
    * entry rebalancing access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        ENTRY_REBALANCING_TARGET_SERVER_ALTERED = createField(
             "ENTRY_REBALANCING_TARGET_SERVER_ALTERED", "targetAltered",
             BOOLEAN_SYNTAX);
@@ -668,7 +664,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the request OID for an extended operation.  This field
    * may appear in access log messages for extended operations.
    */
-  @NotNull public static final AccessLogField EXTENDED_REQUEST_OID =
+  @NotNull public static final LogField EXTENDED_REQUEST_OID =
        createField("EXTENDED_REQUEST_OID", "requestOID", STRING_SYNTAX);
 
 
@@ -677,7 +673,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the name for an extended request.  This field may
    * appear in access log messages for extended operations.
    */
-  @NotNull public static final AccessLogField EXTENDED_REQUEST_TYPE =
+  @NotNull public static final LogField EXTENDED_REQUEST_TYPE =
        createField("EXTENDED_REQUEST_TYPE", "requestType", STRING_SYNTAX);
 
 
@@ -686,7 +682,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the response OID for an extended operation.  This field
    * may appear in access log messages for extended operations.
    */
-  @NotNull public static final AccessLogField EXTENDED_RESPONSE_OID =
+  @NotNull public static final LogField EXTENDED_RESPONSE_OID =
        createField("EXTENDED_RESPONSE_OID", "responseOID", STRING_SYNTAX);
 
 
@@ -695,7 +691,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the name for an extended response.  This field may
    * appear in access log messages for extended operations.
    */
-  @NotNull public static final AccessLogField EXTENDED_RESPONSE_TYPE =
+  @NotNull public static final LogField EXTENDED_RESPONSE_TYPE =
        createField("EXTENDED_RESPONSE_TYPE", "responseType", STRING_SYNTAX);
 
 
@@ -705,7 +701,7 @@ public final class TextFormattedAccessLogFields
    * accessed in the course of processing operation that were near the index
    * entry limit.  This field may appear operation result access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT = createField(
             "INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT",
             "indexesWithKeysAccessedNearEntryLimit",
@@ -718,7 +714,7 @@ public final class TextFormattedAccessLogFields
    * accessed in the course of processing operation that had exceeded the index
    * entry limit.  This field may appear operation result access log messages.
    */
-  @NotNull public static final AccessLogField
+  @NotNull public static final LogField
        INDEXES_WITH_KEYS_ACCESSED_EXCEEDING_ENTRY_LIMIT = createField(
             "INDEXES_WITH_KEYS_ACCESSED_EXCEEDING_ENTRY_LIMIT",
             "indexesWithKeysAccessedExceedingEntryLimit",
@@ -730,7 +726,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the name of the server instance that logged the message.
    * This field may appear in all types of access log messages.
    */
-  @NotNull public static final AccessLogField INSTANCE_NAME =
+  @NotNull public static final LogField INSTANCE_NAME =
        createField("INSTANCE_NAME", "instanceName", STRING_SYNTAX);
 
 
@@ -740,7 +736,7 @@ public final class TextFormattedAccessLogFields
    * inter-server request control.  This field amy appear in all types of
    * access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField INTER_SERVER_COMPONENT =
+  @NotNull public static final LogField INTER_SERVER_COMPONENT =
        createField("INTER_SERVER_COMPONENT", "interServerComponent",
             STRING_SYNTAX);
 
@@ -751,7 +747,7 @@ public final class TextFormattedAccessLogFields
    * inter-server request control.  This field amy appear in all types of
    * access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField INTER_SERVER_PROPERTIES =
+  @NotNull public static final LogField INTER_SERVER_PROPERTIES =
        createField("INTER_SERVER_PROPERTIES", "interServerProperties",
             STRING_SYNTAX);
 
@@ -762,7 +758,7 @@ public final class TextFormattedAccessLogFields
    * inter-server request control.  This field amy appear in all types of
    * access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField INTER_SERVER_OPERATION_PURPOSE =
+  @NotNull public static final LogField INTER_SERVER_OPERATION_PURPOSE =
        createField("INTER_SERVER_OPERATION_PURPOSE",
             "interServerOperationPurpose", STRING_SYNTAX);
 
@@ -773,7 +769,7 @@ public final class TextFormattedAccessLogFields
    * request control included in the operation.  This field may appear in all
    * types of access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField INTERMEDIATE_CLIENT_REQUEST =
+  @NotNull public static final LogField INTERMEDIATE_CLIENT_REQUEST =
        createField("INTERMEDIATE_CLIENT_REQUEST", "via", STRING_SYNTAX);
 
 
@@ -783,7 +779,7 @@ public final class TextFormattedAccessLogFields
    * response control returned to the client.  This field may appear in all
    * types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField INTERMEDIATE_CLIENT_RESULT =
+  @NotNull public static final LogField INTERMEDIATE_CLIENT_RESULT =
        createField("INTERMEDIATE_CLIENT_RESULT", "from", STRING_SYNTAX);
 
 
@@ -793,7 +789,7 @@ public final class TextFormattedAccessLogFields
    * client.  This field may appear in intermediate response access log
    * messages.
    */
-  @NotNull public static final AccessLogField INTERMEDIATE_RESPONSE_NAME =
+  @NotNull public static final LogField INTERMEDIATE_RESPONSE_NAME =
        createField("INTERMEDIATE_RESPONSE_NAME", "name", STRING_SYNTAX);
 
 
@@ -803,7 +799,7 @@ public final class TextFormattedAccessLogFields
    * client.  This field may appear in intermediate response access log
    * messages.
    */
-  @NotNull public static final AccessLogField INTERMEDIATE_RESPONSE_OID =
+  @NotNull public static final LogField INTERMEDIATE_RESPONSE_OID =
        createField("INTERMEDIATE_RESPONSE_OID", "oid", STRING_SYNTAX);
 
 
@@ -813,7 +809,7 @@ public final class TextFormattedAccessLogFields
    * response returned to the client.  This field may appear in intermediate
    * response access log messages.
    */
-  @NotNull public static final AccessLogField INTERMEDIATE_RESPONSE_VALUE =
+  @NotNull public static final LogField INTERMEDIATE_RESPONSE_VALUE =
        createField("INTERMEDIATE_RESPONSE_VALUE", "value", STRING_SYNTAX);
 
 
@@ -823,7 +819,7 @@ public final class TextFormattedAccessLogFields
    * the client in the course of processing the operation.  This field may
    * appear in all types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField INTERMEDIATE_RESPONSES_RETURNED =
+  @NotNull public static final LogField INTERMEDIATE_RESPONSES_RETURNED =
        createField("INTERMEDIATE_RESPONSES_RETURNED",
             "intermediateResponsesReturned", INTEGER_SYNTAX);
 
@@ -836,7 +832,7 @@ public final class TextFormattedAccessLogFields
    * multiple times if the presented certificate chain included three or more
    * certificates.
    */
-  @NotNull public static final AccessLogField ISSUER_CERTIFICATE_SUBJECT_DN =
+  @NotNull public static final LogField ISSUER_CERTIFICATE_SUBJECT_DN =
        createField("ISSUER_CERTIFICATE_SUBJECT_DN", "issuerSubject", DN_SYNTAX);
 
 
@@ -846,7 +842,7 @@ public final class TextFormattedAccessLogFields
    * level for the operation.  This field may appear in all types of operation
    * result access log messages.
    */
-  @NotNull public static final AccessLogField LOCAL_ASSURANCE_LEVEL =
+  @NotNull public static final LogField LOCAL_ASSURANCE_LEVEL =
        createField("LOCAL_ASSURANCE_LEVEL", "localAssuranceLevel",
             STRING_SYNTAX);
 
@@ -857,7 +853,7 @@ public final class TextFormattedAccessLogFields
    * satisfied in the course of processing the operation.  This field may appear
    * in assurance completed access log messages.
    */
-  @NotNull public static final AccessLogField LOCAL_ASSURANCE_SATISFIED =
+  @NotNull public static final LogField LOCAL_ASSURANCE_SATISFIED =
        createField("LOCAL_ASSURANCE_SATISFIED", "localAssuranceSatisfied",
             BOOLEAN_SYNTAX);
 
@@ -868,7 +864,7 @@ public final class TextFormattedAccessLogFields
    * the closest ancestor of an entry that does not exist.  This field may
    * appear in all types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField MATCHED_DN =
+  @NotNull public static final LogField MATCHED_DN =
        createField("MATCHED_DN", "matchedDN", DN_SYNTAX);
 
 
@@ -880,7 +876,7 @@ public final class TextFormattedAccessLogFields
    * This field may appear in all types of access log messages that are
    * associated with operations.
    */
-  @NotNull public static final AccessLogField MESSAGE_ID =
+  @NotNull public static final LogField MESSAGE_ID =
        createField("MESSAGE_ID", "msgID", INTEGER_SYNTAX);
 
 
@@ -891,7 +887,7 @@ public final class TextFormattedAccessLogFields
    * not have.  This field may appear in all types of operation result access
    * log messages.
    */
-  @NotNull public static final AccessLogField MISSING_PRIVILEGES =
+  @NotNull public static final LogField MISSING_PRIVILEGES =
        createField("MISSING_PRIVILEGES", "missingPrivileges",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
@@ -902,7 +898,7 @@ public final class TextFormattedAccessLogFields
    * from the entry.  This field may appear in access log messages for modify DN
    * operations.
    */
-  @NotNull public static final AccessLogField MODDN_DELETE_OLD_RDN =
+  @NotNull public static final LogField MODDN_DELETE_OLD_RDN =
        createField("MODDN_DELETE_OLD_RDN", "deleteOldRDN", BOOLEAN_SYNTAX);
 
 
@@ -911,7 +907,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the entry to be renamed.  This field may
    * appear in access log messages for modify DN operations.
    */
-  @NotNull public static final AccessLogField MODDN_ENTRY_DN =
+  @NotNull public static final LogField MODDN_ENTRY_DN =
        createField("MODDN_ENTRY_DN", "dn", DN_SYNTAX);
 
 
@@ -920,7 +916,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the new RDN to use for the entry to be renamed.  This
    * field may appear in access log messages for modify DN operations.
    */
-  @NotNull public static final AccessLogField MODDN_NEW_RDN =
+  @NotNull public static final LogField MODDN_NEW_RDN =
        createField("MODDN_NEW_RDN", "newRDN", DN_SYNTAX);
 
 
@@ -930,7 +926,7 @@ public final class TextFormattedAccessLogFields
    * renamed.  This field may appear in access log messages for modify DN
    * operations.
    */
-  @NotNull public static final AccessLogField MODDN_NEW_SUPERIOR_DN =
+  @NotNull public static final LogField MODDN_NEW_SUPERIOR_DN =
        createField("MODDN_NEW_SUPERIOR_DN", "newSuperior", DN_SYNTAX);
 
 
@@ -940,7 +936,7 @@ public final class TextFormattedAccessLogFields
    * be modified.  This field may appear in access log messages for modify
    * operations.
    */
-  @NotNull public static final AccessLogField MODIFY_ATTRIBUTES = createField(
+  @NotNull public static final LogField MODIFY_ATTRIBUTES = createField(
        "MODIFY_ATTRIBUTES", "attrs", COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
@@ -949,7 +945,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN of the entry to be modified.  This field may
    * appear in access log messages for modify operations.
    */
-  @NotNull public static final AccessLogField MODIFY_ENTRY_DN =
+  @NotNull public static final LogField MODIFY_ENTRY_DN =
        createField("MODIFY_ENTRY_DN", "dn", DN_SYNTAX);
 
 
@@ -968,7 +964,7 @@ public final class TextFormattedAccessLogFields
    * connections to different instances.  This field may appear in all types of
    * access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField OPERATION_ID =
+  @NotNull public static final LogField OPERATION_ID =
        createField("OPERATION_ID", "op", INTEGER_SYNTAX);
 
 
@@ -978,7 +974,7 @@ public final class TextFormattedAccessLogFields
    * control included in the operation.  This field may appear in all types of
    * access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField OPERATION_PURPOSE =
+  @NotNull public static final LogField OPERATION_PURPOSE =
        createField("OPERATION_PURPOSE", "opPurpose", STRING_SYNTAX);
 
 
@@ -990,7 +986,7 @@ public final class TextFormattedAccessLogFields
    * appear in all types of access log messages that are associated with
    * operations.
    */
-  @NotNull public static final AccessLogField ORIGIN =
+  @NotNull public static final LogField ORIGIN =
        createField("ORIGIN", "origin", STRING_SYNTAX);
 
 
@@ -1001,10 +997,9 @@ public final class TextFormattedAccessLogFields
    * authorization identity to the operation.  This field may appear in all
    * types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField
-       PRE_AUTHORIZATION_USED_PRIVILEGES = createField(
-            "PRE_AUTHORIZATION_USED_PRIVILEGES", "preAuthZUsedPrivileges",
-            COMMA_DELIMITED_STRING_LIST_SYNTAX);
+  @NotNull public static final LogField PRE_AUTHORIZATION_USED_PRIVILEGES =
+       createField("PRE_AUTHORIZATION_USED_PRIVILEGES",
+            "preAuthZUsedPrivileges", COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
 
@@ -1013,7 +1008,7 @@ public final class TextFormattedAccessLogFields
    * thread spent processing the operation.  This field may appear in all types
    * of operation result access log messages.
    */
-  @NotNull public static final AccessLogField PROCESSING_TIME_MILLIS =
+  @NotNull public static final LogField PROCESSING_TIME_MILLIS =
        createField("PROCESSING_TIME_MILLIS", "etime", FLOATING_POINT_SYNTAX);
 
 
@@ -1022,7 +1017,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the name of the product that logged the message.  This
    * field may appear in all types of access log messages.
    */
-  @NotNull public static final AccessLogField PRODUCT_NAME =
+  @NotNull public static final LogField PRODUCT_NAME =
        createField("PRODUCT_NAME", "product", STRING_SYNTAX);
 
 
@@ -1032,7 +1027,7 @@ public final class TextFormattedAccessLogFields
    * communicate with the server.  This field may appear in CONNECT and
    * SECURITY-NEGOTIATION access log messages.
    */
-  @NotNull public static final AccessLogField PROTOCOL =
+  @NotNull public static final LogField PROTOCOL =
        createField("PROTOCOL", "protocol", STRING_SYNTAX);
 
 
@@ -1043,7 +1038,7 @@ public final class TextFormattedAccessLogFields
    * elsewhere.  This field may appear in all types of operation result access
    * log messages.
    */
-  @NotNull public static final AccessLogField REFERRAL_URLS = createField(
+  @NotNull public static final LogField REFERRAL_URLS = createField(
        "REFERRAL_URLS", "referralURLs", COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
@@ -1053,7 +1048,7 @@ public final class TextFormattedAccessLogFields
    * level for the operation.  This field may appear in all types of operation
    * result access log messages.
    */
-  @NotNull public static final AccessLogField REMOTE_ASSURANCE_LEVEL =
+  @NotNull public static final LogField REMOTE_ASSURANCE_LEVEL =
        createField("REMOTE_ASSURANCE_LEVEL", "remoteAssuranceLevel",
             STRING_SYNTAX);
 
@@ -1064,7 +1059,7 @@ public final class TextFormattedAccessLogFields
    * satisfied in the course of processing the operation.  This field may appear
    * in assurance completed access log messages.
    */
-  @NotNull public static final AccessLogField REMOTE_ASSURANCE_SATISFIED =
+  @NotNull public static final LogField REMOTE_ASSURANCE_SATISFIED =
        createField("REMOTE_ASSURANCE_SATISFIED", "remoteAssuranceSatisfied",
             BOOLEAN_SYNTAX);
 
@@ -1074,7 +1069,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the replication change ID for a replicated operation.
    * This field may appear in all types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField REPLICATION_CHANGE_ID =
+  @NotNull public static final LogField REPLICATION_CHANGE_ID =
        createField("REPLICATION_CHANGE_ID", "replicationChangeID",
             STRING_SYNTAX);
 
@@ -1085,7 +1080,7 @@ public final class TextFormattedAccessLogFields
    * included in the request.  This field may appear in all types of access log
    * messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField REQUEST_CONTROLS =
+  @NotNull public static final LogField REQUEST_CONTROLS =
        createField("REQUEST_CONTROLS", "requestControls",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
@@ -1096,7 +1091,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in all types of access log messages that
    * are associated with operations.
    */
-  @NotNull public static final AccessLogField REQUESTER_DN =
+  @NotNull public static final LogField REQUESTER_DN =
        createField("REQUESTER_DN", "requesterDN", DN_SYNTAX);
 
 
@@ -1106,7 +1101,7 @@ public final class TextFormattedAccessLogFields
    * associated operation.  This field may appear in all types of access log
    * messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField REQUESTER_IP_ADDRESS =
+  @NotNull public static final LogField REQUESTER_IP_ADDRESS =
        createField("REQUESTER_IP_ADDRESS", "requesterIP", STRING_SYNTAX);
 
 
@@ -1116,7 +1111,7 @@ public final class TextFormattedAccessLogFields
    * included in the response.  This field may appear in all types of operation
    * result access log messages.
    */
-  @NotNull public static final AccessLogField RESPONSE_CONTROLS =
+  @NotNull public static final LogField RESPONSE_CONTROLS =
        createField("RESPONSE_CONTROLS", "responseControls",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
@@ -1127,7 +1122,7 @@ public final class TextFormattedAccessLogFields
    * by replication assurance processing.  This field may appear in all types
    * of operation result access log messages.
    */
-  @NotNull public static final AccessLogField RESPONSE_DELAYED_BY_ASSURANCE =
+  @NotNull public static final LogField RESPONSE_DELAYED_BY_ASSURANCE =
        createField("RESPONSE_DELAYED_BY_ASSURANCE",
             "responseDelayedByAssurance", BOOLEAN_SYNTAX);
 
@@ -1138,7 +1133,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in all types of operation result access
    * log messages.
    */
-  @NotNull public static final AccessLogField RESULT_CODE =
+  @NotNull public static final LogField RESULT_CODE =
        createField("RESULT_CODE", "resultCode", INTEGER_SYNTAX);
 
 
@@ -1148,7 +1143,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in all types of operation result access
    * log messages.
    */
-  @NotNull public static final AccessLogField RESULT_CODE_NAME =
+  @NotNull public static final LogField RESULT_CODE_NAME =
        createField("RESULT_CODE_NAME", "resultCodeName", STRING_SYNTAX);
 
 
@@ -1157,7 +1152,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the base DN for a search operation.  This field may
    * appear in access log messages for search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_BASE_DN =
+  @NotNull public static final LogField SEARCH_BASE_DN =
        createField("SEARCH_BASE_DN", "base", DN_SYNTAX);
 
 
@@ -1167,7 +1162,7 @@ public final class TextFormattedAccessLogFields
    * for a search operation.  This field may appear in access log messages for
    * search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_DEREF_POLICY =
+  @NotNull public static final LogField SEARCH_DEREF_POLICY =
        createField("SEARCH_DEREF_POLICY", "deref", STRING_SYNTAX);
 
 
@@ -1176,7 +1171,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the number of search result entries that were returned
    * to the client.  This field may appear in search result access log messages.
    */
-  @NotNull public static final AccessLogField SEARCH_ENTRIES_RETURNED =
+  @NotNull public static final LogField SEARCH_ENTRIES_RETURNED =
        createField("SEARCH_ENTRIES_RETURNED", "entriesReturned",
             INTEGER_SYNTAX);
 
@@ -1187,7 +1182,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in access log messages for search
    * operations.
    */
-  @NotNull public static final AccessLogField SEARCH_FILTER =
+  @NotNull public static final LogField SEARCH_FILTER =
        createField("SEARCH_FILTER", "filter", FILTER_SYNTAX);
 
 
@@ -1197,7 +1192,7 @@ public final class TextFormattedAccessLogFields
    * requested to be included in search result entries.  This field may appear
    * in access log messages for search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_REQUESTED_ATTRIBUTES =
+  @NotNull public static final LogField SEARCH_REQUESTED_ATTRIBUTES =
        createField("SEARCH_REQUESTED_ATTRIBUTES", "attrs",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
@@ -1207,7 +1202,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the DN for a search result entry.  This field may appear
    * in access log messages for search result entries.
    */
-  @NotNull public static final AccessLogField SEARCH_RESULT_ENTRY_DN =
+  @NotNull public static final LogField SEARCH_RESULT_ENTRY_DN =
        createField("SEARCH_RESULT_ENTRY_DN", "dn", DN_SYNTAX);
 
 
@@ -1217,7 +1212,7 @@ public final class TextFormattedAccessLogFields
    * attributes returned to the client in a search result entry.  This field may
    * appear in access log messages for search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_RESULT_ENTRY_ATTRIBUTES =
+  @NotNull public static final LogField SEARCH_RESULT_ENTRY_ATTRIBUTES =
        createField("SEARCH_RESULT_ENTRY_ATTRIBUTES", "attrsReturned",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
@@ -1227,7 +1222,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the numeric value of the scope for a search operation.
    * This field may appear in access log messages for search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_SCOPE =
+  @NotNull public static final LogField SEARCH_SCOPE =
        createField("SEARCH_SCOPE", "scope", INTEGER_SYNTAX);
 
 
@@ -1236,7 +1231,7 @@ public final class TextFormattedAccessLogFields
    * A field that holds the requested size limit for a search operation.  This
    * field may appear in access log messages for search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_SIZE_LIMIT =
+  @NotNull public static final LogField SEARCH_SIZE_LIMIT =
        createField("SEARCH_SIZE_LIMIT", "sizeLimit", INTEGER_SYNTAX);
 
 
@@ -1246,7 +1241,7 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in access log messages for search
    * operations.
    */
-  @NotNull public static final AccessLogField SEARCH_TIME_LIMIT =
+  @NotNull public static final LogField SEARCH_TIME_LIMIT =
        createField("SEARCH_TIME_LIMIT", "timeLimit", INTEGER_SYNTAX);
 
 
@@ -1256,7 +1251,7 @@ public final class TextFormattedAccessLogFields
    * attribute types or both types and values.  This field may appear in access
    * log messages for search operations.
    */
-  @NotNull public static final AccessLogField SEARCH_TYPES_ONLY =
+  @NotNull public static final LogField SEARCH_TYPES_ONLY =
        createField("SEARCH_TYPES_ONLY", "typesOnly", BOOLEAN_SYNTAX);
 
 
@@ -1265,7 +1260,7 @@ public final class TextFormattedAccessLogFields
    * A field that indicates whether the search operation was considered
    * unindexed.  This field may appear in search result access log messages.
    */
-  @NotNull public static final AccessLogField SEARCH_UNINDEXED =
+  @NotNull public static final LogField SEARCH_UNINDEXED =
        createField("SEARCH_UNINDEXED", "unindexed", BOOLEAN_SYNTAX);
 
 
@@ -1275,7 +1270,7 @@ public final class TextFormattedAccessLogFields
    * each of the servers.  This field may appear in assurance completed access
    * log messages.
    */
-  @NotNull public static final AccessLogField SERVER_ASSURANCE_RESULTS =
+  @NotNull public static final LogField SERVER_ASSURANCE_RESULTS =
        createField("SERVER_ASSURANCE_RESULTS", "serverAssuranceResults",
             STRING_SYNTAX);
 
@@ -1287,7 +1282,7 @@ public final class TextFormattedAccessLogFields
    * will consist of the name or IP address, a colon, and the port number.  This
    * field may appear in all types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField SERVERS_ACCESSED =
+  @NotNull public static final LogField SERVERS_ACCESSED =
        createField("SERVERS_ACCESSED", "serversAccessed",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
@@ -1299,7 +1294,7 @@ public final class TextFormattedAccessLogFields
    * operation ID (if applicable) because those values are reset upon a server
    * restart.  This field may appear in all types of access log messages.
    */
-  @NotNull public static final AccessLogField STARTUP_ID =
+  @NotNull public static final LogField STARTUP_ID =
        createField("STARTUP_ID", "startupID", STRING_SYNTAX);
 
 
@@ -1309,7 +1304,7 @@ public final class TextFormattedAccessLogFields
    * forwarded for processing.  This field may appear in access log messages for
    * operations that were forwarded to a remote system.
    */
-  @NotNull public static final AccessLogField TARGET_HOST =
+  @NotNull public static final LogField TARGET_HOST =
        createField("TARGET_HOST", "targetHost", STRING_SYNTAX);
 
 
@@ -1319,7 +1314,7 @@ public final class TextFormattedAccessLogFields
    * forwarded for processing.  This field may appear in access log messages for
    * operations that were forwarded to a remote system.
    */
-  @NotNull public static final AccessLogField TARGET_PORT =
+  @NotNull public static final LogField TARGET_PORT =
        createField("TARGET_PORT", "targetPort", INTEGER_SYNTAX);
 
 
@@ -1330,7 +1325,7 @@ public final class TextFormattedAccessLogFields
    * in access log messages for operations that were forwarded to a remote
    * system.
    */
-  @NotNull public static final AccessLogField TARGET_PROTOCOL =
+  @NotNull public static final LogField TARGET_PROTOCOL =
        createField("TARGET_PROTOCOL", "targetProtocol", STRING_SYNTAX);
 
 
@@ -1341,7 +1336,7 @@ public final class TextFormattedAccessLogFields
    * processing for the connection or operation).  This field may appear in all
    * types of access log messages.
    */
-  @NotNull public static final AccessLogField THREAD_ID =
+  @NotNull public static final LogField THREAD_ID =
        createField("THREAD_ID", "threadID", INTEGER_SYNTAX);
 
 
@@ -1351,7 +1346,7 @@ public final class TextFormattedAccessLogFields
    * the associated operation.  This field may appear in all types of access log
    * messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField TRIGGERED_BY_CONNECTION_ID =
+  @NotNull public static final LogField TRIGGERED_BY_CONNECTION_ID =
        createField("TRIGGERED_BY_CONNECTION_ID", "triggeredByConn",
             INTEGER_SYNTAX);
 
@@ -1362,7 +1357,7 @@ public final class TextFormattedAccessLogFields
    * the associated operation.  This field may appear in all types of access log
    * messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField TRIGGERED_BY_OPERATION_ID =
+  @NotNull public static final LogField TRIGGERED_BY_OPERATION_ID =
        createField("TRIGGERED_BY_OPERATION_ID", "triggeredByOp",
             INTEGER_SYNTAX);
 
@@ -1373,7 +1368,7 @@ public final class TextFormattedAccessLogFields
    * course of processing the operation.  This field may appear in all types of
    * operation result access log messages.
    */
-  @NotNull public static final AccessLogField UNCACHED_DATA_ACCESSED =
+  @NotNull public static final LogField UNCACHED_DATA_ACCESSED =
        createField("UNCACHED_DATA_ACCESSED", "uncachedDataAccessed",
             BOOLEAN_SYNTAX);
 
@@ -1384,7 +1379,7 @@ public final class TextFormattedAccessLogFields
    * used in the course of processing the operation.  This field may appear in
    * all types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField USED_PRIVILEGES = createField(
+  @NotNull public static final LogField USED_PRIVILEGES = createField(
        "USED_PRIVILEGES", "usedPrivileges", COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
@@ -1395,9 +1390,8 @@ public final class TextFormattedAccessLogFields
    * administrative operations.  This field may appear in all types of
    * access log messages that are associated with operations.
    */
-  @NotNull public static final AccessLogField
-       USING_ADMIN_SESSION_WORKER_THREAD = createField(
-            "USING_ADMIN_SESSION_WORKER_THREAD",
+  @NotNull public static final LogField USING_ADMIN_SESSION_WORKER_THREAD =
+       createField("USING_ADMIN_SESSION_WORKER_THREAD",
             "usingAdminSessionWorkerThread", BOOLEAN_SYNTAX);
 
 
@@ -1407,7 +1401,7 @@ public final class TextFormattedAccessLogFields
    * had to wait in the work queue before being picked up for processing.  This
    * field may appear in all types of operation result access log messages.
    */
-  @NotNull public static final AccessLogField WORK_QUEUE_WAIT_TIME_MILLIS =
+  @NotNull public static final LogField WORK_QUEUE_WAIT_TIME_MILLIS =
        createField("WORK_QUEUE_WAIT_TIME_MILLIS", "qtime", INTEGER_SYNTAX);
 
 
@@ -1423,8 +1417,8 @@ public final class TextFormattedAccessLogFields
 
 
   /**
-   * Creates a new access log field with the provided name and syntax and
-   * registers it in the {@link #DEFINED_FIELDS} map.
+   * Creates a new log field with the provided name and syntax and registers it
+   * in the {@link #DEFINED_FIELDS} map.
    *
    * @param  constantName  The name for the constant in which the field is
    *                       defined.  It must not be {@code null} or empty.
@@ -1433,14 +1427,14 @@ public final class TextFormattedAccessLogFields
    * @param  fieldSyntax   The expected syntax for the field.  It must not be
    *                       {@code null} or empty.
    *
-   * @return  The access log field that was created.
+   * @return  The log field that was created.
    */
   @NotNull()
-  private static AccessLogField createField(@NotNull final String constantName,
+  private static LogField createField(@NotNull final String constantName,
                @NotNull final String fieldName,
-               @NotNull final AccessLogFieldSyntax<?> fieldSyntax)
+               @NotNull final LogFieldSyntax<?> fieldSyntax)
   {
-    final AccessLogField field = new AccessLogField(fieldName, fieldSyntax);
+    final LogField field = new LogField(fieldName, fieldSyntax);
     DEFINED_FIELDS.put(constantName, field);
     return field;
   }
@@ -1454,9 +1448,9 @@ public final class TextFormattedAccessLogFields
    * @return  A map of all predefined fields.
    */
   @NotNull()
-  public static Map<String,AccessLogField> getDefinedFields()
+  public static Map<String,LogField> getDefinedFields()
   {
-    Map<String,AccessLogField> m = READ_ONLY_DEFINED_FIELDS_REF.get();
+    Map<String,LogField> m = READ_ONLY_DEFINED_FIELDS_REF.get();
     if (m != null)
     {
       return m;
@@ -1476,17 +1470,17 @@ public final class TextFormattedAccessLogFields
 
 
   /**
-   * Retrieves the predefined access log field instance that is defined in the
+   * Retrieves the predefined log field instance that is defined in the
    * specified constants.
    *
    * @param  constantName  The name of the constant in which the desired field
    *                       is defined.  It must not be {@code null}.
    *
-   * @return  The access log field instance defined in the specified constant,
-   *          or {@code null} if there is no such constant.
+   * @return  The log field instance defined in the specified constant, or
+   *          {@code null} if there is no such constant.
    */
   @Nullable()
-  public static AccessLogField getFieldForConstantName(
+  public static LogField getFieldForConstantName(
               @NotNull final String constantName)
   {
     final String convertedName =

@@ -59,7 +59,7 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 /**
  * This class defines the base class for syntaxes that may be used for field
- * values in access log messages.
+ * values in log messages.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -75,7 +75,7 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  */
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
-public abstract class AccessLogFieldSyntax<T>
+public abstract class LogFieldSyntax<T>
 {
   /**
    * The code point that represents the ASCII carriage return character.
@@ -161,7 +161,7 @@ public abstract class AccessLogFieldSyntax<T>
 
 
   /**
-   * Creates a new instance of this access log field syntax implementation.
+   * Creates a new instance of this log field syntax implementation.
    *
    * @param  maxStringLengthCharacters  The maximum length (in characters) to
    *                                    use for strings within values.  Strings
@@ -170,7 +170,7 @@ public abstract class AccessLogFieldSyntax<T>
    *                                    This value must be greater than or equal
    *                                    to zero.
    */
-  protected AccessLogFieldSyntax(final int maxStringLengthCharacters)
+  protected LogFieldSyntax(final int maxStringLengthCharacters)
   {
     this.maxStringLengthCharacters = maxStringLengthCharacters;
 
@@ -207,9 +207,9 @@ public abstract class AccessLogFieldSyntax<T>
 
   /**
    * Encodes the provided value to a sanitized string representation suitable
-   * for inclusion in an access log message.  The sanitized string should at
-   * least be cleaned of control characters and other non-printable characters,
-   * but depending on the syntax, it may clean other characters as well.
+   * for inclusion in a log message.  The sanitized string should at least be
+   * cleaned of control characters and other non-printable characters, but
+   * depending on the syntax, it may clean other characters as well.
    *
    * @param  value  The value to be encoded.  It must not be {@code null}.
    *
@@ -235,9 +235,9 @@ public abstract class AccessLogFieldSyntax<T>
 
   /**
    * Encodes the provided value to a sanitized string representation suitable
-   * for inclusion in an access log message.  The sanitized string should at
-   * least be cleaned of control characters and other non-printable characters,
-   * but depending on the syntax, it may clean other characters as well.
+   * for inclusion in a log message.  The sanitized string should at least be
+   * cleaned of control characters and other non-printable characters, but
+   * depending on the syntax, it may clean other characters as well.
    *
    * @param  value   The value to be encoded.  It must not be {@code null}.
    * @param  buffer  The buffer to which the string representation should be
@@ -343,12 +343,12 @@ public abstract class AccessLogFieldSyntax<T>
       if (numCharsToTruncate == 1)
       {
         buffer.append(
-             INFO_ACCESS_LOG_SYNTAX_TRUNCATED_1_CHAR.get());
+             INFO_LOG_SYNTAX_TRUNCATED_1_CHAR.get());
       }
       else
       {
         buffer.append(
-             INFO_ACCESS_LOG_SYNTAX_TRUNCATED_CHARS.get(numCharsToTruncate));
+             INFO_LOG_SYNTAX_TRUNCATED_CHARS.get(numCharsToTruncate));
       }
     }
   }
@@ -413,11 +413,10 @@ public abstract class AccessLogFieldSyntax<T>
 
 
   /**
-   * Retrieves a string that may be included in an access log message to
-   * indicate that the entire value for a field with this syntax has been
-   * redacted.
+   * Retrieves a string that may be included in a log message to indicate that
+   * the entire value for a field with this syntax has been redacted.
    *
-   * @return  A string that may be included in an access log message to
+   * @return  A string that may be included in a log message to
    *          indicate that the entire value for a field with this syntax has
    *          been redacted.
    */
@@ -886,8 +885,7 @@ public abstract class AccessLogFieldSyntax<T>
         Debug.debugException(e);
         throw new LDAPRuntimeException(new LDAPException(
              ResultCode.ENCODING_ERROR,
-             ERR_ACCESS_LOG_SYNTAX_TOKENIZE_DIGEST_ERROR.get(
-                  TOKEN_DIGEST_ALGORITHM),
+             ERR_LOG_SYNTAX_TOKENIZE_DIGEST_ERROR.get(TOKEN_DIGEST_ALGORITHM),
              e));
       }
     }

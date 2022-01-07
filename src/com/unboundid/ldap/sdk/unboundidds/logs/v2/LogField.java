@@ -48,7 +48,7 @@ import com.unboundid.util.Validator;
 
 /**
  * This class defines a data structure that represents a field that may appear
- * in a Directory Server access log message.
+ * in a Directory Server log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -61,7 +61,7 @@ import com.unboundid.util.Validator;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class AccessLogField
+public final class LogField
        implements Serializable
 {
   /**
@@ -72,7 +72,7 @@ public final class AccessLogField
 
 
   // The expected syntax for this field.
-  @NotNull private final AccessLogFieldSyntax<?> expectedSyntax;
+  @NotNull private final LogFieldSyntax<?> expectedSyntax;
 
   // The name for this field.
   @NotNull private final String fieldName;
@@ -81,20 +81,20 @@ public final class AccessLogField
 
 
   /**
-   * Creates an access log field with whe provided information.
+   * Creates a log field with whe provided information.
    *
    * @param  fieldName       The name for this field.  It must not be
    *                         {@code null}.
    * @param  expectedSyntax  The expected syntax for this field.  It must not be
    *                         {@code null}.
    */
-  public AccessLogField(@NotNull final String fieldName,
-                        @NotNull final AccessLogFieldSyntax<?> expectedSyntax)
+  public LogField(@NotNull final String fieldName,
+                  @NotNull final LogFieldSyntax<?> expectedSyntax)
   {
     Validator.ensureNotNullOrEmpty(fieldName,
-         "AccessLogField.fieldName must not be null or empty.");
+         "LogField.fieldName must not be null or empty.");
     Validator.ensureNotNullWithMessage(expectedSyntax,
-         "AccessLogField.fieldName must not be null or empty.");
+         "LogField.expectedSyntax must not be null.");
 
     this.fieldName = fieldName;
     this.expectedSyntax = expectedSyntax;
@@ -123,7 +123,7 @@ public final class AccessLogField
    * @return  The expected syntax for this field.
    */
   @NotNull()
-  public AccessLogFieldSyntax<?> getExpectedSyntax()
+  public LogFieldSyntax<?> getExpectedSyntax()
   {
     return expectedSyntax;
   }
@@ -131,9 +131,9 @@ public final class AccessLogField
 
 
   /**
-   * Retrieves a string representation of this access log field.
+   * Retrieves a string representation of this log field.
    *
-   * @return  A string representation of this access log field.
+   * @return  A string representation of this log field.
    */
   @Override()
   @NotNull()
@@ -147,7 +147,7 @@ public final class AccessLogField
 
 
   /**
-   * Appends a string representation of this access log field to the provided
+   * Appends a string representation of this log field to the provided
    * buffer.
    *
    * @param  buffer  The buffer to which the string representation should be
@@ -155,7 +155,7 @@ public final class AccessLogField
    */
   public void toString(@NotNull final StringBuilder buffer)
   {
-    buffer.append("AccessLogField(fieldName='");
+    buffer.append("LogField(fieldName='");
     buffer.append(fieldName);
     buffer.append("', expectedSyntax='");
     buffer.append(expectedSyntax.getSyntaxName());

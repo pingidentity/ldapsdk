@@ -37,13 +37,9 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -52,13 +48,12 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 
 /**
- * This class defines an access log field syntax for values that are timestamps
- * represented in the ISO 8601 format described in RFC 3339.  This syntax does
- * not support redacting or tokenizing individual components within the
- * timestamps.  Redacted generalized time values will have a string
- * representation of "9999-01-01T00:00:00.000Z", which corresponds to midnight
- * UTC of January 1 in the year 9999.  Tokenized values will have a year of 8888
- * (in the UTC time zone).
+ * This class defines a log field syntax for values that are integers.  This
+ * syntax does not support redacting or tokenizing individual components within
+ * the integers.  Redacted integer values will have a string representation of
+ * "-999999999999999999".  Tokenized integer values will have a string
+ * representation of "-999999999" followed by nine digits that correspond to a
+ * token value generated from the actual value.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -71,45 +66,37 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class RFC3339TimestampAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<Date>
+public final class IntegerLogFieldSyntax
+       extends LogFieldSyntax<Long>
 {
   /**
    * The name for this syntax.
    */
-  @NotNull public static final String SYNTAX_NAME = "rfc-3339-timestamp";
+  @NotNull public static final String SYNTAX_NAME = "integer";
 
 
 
   /**
-   * The string that will be used for completely redacted RFC 3339 timestamp
-   * values.
+   * The string representation that will be used for a floating-point value that
+   * is completely redacted.
    */
-  @NotNull private static final String REDACTED_RFC_3339_TIMESTAMP_STRING =
-       "9999-01-01T00:00:00.000Z";
+  @NotNull private static final String REDACTED_INTEGER_STRING =
+       "-999999999999999999";
 
 
 
   /**
-   * The year that will be used for dates that represent tokenized RFC 3339
-   * timestamp values.
+   * A singleton instance of this log field syntax.
    */
-  private static final int TOKENIZED_DATE_YEAR = 8888;
+  @NotNull private static final IntegerLogFieldSyntax INSTANCE =
+       new IntegerLogFieldSyntax();
 
 
 
   /**
-   * A singleton instance of this access log field syntax.
+   * Creates a new instance of this log field syntax implementation.
    */
-  @NotNull private static final RFC3339TimestampAccessLogFieldSyntax INSTANCE =
-       new RFC3339TimestampAccessLogFieldSyntax();
-
-
-
-  /**
-   * Creates a new instance of this access log field syntax implementation.
-   */
-  private RFC3339TimestampAccessLogFieldSyntax()
+  private IntegerLogFieldSyntax()
   {
     super(100);
   }
@@ -117,12 +104,12 @@ public final class RFC3339TimestampAccessLogFieldSyntax
 
 
   /**
-   * Retrieves a singleton instance of this access log field syntax.
+   * Retrieves a singleton instance of this log field syntax.
    *
-   * @return  A singleton instance of this access log field syntax.
+   * @return  A singleton instance of this log field syntax.
    */
   @NotNull()
-  public static RFC3339TimestampAccessLogFieldSyntax getInstance()
+  public static IntegerLogFieldSyntax getInstance()
   {
     return INSTANCE;
   }
@@ -142,13 +129,45 @@ public final class RFC3339TimestampAccessLogFieldSyntax
 
 
   /**
+   * Appends a sanitized string representation of the provided integer to the
+   * given buffer.
+   *
+   * @param  value   The value to be appended.
+   * @param  buffer  The buffer to which the string representation should be
+   *                 appended.  It must not be {@code null}.
+   */
+  public void valueToSanitizedString(final int value,
+                                     @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(value);
+  }
+
+
+
+  /**
+   * Appends a sanitized string representation of the provided long to the given
+   * buffer.
+   *
+   * @param  value   The value to be appended.
+   * @param  buffer  The buffer to which the string representation should be
+   *                 appended.  It must not be {@code null}.
+   */
+  public void valueToSanitizedString(final long value,
+                                     @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(value);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
-  public void valueToSanitizedString(@NotNull final Date value,
+  public void valueToSanitizedString(@NotNull final Long value,
                                      @NotNull final ByteStringBuffer buffer)
   {
-    buffer.append(StaticUtils.encodeRFC3339Time(value));
+    buffer.append(value);
   }
 
 
@@ -158,13 +177,13 @@ public final class RFC3339TimestampAccessLogFieldSyntax
    */
   @Override()
   @NotNull()
-  public Date parseValue(@NotNull final String valueString)
+  public Long parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
                 LogSyntaxException
   {
     try
     {
-      return StaticUtils.decodeRFC3339Time(valueString);
+      return Long.parseLong(valueString);
     }
     catch (final Exception e)
     {
@@ -172,17 +191,17 @@ public final class RFC3339TimestampAccessLogFieldSyntax
       if (valueStringIncludesRedactedComponent(valueString))
       {
         throw new RedactedValueException(
-             ERR_RFC_3339_ACCESS_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
+             ERR_INTEGER_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
       }
       else if (valueStringIncludesTokenizedComponent(valueString))
       {
         throw new TokenizedValueException(
-             ERR_RFC_3339_ACCESS_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
+             ERR_INTEGER_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
       }
       else
       {
         throw new LogSyntaxException(
-             ERR_RFC_3339_ACCESS_LOG_SYNTAX_CANNOT_PARSE.get(), e);
+             ERR_INTEGER_LOG_SYNTAX_CANNOT_PARSE.get(), e);
       }
     }
   }
@@ -197,18 +216,7 @@ public final class RFC3339TimestampAccessLogFieldSyntax
                       @NotNull final String valueString)
   {
     return valueString.equals(REDACTED_STRING) ||
-         valueString.equals(REDACTED_RFC_3339_TIMESTAMP_STRING);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void redactEntireValue(@NotNull final ByteStringBuffer buffer)
-  {
-    buffer.append(REDACTED_RFC_3339_TIMESTAMP_STRING);
+         valueString.equals(REDACTED_INTEGER_STRING);
   }
 
 
@@ -220,6 +228,17 @@ public final class RFC3339TimestampAccessLogFieldSyntax
   public boolean completelyRedactedValueConformsToSyntax()
   {
     return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void redactEntireValue(@NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(REDACTED_INTEGER_STRING);
   }
 
 
@@ -270,7 +289,9 @@ public final class RFC3339TimestampAccessLogFieldSyntax
       return true;
     }
 
-    return valueString.startsWith("8888-");
+    return ((valueString.length() == 19) &&
+         valueString.startsWith("-999999999") &&
+         (! valueString.equals(REDACTED_INTEGER_STRING)));
   }
 
 
@@ -290,17 +311,32 @@ public final class RFC3339TimestampAccessLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void tokenizeEntireValue(@NotNull final Date value,
+  public void tokenizeEntireValue(@NotNull final Long value,
                                   @NotNull final byte[] pepper,
                                   @NotNull final ByteStringBuffer buffer)
   {
-    // Concatenate the long value of the provided date and the pepper, and
-    // generate a SHA-256 digest from the result.
+    // Get the bytes that comprise the bitwise encoding of the provided value.
+    final long longValue = value;
+    final byte[] valueBytes =
+    {
+      (byte) ((longValue >> 56) & 0xFFL),
+      (byte) ((longValue >> 48) & 0xFFL),
+      (byte) ((longValue >> 40) & 0xFFL),
+      (byte) ((longValue >> 32) & 0xFFL),
+      (byte) ((longValue >> 24) & 0xFFL),
+      (byte) ((longValue >> 16) & 0xFFL),
+      (byte) ((longValue >> 8) & 0xFFL),
+      (byte) (longValue & 0xFFL)
+    };
+
+
+    // Concatenate the value bytes and the pepper and compute a SHA-256 digest
+    // of the result.
     final byte[] tokenDigest;
     final ByteStringBuffer tempBuffer = getTemporaryBuffer();
     try
     {
-      tempBuffer.append(value.getTime());
+      tempBuffer.append(valueBytes);
       tempBuffer.append(pepper);
       tokenDigest = sha256(tempBuffer);
     }
@@ -310,26 +346,37 @@ public final class RFC3339TimestampAccessLogFieldSyntax
     }
 
 
-    // Generate a long value from the first eight digits of the digest.
-    long tokenizedTime = 0L;
-    for (int i=0; i < 8; i++)
+    // Use the first four bytes of the token digest to generate a positive
+    // integer whose string representation is exactly ten digits long.  To do
+    // this, AND the first byte with 0x7F (which will make it positive) and OR
+    // the first byte with 0x40 (which will ensure that the value will be
+    // greater than or equal to 1073741824, and we already know that int
+    // values cannot exceed 2147483647, so that means it will be exactly ten
+    // digits).
+    final int tokenValueInt =
+         (((tokenDigest[0] & 0x7F) | 0x40) << 24) |
+         ((tokenDigest[1] & 0xFF) << 16) |
+         ((tokenDigest[2] & 0xFF) << 8) |
+         (tokenDigest[3] & 0xFF);
+
+
+    // Take the last nine digits of the string representation of the generated
+    // integer.
+    String tokenDigits = String.valueOf(tokenValueInt).substring(1);
+
+
+    // Make sure that the resulting nine-digit string is not "999999999", so
+    // that the tokenized value won't be confused with a redacted value.
+    if (tokenDigits.equals("999999999"))
     {
-      tokenizedTime <<= 8;
-      tokenizedTime |= (tokenDigest[i] & 0xFFL);
+      tokenDigits = "000000000";
     }
 
 
-    // Create a Gregorian calendar in the UTC time zone, seed it with the
-    // tokenized time, and set the year to 8888.
-    final GregorianCalendar tokenCalendar =
-         new GregorianCalendar(StaticUtils.getUTCTimeZone());
-    tokenCalendar.setTimeInMillis(tokenizedTime);
-    tokenCalendar.set(GregorianCalendar.YEAR, TOKENIZED_DATE_YEAR);
-
-
-    // Append an RFC 3339 timestamp representation of the calendar value to the
-    // provided buffer.
-    buffer.append(StaticUtils.encodeRFC3339Time(tokenCalendar.getTime()));
+    // Finally, generate the tokenized representation.  It will be "-999999999"
+    // followed by the token digits generated above.
+    buffer.append("-999999999");
+    buffer.append(tokenDigits);
   }
 
 

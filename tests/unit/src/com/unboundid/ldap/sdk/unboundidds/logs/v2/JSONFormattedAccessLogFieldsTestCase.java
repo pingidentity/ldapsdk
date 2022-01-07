@@ -68,7 +68,7 @@ public final class JSONFormattedAccessLogFieldsTestCase
     int numFieldConstants = 0;
     for (final Field f : JSONFormattedAccessLogFields.class.getDeclaredFields())
     {
-      if (f.getType().isAssignableFrom(AccessLogField.class))
+      if (f.getType().isAssignableFrom(LogField.class))
       {
         numFieldConstants++;
 

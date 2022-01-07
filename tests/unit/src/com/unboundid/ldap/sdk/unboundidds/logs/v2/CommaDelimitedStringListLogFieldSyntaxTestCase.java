@@ -48,10 +48,9 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the string access log field
- * syntax.
+ * This class provides a set of test cases for the string log field syntax.
  */
-public final class CommaDelimitedStringListAccessLogFieldSyntaxTestCase
+public final class CommaDelimitedStringListLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -63,8 +62,8 @@ public final class CommaDelimitedStringListAccessLogFieldSyntaxTestCase
   public void testSyntax()
          throws Exception
   {
-    final CommaDelimitedStringListAccessLogFieldSyntax syntax =
-         new CommaDelimitedStringListAccessLogFieldSyntax(100);
+    final CommaDelimitedStringListLogFieldSyntax syntax =
+         new CommaDelimitedStringListLogFieldSyntax(100);
 
     assertEquals(syntax.getMaxStringLengthCharacters(), 100);
 

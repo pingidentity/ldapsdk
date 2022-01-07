@@ -56,10 +56,9 @@ import com.unboundid.util.json.JSONValue;
 
 
 /**
- * This class provides a set of test cases for the JSON access log field
- * syntax.
+ * This class provides a set of test cases for the JSON log field syntax.
  */
-public final class JSONAccessLogFieldSyntaxTestCase
+public final class JSONLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -71,8 +70,7 @@ public final class JSONAccessLogFieldSyntaxTestCase
   public void testBasicSyntax()
          throws Exception
   {
-    final JSONAccessLogFieldSyntax syntax =
-         new JSONAccessLogFieldSyntax(10, null, null);
+    final JSONLogFieldSyntax syntax = new JSONLogFieldSyntax(10, null, null);
 
     assertEquals(syntax.getMaxStringLengthCharacters(), 10);
 
@@ -273,8 +271,8 @@ public final class JSONAccessLogFieldSyntaxTestCase
   {
     final Set<String> includeFields = StaticUtils.setOf("a", "b", "c");
 
-    final JSONAccessLogFieldSyntax syntax =
-         new JSONAccessLogFieldSyntax(10, includeFields, null);
+    final JSONLogFieldSyntax syntax =
+         new JSONLogFieldSyntax(10, includeFields, null);
 
     assertNotNull(syntax.getIncludedSensitiveFields());
     assertEquals(syntax.getIncludedSensitiveFields(), includeFields);
@@ -363,8 +361,8 @@ public final class JSONAccessLogFieldSyntaxTestCase
   {
     final Set<String> excludeFields = StaticUtils.setOf("a", "b", "c");
 
-    final JSONAccessLogFieldSyntax syntax =
-         new JSONAccessLogFieldSyntax(10, null, excludeFields);
+    final JSONLogFieldSyntax syntax =
+         new JSONLogFieldSyntax(10, null, excludeFields);
 
     assertNotNull(syntax.getIncludedSensitiveFields());
     assertTrue(syntax.getIncludedSensitiveFields().isEmpty());

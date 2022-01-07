@@ -46,10 +46,9 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the integer access log field
- * syntax.
+ * This class provides a set of test cases for the integer log field syntax.
  */
-public final class IntegerAccessLogFieldSyntaxTestCase
+public final class IntegerLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -61,8 +60,7 @@ public final class IntegerAccessLogFieldSyntaxTestCase
   public void testSyntax()
          throws Exception
   {
-    final IntegerAccessLogFieldSyntax syntax =
-         IntegerAccessLogFieldSyntax.getInstance();
+    final IntegerLogFieldSyntax syntax = IntegerLogFieldSyntax.getInstance();
 
     assertNotNull(syntax.getSyntaxName());
     assertEquals(syntax.getSyntaxName(), "integer");

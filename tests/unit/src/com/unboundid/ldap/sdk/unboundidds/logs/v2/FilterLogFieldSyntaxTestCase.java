@@ -50,10 +50,9 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the filter access log field
- * syntax.
+ * This class provides a set of test cases for the filter log field syntax.
  */
-public final class FilterAccessLogFieldSyntaxTestCase
+public final class FilterLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -65,8 +64,8 @@ public final class FilterAccessLogFieldSyntaxTestCase
   public void testBasic()
          throws Exception
   {
-    final FilterAccessLogFieldSyntax syntax =
-         new FilterAccessLogFieldSyntax(10, null, null, null);
+    final FilterLogFieldSyntax syntax =
+         new FilterLogFieldSyntax(10, null, null, null);
 
     assertEquals(syntax.getMaxStringLengthCharacters(), 10);
 
@@ -233,8 +232,8 @@ public final class FilterAccessLogFieldSyntaxTestCase
   {
     // Test with a syntax that doesn't have any included or excluded sensitive
     // attribute types.
-    final FilterAccessLogFieldSyntax syntaxForAllTypes =
-         new FilterAccessLogFieldSyntax(10, null, null, null);
+    final FilterLogFieldSyntax syntaxForAllTypes =
+         new FilterLogFieldSyntax(10, null, null, null);
 
     final Filter filter = Filter.create(filterString);
 
@@ -266,8 +265,8 @@ public final class FilterAccessLogFieldSyntaxTestCase
 
 
     // Test with a syntax that includes only the 'a' attribute type.
-    final FilterAccessLogFieldSyntax syntaxIncludesA =
-         new FilterAccessLogFieldSyntax(10, Schema.getDefaultStandardSchema(),
+    final FilterLogFieldSyntax syntaxIncludesA =
+         new FilterLogFieldSyntax(10, Schema.getDefaultStandardSchema(),
               Collections.singleton("a"), null);
 
     assertEquals(syntaxIncludesA.valueToSanitizedString(filter),
@@ -297,8 +296,8 @@ public final class FilterAccessLogFieldSyntaxTestCase
 
 
     // Test with a syntax that excludes only the 'a' attribute type.
-    final FilterAccessLogFieldSyntax syntaxExcludesA =
-         new FilterAccessLogFieldSyntax(10, null, null,
+    final FilterLogFieldSyntax syntaxExcludesA =
+         new FilterLogFieldSyntax(10, null, null,
               Collections.singleton("a"));
 
     assertEquals(syntaxExcludesA.valueToSanitizedString(filter),

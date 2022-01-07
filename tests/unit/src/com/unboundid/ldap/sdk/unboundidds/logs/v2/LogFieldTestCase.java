@@ -44,29 +44,28 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 
 
 /**
- * This class provides a set of tests for the {@code AccessLogField} class.
+ * This class provides a set of tests for the {@code LogField} class.
  */
-public final class AccessLogFieldTestCase
+public final class LogFieldTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Tests the behavior of the access log field.
+   * Tests the behavior of the log field.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testAccessLogField()
+  public void testLogField()
          throws Exception
   {
-    final AccessLogField field = new AccessLogField("the-field-name",
-         BooleanAccessLogFieldSyntax.getInstance());
+    final LogField field = new LogField("the-field-name",
+         BooleanLogFieldSyntax.getInstance());
 
     assertNotNull(field.getFieldName());
     assertEquals(field.getFieldName(), "the-field-name");
 
     assertNotNull(field.getExpectedSyntax());
-    assertTrue(
-         field.getExpectedSyntax() instanceof BooleanAccessLogFieldSyntax);
+    assertTrue(field.getExpectedSyntax() instanceof BooleanLogFieldSyntax);
 
     assertNotNull(field.toString());
     assertFalse(field.toString().isEmpty());

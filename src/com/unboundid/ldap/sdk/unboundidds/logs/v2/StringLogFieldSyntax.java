@@ -37,11 +37,6 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
@@ -50,9 +45,9 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This class defines an access log field syntax for values that are a
- * comma-delimited list of strings.  This syntax does support redacting and
- * tokenizing the individual items in the list.
+ * This class defines a log field syntax for values that are arbitrary strings.
+ * This syntax does not support redacting or tokenizing individual components
+ * within the strings.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -65,19 +60,18 @@ import com.unboundid.util.ThreadSafetyLevel;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class CommaDelimitedStringListAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<List<String>>
+public final class StringLogFieldSyntax
+       extends LogFieldSyntax<String>
 {
   /**
    * The name for this syntax.
    */
-  @NotNull public static final String SYNTAX_NAME =
-       "comma-delimited-string-list";
+  @NotNull public static final String SYNTAX_NAME = "string";
 
 
 
   /**
-   * Creates a new instance of this access log field syntax implementation.
+   * Creates a new instance of this log field syntax implementation.
    *
    * @param  maxStringLengthCharacters  The maximum length (in characters) to
    *                                    use for strings within values.  Strings
@@ -86,8 +80,7 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
    *                                    This value must be greater than or equal
    *                                    to zero.
    */
-  public CommaDelimitedStringListAccessLogFieldSyntax(
-              final int maxStringLengthCharacters)
+  public StringLogFieldSyntax(final int maxStringLengthCharacters)
   {
     super(maxStringLengthCharacters);
   }
@@ -110,18 +103,10 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void valueToSanitizedString(@NotNull final List<String> value,
+  public void valueToSanitizedString(@NotNull final String value,
                                      @NotNull final ByteStringBuffer buffer)
   {
-    final Iterator<String> iterator = value.iterator();
-    while (iterator.hasNext())
-    {
-      sanitize(iterator.next(), buffer);
-      if (iterator.hasNext())
-      {
-        buffer.append(',');
-      }
-    }
+    sanitize(value, buffer);
   }
 
 
@@ -131,27 +116,9 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
    */
   @Override()
   @NotNull()
-  public List<String> parseValue(@NotNull final String valueString)
+  public String parseValue(@NotNull final String valueString)
   {
-    final List<String> list = new ArrayList<>();
-    int lastCommaPos = -1;
-    int commaPos = valueString.indexOf(',');
-    while (commaPos >= 0)
-    {
-      final String item =
-           valueString.substring((lastCommaPos + 1), commaPos).trim();
-      list.add(item);
-      lastCommaPos = commaPos;
-      commaPos = valueString.indexOf(',', (lastCommaPos + 1));
-    }
-
-    final String item = valueString.substring(lastCommaPos + 1).trim();
-    if (! (item.isEmpty() && list.isEmpty()))
-    {
-      list.add(item);
-    }
-
-    return Collections.unmodifiableList(list);
+    return valueString;
   }
 
 
@@ -173,7 +140,7 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
   @Override()
   public boolean supportsRedactedComponents()
   {
-    return true;
+    return false;
   }
 
 
@@ -193,27 +160,6 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void redactComponents(@NotNull final List<String> value,
-                               @NotNull final ByteStringBuffer buffer)
-  {
-    final Iterator<String> iterator = value.iterator();
-    while (iterator.hasNext())
-    {
-      buffer.append(REDACTED_STRING);
-      iterator.next();
-      if (iterator.hasNext())
-      {
-        buffer.append(',');
-      }
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
   public boolean completelyTokenizedValueConformsToSyntax()
   {
     return true;
@@ -225,33 +171,11 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  @NotNull()
-  public String tokenizeEntireValue(@NotNull final List<String> value,
-                                    @NotNull final byte[] pepper)
-  {
-    final ByteStringBuffer buffer = getTemporaryBuffer();
-    try
-    {
-      tokenizeEntireValue(value, pepper, buffer);
-      return buffer.toString();
-    }
-    finally
-    {
-      releaseTemporaryBuffer(buffer);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void tokenizeEntireValue(@NotNull final List<String> value,
+  public void tokenizeEntireValue(@NotNull final String value,
                                   @NotNull final byte[] pepper,
                                   @NotNull final ByteStringBuffer buffer)
   {
-    tokenize(valueToSanitizedString(value), pepper, buffer);
+    tokenize(value, pepper, buffer);
   }
 
 
@@ -262,7 +186,7 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
   @Override()
   public boolean supportsTokenizedComponents()
   {
-    return true;
+    return false;
   }
 
 
@@ -274,27 +198,5 @@ public final class CommaDelimitedStringListAccessLogFieldSyntax
   public boolean valueWithTokenizedComponentsConformsToSyntax()
   {
     return true;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void tokenizeComponents(@NotNull final List<String> value,
-                                 @NotNull final byte[] pepper,
-                                 @NotNull final ByteStringBuffer buffer)
-  {
-    final Iterator<String> iterator = value.iterator();
-    while (iterator.hasNext())
-    {
-      buffer.append(tokenize(iterator.next(), pepper));
-
-      if (iterator.hasNext())
-      {
-        buffer.append(',');
-      }
-    }
   }
 }

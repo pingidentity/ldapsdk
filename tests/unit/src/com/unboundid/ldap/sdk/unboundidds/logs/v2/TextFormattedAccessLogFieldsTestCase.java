@@ -68,7 +68,7 @@ public final class TextFormattedAccessLogFieldsTestCase
     int numFieldConstants = 0;
     for (final Field f : TextFormattedAccessLogFields.class.getDeclaredFields())
     {
-      if (f.getType().isAssignableFrom(AccessLogField.class))
+      if (f.getType().isAssignableFrom(LogField.class))
       {
         numFieldConstants++;
 

@@ -45,10 +45,9 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the access log field syntax
- * base class.
+ * This class provides a set of test cases for the log field syntax base class.
  */
-public final class AccessLogFieldSyntaxTestCase
+public final class LogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -63,8 +62,8 @@ public final class AccessLogFieldSyntaxTestCase
   {
     for (int i=0; i < 10; i++)
     {
-      final StringAccessLogFieldSyntax syntax =
-           new StringAccessLogFieldSyntax(i);
+      final StringLogFieldSyntax syntax =
+           new StringLogFieldSyntax(i);
       assertEquals(syntax.getMaxStringLengthCharacters(), i);
     }
 
@@ -81,8 +80,7 @@ public final class AccessLogFieldSyntaxTestCase
   public void testValueToSanitizedString()
          throws Exception
   {
-    final StringAccessLogFieldSyntax syntax =
-         new StringAccessLogFieldSyntax(10);
+    final StringLogFieldSyntax syntax = new StringLogFieldSyntax(10);
 
 
     // Test a value that doesn't require any sanitization.
@@ -158,8 +156,7 @@ public final class AccessLogFieldSyntaxTestCase
   public void testSanitize()
          throws Exception
   {
-    final StringAccessLogFieldSyntax syntax =
-         new StringAccessLogFieldSyntax(10);
+    final StringLogFieldSyntax syntax = new StringLogFieldSyntax(10);
 
 
     // Test a value that doesn't require any sanitization.
@@ -233,8 +230,7 @@ public final class AccessLogFieldSyntaxTestCase
   public void testRedact()
          throws Exception
   {
-    final StringAccessLogFieldSyntax syntax =
-         new StringAccessLogFieldSyntax(100);
+    final StringLogFieldSyntax syntax = new StringLogFieldSyntax(100);
 
 
     // Test redacting a complete value.
@@ -279,8 +275,7 @@ public final class AccessLogFieldSyntaxTestCase
   public void testTokenize()
          throws Exception
   {
-    final StringAccessLogFieldSyntax syntax =
-         new StringAccessLogFieldSyntax(100);
+    final StringLogFieldSyntax syntax = new StringLogFieldSyntax(100);
 
 
     // Tokenize a value with the test pepper.

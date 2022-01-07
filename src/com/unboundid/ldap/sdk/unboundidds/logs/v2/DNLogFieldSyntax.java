@@ -57,11 +57,11 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 
 /**
- * This class defines an access log field syntax for distinguished name values.
- * This syntax allows individual attribute values to be redacted or tokenized
- * within the DNs.  If a DN is completely redacted, then the redacted
- * representation will be "<code>redacted={REDACTED}</code>".  If a DN is
- * completely tokenized, then the tokenized representation will be
+ * This class defines a log field syntax for distinguished name values.  This
+ * syntax allows individual attribute values to be redacted or tokenized within
+ * the DNs.  If a DN is completely redacted, then the redacted representation
+ * will be "<code>redacted={REDACTED}</code>".  If a DN is completely tokenized,
+ * then the tokenized representation will be
  * "<code>tokenized={TOKENIZED:token-value}</code>", where token-value will be
  * replaced with a generated value.
  * <BR>
@@ -76,8 +76,8 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class DNAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<DN>
+public final class DNLogFieldSyntax
+       extends LogFieldSyntax<DN>
 {
   /**
    * The name for this syntax.
@@ -113,8 +113,8 @@ public final class DNAccessLogFieldSyntax
 
 
   /**
-   * Creates a new DN access log field syntax instance that can optionally
-   * define specific attributes to include in or exclude from redaction or
+   * Creates a new DN log field syntax instance that can optionally define
+   * specific attributes to include in or exclude from redaction or
    * tokenization.  If any include attributes are specified, then only the
    * values of those attributes will be considered sensitive and will have
    * their values tokenized or redacted.  If any exclude
@@ -151,7 +151,7 @@ public final class DNAccessLogFieldSyntax
    *                                      sensitive attributes should be
    *                                      defined.
    */
-  public DNAccessLogFieldSyntax(
+  public DNLogFieldSyntax(
               final int maxStringLengthCharacters,
               @Nullable final Schema schema,
               @Nullable final Collection<String> includedSensitiveAttributes,
@@ -267,17 +267,17 @@ public final class DNAccessLogFieldSyntax
       if (valueStringIsCompletelyRedacted(valueString))
       {
         throw new RedactedValueException(
-             ERR_DN_ACCESS_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
+             ERR_DN_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
       }
       else if (valueStringIsCompletelyTokenized(valueString))
       {
         throw new TokenizedValueException(
-             ERR_DN_ACCESS_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
+             ERR_DN_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
       }
       else
       {
         throw new LogSyntaxException(
-             ERR_DN_ACCESS_LOG_SYNTAX_CANNOT_PARSE.get(), e);
+             ERR_DN_LOG_SYNTAX_CANNOT_PARSE.get(), e);
       }
     }
   }

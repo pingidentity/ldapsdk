@@ -47,10 +47,10 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the generalized time access log
- * field syntax.
+ * This class provides a set of test cases for the generalized time log field
+ * syntax.
  */
-public final class GeneralizedTimeAccessLogFieldSyntaxTestCase
+public final class GeneralizedTimeLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -62,8 +62,8 @@ public final class GeneralizedTimeAccessLogFieldSyntaxTestCase
   public void testSyntax()
          throws Exception
   {
-    final GeneralizedTimeAccessLogFieldSyntax syntax =
-         GeneralizedTimeAccessLogFieldSyntax.getInstance();
+    final GeneralizedTimeLogFieldSyntax syntax =
+         GeneralizedTimeLogFieldSyntax.getInstance();
 
     assertNotNull(syntax.getSyntaxName());
     assertEquals(syntax.getSyntaxName(), "generalized-time");

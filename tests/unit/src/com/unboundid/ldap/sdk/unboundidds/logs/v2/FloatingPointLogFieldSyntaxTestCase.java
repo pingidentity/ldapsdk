@@ -46,10 +46,10 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the Boolean access log field
+ * This class provides a set of test cases for the floating-point log field
  * syntax.
  */
-public final class BooleanAccessLogFieldSyntaxTestCase
+public final class FloatingPointLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -61,24 +61,25 @@ public final class BooleanAccessLogFieldSyntaxTestCase
   public void testSyntax()
          throws Exception
   {
-    final BooleanAccessLogFieldSyntax syntax =
-         BooleanAccessLogFieldSyntax.getInstance();
+    final FloatingPointLogFieldSyntax syntax =
+         FloatingPointLogFieldSyntax.getInstance();
 
     assertNotNull(syntax.getSyntaxName());
-    assertEquals(syntax.getSyntaxName(), "boolean");
+    assertEquals(syntax.getSyntaxName(), "floating-point");
 
-    assertNotNull(syntax.valueToSanitizedString(true));
-    assertEquals(syntax.valueToSanitizedString(true), "true");
+    assertNotNull(syntax.valueToSanitizedString(1.5d));
+    assertEquals(syntax.valueToSanitizedString(1.5d), "1.5");
 
     final ByteStringBuffer buffer = new ByteStringBuffer();
-    syntax.valueToSanitizedString(false, buffer);
-    assertEquals(buffer.toString(), "false");
+    syntax.valueToSanitizedString(2.5d, buffer);
+    assertEquals(buffer.toString(), "2.5");
 
-    assertNotNull(syntax.parseValue("true"));
-    assertEquals(syntax.parseValue("true"), Boolean.TRUE);
+    buffer.clear();
+    syntax.valueToSanitizedString(3.5f, buffer);
+    assertEquals(buffer.toString(), "3.5");
 
-    assertNotNull(syntax.parseValue("false"));
-    assertEquals(syntax.parseValue("false"), Boolean.FALSE);
+    assertNotNull(syntax.parseValue("1.5"));
+    assertEquals(syntax.parseValue("1.5"), Double.valueOf(1.5d));
 
     try
     {
@@ -112,45 +113,62 @@ public final class BooleanAccessLogFieldSyntaxTestCase
            (e instanceof TokenizedValueException));
     }
 
-    assertFalse(syntax.completelyRedactedValueConformsToSyntax());
+    assertTrue(syntax.valueStringIsCompletelyRedacted("{REDACTED}"));
+    assertTrue(syntax.valueStringIsCompletelyRedacted("-999999.999999"));
+    assertFalse(syntax.valueStringIsCompletelyRedacted("1.5"));
+    assertFalse(syntax.valueStringIsCompletelyRedacted("malformed"));
+
+    assertTrue(syntax.completelyRedactedValueConformsToSyntax());
 
     assertNotNull(syntax.redactEntireValue());
-    assertEquals(syntax.redactEntireValue(), "{REDACTED}");
+    assertEquals(syntax.redactEntireValue(), "-999999.999999");
 
     assertFalse(syntax.supportsRedactedComponents());
 
-    assertFalse(syntax.valueStringIncludesRedactedComponent("true"));
     assertTrue(syntax.valueStringIncludesRedactedComponent("{REDACTED}"));
-    assertTrue(syntax.valueStringIncludesRedactedComponent("a{REDACTED}b"));
+    assertTrue(syntax.valueStringIncludesRedactedComponent(
+         "-999999.999999"));
+    assertFalse(syntax.valueStringIncludesRedactedComponent("1.5"));
 
-    assertFalse(syntax.valueWithRedactedComponentsConformsToSyntax());
+    assertTrue(syntax.valueWithRedactedComponentsConformsToSyntax());
 
-    assertNotNull(syntax.redactComponents(true));
-    assertEquals(syntax.redactComponents(true), "{REDACTED}");
+    assertNotNull(syntax.redactComponents(1.5d));
+    assertEquals(syntax.redactComponents(1.5d), "-999999.999999");
 
-    assertNotNull(syntax.redactComponents(false));
-    assertEquals(syntax.redactComponents(false), "{REDACTED}");
+    assertFalse(syntax.valueStringIsCompletelyTokenized("1.5"));
+    assertFalse(syntax.valueStringIsCompletelyTokenized("-999999.999999"));
+    assertTrue(syntax.valueStringIsCompletelyTokenized("-999999.123456"));
+    assertTrue(syntax.valueStringIsCompletelyTokenized("{TOKENIZED:abcdef}"));
 
-    assertFalse(syntax.valueStringIsCompletelyTokenized("true"));
-    assertFalse(syntax.valueStringIsCompletelyTokenized("false"));
-
-    assertFalse(syntax.completelyTokenizedValueConformsToSyntax());
+    assertTrue(syntax.completelyTokenizedValueConformsToSyntax());
 
     final byte[] pepper = StaticUtils.randomBytes(8, false);
-    assertNotNull(syntax.tokenizeEntireValue(true, pepper));
-    assertTrue(syntax.tokenizeEntireValue(true, pepper).startsWith(
-         "{TOKENIZED:"));
-    assertTrue(syntax.tokenizeEntireValue(true, pepper).endsWith("}"));
+    assertNotNull(syntax.tokenizeEntireValue(1.5d, pepper));
+    assertTrue(syntax.tokenizeEntireValue(1.5d, pepper).startsWith(
+         "-999999."));
+    assertFalse(syntax.tokenizeEntireValue(1.5d, pepper).equals(
+         "-999999.999999"));
+    Double.parseDouble(syntax.tokenizeEntireValue(1.5d, pepper));
+    assertEquals(syntax.tokenizeEntireValue(1.5d, pepper),
+         syntax.tokenizeEntireValue(1.5d, pepper));
 
     assertFalse(syntax.supportsTokenizedComponents());
 
     assertFalse(syntax.valueStringIncludesTokenizedComponent("test"));
+    assertFalse(syntax.valueStringIncludesTokenizedComponent("1.5"));
+    assertFalse(syntax.valueStringIncludesTokenizedComponent(
+         "-999999.999999"));
+    assertTrue(syntax.valueStringIncludesTokenizedComponent(
+         "-999999.123456"));
+    assertTrue(syntax.valueStringIncludesTokenizedComponent(
+         "{TOKENIZED:abcdef}"));
 
-    assertFalse(syntax.valueWithTokenizedComponentsConformsToSyntax());
+    assertTrue(syntax.valueWithTokenizedComponentsConformsToSyntax());
 
-    assertNotNull(syntax.tokenizeComponents(true, pepper));
-    assertTrue(syntax.tokenizeComponents(true, pepper).
-         startsWith("{TOKENIZED:"));
-    assertTrue(syntax.tokenizeComponents(true, pepper).endsWith("}"));
+    assertNotNull(syntax.tokenizeComponents(1.5d, pepper));
+    assertTrue(syntax.tokenizeComponents(1.5d, pepper).
+         startsWith("-999999."));
+    assertFalse(syntax.tokenizeComponents(1.5d, pepper).equals(
+         "-999999.999999"));
   }
 }

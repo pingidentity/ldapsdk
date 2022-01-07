@@ -48,9 +48,8 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 
 /**
- * This class defines an access log field syntax for Boolean values.  This
- * syntax does not support redacting or tokenizing individual components within
- * the values.
+ * This class defines a log field syntax for Boolean values.  This syntax does
+ * not support redacting or tokenizing individual components within the values.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -63,8 +62,8 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class BooleanAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<Boolean>
+public final class BooleanLogFieldSyntax
+       extends LogFieldSyntax<Boolean>
 {
   /**
    * The name for this syntax.
@@ -74,17 +73,17 @@ public final class BooleanAccessLogFieldSyntax
 
 
   /**
-   * A singleton instance of this access log field syntax.
+   * A singleton instance of this log field syntax.
    */
-  @NotNull private static final BooleanAccessLogFieldSyntax INSTANCE =
-       new BooleanAccessLogFieldSyntax();
+  @NotNull private static final BooleanLogFieldSyntax INSTANCE =
+       new BooleanLogFieldSyntax();
 
 
 
   /**
-   * Creates a new instance of this access log field syntax implementation.
+   * Creates a new instance of this log field syntax implementation.
    */
-  private BooleanAccessLogFieldSyntax()
+  private BooleanLogFieldSyntax()
   {
     super(100);
   }
@@ -92,12 +91,12 @@ public final class BooleanAccessLogFieldSyntax
 
 
   /**
-   * Retrieves a singleton instance of this access log field syntax.
+   * Retrieves a singleton instance of this log field syntax.
    *
-   * @return  A singleton instance of this access log field syntax.
+   * @return  A singleton instance of this log field syntax.
    */
   @NotNull()
-  public static BooleanAccessLogFieldSyntax getInstance()
+  public static BooleanLogFieldSyntax getInstance()
   {
     return INSTANCE;
   }
@@ -161,17 +160,17 @@ public final class BooleanAccessLogFieldSyntax
     else if (valueStringIncludesRedactedComponent(valueString))
     {
       throw new RedactedValueException(
-           ERR_BOOLEAN_ACCESS_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get());
+           ERR_BOOLEAN_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get());
     }
     else if (valueStringIncludesTokenizedComponent(valueString))
     {
       throw new TokenizedValueException(
-           ERR_BOOLEAN_ACCESS_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get());
+           ERR_BOOLEAN_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get());
     }
     else
     {
       throw new LogSyntaxException(
-           ERR_BOOLEAN_ACCESS_LOG_SYNTAX_CANNOT_PARSE.get());
+           ERR_BOOLEAN_LOG_SYNTAX_CANNOT_PARSE.get());
     }
   }
 

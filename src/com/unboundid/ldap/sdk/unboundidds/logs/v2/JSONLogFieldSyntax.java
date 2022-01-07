@@ -64,12 +64,11 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
 
 /**
- * This class defines an access log field syntax for values that are JSON
- * objects.  This syntax allows individual field values to be redacted or
- * tokenized within the JSON objects.  If a JSON object is completely redacted,
- * then the redacted representation will be
- * <code>{ "redacted":"{REDACTED}" }</code>".  If a JSON object is
- * completely tokenized, then the tokenized representation will be
+ * This class defines a log field syntax for values that are JSON objects.  This
+ * syntax allows individual field values to be redacted or tokenized within the
+ * JSON objects.  If a JSON object is completely redacted, then the redacted
+ * representation will be <code>{ "redacted":"{REDACTED}" }</code>.  If a JSON
+ * object is completely tokenized, then the tokenized representation will be
  * <code>{ "tokenized":"{TOKENIZED:token-value}" }</code>", where token-value
  * will be replaced with a generated value.
  * <BR>
@@ -84,8 +83,8 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONAccessLogFieldSyntax
-       extends AccessLogFieldSyntax<JSONObject>
+public final class JSONLogFieldSyntax
+       extends LogFieldSyntax<JSONObject>
 {
   /**
    * The name for this syntax.
@@ -119,14 +118,14 @@ public final class JSONAccessLogFieldSyntax
 
 
   /**
-   * Creates a new JSON access log field syntax instance that can optionally
-   * define specific fields to include in or exclude from redaction or
-   * tokenization.  If any include fields are specified, then only the values of
-   * those fields will be considered sensitive and will have their values
-   * tokenized or redacted.  If any exclude fields are specified, then the
-   * values of any fields except those will be considered sensitive.  If no
-   * include fields and no exclude fields are specified, then all fields will be
-   * considered sensitive and will have their values tokenized or redacted.
+   * Creates a new JSON log field syntax instance that can optionally define
+   * specific fields to include in or exclude from redaction or tokenization.
+   * If any include fields are specified, then only the values of those fields
+   * will be considered sensitive and will have their values tokenized or
+   * redacted.  If any exclude fields are specified, then the values of any
+   * fields except those will be considered sensitive.  If no include fields and
+   * no exclude fields are specified, then all fields will be considered
+   * sensitive and will have their values tokenized or redacted.
    *
    * @param  maxStringLengthCharacters  The maximum length (in characters) to
    *                                    use for strings within values.  Strings
@@ -150,7 +149,7 @@ public final class JSONAccessLogFieldSyntax
    *                                    excluded sensitive fields should be
    *                                    defined.
    */
-  public JSONAccessLogFieldSyntax(
+  public JSONLogFieldSyntax(
               final int maxStringLengthCharacters,
               @Nullable final Collection<String> includedSensitiveFields,
               @Nullable final Collection<String> excludedSensitiveFields)
@@ -323,17 +322,17 @@ public final class JSONAccessLogFieldSyntax
       if (valueStringIsCompletelyRedacted(valueString))
       {
         throw new RedactedValueException(
-             ERR_JSON_ACCESS_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
+             ERR_JSON_LOG_SYNTAX_CANNOT_PARSE_REDACTED.get(), e);
       }
       else if (valueStringIsCompletelyTokenized(valueString))
       {
         throw new TokenizedValueException(
-             ERR_JSON_ACCESS_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
+             ERR_JSON_LOG_SYNTAX_CANNOT_PARSE_TOKENIZED.get(), e);
       }
       else
       {
         throw new LogSyntaxException(
-             ERR_JSON_ACCESS_LOG_SYNTAX_CANNOT_PARSE.get(), e);
+             ERR_JSON_LOG_SYNTAX_CANNOT_PARSE.get(), e);
       }
     }
   }

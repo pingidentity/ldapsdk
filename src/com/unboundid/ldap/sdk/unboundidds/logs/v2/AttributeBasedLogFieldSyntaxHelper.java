@@ -147,8 +147,8 @@ final class AttributeBasedLogFieldSyntaxHelper
   /**
    * Obtains a token for the specified attribute value.
    *
-   * @param  syntax          The associated access log field syntax instance.
-   *                         It must not be {@code null}.
+   * @param  syntax          The associated log field syntax instance.  It must
+   *                         not be {@code null}.
    * @param  schema          The schema to use in processing.  It may be
    *                         {@code null} if no schema is available.
    * @param  attributeName   The name of the attribute containing the provided
@@ -168,7 +168,7 @@ final class AttributeBasedLogFieldSyntaxHelper
    * @return  The token for the provided attribute value.
    */
   @NotNull()
-  static String tokenizeValue(@NotNull final AccessLogFieldSyntax<?> syntax,
+  static String tokenizeValue(@NotNull final LogFieldSyntax<?> syntax,
                               @Nullable final Schema schema,
                               @NotNull final String attributeName,
                               @NotNull final byte[] attributeValue,

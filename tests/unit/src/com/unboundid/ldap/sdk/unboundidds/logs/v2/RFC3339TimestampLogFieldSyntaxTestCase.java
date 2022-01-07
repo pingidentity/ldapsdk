@@ -37,19 +37,20 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 
+import java.util.Date;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
-import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
 
 
 
 /**
- * This class provides a set of test cases for the floating-point access log
- * field syntax.
+ * This class provides a set of test cases for the RFC 3339 timestamp log field
+ * syntax.
  */
-public final class FloatingPointAccessLogFieldSyntaxTestCase
+public final class RFC3339TimestampLogFieldSyntaxTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -61,25 +62,19 @@ public final class FloatingPointAccessLogFieldSyntaxTestCase
   public void testSyntax()
          throws Exception
   {
-    final FloatingPointAccessLogFieldSyntax syntax =
-         FloatingPointAccessLogFieldSyntax.getInstance();
+    final RFC3339TimestampLogFieldSyntax syntax =
+         RFC3339TimestampLogFieldSyntax.getInstance();
 
     assertNotNull(syntax.getSyntaxName());
-    assertEquals(syntax.getSyntaxName(), "floating-point");
+    assertEquals(syntax.getSyntaxName(), "rfc-3339-timestamp");
 
-    assertNotNull(syntax.valueToSanitizedString(1.5d));
-    assertEquals(syntax.valueToSanitizedString(1.5d), "1.5");
+    final Date now = new Date();
+    final String nowString = syntax.valueToSanitizedString(now);
+    assertNotNull(nowString);
+    assertEquals(StaticUtils.decodeRFC3339Time(nowString), now);
 
-    final ByteStringBuffer buffer = new ByteStringBuffer();
-    syntax.valueToSanitizedString(2.5d, buffer);
-    assertEquals(buffer.toString(), "2.5");
-
-    buffer.clear();
-    syntax.valueToSanitizedString(3.5f, buffer);
-    assertEquals(buffer.toString(), "3.5");
-
-    assertNotNull(syntax.parseValue("1.5"));
-    assertEquals(syntax.parseValue("1.5"), Double.valueOf(1.5d));
+    assertNotNull(syntax.parseValue(nowString));
+    assertEquals(syntax.parseValue(nowString), now);
 
     try
     {
@@ -93,12 +88,12 @@ public final class FloatingPointAccessLogFieldSyntaxTestCase
 
     try
     {
-      syntax.parseValue("{TOKENIZED:1234567890ABCDEF}");
+      syntax.parseValue("{TOKENIZED:abcdef}");
       fail("Expected an exception when trying to parse a tokenized value.");
     }
     catch (final TokenizedValueException e)
     {
-      // This was expected
+      // This was expected.
     }
 
     try
@@ -108,67 +103,50 @@ public final class FloatingPointAccessLogFieldSyntaxTestCase
     }
     catch (final LogSyntaxException e)
     {
-      // This was expected.
       assertFalse((e instanceof RedactedValueException) ||
            (e instanceof TokenizedValueException));
     }
 
+    assertFalse(syntax.valueStringIsCompletelyRedacted(nowString));
     assertTrue(syntax.valueStringIsCompletelyRedacted("{REDACTED}"));
-    assertTrue(syntax.valueStringIsCompletelyRedacted("-999999.999999"));
-    assertFalse(syntax.valueStringIsCompletelyRedacted("1.5"));
-    assertFalse(syntax.valueStringIsCompletelyRedacted("malformed"));
+    assertTrue(syntax.valueStringIsCompletelyRedacted(
+         "9999-01-01T00:00:00.000Z"));
+
+    assertNotNull(syntax.redactEntireValue());
+    assertEquals(syntax.redactEntireValue(), "9999-01-01T00:00:00.000Z");
 
     assertTrue(syntax.completelyRedactedValueConformsToSyntax());
 
-    assertNotNull(syntax.redactEntireValue());
-    assertEquals(syntax.redactEntireValue(), "-999999.999999");
-
     assertFalse(syntax.supportsRedactedComponents());
 
+    assertFalse(syntax.valueStringIncludesRedactedComponent(nowString));
     assertTrue(syntax.valueStringIncludesRedactedComponent("{REDACTED}"));
     assertTrue(syntax.valueStringIncludesRedactedComponent(
-         "-999999.999999"));
-    assertFalse(syntax.valueStringIncludesRedactedComponent("1.5"));
+         "9999-01-01T00:00:00.000Z"));
 
     assertTrue(syntax.valueWithRedactedComponentsConformsToSyntax());
 
-    assertNotNull(syntax.redactComponents(1.5d));
-    assertEquals(syntax.redactComponents(1.5d), "-999999.999999");
-
-    assertFalse(syntax.valueStringIsCompletelyTokenized("1.5"));
-    assertFalse(syntax.valueStringIsCompletelyTokenized("-999999.999999"));
-    assertTrue(syntax.valueStringIsCompletelyTokenized("-999999.123456"));
+    assertFalse(syntax.valueStringIsCompletelyTokenized(nowString));
     assertTrue(syntax.valueStringIsCompletelyTokenized("{TOKENIZED:abcdef}"));
+    assertTrue(syntax.valueStringIsCompletelyTokenized(
+         "8888-01-02T12:34:56.789Z"));
 
     assertTrue(syntax.completelyTokenizedValueConformsToSyntax());
 
     final byte[] pepper = StaticUtils.randomBytes(8, false);
-    assertNotNull(syntax.tokenizeEntireValue(1.5d, pepper));
-    assertTrue(syntax.tokenizeEntireValue(1.5d, pepper).startsWith(
-         "-999999."));
-    assertFalse(syntax.tokenizeEntireValue(1.5d, pepper).equals(
-         "-999999.999999"));
-    Double.parseDouble(syntax.tokenizeEntireValue(1.5d, pepper));
-    assertEquals(syntax.tokenizeEntireValue(1.5d, pepper),
-         syntax.tokenizeEntireValue(1.5d, pepper));
+    final String tokenizedNow = syntax.tokenizeEntireValue(now, pepper);
+    assertNotNull(tokenizedNow);
+    assertTrue(tokenizedNow.startsWith("8888-"));
+    assertTrue(syntax.valueStringIsCompletelyTokenized(tokenizedNow));
 
     assertFalse(syntax.supportsTokenizedComponents());
-
-    assertFalse(syntax.valueStringIncludesTokenizedComponent("test"));
-    assertFalse(syntax.valueStringIncludesTokenizedComponent("1.5"));
-    assertFalse(syntax.valueStringIncludesTokenizedComponent(
-         "-999999.999999"));
-    assertTrue(syntax.valueStringIncludesTokenizedComponent(
-         "-999999.123456"));
+    assertFalse(syntax.valueStringIncludesTokenizedComponent(nowString));
     assertTrue(syntax.valueStringIncludesTokenizedComponent(
          "{TOKENIZED:abcdef}"));
+    assertTrue(syntax.valueStringIncludesTokenizedComponent(
+         "8888-01-02T12:34:56.789Z"));
+    assertTrue(syntax.valueStringIncludesTokenizedComponent(tokenizedNow));
 
     assertTrue(syntax.valueWithTokenizedComponentsConformsToSyntax());
-
-    assertNotNull(syntax.tokenizeComponents(1.5d, pepper));
-    assertTrue(syntax.tokenizeComponents(1.5d, pepper).
-         startsWith("-999999."));
-    assertFalse(syntax.tokenizeComponents(1.5d, pepper).equals(
-         "-999999.999999"));
   }
 }
