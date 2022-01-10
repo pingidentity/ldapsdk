@@ -42,7 +42,9 @@ import java.util.Date;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -148,5 +150,109 @@ public final class RFC3339TimestampLogFieldSyntaxTestCase
     assertTrue(syntax.valueStringIncludesTokenizedComponent(tokenizedNow));
 
     assertTrue(syntax.valueWithTokenizedComponentsConformsToSyntax());
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final RFC3339TimestampLogFieldSyntax syntax =
+         RFC3339TimestampLogFieldSyntax.getInstance();
+    final Date now = new Date();
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc", now, buffer);
+    assertEquals(buffer.toString(),
+         " abc=\"" + StaticUtils.encodeRFC3339Time(now) + "\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("def", buffer);
+    assertEquals(buffer.toString(), " def=\"9999-01-01T00:00:00.000Z\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("ghi", now, buffer);
+    assertEquals(buffer.toString(), " ghi=\"9999-01-01T00:00:00.000Z\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("jkl", now, pepper,
+         buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         " jkl=\"8888-"));
+    assertTrue(completelyTokenizedString.endsWith("Z\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("mno", now, pepper,
+         buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" mno=\"8888-"));
+    assertEquals(tokenizedComponentsString,
+         " mno=\"" + completelyTokenizedString.substring(6));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final RFC3339TimestampLogFieldSyntax syntax =
+         RFC3339TimestampLogFieldSyntax.getInstance();
+    final Date now = new Date();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc", now, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"abc\":\"" + StaticUtils.encodeRFC3339Time(now) + "\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("def", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":\"9999-01-01T00:00:00.000Z\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("ghi", now, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"ghi\":\"9999-01-01T00:00:00.000Z\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("jkl", now, pepper,
+         buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         "{ \"jkl\":\"8888-"));
+    assertTrue(completelyTokenizedString.endsWith("Z\" }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("mno", now, pepper,
+         buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "{ \"mno\":\"8888-"));
+    assertEquals(tokenizedComponentsString,
+         "{ \"mno\":" + completelyTokenizedString.substring(8));
   }
 }

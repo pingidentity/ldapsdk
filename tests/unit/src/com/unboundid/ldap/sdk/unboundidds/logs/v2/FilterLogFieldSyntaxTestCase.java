@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 import java.util.Collections;
+import java.util.Set;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,7 +46,9 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -834,5 +837,122 @@ public final class FilterLogFieldSyntaxTestCase
         }
       },
     };
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final Set<String> includedAttributes = StaticUtils.setOf("uid");
+    final Set<String> excludedAttributes = Collections.emptySet();
+    final FilterLogFieldSyntax syntax = new FilterLogFieldSyntax(100, null,
+         includedAttributes, excludedAttributes);
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc",
+         Filter.createEqualityFilter("uid", "test.user"),
+         buffer);
+    assertEquals(buffer.toString(),
+         " abc=\"(uid=test.user)\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("def", buffer);
+    assertEquals(buffer.toString(), " def=\"(redacted={REDACTED})\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("ghi",
+         Filter.createEqualityFilter("uid", "test.user"),
+         buffer);
+    assertEquals(buffer.toString(),
+         " ghi=\"(uid={REDACTED})\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("jkl",
+         Filter.createEqualityFilter("uid", "test.user"),
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         " jkl=\"(tokenized={TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("})\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("mno",
+         Filter.createEqualityFilter("uid", "test.user"),
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" mno=\"(uid={TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith("})\""));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final Set<String> includedAttributes = StaticUtils.setOf("uid");
+    final Set<String> excludedAttributes = Collections.emptySet();
+    final FilterLogFieldSyntax syntax = new FilterLogFieldSyntax(100, null,
+         includedAttributes, excludedAttributes);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc",
+         Filter.createEqualityFilter("uid", "test.user"),
+         buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"abc\":\"(uid=test.user)\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("def", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":\"(redacted={REDACTED})\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("ghi",
+         Filter.createEqualityFilter("uid", "test.user"),
+         buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"ghi\":\"(uid={REDACTED})\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("jkl",
+         Filter.createEqualityFilter("uid", "test.user"),
+         pepper, buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         "{ \"jkl\":\"(tokenized={TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("})\" }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("mno",
+         Filter.createEqualityFilter("uid", "test.user"),
+         pepper, buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "{ \"mno\":\"(uid={TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith("})\" }"));
   }
 }

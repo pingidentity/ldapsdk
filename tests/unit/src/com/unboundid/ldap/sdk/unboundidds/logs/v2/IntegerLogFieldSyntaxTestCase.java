@@ -42,6 +42,7 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -168,5 +169,104 @@ public final class IntegerLogFieldSyntaxTestCase
          startsWith("-999999999"));
     assertFalse(syntax.tokenizeComponents(12345L, pepper).equals(
          "-999999999999999999"));
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final IntegerLogFieldSyntax syntax =
+         IntegerLogFieldSyntax.getInstance();
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc", 1234L, buffer);
+    assertEquals(buffer.toString(), " abc=1234");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("def", buffer);
+    assertEquals(buffer.toString(), " def=-999999999999999999");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("ghi", 1234L, buffer);
+    assertEquals(buffer.toString(), " ghi=-999999999999999999");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("jkl", 1234L, pepper,
+         buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(" jkl=-999999999"));
+    assertFalse(completelyTokenizedString.equals(" jkl=-999999999999999999"));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("mno", 1234L, pepper,
+         buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" mno=-999999999"));
+    assertEquals(tokenizedComponentsString.substring(5),
+         completelyTokenizedString.substring(5));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final IntegerLogFieldSyntax syntax =
+         IntegerLogFieldSyntax.getInstance();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc", 1234L, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"abc\":1234 }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("def", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":-999999999999999999 }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("ghi", 1234L, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"ghi\":-999999999999999999 }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("jkl", 1234L, pepper,
+         buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("{ \"jkl\":-999999999"));
+    assertTrue(completelyTokenizedString.endsWith(" }"));
+    assertFalse(completelyTokenizedString.equals(
+         "{ \"jkl\":-999999999999999999 }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("mno", 1234L, pepper,
+         buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("{ \"mno\":-999999999"));
+    assertTrue(tokenizedComponentsString.endsWith(" }"));
+    assertEquals(tokenizedComponentsString,
+         "{ \"mno\"" + completelyTokenizedString.substring(7));
   }
 }

@@ -54,6 +54,7 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBuffer;
 import com.unboundid.util.json.JSONField;
 import com.unboundid.util.json.JSONObject;
 import com.unboundid.util.json.JSONString;
@@ -94,12 +95,29 @@ public final class JSONLogFieldSyntax
 
 
   /**
+   * A JSON object that represents a completely redacted value.
+   */
+  @NotNull private static final JSONObject REDACTED_JSON_OBJECT =
+       new JSONObject(new JSONField("redacted", REDACTED_STRING));
+
+
+
+  /**
    * The string representation that will be used for a JSON object that is
    * completely redacted.
    */
   @NotNull private static final String REDACTED_JSON_OBJECT_STRING =
-       new JSONObject(new JSONField("redacted",
-            REDACTED_STRING)).toSingleLineString();
+       REDACTED_JSON_OBJECT.toSingleLineString();
+
+
+
+  /**
+   * The string representation that will be used for a JSON object that is
+   * completely redacted.
+   */
+  @NotNull private static final String
+       REDACTED_JSON_OBJECT_STRING_WITH_REPLACED_QUOTES =
+            REDACTED_JSON_OBJECT_STRING.replace('"', '\'');
 
 
 
@@ -306,6 +324,38 @@ public final class JSONLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    buffer.append(valueToSanitizedString(fieldValue).replace('"', '\''));
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logSanitizedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(fieldName, sanitize(fieldValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public JSONObject parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
@@ -370,6 +420,36 @@ public final class JSONLogFieldSyntax
   public void redactEntireValue(@NotNull final ByteStringBuffer buffer)
   {
     buffer.append(REDACTED_JSON_OBJECT_STRING);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    buffer.append(REDACTED_JSON_OBJECT_STRING_WITH_REPLACED_QUOTES);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(fieldName, REDACTED_JSON_OBJECT);
   }
 
 
@@ -497,6 +577,38 @@ public final class JSONLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logRedactedComponentsFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    buffer.append(redactComponents(fieldValue).replace('"', '\''));
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logRedactedComponentsFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(fieldName, redactValue(fieldValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean valueStringIsCompletelyTokenized(
                       @NotNull final String valueString)
   {
@@ -544,6 +656,42 @@ public final class JSONLogFieldSyntax
          new JSONField("tokenized",
               tokenize(value.toNormalizedString(), pepper)));
     buffer.append(tokenizedObject.toSingleLineString());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    buffer.append(tokenizeEntireValue(fieldValue, pepper).replace('"', '\''));
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(fieldName,
+         new JSONObject(new JSONField("tokenized",
+              tokenize(fieldValue.toNormalizedString(), pepper))));
   }
 
 
@@ -641,5 +789,39 @@ public final class JSONLogFieldSyntax
     {
       return sanitize(value);
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    buffer.append(tokenizeComponents(fieldValue, pepper).replace('"', '\''));
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONObject fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(fieldName, tokenizeValue(fieldValue, pepper));
   }
 }

@@ -42,6 +42,7 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBuffer;
 
 import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
@@ -143,6 +144,37 @@ public final class BooleanLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append('=');
+    buffer.append(fieldValue.toString());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logSanitizedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendBoolean(fieldName, fieldValue);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public Boolean parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
@@ -191,6 +223,34 @@ public final class BooleanLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logCompletelyRedactedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"{REDACTED}\"");
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, REDACTED_STRING);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean supportsRedactedComponents()
   {
     return false;
@@ -213,9 +273,12 @@ public final class BooleanLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public boolean completelyTokenizedValueConformsToSyntax()
+  public void logRedactedComponentsFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final ByteStringBuffer buffer)
   {
-    return false;
+    logCompletelyRedactedFieldToTextFormattedLog(fieldName, buffer);
   }
 
 
@@ -224,21 +287,25 @@ public final class BooleanLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  @NotNull()
-  public String tokenizeEntireValue(@NotNull final Boolean value,
-                                    @NotNull final byte[] pepper)
+  public void logRedactedComponentsFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final JSONBuffer buffer)
   {
-    final ByteStringBuffer buffer = getTemporaryBuffer();
-    try
-    {
-      tokenizeEntireValue(value, pepper, buffer);
-      return buffer.toString();
-    }
-    finally
-    {
-      releaseTemporaryBuffer(buffer);
-    }
+    logCompletelyRedactedFieldToJSONFormattedLog(fieldName, buffer);
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean completelyTokenizedValueConformsToSyntax()
+  {
+    return false;
+  }
+
 
 
 
@@ -251,6 +318,40 @@ public final class BooleanLogFieldSyntax
                                   @NotNull final ByteStringBuffer buffer)
   {
     tokenize(value.toString(), pepper, buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    tokenize(fieldValue.toString(), pepper, buffer);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, tokenize(fieldValue.toString(), pepper));
   }
 
 
@@ -273,5 +374,37 @@ public final class BooleanLogFieldSyntax
   public boolean valueWithTokenizedComponentsConformsToSyntax()
   {
     return false;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    logCompletelyTokenizedFieldToTextFormattedLog(fieldName, fieldValue, pepper,
+         buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final Boolean fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    logCompletelyTokenizedFieldToJSONFormattedLog(fieldName, fieldValue, pepper,
+         buffer);
   }
 }

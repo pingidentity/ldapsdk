@@ -46,7 +46,9 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -467,5 +469,124 @@ public final class DNLogFieldSyntaxTestCase
     assertEquals(tokenizedRDNs[2].getValueCount(), 1);
     assertEquals(tokenizedRDNs[2].getAttributeNames()[0], "dc");
     assertEquals(tokenizedRDNs[2].getAttributeValues()[0], "com");
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final Set<String> includedAttributes = StaticUtils.setOf("uid");
+    final Set<String> excludedAttributes = Collections.emptySet();
+    final DNLogFieldSyntax syntax = new DNLogFieldSyntax(100, null,
+         includedAttributes, excludedAttributes);
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         buffer);
+    assertEquals(buffer.toString(),
+         " abc=\"uid=test.user,ou=People,dc=example,dc=com\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("def", buffer);
+    assertEquals(buffer.toString(), " def=\"redacted={REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("ghi",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         buffer);
+    assertEquals(buffer.toString(),
+         " ghi=\"uid={REDACTED},ou=People,dc=example,dc=com\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("jkl",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         " jkl=\"tokenized={TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("mno",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" mno=\"uid={TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith(
+         "},ou=People,dc=example,dc=com\""));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final Set<String> includedAttributes = StaticUtils.setOf("uid");
+    final Set<String> excludedAttributes = Collections.emptySet();
+    final DNLogFieldSyntax syntax = new DNLogFieldSyntax(100, null,
+         includedAttributes, excludedAttributes);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"abc\":\"uid=test.user,ou=People,dc=example,dc=com\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("def", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":\"redacted={REDACTED}\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("ghi",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"ghi\":\"uid={REDACTED},ou=People,dc=example,dc=com\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("jkl",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         pepper, buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         "{ \"jkl\":\"tokenized={TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\" }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("mno",
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         pepper, buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "{ \"mno\":\"uid={TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith(
+         "},ou=People,dc=example,dc=com\" }"));
   }
 }

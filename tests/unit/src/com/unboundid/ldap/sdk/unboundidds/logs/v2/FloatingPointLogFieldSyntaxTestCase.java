@@ -42,6 +42,7 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -68,18 +69,24 @@ public final class FloatingPointLogFieldSyntaxTestCase
     assertEquals(syntax.getSyntaxName(), "floating-point");
 
     assertNotNull(syntax.valueToSanitizedString(1.5d));
-    assertEquals(syntax.valueToSanitizedString(1.5d), "1.5");
+    assertEquals(syntax.valueToSanitizedString(1.5d), "1.500");
 
     final ByteStringBuffer buffer = new ByteStringBuffer();
     syntax.valueToSanitizedString(2.5d, buffer);
-    assertEquals(buffer.toString(), "2.5");
+    assertEquals(buffer.toString(), "2.500");
 
     buffer.clear();
     syntax.valueToSanitizedString(3.5f, buffer);
-    assertEquals(buffer.toString(), "3.5");
+    assertEquals(buffer.toString(), "3.500");
 
     assertNotNull(syntax.parseValue("1.5"));
     assertEquals(syntax.parseValue("1.5"), Double.valueOf(1.5d));
+
+    assertNotNull(syntax.parseValue("1.50"));
+    assertEquals(syntax.parseValue("1.50"), Double.valueOf(1.5d));
+
+    assertNotNull(syntax.parseValue("1.500"));
+    assertEquals(syntax.parseValue("1.500"), Double.valueOf(1.5d));
 
     try
     {
@@ -135,7 +142,7 @@ public final class FloatingPointLogFieldSyntaxTestCase
     assertNotNull(syntax.redactComponents(1.5d));
     assertEquals(syntax.redactComponents(1.5d), "-999999.999999");
 
-    assertFalse(syntax.valueStringIsCompletelyTokenized("1.5"));
+    assertFalse(syntax.valueStringIsCompletelyTokenized("1.500"));
     assertFalse(syntax.valueStringIsCompletelyTokenized("-999999.999999"));
     assertTrue(syntax.valueStringIsCompletelyTokenized("-999999.123456"));
     assertTrue(syntax.valueStringIsCompletelyTokenized("{TOKENIZED:abcdef}"));
@@ -155,7 +162,7 @@ public final class FloatingPointLogFieldSyntaxTestCase
     assertFalse(syntax.supportsTokenizedComponents());
 
     assertFalse(syntax.valueStringIncludesTokenizedComponent("test"));
-    assertFalse(syntax.valueStringIncludesTokenizedComponent("1.5"));
+    assertFalse(syntax.valueStringIncludesTokenizedComponent("1.500"));
     assertFalse(syntax.valueStringIncludesTokenizedComponent(
          "-999999.999999"));
     assertTrue(syntax.valueStringIncludesTokenizedComponent(
@@ -170,5 +177,103 @@ public final class FloatingPointLogFieldSyntaxTestCase
          startsWith("-999999."));
     assertFalse(syntax.tokenizeComponents(1.5d, pepper).equals(
          "-999999.999999"));
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final FloatingPointLogFieldSyntax syntax =
+         FloatingPointLogFieldSyntax.getInstance();
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc", 1.5d, buffer);
+    assertEquals(buffer.toString(), " abc=1.500");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("def", buffer);
+    assertEquals(buffer.toString(), " def=-999999.999999");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("ghi", 1.5d, buffer);
+    assertEquals(buffer.toString(), " ghi=-999999.999999");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("jkl", 1.5d, pepper,
+         buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(" jkl=-999999."));
+    assertFalse(completelyTokenizedString.equals(" jkl=-999999.999999"));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("mno", 1.5d, pepper,
+         buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" mno=-999999."));
+    assertEquals(tokenizedComponentsString.substring(5),
+         completelyTokenizedString.substring(5));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final FloatingPointLogFieldSyntax syntax =
+         FloatingPointLogFieldSyntax.getInstance();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc", 1.5d, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"abc\":1.500 }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("def", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":-999999.999999 }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("ghi", 1.5d, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"ghi\":-999999.999999 }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("jkl", 1.5d, pepper,
+         buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("{ \"jkl\":-999999."));
+    assertTrue(completelyTokenizedString.endsWith(" }"));
+    assertFalse(completelyTokenizedString.equals("{ \"jkl\":-999999.999999 }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("mno", 1.5d, pepper,
+         buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("{ \"mno\":-999999."));
+    assertTrue(tokenizedComponentsString.endsWith(" }"));
+    assertEquals(tokenizedComponentsString,
+         "{ \"mno\"" + completelyTokenizedString.substring(7));
   }
 }

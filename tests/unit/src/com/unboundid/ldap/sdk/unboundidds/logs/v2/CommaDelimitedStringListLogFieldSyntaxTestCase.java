@@ -43,7 +43,9 @@ import java.util.Collections;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -225,5 +227,115 @@ public final class CommaDelimitedStringListLogFieldSyntaxTestCase
     assertTrue(multiItemListTokenizedComponents.endsWith("}"));
     assertTrue(multiItemListTokenizedComponents.indexOf("}") <
          (multiItemListTokenizedComponents.length() - 1));
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final CommaDelimitedStringListLogFieldSyntax syntax =
+         new CommaDelimitedStringListLogFieldSyntax(10);
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         buffer);
+    assertEquals(buffer.toString(),
+         " abc=\"short,LongEnough{10 more characters}\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("def", buffer);
+    assertEquals(buffer.toString(), " def=\"{REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("ghi",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         buffer);
+    assertEquals(buffer.toString(), " ghi=\"{REDACTED},{REDACTED}\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("jkl",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(" jkl=\"{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("mno",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" mno=\"{TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.contains("},{TOKENIZED:"));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final CommaDelimitedStringListLogFieldSyntax syntax =
+         new CommaDelimitedStringListLogFieldSyntax(10);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(),
+         "{ \"abc\":\"short,LongEnough{10 more characters}\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("def", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":\"{REDACTED}\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("ghi",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"ghi\":\"{REDACTED},{REDACTED}\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("jkl",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         pepper, buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("{ \"jkl\":\"{TOKENIZED:"));
+    assertFalse(completelyTokenizedString.contains("},{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\" }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("mno",
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         pepper, buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("{ \"mno\":\"{TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.contains("},{TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith("}\" }"));
   }
 }

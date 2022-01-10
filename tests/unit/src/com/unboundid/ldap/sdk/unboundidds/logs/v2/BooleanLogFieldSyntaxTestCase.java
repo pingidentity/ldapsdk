@@ -42,6 +42,7 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -150,5 +151,109 @@ public final class BooleanLogFieldSyntaxTestCase
     assertTrue(syntax.tokenizeComponents(true, pepper).
          startsWith("{TOKENIZED:"));
     assertTrue(syntax.tokenizeComponents(true, pepper).endsWith("}"));
+  }
+
+
+
+  /**
+   * Tests  the methods that may be used for logging text-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTextLogMethods()
+         throws Exception
+  {
+    final BooleanLogFieldSyntax syntax = BooleanLogFieldSyntax.getInstance();
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    syntax.logSanitizedFieldToTextFormattedLog("abc", true, buffer);
+    assertEquals(buffer.toString(), " abc=true");
+
+    buffer.clear();
+    syntax.logSanitizedFieldToTextFormattedLog("def", false, buffer);
+    assertEquals(buffer.toString(), " def=false");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedFieldToTextFormattedLog("ghi", buffer);
+    assertEquals(buffer.toString(), " ghi=\"{REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsFieldToTextFormattedLog("jkl", true, buffer);
+    assertEquals(buffer.toString(), " jkl=\"{REDACTED}\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToTextFormattedLog("mno", true, pepper,
+         buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(" mno=\"{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsFieldToTextFormattedLog("pqr", true, pepper,
+         buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(" pqr=\"{TOKENIZED:"));
+    assertEquals(tokenizedComponentsString,
+         " pqr=" + completelyTokenizedString.substring(5));
+  }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted messages.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONLogMethods()
+         throws Exception
+  {
+    final BooleanLogFieldSyntax syntax = BooleanLogFieldSyntax.getInstance();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("abc", true, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"abc\":true }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logSanitizedFieldToJSONFormattedLog("def", false, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"def\":false }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logCompletelyRedactedFieldToJSONFormattedLog("ghi", buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"ghi\":\"{REDACTED}\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logRedactedComponentsFieldToJSONFormattedLog("jkl", true, buffer);
+    buffer.endObject();
+    assertEquals(buffer.toString(), "{ \"jkl\":\"{REDACTED}\" }");
+
+    buffer.clear();
+    buffer.beginObject();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedFieldToJSONFormattedLog("mno", false, pepper,
+         buffer);
+    buffer.endObject();
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("{ \"mno\":\"{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\" }"));
+
+    buffer.clear();
+    buffer.beginObject();
+    syntax.logTokenizedComponentsFieldToJSONFormattedLog("pqr", false, pepper,
+         buffer);
+    buffer.endObject();
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("{ \"pqr\":\"{TOKENIZED:"));
+    assertEquals(tokenizedComponentsString,
+         "{ \"pqr\":" + completelyTokenizedString.substring(8));
   }
 }

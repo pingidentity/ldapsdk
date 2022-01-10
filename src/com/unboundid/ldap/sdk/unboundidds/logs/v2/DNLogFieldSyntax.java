@@ -51,6 +51,7 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBuffer;
 
 import static com.unboundid.ldap.sdk.unboundidds.logs.v2.LogMessages.*;
 
@@ -251,6 +252,38 @@ public final class DNLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    valueToSanitizedString(fieldValue, buffer);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logSanitizedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, valueToSanitizedString(fieldValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public DN parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
@@ -315,6 +348,36 @@ public final class DNLogFieldSyntax
   public void redactEntireValue(@NotNull final ByteStringBuffer buffer)
   {
     buffer.append(REDACTED_DN_STRING);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    buffer.append(REDACTED_DN_STRING);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, REDACTED_DN_STRING);
   }
 
 
@@ -416,6 +479,38 @@ public final class DNLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logRedactedComponentsFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    redactComponents(fieldValue, buffer);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logRedactedComponentsFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, redactComponents(fieldValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean valueStringIsCompletelyTokenized(
                       @NotNull final String valueString)
   {
@@ -447,6 +542,40 @@ public final class DNLogFieldSyntax
   {
     buffer.append("tokenized=");
     tokenize(value.toNormalizedString(), pepper, buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    tokenizeEntireValue(fieldValue, pepper, buffer);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, tokenizeEntireValue(fieldValue, pepper));
   }
 
 
@@ -508,5 +637,39 @@ public final class DNLogFieldSyntax
 
     final DN tokenizedDN = new DN(tokenizedRDNs);
     tokenizedDN.toString(buffer, DNEscapingStrategy.DEFAULT);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsFieldToTextFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
+  {
+    buffer.append(' ');
+    buffer.append(fieldName);
+    buffer.append("=\"");
+    tokenizeComponents(fieldValue, pepper, buffer);
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsFieldToJSONFormattedLog(
+                   @NotNull final String fieldName,
+                   @NotNull final DN fieldValue,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, tokenizeComponents(fieldValue, pepper));
   }
 }
