@@ -50,12 +50,12 @@ public final class LogFieldTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Tests the behavior of the log field.
+   * Tests the behavior of the log field without a constant name.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testLogField()
+  public void testWithoutConstantName()
          throws Exception
   {
     final LogField field = new LogField("the-field-name",
@@ -63,6 +63,35 @@ public final class LogFieldTestCase
 
     assertNotNull(field.getFieldName());
     assertEquals(field.getFieldName(), "the-field-name");
+
+    assertNull(field.getConstantName());
+
+    assertNotNull(field.getExpectedSyntax());
+    assertTrue(field.getExpectedSyntax() instanceof BooleanLogFieldSyntax);
+
+    assertNotNull(field.toString());
+    assertFalse(field.toString().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior of the log field with a constant name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithConstantName()
+         throws Exception
+  {
+    final LogField field = new LogField("the-field-name", "the-constant-name",
+         BooleanLogFieldSyntax.getInstance());
+
+    assertNotNull(field.getFieldName());
+    assertEquals(field.getFieldName(), "the-field-name");
+
+    assertNotNull(field.getConstantName());
+    assertEquals(field.getConstantName(), "the-constant-name");
 
     assertNotNull(field.getExpectedSyntax());
     assertTrue(field.getExpectedSyntax() instanceof BooleanLogFieldSyntax);

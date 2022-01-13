@@ -82,6 +82,12 @@ public final class JSONFormattedAccessLogFieldsTestCase
              fieldName));
         assertNotNull(JSONFormattedAccessLogFields.getFieldForConstantName(
              fieldName.toLowerCase().replace('_', '-')));
+
+        final LogField logField =
+             JSONFormattedAccessLogFields.getFieldForConstantName(fieldName);
+        assertNotNull(logField);
+        assertNotNull(logField.getConstantName());
+        assertEquals(logField.getConstantName(), fieldName);
       }
     }
 

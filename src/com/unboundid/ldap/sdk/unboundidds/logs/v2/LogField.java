@@ -39,7 +39,9 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 import java.io.Serializable;
 
+import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -74,9 +76,11 @@ public final class LogField
   // The expected syntax for this field.
   @NotNull private final LogFieldSyntax<?> expectedSyntax;
 
+  // The name of the constant in which this field is defined.
+  @Nullable private final String constantName;
+
   // The name for this field.
   @NotNull private final String fieldName;
-
 
 
 
@@ -91,12 +95,33 @@ public final class LogField
   public LogField(@NotNull final String fieldName,
                   @NotNull final LogFieldSyntax<?> expectedSyntax)
   {
+    this(fieldName, null, expectedSyntax);
+  }
+
+
+
+  /**
+   * Creates a log field with whe provided information.
+   *
+   * @param  fieldName       The name for this field.  It must not be
+   *                         {@code null}.
+   * @param  constantName    The name of the constant in which this field is
+   *                         defined.  This is primarily intended for internal
+   *                         use.
+   * @param  expectedSyntax  The expected syntax for this field.  It must not be
+   *                         {@code null}.
+   */
+  public LogField(@NotNull final String fieldName,
+                  @Nullable final String constantName,
+                  @NotNull final LogFieldSyntax<?> expectedSyntax)
+  {
     Validator.ensureNotNullOrEmpty(fieldName,
          "LogField.fieldName must not be null or empty.");
     Validator.ensureNotNullWithMessage(expectedSyntax,
          "LogField.expectedSyntax must not be null.");
 
     this.fieldName = fieldName;
+    this.constantName = constantName;
     this.expectedSyntax = expectedSyntax;
   }
 
@@ -111,6 +136,21 @@ public final class LogField
   public String getFieldName()
   {
     return fieldName;
+  }
+
+
+
+  /**
+   * Retrieves the name of the constant in which this log field is defined.
+   *
+   * @return  The name of the constant in which this log field is defined, or
+   *          {@code null} if it is not defined in any constant.
+   */
+  @Nullable()
+  @InternalUseOnly()
+  public String getConstantName()
+  {
+    return constantName;
   }
 
 
@@ -157,7 +197,16 @@ public final class LogField
   {
     buffer.append("LogField(fieldName='");
     buffer.append(fieldName);
-    buffer.append("', expectedSyntax='");
+    buffer.append("', ");
+
+    if (constantName != null)
+    {
+      buffer.append("constantName='");
+      buffer.append(constantName);
+      buffer.append("', ");
+    }
+
+    buffer.append("expectedSyntax='");
     buffer.append(expectedSyntax.getSyntaxName());
     buffer.append("')");
   }

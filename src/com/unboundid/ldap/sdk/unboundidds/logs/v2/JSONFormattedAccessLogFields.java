@@ -425,8 +425,9 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
-   * A field that holds the protocol version for a bind request.  This field may
-   * appear in bind result access log messages.
+   * A field that indicates whether a retired password was used in the course of
+   * processing a bind operation.  This field may appear in bind result access
+   * log messages.
    */
   @NotNull public static final LogField BIND_RETIRED_PASSWORD_USED =
        createField("BIND_RETIRED_PASSWORD_USED", "retiredPasswordUsed",
@@ -1982,7 +1983,7 @@ public final class JSONFormattedAccessLogFields
                @NotNull final String fieldName,
                @NotNull final LogFieldSyntax<?> fieldSyntax)
   {
-    final LogField field = new LogField(fieldName, fieldSyntax);
+    final LogField field = new LogField(fieldName, constantName, fieldSyntax);
     DEFINED_FIELDS.put(constantName, field);
     return field;
   }
