@@ -697,7 +697,7 @@ public final class TextFormattedAccessLogFields
 
 
   /**
-   * A field that holds a comma-delimited list oof the names of any indexes
+   * A field that holds a comma-delimited list of the names of any indexes
    * accessed in the course of processing operation that were near the index
    * entry limit.  This field may appear operation result access log messages.
    */
@@ -710,7 +710,7 @@ public final class TextFormattedAccessLogFields
 
 
   /**
-   * A field that holds a comma-delimited list oof the names of any indexes
+   * A field that holds a comma-delimited list of the names of any indexes
    * accessed in the course of processing operation that had exceeded the index
    * entry limit.  This field may appear operation result access log messages.
    */
@@ -1080,8 +1080,8 @@ public final class TextFormattedAccessLogFields
    * included in the request.  This field may appear in all types of access log
    * messages that are associated with operations.
    */
-  @NotNull public static final LogField REQUEST_CONTROLS =
-       createField("REQUEST_CONTROLS", "requestControls",
+  @NotNull public static final LogField REQUEST_CONTROL_OIDS =
+       createField("REQUEST_CONTROL_OIDS", "requestControls",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
@@ -1111,8 +1111,8 @@ public final class TextFormattedAccessLogFields
    * included in the response.  This field may appear in all types of operation
    * result access log messages.
    */
-  @NotNull public static final LogField RESPONSE_CONTROLS =
-       createField("RESPONSE_CONTROLS", "responseControls",
+  @NotNull public static final LogField RESPONSE_CONTROL_OIDS =
+       createField("RESPONSE_CONTROL_OIDS", "responseControls",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
@@ -1129,22 +1129,22 @@ public final class TextFormattedAccessLogFields
 
 
   /**
-   * A field that holds the numeric value of the result code for the associated
-   * operation.  This field may appear in all types of operation result access
-   * log messages.
-   */
-  @NotNull public static final LogField RESULT_CODE =
-       createField("RESULT_CODE", "resultCode", INTEGER_SYNTAX);
-
-
-
-  /**
    * A field that holds the name of the result code for the associated
    * operation.  This field may appear in all types of operation result access
    * log messages.
    */
   @NotNull public static final LogField RESULT_CODE_NAME =
        createField("RESULT_CODE_NAME", "resultCodeName", STRING_SYNTAX);
+
+
+
+  /**
+   * A field that holds the numeric value of the result code for the associated
+   * operation.  This field may appear in all types of operation result access
+   * log messages.
+   */
+  @NotNull public static final LogField RESULT_CODE_VALUE =
+       createField("RESULT_CODE_VALUE", "resultCode", INTEGER_SYNTAX);
 
 
 
@@ -1222,8 +1222,8 @@ public final class TextFormattedAccessLogFields
    * A field that holds the numeric value of the scope for a search operation.
    * This field may appear in access log messages for search operations.
    */
-  @NotNull public static final LogField SEARCH_SCOPE =
-       createField("SEARCH_SCOPE", "scope", INTEGER_SYNTAX);
+  @NotNull public static final LogField SEARCH_SCOPE_VALUE =
+       createField("SEARCH_SCOPE_VALUE", "scope", INTEGER_SYNTAX);
 
 
 
@@ -1241,8 +1241,8 @@ public final class TextFormattedAccessLogFields
    * operation.  This field may appear in access log messages for search
    * operations.
    */
-  @NotNull public static final LogField SEARCH_TIME_LIMIT =
-       createField("SEARCH_TIME_LIMIT", "timeLimit", INTEGER_SYNTAX);
+  @NotNull public static final LogField SEARCH_TIME_LIMIT_SECONDS =
+       createField("SEARCH_TIME_LIMIT_SECONDS", "timeLimit", INTEGER_SYNTAX);
 
 
 

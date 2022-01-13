@@ -1623,22 +1623,22 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
-   * A field that holds the numeric value of the result code for the associated
-   * operation.  This field may appear in all types of operation result access
-   * log messages.
-   */
-  @NotNull public static final LogField RESULT_CODE =
-       createField("RESULT_CODE", "resultCode", INTEGER_SYNTAX);
-
-
-
-  /**
    * A field that holds the name of the result code for the associated
    * operation.  This field may appear in all types of operation result access
    * log messages.
    */
   @NotNull public static final LogField RESULT_CODE_NAME =
        createField("RESULT_CODE_NAME", "resultCodeName", STRING_SYNTAX);
+
+
+
+  /**
+   * A field that holds the numeric value of the result code for the associated
+   * operation.  This field may appear in all types of operation result access
+   * log messages.
+   */
+  @NotNull public static final LogField RESULT_CODE_VALUE =
+       createField("RESULT_CODE_VALUE", "resultCode", INTEGER_SYNTAX);
 
 
 
@@ -1721,15 +1721,6 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
-   * A field that holds the numeric value of the scope for a search operation.
-   * This field may appear in access log messages for search operations.
-   */
-  @NotNull public static final LogField SEARCH_SCOPE =
-       createField("SEARCH_SCOPE", "scope", INTEGER_SYNTAX);
-
-
-
-  /**
    * A field that holds name of the scope for a search operation.  This field
    * may appear in access log messages for search operations.
    */
@@ -1739,12 +1730,22 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
+   * A field that holds the numeric value of the scope for a search operation.
+   * This field may appear in access log messages for search operations.
+   */
+  @NotNull public static final LogField SEARCH_SCOPE_VALUE =
+       createField("SEARCH_SCOPE_VALUE", "scope", INTEGER_SYNTAX);
+
+
+
+  /**
    * A field that holds the requested time limit (in seconds) for a search
    * operation.  This field may appear in access log messages for search
    * operations.
    */
-  @NotNull public static final LogField SEARCH_TIME_LIMIT = createField(
-       "SEARCH_TIME_LIMIT", "requestedTimeLimitSeconds", INTEGER_SYNTAX);
+  @NotNull public static final LogField SEARCH_TIME_LIMIT_SECONDS = createField(
+       "SEARCH_TIME_LIMIT_SECONDS", "requestedTimeLimitSeconds",
+       INTEGER_SYNTAX);
 
 
 

@@ -62,7 +62,7 @@ import com.unboundid.util.json.JSONBuffer;
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class StringLogFieldSyntax
-       extends LogFieldSyntax<String>
+       extends LogFieldSyntax<CharSequence>
 {
   /**
    * The name for this syntax.
@@ -104,10 +104,10 @@ public final class StringLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void valueToSanitizedString(@NotNull final String value,
+  public void valueToSanitizedString(@NotNull final CharSequence value,
                                      @NotNull final ByteStringBuffer buffer)
   {
-    sanitize(value, buffer);
+    sanitize(value.toString(), buffer);
   }
 
 
@@ -118,7 +118,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logSanitizedFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final ByteStringBuffer buffer)
   {
     buffer.append(' ');
@@ -136,7 +136,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logSanitizedFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, valueToSanitizedString(fieldValue));
@@ -225,7 +225,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logRedactedComponentsFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final ByteStringBuffer buffer)
   {
     logCompletelyRedactedFieldToTextFormattedLog(fieldName, buffer);
@@ -239,7 +239,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logRedactedComponentsFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final JSONBuffer buffer)
   {
     logCompletelyRedactedFieldToJSONFormattedLog(fieldName, buffer);
@@ -262,11 +262,11 @@ public final class StringLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void tokenizeEntireValue(@NotNull final String value,
+  public void tokenizeEntireValue(@NotNull final CharSequence value,
                                   @NotNull final byte[] pepper,
                                   @NotNull final ByteStringBuffer buffer)
   {
-    tokenize(value, pepper, buffer);
+    tokenize(value.toString(), pepper, buffer);
   }
 
 
@@ -277,7 +277,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logCompletelyTokenizedFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final ByteStringBuffer buffer)
   {
@@ -296,7 +296,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logCompletelyTokenizedFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final JSONBuffer buffer)
   {
@@ -333,7 +333,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logTokenizedComponentsFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final ByteStringBuffer buffer)
   {
@@ -349,7 +349,7 @@ public final class StringLogFieldSyntax
   @Override()
   public void logTokenizedComponentsFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final String fieldValue,
+                   @NotNull final CharSequence fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final JSONBuffer buffer)
   {
