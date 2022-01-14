@@ -9665,6 +9665,89 @@ public class LDIFReaderAndWriterTestCase
 
 
   /**
+   * Tests to ensure that base64 comments are not added for large values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBase64Comments()
+         throws Exception
+  {
+    // Test with a value that is 999 bytes long.  This should include a base64
+    // comment.
+    byte[] value = new byte[999];
+    Arrays.fill(value, (byte) 0x00);
+
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+         LDIFWriter writer = new LDIFWriter(out))
+    {
+      writer.setWrapColumn(Integer.MAX_VALUE);
+
+      final Entry e = new Entry(
+           "dc=example,dc=com",
+           new Attribute("objectClass", "top", "domain"),
+           new Attribute("dc", "example"),
+           new Attribute("description", value));
+
+      writer.writeEntry(e);
+      writer.flush();
+
+      final String ldifString = StaticUtils.toUTF8String(out.toByteArray());
+      assertTrue(ldifString.contains("Non-base64-encoded representation"));
+    }
+
+
+    // Test with a value that is 1,000 bytes long.  This should also include a
+    // base64 comment.
+    value = new byte[1_000];
+    Arrays.fill(value, (byte) 0x00);
+
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+         LDIFWriter writer = new LDIFWriter(out))
+    {
+      writer.setWrapColumn(Integer.MAX_VALUE);
+
+      final Entry e = new Entry(
+           "dc=example,dc=com",
+           new Attribute("objectClass", "top", "domain"),
+           new Attribute("dc", "example"),
+           new Attribute("description", value));
+
+      writer.writeEntry(e);
+      writer.flush();
+
+      final String ldifString = StaticUtils.toUTF8String(out.toByteArray());
+      assertTrue(ldifString.contains("Non-base64-encoded representation"));
+    }
+
+
+    // Test with a value that is 1,001 bytes long.  This should not include a
+    // base64 comment.
+    value = new byte[1_001];
+    Arrays.fill(value, (byte) 0x00);
+
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+         LDIFWriter writer = new LDIFWriter(out))
+    {
+      writer.setWrapColumn(Integer.MAX_VALUE);
+
+      final Entry e = new Entry(
+           "dc=example,dc=com",
+           new Attribute("objectClass", "top", "domain"),
+           new Attribute("dc", "example"),
+           new Attribute("description", value));
+
+      writer.writeEntry(e);
+      writer.flush();
+
+      final String ldifString = StaticUtils.toUTF8String(out.toByteArray());
+      assertFalse(ldifString.contains("Non-base64-encoded representation"));
+    }
+  }
+
+
+
+  /**
    * Tests the behavior of the {@code decodeLDIFRecord} method for decoding
    * entries and change records.
    *

@@ -1196,7 +1196,8 @@ public final class LDIFWriter
   /**
    * Appends a comment to the provided buffer with an unencoded representation
    * of the provided value.  This will only have any effect if
-   * {@code commentAboutBase64EncodedValues} is {@code true}.
+   * {@code commentAboutBase64EncodedValues} is {@code true}, and only if the
+   * value contains no more than 1,000 bytes.
    *
    * @param  valueBytes  The bytes that comprise the value.
    * @param  buffer      The buffer to which the comment should be appended.
@@ -1207,7 +1208,7 @@ public final class LDIFWriter
                            @NotNull final StringBuilder buffer,
                            final int wrapColumn)
   {
-    if (commentAboutBase64EncodedValues)
+    if (commentAboutBase64EncodedValues && (valueBytes.length <= 1_000))
     {
       final int wrapColumnMinusTwo;
       if (wrapColumn <= 5)
@@ -1366,7 +1367,9 @@ public final class LDIFWriter
   /**
    * Appends a comment to the provided buffer with an unencoded representation
    * of the provided value.  This will only have any effect if
-   * {@code commentAboutBase64EncodedValues} is {@code true}.
+   * {@code commentAboutBase64EncodedValues} is {@code true}, if the value
+   * contains no more than 1,000 bytes, and only if the value represents valid
+   * UTF-8.
    *
    * @param  valueBytes  The bytes that comprise the value.
    * @param  buffer      The buffer to which the comment should be appended.
@@ -1377,7 +1380,8 @@ public final class LDIFWriter
                            @NotNull final ByteStringBuffer buffer,
                            final int wrapColumn)
   {
-    if (commentAboutBase64EncodedValues && StaticUtils.isValidUTF8(valueBytes))
+    if (commentAboutBase64EncodedValues && (valueBytes.length <= 1_000) &&
+        StaticUtils.isValidUTF8(valueBytes))
     {
       final int wrapColumnMinusTwo;
       if (wrapColumn <= 5)
