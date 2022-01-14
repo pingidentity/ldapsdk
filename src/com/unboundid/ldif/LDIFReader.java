@@ -2862,7 +2862,7 @@ public final class LDIFReader
       {
         final Modification[] mods = parseModifications(dn,
              unparsedRecord.getTrailingSpaceBehavior(), ldifLines, iterator,
-             firstLineNumber, schema);
+             relativeBasePath, firstLineNumber, schema);
         return new LDIFModifyChangeRecord(dn, mods, controls);
       }
       else
@@ -3669,6 +3669,9 @@ public final class LDIFReader
    *                                parsed.
    * @param  iterator               The iterator to use to access the
    *                                modification data.
+   * @param  relativeBasePath       The base path that will be prepended to
+   *                                relative paths in order to obtain an
+   *                                absolute path.
    * @param  firstLineNumber        The line number for the start of the record.
    * @param  schema                 The schema to use in processing.
    *
@@ -3682,6 +3685,7 @@ public final class LDIFReader
                @NotNull final TrailingSpaceBehavior trailingSpaceBehavior,
                @NotNull final ArrayList<StringBuilder> ldifLines,
                @NotNull final Iterator<StringBuilder> iterator,
+               @NotNull final String relativeBasePath,
                final long firstLineNumber, @Nullable final Schema schema)
           throws LDIFException
   {
@@ -3936,6 +3940,33 @@ public final class LDIFReader
             throw new LDIFException(ERR_READ_CANNOT_BASE64_DECODE_ATTR.get(
                                          firstLineNumber, e),
                                     firstLineNumber, true, ldifLines, e);
+          }
+        }
+        else if (line.charAt(colonPos+1) == '<')
+        {
+          // Skip over any spaces leading up to the value, and then the rest of
+          // the string is a URL that indicates where to get the real content.
+          // At the present time, we'll only support the file URLs.
+          int pos = colonPos+2;
+          while ((pos < length) && (line.charAt(pos) == ' '))
+          {
+            pos++;
+          }
+
+          final String urlString = line.substring(pos);
+          try
+          {
+            final byte[] urlBytes =
+                 retrieveURLBytes(urlString, relativeBasePath, firstLineNumber);
+            value = new ASN1OctetString(urlBytes);
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new LDIFException(
+                 ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
+                      firstLineNumber, e),
+                 firstLineNumber, true, ldifLines, e);
           }
         }
         else

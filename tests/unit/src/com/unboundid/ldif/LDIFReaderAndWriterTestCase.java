@@ -9851,6 +9851,91 @@ public class LDIFReaderAndWriterTestCase
 
 
   /**
+   * Tests the {@code decodeChangeRecord} method with a change record that
+   * reads an attribute value from a file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeModificationsWithAttributeValueFromFile()
+         throws Exception
+  {
+    // Create a small file that we'll use to hold the value for an attribute.
+    final File f = File.createTempFile("ldapsdk-attr-data-", ".value");
+    f.deleteOnExit();
+
+    final FileWriter fw = new FileWriter(f);
+    fw.write("foo");
+    fw.close();
+
+
+    // Create a "file://" URL that points to the file.
+    final StringBuilder fileURL = new StringBuilder();
+    fileURL.append("file:/");
+    appendPathComponentsToURL(f, fileURL);
+
+    final LDIFModifyChangeRecord changeRecord = (LDIFModifyChangeRecord)
+         LDIFReader.decodeChangeRecord(
+              "dn: uid=test.user,ou=People,dc=example,dc=com",
+              "changetype: modify",
+              "replace: description",
+              "description:< " + fileURL);
+    assertNotNull(changeRecord);
+
+    assertNotNull(changeRecord.getModifications());
+    assertEquals(changeRecord.getModifications().length, 1);
+
+    final Modification mod = changeRecord.getModifications()[0];
+    assertEquals(mod.getModificationType(), ModificationType.REPLACE);
+    assertEquals(mod.getAttributeName(), "description");
+
+    assertNotNull(mod.getValues());
+    assertEquals(mod.getValues().length, 1);
+    assertEquals(mod.getValues()[0], "foo");
+  }
+
+
+
+  /**
+   * Tests the {@code decodeChangeRecord} method with a change record that
+   * attempts to retrieve a value from a URL with an invalid type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDIFException.class })
+  public void testDecodeModificationsInvalidURLType()
+         throws Exception
+  {
+    LDIFReader.decodeChangeRecord(
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description:< invalid://url/type");
+  }
+
+
+
+  /**
+   * Tests the {@code decodeChangeRecord} method with a change record that
+   * attempts to retrieve a value from a URL that references a file that does
+   * not exist.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDIFException.class })
+  public void testDecodeModificationsURLNoSuchFile()
+         throws Exception
+  {
+    LDIFReader.decodeChangeRecord(
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description:< file://this/file/does/not/exist");
+  }
+
+
+
+  /**
    * Indicates whether the provided set of attributes includes one named
    * "control".
    *
