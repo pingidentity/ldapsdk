@@ -993,6 +993,16 @@ public final class TextFormattedAccessLogFields
 
 
   /**
+   * A field that holds the subject DN for the peer certificate presented in the
+   * client certificate chain during security negotiation.  This field may
+   * appear in CLIENT-CERTIFICATE access log messages.
+   */
+  @NotNull public static final LogField PEER_CERTIFICATE_SUBJECT_DN =
+       createField("PEER_CERTIFICATE_SUBJECT_DN", "peerSubject", DN_SYNTAX);
+
+
+
+  /**
    * A field whose value is a comma-delimited list of the names of any
    * privileges used prior to processing a control that applies an alternative
    * authorization identity to the operation.  This field may appear in all
