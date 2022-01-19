@@ -94,9 +94,15 @@ public final class DNLogFieldSyntaxTestCase
               "cn=ThisIsALongerValue,dc=example,dc=com")),
          "cn=ThisIsALon{8 more characters},dc=example,dc=com");
 
+    assertNotNull(syntax.valueToSanitizedString(DN.NULL_DN));
+    assertEquals(syntax.valueToSanitizedString(DN.NULL_DN), "");
+
     assertNotNull(syntax.parseValue("cn=test,dc=example,dc=com"));
     assertEquals(syntax.parseValue("cn=test,dc=example,dc=com"),
          new DN("cn=test,dc=example,dc=com"));
+
+    assertNotNull(syntax.parseValue(""));
+    assertEquals(syntax.parseValue(""), DN.NULL_DN);
 
     try
     {
@@ -157,6 +163,9 @@ public final class DNLogFieldSyntaxTestCase
               "a=b+c=d+e=f,g=h+j=i,dc=example,dc=com")),
          "a={REDACTED}+c={REDACTED}+e={REDACTED},g={REDACTED}+j={REDACTED}," +
               "dc={REDACTED},dc={REDACTED}");
+
+    assertNotNull(syntax.redactComponents(DN.NULL_DN));
+    assertEquals(syntax.redactComponents(DN.NULL_DN), "");
 
     assertFalse(
          syntax.valueStringIsCompletelyTokenized("cn=test,dc=example,dc=com"));
@@ -238,6 +247,10 @@ public final class DNLogFieldSyntaxTestCase
     assertTrue(tokenizedRDNs[3].getAttributeValues()[0].startsWith(
          "{TOKENIZED:"));
     assertTrue(tokenizedRDNs[3].getAttributeValues()[0].endsWith("}"));
+
+    tokenizedValue = syntax.tokenizeComponents(DN.NULL_DN, pepper);
+    assertNotNull(tokenizedValue);
+    assertEquals(tokenizedValue, "");
   }
 
 
