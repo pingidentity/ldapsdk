@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +68,7 @@ import com.unboundid.util.json.JSONBuffer;
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class CommaDelimitedStringListLogFieldSyntax
-       extends LogFieldSyntax<List<String>>
+       extends LogFieldSyntax<Collection<? extends CharSequence>>
 {
   /**
    * The name for this syntax.
@@ -111,13 +112,14 @@ public final class CommaDelimitedStringListLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void valueToSanitizedString(@NotNull final List<String> value,
-                                     @NotNull final ByteStringBuffer buffer)
+  public void valueToSanitizedString(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final ByteStringBuffer buffer)
   {
-    final Iterator<String> iterator = value.iterator();
+    final Iterator<? extends CharSequence> iterator = value.iterator();
     while (iterator.hasNext())
     {
-      sanitize(iterator.next(), buffer);
+      sanitize(iterator.next().toString(), buffer);
       if (iterator.hasNext())
       {
         buffer.append(',');
@@ -133,7 +135,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logSanitizedFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final ByteStringBuffer buffer)
   {
     buffer.append(' ');
@@ -151,7 +153,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logSanitizedFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, valueToSanitizedString(fieldValue));
@@ -254,10 +256,11 @@ public final class CommaDelimitedStringListLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void redactComponents(@NotNull final List<String> value,
-                               @NotNull final ByteStringBuffer buffer)
+  public void redactComponents(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final ByteStringBuffer buffer)
   {
-    final Iterator<String> iterator = value.iterator();
+    final Iterator<? extends CharSequence> iterator = value.iterator();
     while (iterator.hasNext())
     {
       buffer.append(REDACTED_STRING);
@@ -277,7 +280,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logRedactedComponentsFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final ByteStringBuffer buffer)
   {
     buffer.append(' ');
@@ -295,7 +298,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logRedactedComponentsFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, redactComponents(fieldValue));
@@ -318,9 +321,10 @@ public final class CommaDelimitedStringListLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void tokenizeEntireValue(@NotNull final List<String> value,
-                                  @NotNull final byte[] pepper,
-                                  @NotNull final ByteStringBuffer buffer)
+  public void tokenizeEntireValue(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
   {
     tokenize(valueToSanitizedString(value), pepper, buffer);
   }
@@ -333,7 +337,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logCompletelyTokenizedFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final ByteStringBuffer buffer)
   {
@@ -352,7 +356,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logCompletelyTokenizedFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final JSONBuffer buffer)
   {
@@ -387,14 +391,15 @@ public final class CommaDelimitedStringListLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
-  public void tokenizeComponents(@NotNull final List<String> value,
-                                 @NotNull final byte[] pepper,
-                                 @NotNull final ByteStringBuffer buffer)
+  public void tokenizeComponents(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final ByteStringBuffer buffer)
   {
-    final Iterator<String> iterator = value.iterator();
+    final Iterator<? extends CharSequence> iterator = value.iterator();
     while (iterator.hasNext())
     {
-      buffer.append(tokenize(iterator.next(), pepper));
+      buffer.append(tokenize(iterator.next().toString(), pepper));
 
       if (iterator.hasNext())
       {
@@ -411,7 +416,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logTokenizedComponentsFieldToTextFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final ByteStringBuffer buffer)
   {
@@ -430,7 +435,7 @@ public final class CommaDelimitedStringListLogFieldSyntax
   @Override()
   public void logTokenizedComponentsFieldToJSONFormattedLog(
                    @NotNull final String fieldName,
-                   @NotNull final List<String> fieldValue,
+                   @NotNull final Collection<? extends CharSequence> fieldValue,
                    @NotNull final byte[] pepper,
                    @NotNull final JSONBuffer buffer)
   {
