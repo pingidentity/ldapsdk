@@ -1283,7 +1283,7 @@ public final class TextFormattedAccessLogFields
    */
   @NotNull public static final LogField SERVER_ASSURANCE_RESULTS =
        createField("SERVER_ASSURANCE_RESULTS", "serverAssuranceResults",
-            STRING_SYNTAX);
+            COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
 
