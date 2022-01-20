@@ -7186,7 +7186,8 @@ public class FilterTestCase
          "cn: Test User",
          "cn: User, Test",
          "cn: User",
-         "description: This is a test");
+         "description: This is a test",
+         "telephoneNumber: 123-456-7890");
 
     final Filter parsedFilter = Filter.create(filter);
 
@@ -7736,6 +7737,25 @@ public class FilterTestCase
              "jalape\\c3\\b1o",
              new String[] { "jalape\\c3\\b1o" },
              "jalape\\c3\\b1o").toString(),
+        Boolean.FALSE
+      },
+
+      new Object[]
+      {
+        Filter.createORFilter(
+             Filter.createEqualityFilter("description", "jalape\\c3\\b1o"),
+             Filter.createEqualityFilter("telephoneNumber",
+                  "jalape\\c3\\b1o")).toString(),
+        Boolean.FALSE
+      },
+
+      new Object[]
+      {
+        Filter.createANDFilter(
+             Filter.createEqualityFilter("telephoneNumber",
+                  "jalape\\c3\\b1o"),
+             Filter.createEqualityFilter("description",
+                  "jalape\\c3\\b1o")).toString(),
         Boolean.FALSE
       }
     };

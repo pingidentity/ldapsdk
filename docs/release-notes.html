@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue in the Filter.matchesEntry method that could cause it to throw an
+                  exception rather than an appropriate Boolean response when evaluating an AND or
+                  an OR filter in which one of the nested components is not valid (for example, if
+                  the assertion value does not conform to the syntax for the associated attribute
+                  type).  This could cause problems for other LDAP SDK components that may rely on
+                  filter matching, like the in-memory directory server or the ldifsearch
+                  command-line tool.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDIF reader to support reading modifications with values read files
                   referenced by URL.  This was previously supported when reading LDIF entries or
                   add change records, but support for reading modification values from files had

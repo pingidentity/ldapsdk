@@ -3412,8 +3412,16 @@ attrNameLoop:
       case FILTER_TYPE_AND:
         for (final Filter f : filterComps)
         {
-          if (! f.matchesEntry(entry, schema))
+          try
           {
+            if (! f.matchesEntry(entry, schema))
+            {
+              return false;
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
             return false;
           }
         }
@@ -3422,9 +3430,16 @@ attrNameLoop:
       case FILTER_TYPE_OR:
         for (final Filter f : filterComps)
         {
-          if (f.matchesEntry(entry, schema))
+          try
           {
-            return true;
+            if (f.matchesEntry(entry, schema))
+            {
+              return true;
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
           }
         }
         return false;
