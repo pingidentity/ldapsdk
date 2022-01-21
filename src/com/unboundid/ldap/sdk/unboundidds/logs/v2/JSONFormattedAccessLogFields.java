@@ -449,9 +449,9 @@ public final class JSONFormattedAccessLogFields
    * a soft-deleted entry.  This field may appear in access log messages for
    * modify and delete operations.
    */
-  @NotNull public static final LogField DELETE_CHANGE_TO_SOFT_DELETED_ENTRY =
-       createField("DELETE_CHANGE_TO_SOFT_DELETED_ENTRY",
-            "changeToSoftDeletedEntry", BOOLEAN_SYNTAX);
+  @NotNull public static final LogField CHANGE_TO_SOFT_DELETED_ENTRY =
+       createField("CHANGE_TO_SOFT_DELETED_ENTRY", "changeToSoftDeletedEntry",
+            BOOLEAN_SYNTAX);
 
 
 
@@ -844,19 +844,6 @@ public final class JSONFormattedAccessLogFields
 
   /**
    * A field whose value is a JSON array containing the names of any
-   * indexes accessed in the course of processing operation that were near the
-   * index entry limit.  This field may appear operation result access log
-   * messages.
-   */
-  @NotNull public static final LogField
-       INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT = createField(
-            "INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT",
-            "indexesWithKeysAccessedNearEntryLimit", STRING_SYNTAX);
-
-
-
-  /**
-   * A field whose value is a JSON array containing the names of any
    * indexes accessed in the course of processing operation that had exceeded
    * the index entry limit.  This field may appear operation result access log
    * messages.
@@ -865,6 +852,19 @@ public final class JSONFormattedAccessLogFields
        INDEXES_WITH_KEYS_ACCESSED_EXCEEDING_ENTRY_LIMIT = createField(
             "INDEXES_WITH_KEYS_ACCESSED_EXCEEDING_ENTRY_LIMIT",
             "indexesWithKeysAccessedExceedingEntryLimit", STRING_SYNTAX);
+
+
+
+  /**
+   * A field whose value is a JSON array containing the names of any
+   * indexes accessed in the course of processing operation that were near the
+   * index entry limit.  This field may appear operation result access log
+   * messages.
+   */
+  @NotNull public static final LogField
+       INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT = createField(
+            "INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT",
+            "indexesWithKeysAccessedNearEntryLimit", STRING_SYNTAX);
 
 
 
@@ -897,8 +897,8 @@ public final class JSONFormattedAccessLogFields
    * operations.
    */
   @NotNull public static final LogField
-       INTER_SERVER_REQUEST_CONTROL_COMPONENT_NAME = createField(
-            "INTER_SERVER_REQUEST_CONTROL_COMPONENT_NAME", "componentName",
+       INTER_SERVER_REQUEST_CONTROLS_COMPONENT_NAME = createField(
+            "INTER_SERVER_REQUEST_CONTROLS_COMPONENT_NAME", "componentName",
             STRING_SYNTAX);
 
 
@@ -910,8 +910,8 @@ public final class JSONFormattedAccessLogFields
    * access log messages that are associated with operations.
    */
   @NotNull public static final LogField
-       INTER_SERVER_REQUEST_CONTROL_OPERATION_PURPOSE = createField(
-            "INTER_SERVER_REQUEST_CONTROL_OPERATION_PURPOSE",
+       INTER_SERVER_REQUEST_CONTROLS_OPERATION_PURPOSE = createField(
+            "INTER_SERVER_REQUEST_CONTROLS_OPERATION_PURPOSE",
             "operationPurpose", STRING_SYNTAX);
 
 
@@ -924,34 +924,34 @@ public final class JSONFormattedAccessLogFields
    * are associated with operations.
    */
   @NotNull public static final LogField
-       INTER_SERVER_REQUEST_CONTROL_PROPERTIES = createField(
-            "INTER_SERVER_REQUEST_CONTROL_PROPERTIES", "properties",
+       INTER_SERVER_REQUEST_CONTROLS_PROPERTIES = createField(
+            "INTER_SERVER_REQUEST_CONTROLS_PROPERTIES", "properties",
             JSON_SYNTAX);
 
 
 
   /**
    * A field (appearing inside a JSON object in the
-   * {@link #INTER_SERVER_REQUEST_CONTROL_PROPERTIES} array) that holds the name
-   * of the inter-server request property.  This field may appear in all types
-   * of access log messages that are associated with operations.
+   * {@link #INTER_SERVER_REQUEST_CONTROLS_PROPERTIES} array) that holds the
+   * name of the inter-server request property.  This field may appear in all
+   * types of access log messages that are associated with operations.
    */
   @NotNull public static final LogField
-       INTER_SERVER_REQUEST_CONTROL_PROPERTIES_NAME = createField(
-            "INTER_SERVER_REQUEST_CONTROL_PROPERTIES_NAME", "name",
+       INTER_SERVER_REQUEST_CONTROLS_PROPERTIES_NAME = createField(
+            "INTER_SERVER_REQUEST_CONTROLS_PROPERTIES_NAME", "name",
             STRING_SYNTAX);
 
 
 
   /**
    * A field (appearing inside a JSON object in the
-   * {@link #INTER_SERVER_REQUEST_CONTROL_PROPERTIES} array) that holds the
+   * {@link #INTER_SERVER_REQUEST_CONTROLS_PROPERTIES} array) that holds the
    * value of the inter-server request property.  This field may appear in all
    * types of access log messages that are associated with operations.
    */
   @NotNull public static final LogField
-       INTER_SERVER_REQUEST_CONTROL_PROPERTIES_VALUE = createField(
-            "INTER_SERVER_REQUEST_CONTROL_PROPERTIES_VALUE", "value",
+       INTER_SERVER_REQUEST_CONTROLS_PROPERTIES_VALUE = createField(
+            "INTER_SERVER_REQUEST_CONTROLS_PROPERTIES_VALUE", "value",
             STRING_SYNTAX);
 
 
@@ -962,101 +962,103 @@ public final class JSONFormattedAccessLogFields
    * appear in all types of access log messages that are associated with
    * operations.
    */
-  @NotNull public static final LogField INTERMEDIATE_CLIENT_REQUEST =
-       createField("INTERMEDIATE_CLIENT_REQUEST",
+  @NotNull public static final LogField INTERMEDIATE_CLIENT_REQUEST_CONTROL =
+       createField("INTERMEDIATE_CLIENT_REQUEST_CONTROL",
             "intermediateClientRequestControl", JSON_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the requested alternative authorization identity.  This
-   * field may appear in all types of access log messages that are associated
-   * with operations.
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that holds the requested alternative authorization identity.
+   * This field may appear in all types of access log messages that are
+   * associated with operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_CLIENT_IDENTITY = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_CLIENT_IDENTITY", "clientIdentity",
-            STRING_SYNTAX);
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_IDENTITY = createField(
+            "INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_IDENTITY",
+            "clientIdentity", STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the name of the client application.  This field may
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that holds the name of the client application.  This field may
    * appear in all types of access log messages that are associated with
    * operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_CLIENT_NAME = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_CLIENT_NAME", "clientName",
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_NAME = createField(
+            "INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_NAME", "clientName",
             STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the session ID that the client has assigned for the
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that holds the session ID that the client has assigned for the
    * request received from the downstream system.  This field may appear in all
    * types of access log messages that are associated with operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_CLIENT_REQUEST_ID = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_CLIENT_REQUEST_ID", "clientRequestID",
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_REQUEST_ID = createField(
+            "INTERMEDIATE_CLIENT_REQUEST_CONTROL_REQUEST_ID", "clientRequestID",
             STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the session ID that the client has assigned for
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that holds the session ID that the client has assigned for
    * communication with the downstream system.  This field may appear in all
    * types of access log messages that are associated with operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_CLIENT_SESSION_ID = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_CLIENT_SESSION_ID", "clientSessionID",
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_SESSION_ID = createField(
+            "INTERMEDIATE_CLIENT_REQUEST_CONTROL_SESSION_ID", "clientSessionID",
             STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the address of downstream system communicating with the
-   * client.  This field may appear in all types of access log messages that are
-   * associated with operations.
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that holds the address of downstream system communicating with
+   * the client.  This field may appear in all types of access log messages that
+   * are associated with operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_DOWNSTREAM_CLIENT_ADDRESS = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_DOWNSTREAM_CLIENT_ADDRESS",
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_ADDRESS =
+            createField(
+            "INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_ADDRESS",
             "downstreamClientAddress", STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that indicates whether the client's communication with the
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that indicates whether the client's communication with the
    * downstream system is considered secure.  This field may appear in all types
    * of access log messages that are associated with operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_DOWNSTREAM_CLIENT_SECURE = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_DOWNSTREAM_CLIENT_SECURE",
-            "downstreamClientSecure", BOOLEAN_SYNTAX);
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_SECURE =
+            createField(
+                 "INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_SECURE",
+                 "downstreamClientSecure", BOOLEAN_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds a JSON object representation of an intermediate client
-   * request received by the client.  The downstream request object has the same
-   * format as the {@code INTERMEDIATE_CLIENT_REQUEST} object itself.  This
-   * field may appear in all types of access log messages that are associated
-   * with operations.
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST_CONTROL}
+   * JSON object) that holds a JSON object representation of an intermediate
+   * client request received by the client.  The downstream request object has
+   * the same format as the {@code INTERMEDIATE_CLIENT_REQUEST} object itself.
+   * This field may appear in all types of access log messages that are
+   * associated with operations.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_REQUEST_DOWNSTREAM_REQUEST = createField(
-            "INTERMEDIATE_CLIENT_REQUEST_DOWNSTREAM_REQUEST",
+       INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_REQUEST = createField(
+            "INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_REQUEST",
             "downstreamRequest", JSON_SYNTAX);
 
 
@@ -1066,88 +1068,91 @@ public final class JSONFormattedAccessLogFields
    * client response control included in the operation result.  This field may
    * appear in all types of operation result access log messages.
    */
-  @NotNull public static final LogField INTERMEDIATE_CLIENT_RESPONSE =
-       createField("INTERMEDIATE_CLIENT_RESPONSE",
+  @NotNull public static final LogField INTERMEDIATE_CLIENT_RESPONSE_CONTROL =
+       createField("INTERMEDIATE_CLIENT_RESPONSE_CONTROL",
             "intermediateClientResponseControl", JSON_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the name of the application acting as the upstream
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that holds the name of the application acting as the upstream
    * server.  This field may appear in all types of operation result access log
    * messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_SERVER_NAME =
-            createField("INTERMEDIATE_CLIENT_RESPONSE_SERVER_NAME",
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_NAME =
+            createField("INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_NAME",
                  "serverName", STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds a response ID that the upstream server has assigned for
-   * the operation.  This field may appear in all types of operation result
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that holds a response ID that the upstream server has assigned
+   * for the operation.  This field may appear in all types of operation result
    * access log messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_SERVER_RESPONSE_ID = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_SERVER_RESPONSE_ID",
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_RESPONSE_ID = createField(
+            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_RESPONSE_ID",
             "serverResponseID", STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds a session ID that the upstream server has assigned for
-   * the connection.  This field may appear in all types of operation result
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that holds a session ID that the upstream server has assigned
+   * for the connection.  This field may appear in all types of operation result
    * access log messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_SERVER_SESSION_ID = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_SERVER_SESSION_ID",
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_SESSION_ID = createField(
+            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_SESSION_ID",
             "serverSessionID", STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds a JSON object representation of an intermediate client
-   * request forwarded to another server  The upstream response object has the
-   * same format as the {@code INTERMEDIATE_CLIENT_RESPONSE} object itself.
-   * This field may appear in all types of operation result access log messages.
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that holds a JSON object representation of an intermediate
+   * client request forwarded to another server  The upstream response object
+   * has the same format as the {@code INTERMEDIATE_CLIENT_RESPONSE} object
+   * itself.  This field may appear in all types of operation result access log
+   * messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_UPSTREAM_RESPONSE = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_UPSTREAM_RESPONSE",
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_RESPONSE = createField(
+            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_RESPONSE",
             "upstreamResponse", JSON_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that holds the address of an upstream server involved in processing
-   * the operation.  This field may appear in all types of operation result
-   * access log messages.
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that holds the address of an upstream server involved in
+   * processing the operation.  This field may appear in all types of operation
+   * result access log messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_UPSTREAM_SERVER_ADDRESS = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_UPSTREAM_SERVER_ADDRESS",
-            "upstreamServerAddress", STRING_SYNTAX);
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_ADDRESS =
+            createField(
+                 "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_ADDRESS",
+                 "upstreamServerAddress", STRING_SYNTAX);
 
 
 
   /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_REQUEST} JSON
-   * object) that indicates whether communication with the associated upstream
-   * server is considered secure.  This field may appear in all types of
-   * operation result access log messages.
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that indicates whether communication with the associated
+   * upstream server is considered secure.  This field may appear in all types
+   * of operation result access log messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_UPSTREAM_SERVER_SECURE = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_UPSTREAM_SERVER_SECURE",
-            "upstreamServerSecure", BOOLEAN_SYNTAX);
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_SECURE =
+            createField(
+                 "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_SECURE",
+                 "upstreamServerSecure", BOOLEAN_SYNTAX);
 
 
 
@@ -1413,8 +1418,8 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
-   * A field that holds the subject DN for the client certificate presented
-   * during security negotiation.  This field may appear in CLIENT-CERTIFICATE
+   * A field that holds a JSON object with the peer certificate chain presented
+   * during TLS negotiation.  This field may appear in CLIENT-CERTIFICATE
    * access log messages.
    */
   @NotNull public static final LogField PEER_CERTIFICATE_CHAIN =
@@ -1713,15 +1718,6 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
-   * A field that holds the requested size limit for a search operation.  This
-   * field may appear in access log messages for search operations.
-   */
-  @NotNull public static final LogField SEARCH_SIZE_LIMIT =
-       createField("SEARCH_SIZE_LIMIT", "requestedSizeLimit", INTEGER_SYNTAX);
-
-
-
-  /**
    * A field that holds name of the scope for a search operation.  This field
    * may appear in access log messages for search operations.
    */
@@ -1736,6 +1732,15 @@ public final class JSONFormattedAccessLogFields
    */
   @NotNull public static final LogField SEARCH_SCOPE_VALUE =
        createField("SEARCH_SCOPE_VALUE", "scope", INTEGER_SYNTAX);
+
+
+
+  /**
+   * A field that holds the requested size limit for a search operation.  This
+   * field may appear in access log messages for search operations.
+   */
+  @NotNull public static final LogField SEARCH_SIZE_LIMIT =
+       createField("SEARCH_SIZE_LIMIT", "requestedSizeLimit", INTEGER_SYNTAX);
 
 
 
@@ -1766,18 +1771,38 @@ public final class JSONFormattedAccessLogFields
    * SECURITY-NEGOTIATION access log messages.
    */
   @NotNull public static final LogField SECURITY_NEGOTIATION_PROPERTIES =
-       createField("SECURITY_NEGOTIATION_PROPERTIES", "properties",
+       createField("SECURITY_NEGOTIATION_PROPERTIES", "negotiationProperties",
             JSON_SYNTAX);
 
 
 
   /**
-   * A field whose value is a JSON array containing the assurance results from
-   * each of the servers.  This field may appear in assurance completed access
-   * log messages.
+   * A field contained inside a {@link #SECURITY_NEGOTIATION_PROPERTIES} object
+   * that holds the name of the property.
+   */
+  @NotNull public static final LogField SECURITY_NEGOTIATION_PROPERTIES_NAME =
+       createField("SECURITY_NEGOTIATION_PROPERTIES_NAME", "name",
+            STRING_SYNTAX);
+
+
+
+  /**
+   * A field contained inside a {@link #SECURITY_NEGOTIATION_PROPERTIES} object
+   * that holds the value of the property.
+   */
+  @NotNull public static final LogField SECURITY_NEGOTIATION_PROPERTIES_VALUE =
+       createField("SECURITY_NEGOTIATION_PROPERTIES_VALUE", "value",
+            STRING_SYNTAX);
+
+
+
+  /**
+   * A field whose value is a JSON array of objects containing the assurance
+   * results from each of the servers.  This field may appear in assurance
+   * completed access log messages.
    */
   @NotNull public static final LogField SERVER_ASSURANCE_RESULTS = createField(
-       "SERVER_ASSURANCE_RESULTS", "serverAssuranceResults", STRING_SYNTAX);
+       "SERVER_ASSURANCE_RESULTS", "serverAssuranceResults", JSON_SYNTAX);
 
 
 

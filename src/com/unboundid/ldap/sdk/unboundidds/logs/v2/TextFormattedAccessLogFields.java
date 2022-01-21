@@ -699,19 +699,6 @@ public final class TextFormattedAccessLogFields
 
   /**
    * A field that holds a comma-delimited list of the names of any indexes
-   * accessed in the course of processing operation that were near the index
-   * entry limit.  This field may appear operation result access log messages.
-   */
-  @NotNull public static final LogField
-       INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT = createField(
-            "INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT",
-            "indexesWithKeysAccessedNearEntryLimit",
-            COMMA_DELIMITED_STRING_LIST_SYNTAX);
-
-
-
-  /**
-   * A field that holds a comma-delimited list of the names of any indexes
    * accessed in the course of processing operation that had exceeded the index
    * entry limit.  This field may appear operation result access log messages.
    */
@@ -719,6 +706,19 @@ public final class TextFormattedAccessLogFields
        INDEXES_WITH_KEYS_ACCESSED_EXCEEDING_ENTRY_LIMIT = createField(
             "INDEXES_WITH_KEYS_ACCESSED_EXCEEDING_ENTRY_LIMIT",
             "indexesWithKeysAccessedExceedingEntryLimit",
+            COMMA_DELIMITED_STRING_LIST_SYNTAX);
+
+
+
+  /**
+   * A field that holds a comma-delimited list of the names of any indexes
+   * accessed in the course of processing operation that were near the index
+   * entry limit.  This field may appear operation result access log messages.
+   */
+  @NotNull public static final LogField
+       INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT = createField(
+            "INDEXES_WITH_KEYS_ACCESSED_NEAR_ENTRY_LIMIT",
+            "indexesWithKeysAccessedNearEntryLimit",
             COMMA_DELIMITED_STRING_LIST_SYNTAX);
 
 
