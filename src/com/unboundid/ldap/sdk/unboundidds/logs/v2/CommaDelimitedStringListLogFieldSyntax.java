@@ -165,6 +165,19 @@ public final class CommaDelimitedStringListLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedValueToJSONFormattedLog(
+              @NotNull final Collection<? extends CharSequence> value,
+              @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(valueToSanitizedString(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public List<String> parseValue(@NotNull final String valueString)
   {
@@ -226,6 +239,18 @@ public final class CommaDelimitedStringListLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, REDACTED_STRING);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedValueToJSONFormattedLog(
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(REDACTED_STRING);
   }
 
 
@@ -310,6 +335,19 @@ public final class CommaDelimitedStringListLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logRedactedComponentsValueToJSONFormattedLog(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(redactComponents(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean completelyTokenizedValueConformsToSyntax()
   {
     return true;
@@ -361,6 +399,20 @@ public final class CommaDelimitedStringListLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, tokenizeEntireValue(fieldValue, pepper));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedValueToJSONFormattedLog(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(tokenizeEntireValue(value, pepper));
   }
 
 
@@ -440,5 +492,19 @@ public final class CommaDelimitedStringListLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, tokenizeComponents(fieldValue, pepper));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsValueToJSONFormattedLog(
+                   @NotNull final Collection<? extends CharSequence> value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(tokenizeComponents(value, pepper));
   }
 }

@@ -284,6 +284,21 @@ public abstract class LogFieldSyntax<T>
 
 
 
+  /**
+   * Appends a sanitized representation of the provided value (without a field
+   * name, as might be suitable for a value included in a JSON array) for a
+   * JSON-formatted log message to the given buffer.
+   *
+   * @param  value   The value to be appended to the buffer.  It must not be
+   *                 {@code null}.
+   * @param  buffer  The buffer to which the sanitized value should be appended.
+   *                 It must not be {@code null}.
+   */
+  public abstract void logSanitizedValueToJSONFormattedLog(
+              @NotNull final T value,
+              @NotNull final JSONBuffer buffer);
+
+
 
   /**
    * Retrieves a sanitized version of the provided string.
@@ -516,6 +531,19 @@ public abstract class LogFieldSyntax<T>
 
 
   /**
+   * Appends a completely redacted representation of a value (without a field
+   * name, as might be suitable for a value included in a JSON array) for a
+   * JSON-formatted log message to the given buffer.
+   *
+   * @param  buffer  The buffer to which the redacted value should be appended.
+   *                 It must not be {@code null}.
+   */
+  public abstract void logCompletelyRedactedValueToJSONFormattedLog(
+              @NotNull final JSONBuffer buffer);
+
+
+
+  /**
    * Indicates whether this syntax supports redacting individual components of
    * the entire value.
    *
@@ -634,6 +662,24 @@ public abstract class LogFieldSyntax<T>
   public abstract void logRedactedComponentsFieldToJSONFormattedLog(
               @NotNull final String fieldName,
               @NotNull final T fieldValue,
+              @NotNull final JSONBuffer buffer);
+
+
+
+  /**
+   * Appends a representation of the provided value (without a field name, as
+   * might be suitable for a value included in a JSON array) with redacted
+   * components for a JSON-formatted log message to the given buffer.  If this
+   * syntax does not support redacting components within a value, then it should
+   * redact the entire value.
+   *
+   * @param  value   The value to be appended to the buffer in redacted form.
+   *                 It must not be {@code null}.
+   * @param  buffer  The buffer to which the redacted value should be appended.
+   *                 It must not be {@code null}.
+   */
+  public abstract void logRedactedComponentsValueToJSONFormattedLog(
+              @NotNull final T value,
               @NotNull final JSONBuffer buffer);
 
 
@@ -788,6 +834,31 @@ public abstract class LogFieldSyntax<T>
   public abstract void logCompletelyTokenizedFieldToJSONFormattedLog(
               @NotNull final String fieldName,
               @NotNull final T fieldValue,
+              @NotNull final byte[] pepper,
+              @NotNull final JSONBuffer buffer);
+
+
+
+  /**
+   * Appends a completely tokenized representation of the provided value
+   * (without a field name, as might be suitable for a value included in a JSON
+   * array) for a JSON-formatted log message to the given buffer.
+   *
+   * @param  value   The value to be appended to the buffer in tokenized form.
+   *                 It must not be {@code null}.
+   * @param  pepper  A pepper used to provide brute-force protection for the
+   *                 resulting token.  The pepper value should be kept secret so
+   *                 that it is not available to unauthorized users who might be
+   *                 able to view log information, although the same pepper
+   *                 value should be consistently provided when tokenizing
+   *                 values so that the same value will consistently yield the
+   *                 same token.  It must not be {@code null} and should not be
+   *                 empty.
+   * @param  buffer  The buffer to which the tokenized value should be appended.
+   *                 It must not be {@code null}.
+   */
+  public abstract void logCompletelyTokenizedValueToJSONFormattedLog(
+              @NotNull final T value,
               @NotNull final byte[] pepper,
               @NotNull final JSONBuffer buffer);
 
@@ -963,6 +1034,33 @@ public abstract class LogFieldSyntax<T>
   public abstract void logTokenizedComponentsFieldToJSONFormattedLog(
               @NotNull final String fieldName,
               @NotNull final T fieldValue,
+              @NotNull final byte[] pepper,
+              @NotNull final JSONBuffer buffer);
+
+
+
+  /**
+   * Appends a representation of the provided value (without a field name, as
+   * might be suitable for a value included in a JSON array) with tokenized
+   * value components for a JSON-formatted log message to the given buffer.  If
+   * this syntax does not support tokenizing components within a value, then it
+   * should tokenize the entire value.
+   *
+   * @param  value   The value to be appended to the buffer in tokenized form.
+   *                 It must not be {@code null}.
+   * @param  pepper  A pepper used to provide brute-force protection for the
+   *                 resulting token.  The pepper value should be kept secret so
+   *                 that it is not available to unauthorized users who might be
+   *                 able to view log information, although the same pepper
+   *                 value should be consistently provided when tokenizing
+   *                 values so that the same value will consistently yield the
+   *                 same token.  It must not be {@code null} and should not be
+   *                 empty.
+   * @param  buffer  The buffer to which the tokenized value should be appended.
+   *                 It must not be {@code null}.
+   */
+  public abstract void logTokenizedComponentsValueToJSONFormattedLog(
+              @NotNull final T value,
               @NotNull final byte[] pepper,
               @NotNull final JSONBuffer buffer);
 

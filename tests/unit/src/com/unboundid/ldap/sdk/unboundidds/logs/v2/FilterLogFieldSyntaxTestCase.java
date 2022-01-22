@@ -955,4 +955,59 @@ public final class FilterLogFieldSyntaxTestCase
          "{ \"mno\":\"(uid={TOKENIZED:"));
     assertTrue(tokenizedComponentsString.endsWith("})\" }"));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final Set<String> includedAttributes = StaticUtils.setOf("uid");
+    final Set<String> excludedAttributes = Collections.emptySet();
+    final FilterLogFieldSyntax syntax = new FilterLogFieldSyntax(100, null,
+         includedAttributes, excludedAttributes);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(
+         Filter.createEqualityFilter("uid", "test.user"),
+         buffer);
+    assertEquals(buffer.toString(),
+         "\"(uid=test.user)\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "\"(redacted={REDACTED})\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(
+         Filter.createEqualityFilter("uid", "test.user"),
+         buffer);
+    assertEquals(buffer.toString(),
+         "\"(uid={REDACTED})\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(
+         Filter.createEqualityFilter("uid", "test.user"),
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         "\"(tokenized={TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("})\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(
+         Filter.createEqualityFilter("uid", "test.user"),
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "\"(uid={TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith("})\""));
+  }
 }

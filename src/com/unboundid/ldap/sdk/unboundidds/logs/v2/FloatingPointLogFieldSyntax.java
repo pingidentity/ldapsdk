@@ -240,6 +240,19 @@ public final class FloatingPointLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedValueToJSONFormattedLog(
+              @NotNull final Double value,
+              @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendNumber(getDecimalFormatter().format(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public Double parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
@@ -340,6 +353,18 @@ public final class FloatingPointLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logCompletelyRedactedValueToJSONFormattedLog(
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendNumber(REDACTED_FLOATING_POINT_STRING);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean supportsRedactedComponents()
   {
     return false;
@@ -394,6 +419,19 @@ public final class FloatingPointLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     logCompletelyRedactedFieldToJSONFormattedLog(fieldName, buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logRedactedComponentsValueToJSONFormattedLog(
+                   @NotNull final Double value,
+                   @NotNull final JSONBuffer buffer)
+  {
+    logCompletelyRedactedValueToJSONFormattedLog(buffer);
   }
 
 
@@ -539,6 +577,20 @@ public final class FloatingPointLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logCompletelyTokenizedValueToJSONFormattedLog(
+                   @NotNull final Double value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendNumber(tokenizeEntireValue(value, pepper));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean supportsTokenizedComponents()
   {
     return false;
@@ -597,5 +649,19 @@ public final class FloatingPointLogFieldSyntax
   {
     logCompletelyTokenizedFieldToJSONFormattedLog(fieldName, fieldValue, pepper,
          buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsValueToJSONFormattedLog(
+                   @NotNull final Double value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    logCompletelyTokenizedValueToJSONFormattedLog(value, pepper, buffer);
   }
 }

@@ -276,4 +276,46 @@ public final class FloatingPointLogFieldSyntaxTestCase
     assertEquals(tokenizedComponentsString,
          "{ \"mno\"" + completelyTokenizedString.substring(7));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final FloatingPointLogFieldSyntax syntax =
+         FloatingPointLogFieldSyntax.getInstance();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(1.5d, buffer);
+    assertEquals(buffer.toString(), "1.500");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "-999999.999999");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(1.5d, buffer);
+    assertEquals(buffer.toString(), "-999999.999999");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(1.5d, pepper,
+         buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("-999999."));
+    assertFalse(completelyTokenizedString.equals("-999999.999999"));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(1.5d, pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("-999999."));
+    assertEquals(tokenizedComponentsString, completelyTokenizedString);
+  }
 }

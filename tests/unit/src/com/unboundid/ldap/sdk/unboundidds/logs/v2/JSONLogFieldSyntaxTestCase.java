@@ -539,4 +539,58 @@ public final class JSONLogFieldSyntaxTestCase
     assertTrue(tokenizedComponentsString.endsWith(
          "}\", \"b\":\"ThisIsALon{8 more characters}\" } }"));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final Set<String> includeFields = StaticUtils.setOf("a");
+    final JSONLogFieldSyntax syntax =
+         new JSONLogFieldSyntax(10, includeFields, null);
+
+    final JSONObject o = new JSONObject(
+         new JSONField("a", "foo"),
+         new JSONField("b", "ThisIsALongerValue"));
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(o, buffer);
+    assertEquals(buffer.toString(),
+         "{ \"a\":\"foo\", " +
+              "\"b\":\"ThisIsALon{8 more characters}\" }");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(),
+         "{ \"redacted\":\"{REDACTED}\" }");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(o, buffer);
+    assertEquals(buffer.toString(),
+         "{ \"a\":\"{REDACTED}\", " +
+              "\"b\":\"ThisIsALon{8 more characters}\" }");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(o, pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         "{ \"tokenized\":\"{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\" }"));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(o, pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "{ \"a\":\"{TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith(
+         "}\", \"b\":\"ThisIsALon{8 more characters}\" }"));
+  }
 }

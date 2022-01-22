@@ -338,4 +338,56 @@ public final class CommaDelimitedStringListLogFieldSyntaxTestCase
     assertTrue(tokenizedComponentsString.contains("},{TOKENIZED:"));
     assertTrue(tokenizedComponentsString.endsWith("}\" }"));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final CommaDelimitedStringListLogFieldSyntax syntax =
+         new CommaDelimitedStringListLogFieldSyntax(10);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         buffer);
+    assertEquals(buffer.toString(),
+         "\"short,LongEnough{10 more characters}\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "\"{REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         buffer);
+    assertEquals(buffer.toString(), "\"{REDACTED},{REDACTED}\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("\"{TOKENIZED:"));
+    assertFalse(completelyTokenizedString.contains("},{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(
+         Arrays.asList("short", "LongEnoughToTruncate"),
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("\"{TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.contains("},{TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith("}\""));
+  }
 }

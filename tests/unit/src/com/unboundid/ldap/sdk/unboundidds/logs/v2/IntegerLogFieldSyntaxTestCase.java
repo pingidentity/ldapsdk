@@ -269,4 +269,45 @@ public final class IntegerLogFieldSyntaxTestCase
     assertEquals(tokenizedComponentsString,
          "{ \"mno\"" + completelyTokenizedString.substring(7));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final IntegerLogFieldSyntax syntax =
+         IntegerLogFieldSyntax.getInstance();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(1234L, buffer);
+    assertEquals(buffer.toString(), "1234");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "-999999999999999999");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(1234L, buffer);
+    assertEquals(buffer.toString(), "-999999999999999999");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(1234L, pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("-999999999"));
+    assertFalse(completelyTokenizedString.equals("-999999999999999999"));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(1234L, pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("-999999999"));
+    assertEquals(tokenizedComponentsString, completelyTokenizedString);
+  }
 }

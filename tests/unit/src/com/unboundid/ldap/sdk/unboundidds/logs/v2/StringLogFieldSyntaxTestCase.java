@@ -222,4 +222,49 @@ public final class StringLogFieldSyntaxTestCase
     assertEquals(tokenizedComponentsString,
          "{ \"mno\":" + completelyTokenizedString.substring(8));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final StringLogFieldSyntax syntax = new StringLogFieldSyntax(10);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog("ThisIsALongerValue",
+         buffer);
+    assertEquals(buffer.toString(), "\"ThisIsALon{8 more characters}\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "\"{REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog("ThisIsALongerValue",
+         buffer);
+    assertEquals(buffer.toString(),
+         "\"{REDACTED}\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog("ThisIsALongerValue",
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("\"{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog("ThisIsALongerValue",
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("\"{TOKENIZED:"));
+    assertEquals(tokenizedComponentsString, completelyTokenizedString);
+  }
 }

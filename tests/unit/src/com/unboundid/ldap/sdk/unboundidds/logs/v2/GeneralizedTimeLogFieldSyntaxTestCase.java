@@ -253,4 +253,48 @@ public final class GeneralizedTimeLogFieldSyntaxTestCase
     assertEquals(tokenizedComponentsString,
          "{ \"mno\":" + completelyTokenizedString.substring(8));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final GeneralizedTimeLogFieldSyntax syntax =
+         GeneralizedTimeLogFieldSyntax.getInstance();
+    final Date now = new Date();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(now, buffer);
+    assertEquals(buffer.toString(),
+         '"' + StaticUtils.encodeGeneralizedTime(now) + '"');
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "\"99990101000000.000Z\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(now, buffer);
+    assertEquals(buffer.toString(), "\"99990101000000.000Z\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(now, pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("\"8888"));
+    assertTrue(completelyTokenizedString.endsWith("Z\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(now, pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "\"8888"));
+    assertEquals(tokenizedComponentsString, completelyTokenizedString);
+  }
 }

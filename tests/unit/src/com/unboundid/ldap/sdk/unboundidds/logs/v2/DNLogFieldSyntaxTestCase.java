@@ -602,4 +602,60 @@ public final class DNLogFieldSyntaxTestCase
     assertTrue(tokenizedComponentsString.endsWith(
          "},ou=People,dc=example,dc=com\" }"));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final Set<String> includedAttributes = StaticUtils.setOf("uid");
+    final Set<String> excludedAttributes = Collections.emptySet();
+    final DNLogFieldSyntax syntax = new DNLogFieldSyntax(100, null,
+         includedAttributes, excludedAttributes);
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         buffer);
+    assertEquals(buffer.toString(),
+         "\"uid=test.user,ou=People,dc=example,dc=com\"");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "\"redacted={REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         buffer);
+    assertEquals(buffer.toString(),
+         "\"uid={REDACTED},ou=People,dc=example,dc=com\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith(
+         "\"tokenized={TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(
+         new DN("uid=test.user,ou=People,dc=example,dc=com"),
+         pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith(
+         "\"uid={TOKENIZED:"));
+    assertTrue(tokenizedComponentsString.endsWith(
+         "},ou=People,dc=example,dc=com\""));
+  }
 }

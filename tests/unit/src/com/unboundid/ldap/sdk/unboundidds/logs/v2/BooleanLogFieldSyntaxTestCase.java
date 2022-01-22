@@ -256,4 +256,48 @@ public final class BooleanLogFieldSyntaxTestCase
     assertEquals(tokenizedComponentsString,
          "{ \"pqr\":" + completelyTokenizedString.substring(8));
   }
+
+
+
+  /**
+   * Tests the methods that may be used for logging JSON-formatted values
+   * (without field names).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONValueLogMethods()
+         throws Exception
+  {
+    final BooleanLogFieldSyntax syntax = BooleanLogFieldSyntax.getInstance();
+
+    final JSONBuffer buffer = new JSONBuffer();
+    syntax.logSanitizedValueToJSONFormattedLog(true, buffer);
+    assertEquals(buffer.toString(), "true");
+
+    buffer.clear();
+    syntax.logSanitizedValueToJSONFormattedLog(false, buffer);
+    assertEquals(buffer.toString(), "false");
+
+    buffer.clear();
+    syntax.logCompletelyRedactedValueToJSONFormattedLog(buffer);
+    assertEquals(buffer.toString(), "\"{REDACTED}\"");
+
+    buffer.clear();
+    syntax.logRedactedComponentsValueToJSONFormattedLog(true, buffer);
+    assertEquals(buffer.toString(), "\"{REDACTED}\"");
+
+    buffer.clear();
+    final byte[] pepper = StaticUtils.randomBytes(8, false);
+    syntax.logCompletelyTokenizedValueToJSONFormattedLog(false, pepper, buffer);
+    final String completelyTokenizedString = buffer.toString();
+    assertTrue(completelyTokenizedString.startsWith("\"{TOKENIZED:"));
+    assertTrue(completelyTokenizedString.endsWith("}\""));
+
+    buffer.clear();
+    syntax.logTokenizedComponentsValueToJSONFormattedLog(false, pepper, buffer);
+    final String tokenizedComponentsString = buffer.toString();
+    assertTrue(tokenizedComponentsString.startsWith("\"{TOKENIZED:"));
+    assertEquals(tokenizedComponentsString, completelyTokenizedString);
+  }
 }

@@ -347,6 +347,19 @@ public final class FilterLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedValueToJSONFormattedLog(
+              @NotNull final Filter value,
+              @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(valueToSanitizedString(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public Filter parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
@@ -441,6 +454,18 @@ public final class FilterLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, REDACTED_FILTER_STRING);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedValueToJSONFormattedLog(
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(REDACTED_FILTER_STRING);
   }
 
 
@@ -697,6 +722,19 @@ public final class FilterLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logRedactedComponentsValueToJSONFormattedLog(
+                   @NotNull final Filter value,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(redactComponents(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean valueStringIsCompletelyTokenized(
                       @NotNull final String valueString)
   {
@@ -763,6 +801,20 @@ public final class FilterLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, tokenizeEntireValue(fieldValue, pepper));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedValueToJSONFormattedLog(
+                   @NotNull final Filter value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(tokenizeEntireValue(value, pepper));
   }
 
 
@@ -986,5 +1038,19 @@ public final class FilterLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendString(fieldName, tokenizeComponents(fieldValue, pepper));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsValueToJSONFormattedLog(
+                   @NotNull final Filter value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendString(tokenizeComponents(value, pepper));
   }
 }

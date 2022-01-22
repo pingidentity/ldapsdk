@@ -356,6 +356,19 @@ public final class JSONLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logSanitizedValueToJSONFormattedLog(
+              @NotNull final JSONObject value,
+              @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(sanitize(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public JSONObject parseValue(@NotNull final String valueString)
          throws RedactedValueException, TokenizedValueException,
@@ -450,6 +463,18 @@ public final class JSONLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendValue(fieldName, REDACTED_JSON_OBJECT);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyRedactedValueToJSONFormattedLog(
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(REDACTED_JSON_OBJECT);
   }
 
 
@@ -609,6 +634,19 @@ public final class JSONLogFieldSyntax
    * {@inheritDoc}
    */
   @Override()
+  public void logRedactedComponentsValueToJSONFormattedLog(
+                   @NotNull final JSONObject value,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(redactValue(value));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean valueStringIsCompletelyTokenized(
                       @NotNull final String valueString)
   {
@@ -692,6 +730,21 @@ public final class JSONLogFieldSyntax
     buffer.appendValue(fieldName,
          new JSONObject(new JSONField("tokenized",
               tokenize(fieldValue.toNormalizedString(), pepper))));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logCompletelyTokenizedValueToJSONFormattedLog(
+                   @NotNull final JSONObject value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(new JSONObject(new JSONField("tokenized",
+         tokenize(value.toNormalizedString(), pepper))));
   }
 
 
@@ -823,5 +876,19 @@ public final class JSONLogFieldSyntax
                    @NotNull final JSONBuffer buffer)
   {
     buffer.appendValue(fieldName, tokenizeValue(fieldValue, pepper));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void logTokenizedComponentsValueToJSONFormattedLog(
+                   @NotNull final JSONObject value,
+                   @NotNull final byte[] pepper,
+                   @NotNull final JSONBuffer buffer)
+  {
+    buffer.appendValue(tokenizeValue(value, pepper));
   }
 }
