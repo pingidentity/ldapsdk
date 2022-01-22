@@ -1076,6 +1076,19 @@ public final class JSONFormattedAccessLogFields
 
   /**
    * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
+   * JSON object) that holds a response ID that the upstream server has assigned
+   * for the operation.  This field may appear in all types of operation result
+   * access log messages.
+   */
+  @NotNull public static final LogField
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_RESPONSE_ID = createField(
+            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_RESPONSE_ID",
+            "serverResponseID", STRING_SYNTAX);
+
+
+
+  /**
+   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
    * JSON object) that holds the name of the application acting as the upstream
    * server.  This field may appear in all types of operation result access log
    * messages.
@@ -1089,26 +1102,13 @@ public final class JSONFormattedAccessLogFields
 
   /**
    * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
-   * JSON object) that holds a response ID that the upstream server has assigned
-   * for the operation.  This field may appear in all types of operation result
-   * access log messages.
-   */
-  @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_RESPONSE_ID = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_RESPONSE_ID",
-            "serverResponseID", STRING_SYNTAX);
-
-
-
-  /**
-   * A field (appearing inside the {@link #INTERMEDIATE_CLIENT_RESPONSE_CONTROL}
    * JSON object) that holds a session ID that the upstream server has assigned
    * for the connection.  This field may appear in all types of operation result
    * access log messages.
    */
   @NotNull public static final LogField
-       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_SESSION_ID = createField(
-            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_SESSION_ID",
+       INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SESSION_ID = createField(
+            "INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SESSION_ID",
             "serverSessionID", STRING_SYNTAX);
 
 
