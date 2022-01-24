@@ -1668,6 +1668,15 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
+   * A field that holds the number of entries returned for a search operation.
+   * This field may appear in search result access log messages.
+   */
+  @NotNull public static final LogField SEARCH_ENTRIES_RETURNED =
+       createField("SEARCH_ENTRIES_RETURNED", "entriesReturned", STRING_SYNTAX);
+
+
+
+  /**
    * A field that holds a string representation of the filter for a search
    * operation.  This field may appear in access log messages for search
    * operations.
