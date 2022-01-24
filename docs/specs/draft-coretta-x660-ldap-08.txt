@@ -1,15 +1,15 @@
 
 
 X660LDAP                                                      J. Coretta
-Internet-Draft                                             July 24, 2021
+Internet-Draft                                          January 23, 2022
 Intended status: Standards Track
-Expires: January 24, 2022
+Expires: July 23, 2022
 
 
            Lightweight Directory Access Protocol (LDAP)
              Procedures and Schema Definitions for the
              Storage of X.660 Registration Information
-                  draft-coretta-x660-ldap-07.txt
+                  draft-coretta-x660-ldap-08.txt
 
 Abstract
 
@@ -32,7 +32,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on January 24, 2022.
+   This Internet-Draft will expire on July 23, 2022.
 
 Copyright Notice
 
@@ -55,9 +55,9 @@ Copyright Notice
 
 
 
-Coretta                Expires January 24, 2022                 [Page 1]
+Coretta                  Expires July 23, 2022                  [Page 1]
 
-Internet-Draft         X.660 LDAP Schema and Models            July 2021
+Internet-Draft         X.660 LDAP Schema and Models         January 2022
 
 
 Table of Contents
@@ -75,7 +75,7 @@ Table of Contents
          2.1.3. 'iRI' .................................................7
          2.1.4. 'asn1Notation' ........................................8
          2.1.5. 'unicodeValue' ........................................8
-         2.1.6. 'identifier' ..........................................8
+         2.1.6. 'identifier' ..........................................9
          2.1.7. 'additionalIdentifier' ................................9
          2.1.8. 'registrationInformation' .............................9
          2.1.9. 'registrationURI' .....................................9
@@ -87,7 +87,7 @@ Table of Contents
 	 2.1.15. 'isFrozen' ..........................................12
          2.1.16. 'stdNameForm' .......................................13
          2.1.17. 'nameAndNumberForm' .................................13
-         2.1.18. 'longArc' ...........................................14
+         2.1.18. 'longArc' ...........................................13
          2.1.19. 'supArc' ............................................14
          2.1.20. 'topArc' ............................................14
          2.1.21. 'subArc' ............................................15
@@ -109,45 +109,45 @@ Table of Contents
          2.1.37. 'currentAuthorityOrg' ...............................21
          2.1.38. 'currentAuthorityPOBox' .............................22
          2.1.39. 'currentAuthorityPostalAddress' .....................22
-         2.1.40. 'currentAuthorityPostalCode' ........................23
+         2.1.40. 'currentAuthorityPostalCode' ........................22
          2.1.41. 'currentAuthorityState' .............................23
          2.1.42. 'currentAuthorityStreet' ............................23
 
-Coretta                Expires January 24, 2022                 [Page 2]
+Coretta                  Expires July 23, 2022                  [Page 2]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
-         2.1.43. 'currentAuthorityTelephone' .........................24
+         2.1.43. 'currentAuthorityTelephone' .........................23
          2.1.44. 'currentAuthorityTitle' .............................24
          2.1.45. 'currentAuthorityURI' ...............................24
-         2.1.46. 'firstAuthority' ....................................25
+         2.1.46. 'firstAuthority' ....................................24
          2.1.47. 'firstAuthorityStartTimestamp' ......................25
          2.1.48. 'firstAuthorityEndTimestamp' ........................25
-         2.1.49. 'firstAuthorityCommonName' ..........................26
+         2.1.49. 'firstAuthorityCommonName' ..........................25
          2.1.50. 'firstAuthorityCountryCode' .........................26
          2.1.51. 'firstAuthorityCountryName' .........................26
-         2.1.52. 'firstAuthorityEmail' ...............................27
+         2.1.52. 'firstAuthorityEmail' ...............................26
          2.1.53. 'firstAuthorityFax' .................................27
          2.1.54. 'firstAuthorityLocality' ............................27
-         2.1.55. 'firstAuthorityMobile' ..............................28
+         2.1.55. 'firstAuthorityMobile' ..............................27
          2.1.56. 'firstAuthorityOrg' .................................28
          2.1.57. 'firstAuthorityPOBox' ...............................28
          2.1.58. 'firstAuthorityPostalAddress' .......................29
          2.1.59. 'firstAuthorityPostalCode' ..........................29
-         2.1.60. 'firstAuthorityState' ...............................30
+         2.1.60. 'firstAuthorityState' ...............................29
          2.1.61. 'firstAuthorityStreet' ..............................30
          2.1.62. 'firstAuthorityTelephone' ...........................30
-         2.1.63. 'firstAuthorityTitle' ...............................31
+         2.1.63. 'firstAuthorityTitle' ...............................30
          2.1.64. 'firstAuthorityURI' .................................31
          2.1.65. 'sponsor' ...........................................31
          2.1.66. 'sponsorStartTimestamp ..............................32
          2.1.67. 'sponsorEndTimestamp ................................32
          2.1.68. 'sponsorCommonName' .................................32
-         2.1.69. 'sponsorCountryCode' ................................33
+         2.1.69. 'sponsorCountryCode' ................................32
          2.1.70. 'sponsorCountryName' ................................33
          2.1.71. 'sponsorEmail' ......................................33
-         2.1.72. 'sponsorFax' ........................................34
+         2.1.72. 'sponsorFax' ........................................33
          2.1.73. 'sponsorLocality' ...................................34
          2.1.74. 'sponsorMobile' .....................................34
          2.1.75. 'sponsorOrg' ........................................34
@@ -171,9 +171,9 @@ Coretta                Expires January 24, 2022                 [Page 2]
          2.2.4. 'x660DUAConfig' ......................................41
    3. Directory Models and Procedures ................................42
 
-Coretta                Expires January 24, 2022                 [Page 3]
+Coretta                  Expires July 23, 2022                  [Page 3]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
       3.1. Naming Context and Organization Entries ...................42
@@ -229,9 +229,9 @@ Coretta                Expires January 24, 2022                 [Page 3]
    explicitly defined in either [X.660] or [X.680].  These concepts are
    meant to facilitate ease-of-implementation and sensible consumption.
 
-Coretta                Expires January 24, 2022                 [Page 4]
+Coretta                  Expires July 23, 2022                  [Page 4]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 1.1.  Conventions
@@ -251,6 +251,7 @@ Coretta                Expires January 24, 2022                 [Page 4]
    RA  Registration Authority
    DIT  Directory Information Tree
    DSA  Directory System Agent
+   DSI  Directory Service Interface
    DUA  Directory User Agent (an LDAP client)
    GUI  Graphical User Interface
    IRI  Internationalized Resource Identifier
@@ -286,10 +287,9 @@ Coretta                Expires January 24, 2022                 [Page 4]
 
 
 
+Coretta                  Expires July 23, 2022                  [Page 5]
 
-Coretta                Expires January 24, 2022                 [Page 5]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 1.5.  Well-Known OIDs
@@ -342,12 +342,12 @@ Coretta                Expires January 24, 2022                 [Page 5]
      - [RFC4524] for Cosine schema elements
 
    If the nature of a particular directory implementation precludes the
-   use of sub-typed attributes, this specification may not be practical
+   use of subtyped attributes, this specification may not be practical
    for adoption.
 
-Coretta                Expires January 24, 2022                 [Page 6]
+Coretta                  Expires July 23, 2022                  [Page 6]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    If a directory architect opts to extend certain definitions in this
@@ -389,8 +389,7 @@ Coretta                Expires January 24, 2022                 [Page 6]
 
      ( 1.3.6.1.4.1.56521.101.2.1.2
          NAME 'dotNotation'
-         DESC 'Dotted ASN.1 Object Identifier for a
-            registration'
+         DESC 'Dotted ASN.1 Object Identifier for a sub arc'
          EQUALITY objectIdentifierMatch
          SINGLE-VALUE
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
@@ -403,15 +402,16 @@ Coretta                Expires January 24, 2022                 [Page 6]
    values to an registration entry.
 
 
-Coretta                Expires January 24, 2022                 [Page 7]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Coretta                  Expires July 23, 2022                  [Page 7]
+
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.3
          NAME 'iRI'
          DESC 'Internationalized Resource Identifiers
-            for a registration'
+            for a registration entry'
          EQUALITY octetStringMatch
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
 
@@ -461,9 +461,9 @@ Coretta                Expires January 24, 2022                 [Page 7]
    any white space.
 
 
-Coretta                Expires January 24, 2022                 [Page 8]
+Coretta                  Expires July 23, 2022                  [Page 8]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The same value can be applied to the 'nameAndNumberForm' attribute
@@ -519,9 +519,9 @@ Coretta                Expires January 24, 2022                 [Page 8]
 
 
 
-Coretta                Expires January 24, 2022                 [Page 9]
+Coretta                  Expires July 23, 2022                  [Page 9]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'labeledURI', as defined in [RFC2079], is a super
@@ -543,7 +543,7 @@ Coretta                Expires January 24, 2022                 [Page 9]
 
      ( 1.3.6.1.4.1.56521.101.2.1.10
         NAME 'registrationCreated'
-        DESC 'Generalized timestamp for
+        DESC 'Generalized timestamp for a
            registration creation'
         SINGLE-VALUE
         EQUALITY generalizedTimeMatch
@@ -577,9 +577,9 @@ Coretta                Expires January 24, 2022                 [Page 9]
 
 
 
-Coretta                Expires January 24, 2022                [Page 10]
+Coretta                  Expires July 23, 2022                 [Page 10]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The implied start of a range is the 'n' value of the registration
@@ -589,9 +589,9 @@ Coretta                Expires January 24, 2022                [Page 10]
    The value of this attribute MUST always be greater-than and NOT equal
    to the value of 'n' EXCEPT when "-1" is used.
 
-   For example, if a 'rangeTermintor' attribute value of '999' were set
-   for the OID '2.999.44', it MUST be interpreted as an entire range of
-   OIDs starting at '2.999.44' up to and including '2.999.999'.
+   For example, if a 'registrationRange' attribute value of '999' were
+   set for the OID '2.999.44', it MUST be interpreted as an entire range
+   of OIDs starting at '2.999.44' up to and including '2.999.999'.
 
    Similarly, keeping with the same example above, if a value of "-1"
    were used instead, this MUST be interpreted as an all-encompassing
@@ -604,7 +604,7 @@ Coretta                Expires January 24, 2022                [Page 10]
 
       ( 1.3.6.1.4.1.56521.101.2.1.12
          NAME 'registrationRange'
-         DESC 'Sibling registration range expression'
+         DESC 'Numerical registration range expression'
          EQUALITY integerMatch
          SINGLE-VALUE
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
@@ -635,9 +635,9 @@ Coretta                Expires January 24, 2022                [Page 10]
    be wholly proprietary in nature.
 
 
-Coretta                Expires January 24, 2022                [Page 11]
+Coretta                  Expires July 23, 2022                 [Page 11]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.13
@@ -693,9 +693,9 @@ Coretta                Expires January 24, 2022                [Page 11]
 
 
 
-Coretta                Expires January 24, 2022                [Page 12]
+Coretta                  Expires July 23, 2022                 [Page 12]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    A value of TRUE indicates that the given registration MUST NOT have
@@ -751,9 +751,9 @@ Coretta                Expires January 24, 2022                [Page 12]
 
 
 
-Coretta                Expires January 24, 2022                [Page 13]
+Coretta                  Expires July 23, 2022                 [Page 13]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.1.18.  'longArc'
@@ -809,9 +809,9 @@ Coretta                Expires January 24, 2022                [Page 13]
 
 
 
-Coretta                Expires January 24, 2022                [Page 14]
+Coretta                  Expires July 23, 2022                 [Page 14]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    For example, the OID registration for 2.1.4 (ecn) would possess a DN
@@ -849,8 +849,8 @@ Coretta                Expires January 24, 2022                [Page 14]
 
      ( 1.3.6.1.4.1.56521.101.2.1.21
          NAME 'subArc'
-         DESC 'LDAP Distinguished Names of immediate
-            subordinate registrations'
+         DESC 'LDAP Distinguished Name of a subordinate
+            registration residing below a given entry'
          SUP distinguishedName )
 
    Example: "n=1,n=6,n=3,n=1,ou=OID,ou=X660,dc=example,dc=com"
@@ -867,9 +867,9 @@ Coretta                Expires January 24, 2022                [Page 14]
 
 
 
-Coretta                Expires January 24, 2022                [Page 15]
+Coretta                  Expires July 23, 2022                 [Page 15]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    This OPTIONAL attribute type is among the seven (7) spatial types
@@ -925,9 +925,9 @@ Coretta                Expires January 24, 2022                [Page 15]
    subsequent sibling registration.
 
 
-Coretta                Expires January 24, 2022                [Page 16]
+Coretta                  Expires July 23, 2022                 [Page 16]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    This OPTIONAL attribute type is among the seven (7) spatial types
@@ -983,9 +983,9 @@ Coretta                Expires January 24, 2022                [Page 16]
 
 
 
-Coretta                Expires January 24, 2022                [Page 17]
+Coretta                  Expires July 23, 2022                 [Page 17]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Identities referenced through use of this attribute type MAY be
@@ -1022,8 +1022,9 @@ Coretta                Expires January 24, 2022                [Page 17]
 
      ( 1.3.6.1.4.1.56521.101.2.1.27
         NAME 'registrantID'
-        DESC 'Random identifier assigned
-           to a registrant'
+        DESC 'GUID or UUID assigned to a past
+           or present registration authority
+           or sponsor entry'
         SINGLE-VALUE
         EQUALITY octetStringMatch
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
@@ -1040,10 +1041,9 @@ Coretta                Expires January 24, 2022                [Page 17]
    the registration to which it is linked.
 
 
+Coretta                  Expires July 23, 2022                 [Page 18]
 
-Coretta                Expires January 24, 2022                [Page 18]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    This attribute type is only required if registrant information is
@@ -1099,9 +1099,9 @@ Coretta                Expires January 24, 2022                [Page 18]
    The 'currentAuthorityCountryCode' attribute type allows for the
    assignment of a country code to a current authority entry.
 
-Coretta                Expires January 24, 2022                [Page 19]
+Coretta                  Expires July 23, 2022                 [Page 19]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'c', as defined in Section 2.2 of [RFC4519], is
@@ -1157,9 +1157,9 @@ Coretta                Expires January 24, 2022                [Page 19]
 
 
 
-Coretta                Expires January 24, 2022                [Page 20]
+Coretta                  Expires July 23, 2022                 [Page 20]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'facsimileTelephoneNumber', as defined in Section
@@ -1215,9 +1215,9 @@ Coretta                Expires January 24, 2022                [Page 20]
    of an organization name to a current authority entry.
 
 
-Coretta                Expires January 24, 2022                [Page 21]
+Coretta                  Expires July 23, 2022                 [Page 21]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'o', as defined in Section 2.19 of [RFC4519], is
@@ -1273,9 +1273,9 @@ Coretta                Expires January 24, 2022                [Page 21]
 
 
 
-Coretta                Expires January 24, 2022                [Page 22]
+Coretta                  Expires July 23, 2022                 [Page 22]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.1.40.  'currentAuthorityPostalCode'
@@ -1331,9 +1331,9 @@ Coretta                Expires January 24, 2022                [Page 22]
 
    Example: "1 Fake Street"
 
-Coretta                Expires January 24, 2022                [Page 23]
+Coretta                  Expires July 23, 2022                 [Page 23]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.1.43.  'currentAuthorityTelephone'
@@ -1389,9 +1389,9 @@ Coretta                Expires January 24, 2022                [Page 23]
 
    Example: "http://example.com Example", "http://example.com"
 
-Coretta                Expires January 24, 2022                [Page 24]
+Coretta                  Expires July 23, 2022                 [Page 24]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.1.46.  'firstAuthority'
@@ -1447,9 +1447,9 @@ Coretta                Expires January 24, 2022                [Page 24]
 
 
 
-Coretta                Expires January 24, 2022                [Page 25]
+Coretta                  Expires July 23, 2022                 [Page 25]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.48
@@ -1505,9 +1505,9 @@ Coretta                Expires January 24, 2022                [Page 25]
    entry.
 
 
-Coretta                Expires January 24, 2022                [Page 26]
+Coretta                  Expires July 23, 2022                 [Page 26]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'co', as defined in Section 2.4 of [RFC4519],
@@ -1563,9 +1563,9 @@ Coretta                Expires January 24, 2022                [Page 26]
    assignment of a locality name to a previous registration authority
    entry.
 
-Coretta                Expires January 24, 2022                [Page 27]
+Coretta                  Expires July 23, 2022                 [Page 27]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'l', as defined in Section 2.16 of [RFC4519],
@@ -1621,9 +1621,9 @@ Coretta                Expires January 24, 2022                [Page 27]
    of a post office box number to a previous registration authority
    entry.
 
-Coretta                Expires January 24, 2022                [Page 28]
+Coretta                  Expires July 23, 2022                 [Page 28]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'postOfficeBox', as defined in Section 2.25 of
@@ -1679,9 +1679,9 @@ Coretta                Expires January 24, 2022                [Page 28]
 
 
 
-Coretta                Expires January 24, 2022                [Page 29]
+Coretta                  Expires July 23, 2022                 [Page 29]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.1.60.  'firstAuthorityState'
@@ -1737,9 +1737,9 @@ Coretta                Expires January 24, 2022                [Page 29]
         SUP telephoneNumber )
 
 
-Coretta                Expires January 24, 2022                [Page 30]
+Coretta                  Expires July 23, 2022                 [Page 30]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Example: "+11234567890"
@@ -1795,9 +1795,9 @@ Coretta                Expires January 24, 2022                [Page 30]
    The attribute type 'distinguishedName', as defined in Section 2.7 of
    [RFC4519], is a super type of this attribute type.
 
-Coretta                Expires January 24, 2022                [Page 31]
+Coretta                  Expires July 23, 2022                 [Page 31]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.65
@@ -1853,9 +1853,9 @@ Coretta                Expires January 24, 2022                [Page 31]
         SUP cn )
 
 
-Coretta                Expires January 24, 2022                [Page 32]
+Coretta                  Expires July 23, 2022                 [Page 32]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Example: "Jane Sponsor"
@@ -1911,9 +1911,9 @@ Coretta                Expires January 24, 2022                [Page 32]
 
 
 
-Coretta                Expires January 24, 2022                [Page 33]
+Coretta                  Expires July 23, 2022                 [Page 33]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.1.72.  'sponsorFax'
@@ -1969,9 +1969,9 @@ Coretta                Expires January 24, 2022                [Page 33]
    The 'sponsorOrg' attribute type allows for the assignment of an
    organization name to a sponsor entry.
 
-Coretta                Expires January 24, 2022                [Page 34]
+Coretta                  Expires July 23, 2022                 [Page 34]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The attribute type 'o', as defined in Section 2.19 of [RFC4519],
@@ -2027,9 +2027,9 @@ Coretta                Expires January 24, 2022                [Page 34]
    The attribute type 'postalCode', as defined in Section 2.23 of
    [RFC4519], is a super type of this attribute type.
 
-Coretta                Expires January 24, 2022                [Page 35]
+Coretta                  Expires July 23, 2022                 [Page 35]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.78
@@ -2085,9 +2085,9 @@ Coretta                Expires January 24, 2022                [Page 35]
 
 
 
-Coretta                Expires January 24, 2022                [Page 36]
+Coretta                  Expires July 23, 2022                 [Page 36]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      ( 1.3.6.1.4.1.56521.101.2.1.81
@@ -2139,13 +2139,13 @@ Coretta                Expires January 24, 2022                [Page 36]
 
    This is primarily used in scenarios where it is desirable for an
    application to self-configure for maximum efficiency in terms of
-   registration location, management and retrieval.
+   registration location and retrieval.
 
 
 
-Coretta                Expires January 24, 2022                [Page 37]
+Coretta                  Expires July 23, 2022                 [Page 37]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    An ideal location for this attribute type is within the DSA's
@@ -2171,7 +2171,7 @@ Coretta                Expires January 24, 2022                [Page 37]
 
    This is primarily used in scenarios where it is desirable for an
    application to self-configure for maximum efficiency in terms of
-   registrant location, management and retrieval.
+   registrant location, retrieval and management.
 
    An ideal location for this attribute type is within the DSA's
    RootDSE.
@@ -2201,9 +2201,9 @@ Coretta                Expires January 24, 2022                [Page 37]
    correspond to Sections 3.2 and 3.3 of this specification:
 
 
-Coretta                Expires January 24, 2022                [Page 38]
+Coretta                  Expires July 23, 2022                 [Page 38]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      - 1.3.6.1.4.1.56521.101.3.2 (twoDimensional)
@@ -2225,10 +2225,9 @@ Coretta                Expires January 24, 2022                [Page 38]
 
 2.1.87.  'rAServiceMail'
 
-   The 'rAServiceMail' attribute type allows for the OPTIONAL assignment
-   of one or more email addresses to an 'x660DUAConfig' entry for the
-   purpose of email-based allocation request handling, error reporting
-   or general support for end-users.
+   The 'rAServiceMail' attribute type allows for the assignment
+   of an email address to an 'x660DUAConfig' entry for the purpose
+   of email-based RA request handling or error reporting.
 
    The attribute type 'mail', as defined in Section 2.16 of [RFC4524],
    is a super type of this attribute type.
@@ -2244,9 +2243,9 @@ Coretta                Expires January 24, 2022                [Page 38]
 
 2.1.88.  'rAServiceURI'
 
-   The 'rAServiceURI' attribute type allows for the OPTIONAL assignment
-   of one or more URI values to an 'x660DUAConfig' entry for the purpose
-   of directing users to appropriate RA endpoint for request handling.
+   The 'rAServiceURI' attribute type allows for the assignment of one
+   or more URI values to an 'x660DUAConfig' entry for the purpose of
+   directing users to appropriate RA endpoint for request handling.
 
    The attribute type 'labeledURI', as defined in [RFC2079], is a super
    type of this attribute type.
@@ -2259,9 +2258,10 @@ Coretta                Expires January 24, 2022                [Page 38]
 
    Example: "http://example.com/ra.html Registrations"
 
-Coretta                Expires January 24, 2022                [Page 39]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Coretta                  Expires July 23, 2022                 [Page 39]
+
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.2.  Object Classes
@@ -2317,9 +2317,9 @@ Coretta                Expires January 24, 2022                [Page 39]
 
 
 
-Coretta                Expires January 24, 2022                [Page 40]
+Coretta                  Expires July 23, 2022                 [Page 40]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 2.2.3.  'x660Registrant'
@@ -2375,9 +2375,9 @@ Coretta                Expires January 24, 2022                [Page 40]
                rARegistrationBase ) )
 
 
-Coretta                Expires January 24, 2022                [Page 41]
+Coretta                  Expires July 23, 2022                 [Page 41]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 3.  Directory Models and Procedures
@@ -2433,9 +2433,9 @@ Coretta                Expires January 24, 2022                [Page 41]
 
 
 
-Coretta                Expires January 24, 2022                [Page 42]
+Coretta                  Expires July 23, 2022                 [Page 42]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Root registrations SHALL NOT bear an 'dotNotation' value, as the
@@ -2484,16 +2484,16 @@ Coretta                Expires January 24, 2022                [Page 42]
    landscape.  If one or more are created, they SHOULD be identifiable
    as follows:
 
-     - ITU-T (0)
-     - ISO (1)
-     - Joint-ISO-ITU-T (2)
+     - itu-t (0)
+     - iso (1)
+     - joint-iso-itu-t (2)
 
    As sibling entries, these root arcs MUST use the 'x660RootArc'
    class, as shown in Section 2.2.1:
 
-Coretta                Expires January 24, 2022                [Page 43]
+Coretta                  Expires July 23, 2022                 [Page 43]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      dn: n=0,ou=OID,ou=X660,dc=example,dc=com
@@ -2549,9 +2549,9 @@ Coretta                Expires January 24, 2022                [Page 43]
    In this model, interim arcs MUST exist even if they are otherwise
    unnecessary.
 
-Coretta                Expires January 24, 2022                [Page 44]
+Coretta                  Expires July 23, 2022                 [Page 44]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    For example, in order to add the well-known "internet" OID (1.3.6.1),
@@ -2598,8 +2598,8 @@ Coretta                Expires January 24, 2022                [Page 44]
    Section 2.1.1) as components in the effective LDAP DN, but in
    reverse order to reflect the directory hierarchy.
 
-   For example: the "internet" OID would exist as an entry with a 
-   DN as depicted below:
+   For example: the "internet" OID would exist as an entry with a DN as
+   depicted below:
 
                1.3.6.1
            ----------------
@@ -2607,9 +2607,9 @@ Coretta                Expires January 24, 2022                [Page 44]
      dn: n=1, n=6, n=3, n=1, ou=OID, ou=X660, dc=example, dc=com
 
 
-Coretta                Expires January 24, 2022                [Page 45]
+Coretta                  Expires July 23, 2022                 [Page 45]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    As a result, use of the 'dotNotation' attribute type becomes
@@ -2622,9 +2622,9 @@ Coretta                Expires January 24, 2022                [Page 45]
    landscape.  If one or more are created, they MUST be identifiable
    as follows:
 
-     - ITU-T (0)
-     - ISO (1)
-     - Joint-ISO-ITU-T (2)
+     - itu-t (0)
+     - iso (1)
+     - joint-iso-itu-t (2)
 
    As sibling entries, these root arcs MUST use the 'x660RootArc'
    class, as shown in Section 2.2.1:
@@ -2665,9 +2665,9 @@ Coretta                Expires January 24, 2022                [Page 45]
    the relevant DIT entries could manifest as follows:
 
 
-Coretta                Expires January 24, 2022                [Page 46]
+Coretta                  Expires July 23, 2022                 [Page 46]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      dn: dotNotation=1.3.6.1.4.1,ou=OID,ou=X660,dc=example,
@@ -2723,9 +2723,9 @@ Coretta                Expires January 24, 2022                [Page 46]
 
 
 
-Coretta                Expires January 24, 2022                [Page 47]
+Coretta                  Expires July 23, 2022                 [Page 47]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
      dn: n=4,n=1,n=6,n=3,n=1,ou=OID,ou=X660,dc=example,dc=com
@@ -2762,7 +2762,7 @@ Coretta                Expires January 24, 2022                [Page 47]
      - Store sponsor and/or authority registrant information within
        dedicated entries, and reference the DNs of these entries
        via the 'currentAuthority', 'sponsor' and/or 'firstAuthority'
-       attribute types assigned to registrations
+       attribute types assigned to registrations.
 
    The nature of these contacts will typically encompass three (3)
    kinds of entities:
@@ -2781,9 +2781,9 @@ Coretta                Expires January 24, 2022                [Page 47]
     broad-scale and low-cost association of attribute values across
     entire pools of entries.
 
-Coretta                Expires January 24, 2022                [Page 48]
+Coretta                  Expires July 23, 2022                 [Page 48]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
     While these concepts are out of scope for this specification, a few
@@ -2839,9 +2839,9 @@ Coretta                Expires January 24, 2022                [Page 48]
 
 
 
-Coretta                Expires January 24, 2022                [Page 49]
+Coretta                  Expires July 23, 2022                 [Page 49]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
       dn: registrantID=draft-coretta-x660-ldap,ou=Registrants,
@@ -2897,9 +2897,9 @@ Coretta                Expires January 24, 2022                [Page 49]
        ou=Registrants,ou=X660,dc=example,dc=com
       n: 56521
 
-Coretta                Expires January 24, 2022                [Page 50]
+Coretta                  Expires July 23, 2022                 [Page 50]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 3.5.  DUA Configuration
@@ -2955,9 +2955,9 @@ Coretta                Expires January 24, 2022                [Page 50]
 
 
 
-Coretta                Expires January 24, 2022                [Page 51]
+Coretta                  Expires July 23, 2022                 [Page 51]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Limitations pertaining to the artificial addition of attributes to
@@ -3013,9 +3013,9 @@ Coretta                Expires January 24, 2022                [Page 51]
 
 
 
-Coretta                Expires January 24, 2022                [Page 52]
+Coretta                  Expires July 23, 2022                 [Page 52]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Depending on the nature of the RA service indicated, the creation
@@ -3050,6 +3050,7 @@ Coretta                Expires January 24, 2022                [Page 52]
 
    The main concerns on this topic are summarized as follows:
 
+     - DSI/DUA (client) capabilities
      - DSA resource utilization
      - DIT content model, complexity and footprint
 
@@ -3068,13 +3069,15 @@ Coretta                Expires January 24, 2022                [Page 52]
    client needs to determine a means for the following actions by OID
    alone:
 
+
+
+Coretta                  Expires July 23, 2022                 [Page 53]
+
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
+
+
      - Locating individual registrations
      - Traversing surrounding registrations (spatially)
-
-Coretta                Expires January 24, 2022                [Page 53]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
-
 
 3.6.1.1.  Locating Individual Registrations
 
@@ -3122,17 +3125,19 @@ Coretta                Expires January 24, 2022                [Page 53]
    the magnitude of any single NumberForm [X.680] component (so long
    as the magnitude is zero (0) or more).
 
+
+
+
+
+Coretta                  Expires July 23, 2022                 [Page 54]
+
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
+
+
    An effective client intended for use in situations involving this
    specification SHOULD have the capability to locate all applicable
    adjacent entries without extraordinary effort.  The subsections that
    follow will cover attribute types and procedures to that end.
-
-
-
-Coretta                Expires January 24, 2022                [Page 54]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
-
 
 3.6.1.2.1.  Use of the 'supArc' and 'topArc' Attribute Types
 
@@ -3178,19 +3183,21 @@ Coretta                Expires January 24, 2022                [Page 54]
        syntax described in Section 3.3.2 is in use, the client should
        attempt to truncate the leaf-node RDN to achieve its superior
        (parent) DN, or ...
+
+
+
+
+Coretta                  Expires July 23, 2022                 [Page 55]
+
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
+
+
      - If a two-dimensional directory model is indicated, and the DN
        syntax described in Section 3.2.2 is in use, the client should
        attempt to read the literal 'dotNotation' value from the entry
        DN, truncate the value's leaf-node (right-hand) OID component,
        and utilize the remaining contents for the basis of subsequent
        entry location
-
-
-
-Coretta                Expires January 24, 2022                [Page 55]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
-
 
    In the former (three-dimensional) case, consider the following
    example, in which the leaf-node (n=6) is truncated to obtain the
@@ -3234,21 +3241,20 @@ Coretta                Expires January 24, 2022                [Page 55]
      identifier: example
      subArc: n=0,n=999,n=2,ou=OID,ou=X660,dc=example,dc=com
 
+
+
+
+
+Coretta                  Expires July 23, 2022                 [Page 56]
+
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
+
+
    If two (2) or more 'subArc' values exist for the registration, this
    SHOULD be interpreted as a complete manifest of subordinate entries.
    As such, costly enumeration of registrations (through a singleLevel
    LDAP Search Request, per Section 4.5.1.2 of [RFC4511]) should not be
    necessary.
-
-
-
-
-
-
-Coretta                Expires January 24, 2022                [Page 56]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
-
 
      dn: n=999,n=2,ou=OID,ou=X660,dc=example,dc=com
      objectClass: x660SubArc
@@ -3297,15 +3303,9 @@ Coretta                Expires January 24, 2022                [Page 56]
    adjacency can be depicted as follows:
 
 
+Coretta                  Expires July 23, 2022                 [Page 57]
 
-
-
-
-
-
-Coretta                Expires January 24, 2022                [Page 57]
-
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
                          current registration
@@ -3361,9 +3361,9 @@ Coretta                Expires January 24, 2022                [Page 57]
    range "size checks".  See Section 2.1.12 for more details.
 
 
-Coretta                Expires January 24, 2022                [Page 58]
+Coretta                  Expires July 23, 2022                 [Page 58]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    In cases where a collection of sibling entries is prone to continued
@@ -3399,7 +3399,7 @@ Coretta                Expires January 24, 2022                [Page 58]
    Consider the following scenario:
 
    A directory architect adopts certain elements from this specification
-   in minimalistic three-dimensional fashion.  In this case, only the
+   in a minimalistic three-dimensional fashion.  In this case, only the
    'n', 'unicodeValue' and 'identifier' attribute types are maintained
    for any given registration.  This is due to the prohibitively costly
    and/or time-consuming nature of maintaining any other attributes.
@@ -3419,9 +3419,9 @@ Coretta                Expires January 24, 2022                [Page 58]
        is not always possible
 
 
-Coretta                Expires January 24, 2022                [Page 59]
+Coretta                  Expires July 23, 2022                 [Page 59]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    The merits of this strategy are as follows:
@@ -3477,9 +3477,9 @@ Coretta                Expires January 24, 2022                [Page 59]
 
 
 
-Coretta                Expires January 24, 2022                [Page 60]
+Coretta                  Expires July 23, 2022                 [Page 60]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    Given an effective LDAP Search baseObject (per Section 4.5.1.1 of
@@ -3535,9 +3535,9 @@ Coretta                Expires January 24, 2022                [Page 60]
 
 
 
-Coretta                Expires January 24, 2022                [Page 61]
+Coretta                  Expires July 23, 2022                 [Page 61]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
 5.1.  Modification Identity Obfuscation
@@ -3593,9 +3593,9 @@ Coretta                Expires January 24, 2022                [Page 61]
 
 
 
-Coretta                Expires January 24, 2022                [Page 62]
+Coretta                  Expires July 23, 2022                 [Page 62]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
 
    [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
@@ -3651,9 +3651,9 @@ Coretta                Expires January 24, 2022                [Page 62]
 
 
 
-Coretta                Expires January 24, 2022                [Page 63]
+Coretta                  Expires July 23, 2022                 [Page 63]
 
-Internet-Draft       X.660 LDAP Schema and Models              July 2021
+Internet-Draft       X.660 LDAP Schema and Models           January 2022
 
    [X.501]    International Telecommunication Union - Telecommunication
               Standardization Sector, "The Directory: Models", ITU-T
@@ -3710,4 +3710,4 @@ Author's Address
 
 
 
-Coretta                Expires January 24, 2022                [Page 64]
+Coretta                  Expires July 23, 2022                 [Page 64]
