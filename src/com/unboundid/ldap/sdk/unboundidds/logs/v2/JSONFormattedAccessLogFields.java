@@ -1418,12 +1418,74 @@ public final class JSONFormattedAccessLogFields
 
 
   /**
+   * A field that holds an array of JSON objects with additional details about
+   * the origin of an operation.  This field may appear in all types of access
+   * log messages that are associated with operations.
+   */
+  @NotNull public static final LogField ORIGIN_DETAILS =
+       createField("ORIGIN_DETAILS", "originDetails", JSON_SYNTAX);
+
+
+
+  /**
+   * A field that holds the name from an {@link #ORIGIN_DETAILS} object.
+   */
+  @NotNull public static final LogField ORIGIN_DETAILS_NAME =
+       createField("ORIGIN_DETAILS_NAME", "name", STRING_SYNTAX);
+
+
+
+  /**
+   * A field that holds the value from an {@link #ORIGIN_DETAILS} object.
+   */
+  @NotNull public static final LogField ORIGIN_DETAILS_VALUE =
+       createField("ORIGIN_DETAILS_VALUE", "value", STRING_SYNTAX);
+
+
+
+  /**
    * A field that holds a JSON object with the peer certificate chain presented
    * during TLS negotiation.  This field may appear in CLIENT-CERTIFICATE
    * access log messages.
    */
   @NotNull public static final LogField PEER_CERTIFICATE_CHAIN =
        createField("PEER_CERTIFICATE_CHAIN", "certificateChain", JSON_SYNTAX);
+
+
+
+  /**
+   * A field that holds a hexadecimal representation of the bytes that comprise
+   * the encoded representation of a certificate included in the peer
+   * certificate chain presented during TLS negotiation.  This field may appear
+   * in CLIENT-CERTIFICATE access log messages.
+   */
+  @NotNull public static final LogField
+       PEER_CERTIFICATE_CHAIN_CERTIFICATE_BYTES = createField(
+            "PEER_CERTIFICATE_CHAIN_CERTIFICATE_BYTES", "certificateBytes",
+            STRING_SYNTAX);
+
+
+
+  /**
+   * A field that holds a string representation of a certificate included in the
+   * peer certificate chain presented during TLS negotiation.  This field may
+   * appear in CLIENT-CERTIFICATE access log messages.
+   */
+  @NotNull public static final LogField
+       PEER_CERTIFICATE_CHAIN_CERTIFICATE_STRING = createField(
+            "PEER_CERTIFICATE_CHAIN_CERTIFICATE_STRING", "toString",
+            STRING_SYNTAX);
+
+
+
+  /**
+   * A field that holds the name of the certificate type for a certificate
+   * included in the peer certificate chain presented during TLS negotiation.
+   * This field may appear in CLIENT-CERTIFICATE access log messages.
+   */
+  @NotNull public static final LogField
+       PEER_CERTIFICATE_CHAIN_CERTIFICATE_TYPE = createField(
+            "PEER_CERTIFICATE_CHAIN_CERTIFICATE_TYPE", "type", STRING_SYNTAX);
 
 
 
