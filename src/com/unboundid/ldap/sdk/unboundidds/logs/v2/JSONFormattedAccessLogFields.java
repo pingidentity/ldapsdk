@@ -1734,7 +1734,8 @@ public final class JSONFormattedAccessLogFields
    * This field may appear in search result access log messages.
    */
   @NotNull public static final LogField SEARCH_ENTRIES_RETURNED =
-       createField("SEARCH_ENTRIES_RETURNED", "entriesReturned", STRING_SYNTAX);
+       createField("SEARCH_ENTRIES_RETURNED", "entriesReturned",
+            INTEGER_SYNTAX);
 
 
 
