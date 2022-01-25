@@ -4,13 +4,13 @@
 
 Network Working Group                                        A. Melnikov
 Internet-Draft                                                 Isode Ltd
-Intended status: Standards Track                         12 January 2022
-Expires: 16 July 2022
+Intended status: Standards Track                         25 January 2022
+Expires: 29 July 2022
 
 
       Extensions to Salted Challenge Response (SCRAM) for 2 factor
                              authentication
-                     draft-ietf-kitten-scram-2fa-00
+                     draft-ietf-kitten-scram-2fa-01
 
 Abstract
 
@@ -18,7 +18,8 @@ Abstract
    Authentication and Security Layer (SASL; RFC 4422) authentication
    mechanisms called the Salted Challenge Response Authentication
    Mechanism (SCRAM), which provides support for 2 factor
-   authentication.
+   authentication.  It also includes a separate extension for quick
+   reauthentication.
 
    This specification also gives an example of how TOTP (RFC 6238) can
    be used as the second factor.
@@ -38,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 July 2022.
+   This Internet-Draft will expire on 29 July 2022.
 
 Copyright Notice
 
@@ -49,15 +50,15 @@ Copyright Notice
    Provisions Relating to IETF Documents (https://trustee.ietf.org/
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
-   and restrictions with respect to this document.  Code Components
 
 
 
-Melnikov                  Expires 16 July 2022                  [Page 1]
+Melnikov                  Expires 29 July 2022                  [Page 1]
 
 Internet-Draft            SCRAM 2FA extensions              January 2022
 
 
+   and restrictions with respect to this document.  Code Components
    extracted from this document must include Revised BSD License text as
    described in Section 4.e of the Trust Legal Provisions and are
    provided without warranty as described in the Revised BSD License.
@@ -65,19 +66,20 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-   2.  Conventions Used in This Document . . . . . . . . . . . . . .   2
+   2.  Conventions Used in This Document . . . . . . . . . . . . . .   3
      2.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   3
      2.2.  Notation  . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  SCRAM Extension for 2FA . . . . . . . . . . . . . . . . . . .   3
-   4.  Formal Syntax . . . . . . . . . . . . . . . . . . . . . . . .   4
-   5.  Use of TOTP with SCRAM  . . . . . . . . . . . . . . . . . . .   4
-   6.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .   5
-   7.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   5
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
-   10. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   6
-   11. Normative References  . . . . . . . . . . . . . . . . . . . .   6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   7
+   4.  SCRAM Extension for reauthentication  . . . . . . . . . . . .   4
+   5.  Formal Syntax . . . . . . . . . . . . . . . . . . . . . . . .   4
+   6.  Use of TOTP with SCRAM  . . . . . . . . . . . . . . . . . . .   5
+   7.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .   6
+   8.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   6
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
+   12. Normative References  . . . . . . . . . . . . . . . . . . . .   7
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
 
 1.  Introduction
 
@@ -97,22 +99,26 @@ Table of Contents
    This specification describes an extension to SCRAM to provide 2
    factor authentication.  SCRAM already relies on passwords for
    authentication.  This document specifies how second "factors" can be
-   incorporated into SCRAM authentication.
+   incorporated into SCRAM authentication.  It also includes a separate
+   (but frequently used together with the 2 factor authentication)
+   extension for quick reauthentication.
+
+
+
+
+
+
+
+Melnikov                  Expires 29 July 2022                  [Page 2]
+
+Internet-Draft            SCRAM 2FA extensions              January 2022
+
 
 2.  Conventions Used in This Document
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
-
-
-
-
-
-Melnikov                  Expires 16 July 2022                  [Page 2]
-
-Internet-Draft            SCRAM 2FA extensions              January 2022
-
 
    Formal syntax is defined by [RFC5234] including the core rules
    defined in Appendix B of [RFC5234].
@@ -154,23 +160,52 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
    The server authenticates the client after receiving the second
    message as described in Section 3 of [RFC5802] If the client included
    "type" and "second-factor" attributes defined in this document (see
-   Section 4) and the server supports the specified second factor type,
+   Section 5) and the server supports the specified second factor type,
    the server verifies content of the "second-factor" according to the
-   "type".  If the second factor verification fails, the server MUST
-   fail authentication and SHOULD return either "replayed-second-factor"
-   or "invalid-second-factor" error in the "e" attribute.  [[It would be
-   possible to make the extra attributes mandatory by using SCRAM's
-   "m=", but the text above doesn't do that.]]
 
 
 
-
-Melnikov                  Expires 16 July 2022                  [Page 3]
+Melnikov                  Expires 29 July 2022                  [Page 3]
 
 Internet-Draft            SCRAM 2FA extensions              January 2022
 
 
-4.  Formal Syntax
+   "type".  If the second factor verification fails, the server MUST
+   fail authentication and SHOULD return either "replayed-second-factor"
+   or "invalid-second-factor" error in the "e" attribute.  [[It would be
+   possible to make the extra attributes mandatory by using SCRAM's
+   "m=", but the text above doesn't do that.  This is one of open issues
+   to resolve.]]
+
+4.  SCRAM Extension for reauthentication
+
+   This reauthentication extension to SCRAM allows the server to return
+   a token that can be used for quick reauthentication and bypasses 2
+   factor authentication prompt to the user.  The reauthentication token
+   is randomly generated value.  The reauthentication token is returned
+   in the "o" attribute that is appended to the end of the "server-
+   final-message".
+
+   [[Note: it would be possible to extend SCRAM itself to do
+   reauthentication, by including an earlier received reauthentication
+   token in the "client-first-message" of a subsequent SCRAM
+   authentication.  This will also turn off the server checking for 2
+   factor authentication information, unless the reauthentication
+   attempt is rejected by the server.  In the meantime, this document
+   presents a couple of other alternatives on how to use other SASL
+   mechanisms with the reauthentication token.]]
+
+   When the CLIENT-KEY/CLIENT-KEY-PLUS mechanism (see draft-cridland-
+   kitten-clientkey) is used for the reauthentication after a successful
+   SCRAM authentication, the reauthentication token is the Client Secret
+   Key.  [[Need to also somehow convey token expiration?]]
+
+   When the HT-* mechanism (see draft-schmaus-kitten-sasl-ht) is used
+   for the reauthentication after a successful SCRAM authentication, the
+   reauthentication token is the draft-schmaus-kitten-sasl-ht token.
+   [[Note that the HT hash should probably match the SCRAM hash used.]]
+
+5.  Formal Syntax
 
    This document defines the following new SCRAM attributes:
 
@@ -183,6 +218,16 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
       "t=totp" it is 6 digit decimal number.  [[Use 8 digits per Rick
       van Rein?]] This attribute MUST be ignored unless the "t"
       attribute is also specified.
+
+
+
+Melnikov                  Expires 29 July 2022                  [Page 4]
+
+Internet-Draft            SCRAM 2FA extensions              January 2022
+
+
+   *  o: This attribute specifies the base64-encoded value of the
+      reauthentication token.
 
    The following syntax specification uses the Augmented Backus-Naur
    Form (ABNF) notation as specified in [RFC5234].
@@ -204,10 +249,15 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
       value = <as defined in RFC 5802>
 
 
-5.  Use of TOTP with SCRAM
+      reauth-token = "o=" base64
+                        ;; base64 encoding of reauthentication
+                        ;; token.
+
+
+6.  Use of TOTP with SCRAM
 
    When TOTP is used with SCRAM, the following values for "t" and "f"
-   attributes (see Section 4 for their generic syntax) are used:
+   attributes (see Section 5 for their generic syntax) are used:
 
    *  t: This attribute specifies the type of second factor.  For TOTP
       the value is "totp".  If this attribute is specified, the "f"
@@ -221,7 +271,13 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
 
 
 
-Melnikov                  Expires 16 July 2022                  [Page 4]
+
+
+
+
+
+
+Melnikov                  Expires 29 July 2022                  [Page 5]
 
 Internet-Draft            SCRAM 2FA extensions              January 2022
 
@@ -234,7 +290,7 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
    issuer = 1*CHAR ; Issuer name.
 
 
-6.  Example
+7.  Example
 
    The following example extends the example from Section 5 of [RFC5802]
    to demonstrate use of TOTP:
@@ -252,7 +308,7 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
    SCRAM-SHA-512-PLUS or any other SCRAM variants that use other hash
    functions.
 
-7.  Open Issues
+8.  Open Issues
 
    Simon Josefsson: should this be a new SASL mechanism name, e.g.
    CROTP-SHA-256?
@@ -264,7 +320,7 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
 
    Rick van Rein: use TOTP with 6 or 8 digits?  Register both variants?
 
-8.  Security Considerations
+9.  Security Considerations
 
    Unless an external security layer (such as TLS) is also used, the OTP
    value is sent in unencrypted/unhashed form from the client to the
@@ -277,12 +333,12 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
 
 
 
-Melnikov                  Expires 16 July 2022                  [Page 5]
+Melnikov                  Expires 29 July 2022                  [Page 6]
 
 Internet-Draft            SCRAM 2FA extensions              January 2022
 
 
-9.  IANA Considerations
+10.  IANA Considerations
 
    IANA is requested to update the definition of the SASL family SCRAM
    in the SASL Mechanism registry established by [RFC4422] to also point
@@ -312,31 +368,36 @@ Internet-Draft            SCRAM 2FA extensions              January 2022
    Notes (optional): (none)
 
 
-10.  Acknowledgements
+11.  Acknowledgements
 
    Thank you to Stephen Farrell for motivating creation of this document
    and to Dave Cridland for describing how TOTP can be used with XMPP in
-   XEP-400.  Thank you to Rick van Rein and Simon Josefsson for comments
-   and corrections, but all final errors in this document remain mine.
+   XEP-0400.  Thank you to Rick van Rein and Simon Josefsson for
+   comments and corrections, but all final errors in this document
+   remain mine.
 
-11.  Normative References
+12.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
+
+
+
+
+
+
+Melnikov                  Expires 29 July 2022                  [Page 7]
+
+Internet-Draft            SCRAM 2FA extensions              January 2022
+
+
    [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
               Authentication and Security Layer (SASL)", RFC 4422,
               DOI 10.17487/RFC4422, June 2006,
               <https://www.rfc-editor.org/info/rfc4422>.
-
-
-
-Melnikov                  Expires 16 July 2022                  [Page 6]
-
-Internet-Draft            SCRAM 2FA extensions              January 2022
-
 
    [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
@@ -384,9 +445,4 @@ Author's Address
 
 
 
-
-
-
-
-
-Melnikov                  Expires 16 July 2022                  [Page 7]
+Melnikov                  Expires 29 July 2022                  [Page 8]
