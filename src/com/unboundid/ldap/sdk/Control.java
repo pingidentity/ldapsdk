@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -111,12 +112,21 @@ public class Control
 
 
 
-  // The registered set of decodeable controls, mapped from their OID to the
-  // class implementing the DecodeableControl interface that should be used to
-  // decode controls with that OID.
+  /**
+   * A map of the decodable control classes that have been registered with the
+   * LDAP SDK, mapped from OID to fully-qualified class name.
+   */
+  @NotNull static final ConcurrentHashMap<String,String>
+       DECODEABLE_CONTROL_CLASS_NAMES = new ConcurrentHashMap<>();
+
+
+
+  /**
+   * A map of the instantiated decodeable control classes registered with the
+   * LDAP SDK, mapped from OID to class instance.
+   */
   @NotNull private static final ConcurrentHashMap<String,DecodeableControl>
-       decodeableControlMap =
-            new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
+       DECODEABLE_CONTROL_INSTANCES = new ConcurrentHashMap<>();
 
 
 
@@ -507,23 +517,40 @@ public class Control
                                @Nullable final ASN1OctetString value)
          throws LDAPException
   {
-     final DecodeableControl decodeableControl = decodeableControlMap.get(oid);
-     if (decodeableControl == null)
-     {
-       return new Control(oid, isCritical, value);
-     }
-     else
-     {
-       try
-       {
-         return decodeableControl.decodeControl(oid, isCritical, value);
-       }
-       catch (final Exception e)
-       {
-         Debug.debugException(e);
-         return new Control(oid, isCritical, value);
-       }
-     }
+    DecodeableControl decodeableControl = DECODEABLE_CONTROL_INSTANCES.get(oid);
+    if (decodeableControl == null)
+    {
+      final String controlClassName = DECODEABLE_CONTROL_CLASS_NAMES.get(oid);
+      if (controlClassName == null)
+      {
+        return new Control(oid, isCritical, value);
+      }
+
+      try
+      {
+        final Class<?> controlClass = Class.forName(controlClassName);
+        final Constructor<?> noArgumentConstructor =
+             controlClass.getDeclaredConstructor();
+        noArgumentConstructor.setAccessible(true);
+        decodeableControl =
+             (DecodeableControl) noArgumentConstructor.newInstance();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        return new Control(oid, isCritical, value);
+      }
+    }
+
+    try
+    {
+      return decodeableControl.decodeControl(oid, isCritical, value);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return new Control(oid, isCritical, value);
+    }
   }
 
 
@@ -591,6 +618,25 @@ public class Control
 
 
   /**
+   * Registers the specified class to be used in an attempt to decode controls
+   * with the specified OID.
+   *
+   * @param  oid        The response control OID for which the provided class
+   *                    will be registered.
+   * @param  className  The fully-qualified name for the Java class that
+   *                    provides the decodeable control implementation to use
+   *                    for the provided OID.
+   */
+  public static void registerDecodeableControl(@NotNull final String oid,
+                                               @NotNull final String className)
+  {
+    DECODEABLE_CONTROL_CLASS_NAMES.put(oid, className);
+    DECODEABLE_CONTROL_INSTANCES.remove(oid);
+  }
+
+
+
+  /**
    * Registers the provided class to be used in an attempt to decode controls
    * with the specified OID.
    *
@@ -602,7 +648,9 @@ public class Control
   public static void registerDecodeableControl(@NotNull final String oid,
                           @NotNull final DecodeableControl controlInstance)
   {
-    decodeableControlMap.put(oid, controlInstance);
+    DECODEABLE_CONTROL_CLASS_NAMES.put(oid,
+         controlInstance.getClass().getName());
+    DECODEABLE_CONTROL_INSTANCES.put(oid, controlInstance);
   }
 
 
@@ -615,7 +663,8 @@ public class Control
    */
   public static void deregisterDecodeableControl(@NotNull final String oid)
   {
-    decodeableControlMap.remove(oid);
+    DECODEABLE_CONTROL_CLASS_NAMES.remove(oid);
+    DECODEABLE_CONTROL_INSTANCES.remove(oid);
   }
 
 

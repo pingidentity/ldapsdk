@@ -84,86 +84,63 @@ public final class ControlHelper
   @SuppressWarnings("deprecation")
   public static void registerDefaultResponseControls()
   {
-    Control.registerDecodeableControl(
-         AccountUsableResponseControl.ACCOUNT_USABLE_RESPONSE_OID,
-         new AccountUsableResponseControl());
+    final String packageNameDot =
+         "com.unboundid.ldap.sdk.unboundidds.controls.";
+    Control.registerDecodeableControl("1.3.6.1.4.1.42.2.27.9.5.8",
+         packageNameDot + "AccountUsableResponseControl");
 
-    Control.registerDecodeableControl(
-         AssuredReplicationResponseControl.ASSURED_REPLICATION_RESPONSE_OID,
-         new AssuredReplicationResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.29",
+         packageNameDot + "AssuredReplicationResponseControl");
 
-    Control.registerDecodeableControl(
-         GeneratePasswordResponseControl.GENERATE_PASSWORD_RESPONSE_OID,
-         new GeneratePasswordResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.59",
+         packageNameDot + "GeneratePasswordResponseControl");
 
-    Control.registerDecodeableControl(
-         GetAuthorizationEntryResponseControl.
-              GET_AUTHORIZATION_ENTRY_RESPONSE_OID,
-         new GetAuthorizationEntryResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.6",
+         packageNameDot + "GetAuthorizationEntryResponseControl");
 
-    Control.registerDecodeableControl(
-         GetBackendSetIDResponseControl.GET_BACKEND_SET_ID_RESPONSE_OID,
-         new GetBackendSetIDResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.34",
+         packageNameDot + "GetBackendSetIDResponseControl");
 
-    Control.registerDecodeableControl(
-         GetPasswordPolicyStateIssuesResponseControl.
-              GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID,
-         new GetPasswordPolicyStateIssuesResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.47",
+         packageNameDot + "GetPasswordPolicyStateIssuesResponseControl");
 
-    Control.registerDecodeableControl(
-         GetRecentLoginHistoryResponseControl.
-              GET_RECENT_LOGIN_HISTORY_RESPONSE_OID,
-         new GetRecentLoginHistoryResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.62",
+         packageNameDot + "GetRecentLoginHistoryResponseControl");
 
-    Control.registerDecodeableControl(
-         GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID,
-         new GetServerIDResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.15",
+         packageNameDot + "GetServerIDResponseControl");
 
-    Control.registerDecodeableControl(
-         GetUserResourceLimitsResponseControl.
-              GET_USER_RESOURCE_LIMITS_RESPONSE_OID,
-         new GetUserResourceLimitsResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.26",
+         packageNameDot + "GetUserResourceLimitsResponseControl");
 
-    Control.registerDecodeableControl(
-         IntermediateClientResponseControl.INTERMEDIATE_CLIENT_RESPONSE_OID,
-         new IntermediateClientResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.4",
+         packageNameDot + "InteractiveTransactionSpecificationResponseControl");
 
-    Control.registerDecodeableControl(
-         InteractiveTransactionSpecificationResponseControl.
-              INTERACTIVE_TRANSACTION_SPECIFICATION_RESPONSE_OID,
-         new InteractiveTransactionSpecificationResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.2",
+         packageNameDot + "IntermediateClientResponseControl");
 
-    Control.registerDecodeableControl(
-         JoinResultControl.JOIN_RESULT_OID,
-         new JoinResultControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.9",
+         packageNameDot + "JoinResultControl");
 
-    Control.registerDecodeableControl(
-         MatchingEntryCountResponseControl.MATCHING_ENTRY_COUNT_RESPONSE_OID,
-         new MatchingEntryCountResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.37",
+         packageNameDot + "MatchingEntryCountResponseControl");
 
-    Control.registerDecodeableControl(
-         PasswordPolicyResponseControl.PASSWORD_POLICY_RESPONSE_OID,
-         new PasswordPolicyResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.42.2.27.8.5.1",
+         packageNameDot + "PasswordPolicyResponseControl");
 
-    Control.registerDecodeableControl(
-         PasswordValidationDetailsResponseControl.
-              PASSWORD_VALIDATION_DETAILS_RESPONSE_OID,
-         new PasswordValidationDetailsResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.41",
+         packageNameDot + "PasswordValidationDetailsResponseControl");
 
-    Control.registerDecodeableControl(
-         SoftDeleteResponseControl.SOFT_DELETE_RESPONSE_OID,
-         new SoftDeleteResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.21",
+         packageNameDot + "SoftDeleteResponseControl");
 
-    Control.registerDecodeableControl(
-         TransactionSettingsResponseControl.TRANSACTION_SETTINGS_RESPONSE_OID,
-         new TransactionSettingsResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.39",
+         packageNameDot + "TransactionSettingsResponseControl");
 
-    Control.registerDecodeableControl(
-         UnsolicitedCancelResponseControl.UNSOLICITED_CANCEL_RESPONSE_OID,
-         new UnsolicitedCancelResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.53",
+         packageNameDot + "UniquenessResponseControl");
 
-    Control.registerDecodeableControl(
-         UniquenessResponseControl.UNIQUENESS_RESPONSE_OID,
-         new UniquenessResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.7",
+         packageNameDot + "UnsolicitedCancelResponseControl");
   }
 }

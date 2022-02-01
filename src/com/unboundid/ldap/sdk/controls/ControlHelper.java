@@ -73,49 +73,38 @@ public final class ControlHelper
   @InternalUseOnly()
   public static void registerDefaultResponseControls()
   {
-    Control.registerDecodeableControl(
-         AuthorizationIdentityResponseControl.
-              AUTHORIZATION_IDENTITY_RESPONSE_OID,
-         new AuthorizationIdentityResponseControl());
+    final String packageNameDot = "com.unboundid.ldap.sdk.controls.";
+    Control.registerDecodeableControl("2.16.840.1.113730.3.4.15",
+         packageNameDot + "AuthorizationIdentityResponseControl");
 
-    Control.registerDecodeableControl(
-         ContentSyncDoneControl.SYNC_DONE_OID,
-         new ContentSyncDoneControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.4203.1.9.1.3",
+         packageNameDot + "ContentSyncDoneControl");
 
-    Control.registerDecodeableControl(
-         ContentSyncStateControl.SYNC_STATE_OID,
-         new ContentSyncStateControl());
+    Control.registerDecodeableControl("1.3.6.1.4.1.4203.1.9.1.2",
+         packageNameDot + "ContentSyncStateControl");
 
-    Control.registerDecodeableControl(
-         EntryChangeNotificationControl.ENTRY_CHANGE_NOTIFICATION_OID,
-         new EntryChangeNotificationControl());
+    Control.registerDecodeableControl("2.16.840.1.113730.3.4.7",
+         packageNameDot + "EntryChangeNotificationControl");
 
-    Control.registerDecodeableControl(
-         PostReadResponseControl.POST_READ_RESPONSE_OID,
-         new PostReadResponseControl());
+    Control.registerDecodeableControl("2.16.840.1.113730.3.4.4",
+         packageNameDot + "PasswordExpiredControl");
 
-    Control.registerDecodeableControl(
-         PreReadResponseControl.PRE_READ_RESPONSE_OID,
-         new PreReadResponseControl());
+    Control.registerDecodeableControl("2.16.840.1.113730.3.4.5",
+         packageNameDot + "PasswordExpiringControl");
 
-    Control.registerDecodeableControl(
-         ServerSideSortResponseControl.SERVER_SIDE_SORT_RESPONSE_OID,
-         new ServerSideSortResponseControl());
+    Control.registerDecodeableControl("1.3.6.1.1.13.2",
+         packageNameDot + "PostReadResponseControl");
 
-    Control.registerDecodeableControl(
-         SimplePagedResultsControl.PAGED_RESULTS_OID,
-         new SimplePagedResultsControl());
+    Control.registerDecodeableControl("1.3.6.1.1.13.1",
+         packageNameDot + "PreReadResponseControl");
 
-    Control.registerDecodeableControl(
-         PasswordExpiredControl.PASSWORD_EXPIRED_OID,
-         new PasswordExpiredControl());
+    Control.registerDecodeableControl("1.2.840.113556.1.4.474",
+         packageNameDot + "ServerSideSortResponseControl");
 
-    Control.registerDecodeableControl(
-         PasswordExpiringControl.PASSWORD_EXPIRING_OID,
-         new PasswordExpiringControl());
+    Control.registerDecodeableControl("1.2.840.113556.1.4.319",
+         packageNameDot + "SimplePagedResultsControl");
 
-    Control.registerDecodeableControl(
-         VirtualListViewResponseControl.VIRTUAL_LIST_VIEW_RESPONSE_OID,
-         new VirtualListViewResponseControl());
+    Control.registerDecodeableControl("2.16.840.1.113730.3.4.10",
+         packageNameDot + "VirtualListViewResponseControl");
   }
 }

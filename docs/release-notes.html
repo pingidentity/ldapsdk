@@ -25,6 +25,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Addressed a potential conflict in the way that decodeable controls are
+                  registered with the LDAP SDK that may have caused issues when trying to
+                  instantiate a control.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDIF reader to support reading modifications with values read files
                   referenced by URL.  This was previously supported when reading LDIF entries or
                   add change records, but support for reading modification values from files had

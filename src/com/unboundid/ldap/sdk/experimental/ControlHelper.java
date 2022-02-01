@@ -73,9 +73,9 @@ public final class ControlHelper
   @InternalUseOnly()
   public static void registerDefaultResponseControls()
   {
-    Control.registerDecodeableControl(
-         ActiveDirectoryDirSyncControl.DIRSYNC_OID,
-         new ActiveDirectoryDirSyncControl());
+    final String packageNameDot = "com.unboundid.ldap.sdk.experimental.";
+    Control.registerDecodeableControl("1.2.840.113556.1.4.841",
+         packageNameDot + "ActiveDirectoryDirSyncControl");
   }
 
 
@@ -89,9 +89,8 @@ public final class ControlHelper
   @InternalUseOnly()
   public static void registerNonCommercialResponseControls()
   {
-    Control.registerDecodeableControl(
-         DraftBeheraLDAPPasswordPolicy10ResponseControl.
-              PASSWORD_POLICY_RESPONSE_OID,
-         new DraftBeheraLDAPPasswordPolicy10ResponseControl());
+    final String packageNameDot = "com.unboundid.ldap.sdk.experimental.";
+    Control.registerDecodeableControl("1.3.6.1.4.1.42.2.27.8.5.1",
+         packageNameDot + "DraftBeheraLDAPPasswordPolicy10ResponseControl");
   }
 }
