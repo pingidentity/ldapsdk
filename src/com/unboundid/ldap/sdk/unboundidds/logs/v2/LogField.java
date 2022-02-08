@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 import java.io.Serializable;
 
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.syntax.LogFieldSyntax;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;

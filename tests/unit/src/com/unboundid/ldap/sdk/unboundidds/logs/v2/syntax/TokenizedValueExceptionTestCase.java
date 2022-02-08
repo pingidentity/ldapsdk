@@ -33,71 +33,79 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.syntax;
 
 
 
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
-import com.unboundid.ldap.sdk.unboundidds.logs.v2.syntax.BooleanLogFieldSyntax;
 
 
 
 /**
- * This class provides a set of tests for the {@code LogField} class.
+ * This class provides a set of tests for the tokenized value exception.
  */
-public final class LogFieldTestCase
+public final class TokenizedValueExceptionTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Tests the behavior of the log field without a constant name.
+   * Tests the behavior when creating an exception with just a message.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testWithoutConstantName()
+  public void testWithoutCause()
          throws Exception
   {
-    final LogField field = new LogField("the-field-name",
-         BooleanLogFieldSyntax.getInstance());
+    final TokenizedValueException e = new TokenizedValueException("foo");
 
-    assertNotNull(field.getFieldName());
-    assertEquals(field.getFieldName(), "the-field-name");
+    assertNotNull(e.getMessage());
+    assertEquals(e.getMessage(), "foo");
 
-    assertNull(field.getConstantName());
-
-    assertNotNull(field.getExpectedSyntax());
-    assertTrue(field.getExpectedSyntax() instanceof BooleanLogFieldSyntax);
-
-    assertNotNull(field.toString());
-    assertFalse(field.toString().isEmpty());
+    assertNull(e.getCause());
   }
 
 
 
   /**
-   * Tests the behavior of the log field with a constant name.
+   * Tests the behavior when creating an exception with a message and a
+   * {@code null} cause.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testWithConstantName()
+  public void testWithNullCause()
          throws Exception
   {
-    final LogField field = new LogField("the-field-name", "the-constant-name",
-         BooleanLogFieldSyntax.getInstance());
+    final TokenizedValueException e = new TokenizedValueException("bar", null);
 
-    assertNotNull(field.getFieldName());
-    assertEquals(field.getFieldName(), "the-field-name");
+    assertNotNull(e.getMessage());
+    assertEquals(e.getMessage(), "bar");
 
-    assertNotNull(field.getConstantName());
-    assertEquals(field.getConstantName(), "the-constant-name");
+    assertNull(e.getCause());
+  }
 
-    assertNotNull(field.getExpectedSyntax());
-    assertTrue(field.getExpectedSyntax() instanceof BooleanLogFieldSyntax);
 
-    assertNotNull(field.toString());
-    assertFalse(field.toString().isEmpty());
+
+  /**
+   * Tests the behavior when creating an exception with a message and a
+   * non-{@code null} cause.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithNonNullCause()
+         throws Exception
+  {
+    final Exception cause = new Exception("cause");
+
+    final TokenizedValueException e = new TokenizedValueException("baz", cause);
+
+    assertNotNull(e.getMessage());
+    assertEquals(e.getMessage(), "baz");
+
+    assertNotNull(e.getCause());
+    assertEquals(e.getCause(), cause);
   }
 }
