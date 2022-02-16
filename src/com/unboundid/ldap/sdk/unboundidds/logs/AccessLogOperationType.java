@@ -180,10 +180,19 @@ public enum AccessLogOperationType
   {
     for (final AccessLogOperationType t : values())
     {
-      if (t.logIdentifier.equals(logIdentifier))
+      if (t.logIdentifier.equalsIgnoreCase(logIdentifier))
       {
         return t;
       }
+    }
+
+    // Handle a few additional option for modify DN operations.
+    if (logIdentifier.equalsIgnoreCase("MODIFY_DN") ||
+         logIdentifier.equalsIgnoreCase("MODIFY-DN") ||
+         logIdentifier.equalsIgnoreCase("MOD_DN") ||
+         logIdentifier.equalsIgnoreCase("MOD-DN"))
+    {
+      return MODDN;
     }
 
     return null;

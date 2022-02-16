@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2022 Ping Identity Corporation
+ * Copyright 2022 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2009-2022 Ping Identity Corporation
+ * Copyright 2022 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2009-2022 Ping Identity Corporation
+ * Copyright (C) 2022 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,11 +33,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
 
 
 
-import com.unboundid.util.NotExtensible;
+import java.io.Serializable;
+
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -47,9 +48,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This class provides a data structure that holds information about a log
- * message that may appear in the Directory Server access log about an extended
- * request received from a client.
+ * This class provides a helper for use in forward access log messages.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -61,98 +60,88 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
-@NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public class ExtendedRequestAccessLogMessage
-       extends OperationRequestAccessLogMessage
+final class JSONForwardAccessLogMessageHelper
+      implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -4278715896574532061L;
+  private static final long serialVersionUID = -6672097428101369833L;
 
 
 
-  // The OID for the extended request.
-  @Nullable private final String requestOID;
+  // The target port for the forward access log message.
+  @Nullable private final Integer targetPort;
 
-  // The name for the extended request.
-  @Nullable private final String requestType;
+  // The target host for the forward access log message.
+  @Nullable private final String targetHost;
 
-
-
-  /**
-   * Creates a new extended request access log message from the provided message
-   * string.
-   *
-   * @param  s  The string to be parsed as an extended request access log
-   *            message.
-   *
-   * @throws  LogException  If the provided string cannot be parsed as a valid
-   *                        log message.
-   */
-  public ExtendedRequestAccessLogMessage(@NotNull final String s)
-         throws LogException
-  {
-    this(new LogMessage(s));
-  }
+  // The target protocol for the forward access log message.
+  @Nullable private final String targetProtocol;
 
 
 
   /**
-   * Creates a new extended request access log message from the provided log
+   * Creates a new JSON forward access log message helper for the provided log
    * message.
    *
-   * @param  m  The log message to be parsed as an extended request access log
-   *            message.
+   * @param  logMessage  The log message to use to create this forward helper.
    */
-  public ExtendedRequestAccessLogMessage(@NotNull final LogMessage m)
+  JSONForwardAccessLogMessageHelper(
+       @NotNull final JSONRequestAccessLogMessage logMessage)
   {
-    super(m);
-
-    requestOID = getNamedValue("requestOID");
-    requestType = getNamedValue("requestType");
+    targetHost = logMessage.getString(JSONFormattedAccessLogFields.TARGET_HOST);
+    targetPort = logMessage.getIntegerNoThrow(
+         JSONFormattedAccessLogFields.TARGET_PORT);
+    targetProtocol =
+         logMessage.getString(JSONFormattedAccessLogFields.TARGET_PROTOCOL);
   }
 
 
 
   /**
-   * Retrieves the OID of the extended request.
+   * Retrieves the address of the backend server to which the request has been
+   * forwarded.
    *
-   * @return  The OID of the extended request, or {@code null} if it is not
-   *          included in the log message.
+   * @return  The address of the backend server to which the request has been
+   *          forwarded, or {@code null} if it is not included in the log
+   *          message.
    */
   @Nullable()
-  public final String getRequestOID()
+  String getTargetHost()
   {
-    return requestOID;
+    return targetHost;
   }
 
 
 
   /**
-   * Retrieves the type of extended operation being processed.  This is
-   * generally a human-readable name for the operation.
+   * Retrieves the port of the backend server to which the request has been
+   * forwarded.
    *
-   * @return  The type of extended operation, or {@code null} if it is not
-   *          included in the log message.
+   * @return  The port of the backend server to which the request has been
+   *          forwarded, or {@code null} if it is not included in the log
+   *          message.
    */
   @Nullable()
-  public final String getRequestType()
+  Integer getTargetPort()
   {
-    return requestType;
+    return targetPort;
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves the protocol used to forward the request to the backend server.
+   *
+   * @return  The protocol used to forward the request to the backend server, or
+   *          {@code null} if it is not included in the log message.
    */
-  @Override()
-  @NotNull()
-  public final AccessLogOperationType getOperationType()
+  @Nullable()
+  String getTargetProtocol()
   {
-    return AccessLogOperationType.EXTENDED;
+    return targetProtocol;
   }
 }

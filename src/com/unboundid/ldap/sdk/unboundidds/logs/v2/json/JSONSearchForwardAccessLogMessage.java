@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2022 Ping Identity Corporation
+ * Copyright 2022 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2009-2022 Ping Identity Corporation
+ * Copyright 2022 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2009-2022 Ping Identity Corporation
+ * Copyright (C) 2022 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,23 +33,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
 
 
 
+import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
+import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.SearchForwardAccessLogMessage;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONObject;
 
 
 
 /**
- * This class provides a data structure that holds information about a log
- * message that may appear in the Directory Server access log about an extended
- * request received from a client.
+ * This class provides a data structure that holds information about a
+ * JSON-formatted search forward access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -64,84 +67,38 @@ import com.unboundid.util.ThreadSafetyLevel;
 @NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public class ExtendedRequestAccessLogMessage
-       extends OperationRequestAccessLogMessage
+public class JSONSearchForwardAccessLogMessage
+       extends JSONSearchRequestAccessLogMessage
+       implements SearchForwardAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -4278715896574532061L;
+  private static final long serialVersionUID = -2052488502122336609L;
 
 
 
-  // The OID for the extended request.
-  @Nullable private final String requestOID;
-
-  // The name for the extended request.
-  @Nullable private final String requestType;
+  // The forward helper for this log message.
+  @NotNull private final JSONForwardAccessLogMessageHelper forwardHelper;
 
 
 
   /**
-   * Creates a new extended request access log message from the provided message
-   * string.
+   * Creates a new JSON search forward access log message from the provided
+   * JSON object.
    *
-   * @param  s  The string to be parsed as an extended request access log
-   *            message.
+   * @param  jsonObject  The JSON object that contains an encoded representation
+   *                     of this log message.  It must not be {@code null}.
    *
-   * @throws  LogException  If the provided string cannot be parsed as a valid
-   *                        log message.
+   * @throws  LogException  If the provided JSON object cannot be parsed as a
+   *                        valid log message.
    */
-  public ExtendedRequestAccessLogMessage(@NotNull final String s)
+  public JSONSearchForwardAccessLogMessage(@NotNull final JSONObject jsonObject)
          throws LogException
   {
-    this(new LogMessage(s));
-  }
+    super(jsonObject);
 
-
-
-  /**
-   * Creates a new extended request access log message from the provided log
-   * message.
-   *
-   * @param  m  The log message to be parsed as an extended request access log
-   *            message.
-   */
-  public ExtendedRequestAccessLogMessage(@NotNull final LogMessage m)
-  {
-    super(m);
-
-    requestOID = getNamedValue("requestOID");
-    requestType = getNamedValue("requestType");
-  }
-
-
-
-  /**
-   * Retrieves the OID of the extended request.
-   *
-   * @return  The OID of the extended request, or {@code null} if it is not
-   *          included in the log message.
-   */
-  @Nullable()
-  public final String getRequestOID()
-  {
-    return requestOID;
-  }
-
-
-
-  /**
-   * Retrieves the type of extended operation being processed.  This is
-   * generally a human-readable name for the operation.
-   *
-   * @return  The type of extended operation, or {@code null} if it is not
-   *          included in the log message.
-   */
-  @Nullable()
-  public final String getRequestType()
-  {
-    return requestType;
+    forwardHelper = new JSONForwardAccessLogMessageHelper(this);
   }
 
 
@@ -151,8 +108,44 @@ public class ExtendedRequestAccessLogMessage
    */
   @Override()
   @NotNull()
-  public final AccessLogOperationType getOperationType()
+  public AccessLogMessageType getMessageType()
   {
-    return AccessLogOperationType.EXTENDED;
+    return AccessLogMessageType.FORWARD;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getTargetHost()
+  {
+    return forwardHelper.getTargetHost();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final Integer getTargetPort()
+  {
+    return forwardHelper.getTargetPort();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getTargetProtocol()
+  {
+    return forwardHelper.getTargetProtocol();
   }
 }

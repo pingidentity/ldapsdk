@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2022 Ping Identity Corporation
+ * Copyright 2022 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2009-2022 Ping Identity Corporation
+ * Copyright 2022 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2009-2022 Ping Identity Corporation
+ * Copyright (C) 2022 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,13 +33,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2;
 
 
 
 import com.unboundid.util.NotExtensible;
-import com.unboundid.util.NotMutable;
-import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -47,9 +45,8 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This class provides a data structure that holds information about a log
- * message that may appear in the Directory Server access log about an extended
- * request received from a client.
+ * This class provides a data structure that holds information about an extended
+ * request access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -62,61 +59,10 @@ import com.unboundid.util.ThreadSafetyLevel;
  * </BLOCKQUOTE>
  */
 @NotExtensible()
-@NotMutable()
-@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public class ExtendedRequestAccessLogMessage
+@ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
+public interface ExtendedRequestAccessLogMessage
        extends OperationRequestAccessLogMessage
 {
-  /**
-   * The serial version UID for this serializable class.
-   */
-  private static final long serialVersionUID = -4278715896574532061L;
-
-
-
-  // The OID for the extended request.
-  @Nullable private final String requestOID;
-
-  // The name for the extended request.
-  @Nullable private final String requestType;
-
-
-
-  /**
-   * Creates a new extended request access log message from the provided message
-   * string.
-   *
-   * @param  s  The string to be parsed as an extended request access log
-   *            message.
-   *
-   * @throws  LogException  If the provided string cannot be parsed as a valid
-   *                        log message.
-   */
-  public ExtendedRequestAccessLogMessage(@NotNull final String s)
-         throws LogException
-  {
-    this(new LogMessage(s));
-  }
-
-
-
-  /**
-   * Creates a new extended request access log message from the provided log
-   * message.
-   *
-   * @param  m  The log message to be parsed as an extended request access log
-   *            message.
-   */
-  public ExtendedRequestAccessLogMessage(@NotNull final LogMessage m)
-  {
-    super(m);
-
-    requestOID = getNamedValue("requestOID");
-    requestType = getNamedValue("requestType");
-  }
-
-
-
   /**
    * Retrieves the OID of the extended request.
    *
@@ -124,10 +70,7 @@ public class ExtendedRequestAccessLogMessage
    *          included in the log message.
    */
   @Nullable()
-  public final String getRequestOID()
-  {
-    return requestOID;
-  }
+  String getRequestOID();
 
 
 
@@ -139,20 +82,5 @@ public class ExtendedRequestAccessLogMessage
    *          included in the log message.
    */
   @Nullable()
-  public final String getRequestType()
-  {
-    return requestType;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @NotNull()
-  public final AccessLogOperationType getOperationType()
-  {
-    return AccessLogOperationType.EXTENDED;
-  }
+  String getRequestType();
 }

@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -219,9 +220,11 @@ public enum AccessLogMessageType
   public static AccessLogMessageType forName(
                      @NotNull final String logIdentifier)
   {
+    final String normalizedIdentifier =
+         StaticUtils.toUpperCase(logIdentifier).replace('_', '-');
     for (final AccessLogMessageType t : values())
     {
-      if (t.logIdentifier.equals(logIdentifier))
+      if (t.logIdentifier.equals(normalizedIdentifier))
       {
         return t;
       }
