@@ -73,7 +73,7 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-public final class SimpleBindRequest
+public class SimpleBindRequest
        extends BindRequest
        implements ResponseAcceptor, ProtocolOp
 {
@@ -644,7 +644,7 @@ public final class SimpleBindRequest
    *                         reading the response.
    */
   @NotNull()
-  private BindResult processSync(@NotNull final LDAPConnection connection,
+  protected BindResult processSync(@NotNull final LDAPConnection connection,
                                  final boolean allowRetry)
           throws LDAPException
   {
@@ -725,7 +725,7 @@ public final class SimpleBindRequest
    * @throws  LDAPException  If a problem occurs.
    */
   @NotNull()
-  private BindResult handleResponse(@NotNull final LDAPConnection connection,
+  protected BindResult handleResponse(@NotNull final LDAPConnection connection,
                                     @Nullable final LDAPResponse response,
                                     final long requestTime,
                                     final boolean allowRetry)

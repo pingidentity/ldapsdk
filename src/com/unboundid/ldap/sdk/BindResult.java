@@ -50,6 +50,7 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
@@ -85,6 +86,7 @@ public class BindResult
   @Nullable private final ASN1OctetString serverSASLCredentials;
 
 
+  private byte[] responseBytes;
 
   /**
    * Creates a new bind result with the provided information.
@@ -224,7 +226,9 @@ public class BindResult
            reader.beginSequence();
       final ResultCode resultCode = ResultCode.valueOf(reader.readEnumerated());
 
-      String matchedDN = reader.readString();
+      byte[] responseBytes = reader.readBytes();
+
+      String matchedDN = StaticUtils.toUTF8String(responseBytes);
       if (matchedDN.isEmpty())
       {
         matchedDN = null;
@@ -279,8 +283,10 @@ public class BindResult
         controlList.toArray(controls);
       }
 
-      return new BindResult(messageID, resultCode, diagnosticMessage, matchedDN,
+      BindResult result = new BindResult(messageID, resultCode, diagnosticMessage, matchedDN,
                             referralURLs, controls, serverSASLCredentials);
+      result.responseBytes = responseBytes;
+      return result;
     }
     catch (final LDAPException le)
     {
@@ -297,7 +303,9 @@ public class BindResult
     }
   }
 
-
+  public byte[] getResponseBytes() {
+    return responseBytes;
+  }
 
   /**
    * Retrieves the server SASL credentials from the bind result, if available.

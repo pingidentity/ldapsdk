@@ -432,6 +432,11 @@ final class LDAPConnectionInternals
   }
 
 
+  void startNTLMSealing(byte[] ntlmKey) throws IOException
+  {
+      outputStream = connectionReader.startNTLMSealing(ntlmKey);
+  }
+
 
   /**
    * Converts this clear-text connection to one that uses SASL integrity and/or
