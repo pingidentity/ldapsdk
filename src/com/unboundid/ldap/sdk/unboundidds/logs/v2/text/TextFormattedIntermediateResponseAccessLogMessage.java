@@ -33,7 +33,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
@@ -41,7 +41,6 @@ import java.util.Set;
 
 import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
 import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogOperationType;
-import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
             IntermediateResponseAccessLogMessage;
 import com.unboundid.util.NotMutable;
@@ -49,15 +48,12 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
-
-import static com.unboundid.ldap.sdk.unboundidds.logs.v2.json.JSONLogMessages.*;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted operation request access log message.
+ * text-formatted operation request access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -71,8 +67,8 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.v2.json.JSONLogMessages.*;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
-public final class JSONIntermediateResponseAccessLogMessage
-       extends JSONRequestAccessLogMessage
+public final class TextFormattedIntermediateResponseAccessLogMessage
+       extends TextFormattedRequestAccessLogMessage
        implements IntermediateResponseAccessLogMessage
 {
   /**
@@ -101,49 +97,29 @@ public final class JSONIntermediateResponseAccessLogMessage
 
 
   /**
-   * Creates a new JSON intermediate response access log message from the
-   * provided JSON object.
+   * Creates a new text-formatted intermediate response access log message from
+   * the provided message.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
-   *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @param  logMessage     The log message to use to create this intermediate
+   *                        response access log message.  It must not be
+   *                        {@code null}.
+   * @param  operationType  The operation type for this intermediate
    */
-  public JSONIntermediateResponseAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
-         throws LogException
+  TextFormattedIntermediateResponseAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage,
+       @NotNull final AccessLogOperationType operationType)
   {
-    super(jsonObject);
+    super(logMessage);
 
-    oid = getString(JSONFormattedAccessLogFields.INTERMEDIATE_RESPONSE_OID);
+    this.operationType = operationType;
+
+    oid = getString(TextFormattedAccessLogFields.INTERMEDIATE_RESPONSE_OID);
     intermediateResponseName = getString(
-         JSONFormattedAccessLogFields.INTERMEDIATE_RESPONSE_NAME);
+         TextFormattedAccessLogFields.INTERMEDIATE_RESPONSE_NAME);
     valueString = getString(
-         JSONFormattedAccessLogFields.INTERMEDIATE_RESPONSE_VALUE);
-    responseControlOIDs = getStringSet(
-         JSONFormattedAccessLogFields.RESPONSE_CONTROL_OIDS);
-
-    final String operationTypeName = getString(
-         JSONFormattedAccessLogFields.OPERATION_TYPE);
-    if (operationTypeName == null)
-    {
-      final String jsonObjectString = jsonObject.toSingleLineString();
-      throw new LogException(jsonObjectString,
-           ERR_INTERMEDIATE_RESPONSE_CANNOT_IDENTIFY_OPERATION_TYPE.get(
-                jsonObjectString));
-    }
-    else
-    {
-      operationType = AccessLogOperationType.forName(operationTypeName);
-      if (operationType == null)
-      {
-        final String jsonObjectString = jsonObject.toSingleLineString();
-        throw new LogException(jsonObjectString,
-             ERR_INTERMEDIATE_RESPONSE_CANNOT_IDENTIFY_OPERATION_TYPE.get(
-                  jsonObjectString));
-      }
-    }
+         TextFormattedAccessLogFields.INTERMEDIATE_RESPONSE_VALUE);
+    responseControlOIDs = getCommaDelimitedStringSet(
+         TextFormattedAccessLogFields.RESPONSE_CONTROL_OIDS);
   }
 
 

@@ -47,8 +47,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added an API for reading and parsing JSON-formatted access log messages from the
-                  Ping Identity Directory Server and related server products.
+                  Added a new version of an API that can be used for parsing access log messages
+                  from the Ping Identity Directory Server and other related server products.  The
+                  initial version of the logging API only supports text-formatted log messages in
+                  the default "name=value" format, but the new API supports both those
+                  text-formatted message and messages formatted as JSON objects.  A common API can
+                  be used to parse log messages of either type, although there may be slight
+                  differences where the different log formats represent information in somewhat
+                  different ways.
                   <br><br>
                 </li>
 

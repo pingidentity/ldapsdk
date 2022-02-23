@@ -33,28 +33,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
-import java.util.List;
-
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
-import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
-import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
-import com.unboundid.util.NotMutable;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.AccessLogMessage;
+import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -66,67 +60,53 @@ import com.unboundid.util.json.JSONObject;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
-@NotMutable()
-@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+@NotExtensible()
+@ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
+public abstract class TextFormattedAccessLogMessage
+       extends TextFormattedLogMessage
+       implements AccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = 458413508863077700L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The connection ID value from the log message.
+  @Nullable private final Long connectionID;
+
+  // The thread ID value from the log message.
+  @Nullable private final Long threadID;
+
+  // The instance name value from the log message.
+  @Nullable private final String instanceName;
+
+  // The product name value from the log message.
+  @Nullable private final String productName;
+
+  // The startup ID value from the log message.
+  @Nullable private final String startupID;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted access log message from the provided message.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
-   *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @param  logMessage  The log message to use to create this access log
+   *                     message.  It must not be {@code null}.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
-         throws LogException
+  protected TextFormattedAccessLogMessage(
+                 @NotNull final TextFormattedLogMessage logMessage)
   {
-    super(jsonObject);
+    super(logMessage);
 
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @NotNull()
-  public AccessLogMessageType getMessageType()
-  {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
+    instanceName = getString(TextFormattedAccessLogFields.INSTANCE_NAME);
+    productName = getString(TextFormattedAccessLogFields.PRODUCT_NAME);
+    startupID = getString(TextFormattedAccessLogFields.STARTUP_ID);
+    threadID = getLongNoThrow(TextFormattedAccessLogFields.THREAD_ID);
+    connectionID =
+         getLongNoThrow(TextFormattedAccessLogFields.CONNECTION_ID);
   }
 
 
@@ -136,22 +116,56 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    */
   @Override()
   @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
+  public final String getProductName()
   {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
+    return productName;
   }
 
 
 
   /**
-   * Retrieves the list of server results.
-   *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
+   * {@inheritDoc}
    */
-  @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  @Override()
+  @Nullable()
+  public final String getInstanceName()
   {
-    return assuranceCompletedHelper.getServerResults();
+    return instanceName;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getStartupID()
+  {
+    return startupID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final Long getThreadID()
+  {
+    return threadID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable
+  public final Long getConnectionID()
+  {
+    return connectionID;
   }
 }

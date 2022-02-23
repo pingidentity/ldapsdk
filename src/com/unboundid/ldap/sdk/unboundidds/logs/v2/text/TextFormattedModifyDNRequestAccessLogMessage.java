@@ -33,28 +33,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
-import java.util.List;
-
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
+import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogOperationType;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+            ModifyDNRequestAccessLogMessage;
+import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted modify DN request access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -66,92 +64,130 @@ import com.unboundid.util.json.JSONObject;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
+@NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+public class TextFormattedModifyDNRequestAccessLogMessage
+       extends TextFormattedRequestAccessLogMessage
+       implements ModifyDNRequestAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = -4814940474132841630L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // Indicates whether to delete the old RDN values from the entry.
+  @Nullable private final Boolean deleteOldRDN;
+
+  // The current DN of the entry to rename.
+  @Nullable private final String dn;
+
+  // The new RDN to use for the entry.
+  @Nullable private final String newRDN;
+
+  // The new superior DN to use for the entry.
+  @Nullable private final String newSuperiorDN;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted modify DN request access log message from the
+   * provided message string.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedModifyDNRequestAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
-
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+    this(new TextFormattedLogMessage(logMessageString));
   }
 
 
 
   /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @NotNull()
-  public AccessLogMessageType getMessageType()
-  {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
+   * Creates a new text-formatted modify DN request access log message from the
+   * provided message.
    *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
+   * @param  logMessage  The log message to use to create this modify DN request
+   *                     access log message.  It must not be {@code null}.
    */
-  @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  TextFormattedModifyDNRequestAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
   {
-    return assuranceCompletedHelper.getServerResults();
+    super(logMessage);
+
+    dn = getString(TextFormattedAccessLogFields.MODDN_ENTRY_DN);
+    newRDN = getString(TextFormattedAccessLogFields.MODDN_NEW_RDN);
+    deleteOldRDN =
+         getBooleanNoThrow(TextFormattedAccessLogFields.MODDN_DELETE_OLD_RDN);
+    newSuperiorDN =
+         getString(TextFormattedAccessLogFields.MODDN_NEW_SUPERIOR_DN);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public final AccessLogOperationType getOperationType()
+  {
+    return AccessLogOperationType.MODDN;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getDN()
+  {
+    return dn;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getNewRDN()
+  {
+    return newRDN;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final Boolean getDeleteOldRDN()
+  {
+    return deleteOldRDN;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getNewSuperiorDN()
+  {
+    return newSuperiorDN;
   }
 }

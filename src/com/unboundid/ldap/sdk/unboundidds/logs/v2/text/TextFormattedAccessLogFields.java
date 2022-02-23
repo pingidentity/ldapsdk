@@ -289,6 +289,17 @@ public final class TextFormattedAccessLogFields
 
 
   /**
+   * A field that holds a numeric identifier that is associated with the
+   * general reason for the authentication failure.  This field may appear in
+   * bind result access log messages.
+   */
+  @NotNull public static final LogField BIND_AUTHENTICATION_FAILURE_NAME =
+       createField("BIND_AUTHENTICATION_FAILURE_NAME", "authFailureName",
+            STRING_SYNTAX);
+
+
+
+  /**
    * A field that holds a message providing a reason for a failed authentication
    * attempt.  This field may appear in bind result access log messages.
    */

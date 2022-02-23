@@ -33,28 +33,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
-import java.util.List;
+import java.io.Serializable;
 
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
-import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
-import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
- * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * This class provides a helper for use in forward access log messages.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,90 +62,86 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+final class TextFormattedForwardAccessLogMessageHelper
+      implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = -3994282487376865069L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The target port for the forward access log message.
+  @Nullable private final Integer targetPort;
+
+  // The target host for the forward access log message.
+  @Nullable private final String targetHost;
+
+  // The target protocol for the forward access log message.
+  @Nullable private final String targetProtocol;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted forward access log message helper for the
+   * provided log message.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
-   *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @param  logMessage  The log message to use to create this forward helper.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
-         throws LogException
+  TextFormattedForwardAccessLogMessageHelper(
+       @NotNull final TextFormattedRequestAccessLogMessage logMessage)
   {
-    super(jsonObject);
-
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+    targetHost = logMessage.getString(TextFormattedAccessLogFields.TARGET_HOST);
+    targetPort = logMessage.getIntegerNoThrow(
+         TextFormattedAccessLogFields.TARGET_PORT);
+    targetProtocol =
+         logMessage.getString(TextFormattedAccessLogFields.TARGET_PROTOCOL);
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves the address of the backend server to which the request has been
+   * forwarded.
+   *
+   * @return  The address of the backend server to which the request has been
+   *          forwarded, or {@code null} if it is not included in the log
+   *          message.
    */
-  @Override()
-  @NotNull()
-  public AccessLogMessageType getMessageType()
-  {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
   @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
+  String getTargetHost()
   {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
+    return targetHost;
   }
 
 
 
   /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
+   * Retrieves the port of the backend server to which the request has been
+   * forwarded.
    *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
+   * @return  The port of the backend server to which the request has been
+   *          forwarded, or {@code null} if it is not included in the log
+   *          message.
    */
-  @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  @Nullable()
+  Integer getTargetPort()
   {
-    return assuranceCompletedHelper.getServerResults();
+    return targetPort;
+  }
+
+
+
+  /**
+   * Retrieves the protocol used to forward the request to the backend server.
+   *
+   * @return  The protocol used to forward the request to the backend server, or
+   *          {@code null} if it is not included in the log message.
+   */
+  @Nullable()
+  String getTargetProtocol()
+  {
+    return targetProtocol;
   }
 }

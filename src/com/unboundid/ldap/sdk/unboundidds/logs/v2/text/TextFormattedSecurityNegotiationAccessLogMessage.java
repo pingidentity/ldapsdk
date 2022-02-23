@@ -33,28 +33,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
-
-import java.util.List;
 
 import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+            SecurityNegotiationAccessLogMessage;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted security negotiation access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,41 +65,59 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+public final class TextFormattedSecurityNegotiationAccessLogMessage
+       extends TextFormattedAccessLogMessage
+       implements SecurityNegotiationAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = 1270244499313685235L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The cipher for this log message.
+  @Nullable private final String cipher;
+
+  // The protocol for this log message.
+  @Nullable private final String protocol;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted security negotiation access log message from
+   * the provided message.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedSecurityNegotiationAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
+    this(new TextFormattedLogMessage(logMessageString));
+  }
 
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+
+
+  /**
+   * Creates a new text-formatted security negotiation access log message from
+   * the provided message string.
+   *
+   * @param  logMessage  The log message to use to create this security
+   *                     negotiation access log message.  It must not be
+   *                     {@code null}.
+   */
+  TextFormattedSecurityNegotiationAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
+  {
+    super(logMessage);
+
+    protocol = getString(TextFormattedAccessLogFields.PROTOCOL);
+    cipher = getString(TextFormattedAccessLogFields.CIPHER);
   }
 
 
@@ -114,7 +129,7 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
   @NotNull()
   public AccessLogMessageType getMessageType()
   {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
+    return AccessLogMessageType.SECURITY_NEGOTIATION;
   }
 
 
@@ -124,9 +139,9 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    */
   @Override()
   @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
+  public String getProtocol()
   {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
+    return protocol;
   }
 
 
@@ -136,22 +151,8 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    */
   @Override()
   @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
+  public String getCipher()
   {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
-   *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
-   */
-  @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
-  {
-    return assuranceCompletedHelper.getServerResults();
+    return cipher;
   }
 }

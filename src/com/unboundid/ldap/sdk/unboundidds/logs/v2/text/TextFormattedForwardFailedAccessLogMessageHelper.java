@@ -33,28 +33,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
-import java.util.List;
+import java.io.Serializable;
 
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
-import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
-import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
- * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * This class provides a helper for use in forward failed access log messages.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,90 +63,73 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+final class TextFormattedForwardFailedAccessLogMessageHelper
+      implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = 7227281079291502697L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The result code for the log message.
+  @Nullable private final ResultCode resultCode;
+
+  // The diagnostic message for the log message.
+  @Nullable private final String diagnosticMessage;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted forward access log message helper for the
+   * provided log message.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
-   *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @param  logMessage  The log message to use to create this forward helper.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
-         throws LogException
+  TextFormattedForwardFailedAccessLogMessageHelper(
+       @NotNull final TextFormattedRequestAccessLogMessage logMessage)
   {
-    super(jsonObject);
+    diagnosticMessage = logMessage.getString(
+         TextFormattedAccessLogFields.DIAGNOSTIC_MESSAGE);
 
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+    final Integer resultCodeInt = logMessage.getIntegerNoThrow(
+         TextFormattedAccessLogFields.RESULT_CODE_VALUE);
+    if (resultCodeInt == null)
+    {
+      resultCode = null;
+    }
+    else
+    {
+      resultCode = ResultCode.valueOf(resultCodeInt);
+    }
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves the result code received for the forwarded operation.
+   *
+   * @return  The result code received for the forwarded operation, or
+   *          {@code null} if it is not included in the log message.
    */
-  @Override()
-  @NotNull()
-  public AccessLogMessageType getMessageType()
-  {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
   @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
+  ResultCode getResultCode()
   {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
+    return resultCode;
   }
 
 
 
   /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
+   * Retrieves the diagnostic message received for the forwarded operation.
    *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
+   * @return  The diagnostic message received for the forwarded operation, or
+   *          {@code null} if it is not included in the log message.
    */
-  @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  @Nullable()
+  String getDiagnosticMessage()
   {
-    return assuranceCompletedHelper.getServerResults();
+    return diagnosticMessage;
   }
 }

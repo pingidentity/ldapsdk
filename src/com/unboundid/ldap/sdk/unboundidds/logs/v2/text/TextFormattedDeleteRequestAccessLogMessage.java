@@ -33,28 +33,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
-import java.util.List;
-
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
+import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogOperationType;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
-import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.DeleteRequestAccessLogMessage;
+import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted delete request access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -66,92 +63,80 @@ import com.unboundid.util.json.JSONObject;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
+@NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+public class TextFormattedDeleteRequestAccessLogMessage
+       extends TextFormattedRequestAccessLogMessage
+       implements DeleteRequestAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = 722709056799803981L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The DN of the entry to delete
+  @Nullable private final String dn;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted delete request access log message from the
+   * provided message string.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedDeleteRequestAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
-
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+    this(new TextFormattedLogMessage(logMessageString));
   }
 
 
 
   /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @NotNull()
-  public AccessLogMessageType getMessageType()
-  {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
+   * Creates a new text-formatted delete request access log message from the
+   * provided message.
    *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
+   * @param  logMessage  The log message to use to create this delete request
+   *                     access log message.  It must not be {@code null}.
    */
-  @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  TextFormattedDeleteRequestAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
   {
-    return assuranceCompletedHelper.getServerResults();
+    super(logMessage);
+
+    dn = getString(TextFormattedAccessLogFields.DELETE_ENTRY_DN);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public final AccessLogOperationType getOperationType()
+  {
+    return AccessLogOperationType.DELETE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public final String getDN()
+  {
+    return dn;
   }
 }

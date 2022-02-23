@@ -33,7 +33,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
@@ -42,19 +42,18 @@ import java.util.List;
 import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+            DeleteAssuranceCompletedAccessLogMessage;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted delete assurance completed access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,41 +67,57 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+public final class TextFormattedDeleteAssuranceCompletedAccessLogMessage
+       extends TextFormattedDeleteResultAccessLogMessage
+       implements DeleteAssuranceCompletedAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = -1544272440560070652L;
 
 
 
   // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
+  @NotNull private final TextFormattedAssuranceCompletedAccessLogMessageHelper
        assuranceCompletedHelper;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted delete assurance completed access log message
+   * from the provided message string.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedDeleteAssuranceCompletedAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
+    this(new TextFormattedLogMessage(logMessageString));
+  }
+
+
+
+  /**
+   * Creates a new text-formatted delete assurance completed access log message
+   * from the provided message.
+   *
+   * @param  logMessage  The log message to use to create this delete assurance
+   *                     completed access log message.  It must not be
+   *                     {@code null}.
+   */
+  TextFormattedDeleteAssuranceCompletedAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
+  {
+    super(logMessage);
 
     assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+         new TextFormattedAssuranceCompletedAccessLogMessageHelper(this);
   }
 
 
@@ -150,7 +165,7 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    *          included in the log message.
    */
   @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  public List<String> getServerResults()
   {
     return assuranceCompletedHelper.getServerResults();
   }

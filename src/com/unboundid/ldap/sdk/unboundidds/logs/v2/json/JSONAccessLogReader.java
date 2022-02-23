@@ -162,7 +162,28 @@ public final class JSONAccessLogReader
       return null;
     }
 
+    return parseMessage(messageObject);
+  }
 
+
+
+  /**
+   * Parses the contents of the provided JSON object as a JSON-formatted access
+   * log message.
+   *
+   * @param  messageObject  The JSON object to parse as an access log message.
+   *                        It must not be {@code null}.
+   *
+   * @return  The parsed access log message.
+   *
+   * @throws  LogException  If the provided JSON object cannot be parsed as a
+   *                        valid access log message.
+   */
+  @NotNull()
+  public static JSONAccessLogMessage parseMessage(
+              @NotNull final JSONObject messageObject)
+         throws LogException
+  {
     // Determine the message type for the log message.
     final String messageTypeStr = messageObject.getFieldAsString(
          JSONFormattedAccessLogFields.MESSAGE_TYPE.getFieldName());

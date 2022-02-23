@@ -91,8 +91,8 @@ public final class JSONClientCertificateAccessLogMessage
 
 
   /**
-   * Creates a new JSON security negotiation access log message from the
-   * provided JSON object.
+   * Creates a new JSON client certificate access log message from the provided
+   * JSON object.
    *
    * @param  jsonObject  The JSON object that contains an encoded representation
    *                     of this log message.  It must not be {@code null}.

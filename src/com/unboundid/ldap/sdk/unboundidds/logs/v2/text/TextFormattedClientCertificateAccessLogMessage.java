@@ -33,28 +33,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
+import java.util.Collections;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+            ClientCertificateAccessLogMessage;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted client certificate access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,41 +68,75 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+public final class TextFormattedClientCertificateAccessLogMessage
+       extends TextFormattedAccessLogMessage
+       implements ClientCertificateAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = 4303971125611290508L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The list of subject DNs for the issuer certificates.
+  @NotNull private final List<String> issuerSubjectDNs;
+
+  // The auto-authenticated as DN for this log message.
+  @Nullable private final String autoAuthenticatedAsDN;
+
+  // The subject DN for the peer certificate
+  @Nullable private final String peerSubjectDN;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted client certificate access log message from the
+   * provided message string.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedClientCertificateAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
+    this(new TextFormattedLogMessage(logMessageString));
+  }
 
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+
+
+  /**
+   * Creates a new text-formatted client certificate access log message from the
+   * provided message.
+   *
+   * @param  logMessage  The log message to use to create this client
+   *                     certificate access log message.  It must not be
+   *                     {@code null}.
+   */
+  TextFormattedClientCertificateAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
+  {
+    super(logMessage);
+
+    peerSubjectDN =
+         getString(TextFormattedAccessLogFields.PEER_CERTIFICATE_SUBJECT_DN);
+    autoAuthenticatedAsDN =
+         getString(TextFormattedAccessLogFields.AUTO_AUTHENTICATED_AS);
+
+    final List<String> issuerDNs = getFields().get(TextFormattedAccessLogFields.
+         ISSUER_CERTIFICATE_SUBJECT_DN.getFieldName());
+    if (issuerDNs == null)
+    {
+      issuerSubjectDNs = Collections.emptyList();
+    }
+    else
+    {
+      issuerSubjectDNs = issuerDNs;
+    }
   }
 
 
@@ -114,7 +148,7 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
   @NotNull()
   public AccessLogMessageType getMessageType()
   {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
+    return AccessLogMessageType.CLIENT_CERTIFICATE;
   }
 
 
@@ -124,9 +158,9 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    */
   @Override()
   @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
+  public String getPeerSubjectDN()
   {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
+    return peerSubjectDN;
   }
 
 
@@ -135,23 +169,21 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
-  @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
-   *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
-   */
   @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  public List<String> getIssuerSubjectDNs()
   {
-    return assuranceCompletedHelper.getServerResults();
+    return issuerSubjectDNs;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @Nullable()
+  public String getAutoAuthenticatedAsDN()
+  {
+    return autoAuthenticatedAsDN;
   }
 }

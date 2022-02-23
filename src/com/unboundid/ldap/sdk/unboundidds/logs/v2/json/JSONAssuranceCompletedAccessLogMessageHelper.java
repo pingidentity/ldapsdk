@@ -165,7 +165,7 @@ final class JSONAssuranceCompletedAccessLogMessageHelper
   /**
    * Retrieves the list of server results.
    *
-   * @return  The list of server results, or an empty message if it was not
+   * @return  The list of server results, or an empty list if it was not
    *          included in the log message.
    */
   @NotNull()

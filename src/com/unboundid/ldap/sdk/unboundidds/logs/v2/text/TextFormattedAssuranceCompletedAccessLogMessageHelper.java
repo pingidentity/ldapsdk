@@ -33,28 +33,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
+import java.io.Serializable;
 import java.util.List;
 
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
-import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
-import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
- * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * This class provides a helper for use in assurance complete access log
+ * messages.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,77 +64,75 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+final class TextFormattedAssuranceCompletedAccessLogMessageHelper
+      implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = -1660878235825975297L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // Indicates whether local assurance was satisfied.
+  @Nullable private final Boolean localAssuranceSatisfied;
+
+  // Indicates whether remote assurance was satisfied.
+  @Nullable private final Boolean remoteAssuranceSatisfied;
+
+  // The list of server results.
+  @NotNull private final List<String> serverResults;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted forward access log message helper for the
+   * provided log message.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessage  The log message to use to create this forward helper.
+   */
+
+  TextFormattedAssuranceCompletedAccessLogMessageHelper(
+       @NotNull final TextFormattedRequestAccessLogMessage logMessage)
+  {
+    localAssuranceSatisfied = logMessage.getBooleanNoThrow(
+         TextFormattedAccessLogFields.LOCAL_ASSURANCE_SATISFIED);
+    remoteAssuranceSatisfied = logMessage.getBooleanNoThrow(
+         TextFormattedAccessLogFields.REMOTE_ASSURANCE_SATISFIED);
+    serverResults = logMessage.getCommaDelimitedStringList(
+         TextFormattedAccessLogFields.SERVER_ASSURANCE_RESULTS);
+  }
+
+
+
+  /**
+   * Indicates whether the local assurance requirement was satisfied.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @return  {@code true} if the local assurance requirement was satisfied,
+   *          {@code false} if the local assurance requirement was not
+   *          satisfied, or {@code null} if it was not included in the log
+   *          message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
-         throws LogException
-  {
-    super(jsonObject);
-
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @NotNull()
-  public AccessLogMessageType getMessageType()
-  {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
   @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
+  Boolean getLocalAssuranceSatisfied()
   {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
+    return localAssuranceSatisfied;
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Indicates whether the remote assurance requirement was satisfied.
+   *
+   * @return  {@code true} if the remote assurance requirement was satisfied,
+   *          {@code false} if the remote assurance requirement was not
+   *          satisfied, or {@code null} if it was not included in the log
+   *          message.
    */
-  @Override()
   @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
+  Boolean getRemoteAssuranceSatisfied()
   {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
+    return remoteAssuranceSatisfied;
   }
 
 
@@ -150,8 +144,8 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    *          included in the log message.
    */
   @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  List<String> getServerResults()
   {
-    return assuranceCompletedHelper.getServerResults();
+    return serverResults;
   }
 }

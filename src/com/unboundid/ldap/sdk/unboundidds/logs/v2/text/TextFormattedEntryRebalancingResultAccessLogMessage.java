@@ -33,7 +33,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
@@ -47,13 +47,12 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted entry rebalancing result access log message.
+ * text-formatted entry rebalancing result access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -67,14 +66,14 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONEntryRebalancingResultAccessLogMessage
-       extends JSONEntryRebalancingRequestAccessLogMessage
+public final class TextFormattedEntryRebalancingResultAccessLogMessage
+       extends TextFormattedEntryRebalancingRequestAccessLogMessage
        implements EntryRebalancingResultAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 144849488576686304L;
+  private static final long serialVersionUID = -7982343893371640864L;
 
 
 
@@ -107,38 +106,54 @@ public final class JSONEntryRebalancingResultAccessLogMessage
 
 
   /**
-   * Creates a new JSON entry rebalancing request access log message from the
-   * provided JSON object.
+   * Creates a new text-formatted entry rebalancing request access log message
+   * from the provided message string.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONEntryRebalancingResultAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedEntryRebalancingResultAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
+    this(new TextFormattedLogMessage(logMessageString));
+  }
+
+
+
+  /**
+   * Creates a new text-formatted entry rebalancing request access log message
+   * from the provided message string.
+   *
+   * @param  logMessage  The log message to use to create this entry-rebalancing
+   *                     result access log message.  It must not be
+   *                     {@code null}.
+   */
+  TextFormattedEntryRebalancingResultAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
+  {
+    super(logMessage);
 
     errorMessage = getString(
-         JSONFormattedAccessLogFields.ENTRY_REBALANCING_ERROR_MESSAGE);
+         TextFormattedAccessLogFields.ENTRY_REBALANCING_ERROR_MESSAGE);
     adminActionMessage = getString(
-         JSONFormattedAccessLogFields.ENTRY_REBALANCING_ADMIN_ACTION_MESSAGE);
+         TextFormattedAccessLogFields.ENTRY_REBALANCING_ADMIN_ACTION_MESSAGE);
     sourceAltered = getBooleanNoThrow(
-         JSONFormattedAccessLogFields.ENTRY_REBALANCING_SOURCE_SERVER_ALTERED);
+         TextFormattedAccessLogFields.ENTRY_REBALANCING_SOURCE_SERVER_ALTERED);
     targetAltered = getBooleanNoThrow(
-         JSONFormattedAccessLogFields.ENTRY_REBALANCING_TARGET_SERVER_ALTERED);
-    entriesReadFromSource = getIntegerNoThrow(JSONFormattedAccessLogFields.
+         TextFormattedAccessLogFields.ENTRY_REBALANCING_TARGET_SERVER_ALTERED);
+    entriesReadFromSource = getIntegerNoThrow(TextFormattedAccessLogFields.
          ENTRY_REBALANCING_ENTRIES_READ_FROM_SOURCE);
-    entriesAddedToTarget = getIntegerNoThrow(JSONFormattedAccessLogFields.
+    entriesAddedToTarget = getIntegerNoThrow(TextFormattedAccessLogFields.
          ENTRY_REBALANCING_ENTRIES_ADDED_TO_TARGET);
-    entriesDeletedFromSource = getIntegerNoThrow(JSONFormattedAccessLogFields.
+    entriesDeletedFromSource = getIntegerNoThrow(TextFormattedAccessLogFields.
          ENTRY_REBALANCING_ENTRIES_DELETED_FROM_SOURCE);
 
     final Integer resultCodeValue = getIntegerNoThrow(
-         JSONFormattedAccessLogFields.RESULT_CODE_VALUE);
+         TextFormattedAccessLogFields.RESULT_CODE_VALUE);
     if (resultCodeValue == null)
     {
       resultCode = null;

@@ -33,28 +33,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.logs.v2.json;
+package com.unboundid.ldap.sdk.unboundidds.logs.v2.text;
 
 
 
 import java.util.List;
+import java.util.Set;
 
 import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
-            ModifyDNAssuranceCompletedAccessLogMessage;
+            SearchReferenceAccessLogMessage;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
-import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.json.JSONObject;
 
 
 
 /**
  * This class provides a data structure that holds information about a
- * JSON-formatted modify DN assurance completed access log message.
+ * text-formatted search reference access log message.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -68,41 +67,60 @@ import com.unboundid.util.json.JSONObject;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class JSONModifyDNAssuranceCompletedAccessLogMessage
-       extends JSONModifyDNResultAccessLogMessage
-       implements ModifyDNAssuranceCompletedAccessLogMessage
+public final class TextFormattedSearchReferenceAccessLogMessage
+       extends TextFormattedSearchRequestAccessLogMessage
+       implements SearchReferenceAccessLogMessage
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2057530311559846276L;
+  private static final long serialVersionUID = 2225663086609367942L;
 
 
 
-  // The assurance complete helper for this access log message.
-  @NotNull private final JSONAssuranceCompletedAccessLogMessageHelper
-       assuranceCompletedHelper;
+  // The list of referral URLs for this log message.
+  @NotNull private final List<String> referralURLs;
+
+  // The set of response control OIDs for this log message.
+  @NotNull private final Set<String> responseControlOIDs;
 
 
 
   /**
-   * Creates a new JSON modify DN assurance completed access log message from
-   * the provided JSON object.
+   * Creates a new text-formatted search result access log message from the
+   * provided message string.
    *
-   * @param  jsonObject  The JSON object that contains an encoded representation
-   *                     of this log message.  It must not be {@code null}.
+   * @param  logMessageString  The string representation of this log message.
+   *                           It must not be {@code null}.
    *
-   * @throws  LogException  If the provided JSON object cannot be parsed as a
-   *                        valid log message.
+   * @throws  LogException  If the provided string cannot be parsed as a valid
+   *                        log message.
    */
-  public JSONModifyDNAssuranceCompletedAccessLogMessage(
-              @NotNull final JSONObject jsonObject)
+  public TextFormattedSearchReferenceAccessLogMessage(
+              @NotNull final String logMessageString)
          throws LogException
   {
-    super(jsonObject);
+    this(new TextFormattedLogMessage(logMessageString));
+  }
 
-    assuranceCompletedHelper =
-         new JSONAssuranceCompletedAccessLogMessageHelper(this);
+
+
+  /**
+   * Creates a new text-formatted search result access log message from the
+   * provided message.
+   *
+   * @param  logMessage  The log message to use to create this search reference
+   *                     access log message.  It must not be {@code null}.
+   */
+  TextFormattedSearchReferenceAccessLogMessage(
+       @NotNull final TextFormattedLogMessage logMessage)
+  {
+    super(logMessage);
+
+    referralURLs =
+         TextFormattedResultAccessLogMessageHelper.parseReferralURLs(this);
+    responseControlOIDs = getCommaDelimitedStringSet(
+         TextFormattedAccessLogFields.RESPONSE_CONTROL_OIDS);
   }
 
 
@@ -114,7 +132,7 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
   @NotNull()
   public AccessLogMessageType getMessageType()
   {
-    return AccessLogMessageType.ASSURANCE_COMPLETE;
+    return AccessLogMessageType.REFERENCE;
   }
 
 
@@ -123,35 +141,21 @@ public final class JSONModifyDNAssuranceCompletedAccessLogMessage
    * {@inheritDoc}
    */
   @Override()
-  @Nullable()
-  public Boolean getLocalAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getLocalAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  @Nullable()
-  public Boolean getRemoteAssuranceSatisfied()
-  {
-    return assuranceCompletedHelper.getRemoteAssuranceSatisfied();
-  }
-
-
-
-  /**
-   * Retrieves the list of server results.
-   *
-   * @return  The list of server results, or an empty list if it was not
-   *          included in the log message.
-   */
   @NotNull()
-  public List<JSONAssuredReplicationServerResult> getServerResults()
+  public List<String> getReferralURLs()
   {
-    return assuranceCompletedHelper.getServerResults();
+    return referralURLs;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public Set<String> getResponseControlOIDs()
+  {
+    return responseControlOIDs;
   }
 }

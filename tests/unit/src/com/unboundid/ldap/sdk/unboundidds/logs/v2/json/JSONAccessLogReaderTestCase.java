@@ -1148,7 +1148,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -1307,7 +1307,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
 
 
       // Read the fully-populated log message.
@@ -1420,7 +1420,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
 
 
       // Read the fully-populated log message.
@@ -1541,7 +1541,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
 
 
       // Read the fully-populated log message.
@@ -1668,7 +1668,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -1696,7 +1696,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
       assertNull(minimalLogMessage.getUndeleteFromDN());
 
 
@@ -1870,7 +1870,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -1902,7 +1902,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
       assertNull(minimalLogMessage.getUndeleteFromDN());
 
 
@@ -2485,7 +2485,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -3026,7 +3026,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -3536,7 +3536,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -3737,7 +3737,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -4319,7 +4319,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -4490,7 +4490,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
 
 
       // Read the fully-populated log message.
@@ -4604,7 +4604,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
 
 
       // Read the fully-populated log message.
@@ -4726,7 +4726,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
 
 
       // Read the fully-populated log message.
@@ -4854,7 +4854,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -4882,7 +4882,7 @@ public final class JSONAccessLogReaderTestCase
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
       assertEquals(minimalLogMessage.getAttributeNames(),
-           Collections.<String>emptySet());
+           Collections.emptySet());
       assertNull(minimalLogMessage.getChangeToSoftDeletedEntry());
 
 
@@ -5057,7 +5057,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -5655,7 +5655,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -5859,7 +5859,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());
@@ -6808,7 +6808,7 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(minimalLogMessage.getReferralURLs(),
            Collections.emptyList());
       assertEquals(minimalLogMessage.getServersAccessed(),
-           Collections.<String>emptyList());
+           Collections.emptyList());
       assertNull(minimalLogMessage.getUncachedDataAccessed());
       assertNull(minimalLogMessage.getWorkQueueWaitTimeMillis());
       assertNull(minimalLogMessage.getProcessingTimeMillis());

@@ -421,6 +421,7 @@ public class LogMessage
   }
 
 
+
   /**
    * Determines whether a string that represents a timestamp includes a
    * millisecond component.
