@@ -181,6 +181,154 @@ public abstract class JSONLogsTestCase
 
 
   /**
+   * The downstream intermediate client request control that will be included in
+   * the default intermediate client request control.
+   */
+  protected static final JSONIntermediateClientRequestControl
+       DEFAULT_INTERMEDIATE_CLIENT_DOWNSTREAM_REQUEST =
+       new JSONIntermediateClientRequestControl(new JSONObject(
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_ADDRESS.
+                      getFieldName(),
+                 "downstream.client.address"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_SECURE.
+                      getFieldName(),
+                 false),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_IDENTITY.
+                      getFieldName(),
+                 "u:downstreamClientIdentity"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_NAME.getFieldName(),
+                 "Downstream Client Name"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_SESSION_ID.getFieldName(),
+                 "downstream-session-id"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_REQUEST_ID.getFieldName(),
+                 "downstream-request-id")));
+
+
+
+  /**
+   * The default intermediate client request control that will be used for log
+   * messages.
+   */
+  protected static final JSONIntermediateClientRequestControl
+       DEFAULT_INTERMEDIATE_CLIENT_REQUEST =
+       new JSONIntermediateClientRequestControl(new JSONObject(
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_ADDRESS.
+                      getFieldName(),
+                 "client.address"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_CLIENT_SECURE.
+                      getFieldName(),
+                 true),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_IDENTITY.
+                      getFieldName(),
+                 "u:clientIdentity"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_CLIENT_NAME.getFieldName(),
+                 "Client Name"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_SESSION_ID.getFieldName(),
+                 "session-id"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_REQUEST_ID.getFieldName(),
+                 "request-id"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_REQUEST_CONTROL_DOWNSTREAM_REQUEST.
+                      getFieldName(),
+                 DEFAULT_INTERMEDIATE_CLIENT_DOWNSTREAM_REQUEST.
+                      getControlObject())));
+
+
+
+  /**
+   * The upstream intermediate client response control that will be included
+   * in the default intermediate client response control.
+   */
+  protected static final JSONIntermediateClientResponseControl
+       DEFAULT_INTERMEDIATE_CLIENT_UPSTREAM_RESPONSE =
+       new JSONIntermediateClientResponseControl(new JSONObject(
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_ADDRESS.
+                      getFieldName(),
+                 "upstream.server.address"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_SECURE.
+                      getFieldName(),
+                 false),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_NAME.
+                      getFieldName(),
+                 "Upstream Server Name"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SESSION_ID.getFieldName(),
+                 "upstream-session-id"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_RESPONSE_ID.
+                      getFieldName(),
+                 "upstream-response-id")));
+
+
+
+  /**
+   * The default intermediate client response control that will be used for log
+   * messages.
+   */
+  protected static final JSONIntermediateClientResponseControl
+       DEFAULT_INTERMEDIATE_CLIENT_RESPONSE =
+       new JSONIntermediateClientResponseControl(new JSONObject(
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_ADDRESS.
+                      getFieldName(),
+                 "server.address"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_SERVER_SECURE.
+                      getFieldName(),
+                 true),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SERVER_NAME.
+                      getFieldName(),
+                 "Server Name"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_SESSION_ID.getFieldName(),
+                 "session-id"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_RESPONSE_ID.
+                      getFieldName(),
+                 "response-id"),
+            new JSONField(
+                 INTERMEDIATE_CLIENT_RESPONSE_CONTROL_UPSTREAM_RESPONSE.
+                      getFieldName(),
+                 DEFAULT_INTERMEDIATE_CLIENT_UPSTREAM_RESPONSE.
+                      getControlObject())));
+
+
+
+  /**
+   * The default operation purpose request control that will be used for log
+   * messages.
+   */
+  protected static final JSONOperationPurposeRequestControl
+       DEFAULT_OPERATION_PURPOSE_REQUEST =
+       new JSONOperationPurposeRequestControl(new JSONObject(
+            new JSONField(OPERATION_PURPOSE_APPLICATION_NAME.getFieldName(),
+                 "Application Name"),
+            new JSONField(OPERATION_PURPOSE_APPLICATION_VERSION.getFieldName(),
+                 "Application Version"),
+            new JSONField(OPERATION_PURPOSE_CODE_LOCATION.getFieldName(),
+                 "Code Location"),
+            new JSONField(OPERATION_PURPOSE_REQUEST_PURPOSE.getFieldName(),
+                 "Request Purpose")));
+
+
+
+  /**
    * The default list of server assurance results that will be used for log
    * messages.
    */
@@ -705,6 +853,10 @@ public abstract class JSONLogsTestCase
            new JSONBoolean(DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD));
       fieldMap.put(ADMINISTRATIVE_OPERATION.getFieldName(),
            new JSONString(DEFAULT_ADMIN_OP_MESSAGE));
+      fieldMap.put(INTERMEDIATE_CLIENT_REQUEST_CONTROL.getFieldName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getControlObject());
+      fieldMap.put(OPERATION_PURPOSE.getFieldName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getControlObject());
 
       if ((messageType == AccessLogMessageType.FORWARD) ||
            (messageType == AccessLogMessageType.FORWARD_FAILED) ||
@@ -766,6 +918,12 @@ public abstract class JSONLogsTestCase
              createArray(DEFAULT_PRE_AUTHZ_USED_PRIVILEGES));
         fieldMap.put(MISSING_PRIVILEGES.getFieldName(),
              createArray(DEFAULT_MISSING_PRIVILEGES));
+
+        if (operationType != AccessLogOperationType.ABANDON)
+        {
+          fieldMap.put(INTERMEDIATE_CLIENT_RESPONSE_CONTROL.getFieldName(),
+               DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getControlObject());
+        }
 
         if ((operationType == AccessLogOperationType.ADD) ||
              (operationType == AccessLogOperationType.COMPARE) ||

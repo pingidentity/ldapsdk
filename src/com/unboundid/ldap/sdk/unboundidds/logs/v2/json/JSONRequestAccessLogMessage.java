@@ -86,6 +86,14 @@ public abstract class JSONRequestAccessLogMessage
   // The message ID for this log message.
   @Nullable private final Integer messageID;
 
+  // The intermediate client request control for this log message.
+  @Nullable private final JSONIntermediateClientRequestControl
+       intermediateClientRequestControl;
+
+  // The operation purpose request control for this log message.
+  @Nullable private final JSONOperationPurposeRequestControl
+       operationPurposeRequestControl;
+
   // The operation ID for this log message.
   @Nullable private final Long operationID;
 
@@ -143,6 +151,34 @@ public abstract class JSONRequestAccessLogMessage
          JSONFormattedAccessLogFields.ADMINISTRATIVE_OPERATION);
     requestControlOIDs = getStringSet(
          JSONFormattedAccessLogFields.REQUEST_CONTROL_OIDS);
+
+    final JSONObject intermediateClientRequestObject =
+         jsonObject.getFieldAsObject(
+              JSONFormattedAccessLogFields.INTERMEDIATE_CLIENT_REQUEST_CONTROL.
+                   getFieldName());
+    if (intermediateClientRequestObject == null)
+    {
+      intermediateClientRequestControl = null;
+    }
+    else
+    {
+      intermediateClientRequestControl =
+           new JSONIntermediateClientRequestControl(
+                intermediateClientRequestObject);
+    }
+
+    final JSONObject operationPurposeRequestObject =
+         jsonObject.getFieldAsObject(
+              JSONFormattedAccessLogFields.OPERATION_PURPOSE.getFieldName());
+    if (operationPurposeRequestObject == null)
+    {
+      operationPurposeRequestControl = null;
+    }
+    else
+    {
+      operationPurposeRequestControl = new JSONOperationPurposeRequestControl(
+           operationPurposeRequestObject);
+    }
   }
 
 
@@ -275,5 +311,39 @@ public abstract class JSONRequestAccessLogMessage
   public final String getAdministrativeOperationMessage()
   {
     return administrativeOperationMessage;
+  }
+
+
+
+  /**
+   * Retrieves information about an intermediate client request control included
+   * in the log message.
+   *
+   * @return  An intermediate client request control included in the log
+   *          message, or {@code null} if no intermediate client request control
+   *          is available.
+   */
+  @Nullable()
+  public final JSONIntermediateClientRequestControl
+                    getIntermediateClientRequestControl()
+  {
+    return intermediateClientRequestControl;
+  }
+
+
+
+  /**
+   * Retrieves information about an operation purpose request control included
+   * in the log message.
+   *
+   * @return  An operation purpose request control included in the log message,
+   *          or {@code null} if no operation purpose request control is
+   *          available.
+   */
+  @Nullable()
+  public final JSONOperationPurposeRequestControl
+                    getOperationPurposeRequestControl()
+  {
+    return operationPurposeRequestControl;
   }
 }

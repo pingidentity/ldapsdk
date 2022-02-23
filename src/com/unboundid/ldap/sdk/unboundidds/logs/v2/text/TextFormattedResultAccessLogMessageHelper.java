@@ -142,6 +142,10 @@ final class TextFormattedResultAccessLogMessageHelper
   // The diagnostic message for the log message.
   @Nullable private final String diagnosticMessage;
 
+  // A string representation of an intermediate client response control for this
+  // log message.
+  @Nullable private final String intermediateClientResponseControl;
+
   // The matched DN for the log message.
   @Nullable private final String matchedDN;
 
@@ -182,6 +186,8 @@ final class TextFormattedResultAccessLogMessageHelper
          TextFormattedAccessLogFields.PRE_AUTHORIZATION_USED_PRIVILEGES);
     missingPrivileges = logMessage.getCommaDelimitedStringSet(
          TextFormattedAccessLogFields.MISSING_PRIVILEGES);
+    intermediateClientResponseControl = logMessage.getString(
+         TextFormattedAccessLogFields.INTERMEDIATE_CLIENT_RESULT);
 
     alternateAuthorizationDN = logMessage.getString(
          TextFormattedAccessLogFields.AUTHORIZATION_DN);
@@ -648,5 +654,20 @@ final class TextFormattedResultAccessLogMessageHelper
   Set<String> getIndexesWithKeysAccessedExceedingEntryLimit()
   {
     return indexesWithKeysAccessedExceedingEntryLimit;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of an intermediate client response
+   * control included in the log message.
+   *
+   * @return  A string representation of an intermediate client response control
+   *          included in the log message, or {@code null} if there is none.
+   */
+  @Nullable()
+  String getIntermediateClientResponseControl()
+  {
+    return intermediateClientResponseControl;
   }
 }

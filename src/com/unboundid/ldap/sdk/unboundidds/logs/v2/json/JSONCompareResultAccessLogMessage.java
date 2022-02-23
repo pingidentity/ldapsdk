@@ -302,6 +302,23 @@ public final class JSONCompareResultAccessLogMessage
 
 
   /**
+   * Retrieves information about an intermediate client response control
+   * included in the log message.
+   *
+   * @return  An intermediate client response control included in the log
+   *          message, or {@code null} if no intermediate client response
+   *          control is available.
+   */
+  @Nullable()
+  public JSONIntermediateClientResponseControl
+              getIntermediateClientResponseControl()
+  {
+    return resultHelper.getIntermediateClientResponseControl();
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

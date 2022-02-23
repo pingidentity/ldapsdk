@@ -99,6 +99,14 @@ public abstract class TextFormattedRequestAccessLogMessage
   // The administrative operation message for this log message.
   @Nullable private final String administrativeOperationMessage;
 
+  // A string representation of an intermediate client request control for this
+  // log message.
+  @Nullable private final String intermediateClientRequestControl;
+
+  // A string representation of an operation purpose request control for this
+  // log message.
+  @Nullable private final String operationPurposeRequestControl;
+
   // The origin for this log message.
   @Nullable private final String origin;
 
@@ -138,6 +146,10 @@ public abstract class TextFormattedRequestAccessLogMessage
          TextFormattedAccessLogFields.USING_ADMIN_SESSION_WORKER_THREAD);
     administrativeOperationMessage = getString(
          TextFormattedAccessLogFields.ADMINISTRATIVE_OPERATION);
+    intermediateClientRequestControl = getString(
+         TextFormattedAccessLogFields.INTERMEDIATE_CLIENT_REQUEST);
+    operationPurposeRequestControl = getString(
+         TextFormattedAccessLogFields.OPERATION_PURPOSE);
   }
 
 
@@ -270,5 +282,35 @@ public abstract class TextFormattedRequestAccessLogMessage
   public final String getAdministrativeOperationMessage()
   {
     return administrativeOperationMessage;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of an intermediate client request control
+   * included in the log message.
+   *
+   * @return  A string representation of an intermediate client request control
+   *          included in the log message, or {@code null} if there is none.
+   */
+  @Nullable()
+  public final String getIntermediateClientRequestControl()
+  {
+    return intermediateClientRequestControl;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of an operation purpose request control
+   * included in the log message.
+   *
+   * @return  A string representation of an operation purpose request control
+   *          included in the log message, or {@code null} if there is none.
+   */
+  @Nullable()
+  public final String getOperationPurposeRequestControl()
+  {
+    return operationPurposeRequestControl;
   }
 }

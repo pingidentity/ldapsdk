@@ -99,6 +99,10 @@ final class JSONResultAccessLogMessageHelper
   // The queue wait time (in milliseconds) for the log message.
   @Nullable private final Double workQueueWaitTimeMillis;
 
+  // The intermediate client response control for the log message.
+  @Nullable private final JSONIntermediateClientResponseControl
+       intermediateClientResponseControl;
+
   // The list of referral URLs for the log message.
   @NotNull private final List<String> referralURLs;
 
@@ -255,6 +259,21 @@ final class JSONResultAccessLogMessageHelper
         assuredReplicationRemoteLevel =
              AssuredReplicationRemoteLevel.forName(remoteLevelName);
       }
+    }
+
+    final JSONObject intermediateClientResponseObject =
+         logMessage.getJSONObject().getFieldAsObject(
+              JSONFormattedAccessLogFields.INTERMEDIATE_CLIENT_RESPONSE_CONTROL.
+                   getFieldName());
+    if (intermediateClientResponseObject == null)
+    {
+      intermediateClientResponseControl = null;
+    }
+    else
+    {
+      intermediateClientResponseControl =
+           new JSONIntermediateClientResponseControl(
+                intermediateClientResponseObject);
     }
   }
 
@@ -611,5 +630,21 @@ final class JSONResultAccessLogMessageHelper
   Set<String> getIndexesWithKeysAccessedExceedingEntryLimit()
   {
     return indexesWithKeysAccessedExceedingEntryLimit;
+  }
+
+
+
+  /**
+   * Retrieves information about an intermediate client response control
+   * included in the log message.
+   *
+   * @return  An intermediate client response control included in the log
+   *          message, or {@code null} if no intermediate client response
+   *          control is available.
+   */
+  @Nullable()
+  JSONIntermediateClientResponseControl getIntermediateClientResponseControl()
+  {
+    return intermediateClientResponseControl;
   }
 }

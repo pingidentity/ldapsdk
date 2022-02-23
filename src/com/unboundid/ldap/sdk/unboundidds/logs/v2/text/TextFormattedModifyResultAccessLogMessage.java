@@ -414,6 +414,21 @@ public class TextFormattedModifyResultAccessLogMessage
 
 
   /**
+   * Retrieves a string representation of an intermediate client response
+   * control included in the log message.
+   *
+   * @return  A string representation of an intermediate client response control
+   *          included in the log message, or {@code null} if there is none.
+   */
+  @Nullable()
+  public final String getIntermediateClientResponseControl()
+  {
+    return resultHelper.getIntermediateClientResponseControl();
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

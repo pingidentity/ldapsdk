@@ -725,6 +725,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getMessageIDToAbandon());
@@ -768,6 +770,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getMessageIDToAbandon().intValue(), 123);
@@ -833,6 +839,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -879,6 +887,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -951,6 +963,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -1000,6 +1014,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -1075,6 +1093,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -1141,6 +1161,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -1243,6 +1267,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -1288,6 +1314,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "ou=test,dc=example,dc=com");
@@ -1356,6 +1386,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -1404,6 +1436,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -1478,6 +1514,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -1528,6 +1566,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -1608,6 +1650,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -1642,6 +1686,7 @@ public final class TextFormattedAccessLogReaderTestCase
            minimalMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            Collections.emptySet());
       assertNull(minimalMessage.getReplicationChangeID());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -1688,6 +1733,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -1743,6 +1792,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_INDEXES_EXCEEDING_ENTRY_LIMIT);
       assertEquals(populatedMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "ou=test,dc=example,dc=com");
@@ -1815,6 +1866,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -1851,6 +1904,7 @@ public final class TextFormattedAccessLogReaderTestCase
       assertNull(minimalMessage.getReplicationChangeID());
       assertNull(minimalMessage.getLocalAssuranceSatisfied());
       assertNull(minimalMessage.getRemoteAssuranceSatisfied());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
       assertEquals(minimalMessage.getServerResults(),
            Collections.emptyList());
 
@@ -1900,6 +1954,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -1959,6 +2017,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_LOCAL_ASSURANCE_SATISFIED);
       assertEquals(populatedMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
       assertEquals(populatedMessage.getServerResults(),
            DEFAULT_SERVER_ASSURANCE_RESULTS);
 
@@ -2039,6 +2099,8 @@ public final class TextFormattedAccessLogReaderTestCase
       assertNull(minimalMessage.getAuthenticationType());
       assertNull(minimalMessage.getDN());
       assertNull(minimalMessage.getSASLMechanismName());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
 
       // Read the fully-populated log message.
@@ -2079,6 +2141,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getProtocolVersion(), "3");
@@ -2152,6 +2218,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -2201,6 +2269,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -2281,6 +2353,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -2333,6 +2407,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -2428,6 +2506,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -2451,6 +2531,7 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertEquals(minimalMessage.getMissingPrivileges(),
            Collections.emptySet());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getProtocolVersion());
@@ -2504,6 +2585,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -2561,6 +2646,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Boolean.FALSE);
       assertEquals(populatedMessage.getClientConnectionPolicy(),
            "client-connection-policy");
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
 
       // Make sure there are no more messages to read.
@@ -2624,6 +2711,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -2668,6 +2757,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=compare,cn=dn");
@@ -2735,6 +2828,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -2782,6 +2877,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -2856,6 +2955,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -2906,6 +3007,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -2983,6 +3088,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -3007,6 +3114,7 @@ public final class TextFormattedAccessLogReaderTestCase
       assertEquals(minimalMessage.getMissingPrivileges(),
            Collections.emptySet());
       assertNull(minimalMessage.getAlternateAuthorizationDN());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -3051,6 +3159,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -3089,6 +3201,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_MISSING_PRIVILEGES);
       assertEquals(populatedMessage.getAlternateAuthorizationDN(),
            DEFAULT_AUTHZ_DN);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=compare,cn=dn");
@@ -3155,6 +3269,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -3198,6 +3314,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=delete,cn=dn");
@@ -3263,6 +3383,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -3309,6 +3431,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -3381,6 +3507,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -3430,6 +3558,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -3508,6 +3640,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -3542,6 +3676,7 @@ public final class TextFormattedAccessLogReaderTestCase
            minimalMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            Collections.emptySet());
       assertNull(minimalMessage.getReplicationChangeID());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -3587,6 +3722,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -3642,6 +3781,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_INDEXES_EXCEEDING_ENTRY_LIMIT);
       assertEquals(populatedMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=delete,cn=dn");
@@ -3715,6 +3856,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -3751,6 +3894,7 @@ public final class TextFormattedAccessLogReaderTestCase
       assertNull(minimalMessage.getReplicationChangeID());
       assertNull(minimalMessage.getLocalAssuranceSatisfied());
       assertNull(minimalMessage.getRemoteAssuranceSatisfied());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
       assertEquals(minimalMessage.getServerResults(),
            Collections.emptyList());
 
@@ -3800,6 +3944,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -3859,6 +4007,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_LOCAL_ASSURANCE_SATISFIED);
       assertEquals(populatedMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
       assertEquals(populatedMessage.getServerResults(),
            DEFAULT_SERVER_ASSURANCE_RESULTS);
 
@@ -3931,6 +4081,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getRequestOID());
@@ -3975,6 +4127,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getRequestOID(), "1.2.3.4.5");
@@ -4044,6 +4200,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -4091,6 +4249,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -4167,6 +4329,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -4217,6 +4381,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -4301,6 +4469,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -4324,6 +4494,7 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertEquals(minimalMessage.getMissingPrivileges(),
            Collections.emptySet());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getRequestOID());
@@ -4371,6 +4542,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -4407,6 +4582,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_PRE_AUTHZ_USED_PRIVILEGES);
       assertEquals(populatedMessage.getMissingPrivileges(),
            DEFAULT_MISSING_PRIVILEGES);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getRequestOID(), "1.2.3.4.5");
@@ -4480,6 +4657,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -4525,6 +4704,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=modify,cn=dn");
@@ -4593,6 +4776,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -4641,6 +4826,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -4716,6 +4905,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -4767,6 +4958,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -4846,6 +5041,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -4880,6 +5077,7 @@ public final class TextFormattedAccessLogReaderTestCase
            minimalMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            Collections.emptySet());
       assertNull(minimalMessage.getReplicationChangeID());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -4926,6 +5124,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -4981,6 +5183,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_INDEXES_EXCEEDING_ENTRY_LIMIT);
       assertEquals(populatedMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=modify,cn=dn");
@@ -5053,6 +5257,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -5089,6 +5295,7 @@ public final class TextFormattedAccessLogReaderTestCase
       assertNull(minimalMessage.getReplicationChangeID());
       assertNull(minimalMessage.getLocalAssuranceSatisfied());
       assertNull(minimalMessage.getRemoteAssuranceSatisfied());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
       assertEquals(minimalMessage.getServerResults(),
            Collections.emptyList());
 
@@ -5137,6 +5344,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -5196,6 +5407,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_LOCAL_ASSURANCE_SATISFIED);
       assertEquals(populatedMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
       assertEquals(populatedMessage.getServerResults(),
            DEFAULT_SERVER_ASSURANCE_RESULTS);
 
@@ -5270,6 +5483,8 @@ public final class TextFormattedAccessLogReaderTestCase
       assertNull(minimalMessage.getNewRDN());
       assertNull(minimalMessage.getDeleteOldRDN());
       assertNull(minimalMessage.getNewSuperiorDN());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
 
       // Read the fully-populated log message.
@@ -5310,6 +5525,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=moddn,cn=entry,cn=dn");
@@ -5383,6 +5602,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -5432,6 +5653,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -5512,6 +5737,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -5564,6 +5791,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -5647,6 +5878,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -5681,6 +5914,7 @@ public final class TextFormattedAccessLogReaderTestCase
            minimalMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            Collections.emptySet());
       assertNull(minimalMessage.getReplicationChangeID());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getDN());
@@ -5727,6 +5961,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -5782,6 +6020,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_INDEXES_EXCEEDING_ENTRY_LIMIT);
       assertEquals(populatedMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getDN(), "cn=moddn,cn=entry,cn=dn");
@@ -5856,6 +6096,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -5892,6 +6134,7 @@ public final class TextFormattedAccessLogReaderTestCase
       assertNull(minimalMessage.getReplicationChangeID());
       assertNull(minimalMessage.getLocalAssuranceSatisfied());
       assertNull(minimalMessage.getRemoteAssuranceSatisfied());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
       assertEquals(minimalMessage.getServerResults(),
            Collections.emptyList());
 
@@ -5942,6 +6185,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -6001,6 +6248,8 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_LOCAL_ASSURANCE_SATISFIED);
       assertEquals(populatedMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
       assertEquals(populatedMessage.getServerResults(),
            DEFAULT_SERVER_ASSURANCE_RESULTS);
 
@@ -6075,6 +6324,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getBaseDN());
@@ -6126,6 +6377,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
 
       // Message-specific fields.
@@ -6215,6 +6470,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertEquals(minimalMessage.getResponseControlOIDs(),
            Collections.emptySet());
 
@@ -6271,6 +6528,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getResponseControlOIDs(),
            DEFAULT_RESPONSE_CONTROL_OIDS);
 
@@ -6364,6 +6625,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertEquals(minimalMessage.getResponseControlOIDs(),
            Collections.emptySet());
 
@@ -6419,6 +6682,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getResponseControlOIDs(),
            DEFAULT_RESPONSE_CONTROL_OIDS);
 
@@ -6510,6 +6777,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -6564,6 +6833,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -6655,6 +6928,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -6712,6 +6987,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -6808,6 +7087,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
       assertNull(minimalMessage.getTargetHost());
       assertNull(minimalMessage.getTargetPort());
       assertNull(minimalMessage.getTargetProtocol());
@@ -6837,6 +7118,7 @@ public final class TextFormattedAccessLogReaderTestCase
       assertEquals(
            minimalMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            Collections.emptySet());
+      assertNull(minimalMessage.getIntermediateClientResponseControl());
 
       // Message-specific fields.
       assertNull(minimalMessage.getBaseDN());
@@ -6890,6 +7172,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
       assertEquals(populatedMessage.getTargetHost(),
            DEFAULT_FORWARD_TARGET_HOST);
       assertEquals(populatedMessage.getTargetPort().intValue(),
@@ -6934,6 +7220,8 @@ public final class TextFormattedAccessLogReaderTestCase
       assertEquals(
            populatedMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            DEFAULT_INDEXES_EXCEEDING_ENTRY_LIMIT);
+      assertEquals(populatedMessage.getIntermediateClientResponseControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
 
       // Message-specific fields.
       assertEquals(populatedMessage.getBaseDN(), "cn=base,cn=dn");
@@ -7008,6 +7296,8 @@ public final class TextFormattedAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalMessage.getAdministrativeOperationMessage());
+      assertNull(minimalMessage.getIntermediateClientRequestControl());
+      assertNull(minimalMessage.getOperationPurposeRequestControl());
 
 
       // Read the fully-populated log message.
@@ -7048,6 +7338,10 @@ public final class TextFormattedAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+      assertEquals(populatedMessage.getIntermediateClientRequestControl(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+      assertEquals(populatedMessage.getOperationPurposeRequestControl(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST);
 
 
       // Make sure there are no more messages to read.

@@ -799,6 +799,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getMessageIDToAbandon());
@@ -841,6 +843,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getMessageIDToAbandon().intValue(), 123);
@@ -904,6 +939,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -955,6 +992,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getMessageIDToAbandon().intValue(), 123);
@@ -1018,6 +1088,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -1075,6 +1147,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getMessageIDToAbandon().intValue(), 123);
@@ -1138,6 +1243,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -1240,6 +1347,39 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getMissingPrivileges(),
            DEFAULT_MISSING_PRIVILEGES);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getMessageIDToAbandon().intValue(), 123);
 
@@ -1303,6 +1443,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
@@ -1347,6 +1489,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "ou=test,dc=example,dc=com");
@@ -1413,6 +1588,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -1466,6 +1643,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "ou=test,dc=example,dc=com");
@@ -1532,6 +1742,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -1591,6 +1803,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "ou=test,dc=example,dc=com");
@@ -1658,6 +1903,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -1793,6 +2040,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "ou=test,dc=example,dc=com");
       assertEquals(populatedLogMessage.getAttributeNames(),
@@ -1860,6 +2157,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -2003,6 +2302,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       final List<JSONAssuredReplicationServerResult> serverResults =
            populatedLogMessage.getServerResults();
       assertEquals(serverResults.size(), 2);
@@ -2092,6 +2441,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getProtocolVersion());
@@ -2137,6 +2488,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getProtocolVersion(), "3");
@@ -2208,6 +2592,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -2262,6 +2648,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getProtocolVersion(), "3");
@@ -2333,6 +2752,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -2393,6 +2814,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getProtocolVersion(), "3");
@@ -2475,6 +2929,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -2587,6 +3043,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getMissingPrivileges(),
            DEFAULT_MISSING_PRIVILEGES);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getProtocolVersion(), "3");
       assertEquals(populatedLogMessage.getAuthenticationType(),
@@ -2668,6 +3174,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
@@ -2711,6 +3219,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=compare,cn=dn");
@@ -2776,6 +3317,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -2828,6 +3371,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=compare,cn=dn");
@@ -2893,6 +3469,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -2951,6 +3529,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=compare,cn=dn");
@@ -3016,6 +3627,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -3122,6 +3735,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getAlternateAuthorizationDN(),
            DEFAULT_AUTHZ_DN);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=compare,cn=dn");
       assertEquals(populatedLogMessage.getAttributeName(), "description");
@@ -3185,6 +3848,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
@@ -3227,6 +3892,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=delete,cn=dn");
@@ -3290,6 +3988,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -3341,6 +4041,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=delete,cn=dn");
@@ -3404,6 +4137,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -3461,6 +4196,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=delete,cn=dn");
@@ -3526,6 +4294,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -3660,6 +4430,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=delete,cn=dn");
       assertEquals(populatedLogMessage.getSoftDeletedEntryDN(),
@@ -3727,6 +4547,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -3869,6 +4691,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       final List<JSONAssuredReplicationServerResult> serverResults =
            populatedLogMessage.getServerResults();
       assertEquals(serverResults.size(), 2);
@@ -3955,6 +4827,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getRequestOID());
@@ -3998,6 +4872,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getRequestOID(), "1.2.3.4.5");
@@ -4064,6 +4971,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -4116,6 +5025,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getRequestOID(), "1.2.3.4.5");
@@ -4182,6 +5124,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -4240,6 +5184,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getRequestOID(), "1.2.3.4.5");
@@ -4309,6 +5286,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -4415,6 +5394,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getMissingPrivileges(),
            DEFAULT_MISSING_PRIVILEGES);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getRequestOID(), "1.2.3.4.5");
       assertEquals(populatedLogMessage.getRequestType(),
@@ -4486,6 +5515,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
@@ -4530,6 +5561,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=modify,cn=dn");
@@ -4597,6 +5661,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -4650,6 +5716,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=modify,cn=dn");
@@ -4717,6 +5816,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -4776,6 +5877,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=modify,cn=dn");
@@ -4844,6 +5978,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -4979,6 +6115,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=modify,cn=dn");
       assertEquals(populatedLogMessage.getAttributeNames(),
@@ -5047,6 +6233,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -5188,6 +6376,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       final List<JSONAssuredReplicationServerResult> serverResults =
            populatedLogMessage.getServerResults();
       assertEquals(serverResults.size(), 2);
@@ -5276,6 +6514,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getDN());
@@ -5321,6 +6561,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=moddn,cn=entry,cn=dn");
@@ -5391,6 +6664,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -5445,6 +6720,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=moddn,cn=entry,cn=dn");
@@ -5515,6 +6823,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -5575,6 +6885,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=moddn,cn=entry,cn=dn");
@@ -5645,6 +6988,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -5780,6 +7125,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getReplicationChangeID(),
            DEFAULT_REPLICATION_CHANGE_ID);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getDN(), "cn=moddn,cn=entry,cn=dn");
       assertEquals(populatedLogMessage.getNewRDN(), "cn=newrdn");
@@ -5849,6 +7244,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -5993,6 +7390,56 @@ public final class JSONAccessLogReaderTestCase
       assertEquals(populatedLogMessage.getRemoteAssuranceSatisfied(),
            DEFAULT_REMOTE_ASSURANCE_SATISFIED);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       final List<JSONAssuredReplicationServerResult> serverResults =
            populatedLogMessage.getServerResults();
       assertEquals(serverResults.size(), 2);
@@ -6087,6 +7534,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
       // Message-specific fields.
       assertNull(minimalLogMessage.getBaseDN());
@@ -6137,6 +7586,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
 
       // Message-specific fields.
@@ -6222,6 +7704,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertEquals(minimalLogMessage.getResponseControlOIDs(),
            Collections.emptySet());
 
@@ -6279,6 +7763,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_ADMIN_OP_MESSAGE);
       assertEquals(populatedLogMessage.getResponseControlOIDs(),
            DEFAULT_RESPONSE_CONTROL_OIDS);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
 
       // Message-specific fields.
@@ -6368,6 +7885,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertEquals(minimalLogMessage.getResponseControlOIDs(),
            Collections.emptySet());
 
@@ -6424,6 +7943,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_ADMIN_OP_MESSAGE);
       assertEquals(populatedLogMessage.getResponseControlOIDs(),
            DEFAULT_RESPONSE_CONTROL_OIDS);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
 
       // Message-specific fields.
@@ -6510,6 +8062,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -6569,6 +8123,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_FORWARD_TARGET_PORT);
       assertEquals(populatedLogMessage.getTargetProtocol(),
            DEFAULT_FORWARD_TARGET_PROTOCOL);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getBaseDN(), "cn=base,cn=dn");
@@ -6650,6 +8237,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -6715,6 +8304,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_RESULT_CODE);
       assertEquals(populatedLogMessage.getDiagnosticMessage(),
            DEFAULT_DIAGNOSTIC_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
       // Message-specific fields.
       assertEquals(populatedLogMessage.getBaseDN(), "cn=base,cn=dn");
@@ -6798,6 +8420,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
       assertNull(minimalLogMessage.getTargetHost());
       assertNull(minimalLogMessage.getTargetPort());
       assertNull(minimalLogMessage.getTargetProtocol());
@@ -6924,6 +8548,56 @@ public final class JSONAccessLogReaderTestCase
            populatedLogMessage.getIndexesWithKeysAccessedExceedingEntryLimit(),
            DEFAULT_INDEXES_EXCEEDING_ENTRY_LIMIT);
 
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
+
+      final JSONIntermediateClientResponseControl intermediateClientResponse =
+           populatedLogMessage.getIntermediateClientResponseControl();
+      assertNotNull(intermediateClientResponse);
+      assertNotNull(intermediateClientResponse.getControlObject());
+      assertEquals(intermediateClientResponse.getUpstreamServerAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerAddress());
+      assertEquals(intermediateClientResponse.getUpstreamServerSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getUpstreamServerSecure());
+      assertEquals(intermediateClientResponse.getServerName(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getServerName());
+      assertEquals(intermediateClientResponse.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getSessionID());
+      assertEquals(intermediateClientResponse.getResponseID(),
+           DEFAULT_INTERMEDIATE_CLIENT_RESPONSE.getResponseID());
+      assertNotNull(intermediateClientResponse.getUpstreamResponse());
+      assertNotNull(intermediateClientResponse.toString());
+
       // Message-specific fields.
       assertEquals(populatedLogMessage.getBaseDN(), "cn=base,cn=dn");
       assertEquals(populatedLogMessage.getScope(), SearchScope.SUB);
@@ -6995,6 +8669,8 @@ public final class JSONAccessLogReaderTestCase
            Collections.emptySet());
       assertNull(minimalLogMessage.getUsingAdminSessionWorkerThread());
       assertNull(minimalLogMessage.getAdministrativeOperationMessage());
+      assertNull(minimalLogMessage.getIntermediateClientRequestControl());
+      assertNull(minimalLogMessage.getOperationPurposeRequestControl());
 
 
       // Read the fully-populated log message.
@@ -7034,6 +8710,39 @@ public final class JSONAccessLogReaderTestCase
            DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
       assertEquals(populatedLogMessage.getAdministrativeOperationMessage(),
            DEFAULT_ADMIN_OP_MESSAGE);
+
+      final JSONIntermediateClientRequestControl intermediateClientRequest =
+           populatedLogMessage.getIntermediateClientRequestControl();
+      assertNotNull(intermediateClientRequest);
+      assertNotNull(intermediateClientRequest.getControlObject());
+      assertEquals(intermediateClientRequest.getDownstreamClientAddress(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientAddress());
+      assertEquals(intermediateClientRequest.getDownstreamClientSecure(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getDownstreamClientSecure());
+      assertEquals(intermediateClientRequest.getClientIdentity(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientIdentity());
+      assertEquals(intermediateClientRequest.getClientName(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getClientName());
+      assertEquals(intermediateClientRequest.getSessionID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getSessionID());
+      assertEquals(intermediateClientRequest.getRequestID(),
+           DEFAULT_INTERMEDIATE_CLIENT_REQUEST.getRequestID());
+      assertNotNull(intermediateClientRequest.getDownstreamRequest());
+      assertNotNull(intermediateClientRequest.toString());
+
+      final JSONOperationPurposeRequestControl operationPurpose =
+           populatedLogMessage.getOperationPurposeRequestControl();
+      assertNotNull(operationPurpose);
+      assertNotNull(operationPurpose.getControlObject());
+      assertEquals(operationPurpose.getApplicationName(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationName());
+      assertEquals(operationPurpose.getApplicationVersion(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getApplicationVersion());
+      assertEquals(operationPurpose.getCodeLocation(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getCodeLocation());
+      assertEquals(operationPurpose.getRequestPurpose(),
+           DEFAULT_OPERATION_PURPOSE_REQUEST.getRequestPurpose());
+      assertNotNull(operationPurpose.toString());
 
 
       // Make sure there are no more messages to read.

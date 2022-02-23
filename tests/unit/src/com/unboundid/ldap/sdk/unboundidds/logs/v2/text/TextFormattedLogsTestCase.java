@@ -385,10 +385,37 @@ public abstract class TextFormattedLogsTestCase
 
 
   /**
+   * The default intermediate client request control that will be used for log
+   * messages.
+   */
+  @NotNull protected static final String DEFAULT_INTERMEDIATE_CLIENT_REQUEST =
+       "Intermediate Client Request Control";
+
+
+
+  /**
+   * The default intermediate client response control that will be used for log
+   * messages.
+   */
+  @NotNull protected static final String DEFAULT_INTERMEDIATE_CLIENT_RESPONSE =
+       "Intermediate Client Response Control";
+
+
+
+  /**
    * The default matched DN that will be used for log messages.
    */
   @NotNull protected static final String DEFAULT_MATCHED_DN =
        "cn=Matched,cn=DN";
+
+
+
+  /**
+   * The default operation purpose request control that will be used for log
+   * messages.
+   */
+  @NotNull protected static final String DEFAULT_OPERATION_PURPOSE_REQUEST =
+       "Operation Purpose Request Control";
 
 
 
@@ -514,6 +541,10 @@ public abstract class TextFormattedLogsTestCase
         appendField(buffer, USING_ADMIN_SESSION_WORKER_THREAD,
              DEFAULT_USING_ADMIN_SESSION_WORKER_THREAD);
         appendField(buffer, ADMINISTRATIVE_OPERATION, DEFAULT_ADMIN_OP_MESSAGE);
+        appendField(buffer, INTERMEDIATE_CLIENT_REQUEST,
+             DEFAULT_INTERMEDIATE_CLIENT_REQUEST);
+        appendField(buffer, OPERATION_PURPOSE,
+             DEFAULT_OPERATION_PURPOSE_REQUEST);
 
         if ((messageType == AccessLogMessageType.FORWARD) ||
              (messageType == AccessLogMessageType.FORWARD_FAILED) ||
@@ -564,6 +595,12 @@ public abstract class TextFormattedLogsTestCase
           appendField(buffer, PRE_AUTHORIZATION_USED_PRIVILEGES,
                DEFAULT_PRE_AUTHZ_USED_PRIVILEGES);
           appendField(buffer, MISSING_PRIVILEGES, DEFAULT_MISSING_PRIVILEGES);
+
+          if (operationType != AccessLogOperationType.ABANDON)
+          {
+            appendField(buffer, INTERMEDIATE_CLIENT_RESULT,
+                 DEFAULT_INTERMEDIATE_CLIENT_RESPONSE);
+          }
 
           if ((operationType == AccessLogOperationType.ADD) ||
                (operationType == AccessLogOperationType.COMPARE) ||
