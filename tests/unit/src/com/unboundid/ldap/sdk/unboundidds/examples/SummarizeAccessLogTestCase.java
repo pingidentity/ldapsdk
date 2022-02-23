@@ -43,9 +43,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Random;
 import java.util.zip.GZIPOutputStream;
 
@@ -54,10 +57,21 @@ import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.LogField;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
+
+import static com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessageType.*;
+import static com.unboundid.ldap.sdk.unboundidds.logs.AccessLogOperationType.*;
+import static com.unboundid.ldap.sdk.unboundidds.logs.v2.json.
+                   JSONFormattedAccessLogFields.*;
 
 
 
@@ -74,6 +88,7 @@ public class SummarizeAccessLogTestCase
   private File longFilterFile;
   private File compressedFile;
   private File encryptedFile;
+  private File jsonFile;
 
   // The timestamp used for the last message.
   private long lastTimestamp;
@@ -586,6 +601,83 @@ public class SummarizeAccessLogTestCase
         printStream.println(s);
       }
     }
+
+
+    jsonFile = createTempFile();
+    assertTrue(jsonFile.delete());
+    try (PrintWriter w = new PrintWriter(jsonFile))
+    {
+      w.println(new JSONObject(
+           jsonTS(),
+           jsonField(MESSAGE_TYPE, CONNECT.getLogIdentifier()),
+           jsonField(INSTANCE_NAME, "server.example.com:389"),
+           jsonField(STARTUP_ID, "ABCDEFG"),
+           jsonField(CONNECTION_ID, 1L),
+           jsonField(CONNECT_FROM_ADDRESS, "1.2.3.4"),
+           jsonField(CONNECT_FROM_PORT, 1234),
+           jsonField(CONNECT_TO_ADDRESS, "5.6.7.8"),
+           jsonField(CONNECT_TO_PORT, 5678),
+           jsonField(PROTOCOL, "LDAP"),
+           jsonField(CLIENT_CONNECTION_POLICY, "Default")));
+      w.println(new JSONObject(
+           jsonTS(),
+           jsonField(MESSAGE_TYPE, DISCONNECT.getLogIdentifier()),
+           jsonField(INSTANCE_NAME, "server.example.com:389"),
+           jsonField(STARTUP_ID, "ABCDEFG"),
+           jsonField(CONNECTION_ID, 1L),
+           jsonField(DISCONNECT_REASON, "Client Unbind"),
+           jsonField(DISCONNECT_MESSAGE,
+                "The client has closed the connection")));
+      w.println(new JSONObject(
+           jsonTS(),
+           jsonField(MESSAGE_TYPE, REQUEST.getLogIdentifier()),
+           jsonField(OPERATION_TYPE, ABANDON.getLogIdentifier()),
+           jsonField(INSTANCE_NAME, "server.example.com:389"),
+           jsonField(STARTUP_ID, "ABCDEFG"),
+           jsonField(CONNECTION_ID, 1L),
+           jsonField(OPERATION_ID, 2L),
+           jsonField(MESSAGE_ID, 3L),
+           jsonField(ORIGIN, "internal"),
+           jsonField(REQUESTER_IP_ADDRESS, "1.2.3.4"),
+           jsonField(REQUESTER_DN, "uid=test.user,ou=People,dc=example,dc=com"),
+           jsonField(ABANDON_MESSAGE_ID, 4)));
+      w.println(new JSONObject(
+           jsonTS(),
+           jsonField(MESSAGE_TYPE, FORWARD.getLogIdentifier()),
+           jsonField(OPERATION_TYPE, ABANDON.getLogIdentifier()),
+           jsonField(INSTANCE_NAME, "server.example.com:389"),
+           jsonField(STARTUP_ID, "ABCDEFG"),
+           jsonField(CONNECTION_ID, 1L),
+           jsonField(OPERATION_ID, 2L),
+           jsonField(MESSAGE_ID, 3L),
+           jsonField(ORIGIN, "internal"),
+           jsonField(REQUESTER_IP_ADDRESS, "1.2.3.4"),
+           jsonField(REQUESTER_DN, "uid=test.user,ou=People,dc=example,dc=com"),
+           jsonField(ABANDON_MESSAGE_ID, 4),
+           jsonField(TARGET_HOST, "5.6.7.8"),
+           jsonField(TARGET_PORT, 389),
+           jsonField(TARGET_PROTOCOL, "LDAP")));
+      w.println(new JSONObject(
+           jsonTS(),
+           jsonField(MESSAGE_TYPE, RESULT.getLogIdentifier()),
+           jsonField(OPERATION_TYPE, ABANDON.getLogIdentifier()),
+           jsonField(INSTANCE_NAME, "server.example.com:389"),
+           jsonField(STARTUP_ID, "ABCDEFG"),
+           jsonField(CONNECTION_ID, 1L),
+           jsonField(OPERATION_ID, 2L),
+           jsonField(MESSAGE_ID, 3L),
+           jsonField(ORIGIN, "internal"),
+           jsonField(REQUESTER_IP_ADDRESS, "1.2.3.4"),
+           jsonField(REQUESTER_DN, "uid=test.user,ou=People,dc=example,dc=com"),
+           jsonField(ABANDON_MESSAGE_ID, 4),
+           jsonField(RESULT_CODE_VALUE, 121),
+           jsonField(DIAGNOSTIC_MESSAGE, "This request cannot be canceled"),
+           jsonField(ADDITIONAL_INFO, "foo"),
+           jsonField(MATCHED_DN, "dc=example,dc=com"),
+           jsonField(PROCESSING_TIME_MILLIS, 0.123),
+           jsonField(REFERRAL_URLS, "ldap://server1.example.com:389/",
+                "ldap://server2.example.com:389/")));
+    }
   }
 
 
@@ -643,6 +735,52 @@ public class SummarizeAccessLogTestCase
       "--reportCount", "1",
       "--doNotAnonymize",
       dataFile1.getAbsolutePath()
+    };
+
+    rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with a single
+   * JSON-formatted file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSingleJSONFile()
+         throws Exception
+  {
+    String[] args =
+    {
+      "--json",
+      jsonFile.getAbsolutePath()
+    };
+
+    ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+
+
+    args = new String[]
+    {
+      "--json",
+      "--reportCount", "0",
+      "--doNotAnonymize",
+      jsonFile.getAbsolutePath()
+    };
+
+    rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+
+
+    args = new String[]
+    {
+      "--json",
+      "--reportCount", "1",
+      "--doNotAnonymize",
+      jsonFile.getAbsolutePath()
     };
 
     rc = SummarizeAccessLog.main(args, null, null);
@@ -1027,5 +1165,99 @@ public class SummarizeAccessLogTestCase
 
     SimpleDateFormat f = new SimpleDateFormat("'['dd/MMM/yyyy:HH:mm:ss Z']'");
     return f.format(d);
+  }
+
+
+
+  /**
+   * Retrieves a JSON-formatted timestamp field.
+   *
+   * @return  The JSON-formatted timestamp field that was created.
+   */
+  private JSONField jsonTS()
+  {
+    return new JSONField(TIMESTAMP.getFieldName(),
+         StaticUtils.encodeRFC3339Time(new Date()));
+  }
+
+
+
+  /**
+   * Retrieves a Boolean JSON field with the provided information.
+   *
+   * @param  field  The field to create.
+   * @param  value  The Boolean value for the JSON field.
+   *
+   * @return  The JSON field that was created.
+   */
+  private JSONField jsonField(LogField field, boolean value)
+  {
+    return new JSONField(field.getFieldName(), value);
+  }
+
+
+
+  /**
+   * Retrieves an integer JSON field with the provided information.
+   *
+   * @param  field  The field to create.
+   * @param  value  The integer value for the JSON field.
+   *
+   * @return  The JSON field that was created.
+   */
+  private JSONField jsonField(LogField field, long value)
+  {
+    return new JSONField(field.getFieldName(), value);
+  }
+
+
+
+  /**
+   * Retrieves a floating-point JSON field with the provided information.
+   *
+   * @param  field  The field to create.
+   * @param  value  The floating-point value for the JSON field.
+   *
+   * @return  The JSON field that was created.
+   */
+  private JSONField jsonField(LogField field, double value)
+  {
+    return new JSONField(field.getFieldName(), value);
+  }
+
+
+
+  /**
+   * Retrieves a string JSON field with the provided information.
+   *
+   * @param  field  The field to create.
+   * @param  value  The string value for the JSON field.
+   *
+   * @return  The JSON field that was created.
+   */
+  private JSONField jsonField(LogField field, String value)
+  {
+    return new JSONField(field.getFieldName(), value);
+  }
+
+
+
+  /**
+   * Retrieves a string array JSON field with the provided information.
+   *
+   * @param  field   The field to create.
+   * @param  values  The string array values for the JSON field.
+   *
+   * @return  The JSON field that was created.
+   */
+  private JSONField jsonField(LogField field, String... values)
+  {
+    final List<JSONValue> arrayValues = new ArrayList<>(values.length);
+    for (final String value : values)
+    {
+      arrayValues.add(new JSONString(value));
+    }
+
+    return new JSONField(field.getFieldName(), new JSONArray(arrayValues));
   }
 }

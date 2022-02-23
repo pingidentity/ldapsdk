@@ -40,7 +40,6 @@ package com.unboundid.ldap.sdk.unboundidds.examples;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -64,26 +63,34 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
-import com.unboundid.ldap.sdk.unboundidds.logs.AbandonRequestAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.AccessLogReader;
-import com.unboundid.ldap.sdk.unboundidds.logs.AddResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.BindResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.CompareResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.ConnectAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.DeleteResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.DisconnectAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.ExtendedRequestAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.ExtendedResultAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.LogException;
-import com.unboundid.ldap.sdk.unboundidds.logs.ModifyDNResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.ModifyResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.OperationAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.SearchRequestAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.SearchResultAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
+            AbandonRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.AccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.AccessLogReader;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.AddResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.BindResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.CompareResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.ConnectAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.DeleteResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.DisconnectAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
+            ExtendedRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
+            ExtendedResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
+            ModifyDNResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.ModifyResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
+            OperationRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.SearchRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.SearchResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
             SecurityNegotiationAccessLogMessage;
-import com.unboundid.ldap.sdk.unboundidds.logs.UnbindRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.UnbindRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.json.JSONAccessLogReader;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.text.
+            TextFormattedAccessLogReader;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
@@ -178,6 +185,10 @@ public final class SummarizeAccessLog
 
   // An argument that may be used to indicate that the log files are compressed.
   @Nullable private BooleanArgument isCompressed;
+
+  // An argument that may be used to indicate that the log content is
+  // JSON-formatted rather than text-formatted.
+  @Nullable private BooleanArgument json;
 
   // An argument used to specify the encryption passphrase.
   @Nullable private FileArgument encryptionPassphraseFile;
@@ -333,6 +344,7 @@ public final class SummarizeAccessLog
     argumentParser = null;
     doNotAnonymize = null;
     isCompressed = null;
+    json = null;
     encryptionPassphraseFile = null;
     reportCount = null;
 
@@ -620,12 +632,20 @@ public final class SummarizeAccessLog
     // the trailing arguments later.
     argumentParser = parser;
 
+    // Add an argument that makes it possible to read a JSON-formatted access
+    // log file.
+    String description = "Indicates that the log file contains " +
+         "JSON-formatted log messages rather than text-formatted messages.";
+    json = new BooleanArgument(null, "json", description);
+    parser.addArgument(json);
+
+
     // Add an argument that makes it possible to read a compressed log file.
     // Note that this argument is no longer needed for dealing with compressed
     // files, since the tool will automatically detect whether a file is
     // compressed.  However, the argument is still provided for the purpose of
     // backward compatibility.
-    String description = "Indicates that the log file is compressed.";
+    description = "Indicates that the log file is compressed.";
     isCompressed = new BooleanArgument('c', "isCompressed", description);
     isCompressed.addLongIdentifier("is-compressed", true);
     isCompressed.addLongIdentifier("compressed", true);
@@ -775,7 +795,14 @@ public final class SummarizeAccessLog
                ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
         }
 
-        reader = new AccessLogReader(new InputStreamReader(inputStream));
+        if (json.isPresent())
+        {
+          reader = new JSONAccessLogReader(inputStream);
+        }
+        else
+        {
+          reader = new TextFormattedAccessLogReader(inputStream);
+        }
       }
       catch (final Exception e)
       {
@@ -807,7 +834,7 @@ public final class SummarizeAccessLog
         final AccessLogMessage msg;
         try
         {
-          msg = reader.read();
+          msg = reader.readMessage();
         }
         catch (final IOException ioe)
         {
@@ -865,7 +892,7 @@ public final class SummarizeAccessLog
             processDisconnect((DisconnectAccessLogMessage) msg);
             break;
           case REQUEST:
-            switch (((OperationAccessLogMessage) msg).getOperationType())
+            switch (((OperationRequestAccessLogMessage) msg).getOperationType())
             {
               case ABANDON:
                 processAbandonRequest((AbandonRequestAccessLogMessage) msg);
@@ -882,7 +909,7 @@ public final class SummarizeAccessLog
             }
             break;
           case RESULT:
-            switch (((OperationAccessLogMessage) msg).getOperationType())
+            switch (((OperationRequestAccessLogMessage) msg).getOperationType())
             {
               case ADD:
                 processAddResult((AddResultAccessLogMessage) msg);
@@ -1651,7 +1678,7 @@ public final class SummarizeAccessLog
 
       if (! scope.equals(SearchScope.BASE))
       {
-        final String filterString = getFilterString(m.getParsedFilter());
+        final String filterString = prepareFilter(m.getFilter());
         if (filterString != null)
         {
           AtomicLong filterCount = filterTypes.get(filterString);
@@ -1989,7 +2016,7 @@ public final class SummarizeAccessLog
     searchProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), searchProcessingTimes);
 
-    final String filterString = getFilterString(m.getParsedFilter());
+    final String filterString = prepareFilter(m.getFilter());
 
     final Long entryCount = m.getEntriesReturned();
     if (entryCount != null)
@@ -2028,7 +2055,7 @@ public final class SummarizeAccessLog
       }
     }
 
-    final Boolean isUnindexed = m.isUnindexed();
+    final Boolean isUnindexed = m.getUnindexed();
     if ((isUnindexed != null) && isUnindexed)
     {
       numUnindexedAttempts++;
@@ -2319,29 +2346,40 @@ public final class SummarizeAccessLog
 
 
   /**
-   * Retrieves a string representation of the provided filter.  It may
-   * potentially be de-anonymized to include specific values.
+   * Retrieves a prepared string representation of the provided search filter.
+   * It may potentially be de-anonymized to include specific values.
    *
-   * @param  filter  The filter for which to obtain the string representation.
+   * @param  filterString  The string representation of the filter to prepare.
+   *                       It may be {@code null} if the log message does not
+   *                       have a filter.
    *
    * @return  A string representation of the provided filter (which may or may
    *          not be anonymized), or {@code null} if the provided filter is
-   *          {@code null}.
+   *          {@code null} or cannot be prepared.
    */
   @Nullable()
-  private String getFilterString(@Nullable final Filter filter)
+  private String prepareFilter(@Nullable final String filterString)
   {
-    if (filter == null)
+    if (filterString == null)
     {
       return null;
     }
 
     if (doNotAnonymize.isPresent())
     {
-      return filter.toString().toLowerCase();
+      return filterString.toLowerCase();
     }
 
-    return new GenericFilter(filter).toString().toLowerCase();
+    try
+    {
+      return new GenericFilter(Filter.create(filterString)).toString().
+           toLowerCase();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return null;
+    }
   }
 
 
