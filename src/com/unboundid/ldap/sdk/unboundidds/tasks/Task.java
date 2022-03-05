@@ -1010,6 +1010,7 @@ public class Task
          new PopulateComposedAttributeValuesTask(),
          new RebuildTask(),
          new ReEncodeEntriesTask(),
+         new RefreshCertificateMonitorTask(),
          new RefreshEncryptionSettingsTask(),
          new ReloadGlobalIndexTask(),
          new ReloadHTTPConnectionHandlerCertificatesTask(),
@@ -2118,6 +2119,11 @@ public class Task
                     ReEncodeEntriesTask.RE_ENCODE_ENTRIES_TASK_CLASS))
       {
         return new ReEncodeEntriesTask(entry);
+      }
+      else if (taskClass.equals(RefreshCertificateMonitorTask.
+                    REFRESH_CERTIFICATE_MONITOR_TASK_CLASS))
+      {
+        return new RefreshCertificateMonitorTask(entry);
       }
       else if (taskClass.equals(RefreshEncryptionSettingsTask.
                     REFRESH_ENCRYPTION_SETTINGS_TASK_CLASS))
