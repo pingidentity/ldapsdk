@@ -1959,4 +1959,66 @@ public final class MonitorManager
 
     return new VersionMonitorEntry(searchResult.getSearchEntries().get(0));
   }
+
+
+
+  /**
+   * Retrieves a list of all X.509 certificate monitor entries available in the
+   * Directory Server.
+   *
+   * @param  connection  The connection to use to communicate with the Directory
+   *                     Server.
+   *
+   * @return  A list of all X.509 certificate monitor entries available in the
+   *          Directory Server.
+   *
+   * @throws  LDAPSearchException  If a problem occurs while communicating with
+   *                               the Directory Server.
+   */
+  @NotNull()
+  public static List<X509CertificateMonitorEntry>
+              getX509CertificateMonitorEntries(
+                   @NotNull final LDAPConnection connection)
+         throws LDAPSearchException
+  {
+    return getX509CertificateMonitorEntries((LDAPInterface) connection);
+  }
+
+
+
+  /**
+   * Retrieves a list of all X.509 certificate monitor entries available in the
+   * Directory Server.
+   *
+   * @param  connection  The connection to use to communicate with the Directory
+   *                     Server.
+   *
+   * @return  A list of all X.509 certificate monitor entries available in the
+   *          Directory Server.
+   *
+   * @throws  LDAPSearchException  If a problem occurs while communicating with
+   *                               the Directory Server.
+   */
+  @NotNull()
+  public static List<X509CertificateMonitorEntry>
+              getX509CertificateMonitorEntries(
+                   @NotNull final LDAPInterface connection)
+         throws LDAPSearchException
+  {
+    final Filter filter = Filter.createEqualityFilter("objectClass",
+         X509CertificateMonitorEntry.X509_CERTIFICATE_MONITOR_OC);
+
+    final SearchResult searchResult =
+         connection.search(MonitorEntry.MONITOR_BASE_DN, SearchScope.SUB,
+                           filter);
+
+    final ArrayList<X509CertificateMonitorEntry> monitorEntries =
+         new ArrayList<>(searchResult.getEntryCount());
+    for (final SearchResultEntry e : searchResult.getSearchEntries())
+    {
+      monitorEntries.add(new X509CertificateMonitorEntry(e));
+    }
+
+    return Collections.unmodifiableList(monitorEntries);
+  }
 }

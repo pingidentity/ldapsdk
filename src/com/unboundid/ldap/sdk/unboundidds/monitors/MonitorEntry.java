@@ -433,6 +433,11 @@ public class MonitorEntry
     {
       return new VersionMonitorEntry(entry);
     }
+    else if (monitorClass.equalsIgnoreCase(
+                  X509CertificateMonitorEntry.X509_CERTIFICATE_MONITOR_OC))
+    {
+      return new X509CertificateMonitorEntry(entry);
+    }
 
     return new MonitorEntry(entry);
   }

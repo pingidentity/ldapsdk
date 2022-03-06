@@ -1473,4 +1473,41 @@ public class MonitorManagerTestCase
 
     conn.close();
   }
+
+
+
+  /**
+   * Tests the {@code getX509CertificateMonitorEntries} method.
+   * <BR><BR>
+   * Access to a Directory Server instance is required for complete processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetX509CertificateMonitorEntries()
+         throws Exception
+  {
+    if (! isDirectoryInstanceAvailable())
+    {
+      return;
+    }
+
+    LDAPConnection conn = getAdminConnection();
+
+    List<X509CertificateMonitorEntry> monitorEntries =
+         MonitorManager.getX509CertificateMonitorEntries(conn);
+    assertNotNull(monitorEntries);
+    assertFalse(monitorEntries.isEmpty());
+
+    for (X509CertificateMonitorEntry e : monitorEntries)
+    {
+      assertNotNull(e.getEntry());
+      assertNotNull(e.getMonitorClass());
+      assertNotNull(e.getMonitorName());
+
+      assertNotNull(e.getSubjectDN());
+    }
+
+    conn.close();
+  }
 }
