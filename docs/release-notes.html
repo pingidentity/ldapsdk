@@ -32,6 +32,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the JVM-default trust manager implementation in which it did
+                  not properly look for a trust store file named "jssecacerts" in accordance with
+                  the JSSE specification.  It had previously only looked for a file named
+                  "cacerts".
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDIF reader to support reading modifications with values read files
                   referenced by URL.  This was previously supported when reading LDIF entries or
                   add change records, but support for reading modification values from files had

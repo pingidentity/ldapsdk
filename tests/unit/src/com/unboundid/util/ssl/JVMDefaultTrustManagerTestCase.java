@@ -284,7 +284,33 @@ public final class JVMDefaultTrustManagerTestCase
   public Iterator<Object[]> getValidTestPaths()
          throws Exception
   {
-    final ArrayList<Object[]> paths = new ArrayList<>(15);
+    final ArrayList<Object[]> paths = new ArrayList<>();
+
+    paths.add(new Object[]
+    {
+      new String[] { "lib", "security", "jssecacerts" }
+    });
+
+    for (final String extension : JVMDefaultTrustManager.FILE_EXTENSIONS)
+    {
+      paths.add(new Object[]
+      {
+        new String[] { "lib", "security", "jssecacerts" + extension }
+      });
+    }
+
+    paths.add(new Object[]
+    {
+      new String[] { "jre", "lib", "security", "jssecacerts" }
+    });
+
+    for (final String extension : JVMDefaultTrustManager.FILE_EXTENSIONS)
+    {
+      paths.add(new Object[]
+      {
+        new String[] { "jre", "lib", "security", "jssecacerts" + extension }
+      });
+    }
 
     paths.add(new Object[]
     {
@@ -309,6 +335,19 @@ public final class JVMDefaultTrustManagerTestCase
       paths.add(new Object[]
       {
         new String[] { "jre", "lib", "security", "cacerts" + extension }
+      });
+    }
+
+    paths.add(new Object[]
+    {
+      new String[] { "some", "unexpected", "dir", "jssecacerts" }
+    });
+
+    for (final String extension : JVMDefaultTrustManager.FILE_EXTENSIONS)
+    {
+      paths.add(new Object[]
+      {
+        new String[] { "some", "unexpected", "dir", "jssecacerts" + extension }
       });
     }
 

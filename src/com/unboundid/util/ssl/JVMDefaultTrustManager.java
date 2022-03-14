@@ -77,11 +77,19 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 
 /**
  * This class provides an implementation of a trust manager that relies on the
- * JVM's default set of trusted issuers.  This is generally found in the
- * {@code jre/lib/security/cacerts} or {@code lib/security/cacerts} file in the
- * Java installation (in both Sun/Oracle and IBM-based JVMs), but if neither of
- * those files exist (or if they cannot be parsed as a JKS or PKCS#12 keystore),
- * then we will search for the file below the Java home directory.
+ * JVM's default set of trusted issuers.
+ * <BR><BR>
+ * This implementation will first look for the trust store in the following
+ * locations within the Java installation, in the following order:
+ * <OL>
+ *   <LI>{@code lib/security/jssecacerts}</LI>
+ *   <LI>{@code jre/lib/security/jssecacerts}</LI>
+ *   <LI>{@code lib/security/cacerts}</LI>
+ *   <LI>{@code jre/lib/security/cacerts}</LI>
+ * </OL>
+ * If none of those files exist (or if they cannot be parsed as a JKS or PKCS
+ * #12 key store), then we will search for a {@code jssecacerts} or
+ * {@code cacerts} file below the Java home directory.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -462,18 +470,26 @@ public final class JVMDefaultTrustManager
                       @NotNull final File javaHomeDirectory)
           throws CertificateException
   {
+    final File libSecurityJSSECACerts = StaticUtils.constructPath(
+         javaHomeDirectory, "lib", "security", "jssecacerts");
+    final File jreLibSecurityJSSECACerts = StaticUtils.constructPath(
+         javaHomeDirectory, "jre", "lib", "security", "jssecacerts");
     final File libSecurityCACerts = StaticUtils.constructPath(javaHomeDirectory,
          "lib", "security", "cacerts");
     final File jreLibSecurityCACerts = StaticUtils.constructPath(
          javaHomeDirectory, "jre", "lib", "security", "cacerts");
 
     final ArrayList<File> tryFirstFiles =
-         new ArrayList<>(2 * FILE_EXTENSIONS.length + 2);
+         new ArrayList<>(4 * FILE_EXTENSIONS.length + 2);
     tryFirstFiles.add(libSecurityCACerts);
     tryFirstFiles.add(jreLibSecurityCACerts);
 
     for (final String extension : FILE_EXTENSIONS)
     {
+      tryFirstFiles.add(
+           new File(libSecurityJSSECACerts.getAbsolutePath() + extension));
+      tryFirstFiles.add(
+           new File(jreLibSecurityJSSECACerts.getAbsolutePath() + extension));
       tryFirstFiles.add(
            new File(libSecurityCACerts.getAbsolutePath() + extension));
       tryFirstFiles.add(
@@ -561,7 +577,7 @@ filesInDirectoryLoop:
     {
       if (f.isDirectory())
       {
-        final ObjectPair<KeyStore,File> p =searchForKeyStore(f, exceptions);
+        final ObjectPair<KeyStore,File> p = searchForKeyStore(f, exceptions);
         if (p != null)
         {
           return p;
@@ -570,7 +586,7 @@ filesInDirectoryLoop:
       else
       {
         final String lowerName = StaticUtils.toLowerCase(f.getName());
-        if (lowerName.equals("cacerts"))
+        if (lowerName.equals("jssecacerts") || lowerName.equals("cacerts"))
         {
           try
           {
@@ -587,7 +603,8 @@ filesInDirectoryLoop:
         {
           for (final String extension : FILE_EXTENSIONS)
           {
-            if (lowerName.equals("cacerts" + extension))
+            if (lowerName.equals("jssecacerts" + extension) ||
+                 lowerName.equals("cacerts" + extension))
             {
               try
               {
