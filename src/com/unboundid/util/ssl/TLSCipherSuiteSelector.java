@@ -84,9 +84,14 @@ import static com.unboundid.util.ssl.SSLMessages.*;
  * TLS cipher suites is as follows:
  * <UL>
  *   <LI>
- *     Only cipher suites that use the TLS protocol will be recommended.  Legacy
- *     SSL suites will not be recommended, nor will any suites that use an
- *     unrecognized protocol.
+ *     In most JVMs, only cipher suites that use the TLS protocol will be
+ *     recommended (that is, suites that use a prefix of "TLS_"), and legacy SSL
+ *     suites (those that use a prefix of "SSL_") will not be recommended, nor
+ *     will any suites that use an unrecognized protocol.  Note that this
+ *     restriction will not be enforced for JVMs in which the vendor string
+ *     contains "IBM" (as they tend to use "SSL_" prefixes for most or all
+ *     cipher suites), or if the {@link #PROPERTY_ALLOW_SSL_PREFIX} system
+ *     property is set to {@code true}.
  *   </LI>
  *
  *   <LI>
@@ -176,6 +181,21 @@ public final class TLSCipherSuiteSelector
 
 
   /**
+   * The name of a system property
+   * (com.unboundid.util.ssl.TLSCipherSuiteSelector.allowSSLPrefix) that can be
+   * used to indicate whether to recommend cipher suites that use a prefix of
+   * "SSL_" rather than "TLS_".  If this is not specified, then the default
+   * behavior will be to disable all suites with an "SSL_" prefix for all
+   * non-IBM JVMs, but to allow them for JVMs in which the vendor string
+   * contains "IBM", as they are known to use "SSL_" prefixes even for suites
+   * that are only in use in conjunction with TLS protocols.
+   */
+  @NotNull public static final String PROPERTY_ALLOW_SSL_PREFIX =
+       TLSCipherSuiteSelector.class.getName() + ".allowSSLPrefix";
+
+
+
+  /**
    * A flag that indicates whether to allow the RSA key exchange algorithm.
    */
   @NotNull private static final AtomicBoolean ALLOW_RSA_KEY_EXCHANGE =
@@ -188,6 +208,15 @@ public final class TLSCipherSuiteSelector
    * digest algorithm.
    */
   @NotNull private static final AtomicBoolean ALLOW_SHA_1 =
+       new AtomicBoolean(false);
+
+
+
+  /**
+   * A flag that indicates whether to allow cipher suites that use a prefix of
+   * "SSL_".
+   */
+  @NotNull private static final AtomicBoolean ALLOW_SSL_PREFIX =
        new AtomicBoolean(false);
 
 
@@ -218,8 +247,35 @@ public final class TLSCipherSuiteSelector
       allowSHA1 = false;
     }
 
+    final boolean allowSSLPrefix;
+    final String allowSSLPrefixPropertyValue =
+         StaticUtils.getSystemProperty(PROPERTY_ALLOW_SSL_PREFIX);
+    if (allowSSLPrefixPropertyValue != null)
+    {
+      allowSSLPrefix = allowSSLPrefixPropertyValue.equalsIgnoreCase("true");
+    }
+    else
+    {
+      final String javaVendorString =
+           StaticUtils.getSystemProperty("java.vendor");
+      final String jvmVendorString =
+           StaticUtils.getSystemProperty("java.vm.vendor");
+      if (((javaVendorString != null) &&
+              javaVendorString.toUpperCase().contains("IBM")) ||
+          ((jvmVendorString != null) &&
+              jvmVendorString.toUpperCase().contains("IBM")))
+      {
+        allowSSLPrefix = true;
+      }
+      else
+      {
+        allowSSLPrefix = false;
+      }
+    }
+
     ALLOW_RSA_KEY_EXCHANGE.set(allowRSA);
     ALLOW_SHA_1.set(allowSHA1);
+    ALLOW_SSL_PREFIX.set(allowSSLPrefix);
   }
 
 
@@ -540,7 +596,7 @@ public final class TLSCipherSuiteSelector
   static ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
        selectCipherSuites(@NotNull final String[] cipherSuiteArray)
   {
-    return selectCipherSuites(cipherSuiteArray, false);
+    return selectCipherSuites(cipherSuiteArray, ALLOW_SSL_PREFIX.get());
   }
 
 
@@ -578,7 +634,6 @@ public final class TLSCipherSuiteSelector
     final SortedMap<String,List<String>> nonRecommendedMap =
          new TreeMap<>(TLSCipherSuiteComparator.getInstance());
 
-    boolean anyTLSSuitesFound = false;
     for (final String cipherSuiteName : cipherSuiteArray)
     {
       String name =
@@ -603,11 +658,7 @@ public final class TLSCipherSuiteSelector
       }
       else if (name.startsWith("TLS_") || name.startsWith("SSL_"))
       {
-        if (name.startsWith("TLS_"))
-        {
-          anyTLSSuitesFound = true;
-        }
-        else
+        if (name.startsWith("SSL_"))
         {
           name = "TLS_" + name.substring(4);
         }
@@ -792,15 +843,6 @@ public final class TLSCipherSuiteSelector
         nonRecommendedMap.put(cipherSuiteName,
              Collections.unmodifiableList(nonRecommendedReasons));
       }
-    }
-
-    if (recommendedSet.isEmpty() && (! anyTLSSuitesFound) &&
-         (! includeSSLSuites))
-    {
-      // We didn't find any suite names starting with "TLS_".  Assume that the
-      // JVM only reports suites that start with "SSL_" and try again, allowing
-      // those suites.
-      return selectCipherSuites(cipherSuiteArray, true);
     }
 
     return new ObjectPair<>(recommendedSet, nonRecommendedMap);
@@ -1036,6 +1078,40 @@ public final class TLSCipherSuiteSelector
   public static void setAllowSHA1(final boolean allowSHA1)
   {
     ALLOW_SHA_1.set(allowSHA1);
+    recompute();
+  }
+
+
+
+  /**
+   * Indicates whether cipher suites whose names start with "SSL_" should be
+   * recommended by default.
+   *
+   * @return  {@code true} if cipher suites prefixed with either "SSL_" or
+   *          "TLS_" should be recommended by default, or {@code false} if only
+   *          suites prefixed with "TLS_" should be recommended by default.
+   */
+  public static boolean allowSSLPrefixedSuites()
+  {
+    return ALLOW_SSL_PREFIX.get();
+  }
+
+
+
+  /**
+   * Specifies whether cipher suites whose names start with "SSL_" should be
+   * recommended by default.
+   *
+   * @param  allowSSLPrefix  Indicates whether cipher suites whose names start
+   *                         with "SSL_" should be recommended by default.  If
+   *                         this is {@code true}, then suites prefixed with
+   *                         either "TLS_" or "SSL_" may be recommended.  If
+   *                         this is {@code false}, then only suites prefixed
+   *                         with "TLS_" may be recommended.
+   */
+  public static void setAllowSSLPrefixedSuites(final boolean allowSSLPrefix)
+  {
+    ALLOW_SSL_PREFIX.set(allowSSLPrefix);
     recompute();
   }
 

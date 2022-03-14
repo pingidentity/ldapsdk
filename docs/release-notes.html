@@ -40,6 +40,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the logic used to select the default set of supported cipher suites to
+                  no longer exclude suites starting with "SSL_" by default on JVMs with a vendor
+                  string that includes "IBM".  IBM JVMs appear to use the "SSL_" prefix for some
+                  or all cipher suites, including those that are not associated with a legacy SSL
+                  protocol.  Also, added a TLSCipherSuiteSelector.setAllowSSLPrefixedSuites
+                  method that can be used to override the default behavior as needed.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDIF reader to support reading modifications with values read files
                   referenced by URL.  This was previously supported when reading LDIF entries or
                   add change records, but support for reading modification values from files had

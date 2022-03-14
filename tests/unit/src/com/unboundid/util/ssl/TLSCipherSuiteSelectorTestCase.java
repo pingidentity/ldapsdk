@@ -197,6 +197,26 @@ public final class TLSCipherSuiteSelectorTestCase
     {
       assertFalse(cipherSuite.endsWith("_SHA"));
     }
+
+
+    final boolean defaultAllowSSLPrefix =
+         TLSCipherSuiteSelector.allowSSLPrefixedSuites();
+
+    TLSCipherSuiteSelector.setAllowSSLPrefixedSuites(true);
+    assertTrue(TLSCipherSuiteSelector.allowSSLPrefixedSuites());
+    TLSCipherSuiteSelector.getRecommendedCipherSuites();
+
+    TLSCipherSuiteSelector.setAllowSSLPrefixedSuites(false);
+    assertFalse(TLSCipherSuiteSelector.allowSSLPrefixedSuites());
+    for (final String cipherSuite :
+         TLSCipherSuiteSelector.getRecommendedCipherSuites())
+    {
+      assertFalse(cipherSuite.toUpperCase().startsWith("SSL_"));
+    }
+
+    TLSCipherSuiteSelector.setAllowSSLPrefixedSuites(defaultAllowSSLPrefix);
+    assertEquals(TLSCipherSuiteSelector.allowSSLPrefixedSuites(),
+         defaultAllowSSLPrefix);
   }
 
 
