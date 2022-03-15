@@ -1158,9 +1158,14 @@ public abstract class LogFieldSyntax<T>
       final byte[] digestBytes = sha256(concatBuffer);
 
 
-      // Base64-encode a portion of the digest to use as the token.
+      // Base64-encode a portion of the digest to use as the token.  Use the
+      // base64url syntax to avoid including the plus and slash characters,
+      // which might cause issues in certain cases (for example, the plus sign
+      // needs to be escaped in DNs because it would otherwise represent the
+      // start of the next component of a multivalued RDN).
       buffer.append(TOKEN_PREFIX_STRING);
-      Base64.encode(digestBytes, 0, TOKEN_DIGEST_BYTES_LENGTH, buffer);
+      Base64.urlEncode(digestBytes, 0, TOKEN_DIGEST_BYTES_LENGTH, buffer,
+           false);
       buffer.append(TOKEN_SUFFIX_STRING);
     }
     finally
