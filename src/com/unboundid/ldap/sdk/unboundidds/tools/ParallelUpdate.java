@@ -1910,8 +1910,8 @@ public final class ParallelUpdate
       }
 
       final AssuredReplicationRequestControl c =
-           new AssuredReplicationRequestControl(true, localLevel, null,
-                remoteLevel, null, timeoutMillis, false);
+           new AssuredReplicationRequestControl(true, localLevel, localLevel,
+                remoteLevel, remoteLevel, timeoutMillis, false);
       addControls.add(c);
       deleteControls.add(c);
       modifyControls.add(c);

@@ -6,7 +6,29 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
-              <h3>Version 6.0.4</h3>
+              <h3>Version 6.0.5</h3>
+
+              <p>
+                The following changes were made between the 6.0.4 and 6.0.5 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed an issue with the way the parallel-update tool created assured replication
+                  request controls when an explicit local or remote assurance level was specified.
+                  Previously, it would only specify a minimum assurance level without specifying a
+                  maximum level.  If the server was already configured to use assured replication
+                  with a higher assurance level than the client requested, then the server's
+                  higher level would have overridden the level requested by the client.  The tool
+                  will now specify both minimum and maximum levels to ensure that the requested
+                  assurance level is used, regardless of the server configuration.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
 
               <p>
                 The following changes were made between the 6.0.3 and 6.0.4 releases:
