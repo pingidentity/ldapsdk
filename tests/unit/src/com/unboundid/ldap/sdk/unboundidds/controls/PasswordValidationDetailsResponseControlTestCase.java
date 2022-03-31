@@ -51,6 +51,12 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
+import com.unboundid.util.Base64;
+import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -513,5 +519,1725 @@ public final class PasswordValidationDetailsResponseControlTestCase
     final LDAPResult r = new LDAPResult(1, ResultCode.SUCCESS, null, null,
          null, controls);
     PasswordValidationDetailsResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with a validation details response type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlValidationDetails()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345)));
+
+
+    PasswordValidationDetailsResponseControl decodedControl =
+         PasswordValidationDetailsResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.VALIDATION_DETAILS);
+
+    assertEquals(decodedControl.getValidationResults().size(), 2);
+
+    PasswordQualityRequirementValidationResult result1 =
+         decodedControl.getValidationResults().get(0);
+    assertEquals(result1.getPasswordRequirement().getDescription(),
+         "requirement-1");
+    assertEquals(result1.getPasswordRequirement().getClientSideValidationType(),
+         "validation-type-1");
+    assertEquals(
+         result1.getPasswordRequirement().getClientSideValidationProperties(),
+         StaticUtils.mapOf(
+              "prop1", "value1",
+              "prop2", "value2"));
+    assertTrue(result1.requirementSatisfied());
+    assertEquals(result1.getAdditionalInfo(), "additional-info-1");
+
+    PasswordQualityRequirementValidationResult result2 =
+         decodedControl.getValidationResults().get(1);
+    assertEquals(result2.getPasswordRequirement().getDescription(),
+         "requirement-2");
+    assertNull(result2.getPasswordRequirement().getClientSideValidationType());
+    assertTrue(result2.getPasswordRequirement().
+              getClientSideValidationProperties().isEmpty());
+    assertFalse(result2.requirementSatisfied());
+    assertNull(result2.getAdditionalInfo());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Integer.valueOf(12345));
+
+
+    decodedControl =
+         (PasswordValidationDetailsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.VALIDATION_DETAILS);
+
+    assertEquals(decodedControl.getValidationResults().size(), 2);
+
+    result1 = decodedControl.getValidationResults().get(0);
+    assertEquals(result1.getPasswordRequirement().getDescription(),
+         "requirement-1");
+    assertEquals(result1.getPasswordRequirement().getClientSideValidationType(),
+         "validation-type-1");
+    assertEquals(
+         result1.getPasswordRequirement().getClientSideValidationProperties(),
+         StaticUtils.mapOf(
+              "prop1", "value1",
+              "prop2", "value2"));
+    assertTrue(result1.requirementSatisfied());
+    assertEquals(result1.getAdditionalInfo(), "additional-info-1");
+
+    result2 = decodedControl.getValidationResults().get(1);
+    assertEquals(result2.getPasswordRequirement().getDescription(),
+         "requirement-2");
+    assertNull(result2.getPasswordRequirement().getClientSideValidationType());
+    assertTrue(result2.getPasswordRequirement().
+              getClientSideValidationProperties().isEmpty());
+    assertFalse(result2.requirementSatisfied());
+    assertNull(result2.getAdditionalInfo());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Integer.valueOf(12345));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with a no password provided response type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoPasswordProvided()
+          throws Exception
+  {
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.NO_PASSWORD_PROVIDED,
+              null, true, false, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("response-type", "no-password-provided"),
+              new JSONField("missing-current-password", true),
+              new JSONField("must-change-password", false)));
+
+
+    PasswordValidationDetailsResponseControl decodedControl =
+         PasswordValidationDetailsResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.NO_PASSWORD_PROVIDED);
+
+    assertTrue(decodedControl.getValidationResults().isEmpty());
+
+    assertTrue(decodedControl.missingCurrentPassword());
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+
+
+    decodedControl =
+         (PasswordValidationDetailsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.NO_PASSWORD_PROVIDED);
+
+    assertTrue(decodedControl.getValidationResults().isEmpty());
+
+    assertTrue(decodedControl.missingCurrentPassword());
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with a multiple passwords provided response type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlMultiplePasswordsProvided()
+          throws Exception
+  {
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.MULTIPLE_PASSWORDS_PROVIDED,
+              null, false, false, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("response-type", "multiple-passwords-provided"),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", false)));
+
+
+    PasswordValidationDetailsResponseControl decodedControl =
+         PasswordValidationDetailsResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.MULTIPLE_PASSWORDS_PROVIDED);
+
+    assertTrue(decodedControl.getValidationResults().isEmpty());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+
+
+    decodedControl =
+         (PasswordValidationDetailsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.MULTIPLE_PASSWORDS_PROVIDED);
+
+    assertTrue(decodedControl.getValidationResults().isEmpty());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with a no validation attempted response type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoValidationAttempted()
+          throws Exception
+  {
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.NO_VALIDATION_ATTEMPTED,
+              null, true, true, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("response-type", "no-validation-attempted"),
+              new JSONField("missing-current-password", true),
+              new JSONField("must-change-password", true)));
+
+
+    PasswordValidationDetailsResponseControl decodedControl =
+         PasswordValidationDetailsResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.NO_VALIDATION_ATTEMPTED);
+
+    assertTrue(decodedControl.getValidationResults().isEmpty());
+
+    assertTrue(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+
+
+    decodedControl =
+         (PasswordValidationDetailsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.NO_VALIDATION_ATTEMPTED);
+
+    assertTrue(decodedControl.getValidationResults().isEmpty());
+
+    assertTrue(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    PasswordValidationDetailsResponseControl decodedControl =
+         PasswordValidationDetailsResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.VALIDATION_DETAILS);
+
+    assertEquals(decodedControl.getValidationResults().size(), 2);
+
+    PasswordQualityRequirementValidationResult result1 =
+         decodedControl.getValidationResults().get(0);
+    assertEquals(result1.getPasswordRequirement().getDescription(),
+         "requirement-1");
+    assertEquals(result1.getPasswordRequirement().getClientSideValidationType(),
+         "validation-type-1");
+    assertEquals(
+         result1.getPasswordRequirement().getClientSideValidationProperties(),
+         StaticUtils.mapOf(
+              "prop1", "value1",
+              "prop2", "value2"));
+    assertTrue(result1.requirementSatisfied());
+    assertEquals(result1.getAdditionalInfo(), "additional-info-1");
+
+    PasswordQualityRequirementValidationResult result2 =
+         decodedControl.getValidationResults().get(1);
+    assertEquals(result2.getPasswordRequirement().getDescription(),
+         "requirement-2");
+    assertNull(result2.getPasswordRequirement().getClientSideValidationType());
+    assertTrue(result2.getPasswordRequirement().
+              getClientSideValidationProperties().isEmpty());
+    assertFalse(result2.requirementSatisfied());
+    assertNull(result2.getAdditionalInfo());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Integer.valueOf(12345));
+
+
+    decodedControl =
+         (PasswordValidationDetailsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.VALIDATION_DETAILS);
+
+    assertEquals(decodedControl.getValidationResults().size(), 2);
+
+    result1 = decodedControl.getValidationResults().get(0);
+    assertEquals(result1.getPasswordRequirement().getDescription(),
+         "requirement-1");
+    assertEquals(result1.getPasswordRequirement().getClientSideValidationType(),
+         "validation-type-1");
+    assertEquals(
+         result1.getPasswordRequirement().getClientSideValidationProperties(),
+         StaticUtils.mapOf(
+              "prop1", "value1",
+              "prop2", "value2"));
+    assertTrue(result1.requirementSatisfied());
+    assertEquals(result1.getAdditionalInfo(), "additional-info-1");
+
+    result2 = decodedControl.getValidationResults().get(1);
+    assertEquals(result2.getPasswordRequirement().getDescription(),
+         "requirement-2");
+    assertNull(result2.getPasswordRequirement().getClientSideValidationType());
+    assertTrue(result2.getPasswordRequirement().
+              getClientSideValidationProperties().isEmpty());
+    assertFalse(result2.requirementSatisfied());
+    assertNull(result2.getAdditionalInfo());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Integer.valueOf(12345));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the response-type element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingResponseType()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized response-type value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedResponseType()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "unrecognized"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the missing-current-password element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingMissingCurrentPassword()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the must-change-password element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingMustChangePassword()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a validation-details value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValidationDetailsValueNotObject()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONString("foo"),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the required password-quality-requirement object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingPasswordQualityRequirement()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing a password quality requirement description.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingPasswordQualityRequirementDesc()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a client-side validation property array value that is not an
+   * object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlClientSideValidationPropertyValueNotObject()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONString("foo"),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing a client-side validation property name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingClientSideValidationPropertyName()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing a client-side validation property value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingClientSideValidationPropertyValue()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name",
+                                                      "prop1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unexpected client-side-validation-properties field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnexpectedClientSideValidationPropertyField()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1"),
+                                                 new JSONField("unrecognized",
+                                                      "foo")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing a requirement-satisfied field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingRequirementSatisfied()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unexpected password-quality-requirement field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnexpectedPasswordQualityRequirementField()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1"),
+                        new JSONField("unexpected", "foo")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unexpected value field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnexpectedValueFieldStrict()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345),
+              new JSONField("unexpected", "foo"))));
+
+
+    PasswordValidationDetailsResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unexpected value field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlUnexpectedValueFieldNonStrict()
+          throws Exception
+  {
+    final List<PasswordQualityRequirementValidationResult> validationResults =
+         Arrays.asList(
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement(
+                        "requirement-1",
+                        "validation-type-1",
+                        StaticUtils.mapOf(
+                             "prop1", "value1",
+                             "prop2", "value2")),
+                   true, "additional-info-1"),
+              new PasswordQualityRequirementValidationResult(
+                   new PasswordQualityRequirement("requirement-2", null, null),
+                   false, null));
+
+    final PasswordValidationDetailsResponseControl c =
+         new PasswordValidationDetailsResponseControl(
+              PasswordValidationDetailsResponseType.VALIDATION_DETAILS,
+              validationResults, false, true, 12345);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("response-type", "validation-performed"),
+              new JSONField("validation-details", new JSONArray(
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description", "requirement-1"),
+                                  new JSONField("client-side-validation-type",
+                                       "validation-type-1"),
+                                  new JSONField(
+                                       "client-side-validation-properties",
+                                       new JSONArray(
+                                            new JSONObject(
+                                                 new JSONField("name", "prop1"),
+                                                 new JSONField("value",
+                                                      "value1")),
+                                            new JSONObject(
+                                                 new JSONField("name", "prop2"),
+                                                 new JSONField("value",
+                                                      "value2")))))),
+                        new JSONField("requirement-satisfied", true),
+                        new JSONField("additional-information",
+                             "additional-info-1")),
+                   new JSONObject(
+                        new JSONField("password-quality-requirement",
+                             new JSONObject(
+                                  new JSONField("description",
+                                       "requirement-2"))),
+                        new JSONField("requirement-satisfied", false)))),
+              new JSONField("missing-current-password", false),
+              new JSONField("must-change-password", true),
+              new JSONField("seconds-until-expiration", 12345),
+              new JSONField("unexpected", "foo"))));
+
+
+    PasswordValidationDetailsResponseControl decodedControl =
+         PasswordValidationDetailsResponseControl.decodeJSONControl(
+              controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.VALIDATION_DETAILS);
+
+    assertEquals(decodedControl.getValidationResults().size(), 2);
+
+    PasswordQualityRequirementValidationResult result1 =
+         decodedControl.getValidationResults().get(0);
+    assertEquals(result1.getPasswordRequirement().getDescription(),
+         "requirement-1");
+    assertEquals(result1.getPasswordRequirement().getClientSideValidationType(),
+         "validation-type-1");
+    assertEquals(
+         result1.getPasswordRequirement().getClientSideValidationProperties(),
+         StaticUtils.mapOf(
+              "prop1", "value1",
+              "prop2", "value2"));
+    assertTrue(result1.requirementSatisfied());
+    assertEquals(result1.getAdditionalInfo(), "additional-info-1");
+
+    PasswordQualityRequirementValidationResult result2 =
+         decodedControl.getValidationResults().get(1);
+    assertEquals(result2.getPasswordRequirement().getDescription(),
+         "requirement-2");
+    assertNull(result2.getPasswordRequirement().getClientSideValidationType());
+    assertTrue(result2.getPasswordRequirement().
+              getClientSideValidationProperties().isEmpty());
+    assertFalse(result2.requirementSatisfied());
+    assertNull(result2.getAdditionalInfo());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Integer.valueOf(12345));
+
+
+    decodedControl =
+         (PasswordValidationDetailsResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResponseType(),
+         PasswordValidationDetailsResponseType.VALIDATION_DETAILS);
+
+    assertEquals(decodedControl.getValidationResults().size(), 2);
+
+    result1 = decodedControl.getValidationResults().get(0);
+    assertEquals(result1.getPasswordRequirement().getDescription(),
+         "requirement-1");
+    assertEquals(result1.getPasswordRequirement().getClientSideValidationType(),
+         "validation-type-1");
+    assertEquals(
+         result1.getPasswordRequirement().getClientSideValidationProperties(),
+         StaticUtils.mapOf(
+              "prop1", "value1",
+              "prop2", "value2"));
+    assertTrue(result1.requirementSatisfied());
+    assertEquals(result1.getAdditionalInfo(), "additional-info-1");
+
+    result2 = decodedControl.getValidationResults().get(1);
+    assertEquals(result2.getPasswordRequirement().getDescription(),
+         "requirement-2");
+    assertNull(result2.getPasswordRequirement().getClientSideValidationType());
+    assertTrue(result2.getPasswordRequirement().
+              getClientSideValidationProperties().isEmpty());
+    assertFalse(result2.requirementSatisfied());
+    assertNull(result2.getAdditionalInfo());
+
+    assertFalse(decodedControl.missingCurrentPassword());
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Integer.valueOf(12345));
   }
 }

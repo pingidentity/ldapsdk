@@ -37,6 +37,10 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1Integer;
@@ -44,15 +48,22 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -157,6 +168,22 @@ public final class SimplePagedResultsControl
    */
   @NotNull public static final String PAGED_RESULTS_OID =
        "1.2.840.113556.1.4.319";
+
+
+
+  /**
+   * The name of the field used to hold the cookie in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String JSON_FIELD_COOKIE = "cookie";
+
+
+
+  /**
+   * The name of the field used to hold the size in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String JSON_FIELD_SIZE = "size";
 
 
 
@@ -511,6 +538,126 @@ public final class SimplePagedResultsControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PAGED_RESULTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_SIZE, new JSONNumber(size));
+
+    final byte[] cookieBytes = cookie.getValue();
+    if (cookieBytes.length > 0)
+    {
+      valueFields.put(JSON_FIELD_COOKIE,
+           new JSONString(Base64.encode(cookieBytes)));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PAGED_RESULTS_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PAGED_RESULTS.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * simple paged results control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The simple paged results control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid simple paged results control.
+   */
+  @NotNull()
+  public static SimplePagedResultsControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new SimplePagedResultsControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Integer pageSize = valueObject.getFieldAsInteger(JSON_FIELD_SIZE);
+    if (pageSize == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PAGED_RESULTS_JSON_MISSING_PAGE_SIZE.get(
+                controlObject.toSingleLineString(), JSON_FIELD_SIZE));
+    }
+
+    final ASN1OctetString cookie;
+    final String cookieBase64 = valueObject.getFieldAsString(JSON_FIELD_COOKIE);
+    if ((cookieBase64 == null) || cookieBase64.isEmpty())
+    {
+      cookie = new ASN1OctetString();
+    }
+    else
+    {
+      try
+      {
+        cookie = new ASN1OctetString(Base64.decode(cookieBase64));
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PAGED_RESULTS_JSON_COOKIE_NOT_BASE64.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_COOKIE),
+             e);
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SIZE, JSON_FIELD_COOKIE);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PAGED_RESULTS_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new SimplePagedResultsControl(pageSize, cookie,
+         jsonControl.getCriticality());
   }
 
 

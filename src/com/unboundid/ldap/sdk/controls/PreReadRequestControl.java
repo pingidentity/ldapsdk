@@ -37,10 +37,16 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -50,6 +56,11 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -97,6 +108,14 @@ public final class PreReadRequestControl
    * The set of requested attributes that will be used if none are provided.
    */
   @NotNull private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
+
+
+
+  /**
+   * The name of the field used to hold the requested attributes in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ATTRIBUTES = "attributes";
 
 
 
@@ -259,6 +278,126 @@ public final class PreReadRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PRE_READ_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if ((attributes != null) && (attributes.length > 0))
+    {
+      final List<JSONValue> attrValues = new ArrayList<>(attributes.length);
+      for (final String attribute : attributes)
+      {
+        attrValues.add(new JSONString(attribute));
+      }
+
+      valueFields.put(JSON_FIELD_ATTRIBUTES, new JSONArray(attrValues));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PRE_READ_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PRE_READ_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * pre-read request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The pre-read request control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid pre-read request control.
+   */
+  @NotNull()
+  public static PreReadRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new PreReadRequestControl(new Control(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String[] attributes;
+    final List<JSONValue> attributesValues =
+         valueObject.getFieldAsArray(JSON_FIELD_ATTRIBUTES);
+    if (attributesValues == null)
+    {
+      attributes = null;
+    }
+    else
+    {
+      attributes = new String[attributesValues.size()];
+      for (int i=0; i < attributes.length; i++)
+      {
+        final JSONValue v = attributesValues.get(i);
+        if (v instanceof JSONString)
+        {
+          attributes[i] = ((JSONString) v).stringValue();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PRE_READ_REQUEST_JSON_ATTR_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_ATTRIBUTES));
+        }
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_ATTRIBUTES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PRE_READ_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new PreReadRequestControl(jsonControl.getCriticality(),
+         attributes);
   }
 
 

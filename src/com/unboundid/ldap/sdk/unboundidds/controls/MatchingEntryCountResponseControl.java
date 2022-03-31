@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -52,6 +54,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
@@ -63,6 +66,13 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -169,6 +179,110 @@ public final class MatchingEntryCountResponseControl
    * the course of building the candidate set.
    */
   private static final byte TYPE_REMAINING_FILTER = (byte) 0xA5;
+
+
+
+  /**
+   * The name of the field used to hold the candidates are in scope flag in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CANDIDATES_ARE_IN_SCOPE =
+       "candidates-are-in-scope";
+
+
+
+  /**
+   * The name of the field used to hold the count type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_COUNT_TYPE = "count-type";
+
+
+
+  /**
+   * The name of the field used to hold the count value in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_COUNT_VALUE = "count-value";
+
+
+
+  /**
+   * The name of the field used to hold the debug info in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_DEBUG_INFO = "debug-info";
+
+
+
+  /**
+   * The name of the field used to hold the fully indexed flag in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_FULLY_INDEXED =
+       "fully-indexed";
+
+
+
+  /**
+   * The name of the field used to hold the remaining filter in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REMAINING_FILTER =
+       "remaining-filter";
+
+
+
+  /**
+   * The name of the field used to hold the search indexed flag in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SEARCH_INDEXED =
+       "search-indexed";
+
+
+
+  /**
+   * The name of the field used to hold the short-circuited flag in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SHORT_CIRCUITED =
+       "short-circuited";
+
+
+
+  /**
+   * The result-type value that will be used for an examined count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_COUNT_TYPE_EXAMINED_COUNT =
+       "examined-count";
+
+
+
+  /**
+   * The result-type value that will be used for an unexamined count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_COUNT_TYPE_UNEXAMINED_COUNT =
+       "unexamined-count";
+
+
+
+  /**
+   * The result-type value that will be used for an unknown count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_COUNT_TYPE_UNKNOWN = "unknown";
+
+
+
+  /**
+   * The result-type value that will be used for an upper-bound count in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_COUNT_TYPE_UPPER_BOUND =
+       "upper-bound";
 
 
 
@@ -1096,6 +1210,297 @@ public final class MatchingEntryCountResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MATCHING_ENTRY_COUNT_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    switch (countType)
+    {
+      case EXAMINED_COUNT:
+        valueFields.put(JSON_FIELD_COUNT_TYPE,
+             new JSONString(JSON_COUNT_TYPE_EXAMINED_COUNT));
+        valueFields.put(JSON_FIELD_COUNT_VALUE, new JSONNumber(countValue));
+        break;
+      case UNEXAMINED_COUNT:
+        valueFields.put(JSON_FIELD_COUNT_TYPE,
+             new JSONString(JSON_COUNT_TYPE_UNEXAMINED_COUNT));
+        valueFields.put(JSON_FIELD_COUNT_VALUE, new JSONNumber(countValue));
+        break;
+      case UPPER_BOUND:
+        valueFields.put(JSON_FIELD_COUNT_TYPE,
+             new JSONString(JSON_COUNT_TYPE_UPPER_BOUND));
+        valueFields.put(JSON_FIELD_COUNT_VALUE, new JSONNumber(countValue));
+        break;
+      case UNKNOWN:
+        valueFields.put(JSON_FIELD_COUNT_TYPE,
+             new JSONString(JSON_COUNT_TYPE_UNKNOWN));
+        break;
+    }
+
+    valueFields.put(JSON_FIELD_SEARCH_INDEXED, new JSONBoolean(searchIndexed));
+
+    if (fullyIndexed != null)
+    {
+      valueFields.put(JSON_FIELD_FULLY_INDEXED,
+           new JSONBoolean(fullyIndexed));
+    }
+
+    if (shortCircuited != null)
+    {
+      valueFields.put(JSON_FIELD_SHORT_CIRCUITED,
+           new JSONBoolean(shortCircuited));
+    }
+
+    if (candidatesAreInScope != null)
+    {
+      valueFields.put(JSON_FIELD_CANDIDATES_ARE_IN_SCOPE,
+           new JSONBoolean(candidatesAreInScope));
+    }
+
+    if (remainingFilter != null)
+    {
+      valueFields.put(JSON_FIELD_REMAINING_FILTER,
+           new JSONString(remainingFilter.toString()));
+    }
+
+    if ((debugInfo != null) && (! debugInfo.isEmpty()))
+    {
+      final List<JSONString> debugInfoValues =
+           new ArrayList<>(debugInfo.size());
+      for (final String s : debugInfo)
+      {
+        debugInfoValues.add(new JSONString(s));
+      }
+
+      valueFields.put(JSON_FIELD_DEBUG_INFO, new JSONArray(debugInfoValues));
+    }
+
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              MATCHING_ENTRY_COUNT_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_MATCHING_ENTRY_COUNT_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * matching entry count response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The matching entry count response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid matching entry count response control.
+   */
+  @NotNull()
+  public static MatchingEntryCountResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new MatchingEntryCountResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final MatchingEntryCountType countType;
+    final String countTypeStr =
+         valueObject.getFieldAsString(JSON_FIELD_COUNT_TYPE);
+    Integer countValue = valueObject.getFieldAsInteger(JSON_FIELD_COUNT_VALUE);
+    if (countTypeStr == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_COUNT_TYPE));
+    }
+
+    switch (countTypeStr)
+    {
+      case JSON_COUNT_TYPE_EXAMINED_COUNT:
+        countType = MatchingEntryCountType.EXAMINED_COUNT;
+        if (countValue == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_MISSING_COUNT_VALUE.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_COUNT_VALUE, JSON_FIELD_COUNT_TYPE,
+                    countTypeStr));
+        }
+        break;
+
+      case JSON_COUNT_TYPE_UNEXAMINED_COUNT:
+        countType = MatchingEntryCountType.UNEXAMINED_COUNT;
+        if (countValue == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_MISSING_COUNT_VALUE.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_COUNT_VALUE, JSON_FIELD_COUNT_TYPE,
+                    countTypeStr));
+        }
+        break;
+
+      case JSON_COUNT_TYPE_UPPER_BOUND:
+        countType = MatchingEntryCountType.UPPER_BOUND;
+        if (countValue == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_MISSING_COUNT_VALUE.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_COUNT_VALUE, JSON_FIELD_COUNT_TYPE,
+                    countTypeStr));
+        }
+        break;
+
+      case JSON_COUNT_TYPE_UNKNOWN:
+        countType = MatchingEntryCountType.UNKNOWN;
+        if (countValue == null)
+        {
+          countValue = -1;
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_UNEXPECTED_COUNT_VALUE.
+                    get(controlObject.toSingleLineString(),
+                         JSON_FIELD_COUNT_VALUE, JSON_FIELD_COUNT_TYPE,
+                         countTypeStr));
+        }
+        break;
+
+      default:
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_UNKNOWN_COUNT_TYPE.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_COUNT_TYPE, countTypeStr));
+    }
+
+
+    final Boolean searchIndexed =
+         valueObject.getFieldAsBoolean(JSON_FIELD_SEARCH_INDEXED);
+    if (searchIndexed == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SEARCH_INDEXED));
+    }
+
+
+    final Boolean fullyIndexed =
+         valueObject.getFieldAsBoolean(JSON_FIELD_FULLY_INDEXED);
+    final Boolean shortCircuited =
+         valueObject.getFieldAsBoolean(JSON_FIELD_SHORT_CIRCUITED);
+    final Boolean candidatesAreInScope =
+         valueObject.getFieldAsBoolean(JSON_FIELD_CANDIDATES_ARE_IN_SCOPE);
+
+
+    final Filter remainingFilter;
+    final String remainingFilterStr =
+         valueObject.getFieldAsString(JSON_FIELD_REMAINING_FILTER);
+    if (remainingFilterStr == null)
+    {
+      remainingFilter = null;
+    }
+    else
+    {
+      try
+      {
+        remainingFilter = Filter.create(remainingFilterStr);
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_INVALID_FILTER.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_REMAINING_FILTER, remainingFilterStr),
+             e);
+      }
+    }
+
+
+    final List<String> debugInfo;
+    final List<JSONValue> debugInfoValues =
+         valueObject.getFieldAsArray(JSON_FIELD_DEBUG_INFO);
+    if (debugInfoValues == null)
+    {
+      debugInfo = null;
+    }
+    else
+    {
+      debugInfo = new ArrayList<>(debugInfoValues.size());
+      for (final JSONValue v : debugInfoValues)
+      {
+        if (v instanceof JSONString)
+        {
+          debugInfo.add(((JSONString) v).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_DEBUG_INFO_NOT_STRING.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_DEBUG_INFO));
+        }
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_COUNT_TYPE, JSON_FIELD_COUNT_VALUE,
+                JSON_FIELD_SEARCH_INDEXED, JSON_FIELD_FULLY_INDEXED,
+                JSON_FIELD_SHORT_CIRCUITED, JSON_FIELD_CANDIDATES_ARE_IN_SCOPE,
+                JSON_FIELD_REMAINING_FILTER, JSON_FIELD_DEBUG_INFO);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new MatchingEntryCountResponseControl(countType, countValue,
+         searchIndexed, shortCircuited, fullyIndexed, candidatesAreInScope,
+         remainingFilter, debugInfo);
   }
 
 

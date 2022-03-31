@@ -43,6 +43,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -121,5 +122,64 @@ public final class GetPasswordPolicyStateIssuesRequestControlTestCase
   {
     new GetPasswordPolicyStateIssuesRequestControl(new Control(
          "1.3.6.1.4.1.30221.2.5.46", false, new ASN1OctetString("foo")));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesRequestControl c =
+         new GetPasswordPolicyStateIssuesRequestControl(false);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 3);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertFalse(controlObject.hasField("value-json"));
+
+
+    GetPasswordPolicyStateIssuesRequestControl decodedControl =
+         GetPasswordPolicyStateIssuesRequestControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getValue());
+
+
+    decodedControl =
+         (GetPasswordPolicyStateIssuesRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getValue());
   }
 }

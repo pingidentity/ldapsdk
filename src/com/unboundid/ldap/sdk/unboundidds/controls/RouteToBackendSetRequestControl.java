@@ -41,7 +41,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1Element;
@@ -49,6 +52,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -59,6 +63,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -317,6 +326,60 @@ public final class RouteToBackendSetRequestControl
    */
   @NotNull public static final String ROUTE_TO_BACKEND_SET_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.35";
+
+
+
+  /**
+   * The name of the field used to hold the backend set IDs in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_BACKEND_SET_IDS =
+       "backend-set-ids";
+
+
+
+  /**
+   * The name of the field used to hold the fallback backend set IDs in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_FALLBACK_BACKEND_SET_IDS =
+       "fallback-backend-set-ids";
+
+
+
+  /**
+   * The name of the field used to hold the request processor ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REQUEST_PROCESSOR =
+       "request-processor";
+
+
+
+  /**
+   * The name of the field used to hold the routing type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ROUTING_TYPE =
+       "routing-type";
+
+
+
+  /**
+   * The routing type identifier that will be used for absolute routing in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_ROUTING_TYPE_ABSOLUTE_ROUTING =
+       "absolute-routing";
+
+
+
+  /**
+   * The routing type identifier that will be used for a routing hint in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_ROUTING_TYPE_ROUTING_HINT =
+       "routing-hint";
 
 
 
@@ -853,6 +916,258 @@ public final class RouteToBackendSetRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ROUTE_TO_BACKEND_SET_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    valueFields.put(JSON_FIELD_REQUEST_PROCESSOR,
+         new JSONString(entryBalancingRequestProcessorID));
+
+    switch (routingType)
+    {
+      case ABSOLUTE_ROUTING:
+        valueFields.put(JSON_FIELD_ROUTING_TYPE,
+             new JSONString(JSON_ROUTING_TYPE_ABSOLUTE_ROUTING));
+
+        final List<JSONValue> absoluteBackendSetIDsValues =
+             new ArrayList<>(absoluteBackendSetIDs.size());
+        for (final String id : absoluteBackendSetIDs)
+        {
+          absoluteBackendSetIDsValues.add(new JSONString(id));
+        }
+
+        valueFields.put(JSON_FIELD_BACKEND_SET_IDS,
+             new JSONArray(absoluteBackendSetIDsValues));
+        break;
+
+      case ROUTING_HINT:
+        valueFields.put(JSON_FIELD_ROUTING_TYPE,
+             new JSONString(JSON_ROUTING_TYPE_ROUTING_HINT));
+
+        final List<JSONValue> firstGuessSetIDsValues =
+             new ArrayList<>(routingHintFirstGuessSetIDs.size());
+        for (final String id : routingHintFirstGuessSetIDs)
+        {
+          firstGuessSetIDsValues.add(new JSONString(id));
+        }
+
+        valueFields.put(JSON_FIELD_BACKEND_SET_IDS,
+             new JSONArray(firstGuessSetIDsValues));
+
+        if ((routingHintFallbackSetIDs != null) &&
+             (! routingHintFallbackSetIDs.isEmpty()))
+        {
+          final List<JSONValue> fallbackSetIDsValues =
+               new ArrayList<>(routingHintFallbackSetIDs.size());
+          for (final String id : routingHintFallbackSetIDs)
+          {
+            fallbackSetIDsValues.add(new JSONString(id));
+          }
+
+          valueFields.put(JSON_FIELD_FALLBACK_BACKEND_SET_IDS,
+               new JSONArray(fallbackSetIDsValues));
+        }
+        break;
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              ROUTE_TO_BACKEND_SET_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_ROUTE_TO_BACKEND_SET_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * route to backend set request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The route to backend set request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid route to backend set request control.
+   */
+  @NotNull()
+  public static RouteToBackendSetRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new RouteToBackendSetRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String requestProcessor =
+         valueObject.getFieldAsString(JSON_FIELD_REQUEST_PROCESSOR);
+    if (requestProcessor == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_REQUEST_PROCESSOR));
+    }
+
+
+    final String routingTypeStr =
+         valueObject.getFieldAsString(JSON_FIELD_ROUTING_TYPE);
+    if (routingTypeStr == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_ROUTING_TYPE));
+    }
+
+    final RouteToBackendSetRoutingType routingType;
+    switch (routingTypeStr)
+    {
+      case JSON_ROUTING_TYPE_ABSOLUTE_ROUTING:
+        routingType = RouteToBackendSetRoutingType.ABSOLUTE_ROUTING;
+        break;
+      case JSON_ROUTING_TYPE_ROUTING_HINT:
+        routingType = RouteToBackendSetRoutingType.ROUTING_HINT;
+        break;
+      default:
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_UNKNOWN_ROUTING_TYPE.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_ROUTING_TYPE,
+                  routingTypeStr, JSON_ROUTING_TYPE_ABSOLUTE_ROUTING,
+                  JSON_ROUTING_TYPE_ROUTING_HINT));
+    }
+
+
+    final Set<String> backendSetIDs = new LinkedHashSet<>();
+    final List<JSONValue> backendSetIDValues =
+         valueObject.getFieldAsArray(JSON_FIELD_BACKEND_SET_IDS);
+    if (backendSetIDValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_BACKEND_SET_IDS));
+    }
+    else if (backendSetIDValues.isEmpty())
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_EMPTY_BACKEND_SET_IDS.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_BACKEND_SET_IDS));
+    }
+    else
+    {
+      for (final JSONValue v : backendSetIDValues)
+      {
+        if (v instanceof JSONString)
+        {
+          backendSetIDs.add(((JSONString) v).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_ID_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_BACKEND_SET_IDS));
+        }
+      }
+    }
+
+
+    final Set<String> fallbackSetIDs;
+    final List<JSONValue> fallbackSetIDValues =
+         valueObject.getFieldAsArray(JSON_FIELD_FALLBACK_BACKEND_SET_IDS);
+    if ((fallbackSetIDValues == null) || fallbackSetIDValues.isEmpty())
+    {
+      fallbackSetIDs = null;
+    }
+    else
+    {
+      if (routingType == RouteToBackendSetRoutingType.ABSOLUTE_ROUTING)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_ABSOLUTE_WITH_FALLBACK.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_FALLBACK_BACKEND_SET_IDS,
+                  JSON_FIELD_ROUTING_TYPE, routingTypeStr));
+      }
+
+      fallbackSetIDs = new LinkedHashSet<>(fallbackSetIDValues.size());
+      for (final JSONValue v : fallbackSetIDValues)
+      {
+        if (v instanceof JSONString)
+        {
+          fallbackSetIDs.add(((JSONString) v).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_ID_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_FALLBACK_BACKEND_SET_IDS));
+        }
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_REQUEST_PROCESSOR,
+                JSON_FIELD_ROUTING_TYPE, JSON_FIELD_BACKEND_SET_IDS,
+                JSON_FIELD_FALLBACK_BACKEND_SET_IDS);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ROUTE_TO_BACKEND_SET_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    if (routingType == RouteToBackendSetRoutingType.ABSOLUTE_ROUTING)
+    {
+      return createAbsoluteRoutingRequest(jsonControl.getCriticality(),
+           requestProcessor, backendSetIDs);
+    }
+    else
+    {
+      return createRoutingHintRequest(jsonControl.getCriticality(),
+           requestProcessor, backendSetIDs, fallbackSetIDs);
+    }
   }
 
 

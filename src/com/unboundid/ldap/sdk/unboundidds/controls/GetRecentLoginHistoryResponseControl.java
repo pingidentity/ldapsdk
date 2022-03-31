@@ -37,10 +37,16 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -49,8 +55,11 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
 import com.unboundid.util.json.JSONException;
+import com.unboundid.util.json.JSONField;
 import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -103,6 +112,24 @@ public final class GetRecentLoginHistoryResponseControl
    */
   @NotNull public static final String GET_RECENT_LOGIN_HISTORY_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.62";
+
+
+
+  /**
+   * The name of the field used to hold the array of failed attempts in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_FAILED_ATTEMPTS =
+       "failed-attempts";
+
+
+
+  /**
+   * The name of the field used to hold the array of successful attempts in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SUCCESSFUL_ATTEMPTS =
+       "successful-attempts";
 
 
 
@@ -277,6 +304,195 @@ public final class GetRecentLoginHistoryResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_RECENT_LOGIN_HISTORY_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (! recentLoginHistory.getSuccessfulAttempts().isEmpty())
+    {
+      final List<JSONValue> successfulAttemptObjects = new ArrayList<>(
+           recentLoginHistory.getSuccessfulAttempts().size());
+      for (final RecentLoginHistoryAttempt attempt :
+           recentLoginHistory.getSuccessfulAttempts())
+      {
+        successfulAttemptObjects.add(attempt.asJSONObject());
+      }
+
+      valueFields.put(JSON_FIELD_SUCCESSFUL_ATTEMPTS,
+           new JSONArray(successfulAttemptObjects));
+    }
+
+    if (! recentLoginHistory.getFailedAttempts().isEmpty())
+    {
+      final List<JSONValue> failedAttemptObjects = new ArrayList<>(
+           recentLoginHistory.getFailedAttempts().size());
+      for (final RecentLoginHistoryAttempt attempt :
+           recentLoginHistory.getFailedAttempts())
+      {
+        failedAttemptObjects.add(attempt.asJSONObject());
+      }
+
+      valueFields.put(JSON_FIELD_FAILED_ATTEMPTS,
+           new JSONArray(failedAttemptObjects));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_RECENT_LOGIN_HISTORY_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_RECENT_LOGIN_HISTORY_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * recent login history response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get recent login history response control that was decoded
+   *          from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get recent login history response control.
+   */
+  @NotNull()
+  public static GetRecentLoginHistoryResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetRecentLoginHistoryResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final List<RecentLoginHistoryAttempt> successfulAttempts;
+    final List<JSONValue> successObjects =
+         valueObject.getFieldAsArray(JSON_FIELD_SUCCESSFUL_ATTEMPTS);
+    if (successObjects == null)
+    {
+      successfulAttempts = null;
+    }
+    else
+    {
+      successfulAttempts = new ArrayList<>(successObjects.size());
+      for (final JSONValue successValue : successObjects)
+      {
+        if (successValue instanceof JSONObject)
+        {
+          try
+          {
+            successfulAttempts.add(new RecentLoginHistoryAttempt(
+                 (JSONObject) successValue));
+          }
+          catch (final LDAPException e)
+          {
+            Debug.debugException(e);
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_RECENT_LOGIN_HISTORY_RESPONSE_JSON_MALFORMED_ATTEMPT.
+                      get(controlObject.toSingleLineString(),
+                           JSON_FIELD_SUCCESSFUL_ATTEMPTS, e.getMessage()),
+                 e);
+          }
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_RECENT_LOGIN_HISTORY_RESPONSE_JSON_ATTEMPT_NOT_OBJECT.
+                    get(controlObject.toSingleLineString(),
+                         JSON_FIELD_SUCCESSFUL_ATTEMPTS));
+        }
+      }
+    }
+
+    final List<RecentLoginHistoryAttempt> failedAttempts;
+    final List<JSONValue> failureObjects =
+         valueObject.getFieldAsArray(JSON_FIELD_FAILED_ATTEMPTS);
+    if (failureObjects == null)
+    {
+      failedAttempts = null;
+    }
+    else
+    {
+      failedAttempts = new ArrayList<>(failureObjects.size());
+      for (final JSONValue failureValue : failureObjects)
+      {
+        if (failureValue instanceof JSONObject)
+        {
+          try
+          {
+            failedAttempts.add(new RecentLoginHistoryAttempt(
+                 (JSONObject) failureValue));
+          }
+          catch (final LDAPException e)
+          {
+            Debug.debugException(e);
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_RECENT_LOGIN_HISTORY_RESPONSE_JSON_MALFORMED_ATTEMPT.
+                      get(controlObject.toSingleLineString(),
+                           JSON_FIELD_FAILED_ATTEMPTS, e.getMessage()),
+                 e);
+          }
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_RECENT_LOGIN_HISTORY_RESPONSE_JSON_ATTEMPT_NOT_OBJECT.
+                    get(controlObject.toSingleLineString(),
+                         JSON_FIELD_FAILED_ATTEMPTS));
+        }
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SUCCESSFUL_ATTEMPTS,
+                JSON_FIELD_FAILED_ATTEMPTS);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_RECENT_LOGIN_HISTORY_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetRecentLoginHistoryResponseControl(new RecentLoginHistory(
+         successfulAttempts, failedAttempts));
   }
 
 

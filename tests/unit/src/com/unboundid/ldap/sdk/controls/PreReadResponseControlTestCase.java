@@ -50,6 +50,12 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -128,7 +134,7 @@ public class PreReadResponseControlTestCase
     };
 
     PreReadResponseControl c =
-         new PreReadResponseControl("1.3.6.1.1.13.1", false,
+         new PreReadResponseControl().decodeControl("1.3.6.1.1.13.1", false,
                   new ASN1OctetString(new ASN1Sequence(elements).encode()));
 
     assertNotNull(c.getEntry());
@@ -367,5 +373,270 @@ public class PreReadResponseControlTestCase
          null, controls);
 
     PreReadResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final ReadOnlyEntry e = new ReadOnlyEntry(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+
+    final PreReadResponseControl c = new PreReadResponseControl(e);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("_dn", "ou=test,dc=example,dc=com"),
+              new JSONField("objectClass", new JSONArray(
+                   new JSONString("top"),
+                   new JSONString("organizationalUnit"))),
+              new JSONField("ou", new JSONArray(
+                   new JSONString("test")))));
+
+
+    PreReadResponseControl decodedControl =
+         PreReadResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getEntry(), e);
+
+
+    decodedControl =
+         (PreReadResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getEntry(), e);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final ReadOnlyEntry e = new ReadOnlyEntry(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+
+    final PreReadResponseControl c = new PreReadResponseControl(e);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    PreReadResponseControl decodedControl =
+         PreReadResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getEntry(), e);
+
+
+    decodedControl =
+         (PreReadResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getEntry(), e);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the "_dn" field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingDN()
+          throws Exception
+  {
+    final ReadOnlyEntry e = new ReadOnlyEntry(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+
+    final PreReadResponseControl c = new PreReadResponseControl(e);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("objectClass", new JSONArray(
+                   new JSONString("top"),
+                   new JSONString("organizationalUnit"))),
+              new JSONField("ou", new JSONArray(
+                   new JSONString("test"))))));
+
+
+    PreReadResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value of the "_dn" field is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueDNNotString()
+          throws Exception
+  {
+    final ReadOnlyEntry e = new ReadOnlyEntry(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+
+    final PreReadResponseControl c = new PreReadResponseControl(e);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("_dn", new JSONNumber(1234)),
+              new JSONField("objectClass", new JSONArray(
+                   new JSONString("top"),
+                   new JSONString("organizationalUnit"))),
+              new JSONField("ou", new JSONArray(
+                   new JSONString("test"))))));
+
+
+    PreReadResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value of an attribute field is not an array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlAttributeValueNotArray()
+          throws Exception
+  {
+    final ReadOnlyEntry e = new ReadOnlyEntry(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+
+    final PreReadResponseControl c = new PreReadResponseControl(e);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("_dn", "ou=test,dc=example,dc=com"),
+              new JSONField("objectClass", new JSONArray(
+                   new JSONString("top"),
+                   new JSONString("organizationalUnit"))),
+              new JSONField("ou", new JSONString("test")))));
+
+
+    PreReadResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * an attribute array value is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlAttributeArrayValueNotString()
+          throws Exception
+  {
+    final ReadOnlyEntry e = new ReadOnlyEntry(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+
+    final PreReadResponseControl c = new PreReadResponseControl(e);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("_dn", "ou=test,dc=example,dc=com"),
+              new JSONField("objectClass", new JSONArray(
+                   new JSONNumber(1234),
+                   new JSONString("organizationalUnit"))),
+              new JSONField("ou", new JSONArray(
+                   new JSONString("test"))))));
+
+
+    PreReadResponseControl.decodeJSONControl(controlObject, true);
   }
 }

@@ -38,6 +38,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -47,6 +49,12 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -248,5 +256,373 @@ public final class SuppressOperationalAttributeUpdateRequestControlTestCase
                    new ASN1Sequence(
                         new ASN1Sequence((byte) 0x80,
                              new ASN1Enumerated(1234))).encode())));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("suppress-types", new JSONArray(
+                   new JSONString("last-access-time"),
+                   new JSONString("last-login-time"),
+                   new JSONString("last-login-ip-address"),
+                   new JSONString("lastmod")))));
+
+
+    SuppressOperationalAttributeUpdateRequestControl decodedControl =
+         SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSuppressTypes(), suppressTypes);
+
+
+    decodedControl =
+         (SuppressOperationalAttributeUpdateRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSuppressTypes(), suppressTypes);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    SuppressOperationalAttributeUpdateRequestControl decodedControl =
+         SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSuppressTypes(), suppressTypes);
+
+
+    decodedControl =
+         (SuppressOperationalAttributeUpdateRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSuppressTypes(), suppressTypes);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the suppress-types field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingSuppressTypes()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", JSONObject.EMPTY_OBJECT));
+
+    SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+         controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is has an empty suppress-types array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueEmptySuppressTypes()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("suppress-types", JSONArray.EMPTY_ARRAY))));
+
+    SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+         controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is has an unrecognized suppress-types value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedSuppressType()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("suppress-types", new JSONArray(
+                   new JSONString("last-access-time"),
+                   new JSONString("last-login-time"),
+                   new JSONString("last-login-ip-address"),
+                   new JSONString("lastmod"),
+                   new JSONString("unrecognized"))))));
+
+    SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+         controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is has a suppress-types value that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueNonStringSuppressType()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("suppress-types", new JSONArray(
+                   new JSONString("last-access-time"),
+                   new JSONString("last-login-time"),
+                   new JSONString("last-login-ip-address"),
+                   new JSONString("lastmod"),
+                   new JSONNumber(1234))))));
+
+    SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+         controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedStrict()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("suppress-types", new JSONArray(
+                   new JSONString("last-access-time"),
+                   new JSONString("last-login-time"),
+                   new JSONString("last-login-ip-address"),
+                   new JSONString("lastmod"))),
+              new JSONField("unrecognized", "foo"))));
+
+    SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+         controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final Set<SuppressType> suppressTypes = new LinkedHashSet<>();
+    suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+    suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+    suppressTypes.add(SuppressType.LASTMOD);
+
+    final SuppressOperationalAttributeUpdateRequestControl c =
+         new SuppressOperationalAttributeUpdateRequestControl(true,
+              suppressTypes);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("suppress-types", new JSONArray(
+                   new JSONString("last-access-time"),
+                   new JSONString("last-login-time"),
+                   new JSONString("last-login-ip-address"),
+                   new JSONString("lastmod"))),
+              new JSONField("unrecognized", "foo"))));
+
+
+    SuppressOperationalAttributeUpdateRequestControl decodedControl =
+         SuppressOperationalAttributeUpdateRequestControl.decodeJSONControl(
+              controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSuppressTypes(), suppressTypes);
+
+
+    decodedControl =
+         (SuppressOperationalAttributeUpdateRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSuppressTypes(), suppressTypes);
   }
 }

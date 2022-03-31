@@ -37,11 +37,16 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -51,6 +56,11 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -102,6 +112,59 @@ public final class IntermediateClientResponseControl
    */
   @NotNull public static final String INTERMEDIATE_CLIENT_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.2";
+
+
+
+  /**
+   * The name of the field used to hold the server name in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_NAME = "server-name";
+
+
+
+  /**
+   * The name of the field used to hold the server request ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_RESPONSE_ID =
+       "server-response-id";
+
+
+
+  /**
+   * The name of the field used to hold the server session ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_SESSION_ID =
+       "server-session-id";
+
+
+
+  /**
+   * The name of the field used to hold the upstream response in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_UPSTREAM_RESPONSE =
+       "upstream-response";
+
+
+
+  /**
+   * The name of the field used to hold the upstream server address in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_UPSTREAM_SERVER_ADDRESS =
+       "upstream-server-address";
+
+
+
+  /**
+   * The name of the field used to hold the upstream server secure flag in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_UPSTREAM_SERVER_SECURE =
+       "upstream-server-secure";
 
 
 
@@ -425,6 +488,226 @@ public final class IntermediateClientResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_INTERMEDIATE_CLIENT_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              INTERMEDIATE_CLIENT_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_INTERMEDIATE_CLIENT_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              encodeResponseValueJSON(value)));
+  }
+
+
+
+  /**
+   * Encodes the provided intermediate client response value to a JSON object.
+   *
+   * @param  value  The intermediate client response value to be encoded.  It
+   *                must not be {@code null}.
+   *
+   * @return  The JSON object containing the encoded intermediate client
+   *          response value.
+   */
+  @NotNull()
+  private static JSONObject encodeResponseValueJSON(
+               @NotNull final IntermediateClientResponseValue value)
+  {
+    final Map<String,JSONValue> fields = new LinkedHashMap<>();
+
+    final IntermediateClientResponseValue upstreamResponse =
+         value.getUpstreamResponse();
+    if (upstreamResponse != null)
+    {
+      fields.put(JSON_FIELD_UPSTREAM_RESPONSE,
+           encodeResponseValueJSON(upstreamResponse));
+    }
+
+    final String upstreamServerAddress = value.getUpstreamServerAddress();
+    if (upstreamServerAddress != null)
+    {
+      fields.put(JSON_FIELD_UPSTREAM_SERVER_ADDRESS,
+           new JSONString(upstreamServerAddress));
+    }
+
+    final Boolean upstreamServerSecure = value.upstreamServerSecure();
+    if (upstreamServerSecure != null)
+    {
+      fields.put(JSON_FIELD_UPSTREAM_SERVER_SECURE,
+           new JSONBoolean(upstreamServerSecure));
+    }
+    final String serverName = value.getServerName();
+    if (serverName != null)
+    {
+      fields.put(JSON_FIELD_SERVER_NAME, new JSONString(serverName));
+    }
+
+    final String serverSessionID = value.getServerSessionID();
+    if (serverSessionID != null)
+    {
+      fields.put(JSON_FIELD_SERVER_SESSION_ID, new JSONString(serverSessionID));
+    }
+
+    final String serverResponseID = value.getServerResponseID();
+    if (serverResponseID != null)
+    {
+      fields.put(JSON_FIELD_SERVER_RESPONSE_ID,
+           new JSONString(serverResponseID));
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * intermediate client response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The intermediate client response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid intermediate client response control.
+   */
+  @NotNull()
+  public static IntermediateClientResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new IntermediateClientResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final IntermediateClientResponseValue value =
+         decodeIntermediateClientResponseValueJSON(controlObject,
+              jsonControl.getValueObject(), false, strict);
+    return new IntermediateClientResponseControl(jsonControl.getCriticality(),
+         value);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON Object as an intermediate client response value.
+   *
+   * @param  controlObject       The JSON object that represents the entire
+   *                             intermediate client response control.  It must
+   *                             not be {@code null}.
+   * @param  valueObject         The intermediate client response value to
+   *                             decode.  It must not be {@code null}.
+   * @param  isUpstreamResponse  Indicates whether the provided JSON object
+   *                             represents an upstream response.
+   * @param  strict              Indicates whether to use strict mode when
+   *                             decoding the provided JSON object.  If this is
+   *                             {@code true}, then this method will throw an
+   *                             exception if the provided JSON object contains
+   *                             any unrecognized fields.  If this is
+   *                             {@code false}, then unrecognized fields will
+   *                             be ignored.
+   *
+   * @return  The intermediate client response value that was decoded.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as an
+   *                         intermediate client response value.
+   */
+  @NotNull()
+  private static IntermediateClientResponseValue
+               decodeIntermediateClientResponseValueJSON(
+                    @NotNull final JSONObject controlObject,
+                    @NotNull final JSONObject valueObject,
+                    final boolean isUpstreamResponse,
+                    final boolean strict)
+          throws LDAPException
+  {
+    final IntermediateClientResponseValue upstreamResponse;
+    final JSONObject upstreamResponseObject =
+         valueObject.getFieldAsObject(JSON_FIELD_UPSTREAM_RESPONSE);
+    if (upstreamResponseObject == null)
+    {
+      upstreamResponse = null;
+    }
+    else
+    {
+      upstreamResponse = decodeIntermediateClientResponseValueJSON(
+           controlObject, upstreamResponseObject, true, strict);
+    }
+
+    final String upstreamServerAddress =
+         valueObject.getFieldAsString(JSON_FIELD_UPSTREAM_SERVER_ADDRESS);
+    final Boolean upstreamServerSecure =
+         valueObject.getFieldAsBoolean(JSON_FIELD_UPSTREAM_SERVER_SECURE);
+    final String serverName =
+         valueObject.getFieldAsString(JSON_FIELD_SERVER_NAME);
+    final String serverSessionID =
+         valueObject.getFieldAsString(JSON_FIELD_SERVER_SESSION_ID);
+    final String serverResponseID =
+         valueObject.getFieldAsString(JSON_FIELD_SERVER_RESPONSE_ID);
+
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_UPSTREAM_RESPONSE,
+                JSON_FIELD_UPSTREAM_SERVER_ADDRESS,
+                JSON_FIELD_UPSTREAM_SERVER_SECURE,
+                JSON_FIELD_SERVER_NAME,
+                JSON_FIELD_SERVER_SESSION_ID,
+                JSON_FIELD_SERVER_RESPONSE_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        if (isUpstreamResponse)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_INTERMEDIATE_CLIENT_RESPONSE_JSON_US_VALUE_UNRECOGNIZED_FIELD
+                    .get(controlObject.toSingleLineString(),
+                         unrecognizedFields.get(0)));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_INTERMEDIATE_CLIENT_RESPONSE_JSON_VALUE_UNRECOGNIZED_FIELD.
+                    get(controlObject.toSingleLineString(),
+                         unrecognizedFields.get(0)));
+        }
+      }
+    }
+
+
+    return new IntermediateClientResponseValue(upstreamResponse,
+         upstreamServerAddress, upstreamServerSecure, serverName,
+         serverSessionID, serverResponseID);
   }
 
 

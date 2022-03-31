@@ -51,6 +51,12 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -646,5 +652,396 @@ public class GetAuthorizationEntryRequestControlTestCase
     {
       conn.close();
     }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the control does not list any specific attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithoutAttributes()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 2);
+
+    assertEquals(valueObject.getFieldAsBoolean("include-authentication-entry"),
+         Boolean.TRUE);
+
+    assertEquals(valueObject.getFieldAsBoolean("include-authorization-entry"),
+         Boolean.FALSE);
+
+    assertNull(valueObject.getFieldAsArray("attributes"));
+
+
+    GetAuthorizationEntryRequestControl decodedControl =
+         GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertFalse(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes().size(), 0);
+
+
+    decodedControl =
+         (GetAuthorizationEntryRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertFalse(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes().size(), 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the control includes a list of requested
+   * attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithAttributes()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(true, true, true,
+              "uid", "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 3);
+
+    assertEquals(valueObject.getFieldAsBoolean("include-authentication-entry"),
+         Boolean.TRUE);
+
+    assertEquals(valueObject.getFieldAsBoolean("include-authorization-entry"),
+         Boolean.TRUE);
+
+    assertEquals(valueObject.getFieldAsArray("attributes"),
+         Arrays.asList(new JSONString("uid"), new JSONString("givenName"),
+              new JSONString("sn"), new JSONString("cn"),
+              new JSONString("mail")));
+
+
+    GetAuthorizationEntryRequestControl decodedControl =
+         GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertTrue(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes(),
+         Arrays.asList("uid", "givenName", "sn", "cn", "mail"));
+
+
+    decodedControl =
+         (GetAuthorizationEntryRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertTrue(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes(),
+         Arrays.asList("uid", "givenName", "sn", "cn", "mail"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object to a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    GetAuthorizationEntryRequestControl decodedControl =
+         GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertFalse(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes().size(), 0);
+
+
+    decodedControl =
+         (GetAuthorizationEntryRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertFalse(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes().size(), 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object to a control when
+   * the value object is missing the include-authentication-entry field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingIncludeAuthenticationEntry()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("include-authorization-entry", false),
+              new JSONField("attributes", new JSONArray(
+                   new JSONString("uid"))))));
+
+    GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object to a control when
+   * the value object is missing the include-authorization-entry field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingIncludeAuthorizationEntry()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("include-authentication-entry", true),
+              new JSONField("attributes", new JSONArray(
+                   new JSONString("uid"))))));
+
+    GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object to a control when
+   * the value object has a non-string value in the attributes array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueNonStringAttribute()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("include-authentication-entry", true),
+              new JSONField("include-authorization-entry", false),
+              new JSONField("attributes", new JSONArray(
+                   new JSONNumber(1234))))));
+
+    GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object to a control when
+   * the value object has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("include-authentication-entry", true),
+              new JSONField("include-authorization-entry", false),
+              new JSONField("unrecognized", "foo"))));
+
+    GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object to a control when
+   * the value object has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final GetAuthorizationEntryRequestControl c =
+         new GetAuthorizationEntryRequestControl(false, true, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("include-authentication-entry", true),
+              new JSONField("include-authorization-entry", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    GetAuthorizationEntryRequestControl decodedControl =
+         GetAuthorizationEntryRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertFalse(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes().size(), 0);
+
+
+    decodedControl =
+         (GetAuthorizationEntryRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertTrue(decodedControl.includeAuthNEntry());
+
+    assertFalse(decodedControl.includeAuthZEntry());
+
+    assertEquals(decodedControl.getAttributes().size(), 0);
   }
 }

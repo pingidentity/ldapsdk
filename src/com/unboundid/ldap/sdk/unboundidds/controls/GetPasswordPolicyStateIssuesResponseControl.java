@@ -40,7 +40,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Integer;
@@ -49,6 +51,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -64,6 +67,12 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -152,6 +161,64 @@ public final class GetPasswordPolicyStateIssuesResponseControl
    * authentication failure reason.
    */
   private static final byte TYPE_AUTH_FAILURE_REASON = (byte) 0xA3;
+
+
+
+  /**
+   * The name of the field used to represent the authentication failure reason
+   * in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTH_FAILURE_REASON =
+       "authentication-failure-reason";
+
+
+
+  /**
+   * The name of the field used to represent the set of password policy state
+   * errors in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ERRORS = "errors";
+
+
+
+  /**
+   * The name of the field used to represent the ID of a password policy state
+   * issue or auth failure reason in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ID = "id";
+
+
+
+  /**
+   * The name of the field used to represent the message for a password policy
+   * state issue or auth failure reason in the JSON representation of this
+   * control.
+   */
+  @NotNull private static final String JSON_FIELD_MESSAGE = "message";
+
+
+
+  /**
+   * The name of the field used to represent the name of a password policy state
+   * issue or auth failure reason in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_NAME = "name";
+
+
+
+  /**
+   * The name of the field used to represent the set of password policy state
+   * notices in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_NOTICES = "notices";
+
+
+
+  /**
+   * The name of the field used to represent the set of password policy state
+   * warnings in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_WARNINGS = "warnings";
 
 
 
@@ -739,6 +806,331 @@ public final class GetPasswordPolicyStateIssuesResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_PWP_STATE_ISSUES_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (! notices.isEmpty())
+    {
+      final List<JSONValue> arrayValues = new ArrayList<>(notices.size());
+      for (final PasswordPolicyStateAccountUsabilityNotice notice : notices)
+      {
+        arrayValues.add(encodeItem(notice.getIntValue(), notice.getName(),
+             notice.getMessage()));
+      }
+      valueFields.put(JSON_FIELD_NOTICES, new JSONArray(arrayValues));
+    }
+
+    if (! warnings.isEmpty())
+    {
+      final List<JSONValue> arrayValues = new ArrayList<>(warnings.size());
+      for (final PasswordPolicyStateAccountUsabilityWarning warning : warnings)
+      {
+        arrayValues.add(encodeItem(warning.getIntValue(), warning.getName(),
+             warning.getMessage()));
+      }
+      valueFields.put(JSON_FIELD_WARNINGS, new JSONArray(arrayValues));
+    }
+
+    if (! errors.isEmpty())
+    {
+      final List<JSONValue> arrayValues = new ArrayList<>(notices.size());
+      for (final PasswordPolicyStateAccountUsabilityError error : errors)
+      {
+        arrayValues.add(encodeItem(error.getIntValue(), error.getName(),
+             error.getMessage()));
+      }
+      valueFields.put(JSON_FIELD_ERRORS, new JSONArray(arrayValues));
+    }
+
+    if (authFailureReason != null)
+    {
+      valueFields.put(JSON_FIELD_AUTH_FAILURE_REASON,
+           encodeItem(authFailureReason.getIntValue(),
+                authFailureReason.getName(), authFailureReason.getMessage()));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_PWP_STATE_ISSUES_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Retrieves a JSON object that contains an encoded representation of a
+   * password policy state issue or authentication failure reason with the
+   * provided information.
+   *
+   * @param  id       The ID for the item.
+   * @param  name     The name for the item.  It must not be {@code null}.
+   * @param  message  The message for the item.  It may be {@code null} if no
+   *                  message is available.
+   *
+   * @return  A JSON object that contains an encoded representation of the
+   *          provided information.
+   */
+  @NotNull()
+  private static JSONObject encodeItem(final int id,
+                                       @NotNull final String name,
+                                       @Nullable final String message)
+  {
+    final Map<String,JSONValue> fields = new LinkedHashMap<>();
+    fields.put(JSON_FIELD_ID, new JSONNumber(id));
+    fields.put(JSON_FIELD_NAME, new JSONString(name));
+
+    if (message != null)
+    {
+      fields.put(JSON_FIELD_MESSAGE, new JSONString(message));
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * password policy state issues response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get password policy state issues response control that was
+   *          decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get password policy state issues response
+   *                         control.
+   */
+  @NotNull()
+  public static GetPasswordPolicyStateIssuesResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetPasswordPolicyStateIssuesResponseControl(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final List<PasswordPolicyStateAccountUsabilityNotice> notices =
+         new ArrayList<>();
+    final List<JSONValue> noticeValues =
+         valueObject.getFieldAsArray(JSON_FIELD_NOTICES);
+    if (noticeValues != null)
+    {
+      for (final JSONValue v : noticeValues)
+      {
+        if (v instanceof JSONObject)
+        {
+          final JSONObject o = (JSONObject) v;
+
+          final Integer id = o.getFieldAsInteger(JSON_FIELD_ID);
+          if (id == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_NOTICES, JSON_FIELD_ID));
+          }
+
+          final String name = o.getFieldAsString(JSON_FIELD_NAME);
+          if (name == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_NOTICES, JSON_FIELD_NAME));
+          }
+
+          final String message = o.getFieldAsString(JSON_FIELD_MESSAGE);
+          notices.add(new PasswordPolicyStateAccountUsabilityNotice(id, name,
+               message));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_VALUE_NOT_OBJECT.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_NOTICES));
+        }
+      }
+    }
+
+
+    final List<PasswordPolicyStateAccountUsabilityWarning > warnings =
+         new ArrayList<>();
+    final List<JSONValue> warningValues =
+         valueObject.getFieldAsArray(JSON_FIELD_WARNINGS);
+    if (warningValues != null)
+    {
+      for (final JSONValue v : warningValues)
+      {
+        if (v instanceof JSONObject)
+        {
+          final JSONObject o = (JSONObject) v;
+
+          final Integer id = o.getFieldAsInteger(JSON_FIELD_ID);
+          if (id == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_WARNINGS, JSON_FIELD_ID));
+          }
+
+          final String name = o.getFieldAsString(JSON_FIELD_NAME);
+          if (name == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_WARNINGS, JSON_FIELD_NAME));
+          }
+
+          final String message = o.getFieldAsString(JSON_FIELD_MESSAGE);
+          warnings.add(new PasswordPolicyStateAccountUsabilityWarning(id, name,
+               message));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_VALUE_NOT_OBJECT.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_WARNINGS));
+        }
+      }
+    }
+
+
+    final List<PasswordPolicyStateAccountUsabilityError > errors =
+         new ArrayList<>();
+    final List<JSONValue> errorValues =
+         valueObject.getFieldAsArray(JSON_FIELD_ERRORS);
+    if (errorValues != null)
+    {
+      for (final JSONValue v : errorValues)
+      {
+        if (v instanceof JSONObject)
+        {
+          final JSONObject o = (JSONObject) v;
+
+          final Integer id = o.getFieldAsInteger(JSON_FIELD_ID);
+          if (id == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_ERRORS, JSON_FIELD_ID));
+          }
+
+          final String name = o.getFieldAsString(JSON_FIELD_NAME);
+          if (name == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_ERRORS, JSON_FIELD_NAME));
+          }
+
+          final String message = o.getFieldAsString(JSON_FIELD_MESSAGE);
+          errors.add(new PasswordPolicyStateAccountUsabilityError(id, name,
+               message));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_VALUE_NOT_OBJECT.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_ERRORS));
+        }
+      }
+    }
+
+
+    final AuthenticationFailureReason authFailureReason;
+    final JSONObject authFailureReasonObject =
+         valueObject.getFieldAsObject(JSON_FIELD_AUTH_FAILURE_REASON);
+    if (authFailureReasonObject == null)
+    {
+      authFailureReason = null;
+    }
+    else
+    {
+      final Integer id =
+           authFailureReasonObject.getFieldAsInteger(JSON_FIELD_ID);
+      if (id == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_AUTH_FAILURE_REASON, JSON_FIELD_ID));
+      }
+
+      final String name =
+           authFailureReasonObject.getFieldAsString(JSON_FIELD_NAME);
+      if (name == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_MISSING_ITEM_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ERRORS, JSON_FIELD_NAME));
+      }
+
+      final String message =
+           authFailureReasonObject.getFieldAsString(JSON_FIELD_MESSAGE);
+      authFailureReason = new AuthenticationFailureReason(id, name, message);
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_NOTICES, JSON_FIELD_WARNINGS,
+                JSON_FIELD_ERRORS, JSON_FIELD_AUTH_FAILURE_REASON);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_PWP_STATE_ISSUES_RESPONSE_JSON_CONTROL_UNRECOGNIZED_FIELD.
+                  get(controlObject.toSingleLineString(),
+                       unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetPasswordPolicyStateIssuesResponseControl(notices, warnings,
+         errors, authFailureReason);
   }
 
 

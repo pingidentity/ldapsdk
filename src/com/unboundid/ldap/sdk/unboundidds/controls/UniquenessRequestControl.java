@@ -40,7 +40,10 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1Boolean;
@@ -51,6 +54,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.CryptoHelper;
@@ -62,6 +66,12 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -385,6 +395,176 @@ public final class UniquenessRequestControl
    */
   private static final byte TYPE_CREATE_CONFLICT_PREVENTION_DETAILS_ENTRY =
        (byte) 0x89;
+
+
+
+  /**
+   * The name of the field used to hold the
+   * alert-on-post-commit-conflict-detection flag in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_ALERT_ON_POST_COMMIT_CONFLICT_DETECTION =
+            "alert-on-post-commit-conflict-detection";
+
+
+
+  /**
+   * The name of the field used to hold the attribute types in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ATTRIBUTE_TYPES =
+       "attribute-types";
+
+
+
+  /**
+   * The name of the field used to hold the base DN in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_FIELD_BASE_DN = "base-dn";
+
+
+
+  /**
+   * The name of the field used to hold the
+   * create-conflict-prevention-details-entry flag in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_CREATE_CONFLICT_PREVENTION_DETAILS_ENTRY =
+            "create-conflict-prevention-details-entry";
+
+
+
+  /**
+   * The name of the field used to hold the filter in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String JSON_FIELD_FILTER = "filter";
+
+
+
+  /**
+   * The name of the field used to hold the multiple attribute behavior in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR =
+       "multiple-attribute-behavior";
+
+
+
+  /**
+   * The name of the field used to hold the pre-commit validation level in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String  JSON_FIELD_PRE_COMMIT_VALIDATION_LEVEL =
+       "pre-commit-validation-level";
+
+
+
+  /**
+   * The name of the field used to hold the post-commit validation level in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_POST_COMMIT_VALIDATION_LEVEL = "post-commit-validation-level";
+
+
+
+  /**
+   * The name of the field used to hold the
+   * prevent-conflicts-with-soft-deleted-entries flag in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_PREVENT_CONFLICTS_WITH_SOFT_DELETED_ENTRIES =
+            "prevent-conflicts-with-soft-deleted-entries";
+
+
+
+  /**
+   * The name of the field used to hold the uniqueness ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_UNIQUENESS_ID =
+       "uniqueness-id";
+
+
+
+  /**
+   * The unique-within-each-attribute multiple-attribute-behavior value to use
+   * in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_MAB_UNIQUE_WITHIN_EACH_ATTRIBUTE =
+       "unique-within-each-attribute";
+
+
+
+  /**
+   * The unique-across-all-attributes-including-in-the-same-entry
+   * multiple-attribute-behavior value to use in the JSON representation of this
+   * control.
+   */
+  @NotNull private static final String
+       JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_SAME_ENTRY =
+            "unique-across-all-attributes-including-in-the-same-entry";
+
+
+
+  /**
+   * The unique-across-all-attributes-except-in-the-same-entry
+   * multiple-attribute-behavior value to use in the JSON representation of this
+   * control.
+   */
+  @NotNull private static final String
+       JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_SAME_ENTRY =
+            "unique-across-all-attributes-except-in-the-same-entry";
+
+
+
+  /**
+   * The unique-in-combination multiple-attribute-behavior value to use in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_MAB_UNIQUE_IN_COMBINATION =
+       "unique-in-combination";
+
+
+
+  /**
+   * The none validation level value to use in the JSON representation of this
+   * control.
+   */
+  @NotNull private static final String JSON_VALIDATION_LEVEL_NONE = "none";
+
+
+
+  /**
+   * The all-subtree-views validation level value to use in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_VALIDATION_LEVEL_ALL_SUBTREE_VIEWS =
+       "all-subtree-views";
+
+
+
+  /**
+   * The all-backend-sets validation level value to use in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_VALIDATION_LEVEL_ALL_BACKEND_SETS =
+       "all-backend-sets";
+
+
+
+  /**
+   * The all-available-backend-servers validation level value to use in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String
+       JSON_VALIDATION_LEVEL_ALL_AVAILABLE_BACKEND_SERVERS =
+            "all-available-backend-servers";
 
 
 
@@ -935,6 +1115,432 @@ public final class UniquenessRequestControl
   public String getControlName()
   {
     return INFO_UNIQUENESS_REQ_CONTROL_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_UNIQUENESS_ID, new JSONString(uniquenessID));
+
+    if (! attributeTypes.isEmpty())
+    {
+      final List<JSONValue> attributeTypesValues =
+           new ArrayList<>(attributeTypes.size());
+      for (final String attributeType : attributeTypes)
+      {
+        attributeTypesValues.add(new JSONString(attributeType));
+      }
+      valueFields.put(JSON_FIELD_ATTRIBUTE_TYPES,
+           new JSONArray(attributeTypesValues));
+    }
+
+    if ((attributeTypes.size() > 1) ||
+         (multipleAttributeBehavior != UniquenessMultipleAttributeBehavior.
+              UNIQUE_WITHIN_EACH_ATTRIBUTE))
+    {
+      switch (multipleAttributeBehavior)
+      {
+        case UNIQUE_WITHIN_EACH_ATTRIBUTE:
+          valueFields.put(JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR,
+               new JSONString(JSON_MAB_UNIQUE_WITHIN_EACH_ATTRIBUTE));
+          break;
+        case UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_IN_SAME_ENTRY:
+          valueFields.put(JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR,
+               new JSONString(
+               JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_SAME_ENTRY));
+          break;
+        case UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_IN_SAME_ENTRY:
+          valueFields.put(JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR,
+               new JSONString(
+                    JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_SAME_ENTRY));
+          break;
+        case UNIQUE_IN_COMBINATION:
+          valueFields.put(JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR,
+               new JSONString(JSON_MAB_UNIQUE_IN_COMBINATION));
+          break;
+      }
+    }
+
+    if (baseDN != null)
+    {
+      valueFields.put(JSON_FIELD_BASE_DN, new JSONString(baseDN));
+    }
+
+    if (filter != null)
+    {
+      valueFields.put(JSON_FIELD_FILTER, new JSONString(filter.toString()));
+    }
+
+    valueFields.put(JSON_FIELD_PREVENT_CONFLICTS_WITH_SOFT_DELETED_ENTRIES,
+         new JSONBoolean(preventConflictsWithSoftDeletedEntries));
+
+    addJSONValidationLevel(valueFields, JSON_FIELD_PRE_COMMIT_VALIDATION_LEVEL,
+         preCommitValidationLevel);
+
+    addJSONValidationLevel(valueFields, JSON_FIELD_POST_COMMIT_VALIDATION_LEVEL,
+         postCommitValidationLevel);
+
+    valueFields.put(JSON_FIELD_ALERT_ON_POST_COMMIT_CONFLICT_DETECTION,
+         new JSONBoolean(alertOnPostCommitConflictDetection));
+
+    valueFields.put(JSON_FIELD_CREATE_CONFLICT_PREVENTION_DETAILS_ENTRY,
+         new JSONBoolean(createConflictPreventionDetailsEntry));
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              UNIQUENESS_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_UNIQUENESS_REQ_CONTROL_NAME.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Updates the provided map with a JSON field for the given validation level.
+   *
+   * @param  valueFields      The map to which the field should be added.  It
+   *                          must not be {@code null}./
+   * @param  fieldName        The name to use for the field.  It must not be
+   *                          {@code null}.
+   * @param  validationLevel  The validation level value to use.  It must not be
+   *                          {@code null}.
+   */
+  private static void addJSONValidationLevel(
+               @NotNull final Map<String,JSONValue> valueFields,
+               @NotNull final String fieldName,
+               @NotNull final UniquenessValidationLevel validationLevel)
+  {
+    switch (validationLevel)
+    {
+      case NONE:
+        valueFields.put(fieldName, new JSONString(JSON_VALIDATION_LEVEL_NONE));
+        break;
+      case ALL_SUBTREE_VIEWS:
+        valueFields.put(fieldName,
+             new JSONString(JSON_VALIDATION_LEVEL_ALL_SUBTREE_VIEWS));
+        break;
+      case ALL_BACKEND_SETS:
+        valueFields.put(fieldName,
+             new JSONString(JSON_VALIDATION_LEVEL_ALL_BACKEND_SETS));
+        break;
+      case ALL_AVAILABLE_BACKEND_SERVERS:
+        valueFields.put(fieldName, new JSONString(
+             JSON_VALIDATION_LEVEL_ALL_AVAILABLE_BACKEND_SERVERS));
+        break;
+    }
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * uniqueness request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The uniqueness request control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid uniqueness request control.
+   */
+  @NotNull()
+  public static UniquenessRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new UniquenessRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String uniquenessID =
+         valueObject.getFieldAsString(JSON_FIELD_UNIQUENESS_ID);
+
+    final Set<String> attributeTypes;
+    final List<JSONValue> attributeTypesValues =
+         valueObject.getFieldAsArray(JSON_FIELD_ATTRIBUTE_TYPES);
+    if ((attributeTypesValues == null) || attributeTypesValues.isEmpty())
+    {
+      attributeTypes = Collections.emptySet();
+    }
+    else
+    {
+      attributeTypes = new LinkedHashSet<>();
+      for (final JSONValue v : attributeTypesValues)
+      {
+        if (v instanceof JSONString)
+        {
+          attributeTypes.add(((JSONString) v).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_UNIQUENESS_REQ_JSON_ATTR_TYPE_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_ATTRIBUTE_TYPES));
+        }
+      }
+    }
+
+    final Filter filter;
+    final String filterStr = valueObject.getFieldAsString(JSON_FIELD_FILTER);
+    if (filterStr == null)
+    {
+      filter = null;
+    }
+    else
+    {
+      try
+      {
+        filter = Filter.create(filterStr);
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_UNIQUENESS_REQ_JSON_INVALID_FILTER.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_FILTER,
+                  filterStr));
+      }
+    }
+
+
+    final UniquenessRequestControlProperties properties;
+    if (attributeTypes.isEmpty())
+    {
+      if (filter == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_UNIQUENESS_REQ_JSON_NEITHER_ATTR_TYPES_NOR_FILTER.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ATTRIBUTE_TYPES, JSON_FIELD_FILTER));
+      }
+      else
+      {
+        properties = new UniquenessRequestControlProperties(filter);
+      }
+    }
+    else
+    {
+      properties = new UniquenessRequestControlProperties(attributeTypes);
+
+      if (filter != null)
+      {
+        properties.setFilter(filter);
+      }
+    }
+
+
+    final String multipleAttributeBehaviorStr =
+         valueObject.getFieldAsString(JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR);
+    if (multipleAttributeBehaviorStr == null)
+    {
+      properties.setMultipleAttributeBehavior(
+           UniquenessMultipleAttributeBehavior.UNIQUE_WITHIN_EACH_ATTRIBUTE);
+    }
+    else
+    {
+      switch (multipleAttributeBehaviorStr)
+      {
+        case JSON_MAB_UNIQUE_WITHIN_EACH_ATTRIBUTE:
+          properties.setMultipleAttributeBehavior(
+               UniquenessMultipleAttributeBehavior.
+                    UNIQUE_WITHIN_EACH_ATTRIBUTE);
+          break;
+        case JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_SAME_ENTRY:
+          properties.setMultipleAttributeBehavior(
+               UniquenessMultipleAttributeBehavior.
+                    UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_IN_SAME_ENTRY);
+          break;
+        case JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_SAME_ENTRY:
+          properties.setMultipleAttributeBehavior(
+               UniquenessMultipleAttributeBehavior.
+                    UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_IN_SAME_ENTRY);
+          break;
+        case JSON_MAB_UNIQUE_IN_COMBINATION:
+          properties.setMultipleAttributeBehavior(
+               UniquenessMultipleAttributeBehavior.UNIQUE_IN_COMBINATION);
+          break;
+        default:
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_UNIQUENESS_REQ_JSON_UNRECOGNIZED_MULTIPLE_ATTR_BEHAVIOR.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR,
+                    multipleAttributeBehaviorStr,
+                    JSON_MAB_UNIQUE_WITHIN_EACH_ATTRIBUTE,
+                    JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_SAME_ENTRY,
+                    JSON_MAB_UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_SAME_ENTRY,
+                    JSON_MAB_UNIQUE_IN_COMBINATION));
+      }
+    }
+
+
+    final String baseDNStr = valueObject.getFieldAsString(JSON_FIELD_BASE_DN);
+    if (baseDNStr != null)
+    {
+      properties.setBaseDN(baseDNStr);
+    }
+
+
+    final Boolean preventConflictsWithSoftDeletedEntries =
+         valueObject.getFieldAsBoolean(
+              JSON_FIELD_PREVENT_CONFLICTS_WITH_SOFT_DELETED_ENTRIES);
+    if (preventConflictsWithSoftDeletedEntries == null)
+    {
+      properties.setPreventConflictsWithSoftDeletedEntries(false);
+    }
+    else
+    {
+      properties.setPreventConflictsWithSoftDeletedEntries(
+           preventConflictsWithSoftDeletedEntries);
+    }
+
+
+    properties.setPreCommitValidationLevel(getValidationLevelJSON(
+         controlObject, valueObject, JSON_FIELD_PRE_COMMIT_VALIDATION_LEVEL));
+
+
+    properties.setPostCommitValidationLevel(getValidationLevelJSON(
+         controlObject, valueObject, JSON_FIELD_POST_COMMIT_VALIDATION_LEVEL));
+
+
+    final Boolean alertOnPostCommitConflictDetection =
+         valueObject.getFieldAsBoolean(
+              JSON_FIELD_ALERT_ON_POST_COMMIT_CONFLICT_DETECTION);
+    if (alertOnPostCommitConflictDetection == null)
+    {
+      properties.setAlertOnPostCommitConflictDetection(true);
+    }
+    else
+    {
+      properties.setAlertOnPostCommitConflictDetection(
+           alertOnPostCommitConflictDetection);
+    }
+
+
+    final Boolean createConflictPreventionDetailsEntry =
+         valueObject.getFieldAsBoolean(
+              JSON_FIELD_CREATE_CONFLICT_PREVENTION_DETAILS_ENTRY);
+    if (createConflictPreventionDetailsEntry == null)
+    {
+      properties.setCreateConflictPreventionDetailsEntry(false);
+    }
+    else
+    {
+      properties.setCreateConflictPreventionDetailsEntry(
+           createConflictPreventionDetailsEntry);
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_UNIQUENESS_ID,
+                JSON_FIELD_ATTRIBUTE_TYPES,
+                JSON_FIELD_MULTIPLE_ATTRIBUTE_BEHAVIOR,
+                JSON_FIELD_BASE_DN, JSON_FIELD_FILTER,
+                JSON_FIELD_PREVENT_CONFLICTS_WITH_SOFT_DELETED_ENTRIES,
+                JSON_FIELD_PRE_COMMIT_VALIDATION_LEVEL,
+                JSON_FIELD_POST_COMMIT_VALIDATION_LEVEL,
+                JSON_FIELD_ALERT_ON_POST_COMMIT_CONFLICT_DETECTION,
+                JSON_FIELD_CREATE_CONFLICT_PREVENTION_DETAILS_ENTRY);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_UNIQUENESS_REQ_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new UniquenessRequestControl(jsonControl.getCriticality(),
+         uniquenessID, properties);
+  }
+
+
+
+  /**
+   * Retrieves the uniqueness validation level value contained in the specified
+   * field of the given value object.
+   *
+   * @param  controlObject  The JSON object containing an encoded representation
+   *                        of the control being decoded.  It must not be
+   *                        {@code null}.
+   * @param  valueObject    The JSON object from which the value is to be
+   *                        retrieved.  It must not be {@code null}.
+   * @param  fieldName      The name of the field that is expected to contain
+   *                        the value.  It must not be {@code null}.
+   *
+   * @return  The uniqueness validation level value that was retrieved.
+   *
+   * @throws  LDAPException  If the value object does not have a valid
+   *                         uniqueness validation level value in the specified
+   *                         field.
+   */
+  @NotNull()
+  private static UniquenessValidationLevel getValidationLevelJSON(
+               @NotNull final JSONObject controlObject,
+               @NotNull final JSONObject valueObject,
+               @NotNull final String fieldName)
+          throws LDAPException
+  {
+    final String valueStr = valueObject.getFieldAsString(fieldName);
+    if (valueStr == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_UNIQUENESS_REQ_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), fieldName));
+    }
+
+    switch (valueStr)
+    {
+      case JSON_VALIDATION_LEVEL_NONE:
+        return UniquenessValidationLevel.NONE;
+      case JSON_VALIDATION_LEVEL_ALL_SUBTREE_VIEWS:
+        return UniquenessValidationLevel.ALL_SUBTREE_VIEWS;
+      case JSON_VALIDATION_LEVEL_ALL_BACKEND_SETS:
+        return UniquenessValidationLevel.ALL_BACKEND_SETS;
+      case JSON_VALIDATION_LEVEL_ALL_AVAILABLE_BACKEND_SERVERS:
+        return UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS;
+      default:
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_UNIQUENESS_REQ_JSON_UNRECOGNIZED_VALIDATION_LEVEL.get(
+                  controlObject.toSingleLineString(), fieldName, valueStr,
+                  JSON_VALIDATION_LEVEL_NONE,
+                  JSON_VALIDATION_LEVEL_ALL_SUBTREE_VIEWS,
+                  JSON_VALIDATION_LEVEL_ALL_BACKEND_SETS,
+                  JSON_VALIDATION_LEVEL_ALL_AVAILABLE_BACKEND_SERVERS));
+    }
   }
 
 

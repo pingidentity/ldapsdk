@@ -65,7 +65,7 @@ public enum AssuredReplicationRemoteLevel
   /**
    * Indicates that no remote assurance is desired for the associated operation.
    */
-  NONE(0),
+  NONE(0, "none"),
 
 
 
@@ -80,7 +80,7 @@ public enum AssuredReplicationRemoteLevel
    * there is no guarantee that the associated change will be visible on that
    * server.
    */
-  RECEIVED_ANY_REMOTE_LOCATION(1),
+  RECEIVED_ANY_REMOTE_LOCATION(1, "received-any-remote-location"),
 
 
 
@@ -95,7 +95,7 @@ public enum AssuredReplicationRemoteLevel
    * with this level of assurance, there is no guarantee that the associated
    * change will be visible on that server.
    */
-  RECEIVED_ALL_REMOTE_LOCATIONS(2),
+  RECEIVED_ALL_REMOTE_LOCATIONS(2, "received-all-remote-locations"),
 
 
 
@@ -104,12 +104,15 @@ public enum AssuredReplicationRemoteLevel
    * until the change has been processed by all available servers in all remote
    * locations.
    */
-  PROCESSED_ALL_REMOTE_SERVERS(3);
+  PROCESSED_ALL_REMOTE_SERVERS(3, "processed-all-remote-servers");
 
 
 
   // The integer value for this remote assurance level.
   private final int intValue;
+
+  // The name for this local assurance level.
+  @NotNull private final String name;
 
 
 
@@ -117,10 +120,13 @@ public enum AssuredReplicationRemoteLevel
    * Creates a new remote assurance level with the provided integer value.
    *
    * @param  intValue  The integer value for this remote assurance level.
+   * @param  name      The name for this remote assurance level.
    */
-  AssuredReplicationRemoteLevel(final int intValue)
+  AssuredReplicationRemoteLevel(final int intValue,
+                                @NotNull final String name)
   {
     this.intValue = intValue;
+    this.name = name;
   }
 
 
@@ -133,6 +139,19 @@ public enum AssuredReplicationRemoteLevel
   public int intValue()
   {
     return intValue;
+  }
+
+
+
+  /**
+   * Retrieves the name for this remote assurance level.
+   *
+   * @return  The name for this remote assurance level.
+   */
+  @NotNull()
+  public String getName()
+  {
+    return name;
   }
 
 

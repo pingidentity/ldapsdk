@@ -39,6 +39,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -49,6 +52,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -59,6 +63,12 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -158,6 +168,68 @@ public final class GetAuthorizationEntryResponseControl
    * The BER type for the {@code attributesDN} element.
    */
   private static final byte TYPE_ATTRIBUTES= (byte) 0xA2;
+
+
+
+  /**
+   * The name of the field used to hold the authentication entry in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHENTICATION_ENTRY =
+       "authentication-entry";
+
+
+
+  /**
+   * The name of the field used to hold the authentication identity in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHENTICATION_ID =
+       "authentication-id";
+
+
+
+  /**
+   * The name of the field used to hold the authorization entry in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHORIZATION_ENTRY =
+       "authorization-entry";
+
+
+
+  /**
+   * The name of the field used to hold the authorization identity in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHORIZATION_ID =
+       "authorization-id";
+
+
+
+  /**
+   * The name of the field used to hold the DN of an entry in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ENTRY_DN = "_dn";
+
+
+
+  /**
+   * The name of the field used to indicate whether authentication and
+   * authorization identities match in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_IDENTITIES_MATCH =
+       "identities-match";
+
+
+
+  /**
+   * The name of the field used to indicate whether the client is authenticated
+   * in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_IS_AUTHENTICATED =
+       "is-authenticated";
 
 
 
@@ -653,6 +725,281 @@ public final class GetAuthorizationEntryResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_AUTHORIZATION_ENTRY_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_IS_AUTHENTICATED,
+         new JSONBoolean(isAuthenticated));
+    valueFields.put(JSON_FIELD_IDENTITIES_MATCH,
+         new JSONBoolean(identitiesMatch));
+
+    if (authNID != null)
+    {
+      valueFields.put(JSON_FIELD_AUTHENTICATION_ID, new JSONString(authNID));
+    }
+
+    if (authNEntry != null)
+    {
+      valueFields.put(JSON_FIELD_AUTHENTICATION_ENTRY,
+           encodeEntryJSON(authNEntry));
+    }
+
+    if ((authZEntry != null) && (! identitiesMatch))
+    {
+      if (authZID != null)
+      {
+        valueFields.put(JSON_FIELD_AUTHORIZATION_ID, new JSONString(authZID));
+      }
+
+      valueFields.put(JSON_FIELD_AUTHORIZATION_ENTRY,
+           encodeEntryJSON(authZEntry));
+    }
+
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_AUTHORIZATION_ENTRY_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_AUTHORIZATION_ENTRY_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Retrieves a JSON object containing an encoded representation of the
+   * provided entry.
+   *
+   * @param  entry  The entry to be encoded.  It must not be {@code null}.
+   *
+   * @return  A JSON object containing an encoded representation of the provided
+   *          entry.
+   */
+  @NotNull()
+  private static JSONObject encodeEntryJSON(@NotNull final ReadOnlyEntry entry)
+  {
+    final Map<String,JSONValue> entryFields = new LinkedHashMap<>();
+    entryFields.put(JSON_FIELD_ENTRY_DN, new JSONString(entry.getDN()));
+    for (final Attribute a : entry.getAttributes())
+    {
+      final List<JSONValue> attributeValues = new ArrayList<>(a.size());
+      for (final String v : a.getValues())
+      {
+        attributeValues.add(new JSONString(v));
+      }
+
+      entryFields.put(a.getName(), new JSONArray(attributeValues));
+    }
+
+    return new JSONObject(entryFields);
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * authorization entry response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get authorization entry response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get authorization entry response control.
+   */
+  @NotNull()
+  public static GetAuthorizationEntryResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetAuthorizationEntryResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Boolean isAuthenticated =
+         valueObject.getFieldAsBoolean(JSON_FIELD_IS_AUTHENTICATED);
+    if (isAuthenticated == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_IS_AUTHENTICATED));
+    }
+
+    final Boolean identitiesMatch =
+         valueObject.getFieldAsBoolean(JSON_FIELD_IDENTITIES_MATCH);
+    if (identitiesMatch == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_IDENTITIES_MATCH));
+    }
+
+    final String authenticationID =
+         valueObject.getFieldAsString(JSON_FIELD_AUTHENTICATION_ID);
+
+    final ReadOnlyEntry authenticationEntry = decodeEntryJSON(controlObject,
+         valueObject, JSON_FIELD_AUTHENTICATION_ENTRY);
+
+    final String authorizationID =
+         valueObject.getFieldAsString(JSON_FIELD_AUTHORIZATION_ID);
+
+    final ReadOnlyEntry authorizationEntry = decodeEntryJSON(controlObject,
+         valueObject, JSON_FIELD_AUTHORIZATION_ENTRY);
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_IS_AUTHENTICATED,
+                JSON_FIELD_IDENTITIES_MATCH, JSON_FIELD_AUTHENTICATION_ID,
+                JSON_FIELD_AUTHENTICATION_ENTRY, JSON_FIELD_AUTHORIZATION_ID,
+                JSON_FIELD_AUTHORIZATION_ENTRY);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetAuthorizationEntryResponseControl(isAuthenticated,
+         identitiesMatch, authenticationID, authenticationEntry,
+         authorizationID, authorizationEntry);
+  }
+
+
+
+  /**
+   * Retrieves and decodes the entry contained in the specified field of the
+   * provided value object.
+   *
+   * @param  controlObject  A JSON object containing an encoded representation
+   *                        of the entire control being decoded.  It must not
+   *                        be {@code null}.
+   * @param  valueObject    A JSON object containing an encoded representation
+   *                        of the control value.  It must not be {@code null}.
+   * @param  entryField     The name of the field containing the entry to be
+   *                        decoded.  It must not be {@code null}.
+   *
+   * @return  The entry decoded from the specified field in the value object, or
+   *          {@code null} if that field is not present in the value object.
+   *
+   * @throws  LDAPException  If value of the specified field cannot be parsed as
+   *                         an entry.
+   */
+  @Nullable()
+  private static ReadOnlyEntry decodeEntryJSON(
+               @NotNull final JSONObject controlObject,
+               @NotNull final JSONObject valueObject,
+               @NotNull final String entryField)
+          throws LDAPException
+  {
+    final JSONObject entryObject = valueObject.getFieldAsObject(entryField);
+    if (entryObject == null)
+    {
+      return null;
+    }
+
+    String dn = null;
+    final List<Attribute> attributes =
+         new ArrayList<>(entryObject.getFields().size());
+    for (final Map.Entry<String,JSONValue> fieldEntry :
+         entryObject.getFields().entrySet())
+    {
+      final String fieldName = fieldEntry.getKey();
+      final JSONValue fieldValue = fieldEntry.getValue();
+      if (fieldName.equals(JSON_FIELD_ENTRY_DN))
+      {
+        if (fieldValue instanceof JSONString)
+        {
+          dn = ((JSONString) fieldValue).stringValue();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_JSON_DN_NOT_STRING.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_ENTRY_DN,
+                    entryField));
+        }
+      }
+      else
+      {
+        if (fieldValue instanceof JSONArray)
+        {
+          final List<JSONValue> jsonValues =
+               ((JSONArray) fieldValue).getValues();
+          final List<String> stringValues = new ArrayList<>(jsonValues.size());
+          for (final JSONValue v : jsonValues)
+          {
+            if (v instanceof JSONString)
+            {
+              stringValues.add(((JSONString) v).stringValue());
+            }
+            else
+            {
+              throw new LDAPException(ResultCode.DECODING_ERROR,
+                   ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_JSON_VALUE_NOT_STRING.
+                        get(controlObject.toSingleLineString(), entryField,
+                             fieldName));
+            }
+          }
+
+          attributes.add(new Attribute(fieldName, stringValues));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_JSON_ATTR_VALUE_NOT_ARRAY.
+                    get(controlObject.toSingleLineString(), entryField,
+                         fieldName));
+        }
+      }
+    }
+
+    if (dn == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_AUTHORIZATION_ENTRY_REQUEST_JSON_ENTRY_MISSING_DN.get(
+                controlObject.toSingleLineString(), entryField,
+                JSON_FIELD_ENTRY_DN));
+    }
+
+    return new ReadOnlyEntry(dn, attributes);
   }
 
 

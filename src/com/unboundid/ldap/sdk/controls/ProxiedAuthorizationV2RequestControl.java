@@ -37,8 +37,11 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -46,6 +49,8 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -127,6 +132,15 @@ public final class ProxiedAuthorizationV2RequestControl
    */
   @NotNull public static final String PROXIED_AUTHORIZATION_V2_REQUEST_OID =
        "2.16.840.1.113730.3.4.18";
+
+
+
+  /**
+   * The name of the field used to hold the authorization ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHORIZATION_ID =
+       "authorization-id";
 
 
 
@@ -226,6 +240,97 @@ public final class ProxiedAuthorizationV2RequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PROXIED_AUTHZ_V2_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PROXIED_AUTHORIZATION_V2_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PROXIED_AUTHZ_V2_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_AUTHORIZATION_ID,
+                        authorizationID))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * proxied authorization v2 request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The proxied authorization v2 request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid proxied authorization v2 request control.
+   */
+  @NotNull()
+  public static ProxiedAuthorizationV2RequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new ProxiedAuthorizationV2RequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String authorizationID =
+         valueObject.getFieldAsString(JSON_FIELD_AUTHORIZATION_ID);
+    if (authorizationID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PROXYV2_JSON_MISSING_AUTHZ_ID.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_AUTHORIZATION_ID));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_AUTHORIZATION_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PROXYV2_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new ProxiedAuthorizationV2RequestControl(authorizationID);
   }
 
 

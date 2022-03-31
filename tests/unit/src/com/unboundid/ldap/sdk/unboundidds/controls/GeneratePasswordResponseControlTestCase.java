@@ -45,7 +45,10 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -319,5 +322,375 @@ public final class GeneratePasswordResponseControlTestCase
          null, responseControls);
 
     GeneratePasswordResponseControl.get(result);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the new password does not have an expiration time.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoExpirationTime()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", false,
+              (Long) null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 2);
+
+    assertEquals(valueObject.getFieldAsString("generated-password"),
+         "TheGeneratedPassword");
+
+    assertEquals(valueObject.getFieldAsBoolean("must-change-password"),
+         Boolean.FALSE);
+
+    assertNull(valueObject.getFieldAsLong("seconds-until-expiration"));
+
+
+    GeneratePasswordResponseControl decodedControl =
+         GeneratePasswordResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+
+
+    decodedControl =
+         (GeneratePasswordResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the new password has an expiration time.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithExpirationTime()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", true,
+              1234567L);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 3);
+
+    assertEquals(valueObject.getFieldAsString("generated-password"),
+         "TheGeneratedPassword");
+
+    assertEquals(valueObject.getFieldAsBoolean("must-change-password"),
+         Boolean.TRUE);
+
+    assertEquals(valueObject.getFieldAsLong("seconds-until-expiration"),
+         Long.valueOf(1234567L));
+
+
+    GeneratePasswordResponseControl decodedControl =
+         GeneratePasswordResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Long.valueOf(1234567L));
+
+
+    decodedControl =
+         (GeneratePasswordResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertTrue(decodedControl.mustChangePassword());
+
+    assertEquals(decodedControl.getSecondsUntilExpiration(),
+         Long.valueOf(1234567L));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", false,
+              (Long) null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    GeneratePasswordResponseControl decodedControl =
+         GeneratePasswordResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+
+
+    decodedControl =
+         (GeneratePasswordResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object is missing the generated-password field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingGeneratedPassword()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", false,
+              (Long) null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("must-change-password", false))));
+
+    GeneratePasswordResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object is missing the must-change-password field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingMustChangePassword()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", false,
+              (Long) null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("generated-password", "TheGeneratedPassword"))));
+
+    GeneratePasswordResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", false,
+              (Long) null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("generated-password", "TheGeneratedPassword"),
+              new JSONField("must-change-password", false),
+              new JSONField("unrecognized", "foo"))));
+
+    GeneratePasswordResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final GeneratePasswordResponseControl c =
+         new GeneratePasswordResponseControl("TheGeneratedPassword", false,
+              (Long) null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("generated-password", "TheGeneratedPassword"),
+              new JSONField("must-change-password", false),
+              new JSONField("unrecognized", "foo"))));
+
+    GeneratePasswordResponseControl decodedControl =
+         GeneratePasswordResponseControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
+
+
+    decodedControl =
+         (GeneratePasswordResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getGeneratedPasswordString(),
+         "TheGeneratedPassword");
+
+    assertFalse(decodedControl.mustChangePassword());
+
+    assertNull(decodedControl.getSecondsUntilExpiration());
   }
 }

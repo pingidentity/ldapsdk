@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -148,5 +149,62 @@ public class NoOpRequestControlTestCase
     {
       conn.close();
     }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final NoOpRequestControl c = new NoOpRequestControl();
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 3);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertFalse(controlObject.hasField("value-json"));
+
+
+    NoOpRequestControl decodedControl =
+         NoOpRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNull(decodedControl.getValue());
+
+
+    decodedControl =
+         (NoOpRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNull(decodedControl.getValue());
   }
 }

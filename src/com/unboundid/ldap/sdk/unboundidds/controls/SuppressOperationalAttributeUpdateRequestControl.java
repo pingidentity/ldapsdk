@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1Element;
@@ -50,6 +51,7 @@ import com.unboundid.asn1.ASN1Enumerated;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -59,6 +61,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -111,6 +118,50 @@ public final class SuppressOperationalAttributeUpdateRequestControl
    * The BER type to use for the set of suppress types.
    */
   private static final byte TYPE_SUPPRESS_TYPES = (byte) 0x80;
+
+
+
+  /**
+   * The name of the field used to hold the suppress types in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SUPPRESS_TYPES =
+       "suppress-types";
+
+
+
+  /**
+   * The last-access-time suppress type value to use in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_SUPPRESS_TYPE_LAST_ACCESS_TIME =
+       "last-access-time";
+
+
+
+  /**
+   * The last-login-ip-address suppress type value to use in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String
+       JSON_SUPPRESS_TYPE_LAST_LOGIN_IP_ADDRESS = "last-login-ip-address";
+
+
+
+  /**
+   * The last-login-time suppress type value to use in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_SUPPRESS_TYPE_LAST_LOGIN_TIME =
+       "last-login-time";
+
+
+
+  /**
+   * The lastmod suppress type value to use in the JSON representation of this
+   * control.
+   */
+  @NotNull private static final String JSON_SUPPRESS_TYPE_LASTMOD = "lastmod";
 
 
   /**
@@ -316,6 +367,172 @@ public final class SuppressOperationalAttributeUpdateRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SUPPRESS_OP_ATTR_UPDATE_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final List<JSONValue> suppressTypeValues =
+         new ArrayList<>(suppressTypes.size());
+    for (final SuppressType suppressType : suppressTypes)
+    {
+      switch (suppressType)
+      {
+        case LAST_ACCESS_TIME:
+          suppressTypeValues.add(new JSONString(
+               JSON_SUPPRESS_TYPE_LAST_ACCESS_TIME));
+          break;
+        case LAST_LOGIN_TIME:
+          suppressTypeValues.add(new JSONString(
+               JSON_SUPPRESS_TYPE_LAST_LOGIN_TIME));
+          break;
+        case LAST_LOGIN_IP:
+          suppressTypeValues.add(new JSONString(
+               JSON_SUPPRESS_TYPE_LAST_LOGIN_IP_ADDRESS));
+          break;
+        case LASTMOD:
+          suppressTypeValues.add(new JSONString(JSON_SUPPRESS_TYPE_LASTMOD));
+          break;
+      }
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              SUPPRESS_OP_ATTR_UPDATE_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_SUPPRESS_OP_ATTR_UPDATE_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_SUPPRESS_TYPES,
+                        new JSONArray(suppressTypeValues)))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * suppress operational attribute update request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The suppress operational attribute update request control that was
+   *          decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid suppress operational attribute update request
+   *                         control.
+   */
+  @NotNull()
+  public static SuppressOperationalAttributeUpdateRequestControl
+              decodeJSONControl(@NotNull final JSONObject controlObject,
+                                final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawvalue = jsonControl.getRawValue();
+    if (rawvalue != null)
+    {
+      return new SuppressOperationalAttributeUpdateRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawvalue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final List<JSONValue> suppressTypeValues =
+         valueObject.getFieldAsArray(JSON_FIELD_SUPPRESS_TYPES);
+    if (suppressTypeValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SUPPRESS_OP_ATTR_UPDATE_REQUEST_JSON_MISSING_SUPPRESS_TYPES.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SUPPRESS_TYPES));
+    }
+
+    if (suppressTypeValues.isEmpty())
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SUPPRESS_OP_ATTR_UPDATE_REQUEST_JSON_EMPTY_SUPPRESS_TYPES.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SUPPRESS_TYPES));
+    }
+
+    final Set<SuppressType> suppressTypes = EnumSet.noneOf(SuppressType.class);
+    for (final JSONValue suppressTypeValue : suppressTypeValues)
+    {
+      if (suppressTypeValue instanceof JSONString)
+      {
+        final String suppressTypeString =
+             ((JSONString) suppressTypeValue).stringValue();
+        switch (suppressTypeString)
+        {
+          case JSON_SUPPRESS_TYPE_LAST_ACCESS_TIME:
+            suppressTypes.add(SuppressType.LAST_ACCESS_TIME);
+            break;
+          case JSON_SUPPRESS_TYPE_LAST_LOGIN_TIME:
+            suppressTypes.add(SuppressType.LAST_LOGIN_TIME);
+            break;
+          case JSON_SUPPRESS_TYPE_LAST_LOGIN_IP_ADDRESS:
+            suppressTypes.add(SuppressType.LAST_LOGIN_IP);
+            break;
+          case JSON_SUPPRESS_TYPE_LASTMOD:
+            suppressTypes.add(SuppressType.LASTMOD);
+            break;
+          default:
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_SUPPRESS_OP_ATTR_UPDATE_REQUEST_JSON_UNKNOWN_SUPPRESS_TYPE.
+                      get(controlObject.toSingleLineString(),
+                           JSON_FIELD_SUPPRESS_TYPES,
+                           JSON_SUPPRESS_TYPE_LAST_ACCESS_TIME,
+                           JSON_SUPPRESS_TYPE_LAST_LOGIN_TIME,
+                           JSON_SUPPRESS_TYPE_LAST_LOGIN_IP_ADDRESS,
+                           JSON_SUPPRESS_TYPE_LASTMOD));
+        }
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SUPPRESS_OP_ATTR_UPDATE_REQUEST_JSON_SUPPRESS_TYPE_NOT_STRING.
+                  get(controlObject.toSingleLineString(),
+                       JSON_FIELD_SUPPRESS_TYPES));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SUPPRESS_TYPES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SUPPRESS_OP_ATTR_UPDATE_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new SuppressOperationalAttributeUpdateRequestControl(
+         jsonControl.getCriticality(), suppressTypes);
   }
 
 

@@ -41,12 +41,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -57,6 +59,10 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -102,6 +108,30 @@ public final class OverrideSearchLimitsRequestControl
    */
   @NotNull public static final String OVERRIDE_SEARCH_LIMITS_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.56";
+
+
+
+  /**
+   * The name of the field used to hold the set of properties in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PROPERTIES = "properties";
+
+
+
+  /**
+   * The name of the field used to hold a property name in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PROPERTY_NAME = "name";
+
+
+
+  /**
+   * The name of the field used to hold a property value in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PROPERTY_VALUE = "value";
 
 
 
@@ -455,6 +485,154 @@ public final class OverrideSearchLimitsRequestControl
   public String getControlName()
   {
     return INFO_OVERRIDE_SEARCH_LIMITS_REQUEST_CONTROL_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final List<JSONValue> propertiesValues = new ArrayList<>(properties.size());
+    for (final Map.Entry<String,String> e : properties.entrySet())
+    {
+      propertiesValues.add(new JSONObject(
+           new JSONField(JSON_FIELD_PROPERTY_NAME, e.getKey()),
+           new JSONField(JSON_FIELD_PROPERTY_VALUE, e.getValue())));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              OVERRIDE_SEARCH_LIMITS_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_OVERRIDE_SEARCH_LIMITS_REQUEST_CONTROL_NAME.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_PROPERTIES,
+                        new JSONArray(propertiesValues)))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * override search limits request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The override search limits request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid override search limits request control.
+   */
+  @NotNull()
+  public static OverrideSearchLimitsRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new OverrideSearchLimitsRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final List<JSONValue> propertiesValues =
+         valueObject.getFieldAsArray(JSON_FIELD_PROPERTIES);
+    if (propertiesValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_OVERRIDE_SEARCH_LIMITS_REQUEST_JSON_MISSING_PROPERTIES.get(
+                controlObject.toSingleLineString(), JSON_FIELD_PROPERTIES));
+    }
+
+    final Map<String,String> properties = new LinkedHashMap<>();
+    for (final JSONValue v : propertiesValues)
+    {
+      if (v instanceof JSONObject)
+      {
+        final JSONObject o = (JSONObject) v;
+
+        final String name = o.getFieldAsString(JSON_FIELD_PROPERTY_NAME);
+        if (name == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_OVERRIDE_SEARCH_LIMITS_REQUEST_JSON_MISSING_PROP_FIELD.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_PROPERTIES,
+                    JSON_FIELD_PROPERTY_NAME));
+        }
+
+        final String value = o.getFieldAsString(JSON_FIELD_PROPERTY_VALUE);
+        if (value == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_OVERRIDE_SEARCH_LIMITS_REQUEST_JSON_MISSING_PROP_FIELD.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_PROPERTIES,
+                    JSON_FIELD_PROPERTY_VALUE));
+        }
+
+        if (strict)
+        {
+          final List<String> unrecognizedFields =
+               JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                    o, JSON_FIELD_PROPERTY_NAME, JSON_FIELD_PROPERTY_VALUE);
+          if (! unrecognizedFields.isEmpty())
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_OVERRIDE_SEARCH_LIMITS_RESPONSE_JSON_UNKNOWN_PROP_FIELD.
+                      get(controlObject.toSingleLineString(),
+                           JSON_FIELD_PROPERTIES, unrecognizedFields.get(0)));
+          }
+        }
+
+        properties.put(name, value);
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_OVERRIDE_SEARCH_LIMITS_RESPONSE_JSON_PROP_NOT_OBJECT.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_PROPERTIES));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_PROPERTIES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_OVERRIDE_SEARCH_LIMITS_RESPONSE_JSON_UNKNOWN_VALUE_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new OverrideSearchLimitsRequestControl(properties,
+         jsonControl.getCriticality());
   }
 
 

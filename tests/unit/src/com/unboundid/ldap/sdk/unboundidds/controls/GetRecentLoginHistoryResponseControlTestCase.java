@@ -47,10 +47,12 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.json.JSONArray;
 import com.unboundid.util.json.JSONField;
 import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -283,5 +285,816 @@ public final class GetRecentLoginHistoryResponseControlTestCase
     final BindResult bindResult = new BindResult(-1, ResultCode.SUCCESS,
          null, null, null, controls);
     GetRecentLoginHistoryResponseControl.get(bindResult);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there are no attempts.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoAttempts()
+          throws Exception
+  {
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(
+              new RecentLoginHistory(null, null));
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         JSONObject.EMPTY_OBJECT);
+
+
+    GetRecentLoginHistoryResponseControl decodedControl =
+         GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    RecentLoginHistory history = decodedControl.getRecentLoginHistory();
+    assertTrue(history.getSuccessfulAttempts().isEmpty());
+    assertTrue(history.getFailedAttempts().isEmpty());
+
+
+    decodedControl =
+         (GetRecentLoginHistoryResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    history = decodedControl.getRecentLoginHistory();
+    assertTrue(history.getSuccessfulAttempts().isEmpty());
+    assertTrue(history.getFailedAttempts().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there are both successful and failed attempts.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithAttempts()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4")),
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("additional-attempt-count", 1L)))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials")),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 2L)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L))))));
+
+
+    GetRecentLoginHistoryResponseControl decodedControl =
+         GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    RecentLoginHistory history = decodedControl.getRecentLoginHistory();
+    assertEquals(history.getSuccessfulAttempts().size(), 2);
+    assertEquals(history.getFailedAttempts().size(), 3);
+
+
+    decodedControl =
+         (GetRecentLoginHistoryResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    history = decodedControl.getRecentLoginHistory();
+    assertEquals(history.getSuccessfulAttempts().size(), 2);
+    assertEquals(history.getFailedAttempts().size(), 3);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    GetRecentLoginHistoryResponseControl decodedControl =
+         GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    RecentLoginHistory history = decodedControl.getRecentLoginHistory();
+    assertEquals(history.getSuccessfulAttempts().size(), 2);
+    assertEquals(history.getFailedAttempts().size(), 3);
+
+
+    decodedControl =
+         (GetRecentLoginHistoryResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    history = decodedControl.getRecentLoginHistory();
+    assertEquals(history.getSuccessfulAttempts().size(), 2);
+    assertEquals(history.getFailedAttempts().size(), 3);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value has a malformed success object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueHasMalformedSuccess()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("malformed", true)))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials")),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 2L)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L)))))));
+
+    GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value has a success object that is not a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueSuccessNotObject()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4")),
+                   new JSONString("not-an-object"))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials")),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 2L)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L)))))));
+
+    GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value has a failure object that is not a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueHasMalformedFailure()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4")),
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("additional-attempt-count", 1L)))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("malformed", true)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 2L)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L)))))));
+
+    GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value has a failure object that is not a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueFailureNotObject()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4")),
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("additional-attempt-count", 1L)))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials")),
+                   new JSONString("not-an-object"),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L)))))));
+
+    GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4")),
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("additional-attempt-count", 1L)))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials")),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 2L)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L)))),
+              new JSONField("unrecognized", "foo"))));
+
+    GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final long successfulAttempt1Timestamp = System.currentTimeMillis();
+    final long successfulAttempt2Timestamp = successfulAttempt1Timestamp - 1;
+    final long failedAttempt1Timestamp = successfulAttempt1Timestamp - 2;
+    final long failedAttempt2Timestamp = successfulAttempt1Timestamp - 3;
+    final long failedAttempt3Timestamp = successfulAttempt1Timestamp - 4;
+
+
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt1Timestamp, "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         successfulAttempt2Timestamp, "simple", "1.2.3.4", null, 1L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt1Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt2Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 2L));
+    failures.add(new RecentLoginHistoryAttempt(false, failedAttempt3Timestamp,
+         "simple", "1.2.3.4", "invalid-credentials", 3L));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final GetRecentLoginHistoryResponseControl c =
+         new GetRecentLoginHistoryResponseControl(h);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("successful-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4")),
+                   new JSONObject(
+                        new JSONField("successful", true),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  successfulAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("additional-attempt-count", 1L)))),
+              new JSONField("failed-attempts", new JSONArray(
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt1Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials")),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt2Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 2L)),
+                   new JSONObject(
+                        new JSONField("successful", false),
+                        new JSONField("timestamp",
+                             StaticUtils.encodeRFC3339Time(
+                                  failedAttempt3Timestamp)),
+                        new JSONField("authentication-method", "simple"),
+                        new JSONField("client-ip-address", "1.2.3.4"),
+                        new JSONField("failure-reason", "invalid-credentials"),
+                        new JSONField("additional-attempt-count", 3L)))),
+              new JSONField("unrecognized", "foo"))));
+
+
+    GetRecentLoginHistoryResponseControl decodedControl =
+         GetRecentLoginHistoryResponseControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    RecentLoginHistory history = decodedControl.getRecentLoginHistory();
+    assertEquals(history.getSuccessfulAttempts().size(), 2);
+    assertEquals(history.getFailedAttempts().size(), 3);
+
+
+    decodedControl =
+         (GetRecentLoginHistoryResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    history = decodedControl.getRecentLoginHistory();
+    assertEquals(history.getSuccessfulAttempts().size(), 2);
+    assertEquals(history.getFailedAttempts().size(), 3);
   }
 }

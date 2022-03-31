@@ -38,6 +38,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -46,6 +49,7 @@ import com.unboundid.asn1.ASN1Long;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -55,6 +59,12 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -211,6 +221,60 @@ public final class AssuredReplicationRequestControl
    * The BER type for the timeout.
    */
   private static final byte TYPE_TIMEOUT = (byte) 0x85;
+
+
+
+  /**
+   * The name of the field used to specify the maximum replication assurance
+   * level in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MAXIMUM_LOCAL_LEVEL =
+       "maximum-local-level";
+
+
+
+  /**
+   * The name of the field used to specify the maximum remote assurance
+   * level in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MAXIMUM_REMOTE_LEVEL =
+       "maximum-remote-level";
+
+
+
+  /**
+   * The name of the field used to specify the minimum replication assurance
+   * level in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MINIMUM_LOCAL_LEVEL =
+       "minimum-local-level";
+
+
+
+  /**
+   * The name of the field used to specify the minimum remote assurance
+   * level in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MINIMUM_REMOTE_LEVEL =
+       "minimum-remote-level";
+
+
+
+  /**
+   * The name of the field used to indicate whether to send the operation
+   * response immediately in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SEND_RESPONSE_IMMEDIATELY =
+       "send-response-immediately";
+
+
+
+  /**
+   * The name of the field used to specify the assurance timeout in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_TIMEOUT_MILLIS =
+       "timeout-millis";
 
 
 
@@ -700,6 +764,203 @@ public final class AssuredReplicationRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ASSURED_REPLICATION_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> jsonValueFields = new LinkedHashMap<>();
+
+    if (minimumLocalLevel != null)
+    {
+      jsonValueFields.put(JSON_FIELD_MINIMUM_LOCAL_LEVEL,
+           new JSONString(minimumLocalLevel.getName()));
+    }
+
+    if (maximumLocalLevel != null)
+    {
+      jsonValueFields.put(JSON_FIELD_MAXIMUM_LOCAL_LEVEL,
+           new JSONString(maximumLocalLevel.getName()));
+    }
+
+    if (minimumRemoteLevel != null)
+    {
+      jsonValueFields.put(JSON_FIELD_MINIMUM_REMOTE_LEVEL,
+           new JSONString(minimumRemoteLevel.getName()));
+    }
+
+    if (maximumRemoteLevel != null)
+    {
+      jsonValueFields.put(JSON_FIELD_MAXIMUM_REMOTE_LEVEL,
+           new JSONString(maximumRemoteLevel.getName()));
+    }
+
+    if (timeoutMillis != null)
+    {
+      jsonValueFields.put(JSON_FIELD_TIMEOUT_MILLIS,
+           new JSONNumber(timeoutMillis));
+    }
+
+    jsonValueFields.put(JSON_FIELD_SEND_RESPONSE_IMMEDIATELY,
+         new JSONBoolean(sendResponseImmediately));
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              ASSURED_REPLICATION_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_ASSURED_REPLICATION_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(jsonValueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * assured replication request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The assured replication control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid assured replication request control.
+   */
+  @NotNull()
+  public static AssuredReplicationRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new AssuredReplicationRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    AssuredReplicationLocalLevel minimumLocalLevel = null;
+    AssuredReplicationLocalLevel maximumLocalLevel = null;
+    AssuredReplicationRemoteLevel minimumRemoteLevel = null;
+    AssuredReplicationRemoteLevel maximumRemoteLevel = null;
+    Long timeoutMillis = null;
+    Boolean sendImmediately = null;
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String minLocalLevelStr =
+         valueObject.getFieldAsString(JSON_FIELD_MINIMUM_LOCAL_LEVEL);
+    if (minLocalLevelStr != null)
+    {
+      minimumLocalLevel =
+           AssuredReplicationLocalLevel.forName(minLocalLevelStr);
+      if (minimumLocalLevel == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_REQUEST_JSON_INVALID_MIN_LOCAL_LEVEL.get(
+                  controlObject.toSingleLineString(),
+                  minLocalLevelStr));
+      }
+    }
+
+    final String maxLocalLevelStr =
+         valueObject.getFieldAsString(JSON_FIELD_MAXIMUM_LOCAL_LEVEL);
+    if (maxLocalLevelStr != null)
+    {
+      maximumLocalLevel =
+           AssuredReplicationLocalLevel.forName(maxLocalLevelStr);
+      if (maximumLocalLevel == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_REQUEST_JSON_INVALID_MAX_LOCAL_LEVEL.get(
+                  controlObject.toSingleLineString(),
+                  maxLocalLevelStr));
+      }
+    }
+
+    final String minRemoteLevelStr =
+         valueObject.getFieldAsString(JSON_FIELD_MINIMUM_REMOTE_LEVEL);
+    if (minRemoteLevelStr != null)
+    {
+      minimumRemoteLevel =
+           AssuredReplicationRemoteLevel.forName(minRemoteLevelStr);
+      if (minimumRemoteLevel == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_REQUEST_JSON_INVALID_MIN_REMOTE_LEVEL.get(
+                  controlObject.toSingleLineString(),
+                  minRemoteLevelStr));
+      }
+    }
+
+    final String maxRemoteLevelStr =
+         valueObject.getFieldAsString(JSON_FIELD_MAXIMUM_REMOTE_LEVEL);
+    if (maxRemoteLevelStr != null)
+    {
+      maximumRemoteLevel =
+           AssuredReplicationRemoteLevel.forName(maxRemoteLevelStr);
+      if (maximumRemoteLevel == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_REQUEST_JSON_INVALID_MAX_REMOTE_LEVEL.get(
+                  controlObject.toSingleLineString(),
+                  maxRemoteLevelStr));
+      }
+    }
+
+    timeoutMillis = valueObject.getFieldAsLong(JSON_FIELD_TIMEOUT_MILLIS);
+
+    sendImmediately =
+         valueObject.getFieldAsBoolean(JSON_FIELD_SEND_RESPONSE_IMMEDIATELY);
+    if (sendImmediately == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSURED_REPLICATION_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SEND_RESPONSE_IMMEDIATELY));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_MINIMUM_LOCAL_LEVEL,
+                JSON_FIELD_MAXIMUM_LOCAL_LEVEL, JSON_FIELD_MINIMUM_REMOTE_LEVEL,
+                JSON_FIELD_MAXIMUM_REMOTE_LEVEL, JSON_FIELD_TIMEOUT_MILLIS,
+                JSON_FIELD_SEND_RESPONSE_IMMEDIATELY);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_REQUEST_JSON_CONTROL_UNRECOGNIZED_FIELD
+                  .get(controlObject.toSingleLineString(),
+                       unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new AssuredReplicationRequestControl(jsonControl.getCriticality(),
+         minimumLocalLevel, maximumLocalLevel, minimumRemoteLevel,
+         maximumRemoteLevel, timeoutMillis, sendImmediately);
   }
 
 

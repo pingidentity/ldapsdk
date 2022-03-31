@@ -38,11 +38,15 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -53,6 +57,10 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -147,6 +155,42 @@ public final class OperationPurposeRequestControl
    * The BER type for the element that specifies the request purpose.
    */
   private static final byte TYPE_REQUEST_PURPOSE = (byte) 0x83;
+
+
+
+  /**
+   * The name of the field used to hold the application name in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_APPLICATION_NAME =
+       "application-name";
+
+
+
+  /**
+   * The name of the field used to hold the application version in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_APPLICATION_VERSION =
+       "application-version";
+
+
+
+  /**
+   * The name of the field used to hold the code location in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CODE_LOCATION =
+       "code-location";
+
+
+
+  /**
+   * The name of the field used to hold the request purpose in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REQUEST_PURPOSE =
+       "request-purpose";
 
 
 
@@ -528,6 +572,132 @@ public final class OperationPurposeRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_OP_PURPOSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (applicationName != null)
+    {
+      valueFields.put(JSON_FIELD_APPLICATION_NAME,
+           new JSONString(applicationName));
+    }
+
+    if (applicationVersion != null)
+    {
+      valueFields.put(JSON_FIELD_APPLICATION_VERSION,
+           new JSONString(applicationVersion));
+    }
+
+    if (codeLocation != null)
+    {
+      valueFields.put(JSON_FIELD_CODE_LOCATION, new JSONString(codeLocation));
+    }
+
+    if (requestPurpose != null)
+    {
+      valueFields.put(JSON_FIELD_REQUEST_PURPOSE,
+           new JSONString(requestPurpose));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              OPERATION_PURPOSE_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_OP_PURPOSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * operation purpose request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The operation purpose request control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid operation purpose request control.
+   */
+  @NotNull()
+  public static OperationPurposeRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new OperationPurposeRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String applicationName =
+         valueObject.getFieldAsString(JSON_FIELD_APPLICATION_NAME);
+    final String applicationVersion =
+         valueObject.getFieldAsString(JSON_FIELD_APPLICATION_VERSION);
+    final String codeLocation =
+         valueObject.getFieldAsString(JSON_FIELD_CODE_LOCATION);
+    final String requestPurpose =
+         valueObject.getFieldAsString(JSON_FIELD_REQUEST_PURPOSE);
+
+    if ((applicationName == null) && (applicationVersion == null) &&
+         (codeLocation == null) && (requestPurpose == null))
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_OP_PURPOSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_APPLICATION_NAME,
+                JSON_FIELD_APPLICATION_VERSION, JSON_FIELD_CODE_LOCATION,
+                JSON_FIELD_REQUEST_PURPOSE));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_APPLICATION_NAME,
+                JSON_FIELD_APPLICATION_VERSION, JSON_FIELD_CODE_LOCATION,
+                JSON_FIELD_REQUEST_PURPOSE);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_OP_PURPOSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new OperationPurposeRequestControl(jsonControl.getCriticality(),
+         applicationName, applicationVersion, codeLocation, requestPurpose);
   }
 
 

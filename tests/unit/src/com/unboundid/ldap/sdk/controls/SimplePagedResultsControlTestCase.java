@@ -53,6 +53,9 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -225,8 +228,8 @@ public class SimplePagedResultsControlTestCase
     };
 
     SimplePagedResultsControl c =
-       new SimplePagedResultsControl("1.2.840.113556.1.4.319", false,
-                new ASN1OctetString(new ASN1Sequence(elements).encode()));
+       new SimplePagedResultsControl().decodeControl("1.2.840.113556.1.4.319",
+            false, new ASN1OctetString(new ASN1Sequence(elements).encode()));
 
     assertEquals(c.getSize(), 10);
 
@@ -533,5 +536,395 @@ public class SimplePagedResultsControlTestCase
          null, 10, 0, controls);
 
     SimplePagedResultsControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when no cookie is provided.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithoutCookie()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(0, false);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("size", 0)));
+
+
+    SimplePagedResultsControl decodedControl =
+         SimplePagedResultsControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 0);
+
+    assertEquals(decodedControl.getCookie().getValueLength(), 0);
+
+
+    decodedControl =
+         (SimplePagedResultsControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 0);
+
+    assertEquals(decodedControl.getCookie().getValueLength(), 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when an empty cookie is provided.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithEmptyCookie()
+          throws Exception
+  {
+    final SimplePagedResultsControl c =
+         new SimplePagedResultsControl(0, new ASN1OctetString(), true);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("size", 0)));
+
+
+    SimplePagedResultsControl decodedControl =
+         SimplePagedResultsControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 0);
+
+    assertEquals(decodedControl.getCookie().getValueLength(), 0);
+
+
+    decodedControl =
+         (SimplePagedResultsControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 0);
+
+    assertEquals(decodedControl.getCookie().getValueLength(), 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when a non-empty cookie is provided.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithNonEmptyCookie()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(1234,
+         new ASN1OctetString("cookie-value"), true);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("size", 1234),
+              new JSONField("cookie", Base64.encode("cookie-value"))));
+
+
+    SimplePagedResultsControl decodedControl =
+         SimplePagedResultsControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 1234);
+
+    assertEquals(decodedControl.getCookie().stringValue(), "cookie-value");
+
+
+    decodedControl =
+         (SimplePagedResultsControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 1234);
+
+    assertEquals(decodedControl.getCookie().stringValue(), "cookie-value");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(1234,
+         new ASN1OctetString("cookie-value"), true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    SimplePagedResultsControl decodedControl =
+         SimplePagedResultsControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 1234);
+
+    assertEquals(decodedControl.getCookie().stringValue(), "cookie-value");
+
+
+    decodedControl =
+         (SimplePagedResultsControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 1234);
+
+    assertEquals(decodedControl.getCookie().stringValue(), "cookie-value");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the size element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingSize()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(1234,
+         new ASN1OctetString("cookie-value"), true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("cookie", Base64.encode("cookie-value")))));
+
+    SimplePagedResultsControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a cookie value that is not base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueCookieNotBase64()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(1234,
+         new ASN1OctetString("cookie-value"), true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size", 1234),
+              new JSONField("cookie", "not valid base64"))));
+
+    SimplePagedResultsControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(1234,
+         new ASN1OctetString("cookie-value"), true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size", 1234),
+              new JSONField("cookie", Base64.encode("cookie-value")),
+              new JSONField("unrecognized", "foo"))));
+
+    SimplePagedResultsControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final SimplePagedResultsControl c = new SimplePagedResultsControl(1234,
+         new ASN1OctetString("cookie-value"), true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size", 1234),
+              new JSONField("cookie", Base64.encode("cookie-value")),
+              new JSONField("unrecognized", "foo"))));
+
+
+    SimplePagedResultsControl decodedControl =
+         SimplePagedResultsControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 1234);
+
+    assertEquals(decodedControl.getCookie().stringValue(), "cookie-value");
+
+
+    decodedControl =
+         (SimplePagedResultsControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSize(), 1234);
+
+    assertEquals(decodedControl.getCookie().stringValue(), "cookie-value");
   }
 }

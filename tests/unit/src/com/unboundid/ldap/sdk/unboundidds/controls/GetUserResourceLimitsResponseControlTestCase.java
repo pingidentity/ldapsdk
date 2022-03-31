@@ -50,6 +50,12 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -398,5 +404,966 @@ public final class GetUserResourceLimitsResponseControlTestCase
          null, null, controls);
 
     GetUserResourceLimitsResponseControl.get(bindResult);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when no values are specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoElements()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(null, null, null, null, null,
+              null,null, null, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         JSONObject.EMPTY_OBJECT);
+
+
+    GetUserResourceLimitsResponseControl decodedControl =
+         GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getSizeLimit());
+
+    assertNull(decodedControl.getTimeLimitSeconds());
+
+    assertNull(decodedControl.getIdleTimeLimitSeconds());
+
+    assertNull(decodedControl.getLookthroughLimit());
+
+    assertNull(decodedControl.getEquivalentAuthzUserDN());
+
+    assertNull(decodedControl.getClientConnectionPolicyName());
+
+    assertNull(decodedControl.getGroupDNs());
+
+    assertNull(decodedControl.getPrivilegeNames());
+
+    assertEquals(decodedControl.getOtherAttributes(), Collections.emptyList());
+
+
+    decodedControl =
+         (GetUserResourceLimitsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getSizeLimit());
+
+    assertNull(decodedControl.getTimeLimitSeconds());
+
+    assertNull(decodedControl.getIdleTimeLimitSeconds());
+
+    assertNull(decodedControl.getLookthroughLimit());
+
+    assertNull(decodedControl.getEquivalentAuthzUserDN());
+
+    assertNull(decodedControl.getClientConnectionPolicyName());
+
+    assertNull(decodedControl.getGroupDNs());
+
+    assertNull(decodedControl.getPrivilegeNames());
+
+    assertEquals(decodedControl.getOtherAttributes(), Collections.emptyList());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when all values are specified, but arrays are empty.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllElementsEmptyArrays()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Collections.<String>emptyList(), Collections.<String>emptyList(),
+              Collections.<Attribute>emptyList());
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", JSONArray.EMPTY_ARRAY),
+              new JSONField("privilege-names", JSONArray.EMPTY_ARRAY)));
+
+
+    GetUserResourceLimitsResponseControl decodedControl =
+         GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(), Collections.emptyList());
+
+    assertEquals(decodedControl.getPrivilegeNames(), Collections.emptyList());
+
+    assertEquals(decodedControl.getOtherAttributes(), Collections.emptyList());
+
+
+    decodedControl =
+         (GetUserResourceLimitsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(), Collections.emptyList());
+
+    assertEquals(decodedControl.getPrivilegeNames(), Collections.emptyList());
+
+    assertEquals(decodedControl.getOtherAttributes(), Collections.emptyList());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when all values are specified, and arrays are non-empty.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllElementsNonEmptyArrays()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value1"),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3"))))))));
+
+
+    GetUserResourceLimitsResponseControl decodedControl =
+         GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(),
+         Arrays.asList(
+              "cn=Group 1,ou=Groups,dc=example,dc=com",
+              "cn=Group 2,ou=Groups,dc=example,dc=com"));
+
+    assertEquals(decodedControl.getPrivilegeNames(),
+         Collections.singletonList("password-reset"));
+
+    assertEquals(decodedControl.getOtherAttributes(),
+         Arrays.asList(
+              new Attribute("attr1", "value1", "value2"),
+              new Attribute("attr2", "value3")));
+
+
+    decodedControl =
+         (GetUserResourceLimitsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(),
+         Arrays.asList(
+              "cn=Group 1,ou=Groups,dc=example,dc=com",
+              "cn=Group 2,ou=Groups,dc=example,dc=com"));
+
+    assertEquals(decodedControl.getPrivilegeNames(),
+         Collections.singletonList("password-reset"));
+
+    assertEquals(decodedControl.getOtherAttributes(),
+         Arrays.asList(
+              new Attribute("attr1", "value1", "value2"),
+              new Attribute("attr2", "value3")));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    GetUserResourceLimitsResponseControl decodedControl =
+         GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(),
+         Arrays.asList(
+              "cn=Group 1,ou=Groups,dc=example,dc=com",
+              "cn=Group 2,ou=Groups,dc=example,dc=com"));
+
+    assertEquals(decodedControl.getPrivilegeNames(),
+         Collections.singletonList("password-reset"));
+
+    assertEquals(decodedControl.getOtherAttributes(),
+         Arrays.asList(
+              new Attribute("attr1", "value1", "value2"),
+              new Attribute("attr2", "value3")));
+
+
+    decodedControl =
+         (GetUserResourceLimitsResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(),
+         Arrays.asList(
+              "cn=Group 1,ou=Groups,dc=example,dc=com",
+              "cn=Group 2,ou=Groups,dc=example,dc=com"));
+
+    assertEquals(decodedControl.getPrivilegeNames(),
+         Collections.singletonList("password-reset"));
+
+    assertEquals(decodedControl.getOtherAttributes(),
+         Arrays.asList(
+              new Attribute("attr1", "value1", "value2"),
+              new Attribute("attr2", "value3")));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains a group-dns value that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlGroupDNNotString()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONNumber(1234),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value1"),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains a privilege-names value that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlPrivilegeNameNotString()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONNumber(1234))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value1"),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains an other-attributes value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlOtherAttributeNameNotObject()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONString("foo"),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains an other-attributes value that is missing the name
+   * field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlOtherAttributeMissingName()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value1"),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains an other-attributes value that is missing the values
+   * field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlOtherAttributeMissingValues()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1")),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains an other-attributes value that has a values item that
+   * is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlOtherAttributeValueNotString()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1"),
+                        new JSONField("values", new JSONArray(
+                             new JSONNumber(1234),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value1"),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))),
+              new JSONField("unrecognized", "foo"))));
+
+    GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value contains an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final GetUserResourceLimitsResponseControl c =
+         new GetUserResourceLimitsResponseControl(12L, 34L, 56L, 78L,
+              "uid=authz-user,ou=People,dc=example,dc=com", "ccpName",
+              Arrays.asList(
+                   "cn=Group 1,ou=Groups,dc=example,dc=com",
+                   "cn=Group 2,ou=Groups,dc=example,dc=com"),
+              Collections.singletonList(
+                   "password-reset"),
+              Arrays.asList(
+                   new Attribute("attr1", "value1", "value2"),
+                   new Attribute("attr2", "value3")));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("size-limit", 12),
+              new JSONField("time-limit-seconds", 34),
+              new JSONField("idle-time-limit-seconds", 56),
+              new JSONField("lookthrough-limit", 78),
+              new JSONField("equivalent-authorization-user-dn",
+                   "uid=authz-user,ou=People,dc=example,dc=com"),
+              new JSONField("client-connection-policy-name", "ccpName"),
+              new JSONField("group-dns", new JSONArray(
+                   new JSONString("cn=Group 1,ou=Groups,dc=example,dc=com"),
+                   new JSONString("cn=Group 2,ou=Groups,dc=example,dc=com"))),
+              new JSONField("privilege-names", new JSONArray(
+                   new JSONString("password-reset"))),
+              new JSONField("other-attributes", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "attr1"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value1"),
+                             new JSONString("value2")))),
+                   new JSONObject(
+                        new JSONField("name", "attr2"),
+                        new JSONField("values", new JSONArray(
+                             new JSONString("value3")))))),
+              new JSONField("unrecognized", "foo"))));
+
+
+
+
+    GetUserResourceLimitsResponseControl decodedControl =
+         GetUserResourceLimitsResponseControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(),
+         Arrays.asList(
+              "cn=Group 1,ou=Groups,dc=example,dc=com",
+              "cn=Group 2,ou=Groups,dc=example,dc=com"));
+
+    assertEquals(decodedControl.getPrivilegeNames(),
+         Collections.singletonList("password-reset"));
+
+    assertEquals(decodedControl.getOtherAttributes(),
+         Arrays.asList(
+              new Attribute("attr1", "value1", "value2"),
+              new Attribute("attr2", "value3")));
+
+
+    decodedControl =
+         (GetUserResourceLimitsResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSizeLimit(), Long.valueOf(12L));
+
+    assertEquals(decodedControl.getTimeLimitSeconds(), Long.valueOf(34L));
+
+    assertEquals(decodedControl.getIdleTimeLimitSeconds(), Long.valueOf(56L));
+
+    assertEquals(decodedControl.getLookthroughLimit(), Long.valueOf(78L));
+
+    assertEquals(decodedControl.getEquivalentAuthzUserDN(),
+         "uid=authz-user,ou=People,dc=example,dc=com");
+
+    assertEquals(decodedControl.getClientConnectionPolicyName(), "ccpName");
+
+    assertEquals(decodedControl.getGroupDNs(),
+         Arrays.asList(
+              "cn=Group 1,ou=Groups,dc=example,dc=com",
+              "cn=Group 2,ou=Groups,dc=example,dc=com"));
+
+    assertEquals(decodedControl.getPrivilegeNames(),
+         Collections.singletonList("password-reset"));
+
+    assertEquals(decodedControl.getOtherAttributes(),
+         Arrays.asList(
+              new Attribute("attr1", "value1", "value2"),
+              new Attribute("attr2", "value3")));
   }
 }

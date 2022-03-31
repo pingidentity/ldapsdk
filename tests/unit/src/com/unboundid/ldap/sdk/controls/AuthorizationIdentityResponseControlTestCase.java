@@ -45,7 +45,10 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -146,6 +149,29 @@ public class AuthorizationIdentityResponseControlTestCase
     AuthorizationIdentityResponseControl c =
          new AuthorizationIdentityResponseControl("2.16.84.1.113730.3.4.15",
                   true, new ASN1OctetString(authzID));
+
+    assertTrue(c.isCritical());
+    assertEquals(c.getAuthorizationID(), authzID);
+    assertNotNull(c.getControlName());
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code decodeControl} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeControl()
+         throws Exception
+  {
+    String authzID = "dn:uid=test.user,ou=People,dc=example,dc=com";
+
+    AuthorizationIdentityResponseControl c =
+         new AuthorizationIdentityResponseControl().decodeControl(
+              "2.16.84.1.113730.3.4.15", true, new ASN1OctetString(authzID));
 
     assertTrue(c.isCritical());
     assertEquals(c.getAuthorizationID(), authzID);
@@ -271,5 +297,219 @@ public class AuthorizationIdentityResponseControlTestCase
          null, controls);
 
     AuthorizationIdentityResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final AuthorizationIdentityResponseControl c =
+         new AuthorizationIdentityResponseControl("u:jdoe");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 1);
+
+    assertEquals(valueObject.getFieldAsString("authorization-id"), "u:jdoe");
+
+
+    AuthorizationIdentityResponseControl decodedControl =
+         AuthorizationIdentityResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthorizationID(), "u:jdoe");
+
+
+    decodedControl =
+         (AuthorizationIdentityResponseControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthorizationID(), "u:jdoe");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object whose value is
+   * base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final AuthorizationIdentityResponseControl c =
+         new AuthorizationIdentityResponseControl("u:jdoe");
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    AuthorizationIdentityResponseControl decodedControl =
+         AuthorizationIdentityResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthorizationID(), "u:jdoe");
+
+
+    decodedControl =
+         (AuthorizationIdentityResponseControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthorizationID(), "u:jdoe");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object whose value is
+   * missing the authorization-id field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingAuthzID()
+          throws Exception
+  {
+    final AuthorizationIdentityResponseControl c =
+         new AuthorizationIdentityResponseControl("u:jdoe");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", JSONObject.EMPTY_OBJECT));
+
+    AuthorizationIdentityResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object whose value
+   * contains an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final AuthorizationIdentityResponseControl c =
+         new AuthorizationIdentityResponseControl("u:jdoe");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-id", "u:jdoe"),
+              new JSONField("unrecognized", "foo"))));
+
+    AuthorizationIdentityResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object whose value
+   * contains an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final AuthorizationIdentityResponseControl c =
+         new AuthorizationIdentityResponseControl("u:jdoe");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-id", "u:jdoe"),
+              new JSONField("unrecognized", "foo"))));
+
+    AuthorizationIdentityResponseControl decodedControl =
+         AuthorizationIdentityResponseControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthorizationID(), "u:jdoe");
+
+    decodedControl =
+         (AuthorizationIdentityResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthorizationID(), "u:jdoe");
   }
 }

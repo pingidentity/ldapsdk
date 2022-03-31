@@ -52,6 +52,7 @@ import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -64,6 +65,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -119,6 +125,24 @@ public final class GetBackendSetIDResponseControl
    */
   @NotNull public static final  String GET_BACKEND_SET_ID_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.34";
+
+
+
+  /**
+   * The name of the field used to specify backend set IDs in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_BACKEND_SET_IDS =
+       "backend-set-ids";
+
+
+
+  /**
+   * The name of the field used to specify the ID of the entry-balancing request
+   * processor in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REQUEST_PROCESSOR_ID =
+       "request-processor-id";
 
 
 
@@ -472,6 +496,133 @@ public final class GetBackendSetIDResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_BACKEND_SET_ID_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final List<JSONValue> backendSetIDValues = new ArrayList<>();
+    for (final String backendSetID : backendSetIDs)
+    {
+      backendSetIDValues.add(new JSONString(backendSetID));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_BACKEND_SET_ID_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_BACKEND_SET_ID_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField("request-processor-id",
+                        entryBalancingRequestProcessorID),
+                   new JSONField("backend-set-ids",
+                        new JSONArray(backendSetIDValues)))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * backend set ID response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get backend set ID response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get backend set ID response control.
+   */
+  @NotNull()
+  public static GetBackendSetIDResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetBackendSetIDResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String requestProcessorID =
+         valueObject.getFieldAsString(JSON_FIELD_REQUEST_PROCESSOR_ID);
+    if (requestProcessorID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_BACKEND_SET_ID_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_REQUEST_PROCESSOR_ID));
+    }
+
+    final List<JSONValue> backendSetIDValues =
+         valueObject.getFieldAsArray(JSON_FIELD_BACKEND_SET_IDS);
+    if (backendSetIDValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_BACKEND_SET_ID_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_BACKEND_SET_IDS));
+    }
+
+    final List<String> backendSetIDs =
+         new ArrayList<>(backendSetIDValues.size());
+    for (final JSONValue v : backendSetIDValues)
+    {
+      if (v instanceof JSONString)
+      {
+        backendSetIDs.add(((JSONString) v).stringValue());
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_BACKEND_SET_ID_RESPONSE_JSON_BACKEND_SET_ID_NOT_STRING.get(
+                  controlObject.getFields(), JSON_FIELD_BACKEND_SET_IDS));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_REQUEST_PROCESSOR_ID,
+                JSON_FIELD_BACKEND_SET_IDS);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_BACKEND_SET_ID_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetBackendSetIDResponseControl(requestProcessorID,
+         backendSetIDs);
   }
 
 

@@ -40,6 +40,8 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.asn1.ASN1Boolean;
@@ -52,6 +54,127 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
+import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
+import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
+import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
+import com.unboundid.ldap.sdk.controls.MatchedValuesRequestControl;
+import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
+import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
+import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
+import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
+import com.unboundid.ldap.sdk.controls.PostReadResponseControl;
+import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
+import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
+import com.unboundid.ldap.sdk.controls.ServerSideSortResponseControl;
+import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
+import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
+import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
+import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            AdministrativeOperationRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            AssuredReplicationRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            AssuredReplicationResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.ExcludeBranchRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            ExtendedSchemaInfoRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GeneratePasswordRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GeneratePasswordResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetAuthorizationEntryRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetAuthorizationEntryResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetBackendSetIDRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetBackendSetIDResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetEffectiveRightsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetPasswordPolicyStateIssuesRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetPasswordPolicyStateIssuesResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetRecentLoginHistoryRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetRecentLoginHistoryResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetUserResourceLimitsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetUserResourceLimitsResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.HardDeleteRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            IgnoreNoUserModificationRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            IntermediateClientRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            IntermediateClientResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JoinRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JoinResultControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            MatchingEntryCountRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            MatchingEntryCountResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            NameWithEntryUUIDRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.NoOpRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            OperationPurposeRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            OverrideSearchLimitsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordPolicyResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordUpdateBehaviorRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordValidationDetailsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordValidationDetailsResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PermitUnindexedSearchRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.PurgePasswordRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            RealAttributesOnlyRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            RejectUnindexedSearchRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            ReplicationRepairRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.RetainIdentityRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.RetirePasswordRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            ReturnConflictEntriesRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            RouteToBackendSetRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.RouteToServerRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            SoftDeletedEntryAccessRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            SuppressOperationalAttributeUpdateRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            SuppressReferentialIntegrityUpdatesRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UndeleteRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            UnsolicitedCancelResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            VirtualAttributesOnlyRequestControl;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
@@ -61,6 +184,10 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
@@ -771,6 +898,499 @@ public class Control
     // By default, we will return the OID.  Subclasses should override this to
     // provide the user-friendly name.
     return oid;
+  }
+
+
+
+  /**
+   * Retrieves a representation of this control as a JSON object.  The object
+   * will include an {@code oid} field with the object identifier and a
+   * {@code criticality} field with the criticality.  If the control has a
+   * value, then it will include a {@code value-base64} field with a
+   * base64-encoded representation of the value.  Subclasses may override this
+   * method to provide a control-specific encoding, and they may use the
+   * {@code value-json} field as an alternative to {@code value-base64} to
+   * provide a more user-friendly representation of the value.
+   *
+   * @return  A representation of this control as a JSON object.
+   */
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> fields = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(4));
+
+    fields.put(JSONControlDecodeHelper.JSON_FIELD_OID, new JSONString(oid));
+
+    final String name = getControlName();
+    if ((name != null) && (! name.equals(oid)))
+    {
+      fields.put(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+           new JSONString(name));
+    }
+
+    fields.put(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+         new JSONBoolean(isCritical));
+
+    if (value != null)
+    {
+      fields.put(JSONControlDecodeHelper.JSON_FIELD_VALUE_BASE64,
+           new JSONString(Base64.encode(value.getValue())));
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * control.  If the OID extracted from the provided JSON object matches the
+   * OID for a control with a known-supported encoding, then control-specific
+   * decoding will be used to allow for a more user-friendly version of the
+   * object (for example, with a value formatted as a JSON object rather than
+   * raw base64-encoded data).  If no specific support is available for the
+   * specified control, then a more generic decoding will be used, and only
+   * base64-encoded values will be supported.
+   *
+   * @param  controlObject     The JSON object to be decoded.  It must not be
+   *                           {@code null}.
+   * @param  strict            Indicates whether to use strict mode when
+   *                           decoding the provided JSON object.  If this is
+   *                           {@code true}, then this method will throw an
+   *                           exception if the provided JSON object contains
+   *                           any unrecognized fields, and potentially if any
+   *                           other constraints are violated.  If this is
+   *                           {@code false}, then unrecognized fields will be
+   *                           ignored, and potentially other lenient parsing
+   *                           will be used.
+   * @param  isRequestControl  Indicates whether the provided JSON object
+   *                           represents a request control (if {@code true})
+   *                           rather than a response control
+   *                           (if {@code false}).  This will be used in cases
+   *                           where both a request and response control of the
+   *                           same type share the same OID.
+   *
+   * @return  The control that was decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid control.
+   */
+  @NotNull()
+  public static Control decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict,
+              final boolean isRequestControl)
+         throws LDAPException
+  {
+    final String oid = controlObject.getFieldAsString(
+         JSONControlDecodeHelper.JSON_FIELD_OID);
+    if (oid == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_CONTROL_JSON_OBJECT_MISSING_OID.get(
+                controlObject.toSingleLineString(),
+                JSONControlDecodeHelper.JSON_FIELD_OID));
+    }
+
+    switch (oid)
+    {
+      // NOTE:  The account usable request and response controls use the same
+      // OID.
+      case AccountUsableRequestControl.ACCOUNT_USABLE_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return AccountUsableRequestControl.decodeJSONControl(
+               controlObject, strict);
+        }
+        else
+        {
+          return AccountUsableResponseControl.decodeJSONControl(
+               controlObject, strict);
+        }
+
+      case AdministrativeOperationRequestControl.
+           ADMINISTRATIVE_OPERATION_REQUEST_OID:
+        return AdministrativeOperationRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case AssertionRequestControl.ASSERTION_REQUEST_OID:
+        return AssertionRequestControl.decodeJSONControl(controlObject, strict);
+
+      case AssuredReplicationRequestControl.ASSURED_REPLICATION_REQUEST_OID:
+        return AssuredReplicationRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case AssuredReplicationResponseControl.ASSURED_REPLICATION_RESPONSE_OID:
+        return AssuredReplicationResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case AuthorizationIdentityRequestControl.
+           AUTHORIZATION_IDENTITY_REQUEST_OID:
+        return AuthorizationIdentityRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case AuthorizationIdentityResponseControl.
+           AUTHORIZATION_IDENTITY_RESPONSE_OID:
+        return AuthorizationIdentityResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID:
+        return DraftLDUPSubentriesRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ExcludeBranchRequestControl.EXCLUDE_BRANCH_REQUEST_OID:
+        return ExcludeBranchRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ExtendedSchemaInfoRequestControl.EXTENDED_SCHEMA_INFO_REQUEST_OID:
+        return ExtendedSchemaInfoRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GeneratePasswordRequestControl.GENERATE_PASSWORD_REQUEST_OID:
+        return GeneratePasswordRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GeneratePasswordResponseControl.GENERATE_PASSWORD_RESPONSE_OID:
+        return GeneratePasswordResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      // NOTE:  The get authorization entry request and response controls use
+      // the same OID.
+      case GetAuthorizationEntryRequestControl.
+           GET_AUTHORIZATION_ENTRY_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return GetAuthorizationEntryRequestControl.decodeJSONControl(
+               controlObject, strict);
+        }
+        else
+        {
+          return GetAuthorizationEntryResponseControl.decodeJSONControl(
+               controlObject, strict);
+        }
+
+      case GetBackendSetIDRequestControl.GET_BACKEND_SET_ID_REQUEST_OID:
+        return GetBackendSetIDRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetBackendSetIDResponseControl.GET_BACKEND_SET_ID_RESPONSE_OID:
+        return GetBackendSetIDResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetEffectiveRightsRequestControl.GET_EFFECTIVE_RIGHTS_REQUEST_OID:
+        return GetEffectiveRightsRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetPasswordPolicyStateIssuesRequestControl.
+           GET_PASSWORD_POLICY_STATE_ISSUES_REQUEST_OID:
+        return GetPasswordPolicyStateIssuesRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetPasswordPolicyStateIssuesResponseControl.
+           GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID:
+        return GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetRecentLoginHistoryRequestControl.
+           GET_RECENT_LOGIN_HISTORY_REQUEST_OID:
+        return GetRecentLoginHistoryRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetRecentLoginHistoryResponseControl.
+           GET_RECENT_LOGIN_HISTORY_RESPONSE_OID:
+        return GetRecentLoginHistoryResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetServerIDRequestControl.GET_SERVER_ID_REQUEST_OID:
+        return GetServerIDRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID:
+        return GetServerIDResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetUserResourceLimitsRequestControl.
+           GET_USER_RESOURCE_LIMITS_REQUEST_OID:
+        return GetUserResourceLimitsRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GetUserResourceLimitsResponseControl.
+           GET_USER_RESOURCE_LIMITS_RESPONSE_OID:
+        return GetUserResourceLimitsResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case HardDeleteRequestControl.HARD_DELETE_REQUEST_OID:
+        return HardDeleteRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case IgnoreNoUserModificationRequestControl.
+           IGNORE_NO_USER_MODIFICATION_REQUEST_OID:
+        return IgnoreNoUserModificationRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      // NOTE:  The intermediate client request and response controls use the
+      // same OID.
+      case IntermediateClientRequestControl.INTERMEDIATE_CLIENT_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return IntermediateClientRequestControl.decodeJSONControl(
+               controlObject, strict);
+        }
+        else
+        {
+          return IntermediateClientResponseControl.decodeJSONControl(
+               controlObject, strict);
+        }
+
+      // NOTE:  The join request and result controls use the same OID.
+      case JoinRequestControl.JOIN_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return JoinRequestControl.decodeJSONControl(controlObject, strict);
+        }
+        else
+        {
+          return JoinResultControl.decodeJSONControl(controlObject, strict);
+        }
+
+      case ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID:
+        return ManageDsaITRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case MatchedValuesRequestControl.MATCHED_VALUES_REQUEST_OID:
+        return MatchedValuesRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case MatchingEntryCountRequestControl.MATCHING_ENTRY_COUNT_REQUEST_OID:
+        return MatchingEntryCountRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case MatchingEntryCountResponseControl.MATCHING_ENTRY_COUNT_RESPONSE_OID:
+        return MatchingEntryCountResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case NameWithEntryUUIDRequestControl.NAME_WITH_ENTRY_UUID_REQUEST_OID:
+        return NameWithEntryUUIDRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case NoOpRequestControl.NO_OP_REQUEST_OID:
+        return NoOpRequestControl.decodeJSONControl(controlObject, strict);
+
+      case OperationPurposeRequestControl.OPERATION_PURPOSE_REQUEST_OID:
+        return OperationPurposeRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case OverrideSearchLimitsRequestControl.
+           OVERRIDE_SEARCH_LIMITS_REQUEST_OID:
+        return OverrideSearchLimitsRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case PasswordExpiredControl.PASSWORD_EXPIRED_OID:
+        return PasswordExpiredControl.decodeJSONControl(controlObject, strict);
+
+      case PasswordExpiringControl.PASSWORD_EXPIRING_OID:
+        return PasswordExpiringControl.decodeJSONControl(controlObject, strict);
+
+      // NOTE:  The password policy request and result controls use the same
+      // OID.
+      case PasswordPolicyRequestControl.PASSWORD_POLICY_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return PasswordPolicyRequestControl.decodeJSONControl(
+               controlObject, strict);
+        }
+        else
+        {
+          return PasswordPolicyResponseControl.decodeJSONControl(
+               controlObject, strict);
+        }
+
+      case PasswordUpdateBehaviorRequestControl.
+           PASSWORD_UPDATE_BEHAVIOR_REQUEST_OID:
+        return PasswordUpdateBehaviorRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case PasswordValidationDetailsRequestControl.
+           PASSWORD_VALIDATION_DETAILS_REQUEST_OID:
+        return PasswordValidationDetailsRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case PasswordValidationDetailsResponseControl.
+           PASSWORD_VALIDATION_DETAILS_RESPONSE_OID:
+        return PasswordValidationDetailsResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID:
+        return PermissiveModifyRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case PermitUnindexedSearchRequestControl.
+           PERMIT_UNINDEXED_SEARCH_REQUEST_OID:
+        return PermitUnindexedSearchRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      // NOTE:  The post-read request and result controls use the same OID.
+      case PostReadRequestControl.POST_READ_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return PostReadRequestControl.decodeJSONControl(
+               controlObject, strict);
+        }
+        else
+        {
+          return PostReadResponseControl.decodeJSONControl(
+               controlObject, strict);
+        }
+
+      // NOTE:  The pre-read request and result controls use the same OID.
+      case PreReadRequestControl.PRE_READ_REQUEST_OID:
+        if (isRequestControl)
+        {
+          return PreReadRequestControl.decodeJSONControl(
+               controlObject, strict);
+        }
+        else
+        {
+          return PreReadResponseControl.decodeJSONControl(
+               controlObject, strict);
+        }
+
+      case ProxiedAuthorizationV1RequestControl.
+           PROXIED_AUTHORIZATION_V1_REQUEST_OID:
+        return ProxiedAuthorizationV1RequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ProxiedAuthorizationV2RequestControl.
+           PROXIED_AUTHORIZATION_V2_REQUEST_OID:
+        return ProxiedAuthorizationV2RequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case PurgePasswordRequestControl.PURGE_PASSWORD_REQUEST_OID:
+        return PurgePasswordRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case RealAttributesOnlyRequestControl.REAL_ATTRIBUTES_ONLY_REQUEST_OID:
+        return RealAttributesOnlyRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case RejectUnindexedSearchRequestControl.
+           REJECT_UNINDEXED_SEARCH_REQUEST_OID:
+        return RejectUnindexedSearchRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ReplicationRepairRequestControl.REPLICATION_REPAIR_REQUEST_OID:
+        return ReplicationRepairRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case RetainIdentityRequestControl.RETAIN_IDENTITY_REQUEST_OID:
+        return RetainIdentityRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case RetirePasswordRequestControl.RETIRE_PASSWORD_REQUEST_OID:
+        return RetirePasswordRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ReturnConflictEntriesRequestControl.
+           RETURN_CONFLICT_ENTRIES_REQUEST_OID:
+        return ReturnConflictEntriesRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case RouteToBackendSetRequestControl.ROUTE_TO_BACKEND_SET_REQUEST_OID:
+        return RouteToBackendSetRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case RouteToServerRequestControl.ROUTE_TO_SERVER_REQUEST_OID:
+        return RouteToServerRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID:
+        return ServerSideSortRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case ServerSideSortResponseControl.SERVER_SIDE_SORT_RESPONSE_OID:
+        return ServerSideSortResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case SimplePagedResultsControl.PAGED_RESULTS_OID:
+        return SimplePagedResultsControl.decodeJSONControl(
+             controlObject, strict);
+
+      case SoftDeletedEntryAccessRequestControl.
+           SOFT_DELETED_ENTRY_ACCESS_REQUEST_OID:
+        return SoftDeletedEntryAccessRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case SoftDeleteRequestControl.SOFT_DELETE_REQUEST_OID:
+        return SoftDeleteRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case SoftDeleteResponseControl.SOFT_DELETE_RESPONSE_OID:
+        return SoftDeleteResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID:
+        return SubtreeDeleteRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case SuppressOperationalAttributeUpdateRequestControl.
+           SUPPRESS_OP_ATTR_UPDATE_REQUEST_OID:
+        return SuppressOperationalAttributeUpdateRequestControl.
+             decodeJSONControl(controlObject, strict);
+
+      case SuppressReferentialIntegrityUpdatesRequestControl.
+           SUPPRESS_REFINT_REQUEST_OID:
+        return SuppressReferentialIntegrityUpdatesRequestControl.
+             decodeJSONControl(controlObject, strict);
+
+      case UndeleteRequestControl.UNDELETE_REQUEST_OID:
+        return UndeleteRequestControl.decodeJSONControl(controlObject, strict);
+
+      case UniquenessRequestControl.UNIQUENESS_REQUEST_OID:
+        return UniquenessRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case UniquenessResponseControl.UNIQUENESS_RESPONSE_OID:
+        return UniquenessResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case UnsolicitedCancelResponseControl.UNSOLICITED_CANCEL_RESPONSE_OID:
+        return UnsolicitedCancelResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case VirtualAttributesOnlyRequestControl.
+           VIRTUAL_ATTRIBUTES_ONLY_REQUEST_OID:
+        return VirtualAttributesOnlyRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID:
+        return VirtualListViewRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case VirtualListViewResponseControl.VIRTUAL_LIST_VIEW_RESPONSE_OID:
+        return VirtualListViewResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      default:
+        // The OID doesn't match that of a control for which we provide specific
+        // JSON support.  Treat it as a generic control.  Note that we can't
+        // support the JSON representation of the control value.
+        final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+             controlObject, strict, true, false);
+        if (jsonControl.getValueObject() != null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_CONTROL_JSON_UNABLE_TO_SUPPORT_VALUE_JSON.get(
+                    controlObject.toSingleLineString(),
+                    JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON, oid,
+                    JSONControlDecodeHelper.JSON_FIELD_VALUE_BASE64));
+        }
+        else
+        {
+          return new Control(jsonControl.getOID(), jsonControl.getCriticality(),
+               jsonControl.getRawValue());
+        }
+    }
   }
 
 

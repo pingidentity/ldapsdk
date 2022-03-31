@@ -40,7 +40,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Long;
@@ -51,6 +53,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -60,6 +63,12 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -180,6 +189,102 @@ public final class GetUserResourceLimitsResponseControl
    * that may be included in the future.
    */
   private static final byte TYPE_OTHER_ATTRIBUTES = (byte) 0xA8;
+
+
+
+  /**
+   * The name of the field used to hold an attribute name in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ATTRIBUTE_NAME = "name";
+
+
+
+  /**
+   * The name of the field used to hold the set of attribute values in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ATTRIBUTE_VALUES = "values";
+
+
+
+  /**
+   * The name of the field used to hold the client connection policy name in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_CLIENT_CONNECTION_POLICY_NAME =
+            "client-connection-policy-name";
+
+
+
+  /**
+   * The name of the field used to hold the equivalent authorization user DN in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_EQUIVALENT_AUTHZ_USER_DN =
+       "equivalent-authorization-user-dn";
+
+
+
+  /**
+   * The name of the field used to hold the group DNs in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_FIELD_GROUP_DNS = "group-dns";
+
+
+
+  /**
+   * The name of the field used to hold the idle time limit in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_IDLE_TIME_LIMIT_SECONDS =
+       "idle-time-limit-seconds";
+
+
+
+  /**
+   * The name of the field used to hold the search lookthrough limit in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_LOOKTHROUGH_LIMIT =
+       "lookthrough-limit";
+
+
+
+  /**
+   * The name of the field used to hold other attributes in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_OTHER_ATTRIBUTES =
+       "other-attributes";
+
+
+
+  /**
+   * The name of the field used to hold the privilege names in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PRIVILEGE_NAMES =
+       "privilege-names";
+
+
+
+  /**
+   * The name of the field used to hold the search size limit in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SIZE_LIMIT = "size-limit";
+
+
+
+  /**
+   * The name of the field used to hold the search time limit in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_TIME_LIMIT_SECONDS =
+       "time-limit-seconds";
 
 
 
@@ -968,6 +1073,306 @@ public final class GetUserResourceLimitsResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_USER_RESOURCE_LIMITS_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (sizeLimit != null)
+    {
+      valueFields.put(JSON_FIELD_SIZE_LIMIT, new JSONNumber(sizeLimit));
+    }
+
+    if (timeLimitSeconds != null)
+    {
+      valueFields.put(JSON_FIELD_TIME_LIMIT_SECONDS,
+           new JSONNumber(timeLimitSeconds));
+    }
+
+    if (idleTimeLimitSeconds != null)
+    {
+      valueFields.put(JSON_FIELD_IDLE_TIME_LIMIT_SECONDS,
+           new JSONNumber(idleTimeLimitSeconds));
+    }
+
+    if (lookthroughLimit != null)
+    {
+      valueFields.put(JSON_FIELD_LOOKTHROUGH_LIMIT,
+           new JSONNumber(lookthroughLimit));
+    }
+
+    if (equivalentAuthzUserDN != null)
+    {
+      valueFields.put(JSON_FIELD_EQUIVALENT_AUTHZ_USER_DN,
+           new JSONString(equivalentAuthzUserDN));
+    }
+
+    if (clientConnectionPolicyName != null)
+    {
+      valueFields.put(JSON_FIELD_CLIENT_CONNECTION_POLICY_NAME,
+           new JSONString(clientConnectionPolicyName));
+    }
+
+    if (groupDNs != null)
+    {
+      final List<JSONValue> groupDNValues = new ArrayList<>(groupDNs.size());
+      for (final String groupDN : groupDNs)
+      {
+        groupDNValues.add(new JSONString(groupDN));
+      }
+
+      valueFields.put(JSON_FIELD_GROUP_DNS, new JSONArray(groupDNValues));
+    }
+
+    if (privilegeNames != null)
+    {
+      final List<JSONValue> privilegeNameValues =
+           new ArrayList<>(privilegeNames.size());
+      for (final String privilegeName : privilegeNames)
+      {
+        privilegeNameValues.add(new JSONString(privilegeName));
+      }
+
+      valueFields.put(JSON_FIELD_PRIVILEGE_NAMES,
+           new JSONArray(privilegeNameValues));
+    }
+
+    if ((otherAttributes != null) && (! otherAttributes.isEmpty()))
+    {
+      final List<JSONValue> otherAttributesValues =
+           new ArrayList<>(otherAttributes.size());
+      for (final Attribute a : otherAttributes)
+      {
+        final List<JSONValue> attributeValues = new ArrayList<>(a.size());
+        for (final String value : a.getValues())
+        {
+          attributeValues.add(new JSONString(value));
+        }
+
+        otherAttributesValues.add(new JSONObject(
+             new JSONField(JSON_FIELD_ATTRIBUTE_NAME, a.getName()),
+             new JSONField(JSON_FIELD_ATTRIBUTE_VALUES,
+                  new JSONArray(attributeValues))));
+      }
+
+      valueFields.put(JSON_FIELD_OTHER_ATTRIBUTES,
+           new JSONArray(otherAttributesValues));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_USER_RESOURCE_LIMITS_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_USER_RESOURCE_LIMITS_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * user resource limits response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get user resource limits response control that was decoded
+   *          from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get user resource limits response control.
+   */
+  @NotNull()
+  public static GetUserResourceLimitsResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetUserResourceLimitsResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Long sizeLimit = valueObject.getFieldAsLong(JSON_FIELD_SIZE_LIMIT);
+    final Long timeLimitSeconds =
+         valueObject.getFieldAsLong(JSON_FIELD_TIME_LIMIT_SECONDS);
+    final Long idleTimeLimitSeconds =
+         valueObject.getFieldAsLong(JSON_FIELD_IDLE_TIME_LIMIT_SECONDS);
+    final Long lookthroughLimit =
+         valueObject.getFieldAsLong(JSON_FIELD_LOOKTHROUGH_LIMIT);
+    final String equivalentAuthZUserDN =
+         valueObject.getFieldAsString(JSON_FIELD_EQUIVALENT_AUTHZ_USER_DN);
+    final String clientConnectionPolicyName =
+         valueObject.getFieldAsString(JSON_FIELD_CLIENT_CONNECTION_POLICY_NAME);
+
+    final List<String> groupDNs;
+    final List<JSONValue> groupDNValues =
+         valueObject.getFieldAsArray(JSON_FIELD_GROUP_DNS);
+    if (groupDNValues == null)
+    {
+      groupDNs = null;
+    }
+    else
+    {
+      groupDNs = new ArrayList<>(groupDNValues.size());
+      for (final JSONValue v : groupDNValues)
+      {
+        if (v instanceof JSONString)
+        {
+          groupDNs.add(((JSONString) v).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_ARRAY_VALUE_NOT_STRING
+                    .get(controlObject.toSingleLineString(),
+                         JSON_FIELD_GROUP_DNS));
+        }
+      }
+    }
+
+    final List<String> privilegeNames;
+    final List<JSONValue> privilegeNameValues =
+         valueObject.getFieldAsArray(JSON_FIELD_PRIVILEGE_NAMES);
+    if (privilegeNameValues == null)
+    {
+      privilegeNames = null;
+    }
+    else
+    {
+      privilegeNames = new ArrayList<>(privilegeNameValues.size());
+      for (final JSONValue v : privilegeNameValues)
+      {
+        if (v instanceof JSONString)
+        {
+          privilegeNames.add(((JSONString) v).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_ARRAY_VALUE_NOT_STRING
+                    .get(controlObject.toSingleLineString(),
+                         JSON_FIELD_PRIVILEGE_NAMES));
+        }
+      }
+    }
+
+
+    final List<Attribute> otherAttributes = new ArrayList<>();
+    final List<JSONValue> otherAttributeValues =
+         valueObject.getFieldAsArray(JSON_FIELD_OTHER_ATTRIBUTES);
+    if (otherAttributeValues != null)
+    {
+      for (final JSONValue otherAttributeValue : otherAttributeValues)
+      {
+        if (otherAttributeValue instanceof JSONObject)
+        {
+          final JSONObject o = (JSONObject) otherAttributeValue;
+
+          final String name = o.getFieldAsString(JSON_FIELD_ATTRIBUTE_NAME);
+          if (name == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_MISSING_ATTR_FIELD.
+                      get(controlObject.toSingleLineString(),
+                           JSON_FIELD_OTHER_ATTRIBUTES,
+                           JSON_FIELD_ATTRIBUTE_NAME));
+          }
+
+          final List<JSONValue> valueValues =
+               o.getFieldAsArray(JSON_FIELD_ATTRIBUTE_VALUES);
+          if (valueValues == null)
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_MISSING_ATTR_FIELD.
+                      get(controlObject.toSingleLineString(),
+                           JSON_FIELD_OTHER_ATTRIBUTES,
+                           JSON_FIELD_ATTRIBUTE_VALUES));
+          }
+
+          final List<String> values = new ArrayList<>(valueValues.size());
+          for (final JSONValue v : valueValues)
+          {
+            if (v instanceof JSONString)
+            {
+              values.add(((JSONString) v).stringValue());
+            }
+            else
+            {
+              throw new LDAPException(ResultCode.DECODING_ERROR,
+                   ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_VALUE_NOT_STRING.
+                        get(controlObject.toSingleLineString(),
+                             JSON_FIELD_OTHER_ATTRIBUTES,
+                             JSON_FIELD_ATTRIBUTE_VALUES));
+            }
+          }
+
+          otherAttributes.add(new Attribute(name, values));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_ATTR_NOT_OBJECT.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_OTHER_ATTRIBUTES));
+        }
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SIZE_LIMIT,
+                JSON_FIELD_TIME_LIMIT_SECONDS,
+                JSON_FIELD_IDLE_TIME_LIMIT_SECONDS,
+                JSON_FIELD_TIME_LIMIT_SECONDS,
+                JSON_FIELD_LOOKTHROUGH_LIMIT,
+                JSON_FIELD_EQUIVALENT_AUTHZ_USER_DN,
+                JSON_FIELD_CLIENT_CONNECTION_POLICY_NAME,
+                JSON_FIELD_GROUP_DNS,
+                JSON_FIELD_PRIVILEGE_NAMES,
+                JSON_FIELD_OTHER_ATTRIBUTES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_USER_RESOURCE_LIMITS_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetUserResourceLimitsResponseControl(sizeLimit,
+         timeLimitSeconds, idleTimeLimitSeconds, lookthroughLimit,
+         equivalentAuthZUserDN, clientConnectionPolicyName, groupDNs,
+         privilegeNames, otherAttributes);
   }
 
 

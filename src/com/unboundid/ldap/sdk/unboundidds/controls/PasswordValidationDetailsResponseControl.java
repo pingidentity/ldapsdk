@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -51,9 +53,11 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.unboundidds.extensions.PasswordQualityRequirement;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -61,6 +65,13 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -134,6 +145,158 @@ public final class PasswordValidationDetailsResponseControl
    * The BER type for the seconds until expiration element.
    */
   private static final byte TYPE_SECONDS_UNTIL_EXPIRATION = (byte) 0x85;
+
+
+
+  /**
+   * The name of the field used to hold an additional information string in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_ADDITIONAL_INFORMATION = "additional-information";
+
+
+
+  /**
+   * The name of the field used to hold the set of client-side validation
+   * properties in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES =
+            "client-side-validation-properties";
+
+
+
+  /**
+   * The name of the field used to hold a client-side validation type in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CLIENT_SIDE_VALIDATION_TYPE =
+       "client-side-validation-type";
+
+
+
+  /**
+   * The name of the field used to hold a description in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_FIELD_DESCRIPTION = "description";
+
+
+
+  /**
+   * The name of the field used to hold the missing current password flag in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MISSING_CURRENT_PASSWORD =
+       "missing-current-password";
+
+
+
+  /**
+   * The name of the field used to hold the must change password flag in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MUST_CHANGE_PASSWORD =
+       "must-change-password";
+
+
+
+  /**
+   * The name of the field used to hold a password quality requirement in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT =
+       "password-quality-requirement";
+
+
+
+  /**
+   * The name of the field used to hold a property name in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PROPERTY_NAME = "name";
+
+
+
+  /**
+   * The name of the field used to hold a property value in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PROPERTY_VALUE = "value";
+
+
+
+  /**
+   * The name of the field used to indicate whether a password quality
+   * requirement was satisfied in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REQUIREMENT_SATISFIED =
+       "requirement-satisfied";
+
+
+
+  /**
+   * The name of the field used to hold the response type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_RESPONSE_TYPE =
+       "response-type";
+
+
+
+  /**
+   * The name of the field used to hold the seconds until expiration in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SECONDS_UNTIL_EXPIRATION =
+       "seconds-until-expiration";
+
+
+
+  /**
+   * The name of the field used to hold validation details objects in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_VALIDATION_DETAILS =
+       "validation-details";
+
+
+
+  /**
+   * The multiple-passwords-provided response type value in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String
+       JSON_RESPONSE_TYPE_MULTIPLE_PASSWORDS_PROVIDED =
+            "multiple-passwords-provided";
+
+
+
+  /**
+   * The no-password-provided response type value in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String JSON_RESPONSE_TYPE_NO_PASSWORD_PROVIDED =
+       "no-password-provided";
+
+
+
+  /**
+   * The no-validation-attempted response type value in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String
+       JSON_RESPONSE_TYPE_NO_VALIDATION_ATTEMPTED = "no-validation-attempted";
+
+
+
+  /**
+   * The validation-performed response type value in the JSON representation of
+   * this control.
+   */
+  @NotNull private static final String JSON_RESPONSE_TYPE_VALIDATION_PERFORMED =
+       "validation-performed";
 
 
 
@@ -624,6 +787,462 @@ public final class PasswordValidationDetailsResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_VALIDATION_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    switch (responseType)
+    {
+      case VALIDATION_DETAILS:
+        valueFields.put(JSON_FIELD_RESPONSE_TYPE,
+             new JSONString(JSON_RESPONSE_TYPE_VALIDATION_PERFORMED));
+
+        final List<JSONValue> validationDetailsValues =
+             new ArrayList<>(validationResults.size());
+        for (final PasswordQualityRequirementValidationResult result :
+             validationResults)
+        {
+          validationDetailsValues.add(encodeValidationResultJSON(result));
+        }
+        valueFields.put(JSON_FIELD_VALIDATION_DETAILS,
+        new JSONArray(validationDetailsValues));
+        break;
+
+      case NO_PASSWORD_PROVIDED:
+        valueFields.put(JSON_FIELD_RESPONSE_TYPE,
+             new JSONString(JSON_RESPONSE_TYPE_NO_PASSWORD_PROVIDED));
+        break;
+
+      case MULTIPLE_PASSWORDS_PROVIDED:
+        valueFields.put(JSON_FIELD_RESPONSE_TYPE,
+             new JSONString(JSON_RESPONSE_TYPE_MULTIPLE_PASSWORDS_PROVIDED));
+        break;
+
+      case NO_VALIDATION_ATTEMPTED:
+        valueFields.put(JSON_FIELD_RESPONSE_TYPE,
+             new JSONString(JSON_RESPONSE_TYPE_NO_VALIDATION_ATTEMPTED));
+        break;
+    }
+
+    valueFields.put(JSON_FIELD_MISSING_CURRENT_PASSWORD,
+         new JSONBoolean(missingCurrentPassword));
+
+    valueFields.put(JSON_FIELD_MUST_CHANGE_PASSWORD,
+         new JSONBoolean(mustChangePassword));
+
+    if (secondsUntilExpiration != null)
+    {
+      valueFields.put(JSON_FIELD_SECONDS_UNTIL_EXPIRATION,
+           new JSONNumber(secondsUntilExpiration));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PASSWORD_VALIDATION_DETAILS_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PW_VALIDATION_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Encodes the provided password quality requirement validation result to a
+   * JSON object.
+   *
+   * @param  result  The result to be encoded.  It must not be {@code null}.
+   *
+   * @return  A JSON object containing the encoded result.
+   */
+  @NotNull()
+  private static JSONObject encodeValidationResultJSON(
+               @NotNull final PasswordQualityRequirementValidationResult result)
+  {
+    final PasswordQualityRequirement requirement =
+         result.getPasswordRequirement();
+    final Map<String,JSONValue> requirementFields = new LinkedHashMap<>();
+
+    requirementFields.put(JSON_FIELD_DESCRIPTION,
+         new JSONString(requirement.getDescription()));
+
+    final String clientSideValidationType =
+         requirement.getClientSideValidationType();
+    if (clientSideValidationType != null)
+    {
+      requirementFields.put(JSON_FIELD_CLIENT_SIDE_VALIDATION_TYPE,
+           new JSONString(clientSideValidationType));
+    }
+
+    final Map<String,String> clientSideValidationProperties =
+         requirement.getClientSideValidationProperties();
+    if (! clientSideValidationProperties.isEmpty())
+    {
+      final List<JSONValue> propertyValues =
+           new ArrayList<>(clientSideValidationProperties.size());
+      for (final Map.Entry<String,String> e :
+           clientSideValidationProperties.entrySet())
+      {
+        propertyValues.add(new JSONObject(
+             new JSONField(JSON_FIELD_PROPERTY_NAME, e.getKey()),
+             new JSONField(JSON_FIELD_PROPERTY_VALUE, e.getValue())));
+      }
+
+      requirementFields.put(JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES,
+           new JSONArray(propertyValues));
+    }
+
+
+    final Map<String,JSONValue> detailsFields = new LinkedHashMap<>();
+
+    detailsFields.put(JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+         new JSONObject(requirementFields));
+
+    detailsFields.put(JSON_FIELD_REQUIREMENT_SATISFIED,
+         new JSONBoolean(result.requirementSatisfied()));
+
+    final String additionalInformation = result.getAdditionalInfo();
+    if (additionalInformation != null)
+    {
+      detailsFields.put(JSON_FIELD_ADDITIONAL_INFORMATION,
+           new JSONString(additionalInformation));
+    }
+
+    return new JSONObject(detailsFields);
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * password validation details response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The password validation details response control that was decoded
+   *          from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid password validation details response control.
+   */
+  @NotNull()
+  public static PasswordValidationDetailsResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new PasswordValidationDetailsResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String responseTypeStr =
+         valueObject.getFieldAsString(JSON_FIELD_RESPONSE_TYPE);
+    if (responseTypeStr == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_VALUE_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_RESPONSE_TYPE));
+    }
+
+    final PasswordValidationDetailsResponseType responseType;
+    switch (responseTypeStr)
+    {
+      case JSON_RESPONSE_TYPE_VALIDATION_PERFORMED:
+        responseType = PasswordValidationDetailsResponseType.VALIDATION_DETAILS;
+        break;
+      case JSON_RESPONSE_TYPE_NO_PASSWORD_PROVIDED:
+        responseType =
+             PasswordValidationDetailsResponseType.NO_PASSWORD_PROVIDED;
+        break;
+      case JSON_RESPONSE_TYPE_MULTIPLE_PASSWORDS_PROVIDED:
+        responseType =
+             PasswordValidationDetailsResponseType.MULTIPLE_PASSWORDS_PROVIDED;
+        break;
+      case JSON_RESPONSE_TYPE_NO_VALIDATION_ATTEMPTED:
+        responseType =
+             PasswordValidationDetailsResponseType.NO_VALIDATION_ATTEMPTED;
+        break;
+      default:
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PW_VALIDATION_RESPONSE_JSON_UNKNOWN_RESPONSE_TYPE.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_RESPONSE_TYPE,
+                  responseTypeStr));
+    }
+
+
+    final List<PasswordQualityRequirementValidationResult> validationResults;
+    final List<JSONValue> validationDetailsValues =
+         valueObject.getFieldAsArray(JSON_FIELD_VALIDATION_DETAILS);
+    if (validationDetailsValues == null)
+    {
+      validationResults = Collections.emptyList();
+    }
+    else
+    {
+      validationResults = new ArrayList<>(validationDetailsValues.size());
+      for (final JSONValue v : validationDetailsValues)
+      {
+        validationResults.add(decodeValidationResultJSON(controlObject, v,
+             strict));
+      }
+    }
+
+
+    final Boolean missingCurrentPassword =
+         valueObject.getFieldAsBoolean(JSON_FIELD_MISSING_CURRENT_PASSWORD);
+    if (missingCurrentPassword == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_VALUE_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_MISSING_CURRENT_PASSWORD));
+    }
+
+
+    final Boolean mustChangePassword =
+         valueObject.getFieldAsBoolean(JSON_FIELD_MUST_CHANGE_PASSWORD);
+    if (mustChangePassword == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_VALUE_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_MUST_CHANGE_PASSWORD));
+    }
+
+
+    final Integer secondsUntilExpiration =
+         valueObject.getFieldAsInteger(JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_RESPONSE_TYPE,
+                JSON_FIELD_VALIDATION_DETAILS,
+                JSON_FIELD_MISSING_CURRENT_PASSWORD,
+                JSON_FIELD_MUST_CHANGE_PASSWORD,
+                JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PW_VALIDATION_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new PasswordValidationDetailsResponseControl(responseType,
+         validationResults, missingCurrentPassword, mustChangePassword,
+         secondsUntilExpiration);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON value as a password quality requirement
+   * validation result.
+   *
+   * @param  controlObject  A JSON object containing an encoded representation
+   *                        of the control being decoded.  It must not be
+   *                        {@code null}.
+   * @param  resultValue    The JSON value to be decoded as a password quality
+   *                        requirement validation result.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON value is an object that contains any
+   *                        unrecognized fields.  If this is {@code false}, then
+   *                        unrecognized fields will be ignored.
+   *
+   * @return  The password quality requirement validation result that was
+   *          decoded.
+   *
+   * @throws  LDAPException  If the provided JSON value cannot be decoded as a
+   *                         password quality requirement validation result.
+   */
+  @NotNull()
+  private static PasswordQualityRequirementValidationResult
+               decodeValidationResultJSON(
+                    @NotNull final JSONObject controlObject,
+                    @NotNull final JSONValue resultValue,
+                    final boolean strict)
+          throws LDAPException
+  {
+    if (! (resultValue instanceof JSONObject))
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_RESULT_NOT_OBJECT.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_VALIDATION_DETAILS));
+    }
+
+    final JSONObject resultObject = (JSONObject) resultValue;
+
+    final JSONObject requirementObject =
+         resultObject.getFieldAsObject(JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT);
+    if (requirementObject == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_RESULT_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_VALIDATION_DETAILS,
+                JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT));
+    }
+
+    final String requirementDescription =
+         requirementObject.getFieldAsString(JSON_FIELD_DESCRIPTION);
+    if (requirementDescription == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_REQUIREMENT_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_VALIDATION_DETAILS,
+                JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                JSON_FIELD_DESCRIPTION));
+    }
+
+    final String clientSideValidationType = requirementObject.getFieldAsString(
+         JSON_FIELD_CLIENT_SIDE_VALIDATION_TYPE);
+
+    final Map<String,String> clientSideValidationProperties =
+         new LinkedHashMap<>();
+    final List<JSONValue> clientSideValidationPropertyValues =
+         requirementObject.getFieldAsArray(
+              JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES);
+    if (clientSideValidationPropertyValues != null)
+    {
+      for (final JSONValue v : clientSideValidationPropertyValues)
+      {
+        if (! (v instanceof JSONObject))
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PW_VALIDATION_RESPONSE_JSON_REQUIREMENT_PROP_NOT_OBJECT.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_VALIDATION_DETAILS,
+                JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES));
+        }
+
+        final JSONObject propObject = (JSONObject) v;
+        final String name =
+             propObject.getFieldAsString(JSON_FIELD_PROPERTY_NAME);
+        if (name == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PW_VALIDATION_RESPONSE_JSON_REQUIREMENT_PROP_MISSING_FIELD.
+                    get(controlObject.toSingleLineString(),
+                         JSON_FIELD_VALIDATION_DETAILS,
+                         JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                         JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES,
+                         JSON_FIELD_PROPERTY_NAME));
+        }
+
+        final String value =
+             propObject.getFieldAsString(JSON_FIELD_PROPERTY_VALUE);
+        if (value == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PW_VALIDATION_RESPONSE_JSON_REQUIREMENT_PROP_MISSING_FIELD.
+                    get(controlObject.toSingleLineString(),
+                         JSON_FIELD_VALIDATION_DETAILS,
+                         JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                         JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES,
+                         JSON_FIELD_PROPERTY_VALUE));
+        }
+
+        if (strict)
+        {
+          final List<String> unrecognizedFields =
+               JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                    propObject, JSON_FIELD_PROPERTY_NAME,
+                    JSON_FIELD_PROPERTY_VALUE);
+          if (! unrecognizedFields.isEmpty())
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_PW_VALIDATION_RESPONSE_JSON_UNRECOGNIZED_PROP_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_VALIDATION_DETAILS,
+                      JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                      JSON_FIELD_CLIENT_SIDE_VALIDATION_PROPERTIES,
+                      unrecognizedFields.get(0)));
+          }
+        }
+
+        clientSideValidationProperties.put(name, value);
+      }
+    }
+
+
+    final Boolean requirementSatisfied =
+         resultObject.getFieldAsBoolean(JSON_FIELD_REQUIREMENT_SATISFIED);
+    if (requirementSatisfied == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_VALIDATION_RESPONSE_JSON_RESULT_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_VALIDATION_DETAILS,
+                JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                JSON_FIELD_REQUIREMENT_SATISFIED));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                resultObject, JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                JSON_FIELD_REQUIREMENT_SATISFIED,
+                JSON_FIELD_ADDITIONAL_INFORMATION);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PW_VALIDATION_RESPONSE_JSON_RESULT_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_VALIDATION_DETAILS,
+                  JSON_FIELD_PASSWORD_QUALITY_REQUIREMENT,
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    final String additionalInformation =
+         resultObject.getFieldAsString(JSON_FIELD_ADDITIONAL_INFORMATION);
+
+    final PasswordQualityRequirement requirement =
+         new PasswordQualityRequirement(requirementDescription,
+              clientSideValidationType, clientSideValidationProperties);
+    return new PasswordQualityRequirementValidationResult(requirement,
+         requirementSatisfied, additionalInformation);
   }
 
 

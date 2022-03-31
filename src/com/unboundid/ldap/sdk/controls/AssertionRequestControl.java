@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.controls;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
@@ -46,6 +47,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -55,6 +57,8 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -120,6 +124,14 @@ public final class AssertionRequestControl
    * The OID (1.3.6.1.1.12) for the assertion request control.
    */
   @NotNull public static final String ASSERTION_REQUEST_OID = "1.3.6.1.1.12";
+
+
+
+  /**
+   * The name of the field used to represent the assertion filter in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_FILTER = "filter";
 
 
 
@@ -350,6 +362,106 @@ public final class AssertionRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ASSERTION_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              ASSERTION_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_ASSERTION_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_FILTER, filter.toString()))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * assertion request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The assertion request control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid assertion request control.
+   */
+  @NotNull()
+  public static AssertionRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new AssertionRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(),
+           rawValue));
+    }
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+    final String filterString = valueObject.getFieldAsString(JSON_FIELD_FILTER);
+    if (filterString == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSERT_JSON_CONTROL_MISSING_FILTER.get(
+                controlObject.toSingleLineString(), JSON_FIELD_FILTER));
+    }
+
+    final Filter parsedFilter;
+    try
+    {
+      parsedFilter = Filter.create(filterString);
+    }
+    catch (final LDAPException e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSERT_JSON_CONTROL_INVALID_FILTER.get(
+                controlObject.toSingleLineString(), filterString),
+           e);
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_FILTER);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSERT_JSON_CONTROL_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return new AssertionRequestControl(parsedFilter,
+         jsonControl.getCriticality());
   }
 
 

@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -49,7 +51,13 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -382,5 +390,369 @@ public class GetEffectiveRightsRequestControlTestCase
     }
 
     conn.close();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object that does not include any attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithoutAttributes()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 1);
+
+    assertEquals(valueObject.getFieldAsString("authorization-id"), "u:jdoe");
+
+    assertNull(valueObject.getFieldAsArray("attributes"));
+
+
+    GetEffectiveRightsRequestControl decodedControl =
+         GetEffectiveRightsRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes().length, 0);
+
+
+    decodedControl =
+         (GetEffectiveRightsRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes().length, 0);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object that includes a set of attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithAttributes()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe", "uid",
+              "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 2);
+
+    assertEquals(valueObject.getFieldAsString("authorization-id"), "u:jdoe");
+
+    assertEquals(valueObject.getFieldAsArray("attributes"), Arrays.asList(
+         new JSONString("uid"), new JSONString("givenName"),
+         new JSONString("sn"), new JSONString("cn"), new JSONString("mail")));
+
+
+    GetEffectiveRightsRequestControl decodedControl =
+         GetEffectiveRightsRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes(),
+         new String[] { "uid", "givenName", "sn", "cn", "mail" });
+
+
+    decodedControl =
+         (GetEffectiveRightsRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes(),
+         new String[] { "uid", "givenName", "sn", "cn", "mail" });
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe", "uid",
+              "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    GetEffectiveRightsRequestControl decodedControl =
+         GetEffectiveRightsRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes(),
+         new String[] { "uid", "givenName", "sn", "cn", "mail" });
+
+
+    decodedControl =
+         (GetEffectiveRightsRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes(),
+         new String[] { "uid", "givenName", "sn", "cn", "mail" });
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the required authorization-id field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingAuthorizationID()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe", "uid",
+              "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("attributes", new JSONArray(
+                   new JSONString("uid"),
+                   new JSONString("givenName"),
+                   new JSONString("sn"),
+                   new JSONString("cn"),
+                   new JSONString("mail"))))));
+
+    GetEffectiveRightsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a non-string value in the set of attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueAttributeNotString()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe", "uid",
+              "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-id", "u:jdoe"),
+              new JSONField("attributes", new JSONArray(
+                   new JSONNumber(1234),
+                   new JSONString("givenName"),
+                   new JSONString("sn"),
+                   new JSONString("cn"),
+                   new JSONString("mail"))))));
+
+    GetEffectiveRightsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe", "uid",
+              "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-id", "u:jdoe"),
+              new JSONField("unrecognized", "foo"),
+              new JSONField("attributes", new JSONArray(
+                   new JSONString("uid"),
+                   new JSONString("givenName"),
+                   new JSONString("sn"),
+                   new JSONString("cn"),
+                   new JSONString("mail"))))));
+
+    GetEffectiveRightsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final GetEffectiveRightsRequestControl c =
+         new GetEffectiveRightsRequestControl(false, "u:jdoe", "uid",
+              "givenName", "sn", "cn", "mail");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-id", "u:jdoe"),
+              new JSONField("unrecognized", "foo"),
+              new JSONField("attributes", new JSONArray(
+                   new JSONString("uid"),
+                   new JSONString("givenName"),
+                   new JSONString("sn"),
+                   new JSONString("cn"),
+                   new JSONString("mail"))))));
+
+
+    GetEffectiveRightsRequestControl decodedControl =
+         GetEffectiveRightsRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes(),
+         new String[] { "uid", "givenName", "sn", "cn", "mail" });
+
+
+    decodedControl =
+         (GetEffectiveRightsRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getAuthzID(), "u:jdoe");
+
+    assertEquals(decodedControl.getAttributes(),
+         new String[] { "uid", "givenName", "sn", "cn", "mail" });
   }
 }

@@ -39,7 +39,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -48,6 +50,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
@@ -58,6 +61,11 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -182,6 +190,69 @@ public final class AccountUsableResponseControl
    * seconds until the account is unlocked.
    */
   private static final byte TYPE_SECONDS_UNTIL_UNLOCK = (byte) 0x84;
+
+
+
+  /**
+   * The name of the field used to indicate whether the account is inactive in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ACCOUNT_IS_INACTIVE =
+       "account-is-inactive";
+
+
+
+  /**
+   * The name of the field used to indicate whether the account is usable in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ACCOUNT_IS_USABLE =
+       "account-is-usable";
+
+
+
+  /**
+   * The name of the field used to indicate whether the user must change their
+   * password in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MUST_CHANGE_PASSWORD =
+       "must-change-password";
+
+
+
+  /**
+   * The name of the field used to indicate whether the password is expired in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PASSWORD_IS_EXPIRED =
+       "password-is-expired";
+
+
+
+  /**
+   * The name of the field used to indicate hold the number of grace logins
+   * remaining in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REMAINING_GRACE_LOGINS =
+       "remaining-grace-logins";
+
+
+
+  /**
+   * The name of the field used to hold the number of seconds until password
+   * expiration in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SECONDS_UNTIL_PW_EXPIRATION =
+       "seconds-until-password-expiration";
+
+
+
+  /**
+   * The name of the field used to hold the number of seconds until the account
+   * is unlocked in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SECONDS_UNTIL_UNLOCK =
+       "seconds-until-unlock";
 
 
 
@@ -829,6 +900,236 @@ public final class AccountUsableResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ACCOUNT_USABLE_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> jsonValueFields = new LinkedHashMap<>();
+    jsonValueFields.put(JSON_FIELD_ACCOUNT_IS_USABLE,
+         new JSONBoolean(isUsable));
+
+    if (secondsUntilExpiration >= 0)
+    {
+      jsonValueFields.put(JSON_FIELD_SECONDS_UNTIL_PW_EXPIRATION,
+           new JSONNumber(secondsUntilExpiration));
+    }
+
+    jsonValueFields.put(JSON_FIELD_ACCOUNT_IS_INACTIVE,
+         new JSONBoolean(isInactive));
+    jsonValueFields.put(JSON_FIELD_MUST_CHANGE_PASSWORD,
+         new JSONBoolean(mustChangePassword));
+    jsonValueFields.put(JSON_FIELD_PASSWORD_IS_EXPIRED,
+         new JSONBoolean(passwordIsExpired));
+
+    if (remainingGraceLogins >= 0)
+    {
+      jsonValueFields.put(JSON_FIELD_REMAINING_GRACE_LOGINS,
+           new JSONNumber(remainingGraceLogins));
+    }
+
+    if (secondsUntilUnlock >= 0)
+    {
+      jsonValueFields.put(JSON_FIELD_SECONDS_UNTIL_UNLOCK,
+           new JSONNumber(secondsUntilUnlock));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              ACCOUNT_USABLE_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_ACCOUNT_USABLE_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(jsonValueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * account usable response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The account usable response control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid account usable response control.
+   */
+  @NotNull()
+  public static AccountUsableResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new AccountUsableResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    Boolean isInactive = null;
+    Boolean isUsable = null;
+    Boolean mustChangePassword = null;
+    Boolean passwordIsExpired = null;
+    Integer remainingGraceLogins = null;
+    Integer secondsUntilExpiration = null;
+    Integer secondsUntilUnlock = null;
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    isUsable = valueObject.getFieldAsBoolean(JSON_FIELD_ACCOUNT_IS_USABLE);
+    if (isUsable == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ACCOUNT_USABLE_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_ACCOUNT_IS_USABLE));
+    }
+
+    secondsUntilExpiration = valueObject.getFieldAsInteger(
+         JSON_FIELD_SECONDS_UNTIL_PW_EXPIRATION);
+
+    isInactive = valueObject.getFieldAsBoolean(JSON_FIELD_ACCOUNT_IS_INACTIVE);
+    if (isInactive == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ACCOUNT_USABLE_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_ACCOUNT_IS_INACTIVE));
+    }
+
+    mustChangePassword =
+         valueObject.getFieldAsBoolean(JSON_FIELD_MUST_CHANGE_PASSWORD);
+    if (mustChangePassword == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ACCOUNT_USABLE_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_MUST_CHANGE_PASSWORD));
+    }
+
+    passwordIsExpired =
+         valueObject.getFieldAsBoolean(JSON_FIELD_PASSWORD_IS_EXPIRED);
+    if (passwordIsExpired == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ACCOUNT_USABLE_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_PASSWORD_IS_EXPIRED));
+    }
+
+    remainingGraceLogins = valueObject.getFieldAsInteger(
+         JSON_FIELD_REMAINING_GRACE_LOGINS);
+
+    secondsUntilUnlock = valueObject.getFieldAsInteger(
+         JSON_FIELD_SECONDS_UNTIL_UNLOCK);
+
+    if (isUsable)
+    {
+      if (isInactive)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ACCOUNT_USABLE_RESPONSE_JSON_USABLE_BOOLEAN_CONFLICT.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ACCOUNT_IS_USABLE,
+                  JSON_FIELD_ACCOUNT_IS_INACTIVE));
+      }
+      else if (mustChangePassword)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ACCOUNT_USABLE_RESPONSE_JSON_USABLE_BOOLEAN_CONFLICT.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ACCOUNT_IS_USABLE,
+                  JSON_FIELD_MUST_CHANGE_PASSWORD));
+      }
+      else if (passwordIsExpired)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ACCOUNT_USABLE_RESPONSE_JSON_USABLE_BOOLEAN_CONFLICT.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ACCOUNT_IS_USABLE,
+                  JSON_FIELD_PASSWORD_IS_EXPIRED));
+      }
+      else if (remainingGraceLogins != null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ACCOUNT_USABLE_RESPONSE_JSON_USABLE_INT_CONFLICT.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ACCOUNT_IS_USABLE,
+                  JSON_FIELD_REMAINING_GRACE_LOGINS));
+      }
+      else if (secondsUntilUnlock != null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ACCOUNT_USABLE_RESPONSE_JSON_USABLE_INT_CONFLICT.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_ACCOUNT_IS_USABLE,
+                  JSON_FIELD_SECONDS_UNTIL_UNLOCK));
+      }
+    }
+    else if (secondsUntilExpiration != null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ACCOUNT_USABLE_RESPONSE_JSON_UNUSABLE_CONFLICT.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_ACCOUNT_IS_USABLE,
+                JSON_FIELD_SECONDS_UNTIL_PW_EXPIRATION));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_ACCOUNT_IS_USABLE,
+                JSON_FIELD_SECONDS_UNTIL_PW_EXPIRATION,
+                JSON_FIELD_ACCOUNT_IS_INACTIVE, JSON_FIELD_MUST_CHANGE_PASSWORD,
+                JSON_FIELD_PASSWORD_IS_EXPIRED,
+                JSON_FIELD_REMAINING_GRACE_LOGINS,
+                JSON_FIELD_SECONDS_UNTIL_UNLOCK);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ACCOUNT_USABLE_RESPONSE_JSON_CONTROL_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    if (isUsable)
+    {
+      return new AccountUsableResponseControl(
+           (secondsUntilExpiration == null) ? -1 : secondsUntilExpiration);
+    }
+    else
+    {
+      return new AccountUsableResponseControl(isInactive, mustChangePassword,
+           passwordIsExpired,
+           (remainingGraceLogins == null) ? -1 : remainingGraceLogins,
+           (secondsUntilUnlock == null) ? -1 : secondsUntilUnlock);
+    }
   }
 
 

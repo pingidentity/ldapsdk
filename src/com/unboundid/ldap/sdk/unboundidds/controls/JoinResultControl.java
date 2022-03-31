@@ -40,14 +40,18 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Enumerated;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
@@ -59,6 +63,12 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -113,6 +123,66 @@ public final class JoinResultControl
    * The BER type for the join results element.
    */
   private static final byte TYPE_JOIN_RESULTS = (byte) 0xA4;
+
+
+
+  /**
+   * The name of the field used to hold the diagnostic message in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_DIAGNOSTIC_MESSAGE =
+       "diagnostic-message";
+
+
+
+  /**
+   * The name of the field used to hold the DN of an entry in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ENTRY_DN = "_dn";
+
+
+
+  /**
+   * The name of the field used to hold the set of joined entries in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_JOINED_ENTRIES =
+       "joined-entries";
+
+
+
+  /**
+   * The name of the field used to hold the matched DN in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MATCHED_DN = "matched-dn";
+
+
+
+  /**
+   * The name of the field used to hold the nested join results in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_NESTED_JOIN_RESULTS =
+       "_nested-join-results";
+
+
+
+  /**
+   * The name of the field used to hold the referral URLs in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REFERRAL_URLS =
+       "referral-urls";
+
+
+
+  /**
+   * The name of the field used to hold the join result code in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_RESULT_CODE = "result-code";
 
 
 
@@ -541,6 +611,355 @@ public final class JoinResultControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_JOIN_RESULT.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_RESULT_CODE,
+         new JSONNumber(resultCode.intValue()));
+
+    if (matchedDN != null)
+    {
+      valueFields.put(JSON_FIELD_MATCHED_DN, new JSONString(matchedDN));
+    }
+
+    if (diagnosticMessage != null)
+    {
+      valueFields.put(JSON_FIELD_DIAGNOSTIC_MESSAGE,
+           new JSONString(diagnosticMessage));
+    }
+
+    if ((referralURLs != null) && (! referralURLs.isEmpty()))
+    {
+      final List<JSONValue> referralValues =
+           new ArrayList<>(referralURLs.size());
+      for (final String referralURL : referralURLs)
+      {
+        referralValues.add(new JSONString(referralURL));
+      }
+
+      valueFields.put(JSON_FIELD_REFERRAL_URLS, new JSONArray(referralValues));
+    }
+
+    final List<JSONValue> entryValues = new ArrayList<>(joinResults.size());
+    for (final JoinedEntry entry : joinResults)
+    {
+      entryValues.add(encodeEntryJSON(entry));
+    }
+    valueFields.put(JSON_FIELD_JOINED_ENTRIES, new JSONArray(entryValues));
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID, JOIN_RESULT_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_JOIN_RESULT.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Encodes the provided joined entry to a JSON object.
+   *
+   * @param  entry  The entry to be encoded.  It must not be {@code null}.
+   *
+   * @return  The JSON object containing the encoded entry.
+   */
+  @NotNull()
+  private static JSONObject encodeEntryJSON(@NotNull final JoinedEntry entry)
+  {
+    final Map<String,JSONValue> fields = new LinkedHashMap<>();
+    fields.put(JSON_FIELD_ENTRY_DN, new JSONString(entry.getDN()));
+
+    for (final Attribute a : entry.getAttributes())
+    {
+      final List<JSONValue> attrValueValues = new ArrayList<>(a.size());
+      for (final String value : a.getValues())
+      {
+        attrValueValues.add(new JSONString(value));
+      }
+
+      fields.put(a.getName(), new JSONArray(attrValueValues));
+    }
+
+    final List<JoinedEntry> nestedEntries = entry.getNestedJoinResults();
+    if (! nestedEntries.isEmpty())
+    {
+      final List<JSONValue> nestedEntryValues =
+           new ArrayList<>(nestedEntries.size());
+      for (final JoinedEntry nestedEntry : nestedEntries)
+      {
+        nestedEntryValues.add(encodeEntryJSON(nestedEntry));
+      }
+
+      fields.put(JSON_FIELD_NESTED_JOIN_RESULTS,
+           new JSONArray(nestedEntryValues));
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a join
+   * result control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The join result control that was decoded from the provided JSON
+   *          object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid join result control.
+   */
+  @NotNull()
+  public static JoinResultControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new JoinResultControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Integer resultCodeValue =
+         valueObject.getFieldAsInteger(JSON_FIELD_RESULT_CODE);
+    if (resultCodeValue == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RESULT_JSON_MISSING_VALUE_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_RESULT_CODE));
+    }
+
+    final ResultCode resultCode = ResultCode.valueOf(resultCodeValue);
+
+    final String matchedDN =
+         valueObject.getFieldAsString(JSON_FIELD_MATCHED_DN);
+
+    final String diagnosticMessage =
+         valueObject.getFieldAsString(JSON_FIELD_DIAGNOSTIC_MESSAGE);
+
+    final List<String> referralURLs;
+    final List<JSONValue> referralURLValues =
+         valueObject.getFieldAsArray(JSON_FIELD_REFERRAL_URLS);
+    if (referralURLValues == null)
+    {
+      referralURLs = null;
+    }
+    else
+    {
+      referralURLs = new ArrayList<>(referralURLValues.size());
+      for (final JSONValue referralURLValue : referralURLValues)
+      {
+        if (referralURLValue instanceof JSONString)
+        {
+          referralURLs.add(((JSONString) referralURLValue).stringValue());
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_JOIN_RESULT_JSON_REFERRAL_URL_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_REFERRAL_URLS));
+        }
+      }
+    }
+
+
+    final List<JSONValue> joinedEntryValues =
+         valueObject.getFieldAsArray(JSON_FIELD_JOINED_ENTRIES);
+    if (joinedEntryValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RESULT_JSON_MISSING_VALUE_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_JOINED_ENTRIES));
+    }
+
+    final List<JoinedEntry> joinedEntries =
+         new ArrayList<>(joinedEntryValues.size());
+    for (final JSONValue joinedEntryValue : joinedEntryValues)
+    {
+      if (joinedEntryValue instanceof JSONObject)
+      {
+        joinedEntries.add(decodeEntryJSON(controlObject,
+             (JSONObject) joinedEntryValue));
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RESULT_JSON_ENTRY_NOT_OBJECT.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_JOINED_ENTRIES));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_RESULT_CODE, JSON_FIELD_MATCHED_DN,
+                JSON_FIELD_DIAGNOSTIC_MESSAGE, JSON_FIELD_REFERRAL_URLS,
+                JSON_FIELD_JOINED_ENTRIES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RESULT_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new JoinResultControl(resultCode, diagnosticMessage, matchedDN,
+         referralURLs, joinedEntries);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as a joined entry.
+   *
+   * @param  controlObject  The JSON object representing the entire control
+   *                        being decoded.  It must not be {@code null}.
+   * @param  entryObject    The JSON object representing the entry to decode.
+   *                        It must not be {@code null}.
+   *
+   * @return  The joined entry that was decoded.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid joined entry.
+   */
+  @NotNull()
+  private static JoinedEntry decodeEntryJSON(
+               @NotNull final JSONObject controlObject,
+               @NotNull final JSONObject entryObject)
+          throws LDAPException
+  {
+    String entryDN = null;
+    List<JoinedEntry> nestedResults = null;
+    final List<Attribute> attributes =
+         new ArrayList<>(entryObject.getFields().size());
+    for (final Map.Entry<String,JSONValue> e :
+         entryObject.getFields().entrySet())
+    {
+      final String fieldName = e.getKey();
+      final JSONValue fieldValue = e.getValue();
+
+      if (fieldName.equals(JSON_FIELD_ENTRY_DN))
+      {
+        if (fieldValue instanceof JSONString)
+        {
+          entryDN = ((JSONString) fieldValue).stringValue();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_JOIN_RESULT_JSON_ENTRY_DN_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_ENTRY_DN));
+        }
+      }
+      else if (fieldName.equals(JSON_FIELD_NESTED_JOIN_RESULTS))
+      {
+        if (fieldValue instanceof JSONArray)
+        {
+          final List<JSONValue> nestedEntryValues =
+               ((JSONArray) fieldValue).getValues();
+          nestedResults = new ArrayList<>(nestedEntryValues.size());
+          for (final JSONValue nestedEntryValue : nestedEntryValues)
+          {
+            if (nestedEntryValue instanceof JSONObject)
+            {
+              nestedResults.add(decodeEntryJSON(controlObject,
+                   (JSONObject) nestedEntryValue));
+            }
+            else
+            {
+              throw new LDAPException(ResultCode.DECODING_ERROR,
+                   ERR_JON_RESULT_JSON_ENTRY_NESTED_ENTRY_NOT_OBJECT.get(
+                        controlObject.toSingleLineString(),
+                        JSON_FIELD_NESTED_JOIN_RESULTS));
+            }
+          }
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_JOIN_RESULT_JSON_ENTRY_NESTED_ENTRIES_NOT_ARRAY.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_NESTED_JOIN_RESULTS));
+        }
+      }
+      else
+      {
+        if (fieldValue instanceof JSONArray)
+        {
+          final List<JSONValue> attrValueValues =
+               ((JSONArray) fieldValue).getValues();
+          final List<String> attributeValues =
+               new ArrayList<>(attrValueValues.size());
+          for (final JSONValue v : attrValueValues)
+          {
+            if (v instanceof JSONString)
+            {
+              attributeValues.add(((JSONString) v).stringValue());
+            }
+            else
+            {
+              throw new LDAPException(ResultCode.DECODING_ERROR,
+                   ERR_JOIN_RESULT_JSON_ENTRY_ATTR_VALUE_NOT_STRING.get(
+                        controlObject.toSingleLineString(), fieldName));
+            }
+          }
+
+          attributes.add(new Attribute(fieldName, attributeValues));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_JOIN_RESULT_JSON_ENTRY_ATTR_VALUES_NOT_ARRAY.get(
+                    controlObject.toSingleLineString(), fieldName));
+        }
+      }
+    }
+
+
+    if (entryDN == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JON_RESULT_JSON_ENTRY_MISSING_DN.get(
+                controlObject.toSingleLineString(), JSON_FIELD_ENTRY_DN));
+    }
+
+    return new JoinedEntry(entryDN, attributes, nestedResults);
   }
 
 

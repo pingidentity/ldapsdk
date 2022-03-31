@@ -37,12 +37,16 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -51,6 +55,12 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -155,6 +165,41 @@ public final class ServerSideSortRequestControl
    */
   @NotNull public static final String SERVER_SIDE_SORT_REQUEST_OID =
        "1.2.840.113556.1.4.473";
+
+
+
+  /**
+   * The name of the field used to hold the attribute name in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ATTRIBUTE_NAME =
+       "attribute-name";
+
+
+
+  /**
+   * The name of the field used to hold the matching rule ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MATCHING_RULE_ID =
+       "matching-rule-id";
+
+
+
+  /**
+   * The name of the field used to hold the reverse-order flag in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REVERSE_ORDER =
+       "reverse-order";
+
+
+
+  /**
+   * The name of the field used to hold the sort keys in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SORT_KEYS = "sort-keys";
 
 
 
@@ -333,6 +378,178 @@ public final class ServerSideSortRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SORT_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final List<JSONValue> sortKeyValues = new ArrayList<>(sortKeys.length);
+    for (final SortKey sortKey : sortKeys)
+    {
+      final Map<String,JSONValue> fields = new LinkedHashMap<>();
+      fields.put(JSON_FIELD_ATTRIBUTE_NAME,
+           new JSONString(sortKey.getAttributeName()));
+      fields.put(JSON_FIELD_REVERSE_ORDER,
+           new JSONBoolean(sortKey.reverseOrder()));
+
+      if (sortKey.getMatchingRuleID() != null)
+      {
+        fields.put(JSON_FIELD_MATCHING_RULE_ID,
+             new JSONString(sortKey.getMatchingRuleID()));
+      }
+
+      sortKeyValues.add(new JSONObject(fields));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              SERVER_SIDE_SORT_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_SORT_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_SORT_KEYS,
+                        new JSONArray(sortKeyValues)))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * server-side sort request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The server-side sort request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid server-side sort request control.
+   */
+  @NotNull()
+  public static ServerSideSortRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new ServerSideSortRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final List<JSONValue> sortKeyValues =
+         valueObject.getFieldAsArray(JSON_FIELD_SORT_KEYS);
+    if (sortKeyValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SORT_REQUEST_JSON_MISSING_SORT_KEYS.get(
+                controlObject.toSingleLineString(), JSON_FIELD_SORT_KEYS));
+    }
+
+    if (sortKeyValues.isEmpty())
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SORT_REQUEST_JSON_EMPTY_SORT_KEYS.get(
+                controlObject.toSingleLineString(), JSON_FIELD_SORT_KEYS));
+    }
+
+
+    final List<SortKey> sortKeys = new ArrayList<>(sortKeyValues.size());
+    for (final JSONValue sortKeyValue : sortKeyValues)
+    {
+      if (sortKeyValue instanceof JSONObject)
+      {
+        final JSONObject sortKeyObject = (JSONObject) sortKeyValue;
+
+        final String attributeName =
+             sortKeyObject.getFieldAsString(JSON_FIELD_ATTRIBUTE_NAME);
+        if (attributeName == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_SORT_REQUEST_JSON_SORT_KEY_MISSING_FIELD.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_SORT_KEYS,
+                    JSON_FIELD_ATTRIBUTE_NAME));
+        }
+
+        final Boolean reverseOrder =
+             sortKeyObject.getFieldAsBoolean(JSON_FIELD_REVERSE_ORDER);
+        if (reverseOrder == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_SORT_REQUEST_JSON_SORT_KEY_MISSING_FIELD.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_SORT_KEYS,
+                    JSON_FIELD_REVERSE_ORDER));
+        }
+
+        final String matchingRuleID =
+             sortKeyObject.getFieldAsString(JSON_FIELD_MATCHING_RULE_ID);
+
+        if (strict)
+        {
+          final List<String> unrecognizedFields =
+               JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                    sortKeyObject, JSON_FIELD_ATTRIBUTE_NAME,
+                    JSON_FIELD_REVERSE_ORDER, JSON_FIELD_MATCHING_RULE_ID);
+          if (! unrecognizedFields.isEmpty())
+          {
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_SORT_REQUEST_JSON_UNRECOGNIZED_SORT_KEY_FIELD.get(
+                      controlObject.toSingleLineString(),
+                      JSON_FIELD_SORT_KEYS, unrecognizedFields.get(0)));
+          }
+        }
+
+        sortKeys.add(new SortKey(attributeName, matchingRuleID, reverseOrder));
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SORT_REQUEST_JSON_SORT_KEY_VALUE_NOT_OBJECT.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_SORT_KEYS));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SORT_KEYS);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SORT_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new ServerSideSortRequestControl(jsonControl.getCriticality(),
+         sortKeys);
   }
 
 

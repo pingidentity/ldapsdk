@@ -50,7 +50,13 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -317,5 +323,375 @@ public class MatchedValuesRequestControlTestCase
     assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
 
     conn.close();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("filters", new JSONArray(
+                   new JSONString("(attr1=value1)"),
+                   new JSONString("(attr2=value2)")))));
+
+
+    MatchedValuesRequestControl decodedControl =
+         MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getFilters().length, 2);
+    assertEquals(decodedControl.getFilters()[0].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr1",
+              "value1").toFilter());
+    assertEquals(decodedControl.getFilters()[1].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr2",
+              "value2").toFilter());
+
+
+    decodedControl =
+         (MatchedValuesRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getFilters().length, 2);
+    assertEquals(decodedControl.getFilters()[0].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr1",
+              "value1").toFilter());
+    assertEquals(decodedControl.getFilters()[1].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr2",
+              "value2").toFilter());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    MatchedValuesRequestControl decodedControl =
+         MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getFilters().length, 2);
+    assertEquals(decodedControl.getFilters()[0].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr1",
+              "value1").toFilter());
+    assertEquals(decodedControl.getFilters()[1].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr2",
+              "value2").toFilter());
+
+
+    decodedControl =
+         (MatchedValuesRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getFilters().length, 2);
+    assertEquals(decodedControl.getFilters()[0].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr1",
+              "value1").toFilter());
+    assertEquals(decodedControl.getFilters()[1].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr2",
+              "value2").toFilter());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the required filters element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingFilters()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", JSONObject.EMPTY_OBJECT));
+
+    MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an empty filters element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueEmptyFilters()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("filters", JSONArray.EMPTY_ARRAY))));
+
+    MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a filters value that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueFilterNotString()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("filters", new JSONArray(
+                   new JSONNumber(1234))))));
+
+    MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a filters value that is not a valid LDAP filter.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueNotLDAPFilter()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("filters", new JSONArray(
+                   new JSONString("not-a-valid-ldap-filter"))))));
+
+    MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has a filters value that is a valid LDAP filter but not a valid
+   * matched values filter.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueNotMatchedValuesFilter()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("filters", new JSONArray(
+                   new JSONString("(&(givenName=John)(sn=Doe))"))))));
+
+    MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value an unrecognized element in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("filters", new JSONArray(
+                   new JSONString("(attr1=value1)"),
+                   new JSONString("(attr2=value2)"))),
+              new JSONField("unrecognized", "foo"))));
+
+    MatchedValuesRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value an unrecognized element in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNOnStrict()
+          throws Exception
+  {
+    final MatchedValuesRequestControl c = new MatchedValuesRequestControl(
+         false,
+         MatchedValuesFilter.createEqualityFilter("attr1", "value1"),
+         MatchedValuesFilter.createEqualityFilter("attr2", "value2"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("filters", new JSONArray(
+                   new JSONString("(attr1=value1)"),
+                   new JSONString("(attr2=value2)"))),
+              new JSONField("unrecognized", "foo"))));
+
+
+    MatchedValuesRequestControl decodedControl =
+         MatchedValuesRequestControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getFilters().length, 2);
+    assertEquals(decodedControl.getFilters()[0].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr1",
+              "value1").toFilter());
+    assertEquals(decodedControl.getFilters()[1].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr2",
+              "value2").toFilter());
+
+
+    decodedControl =
+         (MatchedValuesRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getFilters().length, 2);
+    assertEquals(decodedControl.getFilters()[0].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr1",
+              "value1").toFilter());
+    assertEquals(decodedControl.getFilters()[1].toFilter(),
+         MatchedValuesFilter.createEqualityFilter("attr2",
+              "value2").toFilter());
   }
 }

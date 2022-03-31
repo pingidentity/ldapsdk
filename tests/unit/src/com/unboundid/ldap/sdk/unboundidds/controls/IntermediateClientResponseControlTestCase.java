@@ -45,6 +45,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -441,5 +444,705 @@ public class IntermediateClientResponseControlTestCase
          null, controls);
 
     IntermediateClientResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the control does not have any elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoElements()
+          throws Exception
+  {
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(false,
+              new IntermediateClientResponseValue(null, null, null, null, null,
+                   null));
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         JSONObject.EMPTY_OBJECT);
+
+
+    IntermediateClientResponseControl decodedControl =
+         IntermediateClientResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getUpstreamResponse());
+
+    assertNull(decodedControl.getUpstreamServerAddress());
+
+    assertNull(decodedControl.upstreamServerSecure());
+
+    assertNull(decodedControl.getServerName());
+
+    assertNull(decodedControl.getServerSessionID());
+
+    assertNull(decodedControl.getServerResponseID());
+
+
+    decodedControl =
+         (IntermediateClientResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getUpstreamResponse());
+
+    assertNull(decodedControl.getUpstreamServerAddress());
+
+    assertNull(decodedControl.upstreamServerSecure());
+
+    assertNull(decodedControl.getServerName());
+
+    assertNull(decodedControl.getServerSessionID());
+
+    assertNull(decodedControl.getServerResponseID());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the control includes all elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllElements()
+          throws Exception
+  {
+    final IntermediateClientResponseValue furtherUpstreamResponse =
+         new IntermediateClientResponseValue(null, "further-upstream-address",
+              false, "further-upstream-server-name",
+              "further-upstream-server-session-id",
+              "further-upstream-server-response-id");
+
+    final IntermediateClientResponseValue upstreamResponse =
+         new IntermediateClientResponseValue(furtherUpstreamResponse,
+              "upstream-address", true, "upstream-server-name",
+              "upstream-server-session-id", "upstream-server-response-id");
+
+    final IntermediateClientResponseValue value =
+         new IntermediateClientResponseValue(upstreamResponse, "address",
+              false, "server-name", "server-session-id", "server-response-id");
+
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(value);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("upstream-response", new JSONObject(
+                   new JSONField("upstream-response", new JSONObject(
+                        new JSONField("upstream-server-address",
+                             "further-upstream-address"),
+                        new JSONField("upstream-server-secure", false),
+                        new JSONField("server-name",
+                             "further-upstream-server-name"),
+                        new JSONField("server-session-id",
+                             "further-upstream-server-session-id"),
+                        new JSONField("server-response-id",
+                             "further-upstream-server-response-id"))),
+                   new JSONField("upstream-server-address",
+                        "upstream-address"),
+                   new JSONField("upstream-server-secure", true),
+                   new JSONField("server-name",
+                        "upstream-server-name"),
+                   new JSONField("server-session-id",
+                        "upstream-server-session-id"),
+                   new JSONField("server-response-id",
+                        "upstream-server-response-id"))),
+              new JSONField("upstream-server-address", "address"),
+              new JSONField("upstream-server-secure", false),
+              new JSONField("server-name", "server-name"),
+              new JSONField("server-session-id", "server-session-id"),
+              new JSONField("server-response-id", "server-response-id")));
+
+
+    IntermediateClientResponseControl decodedControl =
+         IntermediateClientResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+
+
+    decodedControl =
+         (IntermediateClientResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final IntermediateClientResponseValue furtherUpstreamResponse =
+         new IntermediateClientResponseValue(null, "further-upstream-address",
+              false, "further-upstream-server-name",
+              "further-upstream-server-session-id",
+              "further-upstream-server-response-id");
+
+    final IntermediateClientResponseValue upstreamResponse =
+         new IntermediateClientResponseValue(furtherUpstreamResponse,
+              "upstream-address", true, "upstream-server-name",
+              "upstream-server-session-id", "upstream-server-response-id");
+
+    final IntermediateClientResponseValue value =
+         new IntermediateClientResponseValue(upstreamResponse, "address",
+              false, "server-name", "server-session-id", "server-response-id");
+
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(value);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    IntermediateClientResponseControl decodedControl =
+         IntermediateClientResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+
+
+    decodedControl =
+         (IntermediateClientResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final IntermediateClientResponseValue furtherUpstreamResponse =
+         new IntermediateClientResponseValue(null, "further-upstream-address",
+              false, "further-upstream-server-name",
+              "further-upstream-server-session-id",
+              "further-upstream-server-response-id");
+
+    final IntermediateClientResponseValue upstreamResponse =
+         new IntermediateClientResponseValue(furtherUpstreamResponse,
+              "upstream-address", true, "upstream-server-name",
+              "upstream-server-session-id", "upstream-server-response-id");
+
+    final IntermediateClientResponseValue value =
+         new IntermediateClientResponseValue(upstreamResponse, "address",
+              false, "server-name", "server-session-id", "server-response-id");
+
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(value);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("upstream-response", new JSONObject(
+                   new JSONField("upstream-response", new JSONObject(
+                        new JSONField("upstream-server-address",
+                             "further-upstream-address"),
+                        new JSONField("upstream-server-secure", false),
+                        new JSONField("server-name",
+                             "further-upstream-server-name"),
+                        new JSONField("server-session-id",
+                             "further-upstream-server-session-id"),
+                        new JSONField("server-response-id",
+                             "further-upstream-server-response-id"))),
+                   new JSONField("upstream-server-address",
+                        "upstream-address"),
+                   new JSONField("upstream-server-secure", true),
+                   new JSONField("server-name",
+                        "upstream-server-name"),
+                   new JSONField("server-session-id",
+                        "upstream-server-session-id"),
+                   new JSONField("server-response-id",
+                        "upstream-server-response-id"))),
+              new JSONField("upstream-server-address", "address"),
+              new JSONField("upstream-server-secure", false),
+              new JSONField("server-name", "server-name"),
+              new JSONField("server-session-id", "server-session-id"),
+              new JSONField("server-response-id", "server-response-id"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    IntermediateClientResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final IntermediateClientResponseValue furtherUpstreamResponse =
+         new IntermediateClientResponseValue(null, "further-upstream-address",
+              false, "further-upstream-server-name",
+              "further-upstream-server-session-id",
+              "further-upstream-server-response-id");
+
+    final IntermediateClientResponseValue upstreamResponse =
+         new IntermediateClientResponseValue(furtherUpstreamResponse,
+              "upstream-address", true, "upstream-server-name",
+              "upstream-server-session-id", "upstream-server-response-id");
+
+    final IntermediateClientResponseValue value =
+         new IntermediateClientResponseValue(upstreamResponse, "address",
+              false, "server-name", "server-session-id", "server-response-id");
+
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(value);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("upstream-response", new JSONObject(
+                   new JSONField("upstream-response", new JSONObject(
+                        new JSONField("upstream-server-address",
+                             "further-upstream-address"),
+                        new JSONField("upstream-server-secure", false),
+                        new JSONField("server-name",
+                             "further-upstream-server-name"),
+                        new JSONField("server-session-id",
+                             "further-upstream-server-session-id"),
+                        new JSONField("server-response-id",
+                             "further-upstream-server-response-id"))),
+                   new JSONField("upstream-server-address",
+                        "upstream-address"),
+                   new JSONField("upstream-server-secure", true),
+                   new JSONField("server-name",
+                        "upstream-server-name"),
+                   new JSONField("server-session-id",
+                        "upstream-server-session-id"),
+                   new JSONField("server-response-id",
+                        "upstream-server-response-id"))),
+              new JSONField("upstream-server-address", "address"),
+              new JSONField("upstream-server-secure", false),
+              new JSONField("server-name", "server-name"),
+              new JSONField("server-session-id", "server-session-id"),
+              new JSONField("server-response-id", "server-response-id"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    IntermediateClientResponseControl decodedControl =
+         IntermediateClientResponseControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+
+
+    decodedControl =
+         (IntermediateClientResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * an upstream value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUpstreamValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final IntermediateClientResponseValue furtherUpstreamResponse =
+         new IntermediateClientResponseValue(null, "further-upstream-address",
+              false, "further-upstream-server-name",
+              "further-upstream-server-session-id",
+              "further-upstream-server-response-id");
+
+    final IntermediateClientResponseValue upstreamResponse =
+         new IntermediateClientResponseValue(furtherUpstreamResponse,
+              "upstream-address", true, "upstream-server-name",
+              "upstream-server-session-id", "upstream-server-response-id");
+
+    final IntermediateClientResponseValue value =
+         new IntermediateClientResponseValue(upstreamResponse, "address",
+              false, "server-name", "server-session-id", "server-response-id");
+
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(value);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("upstream-response", new JSONObject(
+                   new JSONField("upstream-response", new JSONObject(
+                        new JSONField("upstream-server-address",
+                             "further-upstream-address"),
+                        new JSONField("upstream-server-secure", false),
+                        new JSONField("server-name",
+                             "further-upstream-server-name"),
+                        new JSONField("server-session-id",
+                             "further-upstream-server-session-id"),
+                        new JSONField("server-response-id",
+                             "further-upstream-server-response-id"),
+                        new JSONField("unrecognized", "foo"))),
+                   new JSONField("upstream-server-address",
+                        "upstream-address"),
+                   new JSONField("upstream-server-secure", true),
+                   new JSONField("server-name",
+                        "upstream-server-name"),
+                   new JSONField("server-session-id",
+                        "upstream-server-session-id"),
+                   new JSONField("server-response-id",
+                        "upstream-server-response-id"))),
+              new JSONField("upstream-server-address", "address"),
+              new JSONField("upstream-server-secure", false),
+              new JSONField("server-name", "server-name"),
+              new JSONField("server-session-id", "server-session-id"),
+              new JSONField("server-response-id", "server-response-id"))));
+
+
+    IntermediateClientResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * an upstream value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlUpstreamValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final IntermediateClientResponseValue furtherUpstreamResponse =
+         new IntermediateClientResponseValue(null, "further-upstream-address",
+              false, "further-upstream-server-name",
+              "further-upstream-server-session-id",
+              "further-upstream-server-response-id");
+
+    final IntermediateClientResponseValue upstreamResponse =
+         new IntermediateClientResponseValue(furtherUpstreamResponse,
+              "upstream-address", true, "upstream-server-name",
+              "upstream-server-session-id", "upstream-server-response-id");
+
+    final IntermediateClientResponseValue value =
+         new IntermediateClientResponseValue(upstreamResponse, "address",
+              false, "server-name", "server-session-id", "server-response-id");
+
+    final IntermediateClientResponseControl c =
+         new IntermediateClientResponseControl(value);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("upstream-response", new JSONObject(
+                   new JSONField("upstream-response", new JSONObject(
+                        new JSONField("upstream-server-address",
+                             "further-upstream-address"),
+                        new JSONField("upstream-server-secure", false),
+                        new JSONField("server-name",
+                             "further-upstream-server-name"),
+                        new JSONField("server-session-id",
+                             "further-upstream-server-session-id"),
+                        new JSONField("server-response-id",
+                             "further-upstream-server-response-id"),
+                        new JSONField("unrecognized", "foo"))),
+                   new JSONField("upstream-server-address",
+                        "upstream-address"),
+                   new JSONField("upstream-server-secure", true),
+                   new JSONField("server-name",
+                        "upstream-server-name"),
+                   new JSONField("server-session-id",
+                        "upstream-server-session-id"),
+                   new JSONField("server-response-id",
+                        "upstream-server-response-id"))),
+              new JSONField("upstream-server-address", "address"),
+              new JSONField("upstream-server-secure", false),
+              new JSONField("server-name", "server-name"),
+              new JSONField("server-session-id", "server-session-id"),
+              new JSONField("server-response-id", "server-response-id"))));
+
+
+    IntermediateClientResponseControl decodedControl =
+         IntermediateClientResponseControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
+
+
+    decodedControl =
+         (IntermediateClientResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUpstreamResponse(), upstreamResponse);
+    assertEquals(decodedControl.getUpstreamResponse().getServerName(),
+         "upstream-server-name");
+    assertEquals(
+         decodedControl.getUpstreamResponse().getUpstreamResponse().
+              getServerName(),
+         "further-upstream-server-name");
+
+    assertEquals(decodedControl.getUpstreamServerAddress(), "address");
+
+    assertEquals(decodedControl.upstreamServerSecure(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getServerName(), "server-name");
+
+    assertEquals(decodedControl.getServerSessionID(), "server-session-id");
+
+    assertEquals(decodedControl.getServerResponseID(), "server-response-id");
   }
 }

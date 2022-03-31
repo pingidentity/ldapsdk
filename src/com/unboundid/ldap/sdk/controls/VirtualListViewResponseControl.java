@@ -37,6 +37,10 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Enumerated;
 import com.unboundid.asn1.ASN1Exception;
@@ -45,15 +49,22 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -90,6 +101,40 @@ public final class VirtualListViewResponseControl
    */
   @NotNull public static final String VIRTUAL_LIST_VIEW_RESPONSE_OID =
        "2.16.840.1.113730.3.4.10";
+
+
+
+  /**
+   * The name of the field used to hold the content count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CONTENT_COUNT =
+       "content-count";
+
+
+
+  /**
+   * The name of the field used to hold the context ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CONTEXT_ID = "context-id";
+
+
+
+  /**
+   * The name of the field used to hold the result code in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_RESULT_CODE = "result-code";
+
+
+
+  /**
+   * The name of the field used to hold the target position in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_TARGET_POSITION =
+       "target-position";
 
 
 
@@ -413,6 +458,157 @@ public final class VirtualListViewResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_VLV_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    valueFields.put(JSON_FIELD_RESULT_CODE,
+         new JSONNumber(resultCode.intValue()));
+    valueFields.put(JSON_FIELD_TARGET_POSITION, new JSONNumber(targetPosition));
+    valueFields.put(JSON_FIELD_CONTENT_COUNT, new JSONNumber(contentCount));
+
+    if (contextID != null)
+    {
+      valueFields.put(JSON_FIELD_CONTEXT_ID,
+           new JSONString(Base64.encode(contextID.getValue())));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              VIRTUAL_LIST_VIEW_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_VLV_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * virtual list view response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The virtual list view response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid virtual list view response control.
+   */
+  @NotNull()
+  public static VirtualListViewResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new VirtualListViewResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Integer resultCodeInt =
+         valueObject.getFieldAsInteger(JSON_FIELD_RESULT_CODE);
+    if (resultCodeInt == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_RESULT_CODE));
+    }
+
+    final ResultCode resultCode = ResultCode.valueOf(resultCodeInt);
+
+
+    final Integer targetPosition =
+         valueObject.getFieldAsInteger(JSON_FIELD_TARGET_POSITION);
+    if (targetPosition == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_TARGET_POSITION));
+    }
+
+
+    final Integer contentCount =
+         valueObject.getFieldAsInteger(JSON_FIELD_CONTENT_COUNT);
+    if (contentCount == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_CONTENT_COUNT));
+    }
+
+
+    final ASN1OctetString contextID;
+    final String contextIDBase64 =
+         valueObject.getFieldAsString(JSON_FIELD_CONTEXT_ID);
+    if (contextIDBase64 == null)
+    {
+      contextID = null;
+    }
+    else
+    {
+      try
+      {
+        contextID = new ASN1OctetString(Base64.decode(contextIDBase64));
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_VLV_RESPONSE_JSON_CONTEXT_ID_NOT_BASE64.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_CONTEXT_ID),
+             e);
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_RESULT_CODE, JSON_FIELD_TARGET_POSITION,
+                JSON_FIELD_CONTENT_COUNT, JSON_FIELD_CONTEXT_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_VLV_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new VirtualListViewResponseControl(targetPosition, contentCount,
+         resultCode, contextID);
   }
 
 

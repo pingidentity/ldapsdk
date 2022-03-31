@@ -39,7 +39,12 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -122,5 +127,285 @@ public class AdministrativeOperationRequestControlTestCase
     assertNotNull(c.getControlName());
 
     assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there is no message.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithoutMessage()
+          throws Exception
+  {
+    final AdministrativeOperationRequestControl c =
+         new AdministrativeOperationRequestControl();
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject, JSONObject.EMPTY_OBJECT);
+
+
+    AdministrativeOperationRequestControl decodedControl =
+         AdministrativeOperationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMessage());
+
+
+    decodedControl =
+         (AdministrativeOperationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMessage());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there is a message.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithMessage()
+          throws Exception
+  {
+    final AdministrativeOperationRequestControl c =
+         new AdministrativeOperationRequestControl("foo");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 1);
+
+
+    AdministrativeOperationRequestControl decodedControl =
+         AdministrativeOperationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMessage(), "foo");
+
+
+    decodedControl =
+         (AdministrativeOperationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMessage(), "foo");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control when there is no value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlNoValue()
+          throws Exception
+  {
+    final AdministrativeOperationRequestControl c =
+         new AdministrativeOperationRequestControl();
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()));
+
+    AdministrativeOperationRequestControl decodedControl =
+         AdministrativeOperationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMessage());
+
+
+    decodedControl =
+         (AdministrativeOperationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMessage());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control when the value is
+   * provided in a base64-encoded representation.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final AdministrativeOperationRequestControl c =
+         new AdministrativeOperationRequestControl("foo");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+    AdministrativeOperationRequestControl decodedControl =
+         AdministrativeOperationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMessage(), "foo");
+
+
+    decodedControl =
+         (AdministrativeOperationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMessage(), "foo");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control when the value contains
+   * an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrictMode()
+          throws Exception
+  {
+    final AdministrativeOperationRequestControl c =
+         new AdministrativeOperationRequestControl("foo");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("message", "foo"),
+              new JSONField("unrecognized", "bar"))));
+
+    AdministrativeOperationRequestControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control when the value contains
+   * an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrictMode()
+          throws Exception
+  {
+    final AdministrativeOperationRequestControl c =
+         new AdministrativeOperationRequestControl("foo");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("message", "foo"),
+              new JSONField("unrecognized", "bar"))));
+
+    AdministrativeOperationRequestControl decodedControl =
+         AdministrativeOperationRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMessage(), "foo");
+
+
+    decodedControl =
+         (AdministrativeOperationRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMessage(), "foo");
   }
 }

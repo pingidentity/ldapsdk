@@ -37,7 +37,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -51,6 +53,12 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -362,5 +370,1698 @@ public class JoinResultControlTestCase
 
 
     JoinResultControl.get(e);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with a minimal set of fields.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlMinimalFields()
+          throws Exception
+  {
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS, null, null, null, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("joined-entries", JSONArray.EMPTY_ARRAY)));
+
+
+    JoinResultControl decodedControl =
+         JoinResultControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertNull(decodedControl.getMatchedDN());
+
+    assertNull(decodedControl.getDiagnosticMessage());
+
+    assertTrue(decodedControl.getReferralURLs().isEmpty());
+
+    assertTrue(decodedControl.getJoinResults().isEmpty());
+
+
+    decodedControl =
+         (JoinResultControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertNull(decodedControl.getMatchedDN());
+
+    assertNull(decodedControl.getDiagnosticMessage());
+
+    assertTrue(decodedControl.getReferralURLs().isEmpty());
+
+    assertTrue(decodedControl.getJoinResults().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with a complete set of fields.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllFields()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2"))))))));
+
+
+    JoinResultControl decodedControl =
+         JoinResultControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(decodedControl.getDiagnosticMessage(), "TheDiagnosticMessage");
+
+    assertEquals(decodedControl.getReferralURLs(),
+         referralURLs);
+
+    List<JoinedEntry> decodedJoinResults = decodedControl.getJoinResults();
+    assertEquals(decodedJoinResults.size(), 2);
+    assertEquals(decodedJoinResults.get(0),
+         new Entry(
+              "dn: ou=test-1,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-1"));
+    assertEquals(decodedJoinResults.get(1),
+         new Entry(
+              "dn: ou=test-2,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-2"));
+
+    List<JoinedEntry> nestedJoinResults =
+         decodedJoinResults.get(0).getNestedJoinResults();
+    assertEquals(nestedJoinResults.size(), 2);
+    assertEquals(nestedJoinResults.get(0),
+         new Entry(
+              "dn: ou=nested-1a,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1a"));
+    assertEquals(nestedJoinResults.get(1),
+         new Entry(
+              "dn: ou=nested-1b,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1b"));
+
+    assertTrue(nestedJoinResults.get(0).getNestedJoinResults().isEmpty());
+    assertTrue(nestedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+    assertTrue(decodedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+
+    decodedControl =
+         (JoinResultControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(decodedControl.getDiagnosticMessage(), "TheDiagnosticMessage");
+
+    assertEquals(decodedControl.getReferralURLs(),
+         referralURLs);
+
+    decodedJoinResults = decodedControl.getJoinResults();
+    assertEquals(decodedJoinResults.size(), 2);
+    assertEquals(decodedJoinResults.get(0),
+         new Entry(
+              "dn: ou=test-1,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-1"));
+    assertEquals(decodedJoinResults.get(1),
+         new Entry(
+              "dn: ou=test-2,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-2"));
+
+    nestedJoinResults = decodedJoinResults.get(0).getNestedJoinResults();
+    assertEquals(nestedJoinResults.size(), 2);
+    assertEquals(nestedJoinResults.get(0),
+         new Entry(
+              "dn: ou=nested-1a,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1a"));
+    assertEquals(nestedJoinResults.get(1),
+         new Entry(
+              "dn: ou=nested-1b,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1b"));
+
+    assertTrue(nestedJoinResults.get(0).getNestedJoinResults().isEmpty());
+    assertTrue(nestedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+    assertTrue(decodedJoinResults.get(1).getNestedJoinResults().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control when the value is
+   * base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    JoinResultControl decodedControl =
+         JoinResultControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(decodedControl.getDiagnosticMessage(), "TheDiagnosticMessage");
+
+    assertEquals(decodedControl.getReferralURLs(),
+         referralURLs);
+
+    List<JoinedEntry> decodedJoinResults = decodedControl.getJoinResults();
+    assertEquals(decodedJoinResults.size(), 2);
+    assertEquals(decodedJoinResults.get(0),
+         new Entry(
+              "dn: ou=test-1,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-1"));
+    assertEquals(decodedJoinResults.get(1),
+         new Entry(
+              "dn: ou=test-2,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-2"));
+
+    List<JoinedEntry> nestedJoinResults =
+         decodedJoinResults.get(0).getNestedJoinResults();
+    assertEquals(nestedJoinResults.size(), 2);
+    assertEquals(nestedJoinResults.get(0),
+         new Entry(
+              "dn: ou=nested-1a,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1a"));
+    assertEquals(nestedJoinResults.get(1),
+         new Entry(
+              "dn: ou=nested-1b,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1b"));
+
+    assertTrue(nestedJoinResults.get(0).getNestedJoinResults().isEmpty());
+    assertTrue(nestedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+    assertTrue(decodedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+
+
+    decodedControl =
+         (JoinResultControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(decodedControl.getDiagnosticMessage(), "TheDiagnosticMessage");
+
+    assertEquals(decodedControl.getReferralURLs(),
+         referralURLs);
+
+    decodedJoinResults = decodedControl.getJoinResults();
+    assertEquals(decodedJoinResults.size(), 2);
+    assertEquals(decodedJoinResults.get(0),
+         new Entry(
+              "dn: ou=test-1,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-1"));
+    assertEquals(decodedJoinResults.get(1),
+         new Entry(
+              "dn: ou=test-2,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-2"));
+
+    nestedJoinResults = decodedJoinResults.get(0).getNestedJoinResults();
+    assertEquals(nestedJoinResults.size(), 2);
+    assertEquals(nestedJoinResults.get(0),
+         new Entry(
+              "dn: ou=nested-1a,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1a"));
+    assertEquals(nestedJoinResults.get(1),
+         new Entry(
+              "dn: ou=nested-1b,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1b"));
+
+    assertTrue(nestedJoinResults.get(0).getNestedJoinResults().isEmpty());
+    assertTrue(nestedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+    assertTrue(decodedJoinResults.get(1).getNestedJoinResults().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control that is missing the
+   * result code field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingResultCode()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a referral-urls
+   * value that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlReferralURLNotString()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONNumber(1234),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that is missing the joined entry values field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlJoinedMissingJoinedEntryValues()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has a joined entry value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlJoinedJoinedEntryValueNotObject()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONString("foo"),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that is missing a DN.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlJoinedEntryMissingDN()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has a DN that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlJoinedEntryDNNotString()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", 1234),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has a _nested-join-results field whose value is not an array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlNestedJoinResultsNotArray()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", "foo")),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has a _nested-join-results array contains a value that is not an
+   * object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlNestedJoinResultsValueNotObject()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONString("foo"),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has an attribute field whose value is not an array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlAttributeFieldValueNotArray()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONString("test-1")),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has an attribute value that is not a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlAttributeValueNotString()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONNumber(1234),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("unrecognized", "foo"),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+    JoinResultControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control with a joined entry
+   * that has an unrecognized field in nonstrict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final List<String> referralURLs = Arrays.asList(
+         "ldap://ds1.example.com:389/",
+         "ldap://ds2.example.com:389/");
+
+    final List<JoinedEntry> joinResults = Arrays.asList(
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-1,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-1"),
+              Arrays.asList(
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1a,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1a"),
+                        null),
+                   new JoinedEntry(
+                        new Entry(
+                             "dn: ou=nested-1b,dc=example,dc=com",
+                             "objectClass: top",
+                             "objectClass: organizationalUnit",
+                             "ou: nested-1b"),
+                        null))),
+         new JoinedEntry(
+              new Entry(
+                   "dn: ou=test-2,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: test-2"),
+              null));
+
+    final JoinResultControl c =
+         new JoinResultControl(ResultCode.SUCCESS,
+              "TheDiagnosticMessage", "dc=matched,dc=dn", referralURLs,
+              joinResults);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("matched-dn", "dc=matched,dc=dn"),
+              new JSONField("diagnostic-message", "TheDiagnosticMessage"),
+              new JSONField("referral-urls", new JSONArray(
+                   new JSONString("ldap://ds1.example.com:389/"),
+                   new JSONString("ldap://ds2.example.com:389/"))),
+              new JSONField("unrecognized", "foo"),
+              new JSONField("joined-entries", new JSONArray(
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-1,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-1"))),
+                        new JSONField("_nested-join-results", new JSONArray(
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1a," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1a")))),
+                             new JSONObject(
+                                  new JSONField("_dn", "ou=nested-1b," +
+                                       "dc=example,dc=com"),
+                                  new JSONField("objectClass", new JSONArray(
+                                       new JSONString("top"),
+                                       new JSONString("organizationalUnit"))),
+                                  new JSONField("ou", new JSONArray(
+                                       new JSONString("nested-1b"))))))),
+                   new JSONObject(
+                        new JSONField("_dn", "ou=test-2,dc=example,dc=com"),
+                        new JSONField("objectClass", new JSONArray(
+                             new JSONString("top"),
+                             new JSONString("organizationalUnit"))),
+                        new JSONField("ou", new JSONArray(
+                             new JSONString("test-2")))))))));
+
+
+    JoinResultControl decodedControl =
+         JoinResultControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(decodedControl.getDiagnosticMessage(), "TheDiagnosticMessage");
+
+    assertEquals(decodedControl.getReferralURLs(),
+         referralURLs);
+
+    List<JoinedEntry> decodedJoinResults = decodedControl.getJoinResults();
+    assertEquals(decodedJoinResults.size(), 2);
+    assertEquals(decodedJoinResults.get(0),
+         new Entry(
+              "dn: ou=test-1,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-1"));
+    assertEquals(decodedJoinResults.get(1),
+         new Entry(
+              "dn: ou=test-2,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-2"));
+
+    List<JoinedEntry> nestedJoinResults =
+         decodedJoinResults.get(0).getNestedJoinResults();
+    assertEquals(nestedJoinResults.size(), 2);
+    assertEquals(nestedJoinResults.get(0),
+         new Entry(
+              "dn: ou=nested-1a,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1a"));
+    assertEquals(nestedJoinResults.get(1),
+         new Entry(
+              "dn: ou=nested-1b,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1b"));
+
+    assertTrue(nestedJoinResults.get(0).getNestedJoinResults().isEmpty());
+    assertTrue(nestedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+    assertTrue(decodedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+
+    decodedControl =
+         (JoinResultControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(decodedControl.getDiagnosticMessage(), "TheDiagnosticMessage");
+
+    assertEquals(decodedControl.getReferralURLs(),
+         referralURLs);
+
+    decodedJoinResults = decodedControl.getJoinResults();
+    assertEquals(decodedJoinResults.size(), 2);
+    assertEquals(decodedJoinResults.get(0),
+         new Entry(
+              "dn: ou=test-1,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-1"));
+    assertEquals(decodedJoinResults.get(1),
+         new Entry(
+              "dn: ou=test-2,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: test-2"));
+
+    nestedJoinResults = decodedJoinResults.get(0).getNestedJoinResults();
+    assertEquals(nestedJoinResults.size(), 2);
+    assertEquals(nestedJoinResults.get(0),
+         new Entry(
+              "dn: ou=nested-1a,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1a"));
+    assertEquals(nestedJoinResults.get(1),
+         new Entry(
+              "dn: ou=nested-1b,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: nested-1b"));
+
+    assertTrue(nestedJoinResults.get(0).getNestedJoinResults().isEmpty());
+    assertTrue(nestedJoinResults.get(1).getNestedJoinResults().isEmpty());
+
+    assertTrue(decodedJoinResults.get(1).getNestedJoinResults().isEmpty());
   }
 }

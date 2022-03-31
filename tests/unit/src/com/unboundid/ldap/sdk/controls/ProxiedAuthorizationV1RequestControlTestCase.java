@@ -51,7 +51,10 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -366,5 +369,234 @@ public class ProxiedAuthorizationV1RequestControlTestCase
     conn.delete(proxyDN);
     conn.delete(getTestBaseDN());
     conn.close();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final ProxiedAuthorizationV1RequestControl c =
+         new ProxiedAuthorizationV1RequestControl(
+              "uid=jdoe,ou=People,dc=example,dc=com");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("authorization-dn",
+                   "uid=jdoe,ou=People,dc=example,dc=com")));
+
+
+    ProxiedAuthorizationV1RequestControl decodedControl =
+         ProxiedAuthorizationV1RequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProxyDN(),
+         "uid=jdoe,ou=People,dc=example,dc=com");
+
+
+    decodedControl =
+         (ProxiedAuthorizationV1RequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProxyDN(),
+         "uid=jdoe,ou=People,dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final ProxiedAuthorizationV1RequestControl c =
+         new ProxiedAuthorizationV1RequestControl(
+              "uid=jdoe,ou=People,dc=example,dc=com");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    ProxiedAuthorizationV1RequestControl decodedControl =
+         ProxiedAuthorizationV1RequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProxyDN(),
+         "uid=jdoe,ou=People,dc=example,dc=com");
+
+
+    decodedControl =
+         (ProxiedAuthorizationV1RequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProxyDN(),
+         "uid=jdoe,ou=People,dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the required authorization ND field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingAuthorizationDN()
+          throws Exception
+  {
+    final ProxiedAuthorizationV1RequestControl c =
+         new ProxiedAuthorizationV1RequestControl(
+              "uid=jdoe,ou=People,dc=example,dc=com");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", JSONObject.EMPTY_OBJECT));
+
+
+    ProxiedAuthorizationV1RequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final ProxiedAuthorizationV1RequestControl c =
+         new ProxiedAuthorizationV1RequestControl(
+              "uid=jdoe,ou=People,dc=example,dc=com");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-dn",
+                   "uid=jdoe,ou=People,dc=example,dc=com"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    ProxiedAuthorizationV1RequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final ProxiedAuthorizationV1RequestControl c =
+         new ProxiedAuthorizationV1RequestControl(
+              "uid=jdoe,ou=People,dc=example,dc=com");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("authorization-dn",
+                   "uid=jdoe,ou=People,dc=example,dc=com"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    ProxiedAuthorizationV1RequestControl decodedControl =
+         ProxiedAuthorizationV1RequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProxyDN(),
+         "uid=jdoe,ou=People,dc=example,dc=com");
+
+
+    decodedControl =
+         (ProxiedAuthorizationV1RequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProxyDN(),
+         "uid=jdoe,ou=People,dc=example,dc=com");
   }
 }

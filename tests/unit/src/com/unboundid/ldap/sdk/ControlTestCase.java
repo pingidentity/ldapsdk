@@ -43,7 +43,10 @@ import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
+import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -583,5 +586,135 @@ public class ControlTestCase
 
     Control.deregisterDecodeableControl(TestDecodeableControl.OID);
     Control.deregisterDecodeableControl(TestDecodeableControl.OID);
+  }
+
+
+
+  /**
+   * Tests the behavior when interacting with controls as JSON objects for
+   * controls that do not have a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONControlWithoutValue()
+         throws Exception
+  {
+    final TestDecodeableControl c = new TestDecodeableControl();
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 3);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertEquals(controlObject.getFieldAsString("control-name"),
+         c.getControlName());
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.valueOf(c.isCritical()));
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertFalse(controlObject.hasField("value-json"));
+
+
+    final Control decodedControl = Control.decodeJSONControl(controlObject,
+         true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertEquals(decodedControl.isCritical(), c.isCritical());
+
+    assertEquals(decodedControl.getControlName(), c.getOID());
+
+    assertNull(decodedControl.getValue());
+  }
+
+
+
+  /**
+   * Tests the behavior when interacting with controls as JSON objects for
+   * controls that do have a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testJSONControlWithValue()
+         throws Exception
+  {
+    final Control c = new Control("1.2.3.4", true, new ASN1OctetString("foo"));
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 3);
+
+    assertEquals(controlObject.getFieldAsString("oid"), "1.2.3.4");
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertEquals(controlObject.getFieldAsString("value-base64"),
+         Base64.encode("foo"));
+
+    assertFalse(controlObject.hasField("control-name"));
+
+    assertFalse(controlObject.hasField("value-json"));
+
+
+    final Control decodedControl = Control.decodeJSONControl(controlObject,
+         true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), "1.2.3.4");
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+    assertEquals(decodedControl.getValue().stringValue(), "foo");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * that object does not include the OID field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlWithoutOID()
+         throws Exception
+  {
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("criticality", false),
+         new JSONField("value-base64", Base64.encode("foo")));
+
+    Control.decodeJSONControl(controlObject, true, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * that object uses the value-json encoding for the value and the control
+   * doesn't have an OID for which the value-json encoding is supported.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlWithUnsupportedValueJSON()
+         throws Exception
+  {
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", "1.2.3.4"),
+         new JSONField("criticality", false),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("foo", "bar"))));
+
+    Control.decodeJSONControl(controlObject, true, true);
   }
 }

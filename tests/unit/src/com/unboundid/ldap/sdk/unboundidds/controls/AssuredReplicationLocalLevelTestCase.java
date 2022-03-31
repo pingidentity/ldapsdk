@@ -66,6 +66,7 @@ public final class AssuredReplicationLocalLevelTestCase
     for (final AssuredReplicationLocalLevel l :
          AssuredReplicationLocalLevel.values())
     {
+      assertNotNull(l.getName());
       assertNotNull(l.name());
       assertNotNull(l.intValue());
       assertEquals(AssuredReplicationLocalLevel.valueOf(l.intValue()),
@@ -239,6 +240,10 @@ public final class AssuredReplicationLocalLevelTestCase
     for (final AssuredReplicationLocalLevel value :
          AssuredReplicationLocalLevel.values())
     {
+      assertNotNull(AssuredReplicationLocalLevel.forName(value.getName()));
+      assertEquals(AssuredReplicationLocalLevel.forName(value.getName()),
+           value);
+
       for (final String name : getNames(value.name()))
       {
         assertNotNull(AssuredReplicationLocalLevel.forName(name));

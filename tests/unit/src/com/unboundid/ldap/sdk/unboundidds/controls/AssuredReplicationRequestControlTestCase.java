@@ -45,6 +45,9 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -301,5 +304,650 @@ public final class AssuredReplicationRequestControlTestCase
     new AssuredReplicationRequestControl(
          new Control("1.3.6.1.4.1.30221.2.5.28", false,
               new ASN1OctetString(valueSequence.encode())));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when a minimum set of elements are included.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlMinimalControl()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(false, null, null, null, null,
+              null, false);
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 1);
+
+    assertNull(valueObject.getFieldAsString("minimum-local-level"));
+
+    assertNull(valueObject.getFieldAsString("maximum-local-level"));
+
+    assertNull(valueObject.getFieldAsString("minimum-remote-level"));
+
+    assertNull(valueObject.getFieldAsString("maximum-remote-level"));
+
+    assertNull(valueObject.getFieldAsLong("timeout-millis"));
+
+    assertEquals(valueObject.getFieldAsBoolean("send-response-immediately"),
+         Boolean.FALSE);
+
+
+    AssuredReplicationRequestControl decodedControl =
+         AssuredReplicationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMinimumLocalLevel());
+
+    assertNull(decodedControl.getMaximumLocalLevel());
+
+    assertNull(decodedControl.getMinimumRemoteLevel());
+
+    assertNull(decodedControl.getMaximumRemoteLevel());
+
+    assertNull(decodedControl.getTimeoutMillis());
+
+    assertFalse(decodedControl.sendResponseImmediately());
+
+
+    decodedControl =
+         (AssuredReplicationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMinimumLocalLevel());
+
+    assertNull(decodedControl.getMaximumLocalLevel());
+
+    assertNull(decodedControl.getMinimumRemoteLevel());
+
+    assertNull(decodedControl.getMaximumRemoteLevel());
+
+    assertNull(decodedControl.getTimeoutMillis());
+
+    assertFalse(decodedControl.sendResponseImmediately());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the control just specifies minimum levels and no
+   * maximum levels.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoMaximums()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true,
+              AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER, null,
+              AssuredReplicationRemoteLevel.RECEIVED_ANY_REMOTE_LOCATION, null,
+              12345L, true);
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 4);
+
+    assertEquals(valueObject.getFieldAsString("minimum-local-level"),
+         "received-any-server");
+
+    assertNull(valueObject.getFieldAsString("maximum-local-level"));
+
+    assertEquals(valueObject.getFieldAsString("minimum-remote-level"),
+         "received-any-remote-location");
+
+    assertNull(valueObject.getFieldAsString("maximum-remote-level"));
+
+    assertEquals(valueObject.getFieldAsLong("timeout-millis"),
+         Long.valueOf(12345L));
+
+    assertEquals(valueObject.getFieldAsBoolean("send-response-immediately"),
+         Boolean.TRUE);
+
+
+    AssuredReplicationRequestControl decodedControl =
+         AssuredReplicationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMinimumLocalLevel(),
+         AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER);
+
+    assertNull(decodedControl.getMaximumLocalLevel());
+
+    assertEquals(decodedControl.getMinimumRemoteLevel(),
+         AssuredReplicationRemoteLevel.RECEIVED_ANY_REMOTE_LOCATION);
+
+    assertNull(decodedControl.getMaximumRemoteLevel());
+
+    assertEquals(decodedControl.getTimeoutMillis(),
+         Long.valueOf(12345L));
+
+    assertTrue(decodedControl.sendResponseImmediately());
+
+
+    decodedControl =
+         (AssuredReplicationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMinimumLocalLevel(),
+         AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER);
+
+    assertNull(decodedControl.getMaximumLocalLevel());
+
+    assertEquals(decodedControl.getMinimumRemoteLevel(),
+         AssuredReplicationRemoteLevel.RECEIVED_ANY_REMOTE_LOCATION);
+
+    assertNull(decodedControl.getMaximumRemoteLevel());
+
+    assertEquals(decodedControl.getTimeoutMillis(),
+         Long.valueOf(12345L));
+
+    assertTrue(decodedControl.sendResponseImmediately());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when a complete set of elements are included.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlFullControl()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true,
+              AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER,
+              AssuredReplicationLocalLevel.PROCESSED_ALL_SERVERS,
+              AssuredReplicationRemoteLevel.RECEIVED_ANY_REMOTE_LOCATION,
+              AssuredReplicationRemoteLevel.PROCESSED_ALL_REMOTE_SERVERS,
+              12345L, true);
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 6);
+
+    assertEquals(valueObject.getFieldAsString("minimum-local-level"),
+         "received-any-server");
+
+    assertEquals(valueObject.getFieldAsString("maximum-local-level"),
+         "processed-all-servers");
+
+    assertEquals(valueObject.getFieldAsString("minimum-remote-level"),
+         "received-any-remote-location");
+
+    assertEquals(valueObject.getFieldAsString("maximum-remote-level"),
+         "processed-all-remote-servers");
+
+    assertEquals(valueObject.getFieldAsLong("timeout-millis"),
+         Long.valueOf(12345L));
+
+    assertEquals(valueObject.getFieldAsBoolean("send-response-immediately"),
+         Boolean.TRUE);
+
+
+    AssuredReplicationRequestControl decodedControl =
+         AssuredReplicationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMinimumLocalLevel(),
+         AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER);
+
+    assertEquals(decodedControl.getMaximumLocalLevel(),
+         AssuredReplicationLocalLevel.PROCESSED_ALL_SERVERS);
+
+    assertEquals(decodedControl.getMinimumRemoteLevel(),
+         AssuredReplicationRemoteLevel.RECEIVED_ANY_REMOTE_LOCATION);
+
+    assertEquals(decodedControl.getMaximumRemoteLevel(),
+         AssuredReplicationRemoteLevel.PROCESSED_ALL_REMOTE_SERVERS);
+
+    assertEquals(decodedControl.getTimeoutMillis(),
+         Long.valueOf(12345L));
+
+    assertTrue(decodedControl.sendResponseImmediately());
+
+
+    decodedControl =
+         (AssuredReplicationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMinimumLocalLevel(),
+         AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER);
+
+    assertEquals(decodedControl.getMaximumLocalLevel(),
+         AssuredReplicationLocalLevel.PROCESSED_ALL_SERVERS);
+
+    assertEquals(decodedControl.getMinimumRemoteLevel(),
+         AssuredReplicationRemoteLevel.RECEIVED_ANY_REMOTE_LOCATION);
+
+    assertEquals(decodedControl.getMaximumRemoteLevel(),
+         AssuredReplicationRemoteLevel.PROCESSED_ALL_REMOTE_SERVERS);
+
+    assertEquals(decodedControl.getTimeoutMillis(),
+         Long.valueOf(12345L));
+
+    assertTrue(decodedControl.sendResponseImmediately());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the value is base64 encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    AssuredReplicationRequestControl decodedControl =
+         AssuredReplicationRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMinimumLocalLevel());
+
+    assertNull(decodedControl.getMaximumLocalLevel());
+
+    assertNull(decodedControl.getMinimumRemoteLevel());
+
+    assertNull(decodedControl.getMaximumRemoteLevel());
+
+    assertNull(decodedControl.getTimeoutMillis());
+
+    assertFalse(decodedControl.sendResponseImmediately());
+
+
+    decodedControl =
+         (AssuredReplicationRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNull(decodedControl.getMinimumLocalLevel());
+
+    assertNull(decodedControl.getMaximumLocalLevel());
+
+    assertNull(decodedControl.getMinimumRemoteLevel());
+
+    assertNull(decodedControl.getMaximumRemoteLevel());
+
+    assertNull(decodedControl.getTimeoutMillis());
+
+    assertFalse(decodedControl.sendResponseImmediately());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when an invalid minimum local level is specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlInvalidMinimumLocalLevel()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "invalid"),
+              new JSONField("maximum-local-level", "none"),
+              new JSONField("minimum-remote-level", "none"),
+              new JSONField("maximum-remote-level", "none"),
+              new JSONField("send-response-immediately", false))));
+
+
+    AssuredReplicationRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when an invalid maximum local level is specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlInvalidMaximumLocalLevel()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "none"),
+              new JSONField("maximum-local-level", "invalid"),
+              new JSONField("minimum-remote-level", "none"),
+              new JSONField("maximum-remote-level", "none"),
+              new JSONField("send-response-immediately", false))));
+
+
+    AssuredReplicationRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when an invalid minimum remote level is specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlInvalidMinimumRemoteLevel()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "none"),
+              new JSONField("maximum-local-level", "none"),
+              new JSONField("minimum-remote-level", "invalid"),
+              new JSONField("maximum-remote-level", "none"),
+              new JSONField("send-response-immediately", false))));
+
+
+    AssuredReplicationRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when an invalid maximum remote level is specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlInvalidMaximumRemoteLevel()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "none"),
+              new JSONField("maximum-local-level", "none"),
+              new JSONField("minimum-remote-level", "none"),
+              new JSONField("maximum-remote-level", "invalid"),
+              new JSONField("send-response-immediately", false))));
+
+
+    AssuredReplicationRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * when the send-response-immediately field is not present.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingSendResponseImmediately()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "none"),
+              new JSONField("maximum-local-level", "none"),
+              new JSONField("minimum-remote-level", "none"),
+              new JSONField("maximum-remote-level", "none"))));
+
+
+    AssuredReplicationRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * that contains an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "none"),
+              new JSONField("maximum-local-level", "none"),
+              new JSONField("minimum-remote-level", "none"),
+              new JSONField("maximum-remote-level", "none"),
+              new JSONField("send-response-immediately", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    AssuredReplicationRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the control from a JSON object
+   * that contains an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final AssuredReplicationRequestControl c =
+         new AssuredReplicationRequestControl(true, null, null, null, null,
+              null, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("minimum-local-level", "none"),
+              new JSONField("maximum-local-level", "none"),
+              new JSONField("minimum-remote-level", "none"),
+              new JSONField("maximum-remote-level", "none"),
+              new JSONField("send-response-immediately", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    AssuredReplicationRequestControl decodedControl =
+         AssuredReplicationRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMinimumLocalLevel(),
+         AssuredReplicationLocalLevel.NONE);
+
+    assertEquals(decodedControl.getMaximumLocalLevel(),
+         AssuredReplicationLocalLevel.NONE);
+
+    assertEquals(decodedControl.getMinimumRemoteLevel(),
+         AssuredReplicationRemoteLevel.NONE);
+
+    assertEquals(decodedControl.getMaximumRemoteLevel(),
+         AssuredReplicationRemoteLevel.NONE);
+
+    assertNull(decodedControl.getTimeoutMillis());
+
+    assertFalse(decodedControl.sendResponseImmediately());
+
+
+    decodedControl =
+         (AssuredReplicationRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getMinimumLocalLevel(),
+         AssuredReplicationLocalLevel.NONE);
+
+    assertEquals(decodedControl.getMaximumLocalLevel(),
+         AssuredReplicationLocalLevel.NONE);
+
+    assertEquals(decodedControl.getMinimumRemoteLevel(),
+         AssuredReplicationRemoteLevel.NONE);
+
+    assertEquals(decodedControl.getMaximumRemoteLevel(),
+         AssuredReplicationRemoteLevel.NONE);
+
+    assertNull(decodedControl.getTimeoutMillis());
+
+    assertFalse(decodedControl.sendResponseImmediately());
   }
 }

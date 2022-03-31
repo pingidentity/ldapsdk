@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -46,6 +48,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -200,5 +205,231 @@ public final class SoftDeleteResponseControlTestCase
     new SoftDeleteResponseControl().decodeControl(
          SoftDeleteResponseControl.SOFT_DELETE_RESPONSE_OID, false,
          new ASN1OctetString("this is not a valid DN"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final String uuidString = UUID.randomUUID().toString();
+    final String softDeletedEntryDN =
+         "entryUUID=" + uuidString + "+uid=jdoe,ou=People,dc=example,dc=com";
+    final SoftDeleteResponseControl c =
+         new SoftDeleteResponseControl(softDeletedEntryDN);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("soft-deleted-entry-dn", softDeletedEntryDN)));
+
+
+    SoftDeleteResponseControl decodedControl =
+         SoftDeleteResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSoftDeletedEntryDN(), softDeletedEntryDN);
+
+
+    decodedControl =
+         (SoftDeleteResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSoftDeletedEntryDN(), softDeletedEntryDN);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final String uuidString = UUID.randomUUID().toString();
+    final String softDeletedEntryDN =
+         "entryUUID=" + uuidString + "+uid=jdoe,ou=People,dc=example,dc=com";
+    final SoftDeleteResponseControl c =
+         new SoftDeleteResponseControl(softDeletedEntryDN);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    SoftDeleteResponseControl decodedControl =
+         SoftDeleteResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSoftDeletedEntryDN(), softDeletedEntryDN);
+
+
+    decodedControl =
+         (SoftDeleteResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSoftDeletedEntryDN(), softDeletedEntryDN);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the soft-deleted entry DN.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingSoftDeletedEntryDN()
+          throws Exception
+  {
+    final String uuidString = UUID.randomUUID().toString();
+    final String softDeletedEntryDN =
+         "entryUUID=" + uuidString + "+uid=jdoe,ou=People,dc=example,dc=com";
+    final SoftDeleteResponseControl c =
+         new SoftDeleteResponseControl(softDeletedEntryDN);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", JSONObject.EMPTY_OBJECT));
+
+    SoftDeleteResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value includes an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final String uuidString = UUID.randomUUID().toString();
+    final String softDeletedEntryDN =
+         "entryUUID=" + uuidString + "+uid=jdoe,ou=People,dc=example,dc=com";
+    final SoftDeleteResponseControl c =
+         new SoftDeleteResponseControl(softDeletedEntryDN);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("soft-deleted-entry-dn", softDeletedEntryDN),
+              new JSONField("unrecognized", "foo"))));
+
+    SoftDeleteResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value includes an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final String uuidString = UUID.randomUUID().toString();
+    final String softDeletedEntryDN =
+         "entryUUID=" + uuidString + "+uid=jdoe,ou=People,dc=example,dc=com";
+    final SoftDeleteResponseControl c =
+         new SoftDeleteResponseControl(softDeletedEntryDN);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("soft-deleted-entry-dn", softDeletedEntryDN),
+              new JSONField("unrecognized", "foo"))));
+
+
+    SoftDeleteResponseControl decodedControl =
+         SoftDeleteResponseControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSoftDeletedEntryDN(), softDeletedEntryDN);
+
+
+    decodedControl =
+         (SoftDeleteResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getSoftDeletedEntryDN(), softDeletedEntryDN);
   }
 }

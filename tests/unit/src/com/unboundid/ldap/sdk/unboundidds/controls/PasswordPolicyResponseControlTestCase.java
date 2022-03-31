@@ -49,6 +49,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -737,5 +740,1001 @@ public class PasswordPolicyResponseControlTestCase
          null, controls);
 
     PasswordPolicyResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the value has neither a warning type nor an error
+   * type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNeitherWarningTypeNorErrorType()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(null, -1, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         JSONObject.EMPTY_OBJECT);
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertNull(decodedControl.getErrorType());
+
+
+    decodedControl =
+         (PasswordPolicyResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertNull(decodedControl.getErrorType());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when the value has both a warning type and an error
+   * type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlBothWarningTypeAndErrorType()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234))),
+              new JSONField("error-type", "account-locked")));
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+
+    decodedControl =
+         (PasswordPolicyResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control with all
+   * supported warning types.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlSupportedWarningTypes()
+          throws Exception
+  {
+    PasswordPolicyResponseControl c = new PasswordPolicyResponseControl(
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234, null);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234)))));
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertNull(decodedControl.getErrorType());
+
+
+    c = new PasswordPolicyResponseControl(
+         PasswordPolicyWarningType.GRACE_LOGINS_REMAINING, 5678, null);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("grace-logins-remaining", 5678)))));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.GRACE_LOGINS_REMAINING);
+
+    assertEquals(decodedControl.getWarningValue(), 5678);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control with all
+   * supported error types.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlSupportedErrorTypes()
+          throws Exception
+  {
+    PasswordPolicyResponseControl c = new PasswordPolicyResponseControl(null,
+         -1, PasswordPolicyErrorType.PASSWORD_EXPIRED);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "password-expired")));
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.PASSWORD_EXPIRED);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "account-locked")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.CHANGE_AFTER_RESET);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "change-after-reset")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.CHANGE_AFTER_RESET);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.PASSWORD_MOD_NOT_ALLOWED);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "password-mod-not-allowed")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.PASSWORD_MOD_NOT_ALLOWED);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.MUST_SUPPLY_OLD_PASSWORD);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "must-supply-old-password")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.MUST_SUPPLY_OLD_PASSWORD);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.INSUFFICIENT_PASSWORD_QUALITY);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "insufficient-password-quality")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.INSUFFICIENT_PASSWORD_QUALITY);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.PASSWORD_TOO_SHORT);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "password-too-short")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.PASSWORD_TOO_SHORT);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.PASSWORD_TOO_YOUNG);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "password-too-young")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.PASSWORD_TOO_YOUNG);
+
+
+    c = new PasswordPolicyResponseControl(null, -1,
+         PasswordPolicyErrorType.PASSWORD_IN_HISTORY);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("error-type", "password-in-history")));
+
+
+    decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getWarningType());
+
+    assertEquals(decodedControl.getWarningValue(), -1);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.PASSWORD_IN_HISTORY);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+
+    decodedControl =
+         (PasswordPolicyResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an empty warning array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueEmptyWarningArray()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", JSONObject.EMPTY_OBJECT),
+              new JSONField("error-type", "account-locked"))));
+
+    PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized warning type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedWarningType()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("unrecognized", 1234))),
+              new JSONField("error-type", "account-locked"))));
+
+    PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has multiple warning types.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMultipleWarningTypes()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234),
+                   new JSONField("grace-logins-remaining", 5678))),
+              new JSONField("error-type", "account-locked"))));
+
+    PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has both recognized and unrecognized warning types.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueRecognizedAndUnrecognizedWarningTypes()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234),
+                   new JSONField("unrecognized", 5678))),
+              new JSONField("error-type", "account-locked"))));
+
+    try
+    {
+      PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+      fail("Expected an exception because of an unrecognized warning field " +
+           "in strict mode");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.DECODING_ERROR);
+    }
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+
+    decodedControl =
+         (PasswordPolicyResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized error type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedErrorType()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234))),
+              new JSONField("error-type", "unrecognized"))));
+
+    PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234))),
+              new JSONField("error-type", "account-locked"),
+              new JSONField("unrecognized", "foo"))));
+
+    PasswordPolicyResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final PasswordPolicyResponseControl c =
+         new PasswordPolicyResponseControl(
+              PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION, 1234,
+              PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("warning", new JSONObject(
+                   new JSONField("seconds-until-expiration", 1234))),
+              new JSONField("error-type", "account-locked"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    PasswordPolicyResponseControl decodedControl =
+         PasswordPolicyResponseControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
+
+
+    decodedControl =
+         (PasswordPolicyResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getWarningType(),
+         PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION);
+
+    assertEquals(decodedControl.getWarningValue(), 1234);
+
+    assertEquals(decodedControl.getErrorType(),
+         PasswordPolicyErrorType.ACCOUNT_LOCKED);
   }
 }

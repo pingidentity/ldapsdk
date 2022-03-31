@@ -45,6 +45,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -233,5 +234,66 @@ public class PasswordExpiredControlTestCase
          null, null, controls);
 
     PasswordExpiredControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final PasswordExpiredControl c = new PasswordExpiredControl();
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 3);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertFalse(controlObject.hasField("value-json"));
+
+
+    PasswordExpiredControl decodedControl =
+         PasswordExpiredControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    // NOTE:  The password expired control has a value, but it's constant and
+    // doesn't show up in the JSON representation.
+    assertNotNull(decodedControl.getValue());
+
+
+    decodedControl =
+         (PasswordExpiredControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    // NOTE:  The password expired control has a value, but it's constant and
+    // doesn't show up in the JSON representation.
+    assertNotNull(decodedControl.getValue());
   }
 }

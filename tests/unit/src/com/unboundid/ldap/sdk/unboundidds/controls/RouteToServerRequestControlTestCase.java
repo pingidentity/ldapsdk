@@ -46,7 +46,10 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.Base64;
 import com.unboundid.util.CryptoHelper;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -225,5 +228,416 @@ public class RouteToServerRequestControlTestCase
     new RouteToServerRequestControl(new Control(
          RouteToServerRequestControl.ROUTE_TO_SERVER_REQUEST_OID, true,
          new ASN1OctetString(valueSequence.encode())));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", true, false, true);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("server-id", "serverID"),
+              new JSONField("allow-alternate-server", true),
+              new JSONField("prefer-local-server", false),
+              new JSONField("prefer-non-degraded-server", true)));
+
+
+    RouteToServerRequestControl decodedControl =
+         RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertTrue(decodedControl.preferNonDegradedServer());
+
+
+    decodedControl =
+         (RouteToServerRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertTrue(decodedControl.preferNonDegradedServer());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", true, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    RouteToServerRequestControl decodedControl =
+         RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertFalse(decodedControl.preferNonDegradedServer());
+
+
+    decodedControl =
+         (RouteToServerRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertFalse(decodedControl.preferNonDegradedServer());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the server-id field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingServerID()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", true, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("allow-alternate-server", true),
+              new JSONField("prefer-local-server", false),
+              new JSONField("prefer-non-degraded-server", false))));
+
+    RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the allow-alternate-server field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingAllowAlternateServer()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", true, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("server-id", "serverID"),
+              new JSONField("prefer-local-server", false),
+              new JSONField("prefer-non-degraded-server", false))));
+
+    RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the prefer-local-server field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueMissingPreferLocalServer()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", true, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("server-id", "serverID"),
+              new JSONField("allow-alternate-server", true),
+              new JSONField("prefer-non-degraded-server", false))));
+
+
+    RouteToServerRequestControl decodedControl =
+         RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertTrue(decodedControl.preferLocalServer());
+
+    assertFalse(decodedControl.preferNonDegradedServer());
+
+
+    decodedControl =
+         (RouteToServerRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertTrue(decodedControl.preferLocalServer());
+
+    assertFalse(decodedControl.preferNonDegradedServer());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the prefer-non-degraded-server field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueMissingPreferNonDegradedServer()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", true, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("server-id", "serverID"),
+              new JSONField("allow-alternate-server", true),
+              new JSONField("prefer-local-server", false))));
+
+
+    RouteToServerRequestControl decodedControl =
+         RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertTrue(decodedControl.preferNonDegradedServer());
+
+
+    decodedControl =
+         (RouteToServerRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertTrue(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertTrue(decodedControl.preferNonDegradedServer());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", false, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("server-id", "serverID"),
+              new JSONField("allow-alternate-server", false),
+              new JSONField("prefer-local-server", false),
+              new JSONField("prefer-non-degraded-server", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    RouteToServerRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final RouteToServerRequestControl c = new RouteToServerRequestControl(false,
+         "serverID", false, false, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("server-id", "serverID"),
+              new JSONField("allow-alternate-server", false),
+              new JSONField("prefer-local-server", false),
+              new JSONField("prefer-non-degraded-server", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    RouteToServerRequestControl decodedControl =
+         RouteToServerRequestControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertFalse(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertFalse(decodedControl.preferNonDegradedServer());
+
+
+    decodedControl =
+         (RouteToServerRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getServerID(), "serverID");
+
+    assertFalse(decodedControl.allowAlternateServer());
+
+    assertFalse(decodedControl.preferLocalServer());
+
+    assertFalse(decodedControl.preferNonDegradedServer());
   }
 }

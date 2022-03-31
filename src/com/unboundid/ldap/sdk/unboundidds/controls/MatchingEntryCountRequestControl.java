@@ -38,6 +38,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -46,6 +49,7 @@ import com.unboundid.asn1.ASN1Long;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -58,6 +62,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -214,6 +223,81 @@ public final class MatchingEntryCountRequestControl
    * unindexed or unevaluated.
    */
   private static final byte TYPE_INCLUDE_EXTENDED_RESPONSE_DATA = (byte) 0x87;
+
+
+
+  /**
+   * The name of the field used to hold the always examine candidates flag in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ALWAYS_EXAMINE_CANDIDATES =
+       "always-examine-candidates";
+
+
+
+  /**
+   * The name of the field used to hold the fast short-circuit threshold in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_FAST_SHORT_CIRCUIT_THRESHOLD =
+       "fast-short-circuit-threshold";
+
+
+
+  /**
+   * The name of the field used to hold the include debug info flag in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_INCLUDE_DEBUG_INFO =
+       "include-debug-info";
+
+
+
+  /**
+   * The name of the field used to hold the include extended response data flag
+   * in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_INCLUDE_EXTENDED_RESPONSE_DATA =
+            "include-extended-response-data";
+
+
+
+  /**
+   * The name of the field used to hold the maximum candidates to examine in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_MAXIMUM_CANDIDATES_TO_EXAMINE =
+            "maximum-candidates-to-examine";
+
+
+
+  /**
+   * The name of the field used to hold the process search if unindexed flag in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PROCESS_SEARCH_IF_UNINDEXED =
+       "process-search-if-unindexed";
+
+
+
+  /**
+   * The name of the field used to hold the skip resolving exploded indexes flag
+   * in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_SKIP_RESOLVING_EXPLODED_INDEXES =
+            "skip-resolving-exploded-indexes";
+
+
+
+  /**
+   * The name of the field used to hold the slow short-circuit threshold in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SLOW_SHORT_CIRCUIT_THRESHOLD =
+       "slow-short-circuit-threshold";
 
 
 
@@ -1082,6 +1166,221 @@ public final class MatchingEntryCountRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MATCHING_ENTRY_COUNT_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (maxCandidatesToExamine > 0)
+    {
+      valueFields.put(JSON_FIELD_MAXIMUM_CANDIDATES_TO_EXAMINE,
+           new JSONNumber(maxCandidatesToExamine));
+    }
+    else
+    {
+      valueFields.put(JSON_FIELD_MAXIMUM_CANDIDATES_TO_EXAMINE,
+           new JSONNumber(0));
+    }
+
+    valueFields.put(JSON_FIELD_ALWAYS_EXAMINE_CANDIDATES,
+         new JSONBoolean(alwaysExamineCandidates));
+    valueFields.put(JSON_FIELD_PROCESS_SEARCH_IF_UNINDEXED,
+         new JSONBoolean(processSearchIfUnindexed));
+    valueFields.put(JSON_FIELD_INCLUDE_DEBUG_INFO,
+         new JSONBoolean(includeDebugInfo));
+    valueFields.put(JSON_FIELD_SKIP_RESOLVING_EXPLODED_INDEXES,
+         new JSONBoolean(skipResolvingExplodedIndexes));
+
+    if (fastShortCircuitThreshold != null)
+    {
+      valueFields.put(JSON_FIELD_FAST_SHORT_CIRCUIT_THRESHOLD,
+           new JSONNumber(fastShortCircuitThreshold));
+    }
+
+    if (slowShortCircuitThreshold != null)
+    {
+      valueFields.put(JSON_FIELD_SLOW_SHORT_CIRCUIT_THRESHOLD,
+           new JSONNumber(slowShortCircuitThreshold));
+    }
+
+    valueFields.put(JSON_FIELD_INCLUDE_EXTENDED_RESPONSE_DATA,
+         new JSONBoolean(includeExtendedResponseData));
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              MATCHING_ENTRY_COUNT_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_MATCHING_ENTRY_COUNT_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * matching entry count request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The matching entry count request control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid matching entry count request control.
+   */
+  @NotNull()
+  public static MatchingEntryCountRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new MatchingEntryCountRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final MatchingEntryCountRequestControlProperties properties =
+         new MatchingEntryCountRequestControlProperties();
+
+    final Integer maximumCandidatesToExamine = valueObject.getFieldAsInteger(
+         JSON_FIELD_MAXIMUM_CANDIDATES_TO_EXAMINE);
+    if (maximumCandidatesToExamine == null)
+    {
+      properties.setMaxCandidatesToExamine(0);
+    }
+    else
+    {
+      properties.setMaxCandidatesToExamine(maximumCandidatesToExamine);
+    }
+
+
+    final Boolean alwaysExamineCandidates =
+         valueObject.getFieldAsBoolean(JSON_FIELD_ALWAYS_EXAMINE_CANDIDATES);
+    if (alwaysExamineCandidates == null)
+    {
+      properties.setAlwaysExamineCandidates(false);
+    }
+    else
+    {
+      properties.setAlwaysExamineCandidates(alwaysExamineCandidates);
+    }
+
+
+    final Boolean processSearchIfUnindexed =
+         valueObject.getFieldAsBoolean(JSON_FIELD_PROCESS_SEARCH_IF_UNINDEXED);
+    if (processSearchIfUnindexed == null)
+    {
+      properties.setProcessSearchIfUnindexed(false);
+    }
+    else
+    {
+      properties.setProcessSearchIfUnindexed(processSearchIfUnindexed);
+    }
+
+
+    final Boolean includeDebugInfo =
+         valueObject.getFieldAsBoolean(JSON_FIELD_INCLUDE_DEBUG_INFO);
+    if (includeDebugInfo == null)
+    {
+      properties.setIncludeDebugInfo(false);
+    }
+    else
+    {
+      properties.setIncludeDebugInfo(includeDebugInfo);
+    }
+
+
+    final Boolean skipResolvingExplodedIndexes =
+         valueObject.getFieldAsBoolean(
+              JSON_FIELD_SKIP_RESOLVING_EXPLODED_INDEXES);
+    if (skipResolvingExplodedIndexes == null)
+    {
+      properties.setSkipResolvingExplodedIndexes(false);
+    }
+    else
+    {
+      properties.setSkipResolvingExplodedIndexes(skipResolvingExplodedIndexes);
+    }
+
+
+    final Long fastShortCircuitThreshold =
+         valueObject.getFieldAsLong(JSON_FIELD_FAST_SHORT_CIRCUIT_THRESHOLD);
+    if (fastShortCircuitThreshold != null)
+    {
+      properties.setFastShortCircuitThreshold(fastShortCircuitThreshold);
+    }
+
+
+    final Long slowShortCircuitThreshold =
+         valueObject.getFieldAsLong(JSON_FIELD_SLOW_SHORT_CIRCUIT_THRESHOLD);
+    if (slowShortCircuitThreshold != null)
+    {
+      properties.setSlowShortCircuitThreshold(slowShortCircuitThreshold);
+    }
+
+
+    final Boolean includeExtendedResponseData = valueObject.getFieldAsBoolean(
+         JSON_FIELD_INCLUDE_EXTENDED_RESPONSE_DATA);
+    if (includeExtendedResponseData == null)
+    {
+      properties.setIncludeExtendedResponseData(false);
+    }
+    else
+    {
+      properties.setIncludeExtendedResponseData(includeExtendedResponseData);
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_MAXIMUM_CANDIDATES_TO_EXAMINE,
+                JSON_FIELD_ALWAYS_EXAMINE_CANDIDATES,
+                JSON_FIELD_PROCESS_SEARCH_IF_UNINDEXED,
+                JSON_FIELD_INCLUDE_DEBUG_INFO,
+                JSON_FIELD_SKIP_RESOLVING_EXPLODED_INDEXES,
+                JSON_FIELD_FAST_SHORT_CIRCUIT_THRESHOLD,
+                JSON_FIELD_SLOW_SHORT_CIRCUIT_THRESHOLD,
+                JSON_FIELD_INCLUDE_EXTENDED_RESPONSE_DATA);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MATCHING_ENTRY_COUNT_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new MatchingEntryCountRequestControl(jsonControl.getCriticality(),
+         properties);
   }
 
 

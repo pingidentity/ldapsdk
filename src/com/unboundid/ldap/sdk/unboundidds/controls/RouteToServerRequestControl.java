@@ -38,12 +38,16 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -53,6 +57,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -159,6 +168,41 @@ public final class RouteToServerRequestControl
    * The BER type for the prefer non-degraded server element.
    */
   private static final byte TYPE_PREFER_NON_DEGRADED_SERVER = (byte) 0x83;
+
+
+
+  /**
+   * The name of the field used to hold the allow-alternate-server flag in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ALLOW_ALTERNATE_SERVER =
+       "allow-alternate-server";
+
+
+
+  /**
+   * The name of the field used to hold the prefer-local-server flag in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PREFER_LOCAL_SERVER =
+       "prefer-local-server";
+
+
+
+  /**
+   * The name of the field used to hold the prefer-non-degraded-server flag in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PREFER_NON_DEGRADED_SERVER =
+       "prefer-non-degraded-server";
+
+
+
+  /**
+   * The name of the field used to hold the server ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_ID = "server-id";
 
 
 
@@ -463,6 +507,135 @@ public final class RouteToServerRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_ROUTE_TO_SERVER_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_SERVER_ID, new JSONString(serverID));
+    valueFields.put(JSON_FIELD_ALLOW_ALTERNATE_SERVER,
+         new JSONBoolean(allowAlternateServer));
+
+    if (allowAlternateServer)
+    {
+      valueFields.put(JSON_FIELD_PREFER_LOCAL_SERVER,
+           new JSONBoolean(preferLocalServer));
+      valueFields.put(JSON_FIELD_PREFER_NON_DEGRADED_SERVER,
+           new JSONBoolean(preferNonDegradedServer));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              ROUTE_TO_SERVER_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_ROUTE_TO_SERVER_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * route to server request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The route to server request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid route to server request control.
+   */
+  @NotNull()
+  public static RouteToServerRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new RouteToServerRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String serverID = valueObject.getFieldAsString(JSON_FIELD_SERVER_ID);
+    if (serverID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ROUTE_TO_SERVER_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_SERVER_ID));
+    }
+
+    final Boolean allowAlternateServer =
+         valueObject.getFieldAsBoolean(JSON_FIELD_ALLOW_ALTERNATE_SERVER);
+    if (allowAlternateServer == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ROUTE_TO_SERVER_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_ALLOW_ALTERNATE_SERVER));
+    }
+
+    Boolean preferLocalServer =
+         valueObject.getFieldAsBoolean(JSON_FIELD_PREFER_LOCAL_SERVER);
+    if (preferLocalServer == null)
+    {
+      preferLocalServer = true;
+    }
+
+    Boolean preferNonDegradedServer =
+         valueObject.getFieldAsBoolean(JSON_FIELD_PREFER_NON_DEGRADED_SERVER);
+    if (preferNonDegradedServer == null)
+    {
+      preferNonDegradedServer = true;
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SERVER_ID,
+                JSON_FIELD_ALLOW_ALTERNATE_SERVER,
+                JSON_FIELD_PREFER_LOCAL_SERVER,
+                JSON_FIELD_PREFER_NON_DEGRADED_SERVER);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ROUTE_TO_SERVER_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new RouteToServerRequestControl(jsonControl.getCriticality(),
+         serverID, allowAlternateServer, preferLocalServer,
+         preferNonDegradedServer);
   }
 
 

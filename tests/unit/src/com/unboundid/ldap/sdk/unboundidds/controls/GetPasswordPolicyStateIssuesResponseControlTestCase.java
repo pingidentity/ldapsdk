@@ -56,6 +56,11 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityNotice;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityWarning;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.
                    AuthenticationFailureReason.*;
@@ -683,5 +688,1360 @@ public final class GetPasswordPolicyStateIssuesResponseControlTestCase
     final LDAPException ldapException = new LDAPException(
          ResultCode.INVALID_CREDENTIALS, null, null, null, controls, null);
     GetPasswordPolicyStateIssuesResponseControl.get(ldapException);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there are no issues and no authentication failure
+   * reason.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlEmpty()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(null, null, null,
+              null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         JSONObject.EMPTY_OBJECT);
+
+
+    GetPasswordPolicyStateIssuesResponseControl decodedControl =
+         GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices(), Collections.emptyList());
+
+    assertEquals(decodedControl.getWarnings(), Collections.emptyList());
+
+    assertEquals(decodedControl.getErrors(), Collections.emptyList());
+
+    assertNull(decodedControl.getAuthenticationFailureReason());
+
+
+    decodedControl =
+         (GetPasswordPolicyStateIssuesResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices(), Collections.emptyList());
+
+    assertEquals(decodedControl.getWarnings(), Collections.emptyList());
+
+    assertEquals(decodedControl.getErrors(), Collections.emptyList());
+
+    assertNull(decodedControl.getAuthenticationFailureReason());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when all items are populated.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllItems()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password")))));
+
+
+    GetPasswordPolicyStateIssuesResponseControl decodedControl =
+         GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices().size(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getName(),
+         "outstanding-retired-password");
+    assertEquals(decodedControl.getNotices().get(0).getMessage(),
+         "The user has a valid retired password");
+
+    assertEquals(decodedControl.getWarnings().size(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getName(),
+         "account-expiring");
+    assertEquals(decodedControl.getWarnings().get(0).getMessage(),
+         "The account will expire soon");
+
+    assertEquals(decodedControl.getErrors().size(), 1);
+    assertEquals(decodedControl.getErrors().get(0).getIntValue(), 11);
+    assertEquals(decodedControl.getErrors().get(0).getName(),
+         "must-change-password");
+    assertEquals(decodedControl.getErrors().get(0).getMessage(),
+         "The user must change their password");
+
+    assertNotNull(decodedControl.getAuthenticationFailureReason());
+    assertEquals(decodedControl.getAuthenticationFailureReason().getIntValue(),
+         9);
+    assertEquals(decodedControl.getAuthenticationFailureReason().getName(),
+         "invalid-credentials");
+    assertEquals(decodedControl.getAuthenticationFailureReason().getMessage(),
+         "Wrong password");
+
+
+    decodedControl =
+         (GetPasswordPolicyStateIssuesResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices().size(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getName(),
+         "outstanding-retired-password");
+    assertEquals(decodedControl.getNotices().get(0).getMessage(),
+         "The user has a valid retired password");
+
+    assertEquals(decodedControl.getWarnings().size(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getName(),
+         "account-expiring");
+    assertEquals(decodedControl.getWarnings().get(0).getMessage(),
+         "The account will expire soon");
+
+    assertEquals(decodedControl.getErrors().size(), 1);
+    assertEquals(decodedControl.getErrors().get(0).getIntValue(), 11);
+    assertEquals(decodedControl.getErrors().get(0).getName(),
+         "must-change-password");
+    assertEquals(decodedControl.getErrors().get(0).getMessage(),
+         "The user must change their password");
+
+    assertNotNull(decodedControl.getAuthenticationFailureReason());
+    assertEquals(decodedControl.getAuthenticationFailureReason().getIntValue(),
+         9);
+    assertEquals(decodedControl.getAuthenticationFailureReason().getName(),
+         "invalid-credentials");
+    assertEquals(decodedControl.getAuthenticationFailureReason().getMessage(),
+         "Wrong password");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    GetPasswordPolicyStateIssuesResponseControl decodedControl =
+         GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(
+              controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices().size(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getName(),
+         "outstanding-retired-password");
+    assertEquals(decodedControl.getNotices().get(0).getMessage(),
+         "The user has a valid retired password");
+
+    assertEquals(decodedControl.getWarnings().size(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getName(),
+         "account-expiring");
+    assertEquals(decodedControl.getWarnings().get(0).getMessage(),
+         "The account will expire soon");
+
+    assertEquals(decodedControl.getErrors().size(), 1);
+    assertEquals(decodedControl.getErrors().get(0).getIntValue(), 11);
+    assertEquals(decodedControl.getErrors().get(0).getName(),
+         "must-change-password");
+    assertEquals(decodedControl.getErrors().get(0).getMessage(),
+         "The user must change their password");
+
+    assertNotNull(decodedControl.getAuthenticationFailureReason());
+    assertEquals(decodedControl.getAuthenticationFailureReason().getIntValue(),
+         9);
+    assertEquals(decodedControl.getAuthenticationFailureReason().getName(),
+         "invalid-credentials");
+    assertEquals(decodedControl.getAuthenticationFailureReason().getMessage(),
+         "Wrong password");
+
+
+    decodedControl =
+         (GetPasswordPolicyStateIssuesResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices().size(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getName(),
+         "outstanding-retired-password");
+    assertEquals(decodedControl.getNotices().get(0).getMessage(),
+         "The user has a valid retired password");
+
+    assertEquals(decodedControl.getWarnings().size(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getName(),
+         "account-expiring");
+    assertEquals(decodedControl.getWarnings().get(0).getMessage(),
+         "The account will expire soon");
+
+    assertEquals(decodedControl.getErrors().size(), 1);
+    assertEquals(decodedControl.getErrors().get(0).getIntValue(), 11);
+    assertEquals(decodedControl.getErrors().get(0).getName(),
+         "must-change-password");
+    assertEquals(decodedControl.getErrors().get(0).getMessage(),
+         "The user must change their password");
+
+    assertNotNull(decodedControl.getAuthenticationFailureReason());
+    assertEquals(decodedControl.getAuthenticationFailureReason().getIntValue(),
+         9);
+    assertEquals(decodedControl.getAuthenticationFailureReason().getName(),
+         "invalid-credentials");
+    assertEquals(decodedControl.getAuthenticationFailureReason().getMessage(),
+         "Wrong password");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when an
+   * account usability notice is missing the required ID field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlNoticeMissingID()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when an
+   * account usability notice is missing the required name field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlNoticeMissingName()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the set of account usability notices has a value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlNoticeNotObject()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONString("foo"))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when an
+   * account usability warning is missing the required ID field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlWarningMissingID()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when an
+   * account usability warning is missing the required name field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlWarningMissingName()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the set of account usability warnings has a value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlWarningNotObject()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONString("foo"))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when an
+   * account usability error is missing the required ID field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlErrorMissingID()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when an
+   * account usability error is missing the required name field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlErrorMissingName()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the set of account usability errors has a value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlErrorNotObject()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONString("foo"))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the authentication failure reason is missing the required ID field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlAuthFailureReasonMissingID()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the authentication failure reason is missing the required name field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlAuthFailureReasonMissingName()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("message", "Wrong password"))))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))),
+              new JSONField("unrecognized", "foo"))));
+
+    GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(controlObject,
+         true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final GetPasswordPolicyStateIssuesResponseControl c =
+         new GetPasswordPolicyStateIssuesResponseControl(
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityNotice(
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_TYPE_OUTSTANDING_RETIRED_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityNotice.
+                             NOTICE_NAME_OUTSTANDING_RETIRED_PASSWORD,
+                        "The user has a valid retired password")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityWarning(
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_TYPE_ACCOUNT_EXPIRING,
+                        PasswordPolicyStateAccountUsabilityWarning.
+                             WARNING_NAME_ACCOUNT_EXPIRING,
+                        "The account will expire soon")),
+              Collections.singletonList(
+                   new PasswordPolicyStateAccountUsabilityError(
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_TYPE_MUST_CHANGE_PASSWORD,
+                        PasswordPolicyStateAccountUsabilityError.
+                             ERROR_NAME_MUST_CHANGE_PASSWORD,
+                        "The user must change their password")),
+              new AuthenticationFailureReason(
+                   AuthenticationFailureReason.FAILURE_TYPE_INVALID_CREDENTIALS,
+                   AuthenticationFailureReason.FAILURE_NAME_INVALID_CREDENTIALS,
+                   "Wrong password"));
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("notices", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "outstanding-retired-password"),
+                        new JSONField("message",
+                             "The user has a valid retired password")))),
+              new JSONField("warnings", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 1),
+                        new JSONField("name", "account-expiring"),
+                        new JSONField("message",
+                             "The account will expire soon")))),
+              new JSONField("errors", new JSONArray(
+                   new JSONObject(
+                        new JSONField("id", 11),
+                        new JSONField("name", "must-change-password"),
+                        new JSONField("message",
+                             "The user must change their password")))),
+              new JSONField("authentication-failure-reason", new JSONObject(
+                   new JSONField("id", 9),
+                   new JSONField("name", "invalid-credentials"),
+                   new JSONField("message", "Wrong password"))),
+              new JSONField("unrecognized", "foo"))));
+
+
+    GetPasswordPolicyStateIssuesResponseControl decodedControl =
+         GetPasswordPolicyStateIssuesResponseControl.decodeJSONControl(
+              controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices().size(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getName(),
+         "outstanding-retired-password");
+    assertEquals(decodedControl.getNotices().get(0).getMessage(),
+         "The user has a valid retired password");
+
+    assertEquals(decodedControl.getWarnings().size(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getName(),
+         "account-expiring");
+    assertEquals(decodedControl.getWarnings().get(0).getMessage(),
+         "The account will expire soon");
+
+    assertEquals(decodedControl.getErrors().size(), 1);
+    assertEquals(decodedControl.getErrors().get(0).getIntValue(), 11);
+    assertEquals(decodedControl.getErrors().get(0).getName(),
+         "must-change-password");
+    assertEquals(decodedControl.getErrors().get(0).getMessage(),
+         "The user must change their password");
+
+    assertNotNull(decodedControl.getAuthenticationFailureReason());
+    assertEquals(decodedControl.getAuthenticationFailureReason().getIntValue(),
+         9);
+    assertEquals(decodedControl.getAuthenticationFailureReason().getName(),
+         "invalid-credentials");
+    assertEquals(decodedControl.getAuthenticationFailureReason().getMessage(),
+         "Wrong password");
+
+
+    decodedControl =
+         (GetPasswordPolicyStateIssuesResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getNotices().size(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getNotices().get(0).getName(),
+         "outstanding-retired-password");
+    assertEquals(decodedControl.getNotices().get(0).getMessage(),
+         "The user has a valid retired password");
+
+    assertEquals(decodedControl.getWarnings().size(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getIntValue(), 1);
+    assertEquals(decodedControl.getWarnings().get(0).getName(),
+         "account-expiring");
+    assertEquals(decodedControl.getWarnings().get(0).getMessage(),
+         "The account will expire soon");
+
+    assertEquals(decodedControl.getErrors().size(), 1);
+    assertEquals(decodedControl.getErrors().get(0).getIntValue(), 11);
+    assertEquals(decodedControl.getErrors().get(0).getName(),
+         "must-change-password");
+    assertEquals(decodedControl.getErrors().get(0).getMessage(),
+         "The user must change their password");
+
+    assertNotNull(decodedControl.getAuthenticationFailureReason());
+    assertEquals(decodedControl.getAuthenticationFailureReason().getIntValue(),
+         9);
+    assertEquals(decodedControl.getAuthenticationFailureReason().getName(),
+         "invalid-credentials");
+    assertEquals(decodedControl.getAuthenticationFailureReason().getMessage(),
+         "Wrong password");
   }
 }

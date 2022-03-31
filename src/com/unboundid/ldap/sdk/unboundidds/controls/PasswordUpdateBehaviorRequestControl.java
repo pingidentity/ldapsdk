@@ -38,12 +38,16 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -53,6 +57,11 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -158,6 +167,69 @@ public final class PasswordUpdateBehaviorRequestControl
    * encoded request.
    */
   private static final byte TYPE_MUST_CHANGE_PASSWORD = (byte) 0x86;
+
+
+
+  /**
+   * The name of the field used to hold the allow-pre-encoded-password value in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ALLOW_PRE_ENCODED_PASSWORD =
+       "allow-pre-encoded-password";
+
+
+
+  /**
+   * The name of the field used to hold the ignore-minimum-password-age value in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_IGNORE_MINIMUM_PASSWORD_AGE =
+       "ignore-minimum-password-age";
+
+
+
+  /**
+   * The name of the field used to hold the ignore-password-history value in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_IGNORE_PASSWORD_HISTORY =
+       "ignore-password-history";
+
+
+
+  /**
+   * The name of the field used to hold the is-self-change value in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_IS_SELF_CHANGE =
+       "is-self-change";
+
+
+
+  /**
+   * The name of the field used to hold the must-change-password value in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MUST_CHANGE_PASSWORD =
+       "must-change-password";
+
+
+
+  /**
+   * The name of the field used to hold the password-storage-scheme value in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PASSWORD_STORAGE_SCHEME =
+       "password-storage-scheme";
+
+
+
+  /**
+   * The name of the field used to hold the skip-password-validation value in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SKIP_PASSWORD_VALIDATION =
+       "skip-password-validation";
 
 
 
@@ -520,6 +592,186 @@ public final class PasswordUpdateBehaviorRequestControl
   public String getControlName()
   {
     return INFO_PW_UPDATE_BEHAVIOR_REQ_CONTROL_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (isSelfChange != null)
+    {
+      valueFields.put(JSON_FIELD_IS_SELF_CHANGE, new JSONBoolean(isSelfChange));
+    }
+
+    if (allowPreEncodedPassword != null)
+    {
+      valueFields.put(JSON_FIELD_ALLOW_PRE_ENCODED_PASSWORD,
+           new JSONBoolean(allowPreEncodedPassword));
+    }
+
+    if (skipPasswordValidation != null)
+    {
+      valueFields.put(JSON_FIELD_SKIP_PASSWORD_VALIDATION,
+           new JSONBoolean(skipPasswordValidation));
+    }
+
+    if (ignorePasswordHistory != null)
+    {
+      valueFields.put(JSON_FIELD_IGNORE_PASSWORD_HISTORY,
+           new JSONBoolean(ignorePasswordHistory));
+    }
+
+    if (ignoreMinimumPasswordAge != null)
+    {
+      valueFields.put(JSON_FIELD_IGNORE_MINIMUM_PASSWORD_AGE,
+           new JSONBoolean(ignoreMinimumPasswordAge));
+    }
+
+    if (passwordStorageScheme != null)
+    {
+      valueFields.put(JSON_FIELD_PASSWORD_STORAGE_SCHEME,
+           new JSONString(passwordStorageScheme));
+    }
+
+    if (mustChangePassword != null)
+    {
+      valueFields.put(JSON_FIELD_MUST_CHANGE_PASSWORD,
+           new JSONBoolean(mustChangePassword));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PASSWORD_UPDATE_BEHAVIOR_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_PW_UPDATE_BEHAVIOR_REQ_CONTROL_NAME.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * password update behavior control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The password update behavior request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid password update behavior request control.
+   */
+  @NotNull()
+  public static PasswordUpdateBehaviorRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new PasswordUpdateBehaviorRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Boolean isSelfChange =
+         valueObject.getFieldAsBoolean(JSON_FIELD_IS_SELF_CHANGE);
+    if (isSelfChange != null)
+    {
+      properties.setIsSelfChange(isSelfChange);
+    }
+
+    final Boolean allowPreEncodedPassword =
+         valueObject.getFieldAsBoolean(JSON_FIELD_ALLOW_PRE_ENCODED_PASSWORD);
+    if (allowPreEncodedPassword != null)
+    {
+      properties.setAllowPreEncodedPassword(allowPreEncodedPassword);
+    }
+
+    final Boolean skipPasswordValidation =
+         valueObject.getFieldAsBoolean(JSON_FIELD_SKIP_PASSWORD_VALIDATION);
+    if (skipPasswordValidation != null)
+    {
+      properties.setSkipPasswordValidation(skipPasswordValidation);
+    }
+
+    final Boolean ignorePasswordHistory =
+         valueObject.getFieldAsBoolean(JSON_FIELD_IGNORE_PASSWORD_HISTORY);
+    if (ignorePasswordHistory != null)
+    {
+      properties.setIgnorePasswordHistory(ignorePasswordHistory);
+    }
+
+    final Boolean ignoreMinimumPasswordAge =
+         valueObject.getFieldAsBoolean(JSON_FIELD_IGNORE_MINIMUM_PASSWORD_AGE);
+    if (ignoreMinimumPasswordAge != null)
+    {
+      properties.setIgnoreMinimumPasswordAge(ignoreMinimumPasswordAge);
+    }
+
+    final String passwordStorageScheme =
+         valueObject.getFieldAsString(JSON_FIELD_PASSWORD_STORAGE_SCHEME);
+    if (passwordStorageScheme != null)
+    {
+      properties.setPasswordStorageScheme(passwordStorageScheme);
+    }
+
+    final Boolean mustChangePassword =
+         valueObject.getFieldAsBoolean(JSON_FIELD_MUST_CHANGE_PASSWORD);
+    if (mustChangePassword != null)
+    {
+      properties.setMustChangePassword(mustChangePassword);
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_IS_SELF_CHANGE,
+                JSON_FIELD_ALLOW_PRE_ENCODED_PASSWORD,
+                JSON_FIELD_SKIP_PASSWORD_VALIDATION,
+                JSON_FIELD_IGNORE_PASSWORD_HISTORY,
+                JSON_FIELD_IGNORE_MINIMUM_PASSWORD_AGE,
+                JSON_FIELD_PASSWORD_STORAGE_SCHEME,
+                JSON_FIELD_MUST_CHANGE_PASSWORD);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PW_UPDATE_BEHAVIOR_REQ_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new PasswordUpdateBehaviorRequestControl(properties,
+         jsonControl.getCriticality());
   }
 
 

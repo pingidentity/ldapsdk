@@ -38,6 +38,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -46,6 +49,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -56,6 +60,12 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -107,6 +117,33 @@ public final class GeneratePasswordResponseControl
    * The BER type for the {@code secondsUntilExpiration} element.
    */
   private static final byte TYPE_SECONDS_UNTIL_EXPIRATION = (byte) 0x80;
+
+
+
+  /**
+   * The name of the field used to hold the generated password in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_GENERATED_PASSWORD =
+       "generated-password";
+
+
+
+  /**
+   * The name of the field used to indicate whether the user must choose a new
+   * password in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_MUST_CHANGE_PASSWORD =
+       "must-change-password";
+
+
+
+  /**
+   * The name of the field used to specify the number of seconds until the
+   * password expires in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SECONDS_UNTIL_EXPIRATION =
+       "seconds-until-expiration";
 
 
 
@@ -461,6 +498,124 @@ public final class GeneratePasswordResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GENERATE_PASSWORD_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_GENERATED_PASSWORD,
+         new JSONString(generatedPassword.stringValue()));
+    valueFields.put(JSON_FIELD_MUST_CHANGE_PASSWORD,
+         new JSONBoolean(mustChangePassword));
+
+    if (secondsUntilExpiration != null)
+    {
+      valueFields.put(JSON_FIELD_SECONDS_UNTIL_EXPIRATION,
+           new JSONNumber(secondsUntilExpiration));
+    }
+
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GENERATE_PASSWORD_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GENERATE_PASSWORD_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * generate password response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The generate password response control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid generate password response control.
+   */
+  @NotNull()
+  public static GeneratePasswordResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GeneratePasswordResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String generatedPassword =
+         valueObject.getFieldAsString(JSON_FIELD_GENERATED_PASSWORD);
+    if (generatedPassword == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GENERATE_PASSWORD_RESPONSE_JSON_MISSING_FIELD.get(
+                valueObject.toSingleLineString(),
+                JSON_FIELD_GENERATED_PASSWORD));
+    }
+
+    final Boolean mustChangePassword =
+         valueObject.getFieldAsBoolean(JSON_FIELD_MUST_CHANGE_PASSWORD);
+    if (mustChangePassword == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GENERATE_PASSWORD_RESPONSE_JSON_MISSING_FIELD.get(
+                valueObject.toSingleLineString(),
+                JSON_FIELD_MUST_CHANGE_PASSWORD));
+    }
+
+    final Long secondsUntilExpiration =
+         valueObject.getFieldAsLong(JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_GENERATED_PASSWORD,
+                JSON_FIELD_MUST_CHANGE_PASSWORD,
+                JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GENERATE_PASSWORD_RESPONSE_JSON_CONTROL_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GeneratePasswordResponseControl(generatedPassword,
+         mustChangePassword, secondsUntilExpiration);
   }
 
 

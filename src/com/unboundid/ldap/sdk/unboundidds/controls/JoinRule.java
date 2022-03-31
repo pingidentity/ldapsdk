@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Boolean;
@@ -45,6 +46,7 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -55,6 +57,10 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -137,6 +143,96 @@ public final class JoinRule
    * The join rule type that will be used for reverse DN join rules.
    */
   public static final byte JOIN_TYPE_REVERSE_DN = (byte) 0x85;
+
+
+
+  /**
+   * The name of the field used to indicate whether to match all source
+   * attribute values in the JSON representation of this join rule.
+   */
+  @NotNull private static final String JSON_FIELD_MATCH_ALL = "match-all";
+
+
+
+  /**
+   * The name of the field used to hold the nested join rules in the JSON
+   * representation of this join rule.
+   */
+  @NotNull private static final String JSON_FIELD_RULES = "rules";
+
+
+
+  /**
+   * The name of the field used to hold the name of a source entry attribute in
+   * the JSON representation of this join rule.
+   */
+  @NotNull private static final String JSON_FIELD_SOURCE_ATTRIBUTE =
+       "source-attribute";
+
+
+
+  /**
+   * The name of the field used to hold the name of a target entry attribute in
+   * the JSON representation of this join rule.
+   */
+  @NotNull private static final String JSON_FIELD_TARGET_ATTRIBUTE =
+       "target-attribute";
+
+
+
+  /**
+   * The name of the field used to hold the join rule type in the JSON
+   * representation of this join rule.
+   */
+  @NotNull private static final String JSON_FIELD_TYPE = "type";
+
+
+
+  /**
+   * The string that should be used to represent the AND join rule type in JSON
+   * object representations.
+   */
+  @NotNull private static final String JSON_TYPE_AND = "and";
+
+
+
+  /**
+   * The string that should be used to represent the contains join rule type in
+   * JSON object representations.
+   */
+  @NotNull private static final String JSON_TYPE_CONTAINS = "contains";
+
+
+
+  /**
+   * The string that should be used to represent the DN join rule type in JSON
+   * object representations.
+   */
+  @NotNull private static final String JSON_TYPE_DN = "dn";
+
+
+
+  /**
+   * The string that should be used to represent the equality join rule type in
+   * JSON object representations.
+   */
+  @NotNull private static final String JSON_TYPE_EQUALITY = "equality";
+
+
+
+  /**
+   * The string that should be used to represent the OR join rule type in JSON
+   * object representations.
+   */
+  @NotNull private static final String JSON_TYPE_OR = "or";
+
+
+
+  /**
+   * The string that should be used to represent the reverse DN join rule type
+   * in JSON object representations.
+   */
+  @NotNull private static final String JSON_TYPE_REVERSE_DN = "reverse-dn";
 
 
 
@@ -613,6 +709,491 @@ public final class JoinRule
              ERR_JOIN_RULE_DECODE_INVALID_TYPE.get(
                   StaticUtils.toHex(elementType)));
     }
+  }
+
+
+
+  /**
+   * Retrieve a JSON object representation of this join rule.
+   *
+   * @return  A JSON object representation of this join rule.
+   */
+  @NotNull()
+  public JSONObject toJSON()
+  {
+    switch (type)
+    {
+      case JOIN_TYPE_DN:
+        return new JSONObject(
+             new JSONField(JSON_FIELD_TYPE, JSON_TYPE_DN),
+             new JSONField(JSON_FIELD_SOURCE_ATTRIBUTE, sourceAttribute));
+
+      case JOIN_TYPE_REVERSE_DN:
+        return new JSONObject(
+             new JSONField(JSON_FIELD_TYPE, JSON_TYPE_REVERSE_DN),
+             new JSONField(JSON_FIELD_TARGET_ATTRIBUTE, targetAttribute));
+
+      case JOIN_TYPE_EQUALITY:
+        return new JSONObject(
+             new JSONField(JSON_FIELD_TYPE, JSON_TYPE_EQUALITY),
+             new JSONField(JSON_FIELD_SOURCE_ATTRIBUTE, sourceAttribute),
+             new JSONField(JSON_FIELD_TARGET_ATTRIBUTE, targetAttribute),
+             new JSONField(JSON_FIELD_MATCH_ALL, matchAll));
+
+      case JOIN_TYPE_CONTAINS:
+        return new JSONObject(
+             new JSONField(JSON_FIELD_TYPE, JSON_TYPE_CONTAINS),
+             new JSONField(JSON_FIELD_SOURCE_ATTRIBUTE, sourceAttribute),
+             new JSONField(JSON_FIELD_TARGET_ATTRIBUTE, targetAttribute),
+             new JSONField(JSON_FIELD_MATCH_ALL, matchAll));
+
+      case JOIN_TYPE_AND:
+        final List<JSONValue> andRuleValues =
+             new ArrayList<>(components.length);
+        for (final JoinRule rule : components)
+        {
+          andRuleValues.add(rule.toJSON());
+        }
+
+        return new JSONObject(
+             new JSONField(JSON_FIELD_TYPE, JSON_TYPE_AND),
+             new JSONField(JSON_FIELD_RULES, new JSONArray(andRuleValues)));
+
+      case JOIN_TYPE_OR:
+        final List<JSONValue> orRuleValues =
+             new ArrayList<>(components.length);
+        for (final JoinRule rule : components)
+        {
+          orRuleValues.add(rule.toJSON());
+        }
+
+        return new JSONObject(
+             new JSONField(JSON_FIELD_TYPE, JSON_TYPE_OR),
+             new JSONField(JSON_FIELD_RULES, new JSONArray(orRuleValues)));
+
+      default:
+        // This should never happen.
+        return null;
+    }
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as a join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid join rule.
+   */
+  @NotNull()
+  public static JoinRule decodeJSONJoinRule(@NotNull final JSONObject o,
+                                            final boolean strict)
+         throws LDAPException
+  {
+    final String type = o.getFieldAsString(JSON_FIELD_TYPE);
+    if (type == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_MISSING_TYPE.get(JSON_FIELD_TYPE));
+    }
+
+    switch (type)
+    {
+      case JSON_TYPE_DN:
+        return decodeJSONDNJoinRule(o, strict);
+
+      case JSON_TYPE_REVERSE_DN:
+        return decodeJSONReverseDNJoinRule(o, strict);
+
+      case JSON_TYPE_EQUALITY:
+        return decodeJSONEqualityJoinRule(o, strict);
+
+      case JSON_TYPE_CONTAINS:
+        return decodeJSONContainsJoinRule(o, strict);
+
+      case JSON_TYPE_AND:
+        return decodeJSONANDJoinRule(o, strict);
+
+      case JSON_TYPE_OR:
+        return decodeJSONORJoinRule(o, strict);
+
+      default:
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_TYPE.get(type));
+    }
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as a DN join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The DN join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid DN join rule.
+   */
+  @NotNull()
+  private static JoinRule decodeJSONDNJoinRule(@NotNull final JSONObject o,
+                                               final boolean strict)
+          throws LDAPException
+  {
+    final String sourceAttribute =
+         o.getFieldAsString(JSON_FIELD_SOURCE_ATTRIBUTE);
+    if (sourceAttribute == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_DN_MISSING_SOURCE_ATTR.get(
+                JSON_FIELD_SOURCE_ATTRIBUTE));
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                o, JSON_FIELD_TYPE, JSON_FIELD_SOURCE_ATTRIBUTE);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_DN_FIELD.get(
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return createDNJoin(sourceAttribute);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as a reverse DN join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The reverse DN join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid reverse DN join rule.
+   */
+  @NotNull()
+  private static JoinRule decodeJSONReverseDNJoinRule(
+               @NotNull final JSONObject o,
+               final boolean strict)
+          throws LDAPException
+  {
+    final String targetAttribute =
+         o.getFieldAsString(JSON_FIELD_TARGET_ATTRIBUTE);
+    if (targetAttribute == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_REVERSE_DN_MISSING_TARGET_ATTR.get(
+                JSON_FIELD_TARGET_ATTRIBUTE));
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                o, JSON_FIELD_TYPE, JSON_FIELD_TARGET_ATTRIBUTE);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_REVERSE_DN_FIELD.get(
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return createReverseDNJoin(targetAttribute);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as an equality join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The equality join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid equality join rule.
+   */
+  @NotNull()
+  private static JoinRule decodeJSONEqualityJoinRule(
+               @NotNull final JSONObject o,
+               final boolean strict)
+          throws LDAPException
+  {
+    final String sourceAttribute =
+         o.getFieldAsString(JSON_FIELD_SOURCE_ATTRIBUTE);
+    if (sourceAttribute == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_EQUALITY_MISSING_FIELD.get(
+                JSON_FIELD_SOURCE_ATTRIBUTE));
+    }
+
+    final String targetAttribute =
+         o.getFieldAsString(JSON_FIELD_TARGET_ATTRIBUTE);
+    if (targetAttribute == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_EQUALITY_MISSING_FIELD.get(
+                JSON_FIELD_TARGET_ATTRIBUTE));
+    }
+
+    final Boolean matchAll = o.getFieldAsBoolean(JSON_FIELD_MATCH_ALL);
+    if (matchAll == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_EQUALITY_MISSING_FIELD.get(JSON_FIELD_MATCH_ALL));
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                o, JSON_FIELD_TYPE, JSON_FIELD_SOURCE_ATTRIBUTE,
+                JSON_FIELD_TARGET_ATTRIBUTE, JSON_FIELD_MATCH_ALL);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_EQUALITY_FIELD.get(
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return createEqualityJoin(sourceAttribute, targetAttribute, matchAll);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as a contains join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The contains join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid contains join rule.
+   */
+  @NotNull()
+  private static JoinRule decodeJSONContainsJoinRule(
+               @NotNull final JSONObject o,
+               final boolean strict)
+          throws LDAPException
+  {
+    final String sourceAttribute =
+         o.getFieldAsString(JSON_FIELD_SOURCE_ATTRIBUTE);
+    if (sourceAttribute == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_CONTAINS_MISSING_FIELD.get(
+                JSON_FIELD_SOURCE_ATTRIBUTE));
+    }
+
+    final String targetAttribute =
+         o.getFieldAsString(JSON_FIELD_TARGET_ATTRIBUTE);
+    if (targetAttribute == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_CONTAINS_MISSING_FIELD.get(
+                JSON_FIELD_TARGET_ATTRIBUTE));
+    }
+
+    final Boolean matchAll = o.getFieldAsBoolean(JSON_FIELD_MATCH_ALL);
+    if (matchAll == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_CONTAINS_MISSING_FIELD.get(JSON_FIELD_MATCH_ALL));
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                o, JSON_FIELD_TYPE, JSON_FIELD_SOURCE_ATTRIBUTE,
+                JSON_FIELD_TARGET_ATTRIBUTE, JSON_FIELD_MATCH_ALL);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_CONTAINS_FIELD.get(
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return createContainsJoin(sourceAttribute, targetAttribute, matchAll);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as an AND join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The AND join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid AND join rule.
+   */
+  @NotNull()
+  private static JoinRule decodeJSONANDJoinRule(
+               @NotNull final JSONObject o,
+               final boolean strict)
+          throws LDAPException
+  {
+    final List<JSONValue> ruleValues = o.getFieldAsArray(JSON_FIELD_RULES);
+    if (ruleValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_AND_MISSING_RULES.get(JSON_FIELD_RULES));
+    }
+
+    if (ruleValues.isEmpty())
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_AND_EMPTY_RULES.get(JSON_FIELD_RULES));
+    }
+
+    final List<JoinRule> rules = new ArrayList<>(ruleValues.size());
+    for (final JSONValue v : ruleValues)
+    {
+      if (v instanceof JSONObject)
+      {
+        rules.add(decodeJSONJoinRule((JSONObject) v, strict));
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_AND_RULE_NOT_OBJECT.get(JSON_FIELD_RULES));
+      }
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                o, JSON_FIELD_TYPE, JSON_FIELD_RULES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_AND_FIELD.get(
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return createANDRule(rules);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON object as an OR join rule.
+   *
+   * @param  o       The JSON object that represents the join rule to decode.
+   *                 It must not be {@code null}.
+   * @param  strict  Indicates whether to use strict mode when decoding the
+   *                 provided JSON object.  If this is {@code true}, then this
+   *                 method will throw an exception if the provided JSON object
+   *                 contains any unrecognized fields.  If this is
+   *                 {@code false}, then unrecognized fields will be ignored.
+   *
+   * @return  The OR join rule decoded from the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be decoded as a
+   *                         valid OR join rule.
+   */
+  @NotNull()
+  private static JoinRule decodeJSONORJoinRule(
+               @NotNull final JSONObject o,
+               final boolean strict)
+          throws LDAPException
+  {
+    final List<JSONValue> ruleValues = o.getFieldAsArray(JSON_FIELD_RULES);
+    if (ruleValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_OR_MISSING_RULES.get(JSON_FIELD_RULES));
+    }
+
+    if (ruleValues.isEmpty())
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_JOIN_RULE_JSON_OR_EMPTY_RULES.get(JSON_FIELD_RULES));
+    }
+
+    final List<JoinRule> rules = new ArrayList<>(ruleValues.size());
+    for (final JSONValue v : ruleValues)
+    {
+      if (v instanceof JSONObject)
+      {
+        rules.add(decodeJSONJoinRule((JSONObject) v, strict));
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_OR_RULE_NOT_OBJECT.get(JSON_FIELD_RULES));
+      }
+    }
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                o, JSON_FIELD_TYPE, JSON_FIELD_RULES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_JOIN_RULE_JSON_UNRECOGNIZED_OR_FIELD.get(
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+    return createORRule(rules);
   }
 
 

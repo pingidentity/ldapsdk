@@ -37,10 +37,16 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -51,6 +57,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -149,6 +160,23 @@ public final class GetEffectiveRightsRequestControl
    */
   @NotNull public static final String GET_EFFECTIVE_RIGHTS_REQUEST_OID =
        "1.3.6.1.4.1.42.2.27.9.5.2";
+
+
+
+  /**
+   * The name of the field used to specify the set of target attributes in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ATTRIBUTES = "attributes";
+
+
+
+  /**
+   * The name of the field used to specify the authorization ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHORIZATION_ID =
+       "authorization-id";
 
 
 
@@ -370,6 +398,138 @@ public final class GetEffectiveRightsRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_EFFECTIVE_RIGHTS_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_AUTHORIZATION_ID, new JSONString(authzID));
+
+    if (attributes.length > 0)
+    {
+      final List<JSONValue> attributeValues = new ArrayList<>();
+      for (final String attribute : attributes)
+      {
+        attributeValues.add(new JSONString(attribute));
+      }
+
+      valueFields.put(JSON_FIELD_ATTRIBUTES, new JSONArray(attributeValues));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_EFFECTIVE_RIGHTS_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_EFFECTIVE_RIGHTS_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * effective rights request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get effective rights request control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get effective rights request control.
+   */
+  @NotNull()
+  public static GetEffectiveRightsRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetEffectiveRightsRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String authorizationID =
+         valueObject.getFieldAsString(JSON_FIELD_AUTHORIZATION_ID);
+    if (authorizationID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GER_REQUEST_JSON_MISSING_AUTHZ_ID.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_AUTHORIZATION_ID));
+    }
+
+    final String[] attributes;
+    final List<JSONValue> attrValues =
+         valueObject.getFieldAsArray(JSON_FIELD_ATTRIBUTES);
+    if (attrValues == null)
+    {
+      attributes = StaticUtils.NO_STRINGS;
+    }
+    else
+    {
+      attributes = new String[attrValues.size()];
+      for (int i=0; i < attributes.length; i++)
+      {
+        final JSONValue v = attrValues.get(i);
+        if (v instanceof JSONString)
+        {
+          attributes[i] = ((JSONString) v).stringValue();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_GER_REQUEST_JSON_ATTR_NOT_STRING.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_ATTRIBUTES));
+        }
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_AUTHORIZATION_ID,
+                JSON_FIELD_ATTRIBUTES);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GER_REQUEST_JSON_CONTROL_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetEffectiveRightsRequestControl(jsonControl.getCriticality(),
+         authorizationID, attributes);
   }
 
 

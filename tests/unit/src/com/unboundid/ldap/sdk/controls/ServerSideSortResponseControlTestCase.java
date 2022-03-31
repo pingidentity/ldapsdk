@@ -48,6 +48,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -150,8 +153,9 @@ public class ServerSideSortResponseControlTestCase
     };
 
     ServerSideSortResponseControl c =
-         new ServerSideSortResponseControl("1.2.840.113556.1.4.474", false,
-                  new ASN1OctetString(new ASN1Sequence(elements).encode()));
+         new ServerSideSortResponseControl().decodeControl(
+              "1.2.840.113556.1.4.474", false,
+              new ASN1OctetString(new ASN1Sequence(elements).encode()));
 
     assertEquals(c.getResultCode(), ResultCode.SUCCESS);
 
@@ -337,5 +341,310 @@ public class ServerSideSortResponseControlTestCase
          null, 10, 0, controls);
 
     ServerSideSortResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there is no attribute name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithoutAttributeName()
+          throws Exception
+  {
+    final ServerSideSortResponseControl c =
+         new ServerSideSortResponseControl(ResultCode.SUCCESS, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("result-code", 0)));
+
+
+    ServerSideSortResponseControl decodedControl =
+         ServerSideSortResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertNull(decodedControl.getAttributeName());
+
+
+    decodedControl =
+         (ServerSideSortResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertNull(decodedControl.getAttributeName());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there is an attribute name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithAttributeName()
+          throws Exception
+  {
+    final ServerSideSortResponseControl c =
+         new ServerSideSortResponseControl(ResultCode.UNDEFINED_ATTRIBUTE_TYPE,
+              "undefinedAttr");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("result-code", 17),
+              new JSONField("attribute-name", "undefinedAttr")));
+
+
+    ServerSideSortResponseControl decodedControl =
+         ServerSideSortResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.UNDEFINED_ATTRIBUTE_TYPE);
+
+    assertEquals(decodedControl.getAttributeName(), "undefinedAttr");
+
+
+    decodedControl =
+         (ServerSideSortResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.UNDEFINED_ATTRIBUTE_TYPE);
+
+    assertEquals(decodedControl.getAttributeName(), "undefinedAttr");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final ServerSideSortResponseControl c =
+         new ServerSideSortResponseControl(ResultCode.UNDEFINED_ATTRIBUTE_TYPE,
+              "undefinedAttr");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    ServerSideSortResponseControl decodedControl =
+         ServerSideSortResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.UNDEFINED_ATTRIBUTE_TYPE);
+
+    assertEquals(decodedControl.getAttributeName(), "undefinedAttr");
+
+
+    decodedControl =
+         (ServerSideSortResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.UNDEFINED_ATTRIBUTE_TYPE);
+
+    assertEquals(decodedControl.getAttributeName(), "undefinedAttr");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the result-code field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingResultCode()
+          throws Exception
+  {
+    final ServerSideSortResponseControl c =
+         new ServerSideSortResponseControl(ResultCode.UNDEFINED_ATTRIBUTE_TYPE,
+              "undefinedAttr");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("attribute-name", "undefinedAttr"))));
+
+    ServerSideSortResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value includes an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final ServerSideSortResponseControl c =
+         new ServerSideSortResponseControl(ResultCode.UNDEFINED_ATTRIBUTE_TYPE,
+              "undefinedAttr");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 17),
+              new JSONField("attribute-name", "undefinedAttr"),
+              new JSONField("unrecognized", "foo"))));
+
+    ServerSideSortResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value includes an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final ServerSideSortResponseControl c =
+         new ServerSideSortResponseControl(ResultCode.UNDEFINED_ATTRIBUTE_TYPE,
+              "undefinedAttr");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 17),
+              new JSONField("attribute-name", "undefinedAttr"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    ServerSideSortResponseControl decodedControl =
+         ServerSideSortResponseControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.UNDEFINED_ATTRIBUTE_TYPE);
+
+    assertEquals(decodedControl.getAttributeName(), "undefinedAttr");
+
+
+    decodedControl =
+         (ServerSideSortResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.UNDEFINED_ATTRIBUTE_TYPE);
+
+    assertEquals(decodedControl.getAttributeName(), "undefinedAttr");
   }
 }

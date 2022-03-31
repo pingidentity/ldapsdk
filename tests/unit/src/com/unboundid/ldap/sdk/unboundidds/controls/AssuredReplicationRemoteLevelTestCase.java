@@ -66,6 +66,7 @@ public final class AssuredReplicationRemoteLevelTestCase
     for (final AssuredReplicationRemoteLevel l :
          AssuredReplicationRemoteLevel.values())
     {
+      assertNotNull(l.getName());
       assertNotNull(l.name());
       assertNotNull(l.intValue());
       assertEquals(AssuredReplicationRemoteLevel.valueOf(l.intValue()),
@@ -311,6 +312,10 @@ public final class AssuredReplicationRemoteLevelTestCase
     for (final AssuredReplicationRemoteLevel value :
          AssuredReplicationRemoteLevel.values())
     {
+      assertNotNull(AssuredReplicationRemoteLevel.forName(value.getName()));
+      assertEquals(AssuredReplicationRemoteLevel.forName(value.getName()),
+           value);
+
       for (final String name : getNames(value.name()))
       {
         assertNotNull(AssuredReplicationRemoteLevel.forName(name));

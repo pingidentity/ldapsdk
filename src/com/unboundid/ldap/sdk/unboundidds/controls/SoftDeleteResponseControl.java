@@ -37,10 +37,13 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -50,6 +53,8 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -91,6 +96,15 @@ public final class SoftDeleteResponseControl
    */
   @NotNull public static final String SOFT_DELETE_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.21";
+
+
+
+  /**
+   * The name of the field used to hold the soft-deleted entry DN in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SOFT_DELETED_ENTRY_DN =
+       "soft-deleted-entry-dn";
 
 
 
@@ -245,6 +259,97 @@ public final class SoftDeleteResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_SOFT_DELETE_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              SOFT_DELETE_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_SOFT_DELETE_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_SOFT_DELETED_ENTRY_DN,
+                        softDeletedEntryDN))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a soft
+   * delete response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The soft delete response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid soft delete response control.
+   */
+  @NotNull()
+  public static SoftDeleteResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new SoftDeleteResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String softDeletedEntryDN =
+         valueObject.getFieldAsString(JSON_FIELD_SOFT_DELETED_ENTRY_DN);
+    if (softDeletedEntryDN == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SOFT_DELETE_RESPONSE_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SOFT_DELETED_ENTRY_DN));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SOFT_DELETED_ENTRY_DN);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SOFT_DELETE_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new SoftDeleteResponseControl(softDeletedEntryDN);
   }
 
 

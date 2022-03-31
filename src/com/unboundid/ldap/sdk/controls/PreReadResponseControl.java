@@ -39,6 +39,9 @@ package com.unboundid.ldap.sdk.controls;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Exception;
@@ -47,6 +50,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
@@ -58,6 +62,11 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -86,6 +95,14 @@ public final class PreReadResponseControl
    * The OID (1.3.6.1.1.13.1) for the pre-read response control.
    */
   @NotNull public static final String PRE_READ_RESPONSE_OID = "1.3.6.1.1.13.1";
+
+
+
+  /**
+   * The name of the field used to hold the DN of the entry in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_DN = "_dn";
 
 
 
@@ -319,6 +336,146 @@ public final class PreReadResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PRE_READ_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_DN, new JSONString(entry.getDN()));
+
+    for (final Attribute a : entry.getAttributes())
+    {
+      final List<JSONValue> attrValueValues = new ArrayList<>(a.size());
+      for (final String value : a.getValues())
+      {
+        attrValueValues.add(new JSONString(value));
+      }
+
+      valueFields.put(a.getName(), new JSONArray(attrValueValues));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PRE_READ_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PRE_READ_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * pre-read response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The pre-read response control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid pre-read response control.
+   */
+  @NotNull()
+  public static PreReadResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new PreReadResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    String dn = null;
+    final List<Attribute> attributes =
+         new ArrayList<>(valueObject.getFields().size());
+    for (final Map.Entry<String,JSONValue> e :
+         valueObject.getFields().entrySet())
+    {
+      final String fieldName = e.getKey();
+      final JSONValue fieldValue = e.getValue();
+      if (fieldName.equals(JSON_FIELD_DN))
+      {
+        if (fieldValue instanceof JSONString)
+        {
+          dn = ((JSONString) fieldValue).stringValue();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PRE_READ_RESPONSE_JSON_DN_NOT_STRING.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_DN));
+        }
+      }
+      else
+      {
+        if (fieldValue instanceof JSONArray)
+        {
+          final List<JSONValue> attrValueValues =
+               ((JSONArray) fieldValue).getValues();
+          final List<String> attributeValues =
+               new ArrayList<>(attrValueValues.size());
+          for (final JSONValue v : attrValueValues)
+          {
+            if (v instanceof JSONString)
+            {
+              attributeValues.add(((JSONString) v).stringValue());
+            }
+            else
+            {
+              throw new LDAPException(ResultCode.DECODING_ERROR,
+                   ERR_PRE_READ_RESPONSE_JSON_ATTR_VALUE_NOT_STRING.get(
+                        controlObject.toSingleLineString(), fieldName));
+            }
+          }
+
+          attributes.add(new Attribute(fieldName, attributeValues));
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PRE_READ_RESPONSE_JSON_ATTR_VALUE_NOT_ARRAY.get(
+                    controlObject.toSingleLineString(), fieldName));
+        }
+      }
+    }
+
+
+    if (dn == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PRE_READ_RESPONSE_JSON_MISSING_DN.get(
+                controlObject.toSingleLineString(), JSON_FIELD_DN));
+    }
+
+
+    return new PreReadResponseControl(new ReadOnlyEntry(dn, attributes));
   }
 
 

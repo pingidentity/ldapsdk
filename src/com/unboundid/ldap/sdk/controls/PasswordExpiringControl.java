@@ -37,9 +37,12 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -49,6 +52,8 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -83,6 +88,15 @@ public final class PasswordExpiringControl
    */
   @NotNull public static final String PASSWORD_EXPIRING_OID =
        "2.16.840.1.113730.3.4.5";
+
+
+
+  /**
+   * The name of the field used to hold the seconds until expiration in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SECONDS_UNTIL_EXPIRATION =
+       "seconds-until-expiration";
 
 
 
@@ -236,6 +250,97 @@ public final class PasswordExpiringControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_EXPIRING.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PASSWORD_EXPIRING_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PW_EXPIRING.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_SECONDS_UNTIL_EXPIRATION,
+                        secondsUntilExpiration))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * password expiring control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The password expiring control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid password expiring control.
+   */
+  @NotNull()
+  public static PasswordExpiringControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new PasswordExpiringControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Integer secondsUntilExpiration =
+         valueObject.getFieldAsInteger(JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+    if (secondsUntilExpiration == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_PW_EXPIRING_JSON_MISSING_SECONDS_UNTIL_EXPIRATION.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SECONDS_UNTIL_EXPIRATION));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PW_EXPIRING_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new PasswordExpiringControl(secondsUntilExpiration);
   }
 
 

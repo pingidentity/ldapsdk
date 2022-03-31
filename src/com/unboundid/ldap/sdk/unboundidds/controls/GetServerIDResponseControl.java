@@ -37,9 +37,12 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -51,6 +54,8 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -89,6 +94,14 @@ public final class GetServerIDResponseControl
    */
   @NotNull public static final String GET_SERVER_ID_RESPONSE_OID =
        "1.3.6.1.4.1.30221.2.5.15";
+
+
+
+  /**
+   * The name of the field used to hold the server ID in the JSON representation
+   * of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_ID = "server-id";
 
 
   /**
@@ -316,6 +329,94 @@ public final class GetServerIDResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_GET_SERVER_ID_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              GET_SERVER_ID_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_GET_SERVER_ID_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_SERVER_ID, serverID))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a get
+   * server ID response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The get server ID response control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid get server ID response control.
+   */
+  @NotNull()
+  public static GetServerIDResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new GetServerIDResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String serverID = valueObject.getFieldAsString(JSON_FIELD_SERVER_ID);
+    if (serverID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_GET_SERVER_ID_RESPONSE_JSON_MISSING_SERVER_ID.get(
+                controlObject.toSingleLineString(), JSON_FIELD_SERVER_ID));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_SERVER_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_GET_SERVER_ID_RESPONSE_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new GetServerIDResponseControl(serverID);
   }
 
 

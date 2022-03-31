@@ -37,12 +37,15 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
@@ -51,6 +54,11 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -123,6 +131,14 @@ public final class MatchedValuesRequestControl
    */
   @NotNull public static final String MATCHED_VALUES_REQUEST_OID =
        "1.2.826.0.1.3344810.2.3";
+
+
+
+  /**
+   * The name of the field used to hold the matched values filters in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_FILTERS = "filters";
 
 
 
@@ -296,6 +312,142 @@ public final class MatchedValuesRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_MATCHED_VALUES_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final List<JSONValue> filterValues = new ArrayList<>(filters.length);
+    for (final MatchedValuesFilter filter : filters)
+    {
+      filterValues.add(new JSONString(filter.toString()));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              MATCHED_VALUES_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_MATCHED_VALUES_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_FILTERS,
+                        new JSONArray(filterValues)))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * matched values request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The matched values request control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid matched values request control.
+   */
+  @NotNull()
+  public static MatchedValuesRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new MatchedValuesRequestControl(new Control(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final List<JSONValue> filterValues =
+         valueObject.getFieldAsArray(JSON_FIELD_FILTERS);
+    if (filterValues == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_MV_REQUEST_JSON_NO_FILTERS.get(
+                controlObject.toSingleLineString(), JSON_FIELD_FILTERS));
+    }
+
+    if (filterValues.isEmpty())
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_MV_REQUEST_JSON_EMPTY_FILTERS.get(
+                controlObject.toSingleLineString(), JSON_FIELD_FILTERS));
+    }
+
+
+    final List<MatchedValuesFilter> filters =
+         new ArrayList<>(filterValues.size());
+    for (final JSONValue filterValue : filterValues)
+    {
+      if (filterValue instanceof JSONString)
+      {
+        final String filterString = ((JSONString) filterValue).stringValue();
+
+        try
+        {
+          final Filter filter = Filter.create(filterString);
+          filters.add(MatchedValuesFilter.create(filter));
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MV_REQUEST_JSON_INVALID_FILTER.get(
+                    controlObject.toSingleLineString(),
+                    JSON_FIELD_FILTERS, filterString, e.getMessage()),
+               e);
+        }
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MV_REQUEST_JSON_FILTER_NOT_STRING.get(
+                  controlObject.toSingleLineString(), JSON_FIELD_FILTERS));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_FILTERS);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MV_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new MatchedValuesRequestControl(jsonControl.getCriticality(),
+         filters);
   }
 
 

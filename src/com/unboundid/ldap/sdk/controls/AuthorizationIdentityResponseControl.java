@@ -37,10 +37,13 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -49,6 +52,8 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -85,6 +90,15 @@ public final class AuthorizationIdentityResponseControl
    */
   @NotNull public static final String AUTHORIZATION_IDENTITY_RESPONSE_OID =
        "2.16.840.1.113730.3.4.15";
+
+
+
+  /**
+   * The name of the field used to represent the authorization ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AUTHORIZATION_ID =
+       "authorization-id";
 
 
 
@@ -246,6 +260,97 @@ public final class AuthorizationIdentityResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_AUTHZID_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              AUTHORIZATION_IDENTITY_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_AUTHZID_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(
+                   new JSONField(JSON_FIELD_AUTHORIZATION_ID,
+                        authorizationID))));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * authorization identity response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The authorization identity response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid authorization identity response control.
+   */
+  @NotNull()
+  public static AuthorizationIdentityResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new AuthorizationIdentityResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String authzID =
+         valueObject.getFieldAsString(JSON_FIELD_AUTHORIZATION_ID);
+    if (authzID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_AUTHZID_RESPONSE_JSON_MISSING_AUTHZ_ID.get(
+                valueObject.toSingleLineString(),
+                JSON_FIELD_AUTHORIZATION_ID));
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_AUTHORIZATION_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_AUTHZID_RESPONSE_JSON_CONTROL_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new AuthorizationIdentityResponseControl(authzID);
   }
 
 

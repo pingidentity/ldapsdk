@@ -65,7 +65,7 @@ public enum AssuredReplicationLocalLevel
   /**
    * Indicates that no local assurance is desired for the associated operation.
    */
-  NONE(0),
+  NONE(0, "none"),
 
 
 
@@ -79,7 +79,7 @@ public enum AssuredReplicationLocalLevel
    * immediately after receiving a result with this level of assurance, there is
    * no guarantee that the associated change will be visible on that server.
    */
-  RECEIVED_ANY_SERVER(1),
+  RECEIVED_ANY_SERVER(1, "received-any-server"),
 
 
 
@@ -88,12 +88,15 @@ public enum AssuredReplicationLocalLevel
    * until the change has been processed by all available directory servers in
    * the same location as the original server.
    */
-  PROCESSED_ALL_SERVERS(2);
+  PROCESSED_ALL_SERVERS(2, "processed-all-servers");
 
 
 
   // The integer value for this local assurance level.
   private final int intValue;
+
+  // The name for this local assurance level.
+  @NotNull private final String name;
 
 
 
@@ -101,10 +104,13 @@ public enum AssuredReplicationLocalLevel
    * Creates a new local assurance level with the provided integer value.
    *
    * @param  intValue  The integer value for this local assurance level.
+   * @param  name      The name for this local assurance level.
    */
-  AssuredReplicationLocalLevel(final int intValue)
+  AssuredReplicationLocalLevel(final int intValue,
+                               @NotNull final String name)
   {
     this.intValue = intValue;
+    this.name = name;
   }
 
 
@@ -117,6 +123,19 @@ public enum AssuredReplicationLocalLevel
   public int intValue()
   {
     return intValue;
+  }
+
+
+
+  /**
+   * Retrieves the name for this local assurance level.
+   *
+   * @return  The name for this local assurance level.
+   */
+  @NotNull()
+  public String getName()
+  {
+    return name;
   }
 
 

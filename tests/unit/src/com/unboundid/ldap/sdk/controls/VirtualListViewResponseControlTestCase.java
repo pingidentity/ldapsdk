@@ -49,6 +49,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -163,8 +166,9 @@ public class VirtualListViewResponseControlTestCase
     };
 
     VirtualListViewResponseControl c =
-         new VirtualListViewResponseControl("2.16.840.1.113730.3.4.10", false,
-                  new ASN1OctetString(new ASN1Sequence(elements).encode()));
+         new VirtualListViewResponseControl().decodeControl(
+              "2.16.840.1.113730.3.4.10", false,
+              new ASN1OctetString(new ASN1Sequence(elements).encode()));
 
     assertEquals(c.getTargetPosition(), 10);
 
@@ -415,5 +419,431 @@ public class VirtualListViewResponseControlTestCase
          null, 10, 0, controls);
 
     VirtualListViewResponseControl.get(r);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there is no context ID.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithoutContextID()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         0, 0, ResultCode.SORT_CONTROL_MISSING, null);
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("result-code", 60),
+              new JSONField("target-position", 0),
+              new JSONField("content-count", 0)));
+
+
+    VirtualListViewResponseControl decodedControl =
+         VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.SORT_CONTROL_MISSING);
+
+    assertEquals(decodedControl.getTargetPosition(), 0);
+
+    assertEquals(decodedControl.getContentCount(), 0);
+
+    assertNull(decodedControl.getContextID());
+
+
+    decodedControl =
+         (VirtualListViewResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(),
+         ResultCode.SORT_CONTROL_MISSING);
+
+    assertEquals(decodedControl.getTargetPosition(), 0);
+
+    assertEquals(decodedControl.getContentCount(), 0);
+
+    assertNull(decodedControl.getContextID());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when there is a context ID.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlWithContextID()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("target-position", 1),
+              new JSONField("content-count", 12345),
+              new JSONField("context-id", Base64.encode("TheContextID"))));
+
+
+    VirtualListViewResponseControl decodedControl =
+         VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getTargetPosition(), 1);
+
+    assertEquals(decodedControl.getContentCount(), 12345);
+
+    assertEquals(decodedControl.getContextID().stringValue(), "TheContextID");
+
+
+    decodedControl =
+         (VirtualListViewResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getTargetPosition(), 1);
+
+    assertEquals(decodedControl.getContentCount(), 12345);
+
+    assertEquals(decodedControl.getContextID().stringValue(), "TheContextID");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value is
+   * base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    VirtualListViewResponseControl decodedControl =
+         VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getTargetPosition(), 1);
+
+    assertEquals(decodedControl.getContentCount(), 12345);
+
+    assertEquals(decodedControl.getContextID().stringValue(), "TheContextID");
+
+
+    decodedControl =
+         (VirtualListViewResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getTargetPosition(), 1);
+
+    assertEquals(decodedControl.getContentCount(), 12345);
+
+    assertEquals(decodedControl.getContextID().stringValue(), "TheContextID");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value is
+   * missing the result-code field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingResultCode()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("target-position", 1),
+              new JSONField("content-count", 12345),
+              new JSONField("context-id", Base64.encode("TheContextID")))));
+
+    VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value is
+   * missing the target-position field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingTargetPosition()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("content-count", 12345),
+              new JSONField("context-id", Base64.encode("TheContextID")))));
+
+    VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value is
+   * missing the content-count field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingContentCount()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("target-position", 1),
+              new JSONField("context-id", Base64.encode("TheContextID")))));
+
+    VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value has
+   * a context-id value that is not valid base4.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueContextIDNotBase64()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("target-position", 1),
+              new JSONField("content-count", 12345),
+              new JSONField("context-id", "not valid base64"))));
+
+    VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value has
+   * an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("target-position", 1),
+              new JSONField("content-count", 12345),
+              new JSONField("context-id", Base64.encode("TheContextID")),
+              new JSONField("unrecognized", "foo"))));
+
+    VirtualListViewResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object when the value has
+   * an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final VirtualListViewResponseControl c = new VirtualListViewResponseControl(
+         1, 12345, ResultCode.SUCCESS, new ASN1OctetString("TheContextID"));
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("result-code", 0),
+              new JSONField("target-position", 1),
+              new JSONField("content-count", 12345),
+              new JSONField("context-id", Base64.encode("TheContextID")),
+              new JSONField("unrecognized", "foo"))));
+
+
+    VirtualListViewResponseControl decodedControl =
+         VirtualListViewResponseControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getTargetPosition(), 1);
+
+    assertEquals(decodedControl.getContentCount(), 12345);
+
+    assertEquals(decodedControl.getContextID().stringValue(), "TheContextID");
+
+
+    decodedControl =
+         (VirtualListViewResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(decodedControl.getTargetPosition(), 1);
+
+    assertEquals(decodedControl.getContentCount(), 12345);
+
+    assertEquals(decodedControl.getContextID().stringValue(), "TheContextID");
   }
 }

@@ -44,6 +44,9 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -613,5 +616,1137 @@ public final class PasswordUpdateBehaviorRequestControlTestCase
          "1.3.6.1.4.1.30221.2.5.51", true,
          new ASN1OctetString(new ASN1Sequence(new ASN1OctetString((byte) 0x00,
               "unrecognized type")).encode())));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with no elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlNoElements()
+          throws Exception
+  {
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+
+    final PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         JSONObject.EMPTY_OBJECT);
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+
+
+    decodedControl =
+         (PasswordUpdateBehaviorRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with all elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllElements()
+          throws Exception
+  {
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIsSelfChange(true);
+    properties.setAllowPreEncodedPassword(false);
+    properties.setSkipPasswordValidation(false);
+    properties.setIgnorePasswordHistory(true);
+    properties.setIgnoreMinimumPasswordAge(true);
+    properties.setPasswordStorageScheme("ARGON2");
+    properties.setMustChangePassword(false);
+
+    final PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("is-self-change", true),
+              new JSONField("allow-pre-encoded-password", false),
+              new JSONField("skip-password-validation", false),
+              new JSONField("ignore-password-history", true),
+              new JSONField("ignore-minimum-password-age", true),
+              new JSONField("password-storage-scheme", "ARGON2"),
+              new JSONField("must-change-password", false)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getPasswordStorageScheme(), "ARGON2");
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
+
+
+    decodedControl =
+         (PasswordUpdateBehaviorRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getPasswordStorageScheme(), "ARGON2");
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with just the is-self-change element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlIsSelfChange()
+          throws Exception
+  {
+    PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIsSelfChange(true);
+
+    PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("is-self-change", true)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+
+
+    properties = new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIsSelfChange(false);
+
+    c = new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("is-self-change", false)));
+
+
+    decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.FALSE);
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with just the allow-pre-encoded-password element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllowPreEncodedPassword()
+          throws Exception
+  {
+    PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setAllowPreEncodedPassword(true);
+
+    PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("allow-pre-encoded-password", true)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.TRUE);
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+
+
+    properties = new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setAllowPreEncodedPassword(false);
+
+    c = new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("allow-pre-encoded-password", false)));
+
+
+    decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with just the skip-password-validation element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlSkipPasswordValidation()
+          throws Exception
+  {
+    PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setSkipPasswordValidation(true);
+
+    PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("skip-password-validation", true)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.TRUE);
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+
+
+    properties = new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setSkipPasswordValidation(false);
+
+    c = new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("skip-password-validation", false)));
+
+
+    decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with just the ignore-password-history element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlIgnorePasswordHistory()
+          throws Exception
+  {
+    PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIgnorePasswordHistory(true);
+
+    PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("ignore-password-history", true)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+
+
+    properties = new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIgnorePasswordHistory(false);
+
+    c = new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("ignore-password-history", false)));
+
+
+    decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.FALSE);
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with just the ignore-minimum-password-age element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlIgnoreMinimumPasswordAge()
+          throws Exception
+  {
+    PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIgnoreMinimumPasswordAge(true);
+
+    PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("ignore-minimum-password-age", true)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+
+
+    properties = new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIgnoreMinimumPasswordAge(false);
+
+    c = new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("ignore-minimum-password-age", false)));
+
+
+    decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.FALSE);
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertNull(decodedControl.getMustChangePassword());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object with just the must-change-password element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlMustChangePassword()
+          throws Exception
+  {
+    PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setMustChangePassword(true);
+
+    PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("must-change-password", true)));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.TRUE);
+
+
+    properties = new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setMustChangePassword(false);
+
+    c = new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.TRUE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("must-change-password", false)));
+
+
+    decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertNull(decodedControl.getIsSelfChange());
+
+    assertNull(decodedControl.getAllowPreEncodedPassword());
+
+    assertNull(decodedControl.getSkipPasswordValidation());
+
+    assertNull(decodedControl.getIgnorePasswordHistory());
+
+    assertNull(decodedControl.getIgnoreMinimumPasswordAge());
+
+    assertNull(decodedControl.getPasswordStorageScheme());
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIsSelfChange(true);
+    properties.setAllowPreEncodedPassword(false);
+    properties.setSkipPasswordValidation(false);
+    properties.setIgnorePasswordHistory(true);
+    properties.setIgnoreMinimumPasswordAge(true);
+    properties.setPasswordStorageScheme("ARGON2");
+    properties.setMustChangePassword(false);
+
+    final PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getPasswordStorageScheme(), "ARGON2");
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
+
+
+    decodedControl =
+         (PasswordUpdateBehaviorRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getPasswordStorageScheme(), "ARGON2");
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIsSelfChange(true);
+    properties.setAllowPreEncodedPassword(false);
+    properties.setSkipPasswordValidation(false);
+    properties.setIgnorePasswordHistory(true);
+    properties.setIgnoreMinimumPasswordAge(true);
+    properties.setPasswordStorageScheme("ARGON2");
+    properties.setMustChangePassword(false);
+
+    final PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("is-self-change", true),
+              new JSONField("allow-pre-encoded-password", false),
+              new JSONField("skip-password-validation", false),
+              new JSONField("ignore-password-history", true),
+              new JSONField("ignore-minimum-password-age", true),
+              new JSONField("password-storage-scheme", "ARGON2"),
+              new JSONField("must-change-password", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+    properties.setIsSelfChange(true);
+    properties.setAllowPreEncodedPassword(false);
+    properties.setSkipPasswordValidation(false);
+    properties.setIgnorePasswordHistory(true);
+    properties.setIgnoreMinimumPasswordAge(true);
+    properties.setPasswordStorageScheme("ARGON2");
+    properties.setMustChangePassword(false);
+
+    final PasswordUpdateBehaviorRequestControl c =
+         new PasswordUpdateBehaviorRequestControl(properties, true);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("is-self-change", true),
+              new JSONField("allow-pre-encoded-password", false),
+              new JSONField("skip-password-validation", false),
+              new JSONField("ignore-password-history", true),
+              new JSONField("ignore-minimum-password-age", true),
+              new JSONField("password-storage-scheme", "ARGON2"),
+              new JSONField("must-change-password", false),
+              new JSONField("unrecognized", "foo"))));
+
+
+    PasswordUpdateBehaviorRequestControl decodedControl =
+         PasswordUpdateBehaviorRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getPasswordStorageScheme(), "ARGON2");
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
+
+
+    decodedControl =
+         (PasswordUpdateBehaviorRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertTrue(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getIsSelfChange(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getSkipPasswordValidation(), Boolean.FALSE);
+
+    assertEquals(decodedControl.getIgnorePasswordHistory(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+    assertEquals(decodedControl.getPasswordStorageScheme(), "ARGON2");
+
+    assertEquals(decodedControl.getMustChangePassword(), Boolean.FALSE);
   }
 }

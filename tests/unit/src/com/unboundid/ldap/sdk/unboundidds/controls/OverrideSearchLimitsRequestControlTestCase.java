@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -47,7 +48,13 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.StaticUtils;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
 
 
 
@@ -698,5 +705,427 @@ public final class OverrideSearchLimitsRequestControlTestCase
     final Control c = new Control("1.3.6.1.4.1.30221.2.5.56", false,
          new ASN1OctetString(valueSequence.encode()));
     new OverrideSearchLimitsRequestControl(c);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControl()
+          throws Exception
+  {
+    final Map<String,String> properties = StaticUtils.mapOf(
+         "prop1", "value1",
+         "prop2", "value2");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "prop1"),
+                        new JSONField("value", "value1")),
+                   new JSONObject(
+                        new JSONField("name", "prop2"),
+                        new JSONField("value", "value2"))))));
+
+
+    OverrideSearchLimitsRequestControl decodedControl =
+         OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+
+
+    decodedControl =
+         (OverrideSearchLimitsRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final Map<String,String> properties = StaticUtils.mapOf(
+         "prop1", "value1",
+         "prop2", "value2");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    OverrideSearchLimitsRequestControl decodedControl =
+         OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+
+
+    decodedControl =
+         (OverrideSearchLimitsRequestControl)
+         Control.decodeJSONControl(controlObject, true, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the properties field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueMissingProperties()
+          throws Exception
+  {
+    final Map<String,String> properties = StaticUtils.mapOf(
+         "prop1", "value1",
+         "prop2", "value2");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", JSONObject.EMPTY_OBJECT));
+
+    OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the properties field has a value that is not a JSON object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValuePropertiesValueNotObject()
+          throws Exception
+  {
+    final Map<String,String> properties = StaticUtils.mapOf(
+         "prop1", "value1",
+         "prop2", "value2");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONString("foo"))))));
+
+    OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the properties array has an object that is missing a property name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValuePropertyMissingName()
+          throws Exception
+  {
+    final Map<String,String> properties = StaticUtils.mapOf(
+         "prop1", "value1",
+         "prop2", "value2");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("value", "propValue")))))));
+
+    OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the properties array has an object that is missing a property value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValuePropertyMissingValue()
+          throws Exception
+  {
+    final Map<String,String> properties = StaticUtils.mapOf(
+         "prop1", "value1",
+         "prop2", "value2");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "propName")))))));
+
+    OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the properties array has an object with an unrecognized field in strict
+   * mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValuePropertyUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final Map<String,String> properties =
+         StaticUtils.mapOf("propName", "propValue");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "propName"),
+                        new JSONField("value", "propValue"),
+                        new JSONField("unrecognized", "foo")))))));
+
+    OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the properties array has an object with an unrecognized field in non-strict
+   * mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValuePropertyUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final Map<String,String> properties =
+         StaticUtils.mapOf("propName", "propValue");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "propName"),
+                        new JSONField("value", "propValue"),
+                        new JSONField("unrecognized", "foo")))))));
+
+
+    OverrideSearchLimitsRequestControl decodedControl =
+         OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+
+
+    decodedControl =
+         (OverrideSearchLimitsRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final Map<String,String> properties =
+         StaticUtils.mapOf("propName", "propValue");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "propName"),
+                        new JSONField("value", "propValue")))),
+              new JSONField("unrecognized", "foo"))));
+
+    OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in nonstrict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final Map<String,String> properties =
+         StaticUtils.mapOf("propName", "propValue");
+
+    final OverrideSearchLimitsRequestControl c =
+         new OverrideSearchLimitsRequestControl(properties, false);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("properties", new JSONArray(
+                   new JSONObject(
+                        new JSONField("name", "propName"),
+                        new JSONField("value", "propValue")))),
+              new JSONField("unrecognized", "foo"))));
+
+
+    OverrideSearchLimitsRequestControl decodedControl =
+         OverrideSearchLimitsRequestControl.decodeJSONControl(controlObject,
+              false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
+
+
+    decodedControl =
+         (OverrideSearchLimitsRequestControl)
+         Control.decodeJSONControl(controlObject, false, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getProperties(), properties);
   }
 }

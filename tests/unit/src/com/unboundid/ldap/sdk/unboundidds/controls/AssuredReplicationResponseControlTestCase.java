@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -50,6 +51,12 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 
 
@@ -464,5 +471,772 @@ public final class AssuredReplicationResponseControlTestCase
     assertNotNull(AssuredReplicationResponseControl.getAll(result));
     assertEquals(AssuredReplicationResponseControl.getAll(result).size(), 2);
 
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when a minimum set of elements are included.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlMinimalControl()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 2);
+
+    assertNull(valueObject.getFieldAsString("local-level"));
+
+    assertEquals(valueObject.getFieldAsBoolean("local-assurance-satisfied"),
+         Boolean.TRUE);
+
+    assertNull(valueObject.getFieldAsString("local-assurance-message"));
+
+    assertNull(valueObject.getFieldAsString("remote-level"));
+
+    assertEquals(valueObject.getFieldAsBoolean("remote-assurance-satisfied"),
+         Boolean.FALSE);
+
+    assertNull(valueObject.getFieldAsString("remote-assurance-message"));
+
+    assertNull(valueObject.getFieldAsString("csn"));
+
+    assertNull(valueObject.getFieldAsArray("server-results"));
+
+
+    AssuredReplicationResponseControl decodedControl =
+         AssuredReplicationResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getLocalLevel());
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertNull(decodedControl.getLocalAssuranceMessage());
+
+    assertNull(decodedControl.getRemoteLevel());
+
+    assertFalse(decodedControl.remoteAssuranceSatisfied());
+
+    assertNull(decodedControl.getRemoteAssuranceMessage());
+
+    assertNull(decodedControl.getCSN());
+
+    assertNotNull(decodedControl.getServerResults());
+    assertTrue(decodedControl.getServerResults().isEmpty());
+
+
+    decodedControl =
+         (AssuredReplicationResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getLocalLevel());
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertNull(decodedControl.getLocalAssuranceMessage());
+
+    assertNull(decodedControl.getRemoteLevel());
+
+    assertFalse(decodedControl.remoteAssuranceSatisfied());
+
+    assertNull(decodedControl.getRemoteAssuranceMessage());
+
+    assertNull(decodedControl.getCSN());
+
+    assertNotNull(decodedControl.getServerResults());
+    assertTrue(decodedControl.getServerResults().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when a complete set of elements are included.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlCompleteControl()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(
+              AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER, true,
+              "Received by at least one server.",
+              AssuredReplicationRemoteLevel.RECEIVED_ALL_REMOTE_LOCATIONS,
+              false, "Could not verify reception in all remote locations.",
+              "this-is-a-csn",
+              Arrays.asList(
+                   new AssuredReplicationServerResult(
+                        AssuredReplicationServerResultCode.COMPLETE, (short) 2,
+                        null),
+                   new AssuredReplicationServerResult(
+                        AssuredReplicationServerResultCode.TIMEOUT, null,
+                        (short) 3)));
+
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    final JSONObject valueObject = controlObject.getFieldAsObject("value-json");
+    assertNotNull(valueObject);
+    assertEquals(valueObject.getFields().size(), 8);
+
+    assertEquals(valueObject.getFieldAsString("local-level"),
+         "received-any-server");
+
+    assertEquals(valueObject.getFieldAsBoolean("local-assurance-satisfied"),
+         Boolean.TRUE);
+
+    assertEquals(valueObject.getFieldAsString("local-assurance-message"),
+         "Received by at least one server.");
+
+    assertEquals(valueObject.getFieldAsString("remote-level"),
+         "received-all-remote-locations");
+
+    assertEquals(valueObject.getFieldAsBoolean("remote-assurance-satisfied"),
+         Boolean.FALSE);
+
+    assertEquals(valueObject.getFieldAsString("remote-assurance-message"),
+         "Could not verify reception in all remote locations.");
+
+    assertEquals(valueObject.getFieldAsString("csn"), "this-is-a-csn");
+
+    final List<JSONValue> serverResultValues =
+         valueObject.getFieldAsArray("server-results");
+    assertNotNull(serverResultValues);
+    assertEquals(serverResultValues.size(), 2);
+
+    final JSONObject resultObject1 = (JSONObject) serverResultValues.get(0);
+    assertEquals(resultObject1.getFields().size(), 3);
+
+    assertEquals(
+         resultObject1.getFieldAsInteger("result-code-value").intValue(),
+         AssuredReplicationServerResultCode.COMPLETE.intValue());
+
+    assertEquals(resultObject1.getFieldAsString("result-code-name"),
+         AssuredReplicationServerResultCode.COMPLETE.name());
+
+    assertEquals(resultObject1.getFieldAsInteger("replication-server-id"),
+         Integer.valueOf(2));
+
+    assertNull(resultObject1.getFieldAsInteger("replica-id"));
+
+    final JSONObject resultObject2 = (JSONObject) serverResultValues.get(1);
+    assertEquals(resultObject2.getFields().size(), 3);
+
+    assertEquals(
+         resultObject2.getFieldAsInteger("result-code-value").intValue(),
+         AssuredReplicationServerResultCode.TIMEOUT.intValue());
+
+    assertEquals(resultObject2.getFieldAsString("result-code-name"),
+         AssuredReplicationServerResultCode.TIMEOUT.name());
+
+    assertNull(resultObject2.getFieldAsInteger("replication-server-id"));
+
+    assertEquals(resultObject2.getFieldAsInteger("replica-id"),
+         Integer.valueOf(3));
+
+
+    AssuredReplicationResponseControl decodedControl =
+         AssuredReplicationResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getLocalLevel(),
+         AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER);
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertEquals(decodedControl.getLocalAssuranceMessage(),
+         "Received by at least one server.");
+
+    assertEquals(decodedControl.getRemoteLevel(),
+         AssuredReplicationRemoteLevel.RECEIVED_ALL_REMOTE_LOCATIONS);
+
+    assertFalse(decodedControl.remoteAssuranceSatisfied());
+
+    assertEquals(decodedControl.getRemoteAssuranceMessage(),
+         "Could not verify reception in all remote locations.");
+
+    assertEquals(decodedControl.getCSN(), "this-is-a-csn");
+
+    assertNotNull(decodedControl.getServerResults());
+    assertEquals(decodedControl.getServerResults().size(), 2);
+
+    AssuredReplicationServerResult result1 =
+         decodedControl.getServerResults().get(0);
+
+    assertEquals(result1.getResultCode(),
+         AssuredReplicationServerResultCode.COMPLETE);
+
+    assertEquals(result1.getReplicationServerID().intValue(), 2);
+
+    assertNull(result1.getReplicaID());
+
+    AssuredReplicationServerResult result2 =
+         decodedControl.getServerResults().get(1);
+
+    assertEquals(result2.getResultCode(),
+         AssuredReplicationServerResultCode.TIMEOUT);
+
+    assertNull(result2.getReplicationServerID());
+
+    assertEquals(result2.getReplicaID().intValue(), 3);
+
+
+
+    decodedControl =
+         (AssuredReplicationResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertEquals(decodedControl.getLocalLevel(),
+         AssuredReplicationLocalLevel.RECEIVED_ANY_SERVER);
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertEquals(decodedControl.getLocalAssuranceMessage(),
+         "Received by at least one server.");
+
+    assertEquals(decodedControl.getRemoteLevel(),
+         AssuredReplicationRemoteLevel.RECEIVED_ALL_REMOTE_LOCATIONS);
+
+    assertFalse(decodedControl.remoteAssuranceSatisfied());
+
+    assertEquals(decodedControl.getRemoteAssuranceMessage(),
+         "Could not verify reception in all remote locations.");
+
+    assertEquals(decodedControl.getCSN(), "this-is-a-csn");
+
+    assertNotNull(decodedControl.getServerResults());
+    assertEquals(decodedControl.getServerResults().size(), 2);
+
+    result1 = decodedControl.getServerResults().get(0);
+
+    assertEquals(result1.getResultCode(),
+         AssuredReplicationServerResultCode.COMPLETE);
+
+    assertEquals(result1.getReplicationServerID().intValue(), 2);
+
+    assertNull(result1.getReplicaID());
+
+    result2 = decodedControl.getServerResults().get(1);
+
+    assertEquals(result2.getResultCode(),
+         AssuredReplicationServerResultCode.TIMEOUT);
+
+    assertNull(result2.getReplicationServerID());
+
+    assertEquals(result2.getReplicaID().intValue(), 3);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    AssuredReplicationResponseControl decodedControl =
+         AssuredReplicationResponseControl.decodeJSONControl(controlObject,
+              true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getLocalLevel());
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertNull(decodedControl.getLocalAssuranceMessage());
+
+    assertNull(decodedControl.getRemoteLevel());
+
+    assertFalse(decodedControl.remoteAssuranceSatisfied());
+
+    assertNull(decodedControl.getRemoteAssuranceMessage());
+
+    assertNull(decodedControl.getCSN());
+
+    assertNotNull(decodedControl.getServerResults());
+    assertTrue(decodedControl.getServerResults().isEmpty());
+
+
+    decodedControl =
+         (AssuredReplicationResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNull(decodedControl.getLocalLevel());
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertNull(decodedControl.getLocalAssuranceMessage());
+
+    assertNull(decodedControl.getRemoteLevel());
+
+    assertFalse(decodedControl.remoteAssuranceSatisfied());
+
+    assertNull(decodedControl.getRemoteAssuranceMessage());
+
+    assertNull(decodedControl.getCSN());
+
+    assertNotNull(decodedControl.getServerResults());
+    assertTrue(decodedControl.getServerResults().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object has an invalid local assurance level.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlInvalidLocalAssuranceLevel()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "invalid"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object is missing the local-assurance-satisfied field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingLocalAssuranceSatisfied()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object has an invalid remote assurance level.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlInvalidRemoteAssuranceLevel()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "invalid"),
+              new JSONField("remote-assurance-satisfied", true))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object is missing the remote-assurance-satisfied field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingRemoteAssuranceSatisfied()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the server results array contains a value that is not an object.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlServerResultsValueNotObject()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("server-results", new JSONArray(
+                   new JSONString("not-a-valid-server-results"))))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the server results array contains a value that is missing a result code.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlServerResultsValueMissingResultCode()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("server-results", new JSONArray(
+                   JSONObject.EMPTY_OBJECT)))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the server results array contains a value that has an invalid result code.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlServerResultsValueInvalidResultCode()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("server-results", new JSONArray(
+                   new JSONObject(
+                        new JSONField("result-code-value", 999),
+                        new JSONField("result-code-name", "invalid")))))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlValueUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("unrecognized", "foo"))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value object has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("unrecognized", "foo"))));
+
+    final AssuredReplicationResponseControl decodedControl =
+         AssuredReplicationResponseControl.decodeJSONControl(controlObject,
+              false);
+
+    assertEquals(decodedControl.getLocalLevel(),
+         AssuredReplicationLocalLevel.NONE);
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertNull(decodedControl.getLocalAssuranceMessage());
+
+    assertEquals(decodedControl.getRemoteLevel(),
+         AssuredReplicationRemoteLevel.NONE);
+
+    assertTrue(decodedControl.remoteAssuranceSatisfied());
+
+    assertNull(decodedControl.getRemoteAssuranceMessage());
+
+    assertNull(decodedControl.getCSN());
+
+    assertTrue(decodedControl.getServerResults().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * a server result object has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlServeResultUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("server-results", new JSONArray(
+                   new JSONObject(
+                        new JSONField("result-code-value", 0),
+                        new JSONField("result-code-name", "COMPLETE"),
+                        new JSONField("unrecognized", "foo")))))));
+
+    AssuredReplicationResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * a server result object has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlServeResultUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final AssuredReplicationResponseControl c =
+         new AssuredReplicationResponseControl(null, true, null, null, false,
+              null, null, null);
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("local-level", "none"),
+              new JSONField("local-assurance-satisfied", true),
+              new JSONField("remote-level", "none"),
+              new JSONField("remote-assurance-satisfied", true),
+              new JSONField("server-results", new JSONArray(
+                   new JSONObject(
+                        new JSONField("result-code-value", 0),
+                        new JSONField("result-code-name", "COMPLETE"),
+                        new JSONField("unrecognized", "foo")))))));
+
+    final AssuredReplicationResponseControl decodedControl =
+         AssuredReplicationResponseControl.decodeJSONControl(controlObject,
+              false);
+
+    assertEquals(decodedControl.getLocalLevel(),
+         AssuredReplicationLocalLevel.NONE);
+
+    assertTrue(decodedControl.localAssuranceSatisfied());
+
+    assertNull(decodedControl.getLocalAssuranceMessage());
+
+    assertEquals(decodedControl.getRemoteLevel(),
+         AssuredReplicationRemoteLevel.NONE);
+
+    assertTrue(decodedControl.remoteAssuranceSatisfied());
+
+    assertNull(decodedControl.getRemoteAssuranceMessage());
+
+    assertNull(decodedControl.getCSN());
+
+    assertEquals(decodedControl.getServerResults().size(), 1);
+
+    final AssuredReplicationServerResult serverResult =
+         decodedControl.getServerResults().get(0);
+    assertEquals(serverResult.getResultCode(),
+         AssuredReplicationServerResultCode.COMPLETE);
+    assertNull(serverResult.getReplicationServerID());
+    assertNull(serverResult.getReplicaID());
   }
 }

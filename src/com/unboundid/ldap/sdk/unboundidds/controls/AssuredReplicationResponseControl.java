@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
@@ -50,6 +52,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -60,6 +63,13 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONArray;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -171,6 +181,112 @@ public final class AssuredReplicationResponseControl
    * The BER type for the server results element.
    */
   private static final byte TYPE_SERVER_RESULTS = (byte) 0xA7;
+
+
+
+  /**
+   * The name of the field used to specify the replication CSN in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CSN = "csn";
+
+
+
+  /**
+   * The name of the field used to specify the local assurance level in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_LOCAL_LEVEL = "local-level";
+
+
+
+  /**
+   * The name of the field used to indicate whether the local assurance level
+   * was satisfied in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_LOCAL_ASSURANCE_SATISFIED =
+       "local-assurance-satisfied";
+
+
+
+  /**
+   * The name of the field used to provide an additional message about local
+   * assurance processing in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_LOCAL_ASSURANCE_MESSAGE =
+       "local-assurance-message";
+
+
+
+  /**
+   * The name of the field used to specify the remote assurance level in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REMOTE_LEVEL = "remote-level";
+
+
+
+  /**
+   * The name of the field used to indicate whether the remote assurance level
+   * was satisfied in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REMOTE_ASSURANCE_SATISFIED =
+       "remote-assurance-satisfied";
+
+
+
+  /**
+   * The name of the field used to provide an additional message about remote
+   * assurance processing in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_REMOTE_ASSURANCE_MESSAGE =
+       "remote-assurance-message";
+
+
+
+  /**
+   * The name of the field used to hold the server results in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_RESULTS =
+       "server-results";
+
+
+
+  /**
+   * The name of the field used to hold the result code value in the server
+   * results element in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_SERVER_RESULTS_RESULT_CODE_VALUE = "result-code-value";
+
+
+
+  /**
+   * The name of the field used to hold the result code name in the server
+   * results element in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_SERVER_RESULTS_RESULT_CODE_NAME = "result-code-name";
+
+
+
+  /**
+   * The name of the field used to hold the replica ID in the server results
+   * element in the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SERVER_RESULTS_REPLICA_ID =
+       "replica-id";
+
+
+
+  /**
+   * The name of the field used to hold the replication server ID in the server
+   * results element in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_SERVER_RESULTS_REPLICATION_SERVER_ID =
+       "replication-server-id";
 
 
 
@@ -790,6 +906,329 @@ public final class AssuredReplicationResponseControl
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> jsonValueFields = new LinkedHashMap<>();
+
+    if (localLevel != null)
+    {
+      jsonValueFields.put(JSON_FIELD_LOCAL_LEVEL,
+           new JSONString(localLevel.getName()));
+    }
+
+    jsonValueFields.put(JSON_FIELD_LOCAL_ASSURANCE_SATISFIED,
+         new JSONBoolean(localAssuranceSatisfied));
+
+    if (localAssuranceMessage != null)
+    {
+      jsonValueFields.put(JSON_FIELD_LOCAL_ASSURANCE_MESSAGE,
+           new JSONString(localAssuranceMessage));
+    }
+
+    if (remoteLevel != null)
+    {
+      jsonValueFields.put(JSON_FIELD_REMOTE_LEVEL,
+           new JSONString(remoteLevel.getName()));
+    }
+
+    jsonValueFields.put(JSON_FIELD_REMOTE_ASSURANCE_SATISFIED,
+         new JSONBoolean(remoteAssuranceSatisfied));
+
+    if (remoteAssuranceMessage != null)
+    {
+      jsonValueFields.put(JSON_FIELD_REMOTE_ASSURANCE_MESSAGE,
+           new JSONString(remoteAssuranceMessage));
+    }
+
+    if (csn != null)
+    {
+      jsonValueFields.put(JSON_FIELD_CSN, new JSONString(csn));
+    }
+
+    if ((serverResults != null) && (! serverResults.isEmpty()))
+    {
+      final List<JSONValue> serverResultValues =
+           new ArrayList<>(serverResults.size());
+      for (final AssuredReplicationServerResult serverResult : serverResults)
+      {
+        final Map<String,JSONValue> serverResultFields = new LinkedHashMap<>();
+        serverResultFields.put(JSON_FIELD_SERVER_RESULTS_RESULT_CODE_VALUE,
+             new JSONNumber(serverResult.getResultCode().intValue()));
+        serverResultFields.put(JSON_FIELD_SERVER_RESULTS_RESULT_CODE_NAME,
+             new JSONString(serverResult.getResultCode().name()));
+
+        final Short replicationServerID = serverResult.getReplicationServerID();
+        if (replicationServerID != null)
+        {
+          serverResultFields.put(
+               JSON_FIELD_SERVER_RESULTS_REPLICATION_SERVER_ID,
+               new JSONNumber(replicationServerID.longValue()));
+        }
+
+        final Short replicaID = serverResult.getReplicaID();
+        if (replicaID != null)
+        {
+          serverResultFields.put(JSON_FIELD_SERVER_RESULTS_REPLICA_ID,
+               new JSONNumber(replicaID.longValue()));
+        }
+
+        serverResultValues.add(new JSONObject(serverResultFields));
+      }
+
+      jsonValueFields.put(JSON_FIELD_SERVER_RESULTS,
+           new JSONArray(serverResultValues));
+    }
+
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              ASSURED_REPLICATION_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_ASSURED_REPLICATION_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(jsonValueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of an
+   * assured replication response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The assured replication control that was decoded from the provided
+   *          JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid assured replication response control.
+   */
+  @NotNull()
+  public static AssuredReplicationResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new AssuredReplicationResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    AssuredReplicationLocalLevel localLevel = null;
+    AssuredReplicationRemoteLevel remoteLevel = null;
+    Boolean localAssuranceSatisfied = null;
+    Boolean remoteAssuranceSatisfied = null;
+    String csn = null;
+    String localAssuranceMessage = null;
+    String remoteAssuranceMessage = null;
+    final List<AssuredReplicationServerResult> serverResults =
+         new ArrayList<>();
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String localLevelStr =
+         valueObject.getFieldAsString(JSON_FIELD_LOCAL_LEVEL);
+    if (localLevelStr != null)
+    {
+      localLevel = AssuredReplicationLocalLevel.forName(localLevelStr);
+      if (localLevel == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_RESPONSE_JSON_INVALID_LOCAL_LEVEL.get(
+                  controlObject.toSingleLineString(), localLevelStr));
+      }
+    }
+
+    localAssuranceSatisfied =
+         valueObject.getFieldAsBoolean(JSON_FIELD_LOCAL_ASSURANCE_SATISFIED);
+    if (localAssuranceSatisfied == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSURED_REPLICATION_RESPONSE_JSON_MISSING_VALUE_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_LOCAL_ASSURANCE_SATISFIED));
+    }
+
+    localAssuranceMessage =
+         valueObject.getFieldAsString(JSON_FIELD_LOCAL_ASSURANCE_MESSAGE);
+
+    final String remoteLevelStr =
+         valueObject.getFieldAsString(JSON_FIELD_REMOTE_LEVEL);
+    if (remoteLevelStr != null)
+    {
+      remoteLevel = AssuredReplicationRemoteLevel.forName(remoteLevelStr);
+      if (remoteLevel == null)
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_RESPONSE_JSON_INVALID_REMOTE_LEVEL.get(
+                  controlObject.toSingleLineString(), remoteLevelStr));
+      }
+    }
+
+    remoteAssuranceSatisfied =
+         valueObject.getFieldAsBoolean(JSON_FIELD_REMOTE_ASSURANCE_SATISFIED);
+    if (remoteAssuranceSatisfied == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSURED_REPLICATION_RESPONSE_JSON_MISSING_VALUE_FIELD.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_REMOTE_ASSURANCE_SATISFIED));
+    }
+
+    remoteAssuranceMessage =
+         valueObject.getFieldAsString(JSON_FIELD_REMOTE_ASSURANCE_MESSAGE);
+
+    csn = valueObject.getFieldAsString(JSON_FIELD_CSN);
+
+    final List<JSONValue> serverResultValues =
+         valueObject.getFieldAsArray(JSON_FIELD_SERVER_RESULTS);
+    if (serverResultValues != null)
+    {
+      for (final JSONValue serverResultValue : serverResultValues)
+      {
+        serverResults.add(decodeServerResult(controlObject, serverResultValue,
+             strict));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_LOCAL_LEVEL,
+                JSON_FIELD_LOCAL_ASSURANCE_SATISFIED,
+                JSON_FIELD_LOCAL_ASSURANCE_MESSAGE, JSON_FIELD_REMOTE_LEVEL,
+                JSON_FIELD_REMOTE_ASSURANCE_SATISFIED,
+                JSON_FIELD_REMOTE_ASSURANCE_MESSAGE, JSON_FIELD_CSN,
+                JSON_FIELD_SERVER_RESULTS);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_RESPONSE_JSON_UNRECOGNIZED_VALUE_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new AssuredReplicationResponseControl(localLevel,
+         localAssuranceSatisfied, localAssuranceMessage, remoteLevel,
+         remoteAssuranceSatisfied, remoteAssuranceMessage, csn, serverResults);
+  }
+
+
+
+  /**
+   * Decodes the provided JSON value as an assured replication server result
+   * object.
+   *
+   * @param  controlObject      The JSON object that contains an encoded
+   *                            representation of a control being decoded.  It
+   *                            must not be {@code null}.
+   * @param  serverResultValue  The JSON value to be decoded.  It must not be
+   *                            {@code null}.
+   * @param  strict             Indicates whether to use strict mode when
+   *                            decoding the server result.
+   *
+   * @return  The server result value that was decoded.
+   *
+   * @throws  LDAPException  If the provided value cannot be decoded as a server
+   *                         result.
+   */
+  @NotNull()
+  private static AssuredReplicationServerResult decodeServerResult(
+               @NotNull final JSONObject controlObject,
+               @NotNull final JSONValue serverResultValue,
+               final boolean strict)
+          throws LDAPException
+  {
+    final JSONObject resultObject;
+    if (serverResultValue instanceof JSONObject)
+    {
+      resultObject = (JSONObject) serverResultValue;
+    }
+    else
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSURED_REPLICATION_RESPONSE_JSON_SERVER_RESULT_NOT_OBJECT.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SERVER_RESULTS));
+    }
+
+    final Integer resultCodeValue = resultObject.getFieldAsInteger(
+         JSON_FIELD_SERVER_RESULTS_RESULT_CODE_VALUE);
+    if (resultCodeValue == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSURED_REPLICATION_RESPONSE_JSON_SERVER_RESULT_NO_RC.get(
+                controlObject.toSingleLineString(),
+                JSON_FIELD_SERVER_RESULTS_RESULT_CODE_VALUE));
+    }
+
+    final AssuredReplicationServerResultCode resultCode =
+         AssuredReplicationServerResultCode.valueOf(resultCodeValue);
+    if (resultCode == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ASSURED_REPLICATION_RESPONSE_JSON_SERVER_RESULT_UNKNOWN_RC.get(
+                controlObject.toSingleLineString(), resultCodeValue));
+    }
+
+    final Integer replicationServerID = resultObject.getFieldAsInteger(
+         JSON_FIELD_SERVER_RESULTS_REPLICATION_SERVER_ID);
+    final Integer replicaID = resultObject.getFieldAsInteger(
+         JSON_FIELD_SERVER_RESULTS_REPLICA_ID);
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                resultObject, JSON_FIELD_SERVER_RESULTS_RESULT_CODE_VALUE,
+                JSON_FIELD_SERVER_RESULTS_RESULT_CODE_NAME,
+                JSON_FIELD_SERVER_RESULTS_REPLICATION_SERVER_ID,
+                JSON_FIELD_SERVER_RESULTS_REPLICA_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_ASSURED_REPLICATION_RESPONSE_JSON_UNRECOGNIZED_SR_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new AssuredReplicationServerResult(resultCode,
+         (replicationServerID != null)
+              ? replicationServerID.shortValue()
+              : null,
+         (replicaID != null)
+              ? replicaID.shortValue()
+              : null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void toString(@NotNull final StringBuilder buffer)
   {
     buffer.append("AssuredReplicationResponseControl(isCritical=");
@@ -842,9 +1281,10 @@ public final class AssuredReplicationResponseControl
            serverResults.iterator();
       while (iterator.hasNext())
       {
+        iterator.next().toString(buffer);
+
         if (iterator.hasNext())
         {
-          iterator.next().toString(buffer);
           buffer.append(", ");
         }
       }

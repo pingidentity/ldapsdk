@@ -38,6 +38,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Enumerated;
@@ -47,6 +50,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -57,6 +61,10 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -142,6 +150,122 @@ public final class PasswordPolicyResponseControl
    * The BER type for the "grace logins remaining" warning element.
    */
   private static final byte TYPE_GRACE_LOGINS_REMAINING = (byte) 0x81;
+
+
+
+  /**
+   * The name of the field used to hold the error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ERROR_TYPE = "error-type";
+
+
+
+  /**
+   * The name of the field used to hold the grace logins remaining in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_GRACE_LOGINS_REMAINING =
+       "grace-logins-remaining";
+
+
+
+  /**
+   * The name of the field used to hold the seconds until expiration in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_SECONDS_UNTIL_EXPIRATION =
+       "seconds-until-expiration";
+
+
+
+  /**
+   * The name of the field used to hold the warning in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_WARNING = "warning";
+
+
+
+  /**
+   * The value to use for the account-locked error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_ERROR_TYPE_ACCOUNT_LOCKED =
+       "account-locked";
+
+
+
+  /**
+   * The value to use for the change-after-reset error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_ERROR_TYPE_CHANGE_AFTER_RESET =
+       "change-after-reset";
+
+
+
+  /**
+   * The value to use for the insufficient-password-quality error type in the
+   * JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_ERROR_TYPE_INSUFFICIENT_PASSWORD_QUALITY =
+            "insufficient-password-quality";
+
+
+
+  /**
+   * The value to use for the must-supply-old-password error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String
+       JSON_ERROR_TYPE_MUST_SUPPLY_OLD_PASSWORD = "must-supply-old-password";
+
+
+
+  /**
+   * The value to use for the password-expired error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_ERROR_TYPE_PASSWORD_EXPIRED =
+       "password-expired";
+
+
+
+  /**
+   * The value to use for the password-in-history error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_ERROR_TYPE_PASSWORD_IN_HISTORY =
+       "password-in-history";
+
+
+
+  /**
+   * The value to use for the password-too-short error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_ERROR_TYPE_PASSWORD_TOO_SHORT =
+       "password-too-short";
+
+
+
+  /**
+   * The value to use for the password-too-young error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_ERROR_TYPE_PASSWORD_TOO_YOUNG =
+       "password-too-young";
+
+
+
+  /**
+   * The value to use for the password-mod-not-allowed error type in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String
+       JSON_ERROR_TYPE_PASSWORD_MOD_NOT_ALLOWED = "password-mod-not-allowed";
 
 
 
@@ -527,6 +651,252 @@ public final class PasswordPolicyResponseControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_PW_POLICY_RESPONSE.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (warningType != null)
+    {
+      switch (warningType)
+      {
+        case TIME_BEFORE_EXPIRATION:
+          valueFields.put(JSON_FIELD_WARNING, new JSONObject(
+               new JSONField(JSON_FIELD_SECONDS_UNTIL_EXPIRATION,
+                    warningValue)));
+          break;
+        case GRACE_LOGINS_REMAINING:
+          valueFields.put(JSON_FIELD_WARNING, new JSONObject(
+               new JSONField(JSON_FIELD_GRACE_LOGINS_REMAINING, warningValue)));
+          break;
+      }
+    }
+
+    if (errorType != null)
+    {
+      switch (errorType)
+      {
+        case PASSWORD_EXPIRED:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_PASSWORD_EXPIRED));
+          break;
+        case ACCOUNT_LOCKED:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_ACCOUNT_LOCKED));
+          break;
+        case CHANGE_AFTER_RESET:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_CHANGE_AFTER_RESET));
+          break;
+        case PASSWORD_MOD_NOT_ALLOWED:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_PASSWORD_MOD_NOT_ALLOWED));
+          break;
+        case MUST_SUPPLY_OLD_PASSWORD:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_MUST_SUPPLY_OLD_PASSWORD));
+          break;
+        case INSUFFICIENT_PASSWORD_QUALITY:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_INSUFFICIENT_PASSWORD_QUALITY));
+          break;
+        case PASSWORD_TOO_SHORT:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_PASSWORD_TOO_SHORT));
+          break;
+        case PASSWORD_TOO_YOUNG:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_PASSWORD_TOO_YOUNG));
+          break;
+        case PASSWORD_IN_HISTORY:
+          valueFields.put(JSON_FIELD_ERROR_TYPE,
+               new JSONString(JSON_ERROR_TYPE_PASSWORD_IN_HISTORY));
+          break;
+      }
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              PASSWORD_POLICY_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_PW_POLICY_RESPONSE.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * password policy response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The password policy response control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid password policy response control.
+   */
+  @NotNull()
+  public static PasswordPolicyResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new PasswordPolicyResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final PasswordPolicyWarningType warningType;
+    final int warningValue;
+    final JSONObject warningObject =
+         valueObject.getFieldAsObject(JSON_FIELD_WARNING);
+    if (warningObject == null)
+    {
+      warningType = null;
+      warningValue = -1;
+    }
+    else
+    {
+      final Integer secondsUntilExpiration =
+           warningObject.getFieldAsInteger(JSON_FIELD_SECONDS_UNTIL_EXPIRATION);
+      final Integer graceLoginsRemaining =
+           warningObject.getFieldAsInteger(JSON_FIELD_GRACE_LOGINS_REMAINING);
+      if (secondsUntilExpiration == null)
+      {
+        if (graceLoginsRemaining == null)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PWP_RESPONSE_JSON_NO_RECOGNIZED_WARNING_TYPE.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_WARNING));
+        }
+        else
+        {
+          warningType = PasswordPolicyWarningType.GRACE_LOGINS_REMAINING;
+          warningValue = graceLoginsRemaining;
+        }
+      }
+      else if (graceLoginsRemaining == null)
+      {
+        warningType = PasswordPolicyWarningType.TIME_BEFORE_EXPIRATION;
+        warningValue = secondsUntilExpiration;
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PWP_RESPONSE_JSON_MULTIPLE_WARNING_TYPES.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_WARNING));
+      }
+
+      if (strict)
+      {
+        final List<String> unrecognizedFields =
+             JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                  warningObject, JSON_FIELD_SECONDS_UNTIL_EXPIRATION,
+                  JSON_FIELD_GRACE_LOGINS_REMAINING);
+        if (! unrecognizedFields.isEmpty())
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PWP_RESPONSE_JSON_UNRECOGNIZED_WARNING_FIELD.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_WARNING,
+                    unrecognizedFields.get(0)));
+        }
+      }
+    }
+
+
+    final PasswordPolicyErrorType errorType;
+    final String errorTypeString =
+         valueObject.getFieldAsString(JSON_FIELD_ERROR_TYPE);
+    if (errorTypeString == null)
+    {
+      errorType = null;
+    }
+    else
+    {
+      switch (errorTypeString)
+      {
+        case JSON_ERROR_TYPE_PASSWORD_EXPIRED:
+          errorType = PasswordPolicyErrorType.PASSWORD_EXPIRED;
+          break;
+        case JSON_ERROR_TYPE_ACCOUNT_LOCKED:
+          errorType = PasswordPolicyErrorType.ACCOUNT_LOCKED;
+          break;
+        case JSON_ERROR_TYPE_CHANGE_AFTER_RESET:
+          errorType = PasswordPolicyErrorType.CHANGE_AFTER_RESET;
+          break;
+        case JSON_ERROR_TYPE_PASSWORD_MOD_NOT_ALLOWED:
+          errorType = PasswordPolicyErrorType.PASSWORD_MOD_NOT_ALLOWED;
+          break;
+        case JSON_ERROR_TYPE_MUST_SUPPLY_OLD_PASSWORD:
+          errorType = PasswordPolicyErrorType.MUST_SUPPLY_OLD_PASSWORD;
+          break;
+        case JSON_ERROR_TYPE_INSUFFICIENT_PASSWORD_QUALITY:
+          errorType = PasswordPolicyErrorType.INSUFFICIENT_PASSWORD_QUALITY;
+          break;
+        case JSON_ERROR_TYPE_PASSWORD_TOO_SHORT:
+          errorType = PasswordPolicyErrorType.PASSWORD_TOO_SHORT;
+          break;
+        case JSON_ERROR_TYPE_PASSWORD_TOO_YOUNG:
+          errorType = PasswordPolicyErrorType.PASSWORD_TOO_YOUNG;
+          break;
+        case JSON_ERROR_TYPE_PASSWORD_IN_HISTORY:
+          errorType = PasswordPolicyErrorType.PASSWORD_IN_HISTORY;
+          break;
+        default:
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_PWP_RESPONSE_JSON_UNRECOGNIZED_ERROR_TYPE.get(
+                    controlObject.toSingleLineString(), JSON_FIELD_ERROR_TYPE,
+                    errorTypeString));
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_WARNING, JSON_FIELD_ERROR_TYPE);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_PWP_RESPONSE_JSON_UNRECOGNIZED_VALUE_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new PasswordPolicyResponseControl(warningType, warningValue,
+         errorType, jsonControl.getCriticality());
   }
 
 

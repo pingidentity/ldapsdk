@@ -46,6 +46,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
 
 
 
@@ -402,5 +405,358 @@ public final class UniquenessResponseControlTestCase
 
     new UniquenessResponseControl().decodeControl("1.3.6.1.4.1.30221.2.5.53",
         false, new ASN1OctetString(valueSequence.encode()));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when only a uniqueness ID is provided.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlOnlyUniquenessID()
+          throws Exception
+  {
+    final UniquenessResponseControl c =
+         new UniquenessResponseControl("TheUniquenessID", null, null, null);
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("uniqueness-id", "TheUniquenessID")));
+
+
+    UniquenessResponseControl decodedControl =
+         UniquenessResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertNull(decodedControl.getPreCommitValidationPassed());
+
+    assertNull(decodedControl.getPostCommitValidationPassed());
+
+    assertNull(decodedControl.getValidationMessage());
+
+
+    decodedControl =
+         (UniquenessResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertNull(decodedControl.getPreCommitValidationPassed());
+
+    assertNull(decodedControl.getPostCommitValidationPassed());
+
+    assertNull(decodedControl.getValidationMessage());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the control to and
+   * from a JSON object when all elements are specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJSONControlAllElements()
+          throws Exception
+  {
+    final UniquenessResponseControl c =
+         new UniquenessResponseControl("TheUniquenessID", true, false,
+              "TheValidationMessage");
+
+    final JSONObject controlObject = c.toJSONControl();
+
+    assertNotNull(controlObject);
+    assertEquals(controlObject.getFields().size(), 4);
+
+    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
+
+    assertNotNull(controlObject.getFieldAsString("control-name"));
+    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
+    assertFalse(controlObject.getFieldAsString("control-name").equals(
+         controlObject.getFieldAsString("oid")));
+
+    assertEquals(controlObject.getFieldAsBoolean("criticality"),
+         Boolean.FALSE);
+
+    assertFalse(controlObject.hasField("value-base64"));
+
+    assertEquals(controlObject.getFieldAsObject("value-json"),
+         new JSONObject(
+              new JSONField("uniqueness-id", "TheUniquenessID"),
+              new JSONField("pre-commit-validation-passed", true),
+              new JSONField("post-commit-validation-passed", false),
+              new JSONField("validation-message", "TheValidationMessage")));
+
+
+    UniquenessResponseControl decodedControl =
+         UniquenessResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertEquals(decodedControl.getPreCommitValidationPassed(),
+         Boolean.TRUE);
+
+    assertEquals(decodedControl.getPostCommitValidationPassed(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getValidationMessage(), "TheValidationMessage");
+
+
+    decodedControl =
+         (UniquenessResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertEquals(decodedControl.getPreCommitValidationPassed(),
+         Boolean.TRUE);
+
+    assertEquals(decodedControl.getPostCommitValidationPassed(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getValidationMessage(), "TheValidationMessage");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is base64-encoded.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlValueBase64()
+          throws Exception
+  {
+    final UniquenessResponseControl c =
+         new UniquenessResponseControl("TheUniquenessID", true, false,
+              "TheValidationMessage");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-base64", Base64.encode(c.getValue().getValue())));
+
+
+    UniquenessResponseControl decodedControl =
+         UniquenessResponseControl.decodeJSONControl(controlObject, true);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertEquals(decodedControl.getPreCommitValidationPassed(),
+         Boolean.TRUE);
+
+    assertEquals(decodedControl.getPostCommitValidationPassed(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getValidationMessage(), "TheValidationMessage");
+
+
+    decodedControl =
+         (UniquenessResponseControl)
+         Control.decodeJSONControl(controlObject, true, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertEquals(decodedControl.getPreCommitValidationPassed(),
+         Boolean.TRUE);
+
+    assertEquals(decodedControl.getPostCommitValidationPassed(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getValidationMessage(), "TheValidationMessage");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value is missing the uniqueness-id field.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlMissingUniquenessID()
+          throws Exception
+  {
+    final UniquenessResponseControl c =
+         new UniquenessResponseControl("TheUniquenessID", true, false,
+              "TheValidationMessage");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("pre-commit-validation-passed", true),
+              new JSONField("post-commit-validation-passed", false),
+              new JSONField("validation-message", "TheValidationMessage"))));
+
+
+    UniquenessResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeJSONControlUnrecognizedFieldStrict()
+          throws Exception
+  {
+    final UniquenessResponseControl c =
+         new UniquenessResponseControl("TheUniquenessID", true, false,
+              "TheValidationMessage");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("uniqueness-id", "TheUniquenessID"),
+              new JSONField("pre-commit-validation-passed", true),
+              new JSONField("post-commit-validation-passed", false),
+              new JSONField("validation-message", "TheValidationMessage"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    UniquenessResponseControl.decodeJSONControl(controlObject, true);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON object as a control when
+   * the value has an unrecognized field in non-strict mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeJSONControlUnrecognizedFieldNonStrict()
+          throws Exception
+  {
+    final UniquenessResponseControl c =
+         new UniquenessResponseControl("TheUniquenessID", true, false,
+              "TheValidationMessage");
+
+    final JSONObject controlObject = new JSONObject(
+         new JSONField("oid", c.getOID()),
+         new JSONField("criticality", c.isCritical()),
+         new JSONField("value-json", new JSONObject(
+              new JSONField("uniqueness-id", "TheUniquenessID"),
+              new JSONField("pre-commit-validation-passed", true),
+              new JSONField("post-commit-validation-passed", false),
+              new JSONField("validation-message", "TheValidationMessage"),
+              new JSONField("unrecognized", "foo"))));
+
+
+    UniquenessResponseControl decodedControl =
+         UniquenessResponseControl.decodeJSONControl(controlObject, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertEquals(decodedControl.getPreCommitValidationPassed(),
+         Boolean.TRUE);
+
+    assertEquals(decodedControl.getPostCommitValidationPassed(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getValidationMessage(), "TheValidationMessage");
+
+
+    decodedControl =
+         (UniquenessResponseControl)
+         Control.decodeJSONControl(controlObject, false, false);
+    assertNotNull(decodedControl);
+
+    assertEquals(decodedControl.getOID(), c.getOID());
+
+    assertFalse(decodedControl.isCritical());
+
+    assertNotNull(decodedControl.getValue());
+
+    assertEquals(decodedControl.getUniquenessID(), "TheUniquenessID");
+
+    assertEquals(decodedControl.getPreCommitValidationPassed(),
+         Boolean.TRUE);
+
+    assertEquals(decodedControl.getPostCommitValidationPassed(),
+         Boolean.FALSE);
+
+    assertEquals(decodedControl.getValidationMessage(), "TheValidationMessage");
   }
 }

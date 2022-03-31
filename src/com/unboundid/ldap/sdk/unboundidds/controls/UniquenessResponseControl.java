@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.unboundid.asn1.ASN1Boolean;
@@ -48,6 +49,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -59,6 +61,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
@@ -132,6 +139,43 @@ public final class UniquenessResponseControl
    * The BER type for the validation message element in the value sequence.
    */
   private static final byte TYPE_VALIDATION_MESSAGE = (byte) 0x83;
+
+
+
+  /**
+   * The name of the field used to hold the post-commit-validation-passed flag
+   * in the JSON representation of this control.
+   */
+  @NotNull private static final String
+       JSON_FIELD_POST_COMMIT_VALIDATION_PASSED =
+            "post-commit-validation-passed";
+
+
+
+  /**
+   * The name of the field used to hold the pre-commit-validation-passed flag in
+   * the JSON representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_PRE_COMMIT_VALIDATION_PASSED =
+       "pre-commit-validation-passed";
+
+
+
+  /**
+   * The name of the field used to hold the uniqueness ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_UNIQUENESS_ID =
+       "uniqueness-id";
+
+
+
+  /**
+   * The name of the field used to hold the validation message in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_VALIDATION_MESSAGE =
+       "validation-message";
 
 
 
@@ -590,6 +634,130 @@ public final class UniquenessResponseControl
   public String getControlName()
   {
     return INFO_UNIQUENESS_RES_CONTROL_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+    valueFields.put(JSON_FIELD_UNIQUENESS_ID, new JSONString(uniquenessID));
+
+    if (preCommitValidationPassed != null)
+    {
+      valueFields.put(JSON_FIELD_PRE_COMMIT_VALIDATION_PASSED,
+           new JSONBoolean(preCommitValidationPassed));
+    }
+
+    if (postCommitValidationPassed != null)
+    {
+      valueFields.put(JSON_FIELD_POST_COMMIT_VALIDATION_PASSED,
+           new JSONBoolean(postCommitValidationPassed));
+    }
+
+    if (validationMessage != null)
+    {
+      valueFields.put(JSON_FIELD_VALIDATION_MESSAGE,
+           new JSONString(validationMessage));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              UNIQUENESS_RESPONSE_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_UNIQUENESS_RES_CONTROL_NAME.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * uniqueness response control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The uniqueness response control that was decoded from
+   *          the provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid uniqueness response control.
+   */
+  @NotNull()
+  public static UniquenessResponseControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new UniquenessResponseControl(jsonControl.getOID(),
+           jsonControl.getCriticality(), rawValue);
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final String uniquenessID =
+         valueObject.getFieldAsString(JSON_FIELD_UNIQUENESS_ID);
+    if (uniquenessID == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_UNIQUENESS_RES_JSON_MISSING_UNIQUENESS_ID.get(
+                controlObject.toSingleLineString(), JSON_FIELD_UNIQUENESS_ID));
+    }
+
+    final Boolean preCommitValidationPassed =
+         valueObject.getFieldAsBoolean(JSON_FIELD_PRE_COMMIT_VALIDATION_PASSED);
+
+    final Boolean postCommitValidationPassed =
+         valueObject.getFieldAsBoolean(
+              JSON_FIELD_POST_COMMIT_VALIDATION_PASSED);
+
+    final String validationMessage =
+         valueObject.getFieldAsString(JSON_FIELD_VALIDATION_MESSAGE);
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_UNIQUENESS_ID,
+                JSON_FIELD_PRE_COMMIT_VALIDATION_PASSED,
+                JSON_FIELD_POST_COMMIT_VALIDATION_PASSED,
+                JSON_FIELD_VALIDATION_MESSAGE);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_UNIQUENESS_RES_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    return new UniquenessResponseControl(uniquenessID,
+         preCommitValidationPassed, postCommitValidationPassed,
+         validationMessage);
   }
 
 

@@ -38,6 +38,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.NotNull;
 
 
 
@@ -82,5 +83,17 @@ public class TestDecodeableControl
                                              final ASN1OctetString value)
   {
     return new TestDecodeableControl();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public String getControlName()
+  {
+    return "test-decodeable-control";
   }
 }

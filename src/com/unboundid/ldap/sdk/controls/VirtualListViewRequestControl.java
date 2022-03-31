@@ -37,13 +37,19 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -52,6 +58,11 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONField;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
@@ -101,11 +112,6 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  *        by the assertion value that should be retrieved.</LI>
  *   <LI>{@code afterCount} -- The number of entries after the entry specified
  *       by the assertion value that should be retrieved.</LI>
- *   <LI>{@code contentCount} -- The estimated total number of entries that
- *       are in the total result set.  This should be zero for the first request
- *       in a VLV search sequence, but should be the value returned by the
- *       server in the corresponding response control for subsequent searches as
- *       part of the VLV sequence.</LI>
  *   <LI>{@code contextID} -- This is an optional cookie that may be used to
  *       help the server resume processing on a VLV search.  It should be absent
  *       from the initial request, but for subsequent requests should be the
@@ -192,6 +198,57 @@ public final class VirtualListViewRequestControl
    * specified by an assertion value.
    */
   private static final byte TARGET_TYPE_GREATER_OR_EQUAL = (byte) 0x81;
+
+
+
+  /**
+   * The name of the field used to hold the after count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_AFTER_COUNT = "after-count";
+
+
+
+  /**
+   * The name of the field used to hold the assertion value in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_ASSERTION_VALUE =
+       "assertion-value";
+
+
+
+  /**
+   * The name of the field used to hold the before count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_BEFORE_COUNT = "before-count";
+
+
+
+  /**
+   * The name of the field used to hold the content count in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CONTENT_COUNT =
+       "content-count";
+
+
+
+  /**
+   * The name of the field used to hold the context ID in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_CONTEXT_ID = "context-id";
+
+
+
+  /**
+   * The name of the field used to hold the target offset in the JSON
+   * representation of this control.
+   */
+  @NotNull private static final String JSON_FIELD_TARGET_OFFSET =
+       "target-offset";
 
 
 
@@ -901,6 +958,204 @@ public final class VirtualListViewRequestControl
   public String getControlName()
   {
     return INFO_CONTROL_NAME_VLV_REQUEST.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toJSONControl()
+  {
+    final Map<String,JSONValue> valueFields = new LinkedHashMap<>();
+
+    if (assertionValue == null)
+    {
+      valueFields.put(JSON_FIELD_TARGET_OFFSET, new JSONNumber(targetOffset));
+    }
+    else
+    {
+      valueFields.put(JSON_FIELD_ASSERTION_VALUE,
+           new JSONString(assertionValue.stringValue()));
+    }
+
+    valueFields.put(JSON_FIELD_BEFORE_COUNT, new JSONNumber(beforeCount));
+    valueFields.put(JSON_FIELD_AFTER_COUNT, new JSONNumber(afterCount));
+
+    if (assertionValue == null)
+    {
+      valueFields.put(JSON_FIELD_CONTENT_COUNT, new JSONNumber(contentCount));
+    }
+
+    if (contextID != null)
+    {
+      valueFields.put(JSON_FIELD_CONTEXT_ID,
+           new JSONString(Base64.encode(contextID.getValue())));
+    }
+
+    return new JSONObject(
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_OID,
+              VIRTUAL_LIST_VIEW_REQUEST_OID),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CONTROL_NAME,
+              INFO_CONTROL_NAME_VLV_REQUEST.get()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_CRITICALITY,
+              isCritical()),
+         new JSONField(JSONControlDecodeHelper.JSON_FIELD_VALUE_JSON,
+              new JSONObject(valueFields)));
+  }
+
+
+
+  /**
+   * Attempts to decode the provided object as a JSON representation of a
+   * virtual list view request control.
+   *
+   * @param  controlObject  The JSON object to be decoded.  It must not be
+   *                        {@code null}.
+   * @param  strict         Indicates whether to use strict mode when decoding
+   *                        the provided JSON object.  If this is {@code true},
+   *                        then this method will throw an exception if the
+   *                        provided JSON object contains any unrecognized
+   *                        fields.  If this is {@code false}, then unrecognized
+   *                        fields will be ignored.
+   *
+   * @return  The virtual list view request control that was decoded from the
+   *          provided JSON object.
+   *
+   * @throws  LDAPException  If the provided JSON object cannot be parsed as a
+   *                         valid virtual list view request control.
+   */
+  @NotNull()
+  public static VirtualListViewRequestControl decodeJSONControl(
+              @NotNull final JSONObject controlObject,
+              final boolean strict)
+         throws LDAPException
+  {
+    final JSONControlDecodeHelper jsonControl = new JSONControlDecodeHelper(
+         controlObject, strict, true, true);
+
+    final ASN1OctetString rawValue = jsonControl.getRawValue();
+    if (rawValue != null)
+    {
+      return new VirtualListViewRequestControl(new Control(
+           jsonControl.getOID(), jsonControl.getCriticality(), rawValue));
+    }
+
+
+    final JSONObject valueObject = jsonControl.getValueObject();
+
+    final Integer targetOffset =
+         valueObject.getFieldAsInteger(JSON_FIELD_TARGET_OFFSET);
+    final String assertionValue =
+         valueObject.getFieldAsString(JSON_FIELD_ASSERTION_VALUE);
+
+    if ((targetOffset == null) && (assertionValue == null))
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_REQUEST_JSON_NEITHER_OFFSET_NOR_VALUE.get(
+                controlObject.toSingleLineString(), JSON_FIELD_TARGET_OFFSET,
+                JSON_FIELD_ASSERTION_VALUE));
+    }
+
+    if ((targetOffset != null) && (assertionValue != null))
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_REQUEST_JSON_BOTH_OFFSET_AND_VALUE.get(
+                controlObject.toSingleLineString(), JSON_FIELD_TARGET_OFFSET,
+                JSON_FIELD_ASSERTION_VALUE));
+    }
+
+
+    final Integer beforeCount =
+         valueObject.getFieldAsInteger(JSON_FIELD_BEFORE_COUNT);
+    if (beforeCount == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_BEFORE_COUNT));
+    }
+
+
+    final Integer afterCount =
+         valueObject.getFieldAsInteger(JSON_FIELD_AFTER_COUNT);
+    if (afterCount == null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_REQUEST_JSON_MISSING_FIELD.get(
+                controlObject.toSingleLineString(), JSON_FIELD_AFTER_COUNT));
+    }
+
+
+    Integer contentCount =
+         valueObject.getFieldAsInteger(JSON_FIELD_CONTENT_COUNT);
+    if (contentCount == null)
+    {
+      contentCount = 0;
+    }
+    else if (assertionValue != null)
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_VLV_REQUEST_JSON_CONTENT_COUNT_WITH_ASSERTION_VALUE.get(
+                controlObject.toSingleLineString(), JSON_FIELD_CONTENT_COUNT,
+                JSON_FIELD_ASSERTION_VALUE));
+    }
+
+
+    final ASN1OctetString contextID;
+    final String contextIDBase64 =
+         valueObject.getFieldAsString(JSON_FIELD_CONTEXT_ID);
+    if (contextIDBase64 == null)
+    {
+      contextID = null;
+    }
+    else
+    {
+      try
+      {
+        contextID = new ASN1OctetString(Base64.decode(contextIDBase64));
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_VLV_REQUEST_JSON_CONTEXT_ID_NOT_BASE64.get(
+                  controlObject.toSingleLineString(),
+                  JSON_FIELD_CONTEXT_ID),
+             e);
+      }
+    }
+
+
+    if (strict)
+    {
+      final List<String> unrecognizedFields =
+           JSONControlDecodeHelper.getControlObjectUnexpectedFields(
+                valueObject, JSON_FIELD_TARGET_OFFSET,
+                JSON_FIELD_ASSERTION_VALUE, JSON_FIELD_BEFORE_COUNT,
+                JSON_FIELD_AFTER_COUNT, JSON_FIELD_CONTENT_COUNT,
+                JSON_FIELD_CONTEXT_ID);
+      if (! unrecognizedFields.isEmpty())
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_VLV_REQUEST_JSON_UNRECOGNIZED_FIELD.get(
+                  controlObject.toSingleLineString(),
+                  unrecognizedFields.get(0)));
+      }
+    }
+
+
+    if (assertionValue == null)
+    {
+      return new VirtualListViewRequestControl(targetOffset, beforeCount,
+           afterCount, contentCount, contextID, jsonControl.getCriticality());
+    }
+    else
+    {
+      return new VirtualListViewRequestControl(assertionValue, beforeCount,
+           afterCount, contextID, jsonControl.getCriticality());
+    }
   }
 
 
