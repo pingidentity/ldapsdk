@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue that could occasionally cause the LDAP SDK to hide the cause of a
+                  StartTLS failure with a second, less useful exception.
+                  <br><br>
+                </li>
+
+              <ul>
+                <li>
                   Added support for encoding controls to JSON objects, and for decoding JSON
                   objects as controls.  There is a generic JSON representation that works for all
                   controls (in which the JSON object includes just an OID, criticality, and a

@@ -971,9 +971,11 @@ final class LDAPConnectionReader
       // process so that it'll be more responsive.  The original SO_TIMEOUT will
       // be restored after the TLS negotiation.
       final int originalSOTimeout = InternalSDKHelper.getSoTimeout(connection);
+      boolean revertSOTimeout = false;
       try
       {
         InternalSDKHelper.setSoTimeout(connection, 50);
+        revertSOTimeout = true;
 
         while (true)
         {
@@ -987,6 +989,7 @@ final class LDAPConnectionReader
           {
             if (startTLSException == null)
             {
+              revertSOTimeout = false;
               throw new LDAPException(ResultCode.LOCAL_ERROR,
                    ERR_CONNREADER_STARTTLS_FAILED_NO_EXCEPTION.get());
             }
@@ -994,6 +997,7 @@ final class LDAPConnectionReader
             {
               final Exception e = startTLSException;
               startTLSException = null;
+              revertSOTimeout = false;
 
               throw new LDAPException(ResultCode.LOCAL_ERROR,
                    ERR_CONNREADER_STARTTLS_FAILED.get(
@@ -1002,12 +1006,15 @@ final class LDAPConnectionReader
             }
           }
 
-          startTLSSleeper.sleep(10);
+          startTLSSleeper.sleep(1);
         }
       }
       finally
       {
-        InternalSDKHelper.setSoTimeout(connection, originalSOTimeout);
+        if (revertSOTimeout)
+        {
+          InternalSDKHelper.setSoTimeout(connection, originalSOTimeout);
+        }
       }
     }
   }
