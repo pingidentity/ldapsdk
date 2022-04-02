@@ -122,6 +122,9 @@ public final class ControlHelper
     Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.9",
          packageNameDot + "JoinResultControl");
 
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.65",
+         packageNameDot + "JSONFormattedResponseControl");
+
     Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.37",
          packageNameDot + "MatchingEntryCountResponseControl");
 

@@ -121,6 +121,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             IntermediateClientRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IntermediateClientResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinResultControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -910,7 +912,10 @@ public class Control
    * base64-encoded representation of the value.  Subclasses may override this
    * method to provide a control-specific encoding, and they may use the
    * {@code value-json} field as an alternative to {@code value-base64} to
-   * provide a more user-friendly representation of the value.
+   * provide a more user-friendly representation of the value.  There may also
+   * be an optional {@code control-name} field that provides a user-friendly
+   * name for the control, but that field is only intended for descriptive
+   * purposes and should not be used in the course of decoding a control.
    *
    * @return  A representation of this control as a JSON object.
    */
@@ -1153,6 +1158,14 @@ public class Control
         {
           return JoinResultControl.decodeJSONControl(controlObject, strict);
         }
+
+      case JSONFormattedRequestControl.JSON_FORMATTED_REQUEST_OID:
+        return JSONFormattedRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID:
+        return JSONFormattedResponseControl.decodeJSONControl(
+             controlObject, strict);
 
       case ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID:
         return ManageDsaITRequestControl.decodeJSONControl(

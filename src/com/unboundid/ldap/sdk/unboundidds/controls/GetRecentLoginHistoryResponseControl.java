@@ -107,7 +107,7 @@ public final class GetRecentLoginHistoryResponseControl
        implements DecodeableControl
 {
   /**
-   * The OID (1.3.6.1.4.1.30221.2.5.62) for the get password policy state issues
+   * The OID (1.3.6.1.4.1.30221.2.5.62) for the get recent login history
    * response control.
    */
   @NotNull public static final String GET_RECENT_LOGIN_HISTORY_RESPONSE_OID =

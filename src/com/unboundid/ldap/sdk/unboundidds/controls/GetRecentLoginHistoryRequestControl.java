@@ -71,7 +71,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * This control has an OID of 1.3.6.1.4.1.30221.2.5.61 and no value.  The
  * criticality may be either {@code true} or {@code false}.
  *
- * @see  GetRecentLoginHistoryRequestControl
+ * @see  GetRecentLoginHistoryResponseControl
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -79,8 +79,8 @@ public final class GetRecentLoginHistoryRequestControl
        extends Control
 {
   /**
-   * The OID (1.3.6.1.4.1.30221.2.5.61) for the get password policy state issues
-   * request control.
+   * The OID (1.3.6.1.4.1.30221.2.5.61) for the get recent login history request
+   * control.
    */
   @NotNull public static final  String GET_RECENT_LOGIN_HISTORY_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.61";

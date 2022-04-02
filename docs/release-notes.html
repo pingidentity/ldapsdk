@@ -19,7 +19,6 @@ ${TARGET="offline"}                <br>
                   <br><br>
                 </li>
 
-              <ul>
                 <li>
                   Added support for encoding controls to JSON objects, and for decoding JSON
                   objects as controls.  There is a generic JSON representation that works for all
@@ -28,6 +27,15 @@ ${TARGET="offline"}                <br>
                   controls that take a value have a more user-friendly encoding with the value
                   expressed as a JSON object with fields for each of the elements of the control
                   value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added client-side support for a new JSON-formatted request control that can be
+                  used to send request controls to a server encoded as JSON objects rather than
+                  using their native LDAP encodings.  Also, added client-side support for a new
+                  JSON-formatted response control that can be used to receive JSON-encoded
+                  response controls from the server.
                   <br><br>
                 </li>
 
