@@ -45,11 +45,17 @@ import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
 import com.unboundid.util.Base64;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.json.JSONArray;
 import com.unboundid.util.json.JSONField;
 import com.unboundid.util.json.JSONObject;
@@ -1113,5 +1119,380 @@ public final class JSONFormattedResponseControlTestCase
     // Test again in non-strict mode and verify that it doesn't throw an
     // exception.
     JSONFormattedResponseControl.decodeJSONControl(controlObject, false);
+  }
+
+
+
+  /**
+   * Test the behavior of the {@code get} method that takes an
+   * {@code LDAPResult} argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetLDAPResult()
+         throws Exception
+  {
+    // Test with a result that doesn't have any controls.
+    LDAPResult result = new LDAPResult(1, ResultCode.SUCCESS);
+    JSONFormattedResponseControl responseControl =
+         JSONFormattedResponseControl.get(result);
+    assertNull(responseControl);
+
+
+    // Test with a result that has controls, but not any JSON-formatted
+    // response controls.
+    result = new LDAPResult(1, ResultCode.SUCCESS, null, null, null,
+         Arrays.asList(
+              new Control("1.2.3.4", false),
+              new Control("1.2.3.5", false)));
+    responseControl = JSONFormattedResponseControl.get(result);
+    assertNull(responseControl);
+
+
+    // Test with a result has a JSON-formatted response control that is already
+    // a decoded instance of that class.
+    JSONFormattedResponseControl jsonFormattedResponseControl =
+         JSONFormattedResponseControl.createWithControls(
+              new PasswordExpiredControl());
+    result = new LDAPResult(1, ResultCode.SUCCESS, null, null, null,
+         Arrays.asList(
+              new Control("1.2.3.4", false),
+              jsonFormattedResponseControl,
+              new Control("1.2.3.5", false)));
+    responseControl = JSONFormattedResponseControl.get(result);
+    assertNotNull(responseControl);
+    List<Control> decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with a result has a JSON-formatted response control that is a
+    // generic control that can be successfully decoded as a JSON-formatted
+    // response control.
+    result = new LDAPResult(1, ResultCode.SUCCESS, null, null, null,
+         Arrays.asList(
+              new Control("1.2.3.4", false),
+              new Control(jsonFormattedResponseControl.getOID(),
+                   jsonFormattedResponseControl.isCritical(),
+                   jsonFormattedResponseControl.getValue()),
+              new Control("1.2.3.5", false)));
+    responseControl = JSONFormattedResponseControl.get(result);
+    assertNotNull(responseControl);
+    decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with a result has a JSON-formatted response control that is a
+    // generic control that cannot be successfully decoded as a JSON-formatted
+    // response control
+    result = new LDAPResult(1, ResultCode.SUCCESS, null, null, null,
+         Arrays.asList(
+              new Control("1.2.3.4", false),
+              new Control(jsonFormattedResponseControl.getOID(),
+                   jsonFormattedResponseControl.isCritical(),
+                   new ASN1OctetString("not a valid value")),
+              new Control("1.2.3.5", false)));
+    try
+    {
+      JSONFormattedResponseControl.get(result);
+      fail("Expected an exception when trying to obtain a JSON-formatted " +
+           "response control from a result with a malformed version of the " +
+           "control.");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.DECODING_ERROR);
+    }
+  }
+
+
+
+  /**
+   * Test the behavior of the {@code get} method that takes a
+   * {@code SearchResultEntry} argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSearchResultEntry()
+         throws Exception
+  {
+    // Test with an entry that doesn't have any controls.
+    final Entry e = new Entry(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+    SearchResultEntry entry = new SearchResultEntry(e);
+    JSONFormattedResponseControl responseControl =
+         JSONFormattedResponseControl.get(entry);
+    assertNull(responseControl);
+
+
+    // Test with an entry that has controls, but not any JSON-formatted
+    // response controls.
+    entry = new SearchResultEntry(e,
+         new Control("1.2.3.4", false),
+         new Control("1.2.3.5", false));
+    responseControl = JSONFormattedResponseControl.get(entry);
+    assertNull(responseControl);
+
+
+    // Test with an entry has a JSON-formatted response control that is already
+    // a decoded instance of that class.
+    JSONFormattedResponseControl jsonFormattedResponseControl =
+         JSONFormattedResponseControl.createWithControls(
+              new PasswordExpiredControl());
+    entry = new SearchResultEntry(e,
+         new Control("1.2.3.4", false),
+         jsonFormattedResponseControl,
+         new Control("1.2.3.5", false));
+    responseControl = JSONFormattedResponseControl.get(entry);
+    assertNotNull(responseControl);
+    List<Control> decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with an entry has a JSON-formatted response control that is a
+    // generic control that can be successfully decoded as a JSON-formatted
+    // response control.
+    entry = new SearchResultEntry(e,
+         new Control("1.2.3.4", false),
+         new Control(jsonFormattedResponseControl.getOID(),
+              jsonFormattedResponseControl.isCritical(),
+              jsonFormattedResponseControl.getValue()),
+         new Control("1.2.3.5", false));
+    responseControl = JSONFormattedResponseControl.get(entry);
+    assertNotNull(responseControl);
+    decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with an entry has a JSON-formatted response control that is a
+    // generic control that cannot be successfully decoded as a JSON-formatted
+    // response control
+    entry = new SearchResultEntry(e,
+         new Control("1.2.3.4", false),
+         new Control(jsonFormattedResponseControl.getOID(),
+              jsonFormattedResponseControl.isCritical(),
+              new ASN1OctetString("not a valid value")),
+         new Control("1.2.3.5", false));
+    try
+    {
+      JSONFormattedResponseControl.get(entry);
+      fail("Expected an exception when trying to obtain a JSON-formatted " +
+           "response control from an entry with a malformed version of the " +
+           "control.");
+    }
+    catch (final LDAPException le)
+    {
+      assertEquals(le.getResultCode(), ResultCode.DECODING_ERROR);
+    }
+  }
+
+
+
+  /**
+   * Test the behavior of the {@code get} method that takes a
+   * {@code SearchResultReference} argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSearchResultReference()
+         throws Exception
+  {
+    // Test with a reference that doesn't have any controls.
+    final String[] referralURLs =
+    {
+      "ldap://ds1.example.com:389/",
+      "ldap://ds2.example.com:389/"
+    };
+    SearchResultReference reference =
+         new SearchResultReference(referralURLs, StaticUtils.NO_CONTROLS);
+    JSONFormattedResponseControl responseControl =
+         JSONFormattedResponseControl.get(reference);
+    assertNull(responseControl);
+
+
+    // Test with a reference that has controls, but not any JSON-formatted
+    // response controls.
+    reference = new SearchResultReference(referralURLs,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           new Control("1.2.3.5", false)
+         });
+    responseControl = JSONFormattedResponseControl.get(reference);
+    assertNull(responseControl);
+
+
+    // Test with a reference has a JSON-formatted response control that is
+    // already a decoded instance of that class.
+    JSONFormattedResponseControl jsonFormattedResponseControl =
+         JSONFormattedResponseControl.createWithControls(
+              new PasswordExpiredControl());
+    reference = new SearchResultReference(referralURLs,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           jsonFormattedResponseControl,
+           new Control("1.2.3.5", false)
+         });
+    responseControl = JSONFormattedResponseControl.get(reference);
+    assertNotNull(responseControl);
+    List<Control> decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with a reference has a JSON-formatted response control that is a
+    // generic control that can be successfully decoded as a JSON-formatted
+    // response control.
+    reference = new SearchResultReference(referralURLs,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           new Control(jsonFormattedResponseControl.getOID(),
+                jsonFormattedResponseControl.isCritical(),
+                jsonFormattedResponseControl.getValue()),
+           new Control("1.2.3.5", false)
+         });
+    responseControl = JSONFormattedResponseControl.get(reference);
+    assertNotNull(responseControl);
+    decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with a reference has a JSON-formatted response control that is a
+    // generic control that cannot be successfully decoded as a JSON-formatted
+    // response control
+    reference = new SearchResultReference(referralURLs,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           new Control(jsonFormattedResponseControl.getOID(),
+                jsonFormattedResponseControl.isCritical(),
+                new ASN1OctetString("not a valid value")),
+           new Control("1.2.3.5", false)
+         });
+    try
+    {
+      JSONFormattedResponseControl.get(reference);
+      fail("Expected an exception when trying to obtain a JSON-formatted " +
+           "response control from a reference with a malformed version of " +
+           "the control.");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.DECODING_ERROR);
+    }
+  }
+
+
+
+  /**
+   * Test the behavior of the {@code get} method that takes an
+   * {@code IntermediateResponse} argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetIntermediateResponse()
+         throws Exception
+  {
+    // Test with a response that doesn't have any controls.
+    IntermediateResponse response = new IntermediateResponse("1.1.1.1", null);
+    JSONFormattedResponseControl responseControl =
+         JSONFormattedResponseControl.get(response);
+    assertNull(responseControl);
+
+
+    // Test with a response that has controls, but not any JSON-formatted
+    // response controls.
+    response = new IntermediateResponse("1.1.1.1", null,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           new Control("1.2.3.5", false)
+         });
+    responseControl = JSONFormattedResponseControl.get(response);
+    assertNull(responseControl);
+
+
+    // Test with a response has a JSON-formatted response control that is
+    // already a decoded instance of that class.
+    JSONFormattedResponseControl jsonFormattedResponseControl =
+         JSONFormattedResponseControl.createWithControls(
+              new PasswordExpiredControl());
+    response = new IntermediateResponse("1.1.1.1", null,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           jsonFormattedResponseControl,
+           new Control("1.2.3.5", false)
+         });
+    responseControl = JSONFormattedResponseControl.get(response);
+    assertNotNull(responseControl);
+    List<Control> decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with a response has a JSON-formatted response control that is a
+    // generic control that can be successfully decoded as a JSON-formatted
+    // response control.
+    response = new IntermediateResponse("1.1.1.1", null,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           new Control(jsonFormattedResponseControl.getOID(),
+                jsonFormattedResponseControl.isCritical(),
+                jsonFormattedResponseControl.getValue()),
+           new Control("1.2.3.5", false)
+         });
+    responseControl = JSONFormattedResponseControl.get(response);
+    assertNotNull(responseControl);
+    decodedControls = responseControl.decodeEmbeddedControls(
+         new JSONFormattedControlDecodeBehavior(), null);
+    assertEquals(decodedControls.size(), 1);
+    assertTrue(decodedControls.get(0) instanceof PasswordExpiredControl);
+
+
+    // Test with a response has a JSON-formatted response control that is a
+    // generic control that cannot be successfully decoded as a JSON-formatted
+    // response control
+    response = new IntermediateResponse("1.1.1.1", null,
+         new Control[]
+         {
+           new Control("1.2.3.4", false),
+           new Control(jsonFormattedResponseControl.getOID(),
+                jsonFormattedResponseControl.isCritical(),
+                new ASN1OctetString("not a valid value")),
+           new Control("1.2.3.5", false)
+         });
+    try
+    {
+      JSONFormattedResponseControl.get(response);
+      fail("Expected an exception when trying to obtain a JSON-formatted " +
+           "response control from a response with a malformed version of " +
+           "the control.");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.DECODING_ERROR);
+    }
   }
 }

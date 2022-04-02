@@ -45,9 +45,13 @@ import java.util.List;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
+import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.JSONControlDecodeHelper;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -519,6 +523,138 @@ public final class JSONFormattedResponseControl
 
 
     return Collections.unmodifiableList(controlList);
+  }
+
+
+
+  /**
+   * Extracts a JSON-formatted control from the provided LDAP result.
+   *
+   * @param  result  The LDAP result from which to retrieve the JSON-formatted
+   *                 response control.
+   *
+   * @return  The JSON-formatted response control contained in the provided
+   *          LDAP result, or {@code null} if the result did not contain a
+   *          JSON-formatted response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the JSON-formatted response control
+   *                         contained in the provided LDAP result.
+   */
+  @Nullable()
+  public static JSONFormattedResponseControl get(
+              @NotNull final LDAPResult result)
+         throws LDAPException
+  {
+    return get(result.getResponseControl(JSON_FORMATTED_RESPONSE_OID));
+  }
+
+
+
+  /**
+   * Extracts a JSON-formatted control from the provided search result entry.
+   *
+   * @param  entry  The search result entry from which to retrieve the
+   *                JSON-formatted response control.
+   *
+   * @return  The JSON-formatted response control contained in the provided
+   *          search result entry, or {@code null} if the entry did not contain
+   *          a JSON-formatted response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the JSON-formatted response control
+   *                         contained in the provided search result entry.
+   */
+  @Nullable()
+  public static JSONFormattedResponseControl get(
+              @NotNull final SearchResultEntry entry)
+         throws LDAPException
+  {
+    return get(entry.getControl(JSON_FORMATTED_RESPONSE_OID));
+  }
+
+
+
+  /**
+   * Extracts a JSON-formatted control from the provided search result
+   * reference.
+   *
+   * @param  reference  The search result reference from which to retrieve the
+   *                    JSON-formatted response control.
+   *
+   * @return  The JSON-formatted response control contained in the provided
+   *          search result reference, or {@code null} if the reference did not
+   *          contain a JSON-formatted response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the JSON-formatted response control
+   *                         contained in the provided search result reference.
+   */
+  @Nullable()
+  public static JSONFormattedResponseControl get(
+              @NotNull final SearchResultReference reference)
+         throws LDAPException
+  {
+    return get(reference.getControl(JSON_FORMATTED_RESPONSE_OID));
+  }
+
+
+
+  /**
+   * Extracts a JSON-formatted control from the provided intermediate response.
+   *
+   * @param  response  The intermediate response from which to retrieve the
+   *                   JSON-formatted response control.
+   *
+   * @return  The JSON-formatted response control contained in the provided
+   *          intermediate response, or {@code null} if the response did not
+   *          contain a JSON-formatted response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the JSON-formatted response control
+   *                         contained in the provided intermediate response.
+   */
+  @Nullable()
+  public static JSONFormattedResponseControl get(
+              @NotNull final IntermediateResponse response)
+         throws LDAPException
+  {
+    return get(response.getControl(JSON_FORMATTED_RESPONSE_OID));
+  }
+
+
+
+  /**
+   * Retrieves the provided control as a JSON-formatted response control.
+   *
+   * @param  c  The control to retrieve as a JSON-formatted response control.
+   *            It may optionally be {@code null}.
+   *
+   * @return  A JSON-formatted response control that is a representation of the
+   *          provided control, or {@code null} if the provided control is
+   *          {@code null}.
+   *
+   * @throws  LDAPException  If the provided control cannot be parsed as a valid
+   *                         JSON-formatted response control.
+   */
+  @Nullable()
+  private static JSONFormattedResponseControl get(@Nullable final Control c)
+          throws LDAPException
+  {
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof JSONFormattedResponseControl)
+    {
+      return (JSONFormattedResponseControl) c;
+    }
+    else
+    {
+      return new JSONFormattedResponseControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 
