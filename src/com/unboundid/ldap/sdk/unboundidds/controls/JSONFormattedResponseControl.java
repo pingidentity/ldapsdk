@@ -475,6 +475,28 @@ public final class JSONFormattedResponseControl
       }
 
 
+      // If the control is itself an embedded JSON-formatted response control,
+      // see how we should handle it.
+      if (jsonControl.getOID().equals(JSON_FORMATTED_RESPONSE_OID))
+      {
+        if (! behavior.allowEmbeddedJSONFormattedControl())
+        {
+          final String message =
+               ERR_JSON_FORMATTED_RESPONSE_DISALLOWED_EMBEDDED_CONTROL.get();
+          if (jsonControl.getCriticality())
+          {
+            fatalMessages.add(message);
+          }
+          else if (nonFatalDecodeMessages != null)
+          {
+            nonFatalDecodeMessages.add(message);
+          }
+
+          continue;
+        }
+      }
+
+
       // Try to actually decode the JSON object as a control, potentially using
       // control-specific logic based on its OID.
       try

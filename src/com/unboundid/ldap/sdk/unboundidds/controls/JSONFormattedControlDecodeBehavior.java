@@ -74,6 +74,10 @@ public final class JSONFormattedControlDecodeBehavior
 
 
 
+  // Indicates whether to allow embedded JSON-formatted request or response
+  // controls.
+  private boolean allowEmbeddedJSONFormattedControl;
+
   // Indicates whether to use strict mode when decoding controls.
   private boolean strict;
 
@@ -100,6 +104,8 @@ public final class JSONFormattedControlDecodeBehavior
    *   <LI>{@code throwOnUnparsableObject} is set to {@code true}</LI>
    *   <LI>{@code throwOnInvalidCriticalControl} is set to {@code true}</LI>
    *   <LI>{@code throwOnInvalidNonCriticalControl} is set to {@code true}</LI>
+   *   <LI>{@code allowEmbeddedJSONFormattedControl} is set to
+   *       {@code false}</LI>
    *   <LI>{@code strict} is set to {@code false}</LI>
    * </UL>
    */
@@ -108,6 +114,7 @@ public final class JSONFormattedControlDecodeBehavior
     throwOnUnparsableObject = true;
     throwOnInvalidCriticalControl = true;
     throwOnInvalidNonCriticalControl = true;
+    allowEmbeddedJSONFormattedControl = false;
     strict = false;
   }
 
@@ -266,6 +273,57 @@ public final class JSONFormattedControlDecodeBehavior
 
 
   /**
+   * Indicates whether to allow a JSON-formatted request or response control to
+   * include another JSON-formatted request or response control in the set of
+   * embedded controls.  If embedded JSON-formatted controls are not allowed,
+   * then the attempt to decode will throw an exception if the control is
+   * critical, or it will be ignored with a non-fatal error message if the
+   * control is non-critical.
+   *
+   * @return  {@code true} if embedded JSON-formatted request or response
+   *          controls should be allowed, or {@code false} if not.
+   */
+  public boolean allowEmbeddedJSONFormattedControl()
+  {
+    return allowEmbeddedJSONFormattedControl;
+  }
+
+
+
+  /**
+   * Specifies whether to allow a JSON-formatted request or response control to
+   * include another JSON-formatted request or response control in the set of
+   * embedded controls.  If embedded JSON-formatted controls are not allowed,
+   * then the attempt to decode will throw an exception if the control is
+   * critical, or it will be ignored with a non-fatal error message if the
+   * control is non-critical.
+   *
+   * @param  allowEmbeddedJSONFormattedControl  Indicates whether to allow a
+   *                                            JSON-formatted request or
+   *                                            response control.  If this is
+   *                                            {@code true], then an embedded
+   *                                            JSON-formatted control will
+   *                                            either result in an exception
+   *                                            (if the embedded control is
+   *                                            critical) or cause it to be
+   *                                            ignored with a non-fatal error
+   *                                            message (if it is not critical).
+   *                                            If this is {@code false}, then
+   *                                            the JSON-formatted control will
+   *                                            be included directly in the list
+   *                                            of decoded controls that is
+   *                                            returned without attempting to
+   *                                            extract its embedded controls.
+   */
+  public void setAllowEmbeddedJSONFormattedControl(
+                   final boolean allowEmbeddedJSONFormattedControl)
+  {
+    this.allowEmbeddedJSONFormattedControl = allowEmbeddedJSONFormattedControl;
+  }
+
+
+
+  /**
    * Indicates whether to use strict mode when parsing JSON objects as controls.
    * This may include throwing an exception if a JSON object contains any
    * unrecognized fields, or if the object violates any other control-specific
@@ -334,6 +392,8 @@ public final class JSONFormattedControlDecodeBehavior
     buffer.append(throwOnInvalidCriticalControl);
     buffer.append(", throwOnInvalidNonCriticalControl=");
     buffer.append(throwOnInvalidNonCriticalControl);
+    buffer.append(", allowEmbeddedJSONFormattedControl=");
+    buffer.append(allowEmbeddedJSONFormattedControl);
     buffer.append(", strict=");
     buffer.append(strict);
     buffer.append(')');

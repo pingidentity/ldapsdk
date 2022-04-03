@@ -68,6 +68,8 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
 
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
 
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
+
     assertFalse(behavior.strict());
 
     assertNotNull(behavior.toString());
@@ -91,6 +93,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -98,6 +101,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertFalse(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -105,6 +109,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
   }
@@ -127,6 +132,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -134,6 +140,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertFalse(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -141,6 +148,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
   }
@@ -163,6 +171,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -170,6 +179,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertFalse(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -177,6 +187,46 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
+    assertFalse(behavior.strict());
+    assertNotNull(behavior.toString());
+  }
+
+
+
+  /**
+   * Test the methods for manipulating the
+   * {@code allowEmbeddedJSONFormattedControl}  variable.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAllowEmbeddedJSONFormattedControl()
+         throws Exception
+  {
+    final JSONFormattedControlDecodeBehavior behavior =
+         new JSONFormattedControlDecodeBehavior();
+
+    assertTrue(behavior.throwOnUnparsableObject());
+    assertTrue(behavior.throwOnInvalidCriticalControl());
+    assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
+    assertFalse(behavior.strict());
+    assertNotNull(behavior.toString());
+
+    behavior.setAllowEmbeddedJSONFormattedControl(true);
+    assertTrue(behavior.throwOnUnparsableObject());
+    assertTrue(behavior.throwOnInvalidCriticalControl());
+    assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertTrue(behavior.allowEmbeddedJSONFormattedControl());
+    assertFalse(behavior.strict());
+    assertNotNull(behavior.toString());
+
+    behavior.setAllowEmbeddedJSONFormattedControl(false);
+    assertTrue(behavior.throwOnUnparsableObject());
+    assertTrue(behavior.throwOnInvalidCriticalControl());
+    assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
   }
@@ -198,6 +248,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -205,6 +256,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertTrue(behavior.strict());
     assertNotNull(behavior.toString());
 
@@ -212,6 +264,7 @@ public final class JSONFormattedControlDecodeBehaviorTestCase
     assertTrue(behavior.throwOnUnparsableObject());
     assertTrue(behavior.throwOnInvalidCriticalControl());
     assertTrue(behavior.throwOnInvalidNonCriticalControl());
+    assertFalse(behavior.allowEmbeddedJSONFormattedControl());
     assertFalse(behavior.strict());
     assertNotNull(behavior.toString());
   }

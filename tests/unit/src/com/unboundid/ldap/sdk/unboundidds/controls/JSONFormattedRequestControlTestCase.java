@@ -1544,4 +1544,96 @@ public final class JSONFormattedRequestControlTestCase
     // exception.
     JSONFormattedRequestControl.decodeJSONControl(controlObject, false);
   }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a JSON-formatted request control
+   * with an embedded JSON-formatted request control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEmbeddedJSONFormattedRequestControl()
+         throws Exception
+  {
+    // Create controls to use for testing.
+    final JSONFormattedRequestControl embeddedCriticalControl =
+         JSONFormattedRequestControl.createEmptyControl(true);
+    final JSONFormattedRequestControl embeddedNonCriticalControl =
+         JSONFormattedRequestControl.createEmptyControl(false);
+
+    final JSONFormattedRequestControl controlWithEmbeddedCriticalControl =
+         JSONFormattedRequestControl.createWithControls(true,
+              embeddedCriticalControl);
+    final JSONFormattedRequestControl controlWithEmbeddedNonCriticalControl =
+         JSONFormattedRequestControl.createWithControls(true,
+              embeddedNonCriticalControl);
+
+
+    // Create a decode behavior with the default settings.  Make sure that
+    // embedded JSON-formatted controls are not allowed by default.
+    final JSONFormattedControlDecodeBehavior decodeBehavior =
+         new JSONFormattedControlDecodeBehavior();
+    assertFalse(decodeBehavior.allowEmbeddedJSONFormattedControl());
+
+
+    // Try to decode the embedded controls for a JSON-formatted request control
+    // that has an embedded critical JSON-formatted request control.  This
+    // should result in an exception.
+    final List<String> nonFatalDecodeMessages = new ArrayList<>();
+    try
+    {
+      controlWithEmbeddedCriticalControl.decodeEmbeddedControls(
+           decodeBehavior, nonFatalDecodeMessages);
+      fail("Expected an exception when trying to decode embedded controls " +
+           "that included a critical JSON-formatted request control.");
+    }
+    catch (final LDAPException e)
+    {
+      assertEquals(e.getResultCode(), ResultCode.DECODING_ERROR);
+      assertTrue(nonFatalDecodeMessages.isEmpty());
+    }
+
+
+    // Try to decode the embedded controls for a JSON-formatted request control
+    // that has an embedded non-critical JSON-formatted request control.  This
+    // should cause the control to be ignored with a non-fatal decode error.
+    List<Control> embeddedControls =
+         controlWithEmbeddedNonCriticalControl.decodeEmbeddedControls(
+              decodeBehavior, nonFatalDecodeMessages);
+    assertTrue(embeddedControls.isEmpty());
+    assertFalse(nonFatalDecodeMessages.isEmpty());
+    nonFatalDecodeMessages.clear();
+
+
+    // Change the decode behavior to allow embedded JSON-formatted request
+    // controls.
+    decodeBehavior.setAllowEmbeddedJSONFormattedControl(true);
+    assertTrue(decodeBehavior.allowEmbeddedJSONFormattedControl());
+
+
+    // Verify that we can now extract an embedded critical JSON-formatted
+    // request control.
+    embeddedControls =
+         controlWithEmbeddedCriticalControl.decodeEmbeddedControls(
+              decodeBehavior, nonFatalDecodeMessages);
+    assertEquals(embeddedControls.size(), 1);
+    assertEquals(embeddedControls.get(0).getOID(),
+         JSONFormattedRequestControl.JSON_FORMATTED_REQUEST_OID);
+    assertTrue(embeddedControls.get(0).isCritical());
+    assertTrue(nonFatalDecodeMessages.isEmpty());
+
+
+    // Verify that we can now extract an embedded non-critical JSON-formatted
+    // request control.
+    embeddedControls =
+         controlWithEmbeddedNonCriticalControl.decodeEmbeddedControls(
+              decodeBehavior, nonFatalDecodeMessages);
+    assertEquals(embeddedControls.size(), 1);
+    assertEquals(embeddedControls.get(0).getOID(),
+         JSONFormattedRequestControl.JSON_FORMATTED_REQUEST_OID);
+    assertFalse(embeddedControls.get(0).isCritical());
+    assertTrue(nonFatalDecodeMessages.isEmpty());
+  }
 }
