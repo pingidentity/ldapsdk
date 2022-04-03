@@ -301,7 +301,7 @@ public final class JSONFormattedControlDecodeBehavior
    * @param  allowEmbeddedJSONFormattedControl  Indicates whether to allow a
    *                                            JSON-formatted request or
    *                                            response control.  If this is
-   *                                            {@code true], then an embedded
+   *                                            {@code true}, then an embedded
    *                                            JSON-formatted control will
    *                                            either result in an exception
    *                                            (if the embedded control is
