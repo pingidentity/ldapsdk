@@ -156,7 +156,7 @@ public final class JSONFormattedRequestControl
    *                         value.
    * @param  controlObjects  A collection of JSON objects representing the
    *                         controls to include in the request.  It must not
-   *                         be {@ocde null}, but may be empty.
+   *                         be {@code null}, but may be empty.
    */
   private JSONFormattedRequestControl(final boolean isCritical,
                @Nullable final JSONObject encodedValue,
@@ -246,7 +246,6 @@ public final class JSONFormattedRequestControl
     }
 
 
-    final List<Control> controlList = new ArrayList<>(controls);
     final List<JSONObject> controlObjects = new ArrayList<>(controls.size());
     for (final Control c : controls)
     {
