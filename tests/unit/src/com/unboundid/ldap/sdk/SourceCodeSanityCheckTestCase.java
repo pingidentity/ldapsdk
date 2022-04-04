@@ -88,6 +88,7 @@ public final class SourceCodeSanityCheckTestCase
     ensureNoTrailingWhitespace(f, fileLines, errorMessages);
     ensureNoTabs(f, fileLines, errorMessages);
     ensureAcceptableLineLengths(f, fileLines, errorMessages);
+    ensureNoNonASCIICharacters(f, fileLines, errorMessages);
 
     failIfNecessary(f, errorMessages);
   }
@@ -113,6 +114,7 @@ public final class SourceCodeSanityCheckTestCase
     ensureNoTrailingWhitespace(f, fileLines, errorMessages);
     ensureNoTabs(f, fileLines, errorMessages);
     ensureAcceptableLineLengths(f, fileLines, errorMessages);
+    ensureNoNonASCIICharacters(f, fileLines, errorMessages);
 
     failIfNecessary(f, errorMessages);
   }
@@ -455,6 +457,33 @@ public final class SourceCodeSanityCheckTestCase
         errorMessages.add("Line " + lineNumber + " has a length of " +
              line.length() + " characters, which exceeds the maximum allowed " +
              "length of 80 characters.");
+      }
+
+      lineNumber++;
+    }
+  }
+
+
+
+  /**
+   * Ensures that none of the lines of the file includes any non-ASCII
+   * characters.
+   *
+   * @param  f              The file being processed.
+   * @param  fileLines      The lines that make up the file.
+   * @param  errorMessages  A list to which any error messages should be added.
+   */
+  private static void ensureNoNonASCIICharacters(final File f,
+               final List<String> fileLines,
+               final List<String> errorMessages)
+  {
+    int lineNumber=1;
+    for (final String line : fileLines)
+    {
+      if (! StaticUtils.isASCIIString(line))
+      {
+        errorMessages.add("Line " + lineNumber +
+             " includes one or more non-ASCII characters.");
       }
 
       lineNumber++;

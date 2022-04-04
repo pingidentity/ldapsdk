@@ -5252,7 +5252,7 @@ public class ByteStringBufferTestCase
     buffer.insertCodePoint(1, "\u00F1".codePointAt(0));
 
     // Latin capital letter OO
-    buffer.insertCodePoint(buffer.length(), "\uA74E".codePointAt(0)); // bñaOO
+    buffer.insertCodePoint(buffer.length(), "\uA74E".codePointAt(0));
 
     // Deseret capital letter long I
     buffer.insertCodePoint(0, "\uD801\uDC00".codePointAt(0));
