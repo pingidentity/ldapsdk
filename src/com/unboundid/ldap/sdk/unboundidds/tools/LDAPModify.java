@@ -112,6 +112,10 @@ import com.unboundid.ldap.sdk.unboundidds.controls.HardDeleteRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            JSONFormattedControlDecodeBehavior;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             NameWithEntryUUIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.NoOpRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -315,6 +319,7 @@ public final class LDAPModify
   @Nullable private BooleanArgument serverSideSubtreeDelete = null;
   @Nullable private BooleanArgument suppressReferentialIntegrityUpdates = null;
   @Nullable private BooleanArgument useAdministrativeSession = null;
+  @Nullable private BooleanArgument useJSONFormattedRequestControls = null;
   @Nullable private BooleanArgument usePasswordPolicyControl = null;
   @Nullable private BooleanArgument useTransaction = null;
   @Nullable private BooleanArgument verbose = null;
@@ -1282,6 +1287,20 @@ public final class LDAPModify
     parser.addArgument(modifyDNControl);
 
 
+    useJSONFormattedRequestControls = new BooleanArgument(null,
+         "useJSONFormattedRequestControls", 1,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_USE_JSON_FORMATTED_CONTROLS.get());
+    useJSONFormattedRequestControls.addLongIdentifier(
+         "use-json-formatted-request-controls", true);
+    useJSONFormattedRequestControls.addLongIdentifier(
+         "useJSONFormattedControls", true);
+    useJSONFormattedRequestControls.addLongIdentifier(
+         "use-json-formatted-controls", true);
+    useJSONFormattedRequestControls.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(useJSONFormattedRequestControls);
+
+
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
          INFO_PLACEHOLDER_NUM.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_RATE_PER_SECOND.get(), 1,
@@ -1591,6 +1610,14 @@ public final class LDAPModify
 
       bindControls.add(new SuppressOperationalAttributeUpdateRequestControl(
            suppressTypes));
+    }
+
+    if (useJSONFormattedRequestControls.isPresent())
+    {
+      final JSONFormattedRequestControl jsonFormattedRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, bindControls);
+      bindControls.clear();
+      bindControls.add(jsonFormattedRequestControl);
     }
 
     return bindControls;
@@ -2612,6 +2639,8 @@ readChangeRecordLoop:
         }
       }
 
+      searchResult = LDAPSearch.handleJSONEncodedResponseControls(searchResult);
+
 
       // If we've gotten here, then the search was successful.  Check to see if
       // any of the modifications failed, and if so then update the result code
@@ -3245,6 +3274,36 @@ readChangeRecordLoop:
       modifyControls.add(c);
       modifyDNControls.add(c);
     }
+
+
+    if (useJSONFormattedRequestControls.isPresent())
+    {
+      final JSONFormattedRequestControl jsonFormattedAddRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, addControls);
+      addControls.clear();
+      addControls.add(jsonFormattedAddRequestControl);
+
+      final JSONFormattedRequestControl jsonFormattedDeleteRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, deleteControls);
+      deleteControls.clear();
+      deleteControls.add(jsonFormattedDeleteRequestControl);
+
+      final JSONFormattedRequestControl jsonFormattedModifyRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, modifyControls);
+      modifyControls.clear();
+      modifyControls.add(jsonFormattedModifyRequestControl);
+
+      final JSONFormattedRequestControl jsonFormattedModifyDNRequestControl =
+           JSONFormattedRequestControl.createWithControls(true,
+                modifyDNControls);
+      modifyDNControls.clear();
+      modifyDNControls.add(jsonFormattedModifyDNRequestControl);
+
+      final JSONFormattedRequestControl jsonFormattedSearchRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, searchControls);
+      searchControls.clear();
+      searchControls.add(jsonFormattedSearchRequestControl);
+    }
   }
 
 
@@ -3514,6 +3573,8 @@ readChangeRecordLoop:
       addResult = le.toLDAPResult();
     }
 
+    addResult = handleJSONEncodedResponseControls(addResult);
+
 
     // Display information about the result.
     displayResult(addResult, useTransaction.isPresent());
@@ -3641,6 +3702,8 @@ readChangeRecordLoop:
       deleteResult = le.toLDAPResult();
     }
 
+    deleteResult = handleJSONEncodedResponseControls(deleteResult);
+
 
     // Display information about the result.
     displayResult(deleteResult, useTransaction.isPresent());
@@ -3727,7 +3790,7 @@ readChangeRecordLoop:
 
 
     // Evaluate the result of the subtree delete.
-    final LDAPResult finalResult;
+    LDAPResult finalResult;
     if (subtreeDeleterResult.completelySuccessful())
     {
       final long entriesDeleted = subtreeDeleterResult.getEntriesDeleted();
@@ -3827,6 +3890,8 @@ readChangeRecordLoop:
       finalResult = new LDAPResult(-1, resultCode, buffer.toString(), null,
            StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
     }
+
+    finalResult = handleJSONEncodedResponseControls(finalResult);
 
 
     // Display information about the final result.
@@ -3968,6 +4033,8 @@ readChangeRecordLoop:
       Debug.debugException(le);
       modifyResult = le.toLDAPResult();
     }
+
+    modifyResult = handleJSONEncodedResponseControls(modifyResult);
 
 
     // Display information about the result.
@@ -4155,6 +4222,8 @@ readChangeRecordLoop:
       Debug.debugException(le);
       modifyDNResult = le.toLDAPResult();
     }
+
+    modifyDNResult = handleJSONEncodedResponseControls(modifyDNResult);
 
 
     // Display information about the result.
@@ -4377,6 +4446,62 @@ readChangeRecordLoop:
       err(line);
     }
     err();
+  }
+
+
+
+  /**
+   * Examines the provided LDAP result to see if it includes a JSONf-formatted
+   * response control.  If so, then its embedded controls will be extracted and
+   * a new LDAP result will be returned with those extracted controls instead
+   * of the JSON-formatted response control.  Otherwise, the provided LDAP
+   * result will be returned.
+   *
+   * @param  ldapResult  The LDAP result to be handled.  It must not be
+   *                     {@code null}.
+   *
+   * @return  A new LDAP result with the controls extracted from a
+   *          JSON-formatted response control, or the original LDAP result if
+   *          it did not include a JSON-formatted response control.
+   */
+  @NotNull()
+  static LDAPResult handleJSONEncodedResponseControls(
+              @NotNull final LDAPResult ldapResult)
+  {
+    try
+    {
+      final JSONFormattedResponseControl jsonFormattedResponseControl =
+           JSONFormattedResponseControl.get(ldapResult);
+      if (jsonFormattedResponseControl == null)
+      {
+        return ldapResult;
+      }
+
+      final JSONFormattedControlDecodeBehavior decodeBehavior =
+           new JSONFormattedControlDecodeBehavior();
+      decodeBehavior.setThrowOnUnparsableObject(false);
+      decodeBehavior.setThrowOnInvalidCriticalControl(false);
+      decodeBehavior.setThrowOnInvalidNonCriticalControl(false);
+      decodeBehavior.setThrowOnInvalidNonCriticalControl(false);
+      decodeBehavior.setAllowEmbeddedJSONFormattedControl(true);
+      decodeBehavior.setStrict(false);
+
+      final List<Control> decodedControls =
+           jsonFormattedResponseControl.decodeEmbeddedControls(
+                decodeBehavior, null);
+
+      return new LDAPResult(ldapResult.getMessageID(),
+           ldapResult.getResultCode(),
+           ldapResult.getDiagnosticMessage(),
+           ldapResult.getMatchedDN(),
+           ldapResult.getReferralURLs(),
+           StaticUtils.toArray(decodedControls, Control.class));
+    }
+    catch (final LDAPException e)
+    {
+      Debug.debugException(e);
+      return ldapResult;
+    }
   }
 
 

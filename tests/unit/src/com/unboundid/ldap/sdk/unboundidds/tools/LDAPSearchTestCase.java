@@ -50,15 +50,20 @@ import java.util.zip.GZIPInputStream;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
+import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedResponseControl;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.PassphraseEncryptedInputStream;
 import com.unboundid.util.PasswordReader;
@@ -452,6 +457,7 @@ public final class LDAPSearchTestCase
          "--suppressOperationalAttributeUpdates", "last-access-time",
          "--suppressOperationalAttributeUpdates", "last-login-time",
          "--suppressOperationalAttributeUpdates", "last-login-ip",
+         "--useJSONFormattedRequestControls",
          "--dontWrap",
          "--dereferencePolicy", "always",
          "(objectClass=*)",
@@ -512,6 +518,7 @@ public final class LDAPSearchTestCase
          "--suppressOperationalAttributeUpdates", "lastmod",
          "--realAttributesOnly",
          "--rejectUnindexedSearch",
+         "--useJSONFormattedRequestControls",
          "--wrapColumn", "0",
          "--dereferencePolicy", "search",
          "(objectClass=*)",
@@ -2521,5 +2528,210 @@ public final class LDAPSearchTestCase
          "--requireMatch",
          "(uid=nonexistent)");
     assertEquals(resultCode, ResultCode.NO_RESULTS_RETURNED);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code handleJSONEncodedResponseControls} method
+   * for a search result that does not have any controls.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testHandleJSONEncodedResponseControlsNoControls()
+         throws Exception
+  {
+    final String[] referralURLs =
+    {
+      "ldap://ds1.example.com:389/",
+      "ldap://ds2.example.com:389/"
+    };
+
+    final SearchResult originalSearchResult = new SearchResult(1,
+         ResultCode.SUCCESS, "diagnosticMessage", "dc=matched,dc=dn",
+         referralURLs, 1, 2, StaticUtils.NO_CONTROLS);
+
+    final SearchResult processedSearchResult =
+         LDAPSearch.handleJSONEncodedResponseControls(originalSearchResult);
+
+    assertNotNull(processedSearchResult);
+
+    assertEquals(processedSearchResult.getMessageID(), 1);
+
+    assertEquals(processedSearchResult.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(processedSearchResult.getDiagnosticMessage(),
+         "diagnosticMessage");
+
+    assertEquals(processedSearchResult.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(processedSearchResult.getReferralURLs(), referralURLs);
+
+    assertEquals(processedSearchResult.getEntryCount(), 1);
+
+    assertEquals(processedSearchResult.getReferenceCount(), 2);
+
+    assertEquals(processedSearchResult.getResponseControls().length, 0);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code handleJSONEncodedResponseControls} method
+   * for a search result that includes a control that isn't a JSON-formatted
+   * response control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testHandleJSONEncodedResponseControlsNonJSONFormattedControl()
+         throws Exception
+  {
+    final String[] referralURLs =
+    {
+      "ldap://ds1.example.com:389/",
+      "ldap://ds2.example.com:389/"
+    };
+
+    final SearchResult originalSearchResult = new SearchResult(1,
+         ResultCode.SUCCESS, "diagnosticMessage", "dc=matched,dc=dn",
+         referralURLs, 1, 2,
+         new Control[] { new GetServerIDResponseControl("serverID") });
+
+    final SearchResult processedSearchResult =
+         LDAPSearch.handleJSONEncodedResponseControls(originalSearchResult);
+
+    assertNotNull(processedSearchResult);
+
+    assertEquals(processedSearchResult.getMessageID(), 1);
+
+    assertEquals(processedSearchResult.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(processedSearchResult.getDiagnosticMessage(),
+         "diagnosticMessage");
+
+    assertEquals(processedSearchResult.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(processedSearchResult.getReferralURLs(), referralURLs);
+
+    assertEquals(processedSearchResult.getEntryCount(), 1);
+
+    assertEquals(processedSearchResult.getReferenceCount(), 2);
+
+    assertEquals(processedSearchResult.getResponseControls().length, 1);
+
+    assertEquals(processedSearchResult.getResponseControls()[0].getOID(),
+         GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code handleJSONEncodedResponseControls} method
+   * for a search result that includes a control that is a valid JSON-formatted
+   * response control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testHandleJSONEncodedResponseControlsValidJSONFormattedControl()
+         throws Exception
+  {
+    final String[] referralURLs =
+    {
+      "ldap://ds1.example.com:389/",
+      "ldap://ds2.example.com:389/"
+    };
+
+    final Control[] originalResponseControls =
+    {
+      JSONFormattedResponseControl.createWithControls(
+           new GetServerIDResponseControl("serverID"))
+    };
+
+    final SearchResult originalSearchResult = new SearchResult(1,
+         ResultCode.SUCCESS, "diagnosticMessage", "dc=matched,dc=dn",
+         referralURLs, 1, 2, originalResponseControls);
+
+    final SearchResult processedSearchResult =
+         LDAPSearch.handleJSONEncodedResponseControls(originalSearchResult);
+
+    assertNotNull(processedSearchResult);
+
+    assertEquals(processedSearchResult.getMessageID(), 1);
+
+    assertEquals(processedSearchResult.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(processedSearchResult.getDiagnosticMessage(),
+         "diagnosticMessage");
+
+    assertEquals(processedSearchResult.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(processedSearchResult.getReferralURLs(), referralURLs);
+
+    assertEquals(processedSearchResult.getEntryCount(), 1);
+
+    assertEquals(processedSearchResult.getReferenceCount(), 2);
+
+    assertEquals(processedSearchResult.getResponseControls().length, 1);
+
+    assertEquals(processedSearchResult.getResponseControls()[0].getOID(),
+         GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code handleJSONEncodedResponseControls} method
+   * for a search result that includes a control that is a malformed
+   * JSON-formatted response control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testHandleJSONEncodedResponseControlsInvalidJSONFormattedControl()
+         throws Exception
+  {
+    final String[] referralURLs =
+    {
+      "ldap://ds1.example.com:389/",
+      "ldap://ds2.example.com:389/"
+    };
+
+    final Control[] originalResponseControls =
+    {
+      new Control(JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID,
+           false, new ASN1OctetString("this is a malformed value"))
+    };
+
+    final SearchResult originalSearchResult = new SearchResult(1,
+         ResultCode.SUCCESS, "diagnosticMessage", "dc=matched,dc=dn",
+         referralURLs, 1, 2, originalResponseControls);
+
+    final SearchResult processedSearchResult =
+         LDAPSearch.handleJSONEncodedResponseControls(originalSearchResult);
+
+    assertNotNull(processedSearchResult);
+
+    assertEquals(processedSearchResult.getMessageID(), 1);
+
+    assertEquals(processedSearchResult.getResultCode(), ResultCode.SUCCESS);
+
+    assertEquals(processedSearchResult.getDiagnosticMessage(),
+         "diagnosticMessage");
+
+    assertEquals(processedSearchResult.getMatchedDN(), "dc=matched,dc=dn");
+
+    assertEquals(processedSearchResult.getReferralURLs(), referralURLs);
+
+    assertEquals(processedSearchResult.getEntryCount(), 1);
+
+    assertEquals(processedSearchResult.getReferenceCount(), 2);
+
+    assertEquals(processedSearchResult.getResponseControls().length, 1);
+
+    assertEquals(processedSearchResult.getResponseControls()[0].getOID(),
+         JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID);
   }
 }

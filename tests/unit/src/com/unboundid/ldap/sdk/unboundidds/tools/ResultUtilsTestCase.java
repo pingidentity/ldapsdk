@@ -106,6 +106,7 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             IntermediateClientResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IntermediateClientResponseValue;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinedEntry;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinResultControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -1747,6 +1748,40 @@ public final class ResultUtilsTestCase
            Arrays.asList(
                 "#      Response Control:",
                 "#           OID:  " + JoinResultControl.JOIN_RESULT_OID,
+                "#           Is Critical:  false")
+         });
+
+
+    // A valid JSON-formatted response control.
+    resultList.add(
+         new Object[]
+         {
+              JSONFormattedResponseControl.createWithControls(
+                   new GetServerIDResponseControl("serverID")),
+           Arrays.asList(
+                "#      JSON-Formatted Response Control:",
+                "#           OID:  " + JSONFormattedResponseControl.
+                     JSON_FORMATTED_RESPONSE_OID,
+                "#           Embedded Control JSON:",
+                "#                { \"oid\":\"1.3.6.1.4.1.30221.2.5.15\",",
+                "#                  \"control-name\":" +
+                     "\"Get Server ID Response Control\",",
+                "#                  \"criticality\":false,",
+                "#                  \"value-json\":{ \"server-id\":" +
+                     "\"serverID\" } }")
+         });
+
+
+    // An invalid JSON-formatted control.
+    resultList.add(
+         new Object[]
+         {
+           new Control(
+                JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID),
+           Arrays.asList(
+                "#      Response Control:",
+                "#           OID:  " + JSONFormattedResponseControl.
+                     JSON_FORMATTED_RESPONSE_OID,
                 "#           Is Critical:  false")
          });
 

@@ -40,6 +40,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapsearch and ldapmodify command-line tools to add support for
+                  JSON-formatted request and response controls.  If the
+                  --useJSONFormattedRequestControls argument is provided, requests sent to the
+                  server will include a JSON-formatted request control with appropriate encodings
+                  for any other request controls to be included in the request.  Any
+                  JSON-formatted response control received from the server will automatically have
+                  its embedded controls extracted and processed as if they had been returned with
+                  their regular LDAP encodings.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the way the parallel-update tool created assured replication
                   request controls when an explicit local or remote assurance level was specified.
                   Previously, it would only specify a minimum assurance level without specifying a

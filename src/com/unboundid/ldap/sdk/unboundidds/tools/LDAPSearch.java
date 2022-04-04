@@ -111,6 +111,10 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            JSONFormattedControlDecodeBehavior;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinBaseDN;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinRequestValue;
@@ -234,6 +238,7 @@ public final class LDAPSearch
   @Nullable private BooleanArgument suppressBase64EncodedValueComments = null;
   @Nullable private BooleanArgument teeResultsToStandardOut = null;
   @Nullable private BooleanArgument useAdministrativeSession = null;
+  @Nullable private BooleanArgument useJSONFormattedRequestControls = null;
   @Nullable private BooleanArgument usePasswordPolicyControl = null;
   @Nullable private BooleanArgument terse = null;
   @Nullable private BooleanArgument typesOnly = null;
@@ -1177,6 +1182,19 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(virtualListView);
 
+    useJSONFormattedRequestControls = new BooleanArgument(null,
+         "useJSONFormattedRequestControls", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_USE_JSON_FORMATTED_CONTROLS.get());
+    useJSONFormattedRequestControls.addLongIdentifier(
+         "use-json-formatted-request-controls", true);
+    useJSONFormattedRequestControls.addLongIdentifier(
+         "useJSONFormattedControls", true);
+    useJSONFormattedRequestControls.addLongIdentifier(
+         "use-json-formatted-controls", true);
+    useJSONFormattedRequestControls.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(useJSONFormattedRequestControls);
+
     excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_ATTRIBUTE.get());
@@ -1456,6 +1474,14 @@ public final class LDAPSearch
 
       bindControls.add(new SuppressOperationalAttributeUpdateRequestControl(
            suppressTypes));
+    }
+
+    if (useJSONFormattedRequestControls.isPresent())
+    {
+      final JSONFormattedRequestControl jsonFormattedRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, bindControls);
+      bindControls.clear();
+      bindControls.add(jsonFormattedRequestControl);
     }
 
     return bindControls;
@@ -3008,6 +3034,8 @@ public final class LDAPSearch
             searchResult = pool.search(searchRequest);
           }
 
+          searchResult = handleJSONEncodedResponseControls(searchResult);
+
           if (searchResult.getEntryCount() > 0)
           {
             totalEntries += searchResult.getEntryCount();
@@ -3365,6 +3393,14 @@ public final class LDAPSearch
       controls.add(new PermitUnindexedSearchRequestControl());
     }
 
+    if (useJSONFormattedRequestControls.isPresent())
+    {
+      final JSONFormattedRequestControl jsonFormattedRequestControl =
+           JSONFormattedRequestControl.createWithControls(true, controls);
+      controls.clear();
+      controls.add(jsonFormattedRequestControl);
+    }
+
     return controls;
   }
 
@@ -3520,6 +3556,66 @@ public final class LDAPSearch
                    @NotNull final ExtendedResult notification)
   {
     resultWriter.writeUnsolicitedNotification(connection, notification);
+  }
+
+
+
+  /**
+   * Examines the provided search result to see if it includes a JSONf-formatted
+   * response control.  If so, then its embedded controls will be extracted and
+   * a new search result will be returned with those extracted controls instead
+   * of the JSON-formatted response control.  Otherwise, the provided search
+   * result will be returned.
+   *
+   * @param  searchResult  The search result to be handled.  It must not be
+   *                       {@code null}.
+   *
+   * @return  A new search result with the controls extracted from a
+   *          JSON-formatted response control, or the original search result if
+   *          it did not include a JSON-formatted response control.
+   */
+  @NotNull()
+  static SearchResult handleJSONEncodedResponseControls(
+              @NotNull final SearchResult searchResult)
+  {
+    try
+    {
+      final JSONFormattedResponseControl jsonFormattedResponseControl =
+           JSONFormattedResponseControl.get(searchResult);
+      if (jsonFormattedResponseControl == null)
+      {
+        return searchResult;
+      }
+
+      final JSONFormattedControlDecodeBehavior decodeBehavior =
+           new JSONFormattedControlDecodeBehavior();
+      decodeBehavior.setThrowOnUnparsableObject(false);
+      decodeBehavior.setThrowOnInvalidCriticalControl(false);
+      decodeBehavior.setThrowOnInvalidNonCriticalControl(false);
+      decodeBehavior.setThrowOnInvalidNonCriticalControl(false);
+      decodeBehavior.setAllowEmbeddedJSONFormattedControl(true);
+      decodeBehavior.setStrict(false);
+
+      final List<Control> decodedControls =
+           jsonFormattedResponseControl.decodeEmbeddedControls(
+                decodeBehavior, null);
+
+      return new SearchResult(searchResult.getMessageID(),
+           searchResult.getResultCode(),
+           searchResult.getDiagnosticMessage(),
+           searchResult.getMatchedDN(),
+           searchResult.getReferralURLs(),
+           searchResult.getSearchEntries(),
+           searchResult.getSearchReferences(),
+           searchResult.getEntryCount(),
+           searchResult.getReferenceCount(),
+           StaticUtils.toArray(decodedControls, Control.class));
+    }
+    catch (final LDAPException e)
+    {
+      Debug.debugException(e);
+      return searchResult;
+    }
   }
 
 

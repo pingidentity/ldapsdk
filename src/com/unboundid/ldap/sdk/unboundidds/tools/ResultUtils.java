@@ -102,6 +102,7 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             IntermediateClientResponseValue;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinedEntry;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinResultControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.JSONFormattedResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             MatchingEntryCountResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyErrorType;
@@ -133,6 +134,7 @@ import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.json.JSONObject;
 
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
@@ -812,6 +814,11 @@ public final class ResultUtils
     else if (oid.equals(JoinResultControl.JOIN_RESULT_OID))
     {
       addJoinResultControl(lines, c, prefix, maxWidth);
+    }
+    else if (oid.equals(
+         JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID))
+    {
+      addJSONFormattedResponseControl(lines, c, prefix, maxWidth);
     }
     else if (oid.equals(MatchingEntryCountResponseControl.
          MATCHING_ENTRY_COUNT_RESPONSE_OID))
@@ -2560,6 +2567,58 @@ public final class ResultUtils
       for (final JoinedEntry e : nestedJoinResults)
       {
         addJoinedEntry(lines, e, prefix + "          ", maxWidth);
+      }
+    }
+  }
+
+
+
+  /**
+   * Adds a multi-line string representation of the provided control, which is
+   * expected to be a JSON-formatted response control, to the given list.
+   *
+   * @param  lines     The list to which the lines should be added.
+   * @param  c         The control to be formatted.
+   * @param  prefix    The prefix to use for each line.
+   * @param  maxWidth  The maximum length of each line in characters, including
+   *                   the comment prefix and indent.
+   */
+  private static void addJSONFormattedResponseControl(
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
+  {
+    final JSONFormattedResponseControl decoded;
+    try
+    {
+      decoded = new JSONFormattedResponseControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      addGenericResponseControl(lines, c, prefix, maxWidth);
+      return;
+    }
+
+    wrap(lines, INFO_RESULT_UTILS_JSON_FORMATTED_HEADER.get(), prefix,
+         maxWidth);
+
+    final String indentPrefix = prefix + "     ";
+    final String doubleIndentPrefix = indentPrefix + "     ";
+    wrap(lines, INFO_RESULT_UTILS_RESPONSE_CONTROL_OID.get(c.getOID()),
+         indentPrefix, maxWidth);
+
+    for (final JSONObject responseControlObject : decoded.getControlObjects())
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_JSON_FORMATTED_EMBEDDED_CONTROL_HEADER.get(),
+           indentPrefix, maxWidth);
+      for (final String jsonLine :
+           StaticUtils.stringToLines(responseControlObject.toMultiLineString()))
+      {
+        lines.add(doubleIndentPrefix + jsonLine);
       }
     }
   }
