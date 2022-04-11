@@ -46,6 +46,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.X509TrustManager;
@@ -147,6 +148,18 @@ public final class TopologyRegistryTrustManager
   @NotNull private final AtomicReference<Set<X509Certificate>>
        cachedCertificates;
 
+  // Indicates whether to ignore the validity window for issuer certificates
+  // when determining whether to trust a certificate chain.
+  private final boolean ignoreIssuerCertificateValidityWindow;
+
+  // Indicates whether to ignore the validity window for the peer certificate
+  // when determining whether to trust a certificate chain.
+  private final boolean ignorePeerCertificateValidityWindow;
+
+  // Indicates whether to require the peer certificate itself to be included in
+  // the topology registry for a certificate chain to be trusted.
+  private final boolean requirePeerCertificateInTopologyRegistry;
+
   // The configuration file from which the certificate records will be read.
   @NotNull private final File configurationFile;
 
@@ -161,7 +174,8 @@ public final class TopologyRegistryTrustManager
    *
    * @param  configurationFile    The configuration file for the Ping Identity
    *                              Directory Server instance that holds the
-   *                              topology registry data.
+   *                              topology registry data.  It must not be
+   *                              {@code null}.
    * @param  cacheDurationMillis  The maximum length of time in milliseconds
    *                              that previously loaded certificates may be
    *                              cached.  If this is less than or equal to
@@ -170,12 +184,144 @@ public final class TopologyRegistryTrustManager
   public TopologyRegistryTrustManager(@NotNull final File configurationFile,
                                       final long cacheDurationMillis)
   {
-    this.configurationFile = configurationFile;
-    this.cacheDurationMillis = cacheDurationMillis;
+    this(getDefaultProperties(configurationFile, cacheDurationMillis));
+  }
+
+
+
+  /**
+   * Retrieves the topology registry trust manager properties that should be
+   * used with the given configuration file and cache duration.
+   *
+   * @param  configurationFile    The configuration file for the Ping Identity
+   *                              Directory Server instance that holds the
+   *                              topology registry data.  It must not be
+   *                              {@code null}.
+   * @param  cacheDurationMillis  The maximum length of time in milliseconds
+   *                              that previously loaded certificates may be
+   *                              cached.  If this is less than or equal to
+   *                              zero, then certificates will not be cached.
+   *
+   * @return  The topology registry trust manager configuration properties that
+   *          should be used.
+   */
+  @NotNull()
+  private static TopologyRegistryTrustManagerProperties getDefaultProperties(
+               @NotNull final File configurationFile,
+               final long cacheDurationMillis)
+  {
+    final TopologyRegistryTrustManagerProperties properties =
+         new TopologyRegistryTrustManagerProperties(configurationFile);
+    properties.setCacheDuration(cacheDurationMillis, TimeUnit.MILLISECONDS);
+    return properties;
+  }
+
+
+
+  /**
+   * Creates a new instance of this trust manager with the provided properties.
+   *
+   * @param  properties  The properties to use to create this trust manager.
+   *                     It must not be {@code null}.
+   */
+  public TopologyRegistryTrustManager(
+              @NotNull final TopologyRegistryTrustManagerProperties properties)
+  {
+    configurationFile = properties.getConfigurationFile();
+    cacheDurationMillis = properties.getCacheDurationMillis();
+    requirePeerCertificateInTopologyRegistry =
+         properties.requirePeerCertificateInTopologyRegistry();
+    ignorePeerCertificateValidityWindow =
+         properties.ignorePeerCertificateValidityWindow();
+    ignoreIssuerCertificateValidityWindow =
+         properties.ignoreIssuerCertificateValidityWindow();
 
     cacheExpirationTime = new AtomicLong(0L);
     cachedCertificates = new AtomicReference<>(
          Collections.<X509Certificate>emptySet());
+  }
+
+
+
+  /**
+   * Retrieves the server configuration file from which the topology registry
+   * certificates will be read.
+   *
+   * @return  The server configuration file from which the topology registry
+   *          certificates will be read.
+   */
+  @NotNull()
+  public File getConfigurationFile()
+  {
+    return configurationFile;
+  }
+
+
+
+  /**
+   * Retrieves the maximum length of time in milliseconds that cached topology
+   * registry information should be considered valid.
+   *
+   * @return  The maximum length of time in milliseconds that cached topology
+   *          registry information should be considered valid, or zero if
+   *          topology registry information should not be cached.
+   */
+  public long getCacheDurationMillis()
+  {
+    return cacheDurationMillis;
+  }
+
+
+
+  /**
+   * Indicates whether to require the peer certificate itself to be included in
+   * the topology registry for a certificate chain to be trusted.
+   *
+   * @return  {@code true} if a certificate chain may only be trusted if the
+   *          topology registry includes the peer certificate itself, or
+   *          {@code false} if a certificate chain may be trusted if the
+   *          topology registry contains the peer certificate or any of its
+   *          issuers.
+   */
+  public boolean requirePeerCertificateInTopologyRegistry()
+  {
+    return requirePeerCertificateInTopologyRegistry;
+  }
+
+
+
+  /**
+   * Indicates whether to ignore the validity window for the peer certificate
+   * when determining whether to trust a certificate chain.
+   *
+   * @return  {@code true} if a certificate chain may be considered trusted
+   *          even if the current time is outside the peer certificate's
+   *          validity window, or {@code false} if a certificate chain may only
+   *          be considered trusted if the current time is between the
+   *          {@code notBefore} and {@code notAfter} timestamps for the peer
+   *          certificate.
+   */
+  public boolean ignorePeerCertificateValidityWindow()
+  {
+    return ignorePeerCertificateValidityWindow;
+  }
+
+
+
+  /**
+   * Indicates whether to ignore the validity window for issuer certificates
+   * when determining whether to trust a certificate chain.
+   *
+   * @return  {@code true} if a certificate chain may be considered trusted
+   *          even if the current time is outside the any issuer certificate's
+   *          validity window, or {@code false} if a certificate chain may only
+   *          be considered trusted if the current time is between the
+   *          {@code notBefore} and {@code notAfter} timestamps for all issuer
+   *          certificates.
+   */
+  public boolean ignoreIssuerCertificateValidityWindow()
+  {
+    return ignoreIssuerCertificateValidityWindow;
   }
 
 
@@ -240,76 +386,104 @@ public final class TopologyRegistryTrustManager
     }
 
 
-    // Validate that the peer certificate is currently within its validity
-    // window.
+    // If appropriate, validate that the peer certificate is currently within
+    // its validity window.
     final long currentTime = System.currentTimeMillis();
     final X509Certificate peerCert = chain[0];
-    if (currentTime < peerCert.getNotBefore().getTime())
+    if (! ignorePeerCertificateValidityWindow)
     {
-      throw new CertificateException(ERR_TR_TM_PEER_NOT_YET_VALID.get(
-           peerCert.getSubjectX500Principal().getName(X500Principal.RFC2253),
-           String.valueOf(peerCert.getNotBefore())));
-    }
-
-    if (currentTime > peerCert.getNotAfter().getTime())
-    {
-      throw new CertificateException(ERR_TR_TM_PEER_EXPIRED.get(
-           peerCert.getSubjectX500Principal().getName(X500Principal.RFC2253),
-           String.valueOf(peerCert.getNotAfter())));
-    }
-
-
-    // Validate that all of the issuer certificates are also valid.
-    for (int i=1; i < chain.length; i++)
-    {
-      final X509Certificate issuerCert = chain[i];
-      if (currentTime < issuerCert.getNotBefore().getTime())
+      if (currentTime < peerCert.getNotBefore().getTime())
       {
-        throw new CertificateException(ERR_TR_TM_ISSUER_NOT_YET_VALID.get(
+        throw new CertificateException(ERR_TR_TM_PEER_NOT_YET_VALID.get(
              peerCert.getSubjectX500Principal().getName(X500Principal.RFC2253),
-             issuerCert.getSubjectX500Principal().getName(
-                  X500Principal.RFC2253),
              String.valueOf(peerCert.getNotBefore())));
       }
 
-      if (currentTime > issuerCert.getNotAfter().getTime())
+      if (currentTime > peerCert.getNotAfter().getTime())
       {
-        throw new CertificateException(ERR_TR_TM_ISSUER_EXPIRED.get(
+        throw new CertificateException(ERR_TR_TM_PEER_EXPIRED.get(
              peerCert.getSubjectX500Principal().getName(X500Principal.RFC2253),
-             issuerCert.getSubjectX500Principal().getName(
-                  X500Principal.RFC2253),
              String.valueOf(peerCert.getNotAfter())));
       }
     }
 
 
-    // If the cache is valid and it contains the certificate, then we'll trust
-    // it.
-    if ((cacheExpirationTime.get() >= currentTime) &&
-         cachedCertificates.get().contains(peerCert))
+    // If appropriate, validate that all of the issuer certificates are also
+    // within their validity windows.
+    if (! ignoreIssuerCertificateValidityWindow)
     {
-      // The certificate is trusted.  Return without throwing an exception.
-      return;
+      for (int i=1; i < chain.length; i++)
+      {
+        final X509Certificate issuerCert = chain[i];
+        if (currentTime < issuerCert.getNotBefore().getTime())
+        {
+          throw new CertificateException(ERR_TR_TM_ISSUER_NOT_YET_VALID.get(
+               peerCert.getSubjectX500Principal().getName(
+                    X500Principal.RFC2253),
+               issuerCert.getSubjectX500Principal().getName(
+                    X500Principal.RFC2253),
+               String.valueOf(peerCert.getNotBefore())));
+        }
+
+        if (currentTime > issuerCert.getNotAfter().getTime())
+        {
+          throw new CertificateException(ERR_TR_TM_ISSUER_EXPIRED.get(
+               peerCert.getSubjectX500Principal().getName(
+                    X500Principal.RFC2253),
+               issuerCert.getSubjectX500Principal().getName(
+                    X500Principal.RFC2253),
+               String.valueOf(peerCert.getNotAfter())));
+        }
+      }
     }
 
 
-    // Read the config file and get the certificates it contains.
+    // If the cache is valid, then consult it to determine whether we should
+    // trust the certificate chain.
+    final Set<X509Certificate> cachedCerts = cachedCertificates.get();
+    if ((! cachedCerts.isEmpty()) && (cacheExpirationTime.get() >= currentTime))
+    {
+      if (mayTrustChainBasedOnCertificateSet(chain, cachedCerts))
+      {
+        return;
+      }
+    }
+
+
+    // If we've gotten here, then either caching is disabled, the cache is
+    // expired, or the presented chain can't be trusted based on the cached
+    // information.  In any case, read the configuration and extract all
+    // certificates from the topology registry.
     final Set<X509Certificate> topologyRegistryCertificates =
-         readTopologyRegistryCertificates(peerCert);
+         readTopologyRegistryCertificates();
+
+
+    // If we should cache topology registry data, then update it with the set
+    // of certificates we just read.
     if (cacheDurationMillis > 0L)
     {
       cachedCertificates.set(topologyRegistryCertificates);
       cacheExpirationTime.set(currentTime + cacheDurationMillis);
     }
 
-    if (topologyRegistryCertificates.contains(peerCert))
+
+    // Check to see if we should trust the certificate chain based on the
+    // topology registry data we just read.
+    if (mayTrustChainBasedOnCertificateSet(chain, topologyRegistryCertificates))
     {
-      // The certificate is trusted.  Return without throwing an exception.
       return;
+    }
+
+
+    // If we've gotten here, then the chain can't be considered trusted.
+    if ((requirePeerCertificateInTopologyRegistry) || (chain.length == 1))
+    {
+      throw new CertificateException(ERR_TP_TM_PEER_NOT_FOUND.get(
+           peerCert.getSubjectX500Principal().getName(X500Principal.RFC2253)));
     }
     else
     {
-      throw new CertificateException(ERR_TP_TM_PEER_NOT_FOUND.get(
+      throw new CertificateException(ERR_TP_TM_PEER_OR_ISSUERS_NOT_FOUND.get(
            peerCert.getSubjectX500Principal().getName(X500Principal.RFC2253)));
     }
   }
@@ -317,9 +491,53 @@ public final class TopologyRegistryTrustManager
 
 
   /**
-   * Reads the certificates defined in the topology registry.
+   * Indicates whether the provided certificate chain may be considered
+   * trusted using the given set of trusted certificates.
    *
-   * @param  peerCert  The peer certificate presented for evaluation.
+   * @param  chain           The certificate chain for which to make the
+   *                         determination. It must not be {@code null} or
+   *                         empty.
+   * @param  certificateSet  The set of trusted certificates to use in making
+   *                         the determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the presented certificate chain may be considered
+   *          trusted using the given set of trusted certificates, or
+   *          {@code false} if not.
+   */
+  private boolean mayTrustChainBasedOnCertificateSet(
+               @NotNull final X509Certificate[] chain,
+               @NotNull final Set<X509Certificate> certificateSet)
+  {
+    // First, check the peer certificate.
+    if (certificateSet.contains(chain[0]))
+    {
+      return true;
+    }
+
+
+    // If we don't require the peer certificate itself to be present in the
+    // topology registry, then check its issuer certificates.
+    if (! requirePeerCertificateInTopologyRegistry)
+    {
+      for (int i=1; i < chain.length; i++)
+      {
+        if (certificateSet.contains(chain[i]))
+        {
+          return true;
+        }
+      }
+    }
+
+
+    // If we've gotten here, then we can't trust the certificate chain based on
+    // information in the provided set of trusted certificates.
+    return false;
+  }
+
+
+
+  /**
+   * Reads the certificates defined in the topology registry.
    *
    * @return  A set containing the certificates defined in the topology
    *          registry, or an empty set if no certificates are found.
@@ -328,8 +546,7 @@ public final class TopologyRegistryTrustManager
    *                                certificates from the topology registry.
    */
   @NotNull()
-  private Set<X509Certificate> readTopologyRegistryCertificates(
-                                    @NotNull final X509Certificate peerCert)
+  private Set<X509Certificate> readTopologyRegistryCertificates()
           throws CertificateException
   {
     try (LDIFReader ldifReader = new LDIFReader(configurationFile))
@@ -353,8 +570,6 @@ public final class TopologyRegistryTrustManager
           {
             throw new CertificateException(
                  ERR_TP_TM_MALFORMED_CONFIG.get(
-                      peerCert.getSubjectX500Principal().getName(
-                           X500Principal.RFC2253),
                       configurationFile.getAbsolutePath(),
                       StaticUtils.getExceptionMessage(e)),
                  e);
@@ -383,8 +598,6 @@ public final class TopologyRegistryTrustManager
       Debug.debugException(e);
       throw new CertificateException(
            ERR_TP_TM_ERROR_READING_CONFIG_FILE.get(
-                peerCert.getSubjectX500Principal().getName(
-                     X500Principal.RFC2253),
                 configurationFile.getAbsolutePath(),
                 StaticUtils.getExceptionMessage(e)),
            e);
@@ -450,5 +663,47 @@ public final class TopologyRegistryTrustManager
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this topology registry trust manager
+   * instance.
+   *
+   * @return  A string representation of this topology registry trust manager
+   *          instance.
+   */
+  @Override()
+  @NotNull()
+  public String toString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a string representation of this topology registry trust manager
+   * instance to the given buffer.
+   *
+   * @param  buffer  The buffer to which the string representation should be
+   *                 appended.
+   */
+  public void toString(@NotNull final StringBuilder buffer)
+  {
+    buffer.append("TopologyRegistryTrustManager(configurationFile='");
+    buffer.append(configurationFile.getAbsolutePath());
+    buffer.append("', cacheDurationMillis=");
+    buffer.append(cacheDurationMillis);
+    buffer.append(", requirePeerCertificateInTopologyRegistry=");
+    buffer.append(requirePeerCertificateInTopologyRegistry);
+    buffer.append(", ignorePeerCertificateValidityWindow=");
+    buffer.append(ignorePeerCertificateValidityWindow);
+    buffer.append(", ignoreIssuerCertificateValidityWindow=");
+    buffer.append(ignoreIssuerCertificateValidityWindow);
+    buffer.append(')');
   }
 }

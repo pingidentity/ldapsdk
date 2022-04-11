@@ -62,6 +62,26 @@ ${TARGET="offline"}                <br>
                   assurance level is used, regardless of the server configuration.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the topology registry trust manager to allow trusting a certificate
+                  chain if either the peer certificate or any of its issuers is found in the
+                  server's topology registry.  Previously, it would only trust certificate chains
+                  in which the peer certificate itself was found in the topology registry, and
+                  having an issuer certificate present in the topology registry was not sufficient
+                  to allow certificates signed by that issuer to be trusted.  The former behavior
+                  is still available via a configuration option.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the topology registry trust manager to make it possible to ignore the
+                  certificate validity window for peer and issuer certificates.  The certificate
+                  validity window is still respected by default, but if the trust manager is
+                  configured to ignore that window, then a certificate chain may be trusted even
+                  if the peer or an issuer certificate is expired or not yet valid.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

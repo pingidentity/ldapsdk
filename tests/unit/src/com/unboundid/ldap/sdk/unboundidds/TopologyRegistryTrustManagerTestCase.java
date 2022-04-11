@@ -148,6 +148,14 @@ public final class TopologyRegistryTrustManagerTestCase
       // Create a trust manager and SSL util configuration.
       final TopologyRegistryTrustManager trustManager =
            new TopologyRegistryTrustManager(configFile, 300_000L);
+      assertEquals(trustManager.getConfigurationFile(), configFile);
+      assertEquals(trustManager.getCacheDurationMillis(), 300_000L);
+      assertFalse(trustManager.requirePeerCertificateInTopologyRegistry());
+      assertFalse(trustManager.ignorePeerCertificateValidityWindow());
+      assertFalse(trustManager.ignoreIssuerCertificateValidityWindow());
+      assertNotNull(trustManager.toString());
+      assertFalse(trustManager.toString().isEmpty());
+
       final SSLUtil sslUtil = new SSLUtil(null, trustManager);
 
       // Perform an initial test to ensure that the connection succeeds when
@@ -204,6 +212,369 @@ public final class TopologyRegistryTrustManagerTestCase
            sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
       {
         assertNotNull(conn.getRootDSE());
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the case in which the client is presented with a certificate chain
+   * that contains a peer certificate that is not in the topology registry and
+   * an issuer certificate that is in the registry when we will trust issuer
+   * certificates.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIssuerCertificateTrustAllowed()
+         throws Exception
+  {
+    final File caKeyStore = createTempFile();
+    assertTrue(caKeyStore.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--subject-dn", "CN=CA,O=Example Corp,C=US");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File caCertFile = createTempFile();
+    assertTrue(caCertFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--output-format", "PEM",
+         "--output-file", caCertFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File serverKeyStore = createTempFile();
+    assertTrue(serverKeyStore.delete());
+
+    final File csrFile = createTempFile();
+    assertTrue(csrFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "generate-certificate-signing-request",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-DN", "CN=ds.example.com,O=Example Corp,C=US",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--output-format", "PEM");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File certFile = createTempFile();
+    assertTrue(certFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "sign-certificate-signing-request",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--signing-certificate-alias", "ca-cert",
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to sign a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "import-certificate",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to import the signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final List<String> caCertLines = StaticUtils.readFileLines(caCertFile);
+
+    try (InMemoryDirectoryServer ds = getDS(serverKeyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(caCertLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(configFile, 300_000L);
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+      // Perform an initial test to ensure that the connection succeeds when
+      // the configuration is not cached.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        assertNotNull(conn.getRootDSE());
+      }
+
+      // Perform another test to ensure that the connection succeeds when the
+      // configuration is cached.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        assertNotNull(conn.getRootDSE());
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the case in which the client is presented with a certificate chain
+   * that contains a peer certificate that is not in the topology registry and
+   * an issuer certificate that is in the registry when we will not trust issuer
+   * certificates.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIssuerCertificateTrustNotAllowed()
+         throws Exception
+  {
+    final File caKeyStore = createTempFile();
+    assertTrue(caKeyStore.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--subject-dn", "CN=CA,O=Example Corp,C=US");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File caCertFile = createTempFile();
+    assertTrue(caCertFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--output-format", "PEM",
+         "--output-file", caCertFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File serverKeyStore = createTempFile();
+    assertTrue(serverKeyStore.delete());
+
+    final File csrFile = createTempFile();
+    assertTrue(csrFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "generate-certificate-signing-request",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-DN", "CN=ds.example.com,O=Example Corp,C=US",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--output-format", "PEM");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File certFile = createTempFile();
+    assertTrue(certFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "sign-certificate-signing-request",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--signing-certificate-alias", "ca-cert",
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to sign a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "import-certificate",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to import the signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final List<String> caCertLines = StaticUtils.readFileLines(caCertFile);
+
+    try (InMemoryDirectoryServer ds = getDS(serverKeyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(caCertLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManagerProperties properties =
+           new TopologyRegistryTrustManagerProperties(configFile);
+      properties.setRequirePeerCertificateInTopologyRegistry(true);
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(properties);
+      assertTrue(trustManager.requirePeerCertificateInTopologyRegistry());
+
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+
+      // Verify that the connection attempt fails.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        fail("Expected an exception when trying to establish " + conn);
+      }
+      catch (final LDAPException e)
+      {
+        assertEquals(e.getResultCode(), ResultCode.CONNECT_ERROR);
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the case in which the client is presented with a certificate chain
+   * a peer certificate and an issuer certificate when neither of them is in
+   * the topology registry.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIssuerCertificateNeitherPeerNorIssuerInTopologyRegistry()
+         throws Exception
+  {
+    final File caKeyStore = createTempFile();
+    assertTrue(caKeyStore.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--subject-dn", "CN=CA,O=Example Corp,C=US");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File caCertFile = createTempFile();
+    assertTrue(caCertFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--output-format", "PEM",
+         "--output-file", caCertFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File serverKeyStore = createTempFile();
+    assertTrue(serverKeyStore.delete());
+
+    final File csrFile = createTempFile();
+    assertTrue(csrFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "generate-certificate-signing-request",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-DN", "CN=ds.example.com,O=Example Corp,C=US",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--output-format", "PEM");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File certFile = createTempFile();
+    assertTrue(certFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "sign-certificate-signing-request",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--signing-certificate-alias", "ca-cert",
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to sign a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "import-certificate",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to import the signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    final List<String> unrelatedCertLines = pemCertificateLines;
+
+    try (InMemoryDirectoryServer ds = getDS(serverKeyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(unrelatedCertLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(configFile, 300_000L);
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+
+      // Verify that the connection attempt fails.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        fail("Expected an exception when trying to establish " + conn);
+      }
+      catch (final LDAPException e)
+      {
+        assertEquals(e.getResultCode(), ResultCode.CONNECT_ERROR);
       }
     }
   }
@@ -446,12 +817,12 @@ public final class TopologyRegistryTrustManagerTestCase
 
   /**
    * Tests the case in which the client is presented with a peer certificate
-   * that is not yet valid.
+   * that is not yet valid when that should not be ignored.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testPeerCertificateNotYetValid()
+  public void testPeerCertificateNotYetValidNotIgnored()
          throws Exception
   {
     final File keyStore = createTempFile();
@@ -518,12 +889,86 @@ public final class TopologyRegistryTrustManagerTestCase
 
   /**
    * Tests the case in which the client is presented with a peer certificate
-   * that is expired.
+   * that is not yet valid when that should be ignored.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testPeerCertificateExpired()
+  public void testPeerCertificateNotYetValidIgnored()
+         throws Exception
+  {
+    final File keyStore = createTempFile();
+    assertTrue(keyStore.delete());
+
+    final long tomorrowTimeMillis =
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1L);
+    final String tomorrowTimestamp =
+         StaticUtils.encodeGeneralizedTime(tomorrowTimeMillis);
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", keyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US",
+         "--validity-start-time", tomorrowTimestamp);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File pemFile = createTempFile();
+    assertTrue(pemFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", keyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--output-format", "PEM",
+         "--output-file", pemFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the self-signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final List<String> certLines = StaticUtils.readFileLines(pemFile);
+
+    try (InMemoryDirectoryServer ds = getDS(keyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(certLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManagerProperties properties =
+           new TopologyRegistryTrustManagerProperties(configFile);
+      properties.setIgnorePeerCertificateValidityWindow(true);
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(properties);
+      assertTrue(trustManager.ignorePeerCertificateValidityWindow());
+      assertFalse(trustManager.ignoreIssuerCertificateValidityWindow());
+
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+      // Verify that the connection attempt succeeds.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        assertNotNull(conn.getRootDSE());
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the case in which the client is presented with a peer certificate
+   * that is expired when that is not ignored.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPeerCertificateExpiredNotIgnored()
          throws Exception
   {
     final File keyStore = createTempFile();
@@ -590,8 +1035,83 @@ public final class TopologyRegistryTrustManagerTestCase
 
 
   /**
+   * Tests the case in which the client is presented with a peer certificate
+   * that is expired when that should be ignored.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPeerCertificateExpiredIgnored()
+         throws Exception
+  {
+    final File keyStore = createTempFile();
+    assertTrue(keyStore.delete());
+
+    final long twoYearsAgoTimeMillis =
+         System.currentTimeMillis() - TimeUnit.DAYS.toMillis(730L);
+    final String twoYearsAgoTimestamp =
+         StaticUtils.encodeGeneralizedTime(twoYearsAgoTimeMillis);
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", keyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US",
+         "--validity-start-time", twoYearsAgoTimestamp,
+         "--days-valid", "365");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File pemFile = createTempFile();
+    assertTrue(pemFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", keyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--output-format", "PEM",
+         "--output-file", pemFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the self-signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final List<String> certLines = StaticUtils.readFileLines(pemFile);
+
+    try (InMemoryDirectoryServer ds = getDS(keyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(certLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManagerProperties properties =
+           new TopologyRegistryTrustManagerProperties(configFile);
+      properties.setIgnorePeerCertificateValidityWindow(true);
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(properties);
+      assertTrue(trustManager.ignorePeerCertificateValidityWindow());
+      assertFalse(trustManager.ignoreIssuerCertificateValidityWindow());
+
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+      // Verify that the connection attempt succeeds.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        assertNotNull(conn.getRootDSE());
+      }
+    }
+  }
+
+
+
+  /**
    * Tests the case in which the client is presented with a certificate chain
-   * that contains valid peer and issuer certifictes.
+   * that contains valid peer and issuer certificates.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -711,12 +1231,12 @@ public final class TopologyRegistryTrustManagerTestCase
 
   /**
    * Tests the case in which the client is presented with an issuer certificate
-   * that is not yet valid.
+   * that is not yet valid when that is not ignored.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testIssuerCertificateNotYetValid()
+  public void testIssuerCertificateNotYetValidNotIgnored()
          throws Exception
   {
     final File caKeyStore = createTempFile();
@@ -832,12 +1352,135 @@ public final class TopologyRegistryTrustManagerTestCase
 
   /**
    * Tests the case in which the client is presented with an issuer certificate
-   * that is expired.
+   * that is not yet valid when that is ignored.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testIssuerCertificateExpired()
+  public void testIssuerCertificateNotYetValidIgnored()
+         throws Exception
+  {
+    final File caKeyStore = createTempFile();
+    assertTrue(caKeyStore.delete());
+
+    final long tomorrowTimeMillis =
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1L);
+    final String tomorrowTimestamp =
+         StaticUtils.encodeGeneralizedTime(tomorrowTimeMillis);
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--subject-dn", "CN=CA,O=Example Corp,C=US",
+         "--validity-start-time", tomorrowTimestamp);
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File caCertFile = createTempFile();
+    assertTrue(caCertFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--output-format", "PEM",
+         "--output-file", caCertFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File serverKeyStore = createTempFile();
+    assertTrue(serverKeyStore.delete());
+
+    final File csrFile = createTempFile();
+    assertTrue(csrFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "generate-certificate-signing-request",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-DN", "CN=ds.example.com,O=Example Corp,C=US",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--output-format", "PEM");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File certFile = createTempFile();
+    assertTrue(certFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "sign-certificate-signing-request",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--signing-certificate-alias", "ca-cert",
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to sign a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "import-certificate",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to import the signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final List<String> certLines = StaticUtils.readFileLines(certFile);
+
+    try (InMemoryDirectoryServer ds = getDS(serverKeyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(certLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManagerProperties properties =
+           new TopologyRegistryTrustManagerProperties(configFile);
+      properties.setIgnoreIssuerCertificateValidityWindow(true);
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(properties);
+      assertFalse(trustManager.ignorePeerCertificateValidityWindow());
+      assertTrue(trustManager.ignoreIssuerCertificateValidityWindow());
+
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+      // Verify that the connection attempt succeeds.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        assertNotNull(conn.getRootDSE());
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the case in which the client is presented with an issuer certificate
+   * that is expired when that is not ignored.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIssuerCertificateExpiredNotIgnored()
          throws Exception
   {
     final File caKeyStore = createTempFile();
@@ -946,6 +1589,130 @@ public final class TopologyRegistryTrustManagerTestCase
       catch (final LDAPException e)
       {
         assertEquals(e.getResultCode(), ResultCode.CONNECT_ERROR);
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the case in which the client is presented with an issuer certificate
+   * that is expired when that is ignored.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIssuerCertificateExpiredIgnored()
+         throws Exception
+  {
+    final File caKeyStore = createTempFile();
+    assertTrue(caKeyStore.delete());
+
+    final long twoYearsAgoTimeMillis =
+         System.currentTimeMillis() - TimeUnit.DAYS.toMillis(730L);
+    final String twoYearsAgoTimestamp =
+         StaticUtils.encodeGeneralizedTime(twoYearsAgoTimeMillis);
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ResultCode resultCode = ManageCertificates.main(null, out, out,
+         "generate-self-signed-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--subject-dn", "CN=CA,O=Example Corp,C=US",
+         "--validity-start-time", twoYearsAgoTimestamp,
+         "--days-valid", "365");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a self-signed CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File caCertFile = createTempFile();
+    assertTrue(caCertFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "export-certificate",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "ca-cert",
+         "--output-format", "PEM",
+         "--output-file", caCertFile.getAbsolutePath());
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to export the CA certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File serverKeyStore = createTempFile();
+    assertTrue(serverKeyStore.delete());
+
+    final File csrFile = createTempFile();
+    assertTrue(csrFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "generate-certificate-signing-request",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-DN", "CN=ds.example.com,O=Example Corp,C=US",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--output-format", "PEM");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to generate a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final File certFile = createTempFile();
+    assertTrue(certFile.delete());
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "sign-certificate-signing-request",
+         "--keystore", caKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--signing-certificate-alias", "ca-cert",
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to sign a certificate signing request:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    out.reset();
+    resultCode = ManageCertificates.main(null, out, out,
+         "import-certificate",
+         "--keystore", serverKeyStore.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", caCertFile.getAbsolutePath(),
+         "--alias", "server-cert",
+         "--no-prompt");
+    assertEquals(resultCode, ResultCode.SUCCESS,
+         "Failed to import the signed certificate:" + StaticUtils.EOL +
+              StaticUtils.toUTF8String(out.toByteArray()));
+
+    final List<String> certLines = StaticUtils.readFileLines(certFile);
+
+    try (InMemoryDirectoryServer ds = getDS(serverKeyStore))
+    {
+      // Create a configuration file to use for the test.
+      final File configFile = generateConfigFile(certLines, null);
+
+      // Create a trust manager and SSL util configuration.
+      final TopologyRegistryTrustManagerProperties properties =
+           new TopologyRegistryTrustManagerProperties(configFile);
+      properties.setIgnoreIssuerCertificateValidityWindow(true);
+      final TopologyRegistryTrustManager trustManager =
+           new TopologyRegistryTrustManager(properties);
+      assertFalse(trustManager.ignorePeerCertificateValidityWindow());
+      assertTrue(trustManager.ignoreIssuerCertificateValidityWindow());
+
+      final SSLUtil sslUtil = new SSLUtil(null, trustManager);
+
+      // Verify that the connection attempt succeeds.
+      try (LDAPConnection conn = new LDAPConnection(
+           sslUtil.createSSLSocketFactory(), "localhost", ds.getListenPort()))
+      {
+        assertNotNull(conn.getRootDSE());
       }
     }
   }
