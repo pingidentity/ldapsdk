@@ -597,7 +597,82 @@ public final class PasswordUpdateBehaviorRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this password update behavior request control
+   * as a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the password update behavior request
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.51".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this password update
+   *     behavior request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this password update
+   *     behavior request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code is-self-change} -- An optional Boolean field that may be
+   *         used to explicitly indicate whether the server should treat the
+   *         password update as a self change or an administrative reset.
+   *       </LI>
+   *       <LI>
+   *         {@code allow-pre-encoded-password} -- An optional Boolean field
+   *         that may be used to explicitly indicate whether the server should
+   *         allow the new password to be provided in pre-encoded form.
+   *       </LI>
+   *       <LI>
+   *         {@code skip-password-validation} -- An optional Boolean field that
+   *         may be used to explicitly indicate whether the server should skip
+   *         the password validation processing that it may otherwise perform
+   *         for the new password.
+   *       </LI>
+   *       <LI>
+   *         {@code ignore-password-history} -- An optional Boolean field that
+   *         may be used to explicitly indicate whether the server should ignore
+   *         the user's password history when determining whether to accept the
+   *         new password.
+   *       </LI>
+   *       <LI>
+   *         {@code ignore-minimum-password-age} -- An optional Boolean field
+   *         that may be used to explicitly indicate whether the server should
+   *         ignore any minimum password age constraints that may otherwise be
+   *         in place for the user.
+   *       </LI>
+   *       <LI>
+   *         {@code password-storage-scheme} -- An optional string field whose
+   *         value is the name of the password storage scheme that the server
+   *         should use when encoding the new password.
+   *       </LI>
+   *       <LI>
+   *         {@code must-change-password} -- An optional Boolean field that may
+   *         be used to explicitly indicate whether the server should require
+   *         the user to change their password before they will be allowed to
+   *         request any other operations.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

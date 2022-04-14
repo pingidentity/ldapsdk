@@ -903,7 +903,107 @@ public final class AssuredReplicationResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this assured replication response control as
+   * a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the assured replication response
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.29".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this assured
+   *     replication response control.  Exactly one of the {@code value-base64}
+   *     and {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this assured replication
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code local-level} -- An optional string field whose value is the
+   *         local assurance level used for the operation.  If present, its
+   *         value will be one of "{@code none}", "{@code received-any-server}",
+   *         or "{@code processed-all-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code local-assurance-satisfied} -- A Boolean field that indicates
+   *         whether local assurance was satisfied for the operation.
+   *       </LI>
+   *       <LI>
+   *         {@code local-assurance-message} -- An optional string field whose
+   *         value is a message that provides additional information about the
+   *         local assurance processing.
+   *       </LI>
+   *       <LI>
+   *         {@code remote-level} -- An optional string field whose value is the
+   *         remote assurance level used for the operation.  If present, its
+   *         value will be one of "{@code none}",
+   *         "{@code received-any-remote-location}",
+   *         "{@code received-all-remote-locations}", or
+   *         "{@code processed-all-remote-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code remote-assurance-satisfied} -- A Boolean field that
+   *         indicates whether remote assurance was satisfied for the operation.
+   *       </LI>
+   *       <LI>
+   *         {@code remote-assurance-message} -- An optional string field whose
+   *         value is a message that provides additional information about the
+   *         remote assurance processing.
+   *       </LI>
+   *       <LI>
+   *         {@code csn} -- An optional string field whose
+   *         value is the change sequence number that the server assigned for
+   *         the operation.
+   *       </LI>
+   *       <LI>
+   *         {@code server-results} -- An optional array field whose values are
+   *         JSON objects with information about the individual results from the
+   *         local and/or remote servers used in replication assurance
+   *         processing.  These JSON objects will use the following fields:
+   *         <UL>
+   *           <LI>
+   *             {@code result-code-value} -- An integer field whose value is
+   *             the numeric value for the
+   *             {@link AssuredReplicationServerResultCode} for the server
+   *             result.
+   *           </LI>
+   *           <LI>
+   *             {@code result-code-name} -- An optional string field whose
+   *             value is the name of the result code for the server result.
+   *           </LI>
+   *           <LI>
+   *             {@code replication-server-id} -- An optional integer field
+   *             whose value is the server ID for the associated replication
+   *             server.
+   *           </LI>
+   *           <LI>
+   *             {@code replica-id} -- An optional integer field whose value is
+   *             the replica ID for the associated replica.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

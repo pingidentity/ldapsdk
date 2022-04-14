@@ -543,7 +543,61 @@ public final class SimplePagedResultsControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this simple paged results control as a JSON
+   * object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the simple paged results control, the
+   *     OID is "1.2.840.113556.1.4.319".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this simple paged
+   *     results control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this simple paged results
+   *     control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code size} -- A mandatory integer field.  When used in a request
+   *         control, this represents the maximum number of entries that should
+   *         be returned in the next page of results.  When used in a response
+   *         control, it provides an estimate of the total number of entries
+   *         across all pages of the result set.
+   *       </LI>
+   *       <LI>
+   *         {@code cookie} -- An optional string field.  When used in a request
+   *         control, this should be empty when requesting the first page of
+   *         results, and the value of the {@code cookie} field returned in the
+   *         response control from the previous page of results.  For a response
+   *         control, this will be non-empty for all pages except the last page
+   *         of results.  The cookie value used in the JSON representation of
+   *         the control will be a base64-encoded representation of the raw
+   *         cookie value that would be used in the LDAP representation of the
+   *         control, and it must be treated as an opaque blob by the client.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

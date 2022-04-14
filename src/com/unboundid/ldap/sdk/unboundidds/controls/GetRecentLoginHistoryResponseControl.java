@@ -309,7 +309,111 @@ public final class GetRecentLoginHistoryResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this get recent login history response
+   * control as a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the get recent login history response
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.62".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this get recent
+   *     login history response control.  Exactly one of the
+   *     {@code value-base64} and {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this get recent login
+   *     history response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code successful-attempts} -- An optional array field whose values
+   *         are JSON objects with information about recent successful
+   *         authentication attempts by the user.  These JSON objects will use
+   *         the following fields:
+   *         <UL>
+   *           <LI>
+   *             {@code successful} -- A Boolean field that indicates whether
+   *             the attempt was successful.  For JSON objects in the
+   *             {@code successful-attempts} field, the value of this field will
+   *             always be {@code true}.
+   *           </LI>
+   *           <LI>
+   *             {@code timestamp} -- A string field whose value is a timestamp
+   *             (in the ISO 8601 format described in RFC 3339) for the
+   *             associated authentication attempt.
+   *           </LI>
+   *           <LI>
+   *             {@code authentication-method} -- A string field whose value is
+   *             the name of the attempted authentication method.
+   *           </LI>
+   *           <LI>
+   *             {@code client-ip-address} -- A string field whose value is
+   *             the IP address of the client that tried to authenticate.
+   *           </LI>
+   *           <LI>
+   *             {@code additional-attempt-count} -- An optional integer field
+   *             whose value is the number of additional similar successful
+   *             attempts on the same date for the same user.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *       <LI>
+   *         {@code failed-attempts} -- An optional array field whose values
+   *         are JSON objects with information about recent failed
+   *         authentication attempts by the user.  These JSON objects will use
+   *         the following fields:
+   *         <UL>
+   *           <LI>
+   *             {@code successful} -- A Boolean field that indicates whether
+   *             the attempt was successful.  For JSON objects in the
+   *             {@code failed-attempts} field, the value of this field will
+   *             always be {@code false}.
+   *           </LI>
+   *           <LI>
+   *             {@code timestamp} -- A string field whose value is a timestamp
+   *             (in the ISO 8601 format described in RFC 3339) for the
+   *             associated authentication attempt.
+   *           </LI>
+   *           <LI>
+   *             {@code authentication-method} -- A string field whose value is
+   *             the name of the attempted authentication method.
+   *           </LI>
+   *           <LI>
+   *             {@code client-ip-address} -- A string field whose value is
+   *             the IP address of the client that tried to authenticate.
+   *           </LI>
+   *           <LI>
+   *             {@code failure-reason} -- A string field whose value is
+   *             a general reason that the authentication attempt failed.
+   *           </LI>
+   *           <LI>
+   *             {@code additional-attempt-count} -- An optional integer field
+   *             whose value is the number of additional similar successful
+   *             attempts on the same date for the same user.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

@@ -406,7 +406,218 @@ public final class JoinRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this join request control as a JSON object.
+   * The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the join request control, the OID is
+   *     "1.3.6.1.4.1.30221.2.5.9".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this join request
+   *     control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this join request
+   *     control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code join-rule} -- A mandatory JSON object field that provides
+   *         the primary criteria to use when selecting entries to be joined
+   *         with search result entries.  The format for join rule objects will
+   *         be described in more detail below.
+   *       </LI>
+   *       <LI>
+   *         {@code base-dn-type} -- A mandatory string field that indicates
+   *         who the server should determine the base DN to use for join
+   *         processing.  The value must be one of "{@code use-search-base-dn}",
+   *         "{@code use-source-entry-dn}", or "{@code use-custom-base-dn}".
+   *       </LI>
+   *       <LI>
+   *         {@code base-dn-value} -- An optional string field that provides the
+   *         custom base DN value to use if the {@code base-dn-type} value was
+   *         "{@code use-custom-base-dn}".  This field must be present if the
+   *         {@code base-dn-type} value was "{@code use-custom-base-dn}", and it
+   *         must be absent for other {@code base-dn-type} values.
+   *       </LI>
+   *       <LI>
+   *         {@code scope} -- An optional string field whose value specifies the
+   *         scope to use for join processing.  If present, the value must be
+   *         one of "{@code baseObject}", "{@code singleLevel}",
+   *         "{@code wholeSubtree}", or "{@code subordinateSubtree}".  If this
+   *         is not specified, the scope from the search request will be used.
+   *       </LI>
+   *       <LI>
+   *         {@code alias-dereferencing-behavior} -- An optional string field
+   *         whose value specifies the behavior to use for dereferencing any
+   *         aliases encountered during join processing.  If present, the value
+   *         must be one of "{@code neverDerefAliases}",
+   *         "{@code derefInSearching}", "{@code derefInFindingBaseObj}", or
+   *         {@code derefAlways}".  If this is not specified, the dereferencing
+   *         behavior from the search request will be used.
+   *       </LI>
+   *       <LI>
+   *         {@code size-limit} -- An optional integer field whose value
+   *         specifies the maximum number of entries that may be joined with any
+   *         single search
+   *         result entry.
+   *       </LI>
+   *       <LI>
+   *         {@code filter} -- An optional string field whose value is the
+   *         string representation of a filter that will be required to match an
+   *         entry for it to be joined with a search result entry.
+   *       </LI>
+   *       <LI>
+   *         {@code attributes} -- An optional array field whose values are
+   *         strings that are the names of attributes to include in joined
+   *         entries.
+   *       </LI>
+   *       <LI>
+   *         {@code require-match} -- A mandatory Boolean field that indicates
+   *         whether to suppress a search result entry from the set of results
+   *         to the client if it is not joined with any other entries.
+   *       </LI>
+   *       <LI>
+   *         {@code nested-join} -- An optional JSON object field whose value
+   *         represents the join criteria for a nested join operation.  If
+   *         present, the fields in this object are the same as the fields that
+   *         may be used in the top-level {@code value-json} field (optionally
+   *         including another {@code nested-jon} element if desired).
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   * <BR><BR>
+   * The following encodings may be used for different types of join rules:
+   * <UL>
+   *   <LI>
+   *     The fields that may be used for a DN join include:
+   *     <UL>
+   *       <LI>
+   *         {@code type} -- A mandatory string field whose value must be
+   *         "{@code dn}".
+   *       </LI>
+   *       <LI>
+   *         {@code source-attribute} -- A mandatory string field whose value is
+   *         the name of the attribute in the source entry that contains the DNs
+   *         of the entries to be joined with that entry.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     The fields that may be used for a reverse DN join include:
+   *     <UL>
+   *       <LI>
+   *         {@code type} -- A mandatory string field whose value must be
+   *         "{@code reverse-dn}".
+   *       </LI>
+   *       <LI>
+   *         {@code target-attribute} -- A mandatory string field whose value is
+   *         the name of the attribute in joined entries that contains a value
+   *         that matches the DN of the source entry.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     The fields that may be used for an equality join include:
+   *     <UL>
+   *       <LI>
+   *         {@code type} -- A mandatory string field whose value must be
+   *         "{@code equality}".
+   *       </LI>
+   *       <LI>
+   *         {@code source-attribute} -- A mandatory string field whose value is
+   *         the name of an attribute in the source entry whose values will be
+   *         used to identify entries to be joined with that source entry.
+   *       </LI>
+   *       <LI>
+   *         {@code target-attribute} -- A mandatory string field whose value is
+   *         the name of the attribute in joined entries that must contain at
+   *         least one of the values from the source attribute in the source
+   *         entry.
+   *       </LI>
+   *       <LI>
+   *         {@code match-all} -- A mandatory Boolean field that indicates
+   *         whether to only join entries in which the target attribute contains
+   *         all of the values of the source attribute.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     The fields that may be used for a contains join include:
+   *     <UL>
+   *       <LI>
+   *         {@code type} -- A mandatory string field whose value must be
+   *         "{@code contains}".
+   *       </LI>
+   *       <LI>
+   *         {@code source-attribute} -- A mandatory string field whose value is
+   *         the name of an attribute in the source entry whose values will be
+   *         used to identify entries to be joined with that source entry.
+   *       </LI>
+   *       <LI>
+   *         {@code target-attribute} -- A mandatory string field whose value is
+   *         the name of the attribute in joined entries that must contain at
+   *         least one value that includes the value of a source attribute as a
+   *         substring.
+   *       </LI>
+   *       <LI>
+   *         {@code match-all} -- A mandatory Boolean field that indicates
+   *         whether to only join entries in which the target attribute contains
+   *         values that contain all of the values of the source attribute as
+   *         substrings.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     The fields that may be used for an AND join include:
+   *     <UL>
+   *       <LI>
+   *         {@code type} -- A mandatory string field whose value must be
+   *         "{@code and}".
+   *       </LI>
+   *       <LI>
+   *         {@code rules} -- A mandatory, non-empty array field whose values
+   *         are the JSON objects that represent the nested join rules that must
+   *         all match an entry for it to be joined with the source entry.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     The fields that may be used for an OR join include:
+   *     <UL>
+   *       <LI>
+   *         {@code type} -- A mandatory string field whose value must be
+   *         "{@code or}".
+   *       </LI>
+   *       <LI>
+   *         {@code rules} -- A mandatory, non-empty array field whose values
+   *         are the JSON objects that represent the nested join rules of which
+   *         at least one must match an entry for it to be joined with the
+   *         source entry.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

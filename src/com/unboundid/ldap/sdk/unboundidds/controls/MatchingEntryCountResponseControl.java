@@ -1215,7 +1215,84 @@ public final class MatchingEntryCountResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this matching entry count response control as
+   * a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the matching entry count response
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.37".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this matching entry
+   *     count response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this matching entry count
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code count-type} -- A string field whose value indicates how
+   *         accurate the count is.  The value will be one of
+   *         "{@code examined-count}", "{@code unexamined-count}",
+   *         "{@code upper-bound}", or "{@code unknown}".
+   *       </LI>
+   *       <LI>
+   *         {@code count-value} -- An optional integer field whose value is the
+   *         matching entry count estimate returned by the server.  This will
+   *         be absent for a {@code count-type} value of "{@code unknown}", and
+   *         will be present for other {@code count-type} values.
+   *       </LI>
+   *       <LI>
+   *         {@code search-indexed} -- A Boolean field that indicates whether
+   *         the server considers the search to be at least partially indexed.
+   *       </LI>
+   *       <LI>
+   *         {@code fully-indexed} -- An optional Boolean field that indicates
+   *         whether the server considers the search to be fully indexed.
+   *       </LI>
+   *       <LI>
+   *         {@code short-circuited} -- An optional Boolean field that indicates
+   *         whether the server short-circuited at any point in evaluating the
+   *         search criteria.
+   *       </LI>
+   *       <LI>
+   *         {@code candidates-are-in-scope} -- An optional Boolean field that
+   *         indicates whether the server knows that all identified candidate
+   *         entries are within the scope of the search.
+   *       </LI>
+   *       <LI>
+   *         {@code remaining-filter} -- An optional string field whose value is
+   *         the portion of the filter that was not evaluated during the course
+   *         of coming up with the estimate.
+   *       </LI>
+   *       <LI>
+   *         {@code debug-info} -- An optional array field whose values are
+   *         strings with debug information about the processing performed by
+   *         the server in the course of determining the matching entry count
+   *         estimate.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

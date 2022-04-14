@@ -963,7 +963,90 @@ public final class VirtualListViewRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this virtual list view request control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the virtual list view request
+   *     control, the OID is "2.16.840.1.113730.3.4.9".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this virtual list
+   *     view request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this virtual list view
+   *     request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code target-offset} -- An optional integer field whose value is
+   *         the offset of the target entry within the result set, with the
+   *         first entry in the result set having an offset value of one.
+   *         Exactly one of the {@code target-offset} and
+   *         {@code assertion-value} fields must be provided.
+   *       </LI>
+   *       <LI>
+   *         {@code assertion-value} -- An optional string field that indicates
+   *         that the target entry should be the first one in the result set in
+   *         which the value of the primary sort attribute is greater than or
+   *         equal to the provided assertion value.  Exactly one of the
+   *         {@code target-offset} and {@code assertion-value} fields must be
+   *         provided.
+   *       </LI>
+   *       <LI>
+   *         {@code before-count} -- A mandatory integer field whose value is
+   *         the maximum number of entries before the target entry that should
+   *         be included in the page of results to return.
+   *       </LI>
+   *       <LI>
+   *         {@code after-count} -- A mandatory integer field whose value is
+   *         the maximum number of entries after the target entry that should
+   *         be included in the page of results to return.
+   *       </LI>
+   *       <LI>
+   *         {@code content-count} -- An optional integer field that represents
+   *         the estimated number of entries in the entire result set.  This
+   *         field may only be present when the {@code target-offset} field is
+   *         also provided, and its value may be absent or zero when retrieving
+   *         the first page of results, and it should be the
+   *         {@code content-count} value returned in the previous virtual list
+   *         view response control for all subsequent pages.
+   *       </LI>
+   *       <LI>
+   *         {@code context-id} -- An optional string field that represents an
+   *         opaque cookie that may be used to help the server continue a series
+   *         of searches using the virtual list view request control.  For the
+   *         first search in a series, this should be absent.  For all
+   *         subsequent requests in the series, it should be the
+   *         {@code context-id} value (if any) included in the response control
+   *         from the previous page of the series.  The context ID value used in
+   *         the JSON representation of the control will be a base64-encoded
+   *         representation of the raw cookie value that would be used in the
+   *         LDAP representation of the control, and it must be treated as an
+   *         opaque blob by the client.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

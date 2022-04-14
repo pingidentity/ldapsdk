@@ -905,19 +905,44 @@ public class Control
 
 
   /**
-   * Retrieves a representation of this control as a JSON object.  The object
-   * will include an {@code oid} field with the object identifier and a
-   * {@code criticality} field with the criticality.  If the control has a
-   * value, then it will include a {@code value-base64} field with a
-   * base64-encoded representation of the value.  Subclasses may override this
-   * method to provide a control-specific encoding, and they may use the
-   * {@code value-json} field as an alternative to {@code value-base64} to
-   * provide a more user-friendly representation of the value.  There may also
-   * be an optional {@code control-name} field that provides a user-friendly
-   * name for the control, but that field is only intended for descriptive
-   * purposes and should not be used in the course of decoding a control.
+   * Retrieves a representation of this control as a JSON object.  The JSON
+   * object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this control.  At
+   *     most one of the {@code value-base64} and {@code value-json} fields may
+   *     be present, and both fields will be absent for controls that do not
+   *     have a value.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly, control-specific representation of the value for this
+   *     control.  This representation of the value is only available for
+   *     certain types of controls, and subclasses will override this method to
+   *     provide an appropriate representation of that value, and their Javadoc
+   *     documentation will describe the fields that may be present in the
+   *     value.  At most one of the  {@code value-base64} and {@code value-json}
+   *     fields may be present, and both fields will be absent for controls that
+   *     do not have a value.
+   *   </LI>
+   * </UL>
    *
-   * @return  A representation of this control as a JSON object.
+   * @return  A JSON object that contains a representation of this control.
    */
   @NotNull()
   public JSONObject toJSONControl()

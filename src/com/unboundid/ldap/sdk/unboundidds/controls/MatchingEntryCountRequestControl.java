@@ -1171,7 +1171,88 @@ public final class MatchingEntryCountRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this matching entry count request control as
+   * a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the matching entry count request
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.36".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this matching entry
+   *     count request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this matching entry count
+   *     request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code maximum-candidates-to-examine} -- An optional integer field
+   *         whose value indicates the maximum number of entries that the server
+   *         should retrieve and examine to determine whether they actually
+   *         match the search criteria and would be returned to the client.
+   *       </LI>
+   *       <LI>
+   *         {@code always-examine-candidates} -- An optional Boolean field that
+   *         indicates whether the server should always examine candidates to
+   *         determine whether they would actually be returned to the client,
+   *         even if the search is fully indexed and the server knows that all
+   *         candidates match the search criteria.
+   *       </LI>
+   *       <LI>
+   *         {@code process-search-if-unindexed} -- An optional Boolean field
+   *         that indicates whether the server should attempt to process the
+   *         search even if the search criteria is completely unindexed.
+   *       </LI>
+   *       <LI>
+   *         {@code include-debug-info} -- An optional Boolean field
+   *         that indicates whether the server should return debug information
+   *         in the response control about the processing it performed in the
+   *         course of determining the matching entry count estimate.
+   *       </LI>
+   *       <LI>
+   *         {@code skip-resolving-exploded-indexes} -- An optional Boolean
+   *         field that indicates whether the server should skip the step of
+   *         resolving exploded indexes in cases where the size of the ID set is
+   *         known.
+   *       </LI>
+   *       <LI>
+   *         {@code fast-short-circuit-threshold} -- An optional integer field
+   *         whose value is the short-circuit threshold that the server should
+   *         use for "fast" filter components.
+   *       </LI>
+   *       <LI>
+   *         {@code slow-short-circuit-threshold} -- An optional integer field
+   *         whose value is the short-circuit threshold that the server should
+   *         use for "slow" filter components.
+   *       </LI>
+   *       <LI>
+   *         {@code include-extended-response-data} -- An optional Boolean field
+   *         that indicates whether the server should include extended
+   *         information in the response control.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

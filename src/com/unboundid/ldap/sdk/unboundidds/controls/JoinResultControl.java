@@ -616,7 +616,72 @@ public final class JoinResultControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this join result control as a JSON object.
+   * The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the join result control, the OID is
+   *     "1.3.6.1.4.1.30221.2.5.9".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this join result
+   *     control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this join result control.
+   *     Exactly one of the {@code value-base64} and {@code value-json} fields
+   *     must be present, and if the {@code value-json} field is used, then it
+   *     will use the following fields:
+   *     <UL>
+   *       <LI>
+   *         {@code result-code} -- An integer field whose value is the numeric
+   *         representation of the LDAP result code for join processing.
+   *       </LI>
+   *       <LI>
+   *         {@code matched-dn} -- An optional string field whose value is the
+   *         matched DN for the join processing.
+   *       </LI>
+   *       <LI>
+   *         {@code diagnostic-message} -- An optional string field whose value
+   *         is a diagnostic message with additional information about the join
+   *         processing.
+   *       </LI>
+   *       <LI>
+   *         {@code referral-urls} -- An optional array field whose values are
+   *         strings that represent referral URLs encountered while performing
+   *         join processing.
+   *       </LI>
+   *       <LI>
+   *         {@code joined-entries} -- An array field whose values are JSON
+   *         objects that reference entries that were joined with the source
+   *         entry.  Each of these JSON objects will include a
+   *         "{@code _dn}" string field whose value is the DN of the entry and
+   *         an optional "{@code _nested-join-results}" array field whose values
+   *         are JSON objects that represent nested join results.  Any other
+   *         fields in the JSON objects represent attributes in the joined
+   *         entry, with the name of the field representing the name of the
+   *         attribute, and the value of the field being an array of strings
+   *         representing the values of that attribute.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

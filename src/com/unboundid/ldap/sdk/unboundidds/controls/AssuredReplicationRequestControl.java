@@ -769,7 +769,86 @@ public final class AssuredReplicationRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this assured replication request control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the assured replication request
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.28".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this assured
+   *     replication request control.  Exactly one of the {@code value-base64}
+   *     and {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this assured replication
+   *     request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code minimum-local-level} -- An optional string field whose
+   *         value is the name of the minimum assurance level desired for
+   *         replicas in the same location as the target server.  The value may
+   *         be one of "{@code none}", "{@code received-any-server}", or
+   *         "{@code processed-all-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code maximum-local-level} -- An optional string field whose
+   *         value is the name of the maximum assurance level desired for
+   *         replicas in the same location as the target server.  The value may
+   *         be one of "{@code none}", "{@code received-any-server}", or
+   *         "{@code processed-all-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code minimum-remote-level} -- An optional string field whose
+   *         value is the name of the minimum assurance level desired for
+   *         replicas in a different location from the target server.  The value
+   *         may be one of "{@code none}",
+   *         "{@code received-any-remote-location}",
+   *         "{@code received-all-remote-locations}", or
+   *         "{@code processed-all-remote-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code maximum-remote-level} -- An optional string field whose
+   *         value is the name of the maximum assurance level desired for
+   *         replicas in a different location from the target server.  The value
+   *         may be one of "{@code none}",
+   *         "{@code received-any-remote-location}",
+   *         "{@code received-all-remote-locations}", or
+   *         "{@code processed-all-remote-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code timeout-millis} -- An optional integer field whose value is
+   *         the maximum length of time in milliseconds that the server should
+   *         wait for assurance to be satisfied.
+   *       </LI>
+   *       <LI>
+   *         {@code send-response-immediately} -- A mandatory Boolean field that
+   *         indicates whether the server should return the response to the
+   *         client immediately after applying the change locally, even if it
+   *         has not yet been replicated.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

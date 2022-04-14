@@ -1120,7 +1120,105 @@ public final class UniquenessRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this uniqueness request control as a JSON
+   * object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the uniqueness request control, the
+   *     OID is "1.3.6.1.4.1.30221.2.5.52".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this uniqueness
+   *     request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this uniqueness request
+   *     control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code uniqueness-id} -- An optional string field that holds a
+   *         unique identifier for this uniqueness control instance.
+   *       </LI>
+   *       <LI>
+   *         {@code attribute-types} -- An optional array field whose values are
+   *         the names of the attribute types for which to impose uniqueness.
+   *         It may be empty or absent if uniqueness should only be enforced
+   *         using a filter.
+   *       </LI>
+   *       <LI>
+   *         {@code multiple-attribute-behavior} -- An optional string field
+   *         whose value indicates the behavior that should be used if multiple
+   *         unique attribute types are requested.  If present, the value should
+   *         be one of "{@code unique-within-each-attribute}",
+   *         "{@code unique-across-all-attributes-including-in-the-same-entry}",
+   *         "{@code unique-across-all-attributes-except-in-the-same-entry}", or
+   *         "{@code unique-in-combination}".
+   *       </LI>
+   *       <LI>
+   *         {@code base-dn} -- An optional string field whose value is the base
+   *         DN that will be used for searches used to identify uniqueness
+   *         conflicts.
+   *       </LI>
+   *       <LI>
+   *         {@code filter} -- An optional string field whose value is the
+   *         string representation of a search filter that will be used to
+   *         identify uniqueness conflicts.
+   *       </LI>
+   *       <LI>
+   *         {@code prevent-conflicts-with-soft-deleted-entries} -- An optional
+   *         Boolean field that indicates whether the server should consider
+   *         soft-deleted entries when looking for conflicts.
+   *       </LI>
+   *       <LI>
+   *         {@code pre-commit-validation-level} -- A mandatory string field
+   *         whose value specifies the level of validation that the server
+   *         should perform before attempting to apply the change.  The value
+   *         must be one of "{@code none}", "{@code all-subtree-views}",
+   *         "{@code all-backend-sets}", or
+   *         "{@code all-available-backend-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code post-commit-validation-level} -- A mandatory string field
+   *         whose value specifies the level of validation that the server
+   *         should perform after applying the change.  The value must be one of
+   *         "{@code none}", "{@code all-subtree-views}",
+   *         "{@code all-backend-sets}", or
+   *         "{@code all-available-backend-servers}".
+   *       </LI>
+   *       <LI>
+   *         {@code alert-on-post-commit-conflict-detection} -- An optional
+   *         Boolean field that indicates whether the server should raise an
+   *         administrative alert if a conflict was detected after the change
+   *         was applied.
+   *       </LI>
+   *       <LI>
+   *         {@code create-conflict-prevention-details-entry} -- An optional
+   *         Boolean field that indicates whether the server should create a
+   *         temporary entry that can improve its ability to detect conflicts
+   *         before they happen.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

@@ -921,7 +921,66 @@ public final class RouteToBackendSetRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this route to backend set request control as
+   * a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the route to backend set request
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.35".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this route to
+   *     backend set request control.  Exactly one of the {@code value-base64}
+   *     and {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this route to backend set
+   *     request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code request-processor} -- A mandatory string field whose value
+   *         is an identifier for the entry-balancing request processor to which
+   *         this control applies.
+   *       </LI>
+   *       <LI>
+   *         {@code routing-type} -- A mandatory string field whose value
+   *         specifies the type of routing to perform.  The value must be one
+   *         of "{@code absolute-routing}" or "{@code routing-hint}".
+   *       </LI>
+   *       <LI>
+   *         {@code backend-set-ids} -- A mandatory, non-empty array field whose
+   *         values are strings that specify the primary backend set(s) to use.
+   *       </LI>
+   *       <LI>
+   *         {@code fallback-backend-set-ids} -- An optional array field whose
+   *         values specify alternative backend sets that may be used if the
+   *         {@code routing-type} value is "{@code routing-hint}" and the
+   *         requested operation fails in the primary backend sets.  This field
+   *         must not be provided with a {@code routing-type} value of
+   *         "{@code absolute-routing}", and it may optionally be used with a
+   *         {@code routing-type} value of "{@code routing-hint}".
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

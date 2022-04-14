@@ -905,7 +905,74 @@ public final class AccountUsableResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this account usable response control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the account usable response control,
+   *     the OID is "1.3.6.1.4.1.42.2.27.9.5.8".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this account usable
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this account usable
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code account-is-usable} -- A Boolean field that indicates whether
+   *         the account is in a usable state.
+   *       </LI>
+   *       <LI>
+   *         {@code seconds-until-password-expiration} -- An optional integer
+   *         field whose value is the number of seconds until the user's
+   *         password expires.
+   *       </LI>
+   *       <LI>
+   *         {@code account-is-inactive} -- A Boolean field that indicates
+   *         whether the account has been administratively disabled.
+   *       </LI>
+   *       <LI>
+   *         {@code must-change-password} -- A Boolean field that indicates
+   *         whether the user must change their password before they can request
+   *         any other operations
+   *       </LI>
+   *       <LI>
+   *         {@code password-is-expired} -- A Boolean field that indicates
+   *         whether the user's password is expired.
+   *       </LI>
+   *       <LI>
+   *         {@code remaining-grace-logins} -- An optional integer field whose
+   *         value is the number of remaining grace logins for the user.
+   *       </LI>
+   *       <LI>
+   *         {@code seconds-until-unlock} -- An optional integer field whose
+   *         value is the number of seconds until the user's account will be
+   *         automatically unlocked.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

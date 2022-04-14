@@ -193,7 +193,29 @@ public final class NoOpRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this no-op request control as a JSON object.
+   * The JSON object uses the following fields (note that since this control
+   * does not have a value, neither the {@code value-base64} nor
+   * {@code value-json} fields may be present):
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the no-op request control, the OID is
+   *     "1.3.6.1.4.1.4203.1.10.2".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

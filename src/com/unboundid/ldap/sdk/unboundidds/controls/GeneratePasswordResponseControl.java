@@ -503,7 +503,57 @@ public final class GeneratePasswordResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this generate password response control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the generate password response
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.59".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this generate
+   *     password response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this generate password
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code generated-password} -- A string field whose value is the
+   *         password that was generated for the entry.
+   *       </LI>
+   *       <LI>
+   *         {@code must-change-password} -- A Boolean field that indicates
+   *         whether the user must choose a new password before they will be
+   *         allowed to request any other operations.
+   *       </LI>
+   *       <LI>
+   *         {@code seconds-until-expiration} -- An optional integer field whose
+   *         value is the number of seconds until the generated password
+   *         expires.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

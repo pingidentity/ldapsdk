@@ -656,7 +656,78 @@ public final class PasswordPolicyResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this password policy response control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the password policy response control,
+   *     the OID is "1.3.6.1.4.1.42.2.27.8.5.1".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this password policy
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this password policy
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code warning} -- An optional JSON object field whose value
+   *         represents a warning about the user's password policy state.  If
+   *         present, the JSON object must contain exactly one of the following
+   *         fields:
+   *         <UL>
+   *           <LI>
+   *             {@code seconds-until-expiration} -- An integer field whose
+   *             value is the number of seconds until the user's password
+   *             expires.
+   *           </LI>
+   *           <LI>
+   *             {@code grace-logins-remaining} -- An integer field whose value
+   *             value is the number of grace login attempts that the user has
+   *             left.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *       <LI>
+   *         {@code error-type} -- An optional string field whose value
+   *         represents a password policy error condition that applies to the
+   *         associated operation.  If present, its value will be one of the
+   *         following:
+   *         <UL>
+   *           <LI>{@code password-expired}</LI>
+   *           <LI>{@code account-locked}</LI>
+   *           <LI>{@code change-after-reset}</LI>
+   *           <LI>{@code password-mod-not-allowed}</LI>
+   *           <LI>{@code must-supply-old-password}</LI>
+   *           <LI>{@code insufficient-password-quality}</LI>
+   *           <LI>{@code password-too-short}</LI>
+   *           <LI>{@code password-too-young}</LI>
+   *           <LI>{@code password-in-history}</LI>
+   *         </UL>
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

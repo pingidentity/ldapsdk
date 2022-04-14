@@ -493,7 +493,75 @@ public final class IntermediateClientResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this intermediate client response control as
+   * a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the intermediate client response
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.2".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this intermediate
+   *     client response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this intermediate client
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code upstream-response} -- An optional JSON object field whose
+   *         content represents an upstream response value.  If present, the
+   *         fields of this object are the same as the fields that may be
+   *         included in the top-level {@code value-json} object (optionally
+   *         including a nested {@code upstream-response} field, if
+   *         appropriate).
+   *       </LI>
+   *       <LI>
+   *         {@code upstream-server-address} -- An optional string field whose
+   *         value is the address of an upstream server to which the requested
+   *         operation was forwarded.
+   *       </LI>
+   *       <LI>
+   *         {@code upstream-server-secure} -- An optional Boolean field that
+   *         indicates whether communication with an upstream server occurred
+   *         over a secure channel.
+   *       </LI>
+   *       <LI>
+   *         {@code server-name} -- An optional string field whose value is the
+   *         name of the application used to process the request.
+   *       </LI>
+   *       <LI>
+   *         {@code server-session-id} -- An optional string field whose value
+   *         is an identifier that the server is using to reference the current
+   *         communication session with the client.
+   *       </LI>
+   *       <LI>
+   *         {@code server-response-id} -- An optional string field whose value
+   *         is an identifier that the server is using to reference the current
+   *         operation being processed.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

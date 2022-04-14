@@ -463,7 +463,66 @@ public final class VirtualListViewResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this virtual list view response control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the virtual list view response
+   *     control, the OID is "2.16.840.1.113730.3.4.10".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this virtual list
+   *     view response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this virtual list view
+   *     response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code result-code} -- An integer field whose value is the numeric
+   *         representation of the result code for the virtual list view
+   *         processing.
+   *       </LI>
+   *       <LI>
+   *         {@code target-position} -- An integer field whose value is the
+   *         offset for the targeted entry in the entire result set.
+   *         processing.
+   *       </LI>
+   *       <LI>
+   *         {@code content-count} -- An integer field whose value is the
+   *         estimated total number of entries in the entire result set.
+   *       </LI>
+   *       <LI>
+   *         {@code context-id} -- An optional string field whose value
+   *         represents an opaque cookie that may be used to help the server
+   *         continue returning results in the series of VLV searches.  The
+   *         context ID value used in the JSON representation of the control
+   *         will be a base64-encoded representation of the raw cookie value
+   *         that would be used in the LDAP representation of the control, and
+   *         it must be treated as an opaque blob by the client.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

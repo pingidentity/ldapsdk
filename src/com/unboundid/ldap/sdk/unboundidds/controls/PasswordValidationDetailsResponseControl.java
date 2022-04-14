@@ -792,7 +792,114 @@ public final class PasswordValidationDetailsResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this password validation details response
+   * control as a JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the password validation details
+   *     response control, the OID is "1.3.6.1.4.1.30221.2.5.41".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this password
+   *     validation details response control.  Exactly one of the
+   *     {@code value-base64} and {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this password validation
+   *     details response control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code response-type} -- A string field that specifies the result
+   *         of the password validation processing for the attempt.  The value
+   *         will be one of "{@code validation-performed}",
+   *         "{@code no-password-provided}",
+   *         "{@code multiple-passwords-provided}", or
+   *         "{@code no-validation-attempted}".
+   *       </LI>
+   *       <LI>
+   *         {@code validation-details} -- An optional array field whose values
+   *         are JSON objects with information about the types of validation
+   *         performed for the new password.  The fields that may be used in
+   *         these JSON objects include:
+   *         <UL>
+   *           <LI>
+   *             {@code password-quality-requirement} -- A JSON object whose
+   *             value provides information about a password quality requirement
+   *             that was evaluated.  The fields used in these JSON objects
+   *             include:
+   *             <UL>
+   *               <LI>
+   *                 {@code description} -- A string field whose value is a
+   *                 user-friendly description of the password quality
+   *                 requirement.
+   *               </LI>
+   *               <LI>
+   *                 {@code client-side-validation-type} -- An optional string
+   *                 field whose value is an identifier that the client can use
+   *                 to programmatically determine the type of requirement.
+   *               </LI>
+   *               <LI>
+   *                 {@code client-side-validation-properties} -- An optional
+   *                 array field whose values are JSON objects with additional
+   *                 properties that the client can use in the course of
+   *                 programmatically determining whether a proposed password is
+   *                 likely to satisfy the requirement.  Each of these JSON
+   *                 objects will include a {@code name} field whose value is a
+   *                 string that specifies the property name, and a
+   *                 {@code value} field whose value is a string that specifies
+   *                 the property value.
+   *               </LI>
+   *             </UL>
+   *           </LI>
+   *           <LI>
+   *             {@code requirement-satisfied} -- A Boolean field that indicates
+   *             whether the provided new password satisfies the password
+   *             quality requirement.
+   *           </LI>
+   *           <LI>
+   *             {@code additional-information} -- An optional string field
+   *             whose value provides additional information about the
+   *             validation for the associated requirement.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *       <LI>
+   *         {@code missing-current-password} -- A Boolean field that indicates
+   *         whether the server requires the user's current password to be
+   *         provided when choosing a new password, but that password was not
+   *         provided.
+   *       </LI>
+   *       <LI>
+   *         {@code must-change-password} -- A Boolean field that indicates
+   *         whether the user will be required to choose a new password before
+   *         they will be allowed to request any other operations.
+   *       </LI>
+   *       <LI>
+   *         {@code seconds-until-expiration} -- An optional integer field whose
+   *         value is the number of seconds until the new password will
+   *         expire.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

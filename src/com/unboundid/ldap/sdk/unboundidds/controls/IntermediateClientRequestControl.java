@@ -466,7 +466,80 @@ public final class IntermediateClientRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this intermediate client request control as a
+   * JSON object.  The JSON object uses the following fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the intermediate client request
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.2".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this intermediate
+   *     client request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this intermediate client
+   *     request control.  Exactly one of the {@code value-base64} and
+   *     {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code downstream-request} -- An optional JSON object field whose
+   *         content represents a downstream request value.  If present, the
+   *         fields of this object are the same as the fields that may be
+   *         included in the top-level {@code value-json} object (optionally
+   *         including a nested {@code downstream-request} field, if
+   *         appropriate).
+   *       </LI>
+   *       <LI>
+   *         {@code downstream-client-address} -- An optional string field whose
+   *         value is the address of the immediate client from which the request
+   *         was received.
+   *       </LI>
+   *       <LI>
+   *         {@code downstream-client-secure} -- An optional Boolean field that
+   *         indicates whether communication with the immediate client is using
+   *         a secure channel.
+   *       </LI>
+   *       <LI>
+   *         {@code client-identity} -- An optional string field whose value is
+   *         the authorization identity of a user as whom the operation should
+   *         be authorized.
+   *       </LI>
+   *       <LI>
+   *         {@code client-name} -- An optional string field whose value is the
+   *         name of the client application that generated this control.
+   *       </LI>
+   *       <LI>
+   *         {@code client-session-id} -- An optional string field whose value
+   *         is an identifier that the client is using to reference the current
+   *         communication session with a downstream client.
+   *       </LI>
+   *       <LI>
+   *         {@code client-request-id} -- An optional string field whose value
+   *         is an identifier that the client is using to reference this request
+   *         from a downstream client.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

@@ -161,7 +161,29 @@ public final class PermitUnindexedSearchRequestControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this permit unindexed search request control
+   * as a JSON object.  The JSON object uses the following fields (note that
+   * since this control does not have a value, neither the {@code value-base64}
+   * nor {@code value-json} fields may be present):
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the permit unindexed search request
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.55".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()

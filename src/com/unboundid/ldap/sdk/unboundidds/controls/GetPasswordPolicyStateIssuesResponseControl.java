@@ -811,7 +811,129 @@ public final class GetPasswordPolicyStateIssuesResponseControl
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a representation of this get password policy state issues
+   * response control as a JSON object.  The JSON object uses the following
+   * fields:
+   * <UL>
+   *   <LI>
+   *     {@code oid} -- A mandatory string field whose value is the object
+   *     identifier for this control.  For the get password policy state issues
+   *     response control, the OID is "1.3.6.1.4.1.30221.2.5.47".
+   *   </LI>
+   *   <LI>
+   *     {@code control-name} -- An optional string field whose value is a
+   *     human-readable name for this control.  This field is only intended for
+   *     descriptive purposes, and when decoding a control, the {@code oid}
+   *     field should be used to identify the type of control.
+   *   </LI>
+   *   <LI>
+   *     {@code criticality} -- A mandatory Boolean field used to indicate
+   *     whether this control is considered critical.
+   *   </LI>
+   *   <LI>
+   *     {@code value-base64} -- An optional string field whose value is a
+   *     base64-encoded representation of the raw value for this get password
+   *     policy state issues response control.  Exactly one of the
+   *     {@code value-base64} and {@code value-json} fields must be present.
+   *   </LI>
+   *   <LI>
+   *     {@code value-json} -- An optional JSON object field whose value is a
+   *     user-friendly representation of the value for this get password policy
+   *     state issues response control.  Exactly one of the {@code value-base64}
+   *     and {@code value-json} fields must be present, and if the
+   *     {@code value-json} field is used, then it will use the following
+   *     fields:
+   *     <UL>
+   *       <LI>
+   *         {@code notices} -- An optional array field containing JSON objects
+   *         with information about any
+   *         {@link PasswordPolicyStateAccountUsabilityNotice} values for the
+   *         user.  Each JSON object will use the following fields:
+   *         <UL>
+   *           <LI>
+   *             {@code id} -- An integer field whose value is a numeric
+   *             identifier for the account usability notice.
+   *           </LI>
+   *           <LI>
+   *             {@code name} -- A string field whose value is the name for the
+   *             account usability notice.
+   *           </LI>
+   *           <LI>
+   *             {@code message} -- An optional string field whose value is a
+   *             human-readable message with additional information about the
+   *             account usability notice.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *       <LI>
+   *         {@code warnings} -- An optional array field containing JSON objects
+   *         with information about any
+   *         {@link PasswordPolicyStateAccountUsabilityWarning} values for the
+   *         user.  Each JSON object will use the following fields:
+   *         <UL>
+   *           <LI>
+   *             {@code id} -- An integer field whose value is a numeric
+   *             identifier for the account usability warning.
+   *           </LI>
+   *           <LI>
+   *             {@code name} -- A string field whose value is the name for the
+   *             account usability warning.
+   *           </LI>
+   *           <LI>
+   *             {@code message} -- An optional string field whose value is a
+   *             human-readable message with additional information about the
+   *             account usability warning.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *       <LI>
+   *         {@code errors} -- An optional array field containing JSON objects
+   *         with information about any
+   *         {@link PasswordPolicyStateAccountUsabilityError} values for the
+   *         user.  Each JSON object will use the following fields:
+   *         <UL>
+   *           <LI>
+   *             {@code id} -- An integer field whose value is a numeric
+   *             identifier for the account usability error.
+   *           </LI>
+   *           <LI>
+   *             {@code name} -- A string field whose value is the name for the
+   *             account usability error.
+   *           </LI>
+   *           <LI>
+   *             {@code message} -- An optional string field whose value is a
+   *             human-readable message with additional information about the
+   *             account usability error.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *       <LI>
+   *         {@code authentication-failure-reason} -- An optional JSON object
+   *         field that represents an {@link AuthenticationFailureReason} with
+   *         information about the reason that the authentication attempt
+   *         failed.  If present, this JSON object will use the following
+   *         fields:
+   *         <UL>
+   *           <LI>
+   *             {@code id} -- An integer field whose value is a numeric
+   *             identifier for the authentication failure reason.
+   *           </LI>
+   *           <LI>
+   *             {@code name} -- A string field whose value is the name for the
+   *             authentication failure reason.
+   *           </LI>
+   *           <LI>
+   *             {@code message} -- An optional string field whose value is a
+   *             human-readable message with additional information about the
+   *             authentication failure.
+   *           </LI>
+   *         </UL>
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   * </UL>
+   *
+   * @return  A JSON object that contains a representation of this control.
    */
   @Override()
   @NotNull()
