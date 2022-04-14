@@ -797,7 +797,9 @@ public final class LDIFSearch
       {
         Debug.debugException(e);
         throw new ArgumentException(
-             ERR_LDIFSEARCH_FIRST_TRAILING_ARG_NOT_FILTER.get(), e);
+             ERR_LDIFSEARCH_FIRST_TRAILING_ARG_NOT_FILTER.get(
+                  trailingArgs.get(0)),
+             e);
       }
 
 

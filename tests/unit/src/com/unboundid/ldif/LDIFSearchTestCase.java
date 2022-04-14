@@ -1807,6 +1807,37 @@ public final class LDIFSearchTestCase
 
 
   /**
+   * Tests the behavior when the tool is invoked for the case in which there
+   * are no LDAP URLs and the first trailing argument is not a filter.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFirstTrailingArgNotFilter()
+         throws Exception
+  {
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFSearch.main(out, out,
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--outputFile", outputFile.getAbsolutePath(),
+              "notAFilter",
+              "alsoNotAFilter"),
+         ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
    * Reads the LDIF entries from the specified file.
    *
    * @param  ldifFile  The file from which to read the change records.  It may
