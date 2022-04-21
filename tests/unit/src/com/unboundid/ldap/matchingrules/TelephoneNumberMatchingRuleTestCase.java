@@ -37,13 +37,11 @@ package com.unboundid.ldap.matchingrules;
 
 
 
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
-
-import static com.unboundid.ldap.matchingrules.MatchingRule.*;
+import com.unboundid.util.ObjectPair;
 
 
 
@@ -55,250 +53,260 @@ public class TelephoneNumberMatchingRuleTestCase
        extends MatchingRuleTestCase
 {
   /**
-   * Tests the telephone number matching rule with a number of value pairs
-   * that should be considered matches.
-   *
-   * @param  value1  The first value to compare.
-   * @param  value2  The second value to compare.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(dataProvider = "testMatchingValues")
-  public void testMatchingValues(String value1, String value2)
-         throws Exception
-  {
-    ASN1OctetString value1OS = new ASN1OctetString(value1);
-    ASN1OctetString value2OS = new ASN1OctetString(value2);
-
-    TelephoneNumberMatchingRule matchingRule =
-         TelephoneNumberMatchingRule.getInstance();
-    assertTrue(matchingRule.valuesMatch(value1OS, value2OS),
-               value1 + ", " + value2);
-  }
-
-
-
-  /**
-   * Tests the telephone number matching rule with a number of value pairs
-   * that should not be considered matches.
-   *
-   * @param  value1  The first value to compare.
-   * @param  value2  The second value to compare.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(dataProvider = "testNonMatchingValues")
-  public void testNonMatchingValues(String value1, String value2)
-         throws Exception
-  {
-    ASN1OctetString value1OS = new ASN1OctetString(value1);
-    ASN1OctetString value2OS = new ASN1OctetString(value2);
-
-    TelephoneNumberMatchingRule matchingRule =
-         TelephoneNumberMatchingRule.getInstance();
-    assertFalse(matchingRule.valuesMatch(value1OS, value2OS));
-  }
-
-
-
-  /**
-   * Tests the telephone number matching rule with a number of invalid values.
-   *
-   * @param  invalidValue  An invalid value.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(dataProvider = "testInvalidValues",
-        expectedExceptions = { LDAPException.class })
-  public void testNormalizeInvalid(String invalidValue)
-         throws Exception
-  {
-    TelephoneNumberMatchingRule matchingRule =
-         TelephoneNumberMatchingRule.getInstance();
-    matchingRule.normalize(new ASN1OctetString(invalidValue));
-  }
-
-
-
-  /**
-   * Tests the {@code normalizeSubstring} method with the provided information.
-   *
-   * @param  rawValue         The raw value to be normalized.
-   * @param  normalizedValue  The expected normalized representation of the
-   *                          provided value.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(dataProvider = "testMatchingValues")
-  public void testNormalizeSubstring(String rawValue, String normalizedValue)
-         throws Exception
-  {
-    ASN1OctetString rawOS = new ASN1OctetString(rawValue);
-
-    TelephoneNumberMatchingRule matchingRule =
-         TelephoneNumberMatchingRule.getInstance();
-
-    assertEquals(matchingRule.normalizeSubstring(rawOS,
-         SUBSTRING_TYPE_SUBINITIAL).stringValue(), normalizedValue);
-    assertEquals(matchingRule.normalizeSubstring(rawOS,
-         SUBSTRING_TYPE_SUBANY).stringValue(), normalizedValue);
-    assertEquals(matchingRule.normalizeSubstring(rawOS,
-         SUBSTRING_TYPE_SUBFINAL).stringValue(), normalizedValue);
-  }
-
-
-
-  /**
-   * Tests the telephone number matching rule to ensure that it does not allow
-   * ordering matching.
-   *
-   * @param  value1  The first value to compare.
-   * @param  value2  The second value to compare.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(dataProvider = "testMatchingValues",
-        expectedExceptions = { LDAPException.class })
-  public void testOrderingMatching(String value1, String value2)
-         throws Exception
-  {
-    ASN1OctetString value1OS = new ASN1OctetString(value1);
-    ASN1OctetString value2OS = new ASN1OctetString(value2);
-
-    TelephoneNumberMatchingRule matchingRule =
-         TelephoneNumberMatchingRule.getInstance();
-    matchingRule.compareValues(value1OS, value2OS);
-  }
-
-
-
-  /**
-   * Retrieves a set of value pairs that should be considered equal according to
-   * the matching rule.
-   *
-   * @return  A set of value pairs that should be considered equal according to
-   *          the matching rule.
-   */
-  @DataProvider(name = "testMatchingValues")
-  public Object[][] getTestMatchingValues()
-  {
-    return new Object[][]
-    {
-      new Object[] { "+1 123 456 7890", "+11234567890" },
-      new Object[] { "+1 123-456-7890", "+11234567890" },
-      new Object[] { "", "" },
-      new Object[] { " ", "" },
-      new Object[] { "  ", "" },
-      new Object[] { "1", "1" },
-      new Object[] { " 1 ", "1" },
-      new Object[] { "0123456789", "0123456789" },
-      new Object[] { " 0 1 2 3 4    5 6 7 8 9 ", "0123456789" },
-      new Object[] { "+1", "+1" },
-      new Object[] { " +1 ", "+1" },
-      new Object[] { "+0123456789", "+0123456789" },
-      new Object[] { " +0-1-2-3-4    5-6-7-8-9 ", "+0123456789" },
-      new Object[] { "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                          "0123456789'()+,-.=/:? ",
-                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                          "0123456789'()+,.=/:?"},
-    };
-  }
-
-
-
-  /**
-   * Retrieves a set of value pairs that should not be considered equal
-   * according to the matching rule.
-   *
-   * @return  A set of value pairs that not should be considered equal according
-   *          to the matching rule.
-   */
-  @DataProvider(name = "testNonMatchingValues")
-  public Object[][] getTestNonMatchingValues()
-  {
-    return new Object[][]
-    {
-      new Object[] { "0", "1" },
-      new Object[] { "0 1 2 3 4 5   6 7 8 9", "12345" },
-    };
-  }
-
-
-
-  /**
-   * Retrieves a set of invalid values that cannot be parsed as telephone
-   * numbers.
-   *
-   * @return  A set of invalid values that cannot be parsed as telephone
-   *          numbers.
-   */
-  @DataProvider(name = "testInvalidValues")
-  public Object[][] getTestInvalidValues()
-  {
-    return new Object[][]
-    {
-      new Object[] { "\"" },
-      new Object[] { "`" },
-      new Object[] { "~" },
-      new Object[] { "!" },
-      new Object[] { "@" },
-      new Object[] { "#" },
-      new Object[] { "$" },
-      new Object[] { "%" },
-      new Object[] { "^" },
-      new Object[] { "&" },
-      new Object[] { "*" },
-      new Object[] { "_" },
-      new Object[] { "[" },
-      new Object[] { "]" },
-      new Object[] { "{" },
-      new Object[] { "}" },
-      new Object[] { "\\" },
-      new Object[] { "|" },
-      new Object[] { ";" },
-      new Object[] { "<" },
-      new Object[] { ">" }
-    };
-  }
-
-
-
-  /**
-   * Provides test coverage for the methods used to retrieve the names and OIDs
-   * for the matching rules.
+   * Provides test coverage for a number of general methods for the matching
+   * rule.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testNamesAndOIDs()
+  public void testGeneralMatchingRuleMethods()
          throws Exception
   {
-    TelephoneNumberMatchingRule mr = TelephoneNumberMatchingRule.getInstance();
+    final TelephoneNumberMatchingRule mr =
+         TelephoneNumberMatchingRule.getInstance();
+    assertNotNull(mr);
 
-    assertNotNull(mr.getEqualityMatchingRuleName());
     assertEquals(mr.getEqualityMatchingRuleName(), "telephoneNumberMatch");
 
-    assertNotNull(mr.getEqualityMatchingRuleOID());
     assertEquals(mr.getEqualityMatchingRuleOID(), "2.5.13.20");
-
-    assertNotNull(mr.getEqualityMatchingRuleNameOrOID());
-    assertEquals(mr.getEqualityMatchingRuleNameOrOID(), "telephoneNumberMatch");
 
     assertNull(mr.getOrderingMatchingRuleName());
 
     assertNull(mr.getOrderingMatchingRuleOID());
 
-    assertNull(mr.getOrderingMatchingRuleNameOrOID());
-
-    assertNotNull(mr.getSubstringMatchingRuleName());
     assertEquals(mr.getSubstringMatchingRuleName(),
          "telephoneNumberSubstringsMatch");
 
-    assertNotNull(mr.getSubstringMatchingRuleOID());
     assertEquals(mr.getSubstringMatchingRuleOID(), "2.5.13.21");
+  }
 
-    assertNotNull(mr.getSubstringMatchingRuleNameOrOID());
-    assertEquals(mr.getSubstringMatchingRuleNameOrOID(),
-         "telephoneNumberSubstringsMatch");
+
+
+  /**
+   * Tests the ability to configure the default validation and comparison
+   * policies.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDefaultPolicies()
+         throws Exception
+  {
+    TelephoneNumberMatchingRule mr = new TelephoneNumberMatchingRule();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    TelephoneNumberMatchingRule.setDefaultValidationPolicy(
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    mr = new TelephoneNumberMatchingRule();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    mr = TelephoneNumberMatchingRule.getInstance();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    TelephoneNumberMatchingRule.setDefaultComparisonPolicy(
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES);
+
+    mr = new TelephoneNumberMatchingRule();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES);
+
+    mr = TelephoneNumberMatchingRule.getInstance();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ENFORCE_STRICT_X520_COMPLIANCE);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES);
+
+    TelephoneNumberMatchingRule.setDefaultValidationPolicy(
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    TelephoneNumberMatchingRule.setDefaultComparisonPolicy(
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    mr = new TelephoneNumberMatchingRule();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    mr = TelephoneNumberMatchingRule.getInstance();
+    assertEquals(mr.getValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(mr.getComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+  }
+
+
+
+  /**
+   * Tests the behavior when working with values that are valid X.520 telephone
+   * numbers.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidX520TelephoneNumbers()
+         throws Exception
+  {
+    final ASN1OctetString v1 = new ASN1OctetString("+1 123 456-7890");
+    final ASN1OctetString v2 = new ASN1OctetString("+1 123 456-7890");
+    final ASN1OctetString v3 = new ASN1OctetString("+11234567890");
+    final ASN1OctetString v4 = new ASN1OctetString("+9 876 543-2100");
+
+    TelephoneNumberMatchingRule mr = new TelephoneNumberMatchingRule(
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING,
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES);
+
+    assertEquals(mr.normalize(v1).stringValue(), "+11234567890");
+    assertEquals(mr.normalize(v2).stringValue(), "+11234567890");
+    assertEquals(mr.normalize(v3).stringValue(), "+11234567890");
+    assertEquals(mr.normalize(v4).stringValue(), "+98765432100");
+
+    assertEquals(
+         mr.normalizeSubstring(v1, MatchingRule.SUBSTRING_TYPE_SUBANY).
+              stringValue(),
+         "+11234567890");
+    assertEquals(
+         mr.normalizeSubstring(v2, MatchingRule.SUBSTRING_TYPE_SUBANY).
+              stringValue(),
+         "+11234567890");
+    assertEquals(
+         mr.normalizeSubstring(v3, MatchingRule.SUBSTRING_TYPE_SUBANY).
+              stringValue(),
+         "+11234567890");
+    assertEquals(
+         mr.normalizeSubstring(v4, MatchingRule.SUBSTRING_TYPE_SUBANY).
+              stringValue(),
+         "+98765432100");
+
+    try
+    {
+      mr.compareValues(v1, v2);
+      fail("Expected an exception when trying to compare telephoneNumber " +
+           "values.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+
+    assertTrue(mr.valuesMatch(v1, v1));
+    assertTrue(mr.valuesMatch(v1, v2));
+    assertTrue(mr.valuesMatch(v1, v3));
+    assertFalse(mr.valuesMatch(v1, v4));
+
+    assertTrue(mr.matchesSubstring(v1, v1, null, null));
+    assertTrue(mr.matchesSubstring(v1, v2, null, null));
+    assertTrue(mr.matchesSubstring(v1, v3, null, null));
+    assertFalse(mr.matchesSubstring(v1, v4, null, null));
+  }
+
+
+
+  /**
+   * Tests the ability to set default policies based on system properties.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testComputeDefaultPolicies()
+         throws Exception
+  {
+    assertNull(System.getProperty(
+         TelephoneNumberMatchingRule.DEFAULT_VALIDATION_POLICY_PROPERTY));
+    assertNull(System.getProperty(
+         TelephoneNumberMatchingRule.DEFAULT_COMPARISON_POLICY_PROPERTY));
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+    ObjectPair<TelephoneNumberValidationPolicy,TelephoneNumberComparisonPolicy>
+         policies = TelephoneNumberMatchingRule.computeDefaultPolicies();
+    assertEquals(policies.getFirst(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(policies.getSecond(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+
+    System.setProperty(
+         TelephoneNumberMatchingRule.DEFAULT_VALIDATION_POLICY_PROPERTY,
+         TelephoneNumberValidationPolicy.
+              ALLOW_NON_EMPTY_PRINTABLE_STRING_WITH_AT_LEAST_ONE_DIGIT.name());
+    System.setProperty(
+         TelephoneNumberMatchingRule.DEFAULT_COMPARISON_POLICY_PROPERTY,
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES.name());
+
+    policies = TelephoneNumberMatchingRule.computeDefaultPolicies();
+    assertEquals(policies.getFirst(),
+         TelephoneNumberValidationPolicy.
+              ALLOW_NON_EMPTY_PRINTABLE_STRING_WITH_AT_LEAST_ONE_DIGIT);
+    assertEquals(policies.getSecond(),
+         TelephoneNumberComparisonPolicy.IGNORE_ONLY_SPACES_AND_DASHES);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+
+    System.setProperty(
+         TelephoneNumberMatchingRule.DEFAULT_VALIDATION_POLICY_PROPERTY,
+         "invalid");
+    System.setProperty(
+         TelephoneNumberMatchingRule.DEFAULT_COMPARISON_POLICY_PROPERTY,
+         "invalid");
+
+    policies = TelephoneNumberMatchingRule.computeDefaultPolicies();
+    assertEquals(policies.getFirst(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(policies.getSecond(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+
+
+    System.clearProperty(
+         TelephoneNumberMatchingRule.DEFAULT_VALIDATION_POLICY_PROPERTY);
+    System.clearProperty(
+         TelephoneNumberMatchingRule.DEFAULT_COMPARISON_POLICY_PROPERTY);
+
+    policies = TelephoneNumberMatchingRule.computeDefaultPolicies();
+    assertEquals(policies.getFirst(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(policies.getSecond(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultValidationPolicy(),
+         TelephoneNumberValidationPolicy.ALLOW_NON_EMPTY_PRINTABLE_STRING);
+    assertEquals(TelephoneNumberMatchingRule.getDefaultComparisonPolicy(),
+         TelephoneNumberComparisonPolicy.IGNORE_ALL_NON_NUMERIC_CHARACTERS);
   }
 }

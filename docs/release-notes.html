@@ -14,6 +14,23 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Improved support for validating and comparing values using the telephone number
+                  syntax.  Previously, telephone number matching always used a loose
+                  interpretation of the specification, which would consider any valid printable
+                  string (including strings without any digits) to be a valid telephone number,
+                  and it would only ignore spaces and hyphens when comparing values.  It still
+                  uses the same validation policy by default, but it can now be configured to
+                  either at least require at least one digit, or to require strict adherence to
+                  the X.520 specification (which will require values to start with a plus sign and
+                  a country code, followed by only digits, spaces, and hyphens).  The default
+                  comparison policy has also been updated to ignore all non-digit characters
+                  (except the leading plus sign), but it can still be configured to use the
+                  former default behavior.  The default validation and comparison behaviors can be
+                  set either programmatically or using system properties.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue that could occasionally cause the LDAP SDK to hide the cause of a
                   StartTLS failure with a second, less useful exception.
                   <br><br>
