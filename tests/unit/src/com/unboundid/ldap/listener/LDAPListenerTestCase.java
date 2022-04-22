@@ -134,7 +134,7 @@ public final class LDAPListenerTestCase
   {
     final LDAPListenerConfig config = new LDAPListenerConfig(0,
          new CannedResponseRequestHandler());
-    config.setListenAddress(InetAddress.getLocalHost());
+    config.setListenAddress(InetAddress.getByName("127.0.0.1"));
     config.setReceiveBufferSize(8192);
     config.setSendBufferSize(8192);
 

@@ -295,7 +295,7 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
     assertNotNull(f.getSupportedCipherSuites());
 
     final SSLSocket s = (SSLSocket) f.createSocket("127.0.0.1",
-         ds.getListenPort(), InetAddress.getLocalHost(), 0);
+         ds.getListenPort(), InetAddress.getByName("127.0.0.1"), 0);
     assertNotNull(s);
     assertTrue(s.isConnected());
 
@@ -333,8 +333,8 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
     assertNotNull(f.getSupportedCipherSuites());
 
-    final SSLSocket s = (SSLSocket) f.createSocket(InetAddress.getLocalHost(),
-              ds.getListenPort());
+    final SSLSocket s = (SSLSocket) f.createSocket(
+         InetAddress.getByName("127.0.0.1"), ds.getListenPort());
     assertNotNull(s);
     assertTrue(s.isConnected());
 
@@ -372,8 +372,9 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
     assertNotNull(f.getSupportedCipherSuites());
 
-    final SSLSocket s = (SSLSocket) f.createSocket(InetAddress.getLocalHost(),
-         ds.getListenPort(), InetAddress.getLocalHost(), 0);
+    final SSLSocket s = (SSLSocket) f.createSocket(
+         InetAddress.getByName("127.0.0.1"), ds.getListenPort(),
+         InetAddress.getByName("127.0.0.1"), 0);
     assertNotNull(s);
     assertTrue(s.isConnected());
 

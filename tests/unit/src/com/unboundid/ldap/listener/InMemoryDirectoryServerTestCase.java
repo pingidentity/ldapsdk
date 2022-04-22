@@ -38,6 +38,7 @@ package com.unboundid.ldap.listener;
 
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,7 +122,7 @@ public final class InMemoryDirectoryServerTestCase
     final InMemoryDirectoryServer ds =
          new InMemoryDirectoryServer("dc=example,dc=com");
 
-    assertNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress());
     assertEquals(ds.getListenPort(), -1);
     assertNull(ds.getClientSocketFactory());
 
@@ -149,7 +150,7 @@ public final class InMemoryDirectoryServerTestCase
     assertTrue((listenPort >= 1) && (listenPort <= 65535));
     assertEquals(listenPort, ds.getListenPort());
 
-    assertNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress());
 
     assertNull(ds.getClientSocketFactory());
 
@@ -288,7 +289,7 @@ public final class InMemoryDirectoryServerTestCase
 
     ds.shutDown(true);
 
-    assertNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress());
     assertEquals(ds.getListenPort(), -1);
     assertNull(ds.getClientSocketFactory());
   }
@@ -313,7 +314,7 @@ public final class InMemoryDirectoryServerTestCase
 
     final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
 
-    assertNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress());
     assertEquals(ds.getListenPort(), -1);
     assertNull(ds.getClientSocketFactory());
 
@@ -341,7 +342,7 @@ public final class InMemoryDirectoryServerTestCase
     assertTrue((listenPort >= 1) && (listenPort <= 65535));
     assertEquals(listenPort, ds.getListenPort());
 
-    assertNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress());
 
     assertNull(ds.getClientSocketFactory());
 
@@ -480,7 +481,7 @@ public final class InMemoryDirectoryServerTestCase
 
     ds.shutDown(true);
 
-    assertNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress());
     assertEquals(ds.getListenPort(), -1);
     assertNull(ds.getClientSocketFactory());
   }
@@ -6537,6 +6538,8 @@ public final class InMemoryDirectoryServerTestCase
     final InMemoryDirectoryServerConfig cfg =
          new InMemoryDirectoryServerConfig("dc=example,dc=com");
     cfg.setMaxConnections(5);
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("LDAP",
+         InetAddress.getByName("127.0.0.1"), 0, null));
 
     final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
     ds.startListening();

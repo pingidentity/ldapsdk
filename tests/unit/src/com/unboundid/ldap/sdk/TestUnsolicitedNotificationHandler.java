@@ -37,7 +37,8 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -48,8 +49,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TestUnsolicitedNotificationHandler
        implements UnsolicitedNotificationHandler
 {
-  // The number of times the handler has been invoked.
-  private final AtomicInteger notificationCount;
+  // The list of unsolicited notifications that were provided.
+  private final List<ExtendedResult> notifications;
 
 
 
@@ -58,7 +59,7 @@ public class TestUnsolicitedNotificationHandler
    */
   public TestUnsolicitedNotificationHandler()
   {
-    notificationCount = new AtomicInteger(0);
+    notifications = new ArrayList<>();
   }
 
 
@@ -70,9 +71,21 @@ public class TestUnsolicitedNotificationHandler
    * @return  The number of times this unsolicited notification handler has been
    *          invoked.
    */
-  public int getNotificationCount()
+  public synchronized int getNotificationCount()
   {
-    return notificationCount.get();
+    return notifications.size();
+  }
+
+
+
+  /**
+   * Retrieves a list of the unsolicited notifications that were returned.
+   *
+   * @return  A list of the unsolicited notifications that were returned.
+   */
+  public synchronized List<ExtendedResult> getNotifications()
+  {
+    return new ArrayList<>(notifications);
   }
 
 
@@ -81,10 +94,11 @@ public class TestUnsolicitedNotificationHandler
    * {@inheritDoc}
    */
   @Override()
-  public void handleUnsolicitedNotification(final LDAPConnection connection,
-                                            final ExtendedResult notification)
+  public synchronized void handleUnsolicitedNotification(
+              final LDAPConnection connection,
+              final ExtendedResult notification)
   {
-    notificationCount.incrementAndGet();
+    notifications.add(notification);
   }
 }
 

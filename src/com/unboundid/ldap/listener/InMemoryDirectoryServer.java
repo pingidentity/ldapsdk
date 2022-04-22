@@ -843,23 +843,33 @@ public final class InMemoryDirectoryServer
     }
 
     String hostAddress;
-    final InetAddress listenAddress = listenerConfig.getListenAddress();
-    if ((listenAddress == null) || (listenAddress.isAnyLocalAddress()))
+    if (StaticUtils.isWithinUnitTest())
     {
-      try
-      {
-        hostAddress = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
-             getLocalHost().getHostAddress();
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-        hostAddress = "127.0.0.1";
-      }
+      // If we're running in the unit test framework, always use the IPv4
+      // loopback address.  This helps work around a name resolution problem on
+      // Windows systems when connected to the Ping Identity VPN.
+      hostAddress = "127.0.0.1";
     }
     else
     {
-      hostAddress = listenAddress.getHostAddress();
+      final InetAddress listenAddress = listenerConfig.getListenAddress();
+      if ((listenAddress == null) || (listenAddress.isAnyLocalAddress()))
+      {
+        try
+        {
+          hostAddress = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+               getLocalHost().getHostAddress();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          hostAddress = "127.0.0.1";
+        }
+      }
+      else
+      {
+        hostAddress = listenAddress.getHostAddress();
+      }
     }
 
     return new LDAPConnection(clientSocketFactory, options, hostAddress,
@@ -961,6 +971,21 @@ public final class InMemoryDirectoryServer
   public synchronized InetAddress getListenAddress(
                                        @Nullable final String listenerName)
   {
+    // If we're running in the unit test framework, always return the IPv4
+    // loopback address.  This helps work around a name resolution problem on
+    // Windows systems when connected to the Ping Identity VPN.
+    if (StaticUtils.isWithinUnitTest())
+    {
+      try
+      {
+        return InetAddress.getByName("127.0.0.1");
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
     final String name;
     if (listenerName == null)
     {

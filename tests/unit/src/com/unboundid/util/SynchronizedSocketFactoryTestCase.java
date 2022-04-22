@@ -91,8 +91,8 @@ public final class SynchronizedSocketFactoryTestCase
 
     assertNotNull(f.getWrappedSocketFactory());
 
-    final Socket s =
-         f.createSocket("127.0.0.1", 389, InetAddress.getLocalHost(), 1234);
+    final Socket s = f.createSocket("127.0.0.1", 389,
+         InetAddress.getByName("127.0.0.1"), 1234);
     assertNotNull(s);
     assertFalse(s.isConnected());
   }
@@ -114,7 +114,7 @@ public final class SynchronizedSocketFactoryTestCase
 
     assertNotNull(f.getWrappedSocketFactory());
 
-    final Socket s = f.createSocket(InetAddress.getLocalHost(), 389);
+    final Socket s = f.createSocket(InetAddress.getByName("127.0.0.1"), 389);
     assertNotNull(s);
     assertFalse(s.isConnected());
   }
@@ -136,8 +136,8 @@ public final class SynchronizedSocketFactoryTestCase
 
     assertNotNull(f.getWrappedSocketFactory());
 
-    final Socket s = f.createSocket(InetAddress.getLocalHost(), 389,
-         InetAddress.getLocalHost(), 1234);
+    final Socket s = f.createSocket(InetAddress.getByName("127.0.0.1"), 389,
+         InetAddress.getByName("127.0.0.1"), 1234);
     assertNotNull(s);
     assertFalse(s.isConnected());
   }
@@ -179,7 +179,7 @@ public final class SynchronizedSocketFactoryTestCase
 
     assertNotNull(f.getWrappedSocketFactory());
 
-    f.createSocket("127.0.0.1", 389, InetAddress.getLocalHost(), 1234);
+    f.createSocket("127.0.0.1", 389, InetAddress.getByName("127.0.0.1"), 1234);
   }
 
 
@@ -199,7 +199,7 @@ public final class SynchronizedSocketFactoryTestCase
 
     assertNotNull(f.getWrappedSocketFactory());
 
-    f.createSocket(InetAddress.getLocalHost(), 389);
+    f.createSocket(InetAddress.getByName("127.0.0.1"), 389);
   }
 
 
@@ -219,7 +219,7 @@ public final class SynchronizedSocketFactoryTestCase
 
     assertNotNull(f.getWrappedSocketFactory());
 
-    f.createSocket(InetAddress.getLocalHost(), 389, InetAddress.getLocalHost(),
-         1234);
+    f.createSocket(InetAddress.getByName("127.0.0.1"), 389,
+         InetAddress.getByName("127.0.0.1"), 1234);
   }
 }

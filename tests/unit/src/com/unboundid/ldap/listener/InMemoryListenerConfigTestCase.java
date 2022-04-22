@@ -93,8 +93,8 @@ public final class InMemoryListenerConfigTestCase
     assertNotNull(c.toString());
 
 
-    c = new InMemoryListenerConfig("test2", InetAddress.getLocalHost(), 1234,
-         serverSSLUtil.createSSLServerSocketFactory(),
+    c = new InMemoryListenerConfig("test2", InetAddress.getByName("127.0.0.1"),
+         1234, serverSSLUtil.createSSLServerSocketFactory(),
          clientSSLUtil.createSSLSocketFactory(), null);
 
     assertEquals(c.getListenerName(), "test2");
@@ -234,7 +234,7 @@ public final class InMemoryListenerConfigTestCase
 
     final InMemoryListenerConfig c =
          InMemoryListenerConfig.createLDAPConfig("test",
-              InetAddress.getLocalHost(), 389,
+              InetAddress.getByName("127.0.0.1"), 389,
               serverSSLUtil.createSSLSocketFactory());
 
     assertNotNull(c);
@@ -354,7 +354,7 @@ public final class InMemoryListenerConfigTestCase
 
     final InMemoryListenerConfig c =
          InMemoryListenerConfig.createLDAPSConfig("test",
-              InetAddress.getLocalHost(), 636,
+              InetAddress.getByName("127.0.0.1"), 636,
               serverSSLUtil.createSSLServerSocketFactory(),
               clientSSLUtil.createSSLSocketFactory());
 

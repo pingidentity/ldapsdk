@@ -97,8 +97,8 @@ public final class SynchronizedSSLSocketFactoryTestCase
     assertEquals(f.getDefaultCipherSuites().length, 0);
     assertEquals(f.getSupportedCipherSuites().length, 0);
 
-    final Socket s =
-         f.createSocket("127.0.0.1", 389, InetAddress.getLocalHost(), 1234);
+    final Socket s = f.createSocket("127.0.0.1", 389,
+         InetAddress.getByName("127.0.0.1"), 1234);
     assertNotNull(s);
     assertFalse(s.isConnected());
   }
@@ -123,7 +123,7 @@ public final class SynchronizedSSLSocketFactoryTestCase
     assertEquals(f.getDefaultCipherSuites().length, 0);
     assertEquals(f.getSupportedCipherSuites().length, 0);
 
-    final Socket s = f.createSocket(InetAddress.getLocalHost(), 389);
+    final Socket s = f.createSocket(InetAddress.getByName("127.0.0.1"), 389);
     assertNotNull(s);
     assertFalse(s.isConnected());
   }
@@ -148,8 +148,8 @@ public final class SynchronizedSSLSocketFactoryTestCase
     assertEquals(f.getDefaultCipherSuites().length, 0);
     assertEquals(f.getSupportedCipherSuites().length, 0);
 
-    final Socket s = f.createSocket(InetAddress.getLocalHost(), 389,
-         InetAddress.getLocalHost(), 1234);
+    final Socket s = f.createSocket(InetAddress.getByName("127.0.0.1"), 389,
+         InetAddress.getByName("127.0.0.1"), 1234);
     assertNotNull(s);
     assertFalse(s.isConnected());
   }
@@ -222,7 +222,7 @@ public final class SynchronizedSSLSocketFactoryTestCase
     assertEquals(f.getDefaultCipherSuites().length, 0);
     assertEquals(f.getSupportedCipherSuites().length, 0);
 
-    f.createSocket("127.0.0.1", 389, InetAddress.getLocalHost(), 1234);
+    f.createSocket("127.0.0.1", 389, InetAddress.getByName("127.0.0.1"), 1234);
   }
 
 
@@ -245,7 +245,7 @@ public final class SynchronizedSSLSocketFactoryTestCase
     assertEquals(f.getDefaultCipherSuites().length, 0);
     assertEquals(f.getSupportedCipherSuites().length, 0);
 
-    f.createSocket(InetAddress.getLocalHost(), 389);
+    f.createSocket(InetAddress.getByName("127.0.0.1"), 389);
   }
 
 
@@ -268,8 +268,8 @@ public final class SynchronizedSSLSocketFactoryTestCase
     assertEquals(f.getDefaultCipherSuites().length, 0);
     assertEquals(f.getSupportedCipherSuites().length, 0);
 
-    f.createSocket(InetAddress.getLocalHost(), 389, InetAddress.getLocalHost(),
-         1234);
+    f.createSocket(InetAddress.getByName("127.0.0.1"), 389,
+         InetAddress.getByName("127.0.0.1"), 1234);
   }
 
 

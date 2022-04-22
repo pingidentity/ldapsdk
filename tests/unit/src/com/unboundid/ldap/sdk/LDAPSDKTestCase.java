@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -529,6 +530,8 @@ public abstract class LDAPSDKTestCase
     cfg.setSchema(Schema.getDefaultStandardSchema());
     cfg.setListenerExceptionHandler(
          new StandardErrorListenerExceptionHandler());
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("LDAP",
+         InetAddress.getByName("127.0.0.1"), 0, null));
 
     testDS = new InMemoryDirectoryServer(cfg);
     testDS.startListening();
@@ -544,7 +547,8 @@ public abstract class LDAPSDKTestCase
     final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
 
     cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPSConfig("LDAPS",
-         null, 0, serverSSLUtil.createSSLServerSocketFactory(),
+         InetAddress.getByName("127.0.0.1"), 0,
+         serverSSLUtil.createSSLServerSocketFactory(),
          clientSSLUtil.createSSLSocketFactory()));
 
     testDSWithSSL = new InMemoryDirectoryServer(cfg);

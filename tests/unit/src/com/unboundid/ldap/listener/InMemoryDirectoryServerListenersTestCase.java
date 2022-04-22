@@ -103,7 +103,7 @@ public final class InMemoryDirectoryServerListenersTestCase
          InMemoryListenerConfig.createLDAPSConfig("listener-3",
               serverSSLUtil.createSSLServerSocketFactory()),
          InMemoryListenerConfig.createLDAPSConfig("listener-4",
-              InetAddress.getLocalHost(), 0,
+              InetAddress.getByName("127.0.0.1"), 0,
               serverSSLUtil.createSSLServerSocketFactory(),
               clientSSLUtil.createSSLSocketFactory()));
 
@@ -180,11 +180,15 @@ public final class InMemoryDirectoryServerListenersTestCase
 
 
     // Verify the ability to obtain listen addresses, ports, and client socket
-    // factories.
-    assertNull(ds.getListenAddress());
-    assertNull(ds.getListenAddress("listener-1"));
-    assertNull(ds.getListenAddress("listener-2"));
-    assertNull(ds.getListenAddress("listener-3"));
+    // factories.  Note that because of a name resolution issue that affects
+    // Windows systems when connected to the Ping Identity VPN, the
+    // getListenAddress method will always return the IPv4 loopback address,
+    // even if it would return null or a different address outside of the test
+    // framework.
+    assertNotNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress("listener-1"));
+    assertNotNull(ds.getListenAddress("listener-2"));
+    assertNotNull(ds.getListenAddress("listener-3"));
     assertNotNull(ds.getListenAddress("listener-4"));
 
     assertEquals(ds.getListenPort(), -1);
@@ -239,11 +243,15 @@ public final class InMemoryDirectoryServerListenersTestCase
 
 
     // Verify the ability to obtain listen addresses, ports, and client socket
-    // factories.
-    assertNull(ds.getListenAddress());
-    assertNull(ds.getListenAddress("listener-1"));
-    assertNull(ds.getListenAddress("listener-2"));
-    assertNull(ds.getListenAddress("listener-3"));
+    // factories.  Note that because of a name resolution issue that affects
+    // Windows systems when connected to the Ping Identity VPN, the
+    // getListenAddress method will always return the IPv4 loopback address,
+    // even if it would return null or a different address outside of the test
+    // framework.
+    assertNotNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress("listener-1"));
+    assertNotNull(ds.getListenAddress("listener-2"));
+    assertNotNull(ds.getListenAddress("listener-3"));
     assertNotNull(ds.getListenAddress("listener-4"));
 
     assertTrue(ds.getListenPort() > 0);
@@ -584,11 +592,15 @@ public final class InMemoryDirectoryServerListenersTestCase
 
 
     // Verify the ability to obtain listen addresses, ports, and client socket
-    // factories.
-    assertNull(ds.getListenAddress());
-    assertNull(ds.getListenAddress("listener-1"));
-    assertNull(ds.getListenAddress("listener-2"));
-    assertNull(ds.getListenAddress("listener-3"));
+    // factories.  Note that because of a name resolution issue that affects
+    // Windows systems when connected to the Ping Identity VPN, the
+    // getListenAddress method will always return the IPv4 loopback address,
+    // even if it would return null or a different address outside of the test
+    // framework.
+    assertNotNull(ds.getListenAddress());
+    assertNotNull(ds.getListenAddress("listener-1"));
+    assertNotNull(ds.getListenAddress("listener-2"));
+    assertNotNull(ds.getListenAddress("listener-3"));
     assertNotNull(ds.getListenAddress("listener-4"));
 
     assertTrue(ds.getListenPort() > 0);
