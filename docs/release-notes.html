@@ -37,6 +37,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in which the --generatePropertiesFile option provided by some
+                  command-line tools did not properly escape backslashes, carriage return,
+                  newline, or form feed characters.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the ldifsearch tool in which it could display a malformed
                   message when invoking the tool in which the first unnamed trailing argument was
                   expected to be the search filter but could not be parsed as a valid filter.

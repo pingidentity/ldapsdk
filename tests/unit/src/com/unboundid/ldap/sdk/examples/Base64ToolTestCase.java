@@ -52,6 +52,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.args.ArgumentParser;
 
 
 
@@ -245,10 +246,14 @@ public final class Base64ToolTestCase
          "url=true",
          "base64.ignoreTrailingLineBreak=true",
          "base64.addTrailingLineBreak=true",
-         "base64.encode.inputFile=" + encodeInputFile.getAbsolutePath(),
-         "base64.encode.outputFile=" + encodeOutputFile.getAbsolutePath(),
-         "base64.decode.inputFile=" + encodeOutputFile.getAbsolutePath(),
-         "base64.decode.outputFile=" + decodeOutputFile.getAbsolutePath());
+         "base64.encode.inputFile=" + ArgumentParser.escapePropertyValue(
+              encodeInputFile.getAbsolutePath()),
+         "base64.encode.outputFile=" + ArgumentParser.escapePropertyValue(
+              encodeOutputFile.getAbsolutePath()),
+         "base64.decode.inputFile=" + ArgumentParser.escapePropertyValue(
+              encodeOutputFile.getAbsolutePath()),
+         "base64.decode.outputFile=" + ArgumentParser.escapePropertyValue(
+              decodeOutputFile.getAbsolutePath()));
 
     final InputStream encodeIn = null;
     final OutputStream encodeOut = null;

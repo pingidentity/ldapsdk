@@ -1658,4 +1658,23 @@ public class ArgumentParserTestCase
       },
     };
   }
+
+
+
+  /**
+   * Tests to ensure that property values are properly escaped when writing a
+   * properties file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEscapePropertyValue()
+         throws Exception
+  {
+    final String value = "a\\b\tc\r\nd\fe";
+
+    final String escapedValue = ArgumentParser.escapePropertyValue(value);
+    assertEquals(escapedValue,
+         "a\\\\b\\tc\\r\\nd\\fe");
+  }
 }

@@ -2835,9 +2835,66 @@ public final class ArgumentParser
     {
       for (final String s : a.getValueStringRepresentations(false))
       {
-        w.println(propertyName + '=' + s);
+        w.println(propertyName + '=' + escapePropertyValue(s));
       }
     }
+  }
+
+
+
+  /**
+   * Retrieves a string that represents an escaped representation of the
+   * provided property value.  The following characters will be escaped by
+   * preceding them with a backslash:
+   * <UL>
+   *   <LI>Backslash (\\)</LI>
+   *   <LI>Tab (\t)</LI>
+   *   <LI>Carriage return (\r)</LI>
+   *   <LI>Newline (\n)</LI>
+   *   <LI>Form feed (\f)</LI>
+   * </UL>
+   * <BR><BR>
+   * Note that even though the Java Properties implementation will also escape
+   * equal signs, colons, exclamation points, and octothorpes when writing a
+   * properties file, it will also handle reading property values with unescaped
+   * versions of those characters, so they will remain unescaped.
+   *
+   * @param  value  The value to be escaped.  It must not be {@code null}.
+   *
+   * @return  A string that represents an escaped representation of the provided
+   *          property value.
+   */
+  @NotNull()
+  public static String escapePropertyValue(@NotNull final String value)
+  {
+    final StringBuilder buffer = new StringBuilder(value.length());
+    for (int i=0; i < value.length(); i++)
+    {
+      final char c = value.charAt(i);
+      switch (c)
+      {
+        case '\\':
+          buffer.append("\\\\");
+          break;
+        case '\t':
+          buffer.append("\\t");
+          break;
+        case '\r':
+          buffer.append("\\r");
+          break;
+        case '\n':
+          buffer.append("\\n");
+          break;
+        case '\f':
+          buffer.append("\\f");
+          break;
+        default:
+          buffer.append(c);
+          break;
+      }
+    }
+
+    return buffer.toString();
   }
 
 
