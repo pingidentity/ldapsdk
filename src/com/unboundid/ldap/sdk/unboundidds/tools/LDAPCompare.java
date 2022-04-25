@@ -799,6 +799,7 @@ public final class LDAPCompare
 
 
     LDAPConnectionPool pool = null;
+    PrintStream writer = null;
     try
     {
       // Create a connection pool that will be used to communicate with the
@@ -825,7 +826,6 @@ public final class LDAPCompare
         pool.setRetryFailedOperationsDueToInvalidConnections(true);
 
 
-        final PrintStream writer;
         if (outputFile.isPresent())
         {
           try
@@ -1022,6 +1022,11 @@ public final class LDAPCompare
       if (pool != null)
       {
         pool.close();
+      }
+
+      if (writer != null)
+      {
+        writer.close();
       }
     }
   }

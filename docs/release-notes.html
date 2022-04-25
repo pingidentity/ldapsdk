@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed a bug in which the ldapcompare tool did not properly close its output file
+                  if one was configured.  This is primarily an issue if the tool is invoked
+                  programmatically rather than running it from the command line (or a shell script
+                  or batch file).
+                  <br><br>
+                </li>
+
+                <li>
                   Improved support for validating and comparing values using the telephone number
                   syntax.  Previously, telephone number matching always used a loose
                   interpretation of the specification, which would consider any valid printable
