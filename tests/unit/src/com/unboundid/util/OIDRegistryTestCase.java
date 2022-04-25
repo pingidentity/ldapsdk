@@ -42,7 +42,6 @@ import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -314,7 +313,7 @@ public final class OIDRegistryTestCase
       w.println();
       w.println(baseIndent + "<p>");
       w.println(baseIndent + "  Object identifiers are used throughout LDAP, " +
-           "but they\u2019re particularly common in schema elements, " +
+           "but they are particularly common in schema elements, " +
            "controls, and extended operations. This document provides a " +
            "table of some of the most common OIDs used in LDAP along with a " +
            "brief explanation of their purpose and (when applicable) a " +
@@ -380,18 +379,15 @@ public final class OIDRegistryTestCase
     // Compute SHA-256 digests of the newly generated OID reference with the
     // existing version in the documentation.  If they are different, then fail
     // the test.
-    final MessageDigest sha256 = CryptoHelper.getMessageDigest("SHA-256");
-    final byte[] generatedFileBytes =
-         StaticUtils.readFileBytes(generatedHTMLFile);
-    final byte[] generatedFileDigest = sha256.digest(generatedFileBytes);
+    final List<String> generatedFileLines =
+         StaticUtils.readFileLines(generatedHTMLFile);
 
     final File docsDir = new File(baseDir, "docs");
     final File existingHTMLFile = new File(docsDir, "ldap-oid-reference.html");
-    final byte[] existingFileBytes =
-         StaticUtils.readFileBytes(existingHTMLFile);
-    final byte[] existingFileDigest = sha256.digest(existingFileBytes);
+    final List<String> existingFileLines =
+         StaticUtils.readFileLines(existingHTMLFile);
 
-    assertEquals(generatedFileBytes, existingFileBytes,
+    assertEquals(existingFileLines, generatedFileLines,
          "It appears that the OID registry has been updated, but the version " +
               "in the LDAP SDK documentation has not been updated.  Replace '" +
               existingHTMLFile.getAbsolutePath() + "' with '" +

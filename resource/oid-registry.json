@@ -231,7 +231,7 @@
 { "oid":"1.3.6.1.1.21.2", "name":"Transaction Specification", "type":"Request Control", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
 { "oid":"1.3.6.1.1.21.3", "name":"End Transaction", "type":"Extended Request", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
 { "oid":"1.3.6.1.1.21.4", "name":"Aborted Transaction", "type":"Unsolicited Notification", "origin":"RFC 5805", "url":"https://docs.ldap.com/specs/rfc5805.txt" }
-{ "oid":"1.3.6.1.1.22", "name":"LDAP Don’t Use Copy", "type":"Control", "origin":"RFC 6171", "url":"https://docs.ldap.com/specs/rfc6171.txt" }
+{ "oid":"1.3.6.1.1.22", "name":"LDAP Don't Use Copy", "type":"Control", "origin":"RFC 6171", "url":"https://docs.ldap.com/specs/rfc6171.txt" }
 { "oid":"1.3.6.1.4.1.42.2.27.4.1.6", "name":"javaClassName", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
 { "oid":"1.3.6.1.4.1.42.2.27.4.1.7", "name":"javaCodebase", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
 { "oid":"1.3.6.1.4.1.42.2.27.4.1.8", "name":"javaSerializedData", "type":"Attribute Type", "origin":"RFC 2713", "url":"https://docs.ldap.com/specs/rfc2713.txt" }
