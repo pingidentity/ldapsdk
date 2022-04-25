@@ -154,6 +154,13 @@ public final class ToolInvocationLoggerTestCase
   public void testErrorHandling()
          throws Exception
   {
+    // Don't attempt to run this test on Windows, since it doesn't support
+    // POSIX file permissions.
+    if (StaticUtils.isWindows())
+    {
+      return;
+    }
+
     try
     {
       final Path badLogPropFile = new File(configDir,
@@ -286,7 +293,7 @@ public final class ToolInvocationLoggerTestCase
     try
     {
       writeToPropertiesFile(
-           "ldapmodify.log-file-path=" + logsToolsDir.getAbsolutePath());
+           "ldapmodify.log-file-path=" + escapeFilePath(logsToolsDir));
       ByteArrayOutputStream stream = new ByteArrayOutputStream();
       PrintStream out = new PrintStream(stream);
       ToolInvocationLogDetails logDetails =
@@ -295,9 +302,12 @@ public final class ToolInvocationLoggerTestCase
 
       stream = new ByteArrayOutputStream();
       out = new PrintStream(stream);
-      writeToPropertiesFile(
-           "ldapmodify.log-file-path=/this/is/a/nonsense/path".replace('/',
-                File.separatorChar));
+
+      File nonsensePath = StaticUtils.constructPath(logsToolsDir,
+           "this", "is", "a", "nonsense", "path");
+
+      writeToPropertiesFile("ldapmodify.log-file-path=" +
+           escapeFilePath(nonsensePath));
       logDetails =
            ToolInvocationLogger.getLogMessageDetails("ldapmodify", true, out);
       assertFalse(stream.size() == 0);
@@ -354,15 +364,15 @@ public final class ToolInvocationLoggerTestCase
 
       ToolInvocationLogger.logCompletionMessage(
               logDetails, 0, "This line should never be logged.");
-
-      final String log = readLog(new File(logsToolsDir, "tool-invocation.log"));
-      assertFalse(log.contains("This line should never be logged"));
     }
     finally
     {
       lock.release();
       channel.close();
     }
+
+    final String log = readLog(new File(logsToolsDir, "tool-invocation.log"));
+    assertFalse(log.contains("This line should never be logged"));
   }
 
 
@@ -431,22 +441,26 @@ public final class ToolInvocationLoggerTestCase
         assertTrue(f.getAbsolutePath().endsWith("tool-invocation.log"));
       }
 
+      final File customNameLogFile =
+           StaticUtils.constructPath(logsToolsDir, "custom-name.log");
+
       writeToPropertiesFile("default.log-file-path=" +
-           logsToolsDir.getAbsolutePath() +
-           "/custom-name.log".replace('/', File.separatorChar));
+           escapeFilePath(customNameLogFile));
       logDetails = ToolInvocationLogger.getLogMessageDetails("ldapmodify", true,
            NullOutputStream.getPrintStream());
 
       assertEquals(logDetails.getLogFiles().size(), 1);
       for (final File f : logDetails.getLogFiles())
       {
-        assertTrue(f.getAbsolutePath().endsWith(
-             "logs/tools/custom-name.log".replace('/', File.separatorChar)));
+        assertEquals(f.getAbsolutePath(), customNameLogFile.getAbsolutePath());
       }
 
+
+      final File ldapmodifyLogFile = StaticUtils.constructPath(new File("logs"),
+           "tools", "ldapmodify-tool-invocation.log");
+
       writeToPropertiesFile("ldapmodify.log-file-path=" +
-           "logs/tools/ldapmodify-tool-invocation.log".replace('/',
-                File.separatorChar));
+           escapeFilePath(ldapmodifyLogFile));
       logDetails = ToolInvocationLogger.getLogMessageDetails(
            "ldapmodify", true, NullOutputStream.getPrintStream());
 
@@ -454,9 +468,8 @@ public final class ToolInvocationLoggerTestCase
 
       // Test toString().
       assertTrue(logDetails.toString().contains(
-           "/ldapmodify-tool-invocation.log".replace('/', File.separatorChar)));
-      assertTrue(logDetails.toString().contains(
-           "/custom-name.log".replace('/', File.separatorChar)));
+           "ldapmodify-tool-invocation.log"));
+      assertTrue(logDetails.toString().contains("custom-name.log"));
 
       writeToPropertiesFile(
            "ldapmodify.include-in-default-log=false");
@@ -466,8 +479,7 @@ public final class ToolInvocationLoggerTestCase
       assertEquals(logDetails.getLogFiles().size(), 1);
       for (final File f : logDetails.getLogFiles())
       {
-        assertFalse(f.getAbsolutePath().endsWith(
-             "logs/tools/custom-name.log".replace('/', File.separatorChar)));
+        assertFalse(f.getAbsolutePath().endsWith("custom-name.log"));
       }
 
       writeToPropertiesFile(
@@ -485,6 +497,21 @@ public final class ToolInvocationLoggerTestCase
     {
       deletePropertiesFile();
     }
+  }
+
+
+
+  /**
+   * Escapes the absolute path to the specified file as appropriate for
+   * inclusion in a properties file.
+   *
+   * @param  f  The file path to be escaped.
+   *
+   * @return  The escaped representation of the provided file path.
+   */
+  private static String escapeFilePath(final File f)
+  {
+    return f.getPath().replace("\\", "\\\\").replace(":", "\\:");
   }
 
 
@@ -578,12 +605,17 @@ public final class ToolInvocationLoggerTestCase
       final InMemoryDirectoryServer ds = getTestDS(true, true);
 
       writeToPropertiesFile("ldapsearch.log-tool-invocations=true");
+
+      final File ldapsearchLogFile = StaticUtils.constructPath(new File("logs"),
+           "tools", "ldapsearch-tool-invocation.log");
+      final File customLogFile =
+           StaticUtils.constructPath(logsToolsDir,
+           "custom-tool-invocation.log");
+
       writeToPropertiesFile("ldapsearch.log-file-path=" +
-           "logs/tools/ldapmodify-tool-invocation.log".replace('/',
-                File.separatorChar));
+           escapeFilePath(ldapsearchLogFile));
       writeToPropertiesFile("default.log-file-path=" +
-           logsToolsDir.getAbsolutePath()
-           + "/custom-tool-invocation.log".replace('/', File.separatorChar));
+           escapeFilePath(customLogFile));
 
       LDAPSearch.main(NullOutputStream.getPrintStream(),
            NullOutputStream.getPrintStream(),
@@ -600,7 +632,7 @@ public final class ToolInvocationLoggerTestCase
       final File defaultLog =
            new File(logsToolsDir, "custom-tool-invocation.log");
       final File specificLog =
-           new File(logsToolsDir, "ldapmodify-tool-invocation.log");
+           new File(logsToolsDir, "ldapsearch-tool-invocation.log");
 
       assertTrue(defaultLog.exists());
       assertTrue(specificLog.exists());
@@ -744,12 +776,15 @@ public final class ToolInvocationLoggerTestCase
               new ObjectPair<>("--" + argumentName, "argumentValue")),
          Collections.<ObjectPair<String,String>>emptyList(), null);
 
+    final String redactedString =
+         StaticUtils.cleanExampleCommandLineArgument("*****REDACTED*****");
+
     final String log1 = readLog(logFile1);
     if (shouldRedact)
     {
       assertTrue(
            log1.contains(
-                "test-command --" + argumentName + " '*****REDACTED*****'"),
+                "test-command --" + argumentName + ' ' + redactedString),
            log1);
     }
     else
@@ -771,7 +806,7 @@ public final class ToolInvocationLoggerTestCase
 
     final String log2 = readLog(logFile2);
     assertTrue(log2.contains(
-         "test-command --" + argumentName + " '*****REDACTED*****'"),
+         "test-command --" + argumentName + ' ' + redactedString),
          log2);
 
 

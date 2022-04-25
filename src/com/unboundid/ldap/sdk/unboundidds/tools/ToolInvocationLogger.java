@@ -623,7 +623,8 @@ public final class ToolInvocationLogger
       {
         if (! StaticUtils.toLowerCase(value).contains("redacted"))
         {
-          return "'*****REDACTED*****'";
+          return StaticUtils.cleanExampleCommandLineArgument(
+               "*****REDACTED*****");
         }
       }
     }
