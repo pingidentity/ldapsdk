@@ -1141,10 +1141,10 @@ public class LDAPConnectionOptionsTestCase
 
     cfg.setListenerConfigs(
          InMemoryListenerConfig.createLDAPConfig("LDAP",
-              InetAddress.getLocalHost(), 0,
+              InetAddress.getByName("127.0.0.1"), 0,
               serverSSLUtil.createSSLSocketFactory()),
          InMemoryListenerConfig.createLDAPSConfig("LDAPS",
-              InetAddress.getLocalHost(), 0,
+              InetAddress.getByName("127.0.0.1"), 0,
               serverSSLUtil.createSSLServerSocketFactory(),
               clientSSLUtil.createSSLSocketFactory()));
 
@@ -1158,8 +1158,7 @@ public class LDAPConnectionOptionsTestCase
          opts.getSSLSocketVerifier() instanceof TrustAllSSLSocketVerifier);
 
     LDAPConnection conn = new LDAPConnection(
-         clientSSLUtil.createSSLSocketFactory(), opts,
-         ds.getListenAddress("LDAPS").getHostAddress(),
+         clientSSLUtil.createSSLSocketFactory(), opts, "127.0.0.1",
          ds.getListenPort("LDAPS"));
     assertNotNull(conn.getRootDSE());
     assertTrue(TrustAllSSLSocketVerifier.getInstance().verify("127.0.0.1",
@@ -1168,9 +1167,7 @@ public class LDAPConnectionOptionsTestCase
          "disallowed.example.com", conn.getSSLSession()));
     conn.close();
 
-    conn = new LDAPConnection(opts,
-         ds.getListenAddress("LDAP").getHostAddress(),
-         ds.getListenPort("LDAP"));
+    conn = new LDAPConnection(opts, "127.0.0.1", ds.getListenPort("LDAP"));
     assertNotNull(conn.getRootDSE());
     assertResultCodeEquals(conn,
          new StartTLSExtendedRequest(clientSSLUtil.createSSLSocketFactory()),
@@ -1226,8 +1223,7 @@ public class LDAPConnectionOptionsTestCase
 
 
     conn = new LDAPConnection(clientSSLUtil.createSSLSocketFactory(), opts,
-         ds.getListenAddress("LDAPS").getHostAddress(),
-         ds.getListenPort("LDAPS"));
+         "127.0.0.1", ds.getListenPort("LDAPS"));
     assertNotNull(conn.getRootDSE());
     assertTrue(new HostNameSSLSocketVerifier(true).verify("127.0.0.1",
          conn.getSSLSession()));
@@ -1235,9 +1231,7 @@ public class LDAPConnectionOptionsTestCase
          "disallowed.example.com", conn.getSSLSession()));
     conn.close();
 
-    conn = new LDAPConnection(opts,
-         ds.getListenAddress("LDAP").getHostAddress(),
-         ds.getListenPort("LDAP"));
+    conn = new LDAPConnection(opts, "127.0.0.1", ds.getListenPort("LDAP"));
     assertNotNull(conn.getRootDSE());
     assertResultCodeEquals(conn,
          new StartTLSExtendedRequest(clientSSLUtil.createSSLSocketFactory()),

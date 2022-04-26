@@ -6610,19 +6610,19 @@ public final class InMemoryDirectoryServerTestCase
     }
     catch (final LDAPException e)
     {
-      assertEquals(unHandler.getNotificationCount(), 2);
+      // This was expected.
     }
-
-
-    // Closed all the remaining connections.
-    for (final LDAPConnection c : connList)
+    finally
     {
-      c.close();
+      // Closed all the remaining connections.
+      for (final LDAPConnection c : connList)
+      {
+        c.close();
+      }
+      connList.clear();
+
+      ds.shutDown(true);
     }
-    connList.clear();
-
-
-    ds.shutDown(true);
   }
 
 
