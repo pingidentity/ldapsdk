@@ -76,6 +76,20 @@ public interface ReadOnlySearchRequest
 
 
   /**
+   * Retrieves the base DN for this search request, parsed as a DN object.
+   *
+   * @return  The base DN for this search request, parsed as a DN object.
+   *
+   * @throws  LDAPException  If the base DN string cannot be parsed as a valid
+   *                         DN.
+   */
+  @NotNull()
+  DN getParsedBaseDN()
+     throws LDAPException;
+
+
+
+  /**
    * Retrieves the scope for this search request.
    *
    * @return  The scope for this search request.

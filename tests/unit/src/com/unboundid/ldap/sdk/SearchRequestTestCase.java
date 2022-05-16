@@ -71,6 +71,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -137,6 +140,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -194,6 +200,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -219,7 +228,54 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new DN("dc=example,dc=com"),
+         SearchScope.BASE, Filter.create("(objectClass=*)"));
+    searchRequest.setFollowReferrals(false);
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.BASE);
+    assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
+    assertEquals(searchRequest.getSizeLimit(), 0);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 0);
+    assertFalse(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 0);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertTrue(searchRequest.getAttributeList().isEmpty());
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -249,6 +305,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -275,7 +334,54 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new DN("dc=example,dc=com"),
+         SearchScope.BASE, Filter.create("(objectClass=*)"), "cn", "sn");
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.BASE);
+    assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
+    assertEquals(searchRequest.getSizeLimit(), 0);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 0);
+    assertFalse(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 2);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertFalse(searchRequest.getAttributeList().isEmpty());
+    assertEquals(searchRequest.getAttributeList().size(), 2);
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -304,6 +410,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
@@ -361,6 +470,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -417,6 +529,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -442,7 +557,53 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(null, new DN("dc=example,dc=com"),
+         SearchScope.BASE, Filter.create("(objectClass=*)"));
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.BASE);
+    assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
+    assertEquals(searchRequest.getSizeLimit(), 0);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 0);
+    assertFalse(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 0);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertTrue(searchRequest.getAttributeList().isEmpty());
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -473,6 +634,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.BASE);
     assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
     assertEquals(searchRequest.getSizeLimit(), 0);
@@ -499,7 +663,55 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new TestSearchResultListener(),
+         new DN("dc=example,dc=com"), SearchScope.BASE,
+         Filter.create("(objectClass=*)"), "cn", "sn");
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.BASE);
+    assertEquals(searchRequest.getDereferencePolicy(), DereferencePolicy.NEVER);
+    assertEquals(searchRequest.getSizeLimit(), 0);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 0);
+    assertFalse(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 2);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertFalse(searchRequest.getAttributeList().isEmpty());
+    assertEquals(searchRequest.getAttributeList().size(), 2);
+
+    assertNotNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -529,6 +741,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
@@ -586,6 +801,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
@@ -645,6 +863,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
                  DereferencePolicy.ALWAYS);
@@ -671,7 +892,55 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new DN("dc=example,dc=com"),
+         SearchScope.SUB, DereferencePolicy.ALWAYS, 1234, 5678, true,
+         Filter.create("(objectClass=*)"));
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.SUB);
+    assertEquals(searchRequest.getDereferencePolicy(),
+                 DereferencePolicy.ALWAYS);
+    assertEquals(searchRequest.getSizeLimit(), 1234);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 5678);
+    assertTrue(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 0);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertTrue(searchRequest.getAttributeList().isEmpty());
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -702,6 +971,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
                  DereferencePolicy.ALWAYS);
@@ -729,7 +1001,56 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new DN("dc=example,dc=com"),
+         SearchScope.SUB, DereferencePolicy.ALWAYS, 1234, 5678, true,
+         Filter.create("(objectClass=*)"), "cn", "sn");
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.SUB);
+    assertEquals(searchRequest.getDereferencePolicy(),
+                 DereferencePolicy.ALWAYS);
+    assertEquals(searchRequest.getSizeLimit(), 1234);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 5678);
+    assertTrue(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 2);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertFalse(searchRequest.getAttributeList().isEmpty());
+    assertEquals(searchRequest.getAttributeList().size(), 2);
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -759,6 +1080,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
@@ -816,6 +1140,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
@@ -875,6 +1202,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
                  DereferencePolicy.ALWAYS);
@@ -901,7 +1231,55 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(null, new DN("dc=example,dc=com"),
+         SearchScope.SUB, DereferencePolicy.ALWAYS, 1234, 5678, true,
+         Filter.create("(objectClass=*)"));
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.SUB);
+    assertEquals(searchRequest.getDereferencePolicy(),
+                 DereferencePolicy.ALWAYS);
+    assertEquals(searchRequest.getSizeLimit(), 1234);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 5678);
+    assertTrue(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 0);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertTrue(searchRequest.getAttributeList().isEmpty());
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -933,6 +1311,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
                  DereferencePolicy.ALWAYS);
@@ -960,7 +1341,56 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new TestSearchResultListener(),
+         new DN("dc=example,dc=com"), SearchScope.SUB, DereferencePolicy.ALWAYS,
+         1234, 5678, true, Filter.create("(objectClass=*)"), "cn", "sn");
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.SUB);
+    assertEquals(searchRequest.getDereferencePolicy(),
+                 DereferencePolicy.ALWAYS);
+    assertEquals(searchRequest.getSizeLimit(), 1234);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 5678);
+    assertTrue(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 2);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertFalse(searchRequest.getAttributeList().isEmpty());
+    assertEquals(searchRequest.getAttributeList().size(), 2);
+
+    assertNotNull(searchRequest.getSearchResultListener());
+
+    assertFalse(searchRequest.hasControl());
+    assertFalse(searchRequest.hasControl("1.2.3.4"));
+    assertNull(searchRequest.getControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 0);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -996,6 +1426,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
@@ -1062,6 +1495,9 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
@@ -1130,6 +1566,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
                  DereferencePolicy.ALWAYS);
@@ -1158,7 +1597,57 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(null, controls,
+         new DN("dc=example,dc=com"), SearchScope.SUB, DereferencePolicy.ALWAYS,
+         -1234, -5678, true, Filter.create("(objectClass=*)"));
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.SUB);
+    assertEquals(searchRequest.getDereferencePolicy(),
+                 DereferencePolicy.ALWAYS);
+    assertEquals(searchRequest.getSizeLimit(), 0);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 0);
+    assertTrue(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 0);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertTrue(searchRequest.getAttributeList().isEmpty());
+
+    assertNull(searchRequest.getSearchResultListener());
+
+    assertTrue(searchRequest.hasControl());
+    assertTrue(searchRequest.hasControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControl("1.2.3.4"));
+    assertFalse(searchRequest.hasControl("1.2.3.6"));
+    assertNull(searchRequest.getControl("1.2.3.6"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 2);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -1196,6 +1685,9 @@ public class SearchRequestTestCase
     assertNotNull(searchRequest.getBaseDN());
     assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
 
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
     assertEquals(searchRequest.getScope(), SearchScope.SUB);
     assertEquals(searchRequest.getDereferencePolicy(),
                  DereferencePolicy.ALWAYS);
@@ -1225,7 +1717,58 @@ public class SearchRequestTestCase
 
     assertNotNull(searchRequest.toString());
 
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    searchRequest.toCode(toCodeLines, "foo", 0, false);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    searchRequest.toCode(toCodeLines, "bar", 4, true);
+    assertFalse(toCodeLines.isEmpty());
+
+    testEncoding(searchRequest);
+
+
+    searchRequest = new SearchRequest(new TestSearchResultListener(), controls,
+         new DN("dc=example,dc=com"), SearchScope.SUB, DereferencePolicy.ALWAYS,
+         -1234, -5678, true, Filter.create("(objectClass=*)"), "cn", "sn");
+    searchRequest = searchRequest.duplicate();
+
+    assertNotNull(searchRequest.getBaseDN());
+    assertEquals(searchRequest.getBaseDN(), "dc=example,dc=com");
+
+    assertNotNull(searchRequest.getParsedBaseDN());
+    assertEquals(searchRequest.getParsedBaseDN(), new DN("dc=example,dc=com"));
+
+    assertEquals(searchRequest.getScope(), SearchScope.SUB);
+    assertEquals(searchRequest.getDereferencePolicy(),
+                 DereferencePolicy.ALWAYS);
+    assertEquals(searchRequest.getSizeLimit(), 0);
+    assertEquals(searchRequest.getTimeLimitSeconds(), 0);
+    assertTrue(searchRequest.typesOnly());
+
+    assertNotNull(searchRequest.getFilter());
+    assertEquals(searchRequest.getFilter().toString(), "(objectClass=*)");
+
+    assertNotNull(searchRequest.getAttributes());
+    assertEquals(searchRequest.getAttributes().length, 2);
+
+    assertNotNull(searchRequest.getAttributeList());
+    assertFalse(searchRequest.getAttributeList().isEmpty());
+    assertEquals(searchRequest.getAttributeList().size(), 2);
+
+    assertNotNull(searchRequest.getSearchResultListener());
+
+    assertTrue(searchRequest.hasControl());
+    assertTrue(searchRequest.hasControl("1.2.3.4"));
+    assertNotNull(searchRequest.getControl("1.2.3.4"));
+    assertFalse(searchRequest.hasControl("1.2.3.6"));
+    assertNull(searchRequest.getControl("1.2.3.6"));
+    assertNotNull(searchRequest.getControls());
+    assertEquals(searchRequest.getControls().length, 2);
+
+    assertNotNull(searchRequest.toString());
+
+    toCodeLines = new ArrayList<String>(10);
     searchRequest.toCode(toCodeLines, "foo", 0, false);
     assertFalse(toCodeLines.isEmpty());
 
@@ -1251,12 +1794,15 @@ public class SearchRequestTestCase
          new SearchRequest("dc=example,dc=com", SearchScope.BASE,
                            "(objectClass=*)");
     assertEquals(r.getBaseDN(), "dc=example,dc=com");
+    assertEquals(r.getParsedBaseDN(), new DN("dc=example,dc=com"));
 
     r.setBaseDN("o=example.com");
     assertEquals(r.getBaseDN(), "o=example.com");
+    assertEquals(r.getParsedBaseDN(), new DN("o=example.com"));
 
     r.setBaseDN(new DN("o=example.net"));
     assertEquals(r.getBaseDN(), "o=example.net");
+    assertEquals(r.getParsedBaseDN(), new DN("o=example.net"));
 
     testEncoding(r);
   }

@@ -354,6 +354,34 @@ public final class SearchRequest
 
 
   /**
+   * Creates a new search request with the provided information.  Search result
+   * entries and references will be collected internally and included in the
+   * {@code SearchResult} object returned when search processing is completed.
+   *
+   * @param  baseDN      The base DN for the search request.  It must not be
+   *                     {@code null}.
+   * @param  scope       The scope that specifies the range of entries that
+   *                     should be examined for the search.
+   * @param  filter      The string representation of the filter to use to
+   *                     identify matching entries.  It must not be
+   *                     {@code null}.
+   * @param  attributes  The set of attributes that should be returned in
+   *                     matching entries.  It may be {@code null} or empty if
+   *                     the default attribute set (all user attributes) is to
+   *                     be requested.
+   */
+  public SearchRequest(@NotNull final DN baseDN,
+                       @NotNull final SearchScope scope,
+                       @NotNull final Filter filter,
+                       @Nullable final String... attributes)
+  {
+    this(null, null, baseDN.toString(), scope, DereferencePolicy.NEVER, 0, 0,
+         false, filter, attributes);
+  }
+
+
+
+  /**
    * Creates a new search request with the provided information.
    *
    * @param  searchResultListener  The search result listener that should be
@@ -417,6 +445,38 @@ public final class SearchRequest
   {
     this(searchResultListener, null, baseDN, scope, DereferencePolicy.NEVER, 0,
          0, false, filter, attributes);
+  }
+
+
+
+  /**
+   * Creates a new search request with the provided information.
+   *
+   * @param  searchResultListener  The search result listener that should be
+   *                               used to return results to the client.  It may
+   *                               be {@code null} if the search results should
+   *                               be collected internally and returned in the
+   *                               {@code SearchResult} object.
+   * @param  baseDN                The base DN for the search request.  It must
+   *                               not be {@code null}.
+   * @param  scope                 The scope that specifies the range of entries
+   *                               that should be examined for the search.
+   * @param  filter                The string representation of the filter to
+   *                               use to identify matching entries.  It must
+   *                               not be {@code null}.
+   * @param  attributes            The set of attributes that should be returned
+   *                               in matching entries.  It may be {@code null}
+   *                               or empty if the default attribute set (all
+   *                               user attributes) is to be requested.
+   */
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final DN baseDN, @NotNull final SearchScope scope,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
+  {
+    this(searchResultListener, null, baseDN.toString(), scope,
+         DereferencePolicy.NEVER, 0, 0, false, filter, attributes);
   }
 
 
@@ -499,6 +559,45 @@ public final class SearchRequest
   {
     this(null, null, baseDN, scope, derefPolicy, sizeLimit, timeLimit,
          typesOnly, filter, attributes);
+  }
+
+
+
+  /**
+   * Creates a new search request with the provided information.  Search result
+   * entries and references will be collected internally and included in the
+   * {@code SearchResult} object returned when search processing is completed.
+   *
+   * @param  baseDN       The base DN for the search request.  It must not be
+   *                      {@code null}.
+   * @param  scope        The scope that specifies the range of entries that
+   *                      should be examined for the search.
+   * @param  derefPolicy  The dereference policy the server should use for any
+   *                      aliases encountered while processing the search.
+   * @param  sizeLimit    The maximum number of entries that the server should
+   *                      return for the search.  A value of zero indicates that
+   *                      there should be no limit.
+   * @param  timeLimit    The maximum length of time in seconds that the server
+   *                      should spend processing this search request.  A value
+   *                      of zero indicates that there should be no limit.
+   * @param  typesOnly    Indicates whether to return only attribute names in
+   *                      matching entries, or both attribute names and values.
+   * @param  filter       The filter to use to identify matching entries.  It
+   *                      must not be {@code null}.
+   * @param  attributes   The set of attributes that should be returned in
+   *                      matching entries.  It may be {@code null} or empty if
+   *                      the default attribute set (all user attributes) is to
+   *                      be requested.
+   */
+  public SearchRequest(@NotNull final DN baseDN,
+                       @NotNull final SearchScope scope,
+                       @NotNull final DereferencePolicy derefPolicy,
+                       final int sizeLimit, final int timeLimit,
+                       final boolean typesOnly, @NotNull final Filter filter,
+                       @Nullable final String... attributes)
+  {
+    this(null, null, baseDN.toString(), scope, derefPolicy, sizeLimit,
+         timeLimit, typesOnly, filter, attributes);
   }
 
 
@@ -595,6 +694,52 @@ public final class SearchRequest
   {
     this(searchResultListener, null, baseDN, scope, derefPolicy, sizeLimit,
          timeLimit, typesOnly, filter, attributes);
+  }
+
+
+
+  /**
+   * Creates a new search request with the provided information.
+   *
+   * @param  searchResultListener  The search result listener that should be
+   *                               used to return results to the client.  It may
+   *                               be {@code null} if the search results should
+   *                               be collected internally and returned in the
+   *                               {@code SearchResult} object.
+   * @param  baseDN                The base DN for the search request.  It must
+   *                               not be {@code null}.
+   * @param  scope                 The scope that specifies the range of entries
+   *                               that should be examined for the search.
+   * @param  derefPolicy           The dereference policy the server should use
+   *                               for any aliases encountered while processing
+   *                               the search.
+   * @param  sizeLimit             The maximum number of entries that the server
+   *                               should return for the search.  A value of
+   *                               zero indicates that there should be no limit.
+   * @param  timeLimit             The maximum length of time in seconds that
+   *                               the server should spend processing this
+   *                               search request.  A value of zero indicates
+   *                               that there should be no limit.
+   * @param  typesOnly             Indicates whether to return only attribute
+   *                               names in matching entries, or both attribute
+   *                               names and values.
+   * @param  filter                The filter to use to identify matching
+   *                               entries.  It must not be {@code null}.
+   * @param  attributes            The set of attributes that should be returned
+   *                               in matching entries.  It may be {@code null}
+   *                               or empty if the default attribute set (all
+   *                               user attributes) is to be requested.
+   */
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @NotNull final DN baseDN, @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
+  {
+    this(searchResultListener, null, baseDN.toString(), scope, derefPolicy,
+         sizeLimit, timeLimit, typesOnly, filter, attributes);
   }
 
 
@@ -741,6 +886,57 @@ public final class SearchRequest
 
 
   /**
+   * Creates a new search request with the provided information.
+   *
+   * @param  searchResultListener  The search result listener that should be
+   *                               used to return results to the client.  It may
+   *                               be {@code null} if the search results should
+   *                               be collected internally and returned in the
+   *                               {@code SearchResult} object.
+   * @param  controls              The set of controls to include in the
+   *                               request.  It may be {@code null} or empty if
+   *                               no controls should be included in the
+   *                               request.
+   * @param  baseDN                The base DN for the search request.  It must
+   *                               not be {@code null}.
+   * @param  scope                 The scope that specifies the range of entries
+   *                               that should be examined for the search.
+   * @param  derefPolicy           The dereference policy the server should use
+   *                               for any aliases encountered while processing
+   *                               the search.
+   * @param  sizeLimit             The maximum number of entries that the server
+   *                               should return for the search.  A value of
+   *                               zero indicates that there should be no limit.
+   * @param  timeLimit             The maximum length of time in seconds that
+   *                               the server should spend processing this
+   *                               search request.  A value of zero indicates
+   *                               that there should be no limit.
+   * @param  typesOnly             Indicates whether to return only attribute
+   *                               names in matching entries, or both attribute
+   *                               names and values.
+   * @param  filter                The filter to use to identify matching
+   *                               entries.  It must not be {@code null}.
+   * @param  attributes            The set of attributes that should be returned
+   *                               in matching entries.  It may be {@code null}
+   *                               or empty if the default attribute set (all
+   *                               user attributes) is to be requested.
+   */
+  public SearchRequest(
+              @Nullable final SearchResultListener searchResultListener,
+              @Nullable final Control[] controls, @NotNull final DN baseDN,
+              @NotNull final SearchScope scope,
+              @NotNull final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly,
+              @NotNull final Filter filter,
+              @Nullable final String... attributes)
+  {
+    this(searchResultListener, controls, baseDN.toString(), scope, derefPolicy,
+    sizeLimit, timeLimit, typesOnly, filter, attributes);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -748,6 +944,19 @@ public final class SearchRequest
   public String getBaseDN()
   {
     return baseDN;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public DN getParsedBaseDN()
+         throws LDAPException
+  {
+    return new DN(baseDN);
   }
 
 
