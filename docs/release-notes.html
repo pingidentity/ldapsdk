@@ -18,6 +18,19 @@ ${TARGET="offline"}                <br>
                   the base DN with a DN object rather than a string.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the manage-certificates generate-self-signed-certificate command to
+                  rename the --replace-existing-certificate argument to be
+                  --use-existing-key-pair.  The latter is more clear, and can help avoid confusion
+                  in cases where someone may mistakenly think that the command performs more
+                  processing than it actually does (for example, all the processing necessary to
+                  fully replace a certificate that is actively being used by a Ping Identity
+                  Directory Server).  The former name is still available to use and will result in
+                  exactly the same behavior so backward compatibility will not be affected, but
+                  that name is hidden in favor of the new name.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

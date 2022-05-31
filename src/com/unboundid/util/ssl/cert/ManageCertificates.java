@@ -1541,19 +1541,21 @@ public final class ManageCertificates
     genCertAlias.addLongIdentifier("nickname", true);
     genCertParser.addArgument(genCertAlias);
 
-    final BooleanArgument genCertReplace = new BooleanArgument(null,
-         "replace-existing-certificate", 1,
-         INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_REPLACE_DESC.get());
-    genCertReplace.addLongIdentifier("replaceExistingCertificate", true);
-    genCertReplace.addLongIdentifier("replace-certificate", true);
-    genCertReplace.addLongIdentifier("replaceCertificate", true);
-    genCertReplace.addLongIdentifier("replace-existing", true);
-    genCertReplace.addLongIdentifier("replaceExisting", true);
-    genCertReplace.addLongIdentifier("replace", true);
-    genCertReplace.addLongIdentifier("use-existing-key-pair", true);
-    genCertReplace.addLongIdentifier("use-existing-keypair", true);
-    genCertReplace.addLongIdentifier("useExistingKeypair", true);
-    genCertParser.addArgument(genCertReplace);
+    final BooleanArgument genCertUseExistingKeyPair = new BooleanArgument(null,
+         "use-existing-key-pair", 1,
+         INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_USE_EXISTING_KP_DESC.get());
+    genCertUseExistingKeyPair.addLongIdentifier("use-existing-keypair", true);
+    genCertUseExistingKeyPair.addLongIdentifier("useExistingKeypair", true);
+    genCertUseExistingKeyPair.addLongIdentifier("replace-existing-certificate",
+         true);
+    genCertUseExistingKeyPair.addLongIdentifier("replaceExistingCertificate",
+         true);
+    genCertUseExistingKeyPair.addLongIdentifier("replace-certificate", true);
+    genCertUseExistingKeyPair.addLongIdentifier("replaceCertificate", true);
+    genCertUseExistingKeyPair.addLongIdentifier("replace-existing", true);
+    genCertUseExistingKeyPair.addLongIdentifier("replaceExisting", true);
+    genCertUseExistingKeyPair.addLongIdentifier("replace", true);
+    genCertParser.addArgument(genCertUseExistingKeyPair);
 
     final DNArgument genCertSubjectDN = new DNArgument(null, "subject-dn",
          false, 1, null,
@@ -1814,9 +1816,11 @@ public final class ManageCertificates
          genCertKeystorePasswordFile, genCertPromptForKeystorePassword);
     genCertParser.addExclusiveArgumentSet(genCertPKPassword,
          genCertPKPasswordFile, genCertPromptForPKPassword);
-    genCertParser.addExclusiveArgumentSet(genCertReplace, genCertKeyAlgorithm);
-    genCertParser.addExclusiveArgumentSet(genCertReplace, genCertKeySizeBits);
-    genCertParser.addExclusiveArgumentSet(genCertReplace,
+    genCertParser.addExclusiveArgumentSet(genCertUseExistingKeyPair,
+         genCertKeyAlgorithm);
+    genCertParser.addExclusiveArgumentSet(genCertUseExistingKeyPair,
+         genCertKeySizeBits);
+    genCertParser.addExclusiveArgumentSet(genCertUseExistingKeyPair,
          genCertSignatureAlgorithm);
     genCertParser.addDependentArgumentSet(genCertBasicConstraintsPathLength,
          genCertBasicConstraintsIsCA);
@@ -1844,7 +1848,7 @@ public final class ManageCertificates
            "--keystore-password-file",
                 getPlatformSpecificPath("config", "keystore.pin"),
            "--alias", "server-cert",
-           "--replace-existing-certificate",
+           "--use-existing-key-pair",
            "--inherit-extensions"
          },
          INFO_MANAGE_CERTS_SC_GEN_CERT_EXAMPLE_2.get());
@@ -2068,19 +2072,21 @@ public final class ManageCertificates
     genCSRAlias.addLongIdentifier("nickname", true);
     genCSRParser.addArgument(genCSRAlias);
 
-    final BooleanArgument genCSRReplace = new BooleanArgument(null,
+    final BooleanArgument genCSRUseExistingKeyPair = new BooleanArgument(null,
          "use-existing-key-pair", 1,
-         INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_REPLACE_DESC.get());
-    genCSRReplace.addLongIdentifier("use-existing-keypair", true);
-    genCSRReplace.addLongIdentifier("useExistingKeyPair", true);
-    genCSRReplace.addLongIdentifier("replace-existing-certificate", true);
-    genCSRReplace.addLongIdentifier("replaceExistingCertificate", true);
-    genCSRReplace.addLongIdentifier("replace-certificate", true);
-    genCSRReplace.addLongIdentifier("replaceCertificate", true);
-    genCSRReplace.addLongIdentifier("replace-existing", true);
-    genCSRReplace.addLongIdentifier("replaceExisting", true);
-    genCSRReplace.addLongIdentifier("replace", true);
-    genCSRParser.addArgument(genCSRReplace);
+         INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_USE_EXISTING_KP_DESC.get());
+    genCSRUseExistingKeyPair.addLongIdentifier("use-existing-keypair", true);
+    genCSRUseExistingKeyPair.addLongIdentifier("useExistingKeyPair", true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replace-existing-certificate",
+         true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replaceExistingCertificate",
+         true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replace-certificate", true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replaceCertificate", true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replace-existing", true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replaceExisting", true);
+    genCSRUseExistingKeyPair.addLongIdentifier("replace", true);
+    genCSRParser.addArgument(genCSRUseExistingKeyPair);
 
     final DNArgument genCSRSubjectDN = new DNArgument(null, "subject-dn",
          false, 1, null,
@@ -2305,9 +2311,11 @@ public final class ManageCertificates
          genCSRKeystorePasswordFile, genCSRPromptForKeystorePassword);
     genCSRParser.addExclusiveArgumentSet(genCSRPKPassword,
          genCSRPKPasswordFile, genCSRPromptForPKPassword);
-    genCSRParser.addExclusiveArgumentSet(genCSRReplace, genCSRKeyAlgorithm);
-    genCSRParser.addExclusiveArgumentSet(genCSRReplace, genCSRKeySizeBits);
-    genCSRParser.addExclusiveArgumentSet(genCSRReplace,
+    genCSRParser.addExclusiveArgumentSet(genCSRUseExistingKeyPair,
+         genCSRKeyAlgorithm);
+    genCSRParser.addExclusiveArgumentSet(genCSRUseExistingKeyPair,
+         genCSRKeySizeBits);
+    genCSRParser.addExclusiveArgumentSet(genCSRUseExistingKeyPair,
          genCSRSignatureAlgorithm);
     genCSRParser.addDependentArgumentSet(genCSRBasicConstraintsPathLength,
          genCSRBasicConstraintsIsCA);
@@ -6531,15 +6539,15 @@ public final class ManageCertificates
       return ResultCode.PARAM_ERROR;
     }
 
-    final BooleanArgument replaceExistingCertificateArgument =
-         subCommandParser.getBooleanArgument("replace-existing-certificate");
-    final boolean replaceExistingCertificate =
-         ((replaceExistingCertificateArgument != null) &&
-              replaceExistingCertificateArgument.isPresent());
-    if (replaceExistingCertificate && (! keystorePath.exists()))
+    final BooleanArgument useExistingKeyPairArgument =
+         subCommandParser.getBooleanArgument("use-existing-key-pair");
+    final boolean useExistingKeyPair =
+         ((useExistingKeyPairArgument != null) &&
+              useExistingKeyPairArgument.isPresent());
+    if (useExistingKeyPair && (! keystorePath.exists()))
     {
       wrapErr(0, WRAP_COLUMN,
-           ERR_MANAGE_CERTS_GEN_CERT_REPLACE_WITHOUT_KS.get());
+           ERR_MANAGE_CERTS_GEN_CERT_USE_EXISTING_KP_WITHOUT_KS.get());
       return ResultCode.PARAM_ERROR;
     }
 
@@ -7152,7 +7160,7 @@ public final class ManageCertificates
 
     // If we're going to replace an existing certificate in the keystore, then
     // perform the appropriate processing for that.
-    if (replaceExistingCertificate)
+    if (useExistingKeyPair)
     {
       // Make sure that the keystore already has a private key entry with the
       // specified alias.
@@ -7161,15 +7169,15 @@ public final class ManageCertificates
         if (hasCertificateAlias(keystore, alias))
         {
           wrapErr(0, WRAP_COLUMN,
-               ERR_MANAGE_CERTS_GEN_CERT_REPLACE_ALIAS_IS_CERT.get(alias,
-                    keystorePath.getAbsolutePath()));
+               ERR_MANAGE_CERTS_GEN_CERT_USE_EXISTING_KP_ALIAS_IS_CERT.get(
+                    alias, keystorePath.getAbsolutePath()));
           return ResultCode.PARAM_ERROR;
         }
         else
         {
           wrapErr(0, WRAP_COLUMN,
-               ERR_MANAGE_CERTS_GEN_CERT_REPLACE_NO_SUCH_ALIAS.get(alias,
-                    keystorePath.getAbsolutePath()));
+               ERR_MANAGE_CERTS_GEN_CERT_USE_EXISTING_KP_NO_SUCH_ALIAS.get(
+                    alias, keystorePath.getAbsolutePath()));
           return ResultCode.PARAM_ERROR;
         }
       }
@@ -7192,7 +7200,8 @@ public final class ManageCertificates
       {
         Debug.debugException(e);
         wrapErr(0, WRAP_COLUMN,
-             ERR_MANAGE_CERTS_GEN_CERT_REPLACE_COULD_NOT_GET_CERT.get(alias));
+             ERR_MANAGE_CERTS_GEN_CERT_USE_EXISTING_KP_COULD_NOT_GET_CERT.get(
+                  alias));
         e.printStackTrace(getErr());
         return ResultCode.LOCAL_ERROR;
       }
@@ -7563,7 +7572,8 @@ public final class ManageCertificates
     if ((subjectDN == null) && (! isSignCSR))
     {
       wrapErr(0, WRAP_COLUMN,
-           ERR_MANAGE_CERTS_GEN_CERT_NO_SUBJECT_DN_WITHOUT_REPLACE.get());
+           ERR_MANAGE_CERTS_GEN_CERT_NO_SUBJECT_DN_WITHOUT_USE_EXISTING_KP.
+                get());
       return ResultCode.PARAM_ERROR;
     }
 
@@ -7597,7 +7607,8 @@ public final class ManageCertificates
       if (hasKeyAlias(keystore, alias) || hasCertificateAlias(keystore, alias))
       {
         wrapErr(0, WRAP_COLUMN,
-             ERR_MANAGE_CERTS_GEN_CERT_ALIAS_EXISTS_WITHOUT_REPLACE.get(alias));
+             ERR_MANAGE_CERTS_GEN_CERT_ALIAS_EXISTS_WITHOUT_USE_EXISTING_KP.get(
+                  alias));
         return ResultCode.PARAM_ERROR;
       }
 

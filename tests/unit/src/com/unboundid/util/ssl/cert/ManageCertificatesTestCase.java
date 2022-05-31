@@ -2515,7 +2515,7 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate",
+         "--use-existing-key-pair",
          "--output-file", derFile.getAbsolutePath(),
          "--output-format", "DER");
 
@@ -2589,7 +2589,7 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate",
+         "--use-existing-key-pair",
          "--output-file", pemFile.getAbsolutePath(),
          "--output-format", "PEM");
 
@@ -2779,7 +2779,7 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--keystore-type", "JKS",
          "--alias", "server-cert",
-         "--replace-existing-certificate",
+         "--use-existing-key-pair",
          "--days-valid", "7300",
          "--validity-start-time", "20170101000000",
          "--inherit-extensions",
@@ -2905,7 +2905,7 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--keystore-type", "JKS",
          "--alias", "server-cert",
-         "--replace-existing-certificate",
+         "--use-existing-key-pair",
          "--days-valid", "7300",
          "--validity-start-time", "20170101000000",
          "--inherit-extensions",
@@ -3431,7 +3431,7 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate",
+         "--use-existing-key-pair",
          "--display-keytool-command");
 
     assertTrue(csrFile.exists());
@@ -3452,7 +3452,7 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate",
+         "--use-existing-key-pair",
          "--display-keytool-command");
 
     assertTrue(csrFile.exists());
