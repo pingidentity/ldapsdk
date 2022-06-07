@@ -1383,7 +1383,7 @@ public final class ResultCode
 
   /**
    * The result code (119) that will be used if the client attempts to cancel an
-   * operation that the client doesn't exist in the server.
+   * operation that doesn't exist in the server.
    */
   @NotNull public static final ResultCode NO_SUCH_OPERATION =
        new ResultCode(INFO_RC_NO_SUCH_OPERATION.get(),
