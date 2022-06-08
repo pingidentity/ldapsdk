@@ -476,11 +476,13 @@ public class JNDIConverterTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testToSDKControlWithValue()
+  public void testToSDKControlWithBareValue()
          throws Exception
   {
+    assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+
     BasicControl jndiControl = new BasicControl("1.2.3.4", true,
-         new ASN1OctetString("foo").encode());
+         StaticUtils.getBytes("foo"));
 
     Control sdkControl = JNDIConverter.convertControl(jndiControl);
 
@@ -499,6 +501,47 @@ public class JNDIConverterTestCase
 
   /**
    * Provides test coverage for the method used to convert a non-{@code null}
+   * JNDI control to an SDK control for a control which has a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToSDKControlWithValueAsCompleteElement()
+         throws Exception
+  {
+    assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+
+    try
+    {
+      JNDIConverter.setIncludeTypeAndLengthInControlValues(true);
+      assertTrue(JNDIConverter.includeTypeAndLengthInControlValues());
+
+      BasicControl jndiControl = new BasicControl("1.2.3.4", true,
+           new ASN1OctetString("foo").encode());
+
+      Control sdkControl = JNDIConverter.convertControl(jndiControl);
+
+      assertNotNull(sdkControl);
+
+      assertNotNull(sdkControl.getOID());
+      assertEquals(sdkControl.getOID(), "1.2.3.4");
+
+      assertTrue(sdkControl.isCritical());
+
+      assertNotNull(sdkControl.getValue());
+      assertEquals(sdkControl.getValue().stringValue(), "foo");
+    }
+    finally
+    {
+      JNDIConverter.setIncludeTypeAndLengthInControlValues(false);
+      assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the method used to convert a non-{@code null}
    * JNDI control to an SDK control for a control which has a malformed value.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -507,10 +550,23 @@ public class JNDIConverterTestCase
   public void testToSDKControlWithMalformedValue()
          throws Exception
   {
-    BasicControl jndiControl = new BasicControl("1.2.3.4", true,
-         new byte[] { (byte) 0x01 });
+    assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
 
-    JNDIConverter.convertControl(jndiControl);
+    try
+    {
+      JNDIConverter.setIncludeTypeAndLengthInControlValues(true);
+      assertTrue(JNDIConverter.includeTypeAndLengthInControlValues());
+
+      BasicControl jndiControl = new BasicControl("1.2.3.4", true,
+           new byte[] { (byte) 0x01 });
+
+      JNDIConverter.convertControl(jndiControl);
+    }
+    finally
+    {
+      JNDIConverter.setIncludeTypeAndLengthInControlValues(false);
+      assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+    }
   }
 
 
@@ -564,9 +620,11 @@ public class JNDIConverterTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testToJNDIControlWithValue()
+  public void testToJNDIControlWithBareValue()
          throws Exception
   {
+    assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+
     Control sdkControl =
          new Control("1.2.3.4", true, new ASN1OctetString("foo"));
 
@@ -581,8 +639,50 @@ public class JNDIConverterTestCase
     assertTrue(jndiControl.isCritical());
 
     assertNotNull(jndiControl.getEncodedValue());
-    assertTrue(Arrays.equals(jndiControl.getEncodedValue(),
-         new ASN1OctetString("foo").encode()));
+    assertEquals(jndiControl.getEncodedValue(), StaticUtils.getBytes("foo"));
+  }
+
+
+
+  /**
+   * Provides test coverage for the method used to convert a non-{@code null}
+   * SDK control to a JNDI control for a control which has a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToJNDIControlWithValueAsCompleteElement()
+         throws Exception
+  {
+    assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+
+    try
+    {
+      JNDIConverter.setIncludeTypeAndLengthInControlValues(true);
+      assertTrue(JNDIConverter.includeTypeAndLengthInControlValues());
+
+      Control sdkControl =
+           new Control("1.2.3.4", true, new ASN1OctetString("foo"));
+
+      javax.naming.ldap.Control jndiControl =
+           JNDIConverter.convertControl(sdkControl);
+
+      assertNotNull(jndiControl);
+
+      assertNotNull(jndiControl.getID());
+      assertEquals(jndiControl.getID(), "1.2.3.4");
+
+      assertTrue(jndiControl.isCritical());
+
+      assertNotNull(jndiControl.getEncodedValue());
+      assertTrue(Arrays.equals(jndiControl.getEncodedValue(),
+           new ASN1OctetString("foo").encode()));
+    }
+    finally
+    {
+      JNDIConverter.setIncludeTypeAndLengthInControlValues(false);
+      assertFalse(JNDIConverter.includeTypeAndLengthInControlValues());
+    }
   }
 
 
@@ -743,7 +843,7 @@ public class JNDIConverterTestCase
          throws Exception
   {
     TestExtendedRequest jndiRequest = new TestExtendedRequest("1.2.3.4",
-         new ASN1OctetString("foo").encode());
+         StaticUtils.getBytes("foo"));
 
     ExtendedRequest sdkRequest =
          JNDIConverter.convertExtendedRequest(jndiRequest);
@@ -798,7 +898,7 @@ public class JNDIConverterTestCase
 
     assertNotNull(jndiRequest.getEncodedValue());
     assertTrue(Arrays.equals(jndiRequest.getEncodedValue(),
-         new ASN1OctetString("foo").encode()));
+         StaticUtils.getBytes("foo")));
   }
 
 

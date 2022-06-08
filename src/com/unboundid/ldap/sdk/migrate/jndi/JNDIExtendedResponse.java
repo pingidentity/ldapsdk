@@ -133,22 +133,31 @@ public final class JNDIExtendedResponse
     }
     else
     {
-      try
+      final byte[] trimmedBytes;
+      if ((offset == 0) && (length == berValue.length))
       {
-        if ((offset == 0) && (length == berValue.length))
+        trimmedBytes = berValue;
+      }
+      else
+      {
+        trimmedBytes = new byte[length];
+        System.arraycopy(berValue, offset, trimmedBytes, 0, length);
+      }
+
+      if (JNDIConverter.includeTypeAndLengthInExtendedOpValues())
+      {
+        try
         {
-          value = ASN1OctetString.decodeAsOctetString(berValue);
+          value = ASN1OctetString.decodeAsOctetString(trimmedBytes);
         }
-        else
+        catch (final ASN1Exception ae)
         {
-          final byte[] valueBytes = new byte[length];
-          System.arraycopy(berValue, offset, valueBytes, 0, length);
-          value = ASN1OctetString.decodeAsOctetString(valueBytes);
+          throw new NamingException(StaticUtils.getExceptionMessage(ae));
         }
       }
-      catch (final ASN1Exception ae)
+      else
       {
-        throw new NamingException(StaticUtils.getExceptionMessage(ae));
+        value = new ASN1OctetString(trimmedBytes);
       }
     }
 
@@ -191,7 +200,14 @@ public final class JNDIExtendedResponse
     }
     else
     {
-      return value.encode();
+      if (JNDIConverter.includeTypeAndLengthInExtendedOpValues())
+      {
+        return value.encode();
+      }
+      else
+      {
+        return value.getValue();
+      }
     }
   }
 

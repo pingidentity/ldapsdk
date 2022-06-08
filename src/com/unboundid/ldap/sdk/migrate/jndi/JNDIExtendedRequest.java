@@ -137,7 +137,14 @@ public final class JNDIExtendedRequest
     }
     else
     {
-      return value.encode();
+      if (JNDIConverter.includeTypeAndLengthInExtendedOpValues())
+      {
+        return value.encode();
+      }
+      else
+      {
+        return value.getValue();
+      }
     }
   }
 
@@ -217,13 +224,20 @@ public final class JNDIExtendedRequest
     }
     else
     {
-      try
+      if (JNDIConverter.includeTypeAndLengthInExtendedOpValues())
       {
-        value = ASN1OctetString.decodeAsOctetString(valueBytes);
+        try
+        {
+          value = ASN1OctetString.decodeAsOctetString(valueBytes);
+        }
+        catch (final ASN1Exception ae)
+        {
+          throw new NamingException(StaticUtils.getExceptionMessage(ae));
+        }
       }
-      catch (final ASN1Exception ae)
+      else
       {
-        throw new NamingException(StaticUtils.getExceptionMessage(ae));
+        value = new ASN1OctetString(valueBytes);
       }
     }
 

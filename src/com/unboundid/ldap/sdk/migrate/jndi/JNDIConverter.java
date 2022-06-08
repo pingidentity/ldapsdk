@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.migrate.jndi;
 
 
 
+import java.io.Serializable;
 import java.util.Collection;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -78,6 +79,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class JNDIConverter
+       implements Serializable
 {
   /**
    * An empty array of attributes.
@@ -111,9 +113,89 @@ public final class JNDIConverter
 
 
   /**
-   * An empty array of SDK controls.
+   * The name of a system property that can be used to indicate whether the
+   * encoded value in a JNDI control (as used by the {@link #convertControl}
+   * methods) should include the BER type and length in addition to the bytes of
+   * the value.
    */
-  @NotNull private static final Control[] NO_SDK_CONTROLS = new Control[0];
+  @NotNull private static final String
+       PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_CONTROL_VALUES =
+            JNDIConverter.class.getName() +
+                 ".includeTypeAndLengthInExtendedOpValues";
+
+
+
+  /**
+   * Indicates whether the encoded value in a JNDI control (as used by the
+   * {@link #convertControl} methods) should include the BER type and length in
+   * addition to the bytes of the value.  Although the JNDI Javadoc states that
+   * the encoded value "includes the BER tag and length for the control's
+   * value", testing with the JNDI API indicates that is not actually the case,
+   * and the array should contain only the value and not the type (also known as
+   * the tag) and the length.
+   */
+  private static volatile boolean includeTypeAndLengthInControlValues;
+
+
+
+  /**
+   * The name of a system property that can be used to indicate whether the byte
+   * arrays returned by {@link JNDIExtendedRequest#getEncodedValue()} and
+   * {@link JNDIExtendedResponse#getEncodedValue()} should include the BER type
+   * and length in addition to the bytes of the value.
+   */
+  @NotNull private static final String
+       PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_EXTENDED_OP_VALUES =
+            JNDIConverter.class.getName() +
+                 ".includeTypeAndLengthInExtendedOpValues";
+
+
+
+  /**
+   * Indicates whether the byte arrays returned by
+   * {@link JNDIExtendedRequest#getEncodedValue()} and
+   * {@link JNDIExtendedResponse#getEncodedValue()} should include the BER type
+   * and length in addition to the type bytes of the value.  Although the JNDI
+   * Javadoc states that the byte arrays should be "the raw BER bytes including
+   * the tag and length", testing with the JNDI API indicates that is not
+   * actually the case, and the array should contain only the value and not
+   * the type (also known as the tag) and the length.
+   */
+  private static volatile boolean includeTypeAndLengthInExtendedOpValues;
+  static
+  {
+    final String controlPropertyValue = StaticUtils.getSystemProperty(
+         PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_CONTROL_VALUES);
+    if (controlPropertyValue == null)
+    {
+      includeTypeAndLengthInControlValues = false;
+    }
+    else
+    {
+      includeTypeAndLengthInControlValues =
+           controlPropertyValue.equalsIgnoreCase("true");
+    }
+
+
+    final String extOpPropertyValue = StaticUtils.getSystemProperty(
+         PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_EXTENDED_OP_VALUES);
+    if (extOpPropertyValue == null)
+    {
+      includeTypeAndLengthInExtendedOpValues = false;
+    }
+    else
+    {
+      includeTypeAndLengthInExtendedOpValues =
+           extOpPropertyValue.equalsIgnoreCase("true");
+    }
+  }
+
+
+
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -6719122549948024736L;
 
 
 
@@ -323,7 +405,7 @@ public final class JNDIConverter
     {
       value = null;
     }
-    else
+    else if (JNDIConverter.includeTypeAndLengthInControlValues)
     {
       try
       {
@@ -333,6 +415,10 @@ public final class JNDIConverter
       {
         throw new NamingException(StaticUtils.getExceptionMessage(ae));
       }
+    }
+    else
+    {
+      value = new ASN1OctetString(valueBytes);
     }
 
     return new Control(c.getID(), c.isCritical(), value);
@@ -362,9 +448,13 @@ public final class JNDIConverter
     {
       return new BasicControl(c.getOID(), c.isCritical(), null);
     }
-    else
+    else if (JNDIConverter.includeTypeAndLengthInControlValues)
     {
       return new BasicControl(c.getOID(), c.isCritical(), value.encode());
+    }
+    else
+    {
+      return new BasicControl(c.getOID(), c.isCritical(), value.getValue());
     }
   }
 
@@ -389,7 +479,7 @@ public final class JNDIConverter
   {
     if (c == null)
     {
-      return NO_SDK_CONTROLS;
+      return StaticUtils.NO_CONTROLS;
     }
 
     final Control[] controls = new Control[c.length];
@@ -824,5 +914,77 @@ public final class JNDIConverter
     attrs.toArray(attributes);
 
     return new SearchResult(name, null, convertAttributes(attributes));
+  }
+
+
+
+  /**
+   * Indicates whether the encoded value in a JNDI control should include the
+   * BER type and length in addition to the bytes of the value.
+   *
+   * @return  {@code true} if the encoded value of a JNDI control should include
+   *          the BER type and length in addition to type bytes of the value, or
+   *          {@code false} if not.
+   */
+  static boolean includeTypeAndLengthInControlValues()
+  {
+    return includeTypeAndLengthInControlValues;
+  }
+
+
+
+  /**
+   * Specifies whether the encoded value in a JNDI control should include the
+   * BER type and length in addition to the bytes of the value.
+   *
+   * @param  includeTypeAndLengthInControlValues  Indicates whether the encoded
+   *                                              value in a JNDI control should
+   *                                              include the BER type and
+   *                                              length in addition to the
+   *                                              bytes of the value.
+   */
+  static void setIncludeTypeAndLengthInControlValues(
+       final boolean includeTypeAndLengthInControlValues)
+  {
+    JNDIConverter.includeTypeAndLengthInControlValues =
+    includeTypeAndLengthInControlValues;
+  }
+
+
+
+  /**
+   * Indicates whether the encoded value in a JNDI extended request or response
+   * should include the BER type and length in addition to the bytes of the
+   * value.
+   *
+   * @return  {@code true} if the encoded value of a JNDI extended request or
+   *          response should include the BER type and length in addition to
+   *          type bytes of the value, or {@code false} if not.
+   */
+  static boolean includeTypeAndLengthInExtendedOpValues()
+  {
+    return includeTypeAndLengthInExtendedOpValues;
+  }
+
+
+
+  /**
+   * Specifies whether the encoded value in a JNDI extended request or response
+   * should include the BER type and length in addition to the bytes of the
+   * value.
+   *
+   * @param  includeTypeAndLengthInExtendedOpValues  Indicates whether the
+   *                                                 encoded value in a JNDI
+   *                                                 extended request or
+   *                                                 response should include the
+   *                                                 BER type and length in
+   *                                                 addition to the bytes of
+   *                                                 the value.
+   */
+  static void setIncludeTypeAndLengthInExtendedOpValues(
+       final boolean includeTypeAndLengthInExtendedOpValues)
+  {
+    JNDIConverter.includeTypeAndLengthInExtendedOpValues =
+    includeTypeAndLengthInExtendedOpValues;
   }
 }

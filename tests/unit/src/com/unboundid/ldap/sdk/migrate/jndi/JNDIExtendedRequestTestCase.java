@@ -45,6 +45,7 @@ import org.testng.annotations.Test;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -96,9 +97,11 @@ public class JNDIExtendedRequestTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testFromSDKRequestWithOIDAndValue()
+  public void testFromSDKRequestWithOIDAndBareValue()
          throws Exception
   {
+    assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
     ExtendedRequest sdkRequest = new ExtendedRequest("1.2.3.4",
          new ASN1OctetString("foo"));
     JNDIExtendedRequest r = new JNDIExtendedRequest(sdkRequest);
@@ -110,7 +113,7 @@ public class JNDIExtendedRequestTestCase
 
     assertNotNull(r.getEncodedValue());
     assertTrue(Arrays.equals(r.getEncodedValue(),
-         new ASN1OctetString("foo").encode()));
+         new ASN1OctetString("foo").getValue()));
 
     byte[] valueBytes = new ASN1OctetString("bar").encode();
     JNDIExtendedResponse resp = r.createExtendedResponse("1.2.3.5", valueBytes,
@@ -126,6 +129,60 @@ public class JNDIExtendedRequestTestCase
     assertNotNull(JNDIExtendedRequest.toSDKExtendedRequest(r));
 
     assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Provides test coverage for a JNDI extended request created from an SDK
+   * extended request with an OID and value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFromSDKRequestWithOIDAndValueAsCompleteElement()
+         throws Exception
+  {
+    assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
+    try
+    {
+      JNDIConverter.setIncludeTypeAndLengthInExtendedOpValues(true);
+      assertTrue(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
+      ExtendedRequest sdkRequest = new ExtendedRequest("1.2.3.4",
+           new ASN1OctetString("foo"));
+      JNDIExtendedRequest r = new JNDIExtendedRequest(sdkRequest);
+
+      assertNotNull(r);
+
+      assertNotNull(r.getID());
+      assertEquals(r.getID(), "1.2.3.4");
+
+      assertNotNull(r.getEncodedValue());
+      assertTrue(Arrays.equals(r.getEncodedValue(),
+           new ASN1OctetString("foo").encode()));
+
+      byte[] valueBytes = new ASN1OctetString("bar").encode();
+      JNDIExtendedResponse resp = r.createExtendedResponse("1.2.3.5",
+           valueBytes, 0, valueBytes.length);
+      assertNotNull(resp);
+      assertNotNull(resp.getID());
+      assertEquals(resp.getID(), "1.2.3.5");
+      assertNotNull(resp.getEncodedValue());
+      assertTrue(Arrays.equals(resp.getEncodedValue(), valueBytes));
+
+      assertNotNull(r.toSDKExtendedRequest());
+
+      assertNotNull(JNDIExtendedRequest.toSDKExtendedRequest(r));
+
+      assertNotNull(r.toString());
+    }
+    finally
+    {
+      JNDIConverter.setIncludeTypeAndLengthInExtendedOpValues(false);
+      assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+    }
   }
 
 
@@ -171,17 +228,20 @@ public class JNDIExtendedRequestTestCase
 
   /**
    * Provides test coverage for a JNDI extended request created from an SDK
-   * extended request with an OID and value.
+   * extended request with an OID and value.  For this method, the value will be
+   * just the content of the value and not an entire BER element.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testFromJNDIRequestWithOIDAndValue()
+  public void testFromJNDIRequestWithOIDAndBareValue()
          throws Exception
   {
+    assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
     JNDIExtendedRequest r = new JNDIExtendedRequest(
          new TestExtendedRequest("1.2.3.4",
-              new ASN1OctetString("foo").encode()));
+              StaticUtils.getBytes("foo")));
 
     assertNotNull(r);
 
@@ -189,10 +249,10 @@ public class JNDIExtendedRequestTestCase
     assertEquals(r.getID(), "1.2.3.4");
 
     assertNotNull(r.getEncodedValue());
-    assertTrue(Arrays.equals(r.getEncodedValue(),
-         new ASN1OctetString("foo").encode()));
 
-    byte[] valueBytes = new ASN1OctetString("bar").encode();
+    byte[] valueBytes = StaticUtils.getBytes("foo");
+    assertTrue(Arrays.equals(r.getEncodedValue(), valueBytes));
+
     byte[] biggerValueBytes = new byte[valueBytes.length + 5];
     System.arraycopy(valueBytes, 0, biggerValueBytes, 5, valueBytes.length);
     JNDIExtendedResponse resp = r.createExtendedResponse("1.2.3.5",
@@ -207,7 +267,71 @@ public class JNDIExtendedRequestTestCase
 
     assertNotNull(JNDIExtendedRequest.toSDKExtendedRequest(r));
 
+    assertEquals(
+         new JNDIExtendedRequest(r.toSDKExtendedRequest()).getEncodedValue(),
+         valueBytes);
+
     assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Provides test coverage for a JNDI extended request created from an SDK
+   * extended request with an OID and value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFromJNDIRequestWithOIDAndValueAsCompleteElement()
+         throws Exception
+  {
+    assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
+    try
+    {
+      JNDIConverter.setIncludeTypeAndLengthInExtendedOpValues(true);
+      assertTrue(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
+      JNDIExtendedRequest r = new JNDIExtendedRequest(
+           new TestExtendedRequest("1.2.3.4",
+                new ASN1OctetString("foo").encode()));
+
+      assertNotNull(r);
+
+      assertNotNull(r.getID());
+      assertEquals(r.getID(), "1.2.3.4");
+
+      assertNotNull(r.getEncodedValue());
+      assertTrue(Arrays.equals(r.getEncodedValue(),
+           new ASN1OctetString("foo").encode()));
+
+      byte[] valueBytes = new ASN1OctetString("bar").encode();
+      byte[] biggerValueBytes = new byte[valueBytes.length + 5];
+      System.arraycopy(valueBytes, 0, biggerValueBytes, 5, valueBytes.length);
+      JNDIExtendedResponse resp = r.createExtendedResponse("1.2.3.5",
+           biggerValueBytes, 5, valueBytes.length);
+      assertNotNull(resp);
+      assertNotNull(resp.getID());
+      assertEquals(resp.getID(), "1.2.3.5");
+      assertNotNull(resp.getEncodedValue());
+      assertTrue(Arrays.equals(resp.getEncodedValue(), valueBytes));
+
+      assertNotNull(r.toSDKExtendedRequest());
+
+      assertNotNull(JNDIExtendedRequest.toSDKExtendedRequest(r));
+
+      assertEquals(
+           new JNDIExtendedRequest(r.toSDKExtendedRequest()).getEncodedValue(),
+           new ASN1OctetString("foo").encode());
+
+      assertNotNull(r.toString());
+    }
+    finally
+    {
+      JNDIConverter.setIncludeTypeAndLengthInExtendedOpValues(false);
+      assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+    }
   }
 
 
@@ -221,9 +345,22 @@ public class JNDIExtendedRequestTestCase
   public void testConvertWithMalformedValue()
          throws Exception
   {
-    byte[] malformedValue = new byte[] { (byte) 0x01 };
-    JNDIExtendedRequest.toSDKExtendedRequest(
-         new TestExtendedRequest("1.2.3.4", malformedValue));
+    assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
+    try
+    {
+      JNDIConverter.setIncludeTypeAndLengthInExtendedOpValues(true);
+      assertTrue(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+
+      byte[] malformedValue = new byte[] { (byte) 0x01 };
+      JNDIExtendedRequest.toSDKExtendedRequest(
+           new TestExtendedRequest("1.2.3.4", malformedValue));
+    }
+    finally
+    {
+      JNDIConverter.setIncludeTypeAndLengthInExtendedOpValues(false);
+      assertFalse(JNDIConverter.includeTypeAndLengthInExtendedOpValues());
+    }
   }
 
 
