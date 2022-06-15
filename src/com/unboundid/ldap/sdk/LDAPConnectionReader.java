@@ -1045,20 +1045,57 @@ final class LDAPConnectionReader
    {
      closeRequested = true;
 
-     for (int i=0; i < 5; i++)
+     final int initialJoinAttempts = 5;
+     final long initialJoinTimeoutMillis = 100L;
+     final boolean initialJoinSuccessful =
+          interruptAndJoin(initialJoinAttempts, initialJoinTimeoutMillis);
+     closeInternal(notifyConnection, null);
+
+     if (! initialJoinSuccessful)
+     {
+       final int subsequentJoinAttempts = 60;
+       final long subsequentJoinTimeoutMillis = 1_000L;
+       if (! interruptAndJoin(subsequentJoinAttempts,
+            subsequentJoinTimeoutMillis))
+       {
+         final long maxAttemptedTimeMillis =
+              (initialJoinTimeoutMillis * initialJoinTimeoutMillis) +
+              (subsequentJoinAttempts * subsequentJoinTimeoutMillis);
+         Debug.debug(Level.WARNING, DebugType.CONNECT,
+              "LDAPConnectionReader.close failed to join the reader thread " +
+                   "after " + maxAttemptedTimeMillis + " millisecoonds.");
+       }
+     }
+   }
+
+
+
+   /**
+    * Interrupts the reader thread and attempts to join it.
+    *
+    * @param  maxJoinAttempts    The maximum number of join attempts to make.
+    * @param  joinTimeoutMillis  The maximum length of time, in milliseconds, to
+    *                            wait for the join to complete.
+    *
+    * @return  {@code true} if the thread was successfully joined or the attempt
+    *          was interrupted, or {@code false} if not and the thread is still
+    *          running.
+    */
+   private boolean interruptAndJoin(final int maxJoinAttempts,
+                                    final long joinTimeoutMillis)
+   {
+     for (int i=0; i < maxJoinAttempts; i++)
      {
        try
        {
          final Thread t = thread;
          if ((t == null) || (t == Thread.currentThread()) || (! t.isAlive()))
          {
-           break;
+           return true;
          }
-         else
-         {
-           t.interrupt();
-           t.join(100L);
-         }
+
+         t.interrupt();
+         t.join(joinTimeoutMillis);
        }
        catch (final Exception e)
        {
@@ -1067,12 +1104,12 @@ final class LDAPConnectionReader
          if (e instanceof InterruptedException)
          {
            Thread.currentThread().interrupt();
-           break;
+           return true;
          }
        }
      }
 
-     closeInternal(notifyConnection, null);
+     return false;
    }
 
 

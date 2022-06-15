@@ -894,6 +894,7 @@ public final class LDAPConnection
     reconnectAddress      = host;
     reconnectPort         = port;
     cachedSchema          = null;
+    closeRequested        = false;
     unbindRequestSent     = false;
 
     disconnectInfo.set(null);

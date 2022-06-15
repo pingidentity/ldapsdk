@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue that could cause request failures when closing a connection that
+                  has outstanding operations in the default asynchronous mode, immediately
+                  re-establishing the connection (to the same or a different server), and sending
+                  a request on the newly established connection.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the JNDI compatibility support for controls, extended
                   requests, and extended responses.  Although the JNDI documentation states that
                   the byte array returned by the getEncodedValue method for these types of objects
