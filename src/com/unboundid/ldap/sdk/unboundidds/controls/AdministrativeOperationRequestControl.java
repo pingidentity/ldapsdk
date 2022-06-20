@@ -133,7 +133,26 @@ public final class AdministrativeOperationRequestControl
    */
   public AdministrativeOperationRequestControl(@Nullable final String message)
   {
-    super(ADMINISTRATIVE_OPERATION_REQUEST_OID, false, encodeValue(message));
+    this(false, message);
+  }
+
+
+
+  /**
+   * Creates a new administrative operation request control with the provided
+   * informational message.
+   *
+   * @param  isCritical  Indicates whether this control should be considered
+   *                     critical.
+   * @param  message     A message with additional information about the purpose
+   *                     of the associated operation.  It may be {@code null} if
+   *                     no additional message should be provided.
+   */
+  public AdministrativeOperationRequestControl(final boolean isCritical,
+                                               @Nullable final String message)
+  {
+    super(ADMINISTRATIVE_OPERATION_REQUEST_OID, isCritical,
+         encodeValue(message));
 
     this.message = message;
   }
@@ -343,7 +362,8 @@ public final class AdministrativeOperationRequestControl
     }
 
 
-    return new AdministrativeOperationRequestControl(message);
+    return new AdministrativeOperationRequestControl(
+         jsonControl.getCriticality(), message);
   }
 
 

@@ -330,7 +330,22 @@ public final class JoinRequestControl
    */
   public JoinRequestControl(@NotNull final JoinRequestValue joinRequestValue)
   {
-    super(JOIN_REQUEST_OID, true,
+    this(true, joinRequestValue);
+  }
+
+
+
+  /**
+   * Creates a new join request control with the provided join request value.
+   *
+   * @param  isCritical        Indicates whether this control should be
+   *                           considered critical.
+   * @param  joinRequestValue  The join request value to use for this control.
+   */
+  public JoinRequestControl(final boolean isCritical,
+                            @NotNull final JoinRequestValue joinRequestValue)
+  {
+    super(JOIN_REQUEST_OID, isCritical,
           new ASN1OctetString(joinRequestValue.encode().encode()));
 
     this.joinRequestValue = joinRequestValue;
@@ -808,7 +823,8 @@ public final class JoinRequestControl
     final JoinRequestValue joinRequestValue =
          decodeJoinRequestValueJSON(controlObject, jsonControl.getValueObject(),
               strict);
-    return new JoinRequestControl(joinRequestValue);
+    return new JoinRequestControl(jsonControl.getCriticality(),
+         joinRequestValue);
   }
 
 
