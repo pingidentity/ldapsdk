@@ -43,6 +43,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the command-line tool framework to better handle the possibility of
+                  encountering a Java Error (e.g., OutOfMemoryError) in the course of tool
+                  processing.  The framework previously handled any unexpected Exception that may
+                  have been thrown during processing by displaying an error message and exiting
+                  with an error, but if an Error was thrown instead of an exception, then that
+                  could trigger a NullPointerException that would mask the original Error.  Errors
+                  are now handled in the same way as exceptions.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the manage-certificates generate-self-signed-certificate command to
                   rename the --replace-existing-certificate argument to be
                   --use-existing-key-pair.  The latter is more clear, and can help avoid confusion

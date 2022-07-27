@@ -563,10 +563,10 @@ public abstract class CommandLineTool
       {
         exitCode.set(doToolProcessing());
       }
-      catch (final Exception e)
+      catch (final Throwable t)
       {
-        Debug.debugException(e);
-        err(StaticUtils.getExceptionMessage(e));
+        Debug.debugException(t);
+        err(StaticUtils.getExceptionMessage(t));
         exitCode.set(ResultCode.LOCAL_ERROR);
       }
       finally
