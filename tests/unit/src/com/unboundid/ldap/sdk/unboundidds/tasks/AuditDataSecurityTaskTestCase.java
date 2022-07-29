@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -49,6 +50,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -88,6 +90,10 @@ public final class AuditDataSecurityTaskTestCase
 
     assertNull(t.getOutputDirectory());
 
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNull(t.getRetainPreviousReportAge());
+
     assertNotNull(t.getTaskName());
 
     assertNotNull(t.getTaskDescription());
@@ -103,6 +109,10 @@ public final class AuditDataSecurityTaskTestCase
     assertFalse(e.hasAttribute("ds-task-audit-data-security-backend-id"));
     assertFalse(e.hasAttribute("ds-task-audit-data-security-report-filter"));
     assertFalse(e.hasAttribute("ds-task-audit-data-security-output-directory"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-count"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-age"));
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
@@ -164,6 +174,10 @@ public final class AuditDataSecurityTaskTestCase
     assertNotNull(t.getOutputDirectory());
     assertEquals(t.getOutputDirectory(), "/tmp/security-report");
 
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNull(t.getRetainPreviousReportAge());
+
     assertNotNull(t.getTaskName());
 
     assertNotNull(t.getTaskDescription());
@@ -179,6 +193,10 @@ public final class AuditDataSecurityTaskTestCase
     assertTrue(e.hasAttribute("ds-task-audit-data-security-backend-id"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-report-filter"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-output-directory"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-count"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-age"));
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
@@ -186,10 +204,13 @@ public final class AuditDataSecurityTaskTestCase
     final Map<TaskProperty,List<Object>> m = t.getTaskPropertyValues();
     assertNotNull(m);
     assertFalse(m.isEmpty());
+    final Set<String> expectedMissingAttributeNames = StaticUtils.setOf(
+         "ds-task-audit-data-security-exclude-auditor",
+         "ds-task-audit-data-security-retain-previous-report-count",
+         "ds-task-audit-data-security-retain-previous-report-age");
     for (final TaskProperty p : t.getTaskSpecificProperties())
     {
-      if (p.getAttributeName().equals(
-               "ds-task-audit-data-security-exclude-auditor"))
+      if (expectedMissingAttributeNames.contains(p.getAttributeName()))
       {
         assertFalse(m.containsKey(p));
       }
@@ -252,6 +273,10 @@ public final class AuditDataSecurityTaskTestCase
     assertNotNull(t.getOutputDirectory());
     assertEquals(t.getOutputDirectory(), "/tmp/security-report");
 
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNull(t.getRetainPreviousReportAge());
+
     assertNotNull(t.getTaskName());
 
     assertNotNull(t.getTaskDescription());
@@ -267,6 +292,10 @@ public final class AuditDataSecurityTaskTestCase
     assertTrue(e.hasAttribute("ds-task-audit-data-security-backend-id"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-report-filter"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-output-directory"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-count"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-age"));
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
@@ -274,10 +303,13 @@ public final class AuditDataSecurityTaskTestCase
     final Map<TaskProperty,List<Object>> m = t.getTaskPropertyValues();
     assertNotNull(m);
     assertFalse(m.isEmpty());
+    final Set<String> expectedMissingAttributeNames = StaticUtils.setOf(
+         "ds-task-audit-data-security-include-auditor",
+         "ds-task-audit-data-security-retain-previous-report-count",
+         "ds-task-audit-data-security-retain-previous-report-age");
     for (final TaskProperty p : t.getTaskSpecificProperties())
     {
-      if (p.getAttributeName().equals(
-               "ds-task-audit-data-security-include-auditor"))
+      if (expectedMissingAttributeNames.contains(p.getAttributeName()))
       {
         assertFalse(m.containsKey(p));
       }
@@ -348,6 +380,10 @@ public final class AuditDataSecurityTaskTestCase
 
     assertNull(t.getOutputDirectory());
 
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNull(t.getRetainPreviousReportAge());
+
     assertNotNull(t.getTaskName());
 
     assertNotNull(t.getTaskDescription());
@@ -363,6 +399,10 @@ public final class AuditDataSecurityTaskTestCase
     assertFalse(e.hasAttribute("ds-task-audit-data-security-backend-id"));
     assertFalse(e.hasAttribute("ds-task-audit-data-security-report-filter"));
     assertFalse(e.hasAttribute("ds-task-audit-data-security-output-directory"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-count"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-age"));
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
@@ -452,6 +492,10 @@ public final class AuditDataSecurityTaskTestCase
     assertNotNull(t.getOutputDirectory());
     assertEquals(t.getOutputDirectory(), "/tmp/security-report");
 
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNull(t.getRetainPreviousReportAge());
+
     assertNotNull(t.getTaskName());
 
     assertNotNull(t.getTaskDescription());
@@ -467,6 +511,10 @@ public final class AuditDataSecurityTaskTestCase
     assertTrue(e.hasAttribute("ds-task-audit-data-security-backend-id"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-report-filter"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-output-directory"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-count"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-age"));
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
@@ -474,10 +522,13 @@ public final class AuditDataSecurityTaskTestCase
     final Map<TaskProperty,List<Object>> m = t.getTaskPropertyValues();
     assertNotNull(m);
     assertFalse(m.isEmpty());
+    final Set<String> expectedMissingAttributeNames = StaticUtils.setOf(
+         "ds-task-audit-data-security-exclude-auditor",
+         "ds-task-audit-data-security-retain-previous-report-count",
+         "ds-task-audit-data-security-retain-previous-report-age");
     for (final TaskProperty p : t.getTaskSpecificProperties())
     {
-      if (p.getAttributeName().equals(
-               "ds-task-audit-data-security-exclude-auditor"))
+      if (expectedMissingAttributeNames.contains(p.getAttributeName()))
       {
         assertFalse(m.containsKey(p));
       }
@@ -568,6 +619,10 @@ public final class AuditDataSecurityTaskTestCase
     assertNotNull(t.getOutputDirectory());
     assertEquals(t.getOutputDirectory(), "/tmp/security-report");
 
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNull(t.getRetainPreviousReportAge());
+
     assertNotNull(t.getTaskName());
 
     assertNotNull(t.getTaskDescription());
@@ -583,6 +638,10 @@ public final class AuditDataSecurityTaskTestCase
     assertTrue(e.hasAttribute("ds-task-audit-data-security-backend-id"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-report-filter"));
     assertTrue(e.hasAttribute("ds-task-audit-data-security-output-directory"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-count"));
+    assertFalse(e.hasAttribute(
+         "ds-task-audit-data-security-retain-previous-report-age"));
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
@@ -590,10 +649,14 @@ public final class AuditDataSecurityTaskTestCase
     final Map<TaskProperty,List<Object>> m = t.getTaskPropertyValues();
     assertNotNull(m);
     assertFalse(m.isEmpty());
+
+    final Set<String> expectedMissingAttributeNames = StaticUtils.setOf(
+         "ds-task-audit-data-security-include-auditor",
+         "ds-task-audit-data-security-retain-previous-report-count",
+         "ds-task-audit-data-security-retain-previous-report-age");
     for (final TaskProperty p : t.getTaskSpecificProperties())
     {
-      if (p.getAttributeName().equals(
-               "ds-task-audit-data-security-include-auditor"))
+      if (expectedMissingAttributeNames.contains(p.getAttributeName()))
       {
         assertFalse(m.containsKey(p));
       }
@@ -648,5 +711,183 @@ public final class AuditDataSecurityTaskTestCase
     }
 
     new AuditDataSecurityTask(propertyMap);
+  }
+
+
+
+  /**
+   * Tests to ensure that the task works as epxected when specifying a retain
+   * previous report count.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRetainPreviousReportCount()
+         throws Exception
+  {
+    AuditDataSecurityTask t = new AuditDataSecurityTask(null, null, null, null,
+         null, null, 5, null, null, null, null, null, null, null, null, null,
+         null, null);
+
+    assertNotNull(t.getIncludeAuditors());
+    assertTrue(t.getIncludeAuditors().isEmpty());
+
+    assertNotNull(t.getExcludeAuditors());
+    assertTrue(t.getExcludeAuditors().isEmpty());
+
+    assertNotNull(t.getBackendIDs());
+    assertTrue(t.getBackendIDs().isEmpty());
+
+    assertNotNull(t.getReportFilterStrings());
+    assertTrue(t.getReportFilterStrings().isEmpty());
+
+    assertNotNull(t.getReportFilters());
+    assertTrue(t.getReportFilters().isEmpty());
+
+    assertNull(t.getOutputDirectory());
+
+    assertNotNull(t.getRetainPreviousReportCount());
+    assertEquals(t.getRetainPreviousReportCount().intValue(), 5);
+
+    assertNull(t.getRetainPreviousReportAge());
+
+
+    t = (AuditDataSecurityTask) Task.decodeTask(t.createTaskEntry());
+
+    assertNotNull(t.getIncludeAuditors());
+    assertTrue(t.getIncludeAuditors().isEmpty());
+
+    assertNotNull(t.getExcludeAuditors());
+    assertTrue(t.getExcludeAuditors().isEmpty());
+
+    assertNotNull(t.getBackendIDs());
+    assertTrue(t.getBackendIDs().isEmpty());
+
+    assertNotNull(t.getReportFilterStrings());
+    assertTrue(t.getReportFilterStrings().isEmpty());
+
+    assertNotNull(t.getReportFilters());
+    assertTrue(t.getReportFilters().isEmpty());
+
+    assertNull(t.getOutputDirectory());
+
+    assertNotNull(t.getRetainPreviousReportCount());
+    assertEquals(t.getRetainPreviousReportCount().intValue(), 5);
+
+    assertNull(t.getRetainPreviousReportAge());
+
+
+    t = new AuditDataSecurityTask(t.getTaskPropertyValues());
+
+    assertNotNull(t.getIncludeAuditors());
+    assertTrue(t.getIncludeAuditors().isEmpty());
+
+    assertNotNull(t.getExcludeAuditors());
+    assertTrue(t.getExcludeAuditors().isEmpty());
+
+    assertNotNull(t.getBackendIDs());
+    assertTrue(t.getBackendIDs().isEmpty());
+
+    assertNotNull(t.getReportFilterStrings());
+    assertTrue(t.getReportFilterStrings().isEmpty());
+
+    assertNotNull(t.getReportFilters());
+    assertTrue(t.getReportFilters().isEmpty());
+
+    assertNull(t.getOutputDirectory());
+
+    assertNotNull(t.getRetainPreviousReportCount());
+    assertEquals(t.getRetainPreviousReportCount().intValue(), 5);
+
+    assertNull(t.getRetainPreviousReportAge());
+  }
+
+
+
+  /**
+   * Tests to ensure that the task works as epxected when specifying a retain
+   * previous report age.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRetainPreviousReportAge()
+         throws Exception
+  {
+    AuditDataSecurityTask t = new AuditDataSecurityTask(null, null, null, null,
+         null, null, null, "7d", null, null, null, null, null, null, null, null,
+         null, null);
+
+    assertNotNull(t.getIncludeAuditors());
+    assertTrue(t.getIncludeAuditors().isEmpty());
+
+    assertNotNull(t.getExcludeAuditors());
+    assertTrue(t.getExcludeAuditors().isEmpty());
+
+    assertNotNull(t.getBackendIDs());
+    assertTrue(t.getBackendIDs().isEmpty());
+
+    assertNotNull(t.getReportFilterStrings());
+    assertTrue(t.getReportFilterStrings().isEmpty());
+
+    assertNotNull(t.getReportFilters());
+    assertTrue(t.getReportFilters().isEmpty());
+
+    assertNull(t.getOutputDirectory());
+
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNotNull(t.getRetainPreviousReportAge());
+    assertEquals(t.getRetainPreviousReportAge(), "7d");
+
+
+    t = (AuditDataSecurityTask) Task.decodeTask(t.createTaskEntry());
+
+    assertNotNull(t.getIncludeAuditors());
+    assertTrue(t.getIncludeAuditors().isEmpty());
+
+    assertNotNull(t.getExcludeAuditors());
+    assertTrue(t.getExcludeAuditors().isEmpty());
+
+    assertNotNull(t.getBackendIDs());
+    assertTrue(t.getBackendIDs().isEmpty());
+
+    assertNotNull(t.getReportFilterStrings());
+    assertTrue(t.getReportFilterStrings().isEmpty());
+
+    assertNotNull(t.getReportFilters());
+    assertTrue(t.getReportFilters().isEmpty());
+
+    assertNull(t.getOutputDirectory());
+
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNotNull(t.getRetainPreviousReportAge());
+    assertEquals(t.getRetainPreviousReportAge(), "7d");
+
+
+    t = new AuditDataSecurityTask(t.getTaskPropertyValues());
+
+    assertNotNull(t.getIncludeAuditors());
+    assertTrue(t.getIncludeAuditors().isEmpty());
+
+    assertNotNull(t.getExcludeAuditors());
+    assertTrue(t.getExcludeAuditors().isEmpty());
+
+    assertNotNull(t.getBackendIDs());
+    assertTrue(t.getBackendIDs().isEmpty());
+
+    assertNotNull(t.getReportFilterStrings());
+    assertTrue(t.getReportFilterStrings().isEmpty());
+
+    assertNotNull(t.getReportFilters());
+    assertTrue(t.getReportFilters().isEmpty());
+
+    assertNull(t.getOutputDirectory());
+
+    assertNull(t.getRetainPreviousReportCount());
+
+    assertNotNull(t.getRetainPreviousReportAge());
+    assertEquals(t.getRetainPreviousReportAge(), "7d");
   }
 }

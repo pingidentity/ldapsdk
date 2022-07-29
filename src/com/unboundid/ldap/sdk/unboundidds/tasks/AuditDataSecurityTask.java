@@ -57,6 +57,7 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.args.DurationArgument;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 
@@ -92,6 +93,8 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
  *   <LI>The path to the directory in which the output files should be
  *       generated.  This is optional, and if it is not provided then the server
  *       will use a default output directory.</LI>
+ *   <LI>The minimum number of previous reports to retain.</LI>
+ *   <LI>The minimum age of previous reports to retain.</LI>
  * </UL>
  */
 @NotMutable()
@@ -109,11 +112,11 @@ public final class AuditDataSecurityTask
 
 
   /**
-   * The name of the attribute used to specify the set of auditors to use to
-   * examine the data.
+   * The name of the attribute used to the backend IDs for the backends in which
+   * the audit should be performed.
    */
-  @NotNull private static final String ATTR_INCLUDE_AUDITOR =
-       "ds-task-audit-data-security-include-auditor";
+  @NotNull private static final String ATTR_BACKEND_ID =
+       "ds-task-audit-data-security-backend-id";
 
 
 
@@ -127,20 +130,11 @@ public final class AuditDataSecurityTask
 
 
   /**
-   * The name of the attribute used to the backend IDs for the backends in which
-   * the audit should be performed.
+   * The name of the attribute used to specify the set of auditors to use to
+   * examine the data.
    */
-  @NotNull private static final String ATTR_BACKEND_ID =
-       "ds-task-audit-data-security-backend-id";
-
-
-
-  /**
-   * The name of the attribute used to specify a set of filters that should be
-   * used to identify entries to include in the audit.
-   */
-  @NotNull private static final String ATTR_REPORT_FILTER =
-       "ds-task-audit-data-security-report-filter";
+  @NotNull private static final String ATTR_INCLUDE_AUDITOR =
+       "ds-task-audit-data-security-include-auditor";
 
 
 
@@ -154,6 +148,33 @@ public final class AuditDataSecurityTask
 
 
   /**
+   * The name of the attribute used to specify a set of filters that should be
+   * used to identify entries to include in the audit.
+   */
+  @NotNull private static final String ATTR_REPORT_FILTER =
+       "ds-task-audit-data-security-report-filter";
+
+
+
+  /**
+   * The name of the attribute used to specify the minimum age of previous
+   * reports that should be retained.
+   */
+  @NotNull private static final String ATTR_RETAIN_AGE =
+       "ds-task-audit-data-security-retain-previous-report-age";
+
+
+
+  /**
+   * The name of the attribute used to specify the minimum number of previous
+   * reports that should be retained.
+   */
+  @NotNull private static final String ATTR_RETAIN_COUNT =
+       "ds-task-audit-data-security-retain-previous-report-count";
+
+
+
+  /**
    * The name of the object class used in audit data security task entries.
    */
   @NotNull private static final String OC_AUDIT_DATA_SECURITY_TASK =
@@ -162,12 +183,12 @@ public final class AuditDataSecurityTask
 
 
   /**
-   * The task property that will be used for the included set of auditors.
+   * The task property that will be used for the backend IDs.
    */
-  @NotNull private static final TaskProperty PROPERTY_INCLUDE_AUDITOR =
-       new TaskProperty(ATTR_INCLUDE_AUDITOR,
-            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_INCLUDE_AUDITOR.get(),
-            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_INCLUDE_AUDITOR.get(),
+  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
+       new TaskProperty(ATTR_BACKEND_ID,
+            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_BACKEND_ID.get(),
+            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_BACKEND_ID.get(),
             String.class, false, true, false);
 
 
@@ -184,23 +205,12 @@ public final class AuditDataSecurityTask
 
 
   /**
-   * The task property that will be used for the backend IDs.
+   * The task property that will be used for the included set of auditors.
    */
-  @NotNull private static final TaskProperty PROPERTY_BACKEND_ID =
-       new TaskProperty(ATTR_BACKEND_ID,
-            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_BACKEND_ID.get(),
-            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_BACKEND_ID.get(),
-            String.class, false, true, false);
-
-
-
-  /**
-   * The task property that will be used for the report filters.
-   */
-  @NotNull private static final TaskProperty PROPERTY_REPORT_FILTER =
-       new TaskProperty(ATTR_REPORT_FILTER,
-            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_REPORT_FILTER.get(),
-            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_REPORT_FILTER.get(),
+  @NotNull private static final TaskProperty PROPERTY_INCLUDE_AUDITOR =
+       new TaskProperty(ATTR_INCLUDE_AUDITOR,
+            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_INCLUDE_AUDITOR.get(),
+            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_INCLUDE_AUDITOR.get(),
             String.class, false, true, false);
 
 
@@ -217,11 +227,47 @@ public final class AuditDataSecurityTask
 
 
   /**
+   * The task property that will be used for the report filters.
+   */
+  @NotNull private static final TaskProperty PROPERTY_REPORT_FILTER =
+       new TaskProperty(ATTR_REPORT_FILTER,
+            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_REPORT_FILTER.get(),
+            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_REPORT_FILTER.get(),
+            String.class, false, true, false);
+
+
+
+  /**
+   * The task property that will be used for the retain age.
+   */
+  @NotNull private static final TaskProperty PROPERTY_RETAIN_AGE =
+       new TaskProperty(ATTR_RETAIN_AGE,
+            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_RETAIN_AGE.get(),
+            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_RETAIN_AGE.get(),
+            String.class, false, false, false);
+
+
+
+  /**
+   * The task property that will be used for the retain count.
+   */
+  @NotNull private static final TaskProperty PROPERTY_RETAIN_COUNT =
+       new TaskProperty(ATTR_RETAIN_COUNT,
+            INFO_AUDIT_DATA_SECURITY_DISPLAY_NAME_RETAIN_COUNT.get(),
+            INFO_AUDIT_DATA_SECURITY_DESCRIPTION_RETAIN_COUNT.get(),
+            Long.class, false, false, false);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -4994621474763299632L;
+  private static final long serialVersionUID = -8716946803868116214L;
 
 
+
+  // The minimum number of previous reports to retain.
+  @Nullable private final Integer retainPreviousReportCount;
 
   // The backend IDs of the backends in which the audit should be performed.
   @NotNull private final List<String> backendIDs;
@@ -238,6 +284,9 @@ public final class AuditDataSecurityTask
   // The path of the output directory to use for report data files.
   @Nullable private final String outputDirectory;
 
+  // The minimum age of previous reports to retain.
+  @Nullable private final String retainPreviousReportAge;
+
 
 
   /**
@@ -250,9 +299,11 @@ public final class AuditDataSecurityTask
   {
     excludeAuditors = null;
     includeAuditors = null;
-    backendIDs      = null;
-    reportFilters   = null;
+    backendIDs = null;
+    reportFilters = null;
     outputDirectory = null;
+    retainPreviousReportCount = null;
+    retainPreviousReportAge = null;
   }
 
 
@@ -438,6 +489,105 @@ public final class AuditDataSecurityTask
               @Nullable final Boolean alertOnSuccess,
               @Nullable final Boolean alertOnError)
   {
+    this(taskID, includeAuditors, excludeAuditors, backendIDs, reportFilters,
+         outputDirectory, null, null, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, notifyOnStart, notifyOnCompletion,
+         notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
+         alertOnError);
+  }
+
+
+
+  /**
+   * Creates a new audit data security task with the provided information.
+   *
+   * @param  taskID                      The task ID to use for this task.  If
+   *                                     it is {@code null} then a UUID will be
+   *                                     generated for use as the task ID.
+   * @param  includeAuditors             The names of the auditors that should
+   *                                     be used to examine the data.  It may be
+   *                                     {@code null} or empty if an exclude
+   *                                     list should be provided, or if all
+   *                                     enabled auditors should be invoked.
+   *                                     You must not provide both include and
+   *                                     exclude auditors.
+   * @param  excludeAuditors             The names of the auditors that should
+   *                                     be excluded when examining the data.
+   *                                     It may be {@code null} or empty if an
+   *                                     include list should be provided, or if
+   *                                     all enabled auditors should be invoked.
+   *                                     You must not provide both include and
+   *                                     exclude auditors.
+   * @param  backendIDs                  The backend IDs of the backends
+   *                                     containing the data to examine.  It may
+   *                                     be {@code null} or empty if all
+   *                                     supported backends should be selected.
+   * @param  reportFilters               A set of filters which identify entries
+   *                                     that should be examined.  It may be
+   *                                     {@code null} or empty if all entries
+   *                                     should be examined.
+   * @param  outputDirectory             The path to the output directory (on
+   *                                     the server filesystem) in which report
+   *                                     data files should be written.  It may
+   *                                     be {@code null} if a default output
+   *                                     directory should be used.
+   * @param  retainPreviousReportCount   The minimum number of previous reports
+   *                                     to retain.
+   * @param  retainPreviousReportAge     A string representation of the minimum
+   *                                     age of previous reports to retain.  The
+   *                                     age should be formatted in the same way
+   *                                     as values for the
+   *                                     {@link DurationArgument} class.
+   * @param  scheduledStartTime          The time that this task should start
+   *                                     running.
+   * @param  dependencyIDs               The list of task IDs that will be
+   *                                     required to complete before this task
+   *                                     will be eligible to start.
+   * @param  failedDependencyAction      Indicates what action should be taken
+   *                                     if any of the dependencies for this
+   *                                     task do not complete successfully.
+   * @param  notifyOnStart               The list of e-mail addresses of
+   *                                     individuals that should be notified
+   *                                     when this task starts running.
+   * @param  notifyOnCompletion          The list of e-mail addresses of
+   *                                     individuals that should be notified
+   *                                     when this task completes.
+   * @param  notifyOnSuccess             The list of e-mail addresses of
+   *                                     individuals that should be notified if
+   *                                     this task completes successfully.
+   * @param  notifyOnError               The list of e-mail addresses of
+   *                                     individuals that should be notified if
+   *                                     this task does not complete
+   *                                     successfully.
+   * @param  alertOnStart                Indicates whether the server should
+   *                                     send an alert notification when this
+   *                                     task starts.
+   * @param  alertOnSuccess              Indicates whether the server should
+   *                                     send an alert notification if this task
+   *                                     completes successfully.
+   * @param  alertOnError                Indicates whether the server should
+   *                                     send an alert notification if this task
+   *                                     fails to complete successfully.
+   */
+  public AuditDataSecurityTask(@Nullable final String taskID,
+              @Nullable final List<String> includeAuditors,
+              @Nullable final List<String> excludeAuditors,
+              @Nullable final List<String> backendIDs,
+              @Nullable final List<String> reportFilters,
+              @Nullable final String outputDirectory,
+              @Nullable final Integer retainPreviousReportCount,
+              @Nullable final String retainPreviousReportAge,
+              @Nullable final Date scheduledStartTime,
+              @Nullable final List<String> dependencyIDs,
+              @Nullable final FailedDependencyAction failedDependencyAction,
+              @Nullable final List<String> notifyOnStart,
+              @Nullable final List<String> notifyOnCompletion,
+              @Nullable final List<String> notifyOnSuccess,
+              @Nullable final List<String> notifyOnError,
+              @Nullable final Boolean alertOnStart,
+              @Nullable final Boolean alertOnSuccess,
+              @Nullable final Boolean alertOnError)
+  {
     super(taskID, AUDIT_DATA_SECURITY_TASK_CLASS, scheduledStartTime,
          dependencyIDs, failedDependencyAction, notifyOnStart,
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
@@ -445,9 +595,11 @@ public final class AuditDataSecurityTask
 
     this.includeAuditors = getStringList(includeAuditors);
     this.excludeAuditors = getStringList(excludeAuditors);
-    this.backendIDs      = getStringList(backendIDs);
-    this.reportFilters   = getStringList(reportFilters);
+    this.backendIDs = getStringList(backendIDs);
+    this.reportFilters = getStringList(reportFilters);
     this.outputDirectory = outputDirectory;
+    this.retainPreviousReportCount = retainPreviousReportCount;
+    this.retainPreviousReportAge = retainPreviousReportAge;
 
     Validator.ensureTrue(
          (this.includeAuditors.isEmpty() || this.excludeAuditors.isEmpty()),
@@ -478,6 +630,9 @@ public final class AuditDataSecurityTask
     reportFilters = Collections.unmodifiableList(StaticUtils.toNonNullList(
          entry.getAttributeValues(ATTR_REPORT_FILTER)));
     outputDirectory = entry.getAttributeValue(ATTR_OUTPUT_DIRECTORY);
+    retainPreviousReportCount =
+         entry.getAttributeValueAsInteger(ATTR_RETAIN_COUNT);
+    retainPreviousReportAge =  entry.getAttributeValue(ATTR_RETAIN_AGE);
   }
 
 
@@ -499,7 +654,9 @@ public final class AuditDataSecurityTask
   {
     super(AUDIT_DATA_SECURITY_TASK_CLASS, properties);
 
+    Integer retainCount = null;
     String outputDir = null;
+    String retainAge = null;
     final LinkedList<String> includeAuditorsList = new LinkedList<>();
     final LinkedList<String> excludeAuditorsList = new LinkedList<>();
     final LinkedList<String> backendIDList       = new LinkedList<>();
@@ -547,13 +704,31 @@ public final class AuditDataSecurityTask
       {
         outputDir = parseString(p, values, null);
       }
+      else if (attrName.equalsIgnoreCase(ATTR_RETAIN_COUNT))
+      {
+        final Long retainCountLong = parseLong(p, values, null);
+        if (retainCountLong == null)
+        {
+          retainCount = null;
+        }
+        else
+        {
+          retainCount = retainCountLong.intValue();
+        }
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_RETAIN_AGE))
+      {
+        retainAge = parseString(p, values, retainAge);
+      }
     }
 
     includeAuditors = Collections.unmodifiableList(includeAuditorsList);
     excludeAuditors = Collections.unmodifiableList(excludeAuditorsList);
-    backendIDs      = Collections.unmodifiableList(backendIDList);
-    reportFilters   = Collections.unmodifiableList(reportFilterList);
+    backendIDs = Collections.unmodifiableList(backendIDList);
+    reportFilters = Collections.unmodifiableList(reportFilterList);
     outputDirectory = outputDir;
+    retainPreviousReportCount = retainCount;
+    retainPreviousReportAge = retainAge;
 
     if ((! includeAuditors.isEmpty()) && (! excludeAuditors.isEmpty()))
     {
@@ -700,6 +875,66 @@ public final class AuditDataSecurityTask
 
 
   /**
+   * Retrieves the minimum number of previous audit data security reports that
+   * should be retained on the server after creating the new report, and any
+   * other reports may be candidates for removal.
+   * <BR><BR>
+   * If neither a retain count nor a retain age is specified, then no attempt
+   * will be made to remove any previous reports.  If both a retain count and a
+   * retain age are specified, then only reports that fall outside both sets of
+   * criteria will be candidates for removal.
+   * <BR><BR>
+   * Retention functionality may only be used if the output directory is named
+   * with a valid timestamp formatted in accordance with the generalized time
+   * syntax.  In such cases, any reports contained in a directory that are a
+   * peer of the specified output directory whose names are also valid
+   * timestamps will be considered.  If any previous reports are to be removed,
+   * they will be removed in chronological order from oldest to youngest.
+   *
+   * @return  The minimum number of previous audit data security reports that
+   *          should be retained after creating the new report, or {@code null}
+   *          if no retain count has been specified.
+   */
+  @Nullable()
+  public Integer getRetainPreviousReportCount()
+  {
+    return retainPreviousReportCount;
+  }
+
+
+
+  /**
+   * Retrieves the minimum age of previous audit data security reports that
+   * should be retained on the server after creating the new report, and any
+   * other reports may be candidates for removal.  The age should be specified
+   * as a duration in a format compatible with the {@link DurationArgument}
+   * class (that is, an integer followed by a time unit).
+   * <BR><BR>
+   * If neither a retain count nor a retain age is specified, then no attempt
+   * will be made to remove any previous reports.  If both a retain count and a
+   * retain age are specified, then only reports that fall outside both sets of
+   * criteria will be candidates for removal.
+   * <BR><BR>
+   * Retention functionality may only be used if the output directory is named
+   * with a valid timestamp formatted in accordance with the generalized time
+   * syntax.  In such cases, any reports contained in a directory that are a
+   * peer of the specified output directory whose names are also valid
+   * timestamps will be considered.  If any previous reports are to be removed,
+   * they will be removed in chronological order from oldest to youngest.
+   *
+   * @return  The minimum length of time to retain previous audit data security
+   *          reports after creating the new report, or {@code null} if no
+   *          retain age has been specified.
+   */
+  @Nullable()
+  public String getRetainPreviousReportAge()
+  {
+    return retainPreviousReportAge;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -745,6 +980,17 @@ public final class AuditDataSecurityTask
       attrList.add(new Attribute(ATTR_OUTPUT_DIRECTORY, outputDirectory));
     }
 
+    if (retainPreviousReportCount != null)
+    {
+      attrList.add(new Attribute(ATTR_RETAIN_COUNT,
+           String.valueOf(retainPreviousReportCount)));
+    }
+
+    if (retainPreviousReportAge != null)
+    {
+      attrList.add(new Attribute(ATTR_RETAIN_AGE, retainPreviousReportAge));
+    }
+
     return attrList;
   }
 
@@ -762,7 +1008,9 @@ public final class AuditDataSecurityTask
          PROPERTY_EXCLUDE_AUDITOR,
          PROPERTY_BACKEND_ID,
          PROPERTY_REPORT_FILTER,
-         PROPERTY_OUTPUT_DIRECTORY));
+         PROPERTY_OUTPUT_DIRECTORY,
+         PROPERTY_RETAIN_COUNT,
+         PROPERTY_RETAIN_AGE));
   }
 
 
@@ -805,6 +1053,19 @@ public final class AuditDataSecurityTask
     {
       props.put(PROPERTY_OUTPUT_DIRECTORY,
            Collections.<Object>singletonList(outputDirectory));
+    }
+
+    if (retainPreviousReportCount != null)
+    {
+      props.put(PROPERTY_RETAIN_COUNT,
+           Collections.<Object>singletonList(
+                retainPreviousReportCount.longValue()));
+    }
+
+    if (retainPreviousReportAge != null)
+    {
+      props.put(PROPERTY_RETAIN_AGE,
+           Collections.<Object>singletonList(retainPreviousReportAge));
     }
 
     return Collections.unmodifiableMap(props);
