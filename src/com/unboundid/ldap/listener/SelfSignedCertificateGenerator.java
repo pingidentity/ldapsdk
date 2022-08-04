@@ -58,6 +58,7 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.args.DNSHostNameArgumentValueValidator;
 import com.unboundid.util.ssl.cert.CertException;
 import com.unboundid.util.ssl.cert.ManageCertificates;
 
@@ -237,8 +238,19 @@ public final class SelfSignedCertificateGenerator
 
     for (final String hostName : canonicalHostNames)
     {
-      argList.add("--subject-alternative-name-dns");
-      argList.add(hostName);
+      try
+      {
+        DNSHostNameArgumentValueValidator.validateDNSHostName(hostName,
+             false, true, true, null);
+        argList.add("--subject-alternative-name-dns");
+        argList.add(hostName);
+      }
+      catch (final Exception e)
+      {
+        // This indicates that it's not actually a valid hostname, so exclude
+        // it from the set of subject alternative names.
+        Debug.debugException(e);
+      }
     }
 
     for (final InetAddress address : localAddresses)

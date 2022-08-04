@@ -627,6 +627,16 @@ public final class DNSHostNameArgumentValueValidatorTestCase
         true, // Is fully qualified
         false  // Is resolvable
       },
+
+      // A host name that contains a non-ASCII character.
+      new Object[]
+      {
+        "John-Doe\u2019s-Computer",
+        false, // Is minimally valid
+        false, // Is IP address
+        false, // Is fully qualified
+        false  // Is resolvable
+      },
     };
   }
 }

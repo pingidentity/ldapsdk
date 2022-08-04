@@ -60,6 +60,24 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the DNS hostname argument value validator to fix an issue that could
+                  prevent it from performing all necessary validation for the last component in a
+                  fully qualified name, or for the only component in an unqualified name.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the SelfSignedCertificateGenerator class (which may be used to
+                  dynamically create self-signed certificates for testing and is used by tools
+                  like the in-memory directory server and ldap-debugger) to perform better
+                  validation for the subject alternative DNS names that it includes in a
+                  certificate.  It will now exclude values that are identified as system hostnames
+                  but aren't actually technically valid hostnames (e.g., values with non-ASCII
+                  characters).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the manage-certificates generate-self-signed-certificate command to
                   rename the --replace-existing-certificate argument to be
                   --use-existing-key-pair.  The latter is more clear, and can help avoid confusion

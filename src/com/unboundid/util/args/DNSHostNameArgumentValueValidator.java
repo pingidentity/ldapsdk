@@ -463,42 +463,62 @@ public final class DNSHostNameArgumentValueValidator
     {
       final String component =
            nameWithoutTrailingPeriod.substring(startPos, periodPos);
-      if (component.length() > 63)
-      {
-        throw new ArgumentException(
-             ERR_DNS_NAME_VALIDATOR_COMPONENT_TOO_LONG.get(
-                  component, component.length()));
-      }
-
-      if (component.charAt(0) == '-')
-      {
-        throw new ArgumentException(
-             ERR_DNS_NAME_VALIDATOR_COMPONENT_STARTS_WITH_HYPHEN.get(
-                  component));
-      }
-
-      for (int i=0; i < component.length(); i++)
-      {
-        final char c = component.charAt(i);
-        if (! isLetterDigitOrDash(c))
-        {
-          if (c <= 127)
-          {
-            throw new ArgumentException(
-                 ERR_DNS_NAME_VALIDATOR_COMPONENT_ILLEGAL_ASCII_CHARACTER. get(
-                      component, (i+1)));
-          }
-          else
-          {
-            throw new ArgumentException(
-                 ERR_DNS_NAME_VALIDATOR_COMPONENT_NON_ASCII_CHARACTER.get(
-                      component, (i+1)));
-          }
-        }
-      }
+      validateDNSHostNameComponentSyntax(component);
 
       startPos = periodPos+1;
       periodPos = nameWithoutTrailingPeriod.indexOf('.', startPos);
+    }
+
+    final String lastComponent = nameWithoutTrailingPeriod.substring(startPos);
+    validateDNSHostNameComponentSyntax(lastComponent);
+  }
+
+
+
+  /**
+   * Validates the provided name component to ensure that it conforms to the
+   * expected syntax.
+   *
+   * @param  component  The name component to validate.
+   *
+   * @throws  ArgumentException  If the provided name is not considered valid.
+   */
+  private static void validateDNSHostNameComponentSyntax(
+               @NotNull final String component)
+          throws ArgumentException
+  {
+    if (component.length() > 63)
+    {
+      throw new ArgumentException(
+           ERR_DNS_NAME_VALIDATOR_COMPONENT_TOO_LONG.get(
+                component, component.length()));
+    }
+
+    if (component.charAt(0) == '-')
+    {
+      throw new ArgumentException(
+           ERR_DNS_NAME_VALIDATOR_COMPONENT_STARTS_WITH_HYPHEN.get(
+                component));
+    }
+
+    for (int i=0; i < component.length(); i++)
+    {
+      final char c = component.charAt(i);
+      if (! isLetterDigitOrDash(c))
+      {
+        if (c <= 127)
+        {
+          throw new ArgumentException(
+               ERR_DNS_NAME_VALIDATOR_COMPONENT_ILLEGAL_ASCII_CHARACTER. get(
+                    component, (i+1)));
+        }
+        else
+        {
+          throw new ArgumentException(
+               ERR_DNS_NAME_VALIDATOR_COMPONENT_NON_ASCII_CHARACTER.get(
+                    component, (i+1)));
+        }
+      }
     }
   }
 
