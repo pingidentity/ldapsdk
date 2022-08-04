@@ -95,6 +95,17 @@ public final class IA5StringArgumentValueValidatorTestCase
       // This is expected.
     }
 
+    try
+    {
+      v.validateArgumentValue(arg, "apostrophe\u2019s test");
+      fail("Expected an exception when validating a value with non-ASCII " +
+           "characters.");
+    }
+    catch (final ArgumentException e)
+    {
+      // This is expected.
+    }
+
     assertNotNull(v.toString());
   }
 
@@ -130,6 +141,17 @@ public final class IA5StringArgumentValueValidatorTestCase
     try
     {
       v.validateArgumentValue(arg, "jalape\u00f1o");
+      fail("Expected an exception when validating a value with non-ASCII " +
+           "characters.");
+    }
+    catch (final ArgumentException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      v.validateArgumentValue(arg, "apostrophe\u2019s test");
       fail("Expected an exception when validating a value with non-ASCII " +
            "characters.");
     }

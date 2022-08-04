@@ -54,6 +54,12 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the IA5 argument value validator that could allow an
+                  associated argument to incorrect accept values with non-ASCII characters.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the manage-certificates generate-self-signed-certificate command to
                   rename the --replace-existing-certificate argument to be
                   --use-existing-key-pair.  The latter is more clear, and can help avoid confusion
