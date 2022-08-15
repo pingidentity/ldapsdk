@@ -67,6 +67,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKeyFactory;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import com.unboundid.asn1.ASN1Constants;
@@ -75,6 +76,7 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
 import com.unboundid.util.ssl.TLSCipherSuiteSelector;
 
 import static com.unboundid.util.UtilityMessages.*;
@@ -215,6 +217,15 @@ public final class CryptoHelper
 
 
   /**
+   * A reference to the default SSL context protocol that will be used in
+   * FIPS-compliant mode, if appropriate.
+   */
+  @NotNull private static final AtomicReference<String[]>
+       FIPS_ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS = new AtomicReference<>();
+
+
+
+  /**
    * A reference to the default trust manager factory algorithm that will be
    * used in FIPS-compliant mode.
    */
@@ -288,6 +299,8 @@ public final class CryptoHelper
              BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE);
         FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.set(
              BouncyCastleFIPSHelper.DEFAULT_SSL_CONTEXT_PROTOCOL);
+        FIPS_ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS.set(
+             BouncyCastleFIPSHelper.ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS);
         FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.set(
              BouncyCastleFIPSHelper.DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM);
 
@@ -521,6 +534,8 @@ public final class CryptoHelper
          BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE);
     FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.set(
          BouncyCastleFIPSHelper.DEFAULT_SSL_CONTEXT_PROTOCOL);
+    FIPS_ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS.set(
+         BouncyCastleFIPSHelper.ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS);
     FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.set(
          BouncyCastleFIPSHelper.DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM);
     FIPS_MODE.set(true);
@@ -2160,8 +2175,41 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
 
     if (usingFIPSMode())
     {
-      return SSLContext.getInstance(FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.get(),
-           FIPS_JSSE_PROVIDER.get());
+      try
+      {
+        return SSLContext.getInstance(FIPS_DEFAULT_SSL_CONTEXT_PROTOCOL.get(),
+             FIPS_JSSE_PROVIDER.get());
+      }
+      catch (final NoSuchAlgorithmException e)
+      {
+        Debug.debugException(e);
+
+        // NOTE:  It sees like in later versions of Java (like Java 17), the
+        // above call to SSLContext.getInstance will fail with an instance name
+        // of DEFAULT.  As a fallback, try using some common, secure TLS
+        // protocols with a JVM-default trust manager.
+        for (final String protocol :
+             FIPS_ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS.get())
+        {
+          try
+          {
+            final SSLContext context = SSLContext.getInstance(protocol,
+                 FIPS_JSSE_PROVIDER.get());
+            final TrustManager[] defaultTrustManagers =
+            {
+              JVMDefaultTrustManager.getInstance()
+            };
+            context.init(null, defaultTrustManagers, getSecureRandom());
+            return context;
+          }
+          catch (final Exception e2)
+          {
+            Debug.debugException(e2);
+          }
+        }
+
+        throw e;
+      }
     }
     else
     {

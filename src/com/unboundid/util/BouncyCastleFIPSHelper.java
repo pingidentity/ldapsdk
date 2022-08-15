@@ -159,6 +159,16 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
+   * The names of alternative SSLContext protocols that should be used when
+   * requesting the default context from the Bouncy Castle JSSE provider when
+   * the preferred default protocol is not available.
+   */
+  @NotNull public static final String[]
+       ALTERNATIVE_DEFAULT_SSL_CONTEXT_PROTOCOLS = { "TLSv1.3", "TLSv1.2" };
+
+
+
+  /**
    * The name of the default key manager factory algorithm that should be used
    * with the Bouncy Castle JSSE provider.
    */
