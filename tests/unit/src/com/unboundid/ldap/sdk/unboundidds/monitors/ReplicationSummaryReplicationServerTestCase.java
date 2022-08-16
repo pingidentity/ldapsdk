@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.monitors;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -87,15 +88,15 @@ public class ReplicationSummaryReplicationServerTestCase
 
     assertNotNull(server.getReplicationServerLastConnected());
     assertEquals(
-        server.getReplicationServerLastConnected().toString(),
-        "Thu Apr 08 08:45:59 CDT 2010"
-    );
+         StaticUtils.encodeGeneralizedTime(
+              server.getReplicationServerLastConnected()),
+        "20100408134559.000Z");
 
     assertNotNull(server.getReplicationServerLastFailed());
     assertEquals(
-        server.getReplicationServerLastFailed().toString(),
-        "Thu Apr 08 08:45:58 CDT 2010"
-    );
+         StaticUtils.encodeGeneralizedTime(
+              server.getReplicationServerLastFailed()),
+        "20100408134558.000Z");
 
     assertNotNull(server.getReplicationServerFailedAttempts());
     assertEquals(server.getReplicationServerFailedAttempts(),
@@ -183,9 +184,9 @@ public class ReplicationSummaryReplicationServerTestCase
 
     assertNotNull(server.getReplicationServerLastFailed());
     assertEquals(
-        server.getReplicationServerLastFailed().toString(),
-        "Thu Apr 08 08:45:58 CDT 2010"
-    );
+         StaticUtils.encodeGeneralizedTime(
+              server.getReplicationServerLastFailed()),
+        "20100408134558.000Z");
 
     assertNull(server.getReplicationServerFailedAttempts());
 
