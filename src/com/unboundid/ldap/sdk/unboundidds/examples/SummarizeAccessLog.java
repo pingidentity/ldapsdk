@@ -986,6 +986,24 @@ public final class SummarizeAccessLog
         Debug.debugException(e);
       }
       logDurationMillis += (stopTime - startTime);
+
+
+      // If there are any outstanding authentication failures, then update the
+      // set of consecutive failures as appropriate.
+      for (final Map.Entry<String,AtomicLong> e :
+           outstandingFailedBindDNs.entrySet())
+      {
+        final String dn = e.getKey();
+        final AtomicLong outstandingFailureCount = e.getValue();
+        final AtomicLong consecutiveFailures =
+             consecutiveFailedBindsByDN.get(dn);
+        if ((consecutiveFailures == null) ||
+           (outstandingFailureCount.get() > consecutiveFailures.get()))
+        {
+          consecutiveFailedBindsByDN.put(dn, outstandingFailureCount);
+        }
+      }
+      outstandingFailedBindDNs.clear();
     }
 
 
@@ -1182,7 +1200,8 @@ public final class SummarizeAccessLog
       if (doNotAnonymize.isPresent())
       {
         printCounts(consecutiveFailedBindsByDN,
-             "Bind DNs with the most consecutive failures:", "DN", "DNs");
+             "Bind DNs with the most consecutive authentication failures:",
+             "DN", "DNs");
       }
       printCounts(authenticationTypes, "Most common authentication types:",
            "authentication type", "authentication types");
