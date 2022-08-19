@@ -98,6 +98,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the summarize-access-log tool that can be used to report on the contents
+                  of one or more Ping Identity Directory Server access logs.  The tool will now
+                  report the most common IP addresses for failed bind attempts and the most common
+                  search filter sizes by number of components.  If the tool is invoked with the
+                  --doNotAnonymize argument, then it will also report on the target bind DNs with
+                  the most consecutive failed authentication attempts, and on search filters that
+                  may potentially indicate unsuccessful injection attempts due to suspect content
+                  in an assertion value (including parentheses, ampersands, pipes, quotes, or the
+                  words "select" and "from").
+                  <br><br>
+                </li>
+
+                <li>
                   Updated support for the Ping Identity Directory Server's "audit data security"
                   administrative task to add the ability to specify either or both the number or
                   age of previous reports to retain after the new report has been generated.

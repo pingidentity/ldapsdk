@@ -55,6 +55,7 @@ import java.util.zip.GZIPOutputStream;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.LogField;
@@ -549,7 +550,22 @@ public class SummarizeAccessLogTestCase
               "conn=1945 protocol=\"TLSv1.2\" " +
               "cipher=\"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384\"" +
               "clientServerHandshakeTimeMillis=\"5.614\" " +
-              "serverOnlyHandshakeTimeMillis=\"4.296\""
+              "serverOnlyHandshakeTimeMillis=\"4.296\"",
+         ts() + " SEARCH RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" " +
+               "base=\"ou=People,dc=example,dc=com\" scope=0 " +
+               "filter=\"(uid=test.user; select \2a from users)\" " +
+               "attrs=\"ALL\" " +
+               "message=\"The entry doesn't exist\" " +
+               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
+               "referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" entriesReturned=1 " +
+               "unindexed=true " +
+               "authzDN=\"uid=someone,ou=People,dc=example,dc=com\""
     };
 
     String[] longFilterLines = {
@@ -1144,6 +1160,186 @@ public class SummarizeAccessLogTestCase
 
     assertNotNull(tool.getExampleUsages());
     assertFalse(tool.getExampleUsages().isEmpty());
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code mayRepresentInjectionAttempt} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMayRepresentInjectionAttempt()
+         throws Exception
+  {
+    // Verify that some innocuous filters aren't flagged.
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createPresenceFilter("cn")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createSubInitialFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createSubAnyFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createSubFinalFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createGreaterOrEqualFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createLessOrEqualFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createApproximateMatchFilter("cn", "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createExtensibleMatchFilter("cn", null, false, "test")));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createANDFilter()));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createANDFilter(
+              Filter.createEqualityFilter("cn", "test1"),
+              Filter.createEqualityFilter("cn", "test2"))));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createORFilter()));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createORFilter(
+              Filter.createEqualityFilter("cn", "test1"),
+              Filter.createEqualityFilter("cn", "test2"))));
+    assertFalse(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createNOTFilter(Filter.createEqualityFilter("cn", "test"))));
+
+
+    // Filters that contain any of the following characters in their assertion
+    // value will be flagged:
+    // - Open parenthesis
+    // - Close parenthesis
+    // - Ampersand
+    // - Pipe
+    // - Single quote
+    // - Double quote
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "te(st")));
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "te)st")));
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "te&st")));
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "te|st")));
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "te'st")));
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "te\"st")));
+
+
+    // Filters that look like they might have an SQL statement (with the words
+    // SELECT and FROM) should be flagged.
+    assertTrue(SummarizeAccessLog.mayRepresentInjectionAttempt(
+         Filter.createEqualityFilter("cn", "select * from users")));
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code countComponents} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCountComponents()
+         throws Exception
+  {
+    // All types of filters except AND, OR, and NOT will count as a single
+    // component.
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createPresenceFilter("cn")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createEqualityFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createGreaterOrEqualFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createLessOrEqualFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createSubInitialFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createSubAnyFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createSubFinalFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createApproximateMatchFilter("cn", "test")),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(
+              Filter.createExtensibleMatchFilter("cn", null, false, "test")),
+         1);
+
+
+    // AND and OR filters should be counted as one plus the sum of the counts
+    // for each of the embedded filters (which may include nested ANDs and ORs).
+    // Empty AND and OR filters will each count as one component.
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createANDFilter()),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createANDFilter(
+              Filter.createEqualityFilter("cn", "test"))),
+         2);
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createANDFilter(
+              Filter.createEqualityFilter("cn", "test1"),
+              Filter.createEqualityFilter("cn", "test2"))),
+         3);
+
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createORFilter()),
+         1);
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createORFilter(
+              Filter.createEqualityFilter("cn", "test"))),
+         2);
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createORFilter(
+              Filter.createEqualityFilter("cn", "test1"),
+              Filter.createEqualityFilter("cn", "test2"))),
+         3);
+
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createORFilter(
+              Filter.createANDFilter(
+                   Filter.createEqualityFilter("objectClass", "groupOfNames"),
+                   Filter.createEqualityFilter("member", "uid=test,o=test")),
+              Filter.createANDFilter(
+                   Filter.createEqualityFilter("objectClass",
+                        "groupOfUniqueNames"),
+                   Filter.createEqualityFilter("uniqueMember",
+                        "uid=test,o=test")))),
+         7);
+
+
+    // NOT filters should be counted as one plus the count of the embedded
+    // filter.
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createNOTFilter(
+              Filter.createEqualityFilter("cn", "test"))),
+         2);
+    assertEquals(
+         SummarizeAccessLog.countComponents(Filter.createNOTFilter(
+              Filter.createORFilter(
+                   Filter.createEqualityFilter("cn", "test1"),
+                   Filter.createEqualityFilter("cn", "test2")))),
+         4);
   }
 
 
