@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.testng.annotations.Test;
@@ -44,9 +45,13 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldif.LDIFModifyChangeRecord;
+import com.unboundid.ldif.LDIFReader;
 
 
 
@@ -181,12 +186,19 @@ public final class IdentifyReferencesToMissingEntriesTestCase
     conn.delete("uid=user.99,ou=People,dc=example,dc=com");
 
 
+    // Define an output file that will be used to hold an LDIF representation
+    // of the output.
+    final File outputLDIFFile = createTempFile();
+    assertTrue(outputLDIFFile.delete());
+
+
     // Verify that the tool will now discover references to missing entries.
     tool = new IdentifyReferencesToMissingEntries(null, null);
     resultCode = tool.runTool(
          "--port", String.valueOf(ds.getListenPort()),
          "--baseDN", "dc=example,dc=com",
-         "--attribute", "member");
+         "--attribute", "member",
+         "--outputLDIF", outputLDIFFile.getAbsolutePath());
     assertEquals(resultCode, ResultCode.CONSTRAINT_VIOLATION);
 
     assertNotNull(tool.getMissingReferenceCounts());
@@ -195,6 +207,78 @@ public final class IdentifyReferencesToMissingEntriesTestCase
     {
       assertEquals(l.get(), 3L);
     }
+
+
+    // Make sure that the output LDIF file exists and has the expected content.
+    boolean foundUser99AllUsers = false;
+    boolean foundUser99GroupForUser = false;
+    boolean foundUser100AllUsers = false;
+    assertTrue(outputLDIFFile.exists());
+    try (LDIFReader ldifReader = new LDIFReader(outputLDIFFile))
+    {
+      while (true)
+      {
+        final LDIFModifyChangeRecord changeRecord =
+             (LDIFModifyChangeRecord) ldifReader.readChangeRecord();
+        if (changeRecord == null)
+        {
+          break;
+        }
+
+        assertEquals(changeRecord.getModifications().length, 1);
+        assertEquals(changeRecord.getModifications()[0].getModificationType(),
+             ModificationType.DELETE);
+        assertEquals(changeRecord.getModifications()[0].getAttributeName(),
+             "member");
+
+        final String deleteValue =
+             changeRecord.getModifications()[0].getAttribute().getValue();
+
+        if (DN.equals(changeRecord.getDN(),
+             "cn=All Users,ou=Groups,dc=example,dc=com"))
+        {
+          if (DN.equals(deleteValue, "uid=user.99,ou=People,dc=example,dc=com"))
+          {
+            assertFalse(foundUser99AllUsers);
+            foundUser99AllUsers = true;
+          }
+          else if (DN.equals(deleteValue,
+               "uid=user.100,ou=People,dc=example,dc=com"))
+          {
+            assertFalse(foundUser100AllUsers);
+            foundUser100AllUsers = true;
+          }
+          else
+          {
+            fail("Found an unexpected modification:  " +
+                 changeRecord.toLDIFString());
+          }
+        }
+        else if (DN.equals(changeRecord.getDN(),
+             "cn=Group for User 99,ou=Groups,dc=example,dc=com"))
+        {
+          if (DN.equals(deleteValue, "uid=user.99,ou=People,dc=example,dc=com"))
+          {
+            assertFalse(foundUser99GroupForUser);
+            foundUser99GroupForUser = true;
+          }
+          else
+          {
+            fail("Found an unexpected modification:  " +
+                 changeRecord.toLDIFString());
+          }
+        }
+        else
+        {
+          fail("Found an unexpected modification:  " +
+               changeRecord.toLDIFString());
+        }
+      }
+    }
+
+    assertTrue(foundUser99AllUsers);
+    assertTrue(foundUser99GroupForUser);
+    assertTrue(foundUser100AllUsers);
 
 
     conn.close();

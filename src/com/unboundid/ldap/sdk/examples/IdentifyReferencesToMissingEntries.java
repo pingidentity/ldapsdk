@@ -53,6 +53,8 @@ import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
@@ -62,6 +64,8 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
+import com.unboundid.ldif.LDIFModifyChangeRecord;
+import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.NotNull;
@@ -72,6 +76,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
+import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 
@@ -117,11 +122,18 @@ public final class IdentifyReferencesToMissingEntries
   // The argument used to specify the base DNs to use for searches.
   @Nullable private DNArgument baseDNArgument;
 
+  // The argument used to specify the path to an output LDIF file.
+  @Nullable private FileArgument outputLDIFArgument;
+
   // The argument used to specify the search page size.
   @Nullable private IntegerArgument pageSizeArgument;
 
   // The connection to use for retrieving referenced entries.
   @Nullable private LDAPConnectionPool getReferencedEntriesPool;
+
+  // An LDIF writer that may be used to write LDIF changes to remove references
+  // to missing entries.
+  @Nullable private LDIFWriter outputLDIFWriter;
 
   // A map with counts of missing references by attribute type.
   @NotNull private final Map<String,AtomicLong> missingReferenceCounts;
@@ -195,6 +207,7 @@ public final class IdentifyReferencesToMissingEntries
     super(outStream, errStream);
 
     baseDNArgument = null;
+    outputLDIFArgument = null;
     pageSizeArgument = null;
     attributeArgument = null;
     getReferencedEntriesPool = null;
@@ -417,6 +430,16 @@ public final class IdentifyReferencesToMissingEntries
               description, 1, Integer.MAX_VALUE);
     pageSizeArgument.addLongIdentifier("simple-page-size", true);
     parser.addArgument(pageSizeArgument);
+
+    description = "The path to a file that should be written with the LDIF " +
+         "representation of any changes that may be needed to remove " +
+         "references to missing entries.  If this is omitted, then " +
+         "information about the missing entries will only be written to " +
+         "standard output in a human-readable form.";
+    outputLDIFArgument = new FileArgument('l', "outputLDIF", false, 1,
+         "{path}", description, false, true, true, false);
+    outputLDIFArgument.addLongIdentifier("output-ldif", true);
+    parser.addArgument(outputLDIFArgument);
   }
 
 
@@ -469,6 +492,7 @@ public final class IdentifyReferencesToMissingEntries
       return le.getResultCode();
     }
 
+
     try
     {
       // Establish a second connection to use for retrieving referenced entries.
@@ -484,6 +508,25 @@ public final class IdentifyReferencesToMissingEntries
         err("Unable to establish a connection to the directory server:  ",
              StaticUtils.getExceptionMessage(le));
         return le.getResultCode();
+      }
+
+
+      // If we should write an LDIF file with the identified missing entries,
+      // then create it now.
+      if (outputLDIFArgument.isPresent())
+      {
+        try
+        {
+          outputLDIFWriter = new LDIFWriter(outputLDIFArgument.getValue());
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          err("Unale to open LDIF file '" +
+               outputLDIFArgument.getValue().getAbsolutePath() +
+               " for writing:  " + StaticUtils.getExceptionMessage(e));
+          return ResultCode.LOCAL_ERROR;
+        }
       }
 
 
@@ -623,6 +666,20 @@ public final class IdentifyReferencesToMissingEntries
       {
         getReferencedEntriesPool.close();
       }
+
+      if (outputLDIFWriter != null)
+      {
+        try
+        {
+          outputLDIFWriter.close();
+        }
+        catch (final Exception e)
+        {
+          err();
+          err("An error occurred while closing the output LDIF file:"  +
+               StaticUtils.getExceptionMessage(e));
+        }
+      }
     }
   }
 
@@ -712,6 +769,25 @@ public final class IdentifyReferencesToMissingEntries
                      a.getName(), " that references entry '", value,
                      "' which does not exist.");
                 missingReferenceCounts.get(attr).incrementAndGet();
+
+                if (outputLDIFWriter != null)
+                {
+                  final LDIFModifyChangeRecord changeRecord =
+                       new LDIFModifyChangeRecord(searchEntry.getDN(),
+                            new Modification(ModificationType.DELETE,
+                                 a.getName(), value));
+                  try
+                  {
+                    outputLDIFWriter.writeChangeRecord(changeRecord);
+                  }
+                  catch (final Exception ex)
+                  {
+                    Debug.debugException(ex);
+                    err("An error occurred while attempting to write an LDIF " +
+                         "change record to address the above issue:  " +
+                         StaticUtils.getExceptionMessage(ex));
+                  }
+                }
               }
             }
             catch (final LDAPException le)
