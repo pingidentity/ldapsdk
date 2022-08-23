@@ -29,6 +29,39 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAPConnectionOptions class to add support for a new
+                  com.unboundid.ldap.sdk.LDAPConnectionOptions.defaultVerifyCertificateHostnames
+                  system property that can be used to enable certificate hostname verification by
+                  default.  This verification was previously available by calling the
+                  LDAPConnectionOptions.setSSLSocketVerifier method with a
+                  HostNameSSLSocketVerifier instance, but the new system property can be used to
+                  enable this verification by default without any code changes.  Even though
+                  hostname verification is strongly recommended, it is disabled by default in the
+                  LDAP SDK for backward compatibility purposes, and for compatibility with a wide
+                  range of development, test, and even production environments that are not
+                  properly set up with certificates that allow for hostname verification.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP command-line tool framework to add a new
+                  "--verifyCertificateHostnames" argument that can be used to enable hostname
+                  verification when performing TLS negotiation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Significantly improved the class-level Javadoc documentation for the SSLUtil
+                  class to provide a better overview of TLS protocol versions,  TLS cipher suites,
+                  key managers, trust managers, and certificate host name verification, and to
+                  provide examples that better illustrate best practices for establishing secure
+                  connections.  Also made Javadoc improvements in the LDAPConnection and
+                  StartTLSPostConnectProcessor classes, and improved documentation for creating
+                  secure connections in the FAQ and getting started guide.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the JNDI compatibility support for controls, extended
                   requests, and extended responses.  Although the JNDI documentation states that
                   the byte array returned by the getEncodedValue method for these types of objects

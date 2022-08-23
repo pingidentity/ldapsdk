@@ -121,6 +121,34 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
               </p>
 
               <p>
+                The <a href="../javadoc/com/unboundid/util/ssl/SSLUtil.html">Javadoc
+                documentation</a> for the <tt>SSLUtil</tt> class provides a more thorough
+                explanation of everything involved in creating connections, but the following
+                example provides a quick demonstration of the process:
+              </p>
+
+              <pre>
+AggregateTrustManager trustManager = new AggregateTrustManager(false,
+     JVMDefaultTrustManager.getInstance(),
+     new TrustStoreTrustManager(trustStorePath, trustStorePIN,
+          "PKCS12", true));
+SSLUtil sslUtil = new SSLUtil(trustManager);
+
+LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+connectionOptions.setSSLSocketVerifier(
+     new HostNameSSLSocketVerifier(true));
+
+try (LDAPConnection connection = new LDAPConnection(
+          sslUtil.createSSLSocketFactory(), connectionOptions,
+          serverAddress, serverLDAPSPort))
+{
+  // Use the connection here.
+  RootDSE rootDSE = connection.getRootDSE();
+}
+</pre>
+              </p>
+
+              <p>
                 The standard way to obtain SSL-based connections is to use an instance of the
                 <tt>javax.net.ssl.SSLSocketFactory</tt> class, perhaps one created by the
                 <tt>getSocketFactory()</tt> method of a <tt>javax.net.ssl.SSLContext</tt> instance.

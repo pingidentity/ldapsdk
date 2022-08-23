@@ -78,68 +78,248 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 
 
 /**
- * This class provides a simple interface for creating {@code SSLContext} and
- * {@code SSLSocketFactory} instances, which may be used to create SSL-based
- * connections, or secure existing connections with StartTLS.  By default, only
- * the TLSv1.2 and TLSv1.3 (if supported by the JVM) will be enabled, with the
- * higher protocol version being the default and preferred for use.  The TLSv1.1
- * or TLSv1 protocol will only be enabled if the JVM does not support either
- * TLSv1.2 or TLSv1.3.
+ * This class provides a relatively simple interface for helping to configure
+ * secure communication using TLS (formerly known as SSL) and StartTLS (which
+ * uses an LDAP extended operation to convert an already-established non-secure
+ * connection to one that uses TLS security).  When establishing secure
+ * connections, there are five main concepts to be aware of:
+ * <UL>
+ *   <LI>The allowed set of TLS protocol versions</LI>
+ *   <LI>The allowed set of TLS cipher suites</LI>
+ *   <LI>The key manager (if any) to use for obtaining local certificates</LI>
+ *   <LI>The trust manager to use for determining whether to trust peer
+ *       certificates</LI>
+ *   <LI>The logic used to validate certificate hostnames</LI>
+ * </UL>
+ * Each of these is covered in more detail below.
  * <BR><BR>
- * <H2>Example 1</H2>
- * The following example demonstrates the use of the SSL helper to create an
- * SSL-based LDAP connection that will blindly trust any certificate that the
- * server presents.  Using the {@code TrustAllTrustManager} is only recommended
- * for testing purposes, since blindly trusting any certificate is not secure.
+ * <H2>TLS Protocol Versions</H2>
+ * The TLS protocol has evolved over time to improve both security and
+ * efficiency, and each update to the protocol has been assigned a version
+ * number.  At present, only TLSv1.3 and TLSv1.2 are considered secure, and only
+ * those versions will be enabled by default, with TLSv1.3 preferred over
+ * TLSv1.2.  Note that some older JVMs do not support TLSv1.3, and only TLSv1.2
+ * will be enabled by default in that case.  In the very unlikely event that the
+ * JVM does not support either TLSv1.3 or TLSv1.2, the LDAP SDK may fall back to
+ * enabling support for TLSv1.1 or TLSv1.
+ * <BR><BR>
+ * If you want or need to explicitly specify the TLS protocol versions to use
+ * for secure communication, then you may use the
+ * {@link #setEnabledSSLProtocols} method to indicate which protocol versions
+ * are allowed, and the {@link #setDefaultSSLProtocol} method to indicate which
+ * is the preferred protocol version.  You can use any TLS protocol version that
+ * the underlying JVM supports.
+ * <BR><BR>
+ * It is also possible to specify the set of enabled and default TLS protocol
+ * versions using Java system properties.  The
+ * {@code com.unboundid.util.SSLUtil.enabledSSLProtocols} property may be set
+ * with a comma-delimited list of the TLS protocol versions that should be
+ * enabled by default, and the
+ * {@code com.unboundid.util.SSLUtil.defaultSSLProtocol} property  may be set
+ * with the protocol version that should be preferred.  If set, these properties
+ * will override the logic that the LDAP SDK automatically uses to select
+ * default values, but those defaults may be explicitly overridden by calls to
+ * the {@code setEnabledSSLProtocols} and {@code setDefaultSSLProtocol} methods.
+ * <BR><BR>
+ * <H2>TLS Cipher Suites</H2>
+ * A cipher suite encapsulates a number of settings that will be used to
+ * actually secure TLS communication between two systems, including which
+ * algorithm to use for key exchange, which algorithm to use for bulk
+ * encryption, and which algorithm to use for integrity protection.  The JVM
+ * supports a fixed set of TLS cipher suites, although it may only enable
+ * support for a subset of those by default, and the LDAP SDK may further
+ * disable support for some of those suites by default for security reasons.
+ * The logic that the LDAP SDK uses to select a good default set of TLS cipher
+ * suites is encapsulated in the {@link TLSCipherSuiteSelector} class, and the
+ * class-level documentation for that class describes the criteria that it uses
+ * to make its selection.
+ * <BR><BR>
+ * If you wish to override the LDAP SDK's default selection, you may use the
+ * {@link #setEnabledSSLCipherSuites} method to explicitly specify the set of
+ * cipher suites that should be enabled.  Alternatively, the
+ * {@code com.unboundid.util.SSLUtil.enabledSSLCipherSuites} system property may
+ * be set with a comma-delimited list of the cipher suites that should be
+ * enabled.
+ * <BR><BR>
+ * <H2>Key Managers</H2>
+ * A key manager is used to obtain access to a certificate chain and private key
+ * that should be presented to the peer during TLS negotiation.  In the most
+ * common use cases, in which the LDAP SDK is used only to establish outbound
+ * connections and does not need to use a certificate to authenticate itself to
+ * the LDAP server, there won't be any need to present a certificate chain, and
+ * there won't be any need to configure a key manager.  However, if you are
+ * using the LDAP SDK to accept TLS-secured connections from LDAP clients (for
+ * example, using the
+ * {@link com.unboundid.ldap.listener.InMemoryDirectoryServer} or
+ * another type of {@link com.unboundid.ldap.listener.LDAPListener}), if the
+ * server requires clients to present their own certificate for mutual TLS
+ * authentication, or if you want to use the SASL EXTERNAL mechanism to use a
+ * client certificate to authenticate to the server at the LDAP layer, then you
+ * will need to specify a key manager to provide access to that certificate
+ * chain.  The key manager to use for that purpose should be provided in the
+ * {@code SSLUtil} constructor.
+ * <BR><BR>
+ * While any {@code javax.net.ssl.KeyManager} instance can be used, the LDAP SDK
+ * provides three options that will be sufficient for most use cases:
+ * <UL>
+ *   <LI>{@link KeyStoreKeyManager} -- Allows the certificate chain and private
+ *       key to be obtained from a key store file, which will typically be in
+ *       the JKS or PKCS #12 format (or in the Bouncy Castle BCFKS format when
+ *       using the LDAP SDK in FIPS 140-2-compliant mode).</LI>
+ *   <LI>{@link PEMFileKeyManager} -- Allows the certificate chain and private
+ *       key to be obtained from text files that contain the PEM-encoded
+ *       representation of X.509 certificates and a PKCS #8 private key.</LI>
+ *   <LI>{@link PKCS11KeyManager} -- Allows the certificate chain and private
+ *       key to be accessed from a PKCS #11 token, like a hardware security
+ *       module (HSM).</LI>
+ * </UL>
+ * <BR><BR>
+ * <H2>Trust Managers</H2>
+ * A trust manager is used to determine whether to trust a certificate chain
+ * presented by a peer during TLS negotiation.  Trust is a very important aspect
+ * of TLS because it's important to make sure that the peer you're communicating
+ * with is actually who you intend it to be and not someone else who has managed
+ * to hijack the negotiation process.
+ * <BR><BR>
+ * You will generally always want to provide a trust manager, regardless of
+ * whether you're using the LDAP SDK to act as a client or a server, and this
+ * trust manager should be provided in the {@code SSLUtil} constructor.  The
+ * LDAP SDK offers several trust manager implementations, including:
+ * <UL>
+ *   <LI>{@link JVMDefaultTrustManager} -- Uses the JVM's default
+ *       {@code cacerts} trust store to obtain access to a set of trusted,
+ *       well-known issuer certificates, including those from commercial
+ *       certification authorities like Verisign or DigiCert, and from trusted
+ *       free providers like Let's Encrypt.  This trust manager will only accept
+ *       valid certificates that have been signed by one of those trusted
+ *       authorities.</LI>
+ *   <LI>{@link TrustStoreTrustManager} -- Uses the information in a trust store
+ *       file (typically in a format like JKS, PKCS #12 or BCFKS) as a set of
+ *       trusted certificates and issuers.</LI>
+ *   <LI>{@link PEMFileTrustManager} -- Uses the information one or more files
+ *       containing the PEM representations of X.509 certificates as a set of
+ *       trusted certificates and issuers.</LI>
+ *   <LI>{@link com.unboundid.ldap.sdk.unboundidds.TopologyRegistryTrustManager}
+ *       -- Uses the topology registry information in the configuration of a
+ *       Ping Identity Directory Server (or related server product) to obtain a
+ *       set of trusted certificates and issuers.</LI>
+ *   <LI>{@link PromptTrustManager} -- Interactively prompts the user (via the
+ *       terminal) to determine whether the presented certificate chain should
+ *       be trusted.</LI>
+ *   <LI>{@link TrustAllTrustManager} -- Blindly trusts all certificate chains
+ *       that are presented to it.  This may be convenient in some cases for
+ *       testing purposes, but it is strongly discouraged for production use
+ *       because it does not actually perform any real trust processing and will
+ *       allow connecting to unintended or malicious peers.</LI>
+ *   <LI>{@link AggregateTrustManager} -- Allows you to combine multiple other
+ *       trust managers in the course of determining whether to trust a
+ *       presented certificate chain.  For example, you may use this to
+ *       automatically trust certificates signed by an issuer in the JVM's
+ *       {@code cacerts} file or in an explicitly specified alternative trust
+ *       store file, but to fall back to interactively prompting the user for
+ *       certificates not trusted by one of the previous two methods.</LI>
+ * </UL>
+ * <BR><BR>
+ * <H2>Certificate Hostname Validation</H2>
+ * Trust managers can be used to ensure that a certificate chain presented by a
+ * peer originally came from a trusted source, but that doesn't necessarily mean
+ * that the peer system is the one you intend it to be.  It's not at all
+ * difficult for malicious users and applications to obtain a certificate that
+ * is signed by a CA in the JVM's default set of trusted issuers.  However, any
+ * certificate signed by one of those trusted issuers will include information
+ * in a subject alternative name extension that specifies the hostnames (or at
+ * least domain names) and IP addresses for systems with which that certificate
+ * is allowed to be used, and those issues are careful to verify that they only
+ * issue certificates to systems that are legitimately associated with those
+ * systems.  So while a malicious user may be able to easily get a certificate
+ * from a trusted issuer, it should not be possible for them to get a
+ * certificate with a subject alternative name extension containing addresses
+ * they don't legitimately have the right to use.
+ * <BR><BR>
+ * Because of this, it's very important that clients not only verify that the
+ * server's certificate comes from a trusted source, but also that it's allowed
+ * to be used by that server system.  This additional level of validation can
+ * help thwart attacks that rely on DNS hijacking or other methods of diverting
+ * communication away from the intended recipient to one that an attacker
+ * controls instead.  The LDAP SDK does not perform this validation by default
+ * because there are unfortunately too many cases in which clients (especially
+ * those used in testing and development environments) might need to interact
+ * with a server whose certificate may not have an appropriate subject
+ * alternative name extension.  However, in production environments with a
+ * properly configured TLS certificate, hostname verification can be enabled by
+ * calling the
+ * {@link com.unboundid.ldap.sdk.LDAPConnectionOptions#setSSLSocketVerifier}
+ * method with an instance of the {@link HostNameSSLSocketVerifier}.
+ * Alternatively, you can set the {@code com.unboundid.ldap.sdk.
+ * LDAPConnectionOptions.defaultVerifyCertificateHostnames} system property with
+ * a value of "{@code true}" to enable this validation by default.
+ * <BR><BR>
+ * <H2>Examples</H2>
+ * The following example demonstrates the process for establish a secure client
+ * connection.  It relies on the LDAP SDK's default configuration for selecting
+ * TLS protocols and cipher suites, and does not use a key manager.  It uses an
+ * aggregate trust manager to automatically trust any certificates signed by one
+ * of the JVM's default trusted issuers or an issuer in an explicitly specified
+ * key store file, and it enables host name validation.
+ * <BR><BR>
  * <PRE>
- * // Create an SSLUtil instance that is configured to trust any certificate,
- * // and use it to create a socket factory.
- * SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
- * SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
+ *   AggregateTrustManager trustManager = new AggregateTrustManager(false,
+ *        JVMDefaultTrustManager.getInstance(),
+ *        new TrustStoreTrustManager(trustStorePath, trustStorePIN,
+ *             "PKCS12", true));
+ *   SSLUtil sslUtil = new SSLUtil(trustManager);
  *
- * // Establish a secure connection using the socket factory.
- * LDAPConnection connection = new LDAPConnection(sslSocketFactory);
- * connection.connect(serverAddress, serverSSLPort);
+ *   LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+ *   connectionOptions.setSSLSocketVerifier(
+ *        new HostNameSSLSocketVerifier(true));
  *
- * // Process operations using the connection....
- * RootDSE rootDSE = connection.getRootDSE();
- *
- * connection.close();
+ *   try (LDAPConnection connection = new LDAPConnection(
+ *             sslUtil.createSSLSocketFactory(), connectionOptions,
+ *             serverAddress, serverLDAPSPort))
+ *   {
+ *     // Use the connection here.
+ *     RootDSE rootDSE = connection.getRootDSE();
+ *   }
  * </PRE>
- * <BR>
- * <H2>Example 2</H2>
- * The following example demonstrates the use of the SSL helper to create a
- * non-secure LDAP connection and then use the StartTLS extended operation to
- * secure it.  It will use a trust store to determine whether to trust the
- * server certificate.
+ * <BR><BR>
+ * The above example establishes an LDAPS connection that is secured by TLS as
+ * soon as it is created.  The following example shows the process needed to use
+ * the StartTLS extended operation to secure an already-established non-secure
+ * connection:
+ * <BR><BR>
  * <PRE>
- * // Establish a non-secure connection to the server.
- * LDAPConnection connection = new LDAPConnection(serverAddress, serverPort);
+ *   AggregateTrustManager trustManager = new AggregateTrustManager(false,
+ *        JVMDefaultTrustManager.getInstance(),
+ *        new TrustStoreTrustManager(trustStorePath, trustStorePIN,
+ *             "PKCS12", true));
+ *   SSLUtil sslUtil = new SSLUtil(trustManager);
  *
- * // Create an SSLUtil instance that is configured to trust certificates in
- * // a specified trust store file, and use it to create an SSLContext that
- * // will be used for StartTLS processing.
- * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
- * SSLContext sslContext = sslUtil.createSSLContext();
+ *   LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+ *   connectionOptions.setSSLSocketVerifier(
+ *        new HostNameSSLSocketVerifier(true));
  *
- * // Use the StartTLS extended operation to secure the connection.
- * StartTLSExtendedRequest startTLSRequest =
- *      new StartTLSExtendedRequest(sslContext);
- * ExtendedResult startTLSResult;
- * try
- * {
- *   startTLSResult = connection.processExtendedOperation(startTLSRequest);
- * }
- * catch (LDAPException le)
- * {
- *   startTLSResult = new ExtendedResult(le);
- * }
- * LDAPTestUtils.assertResultCodeEquals(startTLSResult, ResultCode.SUCCESS);
+ *   try (LDAPConnection connection = new LDAPConnection(
+ *             connectionOptions, serverAddress, serverLDAPPort))
+ *   {
+ *     // Use the StartTLS extended operation to secure the connection.
+ *     ExtendedResult startTLSResult;
+ *     try
+ *     {
+ *       startTLSResult = connection.processExtendedOperation(
+ *            new StartTLSExtendedRequest(
+ *                 sslUtil.createSSLSocketFactory()));
+ *     }
+ *     catch (LDAPException e)
+ *     {
+ *       Debug.debugException(e);
+ *       startTLSResult = new ExtendedResult(e);
+ *     }
+ *     LDAPTestUtils.assertResultCodeEquals(startTLSResult,
+ *          ResultCode.SUCCESS);
  *
- * // Process operations using the connection....
- * RootDSE rootDSE = connection.getRootDSE();
- *
- * connection.close();
+ *     // Use the connection here.
+ *     RootDSE rootDSE = connection.getRootDSE();
+ *   }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

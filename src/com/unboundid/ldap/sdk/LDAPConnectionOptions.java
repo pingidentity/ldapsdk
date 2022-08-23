@@ -78,6 +78,7 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.ssl.HostNameSSLSocketVerifier;
 import com.unboundid.util.ssl.SSLSocketVerifier;
 import com.unboundid.util.ssl.TrustAllSSLSocketVerifier;
 
@@ -1171,11 +1172,34 @@ public final class LDAPConnectionOptions
 
 
   /**
+   * The name of a system property that can be used to indicate that the LDAP
+   * SDK should perform validation for certificate hostnames when negotiating a
+   * TLS session.  By default, this validation will only be enabled if the
+   * {@link #setSSLSocketVerifier} method is called and provided with an
+   * {@link HostNameSSLSocketVerifier} instance.  However, if this property is
+   * set with a value of "true", then connections will use a
+   * {@code HostNameSSLSocketVerifier} by default, and attempts to establish a
+   * secure connection will fail if the address used to establish the connection
+   * does not match any of the allowed addresses for that certificate (e.g., in
+   * its subject alternative name extension).
+   * <BR><BR>
+   * The full name for this system property is "com.unboundid.ldap.sdk.
+   * LDAPConnectionOptions.defaultVerifyCertificateHostnames".
+   */
+  @NotNull public static final String
+       PROPERTY_DEFAULT_VERIFY_CERTIFICATE_HOSTNAMES =
+            PROPERTY_PREFIX + "defaultVerifyCertificateHostnames";
+
+
+
+  /**
    * The default {@code SSLSocketVerifier} instance that will be used for
    * performing extra validation for {@code SSLSocket} instances.
    */
   @NotNull private static final SSLSocketVerifier DEFAULT_SSL_SOCKET_VERIFIER =
-       TrustAllSSLSocketVerifier.getInstance();
+       getSystemProperty(PROPERTY_DEFAULT_VERIFY_CERTIFICATE_HOSTNAMES, false)
+            ? new HostNameSSLSocketVerifier(true)
+            : TrustAllSSLSocketVerifier.getInstance();
 
 
 

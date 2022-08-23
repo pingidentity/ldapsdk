@@ -102,8 +102,8 @@ public final class HostNameSSLSocketVerifier
 
   /**
    * Indicates whether to check the CN attribute in the peer certificate's
-   * subject DN when that certificate also contains a subject subject
-   * alternative name extension.
+   * subject DN when that certificate also contains a subject alternative name
+   * extension.
    */
   static final boolean DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT;
   static
@@ -340,6 +340,15 @@ public final class HostNameSSLSocketVerifier
     }
 
 
+    // Get the subject DN for the certificate and append it to the certInfo
+    // buffer.
+    final String subjectDNString =
+         certificate.getSubjectX500Principal().getName(X500Principal.RFC2253);
+    certInfo.append("subject='");
+    certInfo.append(subjectDNString);
+    certInfo.append('\'');
+
+
     // Check to see if the certificate has a subject alternative name extension.
     // If so, then check its dNSName, uniformResourceLocator, and iPAddress
     // elements.
@@ -357,7 +366,7 @@ public final class HostNameSSLSocketVerifier
           {
             case 2: // dNSName
               final String dnsName = (String) l.get(1);
-              certInfo.append(" dNSName='");
+              certInfo.append(" dnsName='");
               certInfo.append(dnsName);
               certInfo.append('\'');
 
@@ -398,7 +407,7 @@ public final class HostNameSSLSocketVerifier
 
             case 7: // iPAddress
               final String ipAddressString = (String) l.get(1);
-              certInfo.append(" iPAddress='");
+              certInfo.append(" ipAddress='");
               certInfo.append(ipAddressString);
               certInfo.append('\'');
 
@@ -431,12 +440,6 @@ public final class HostNameSSLSocketVerifier
 
 
     // Look for any CN attributes in the certificate subject.
-    final String subjectDNString =
-         certificate.getSubjectX500Principal().getName(X500Principal.RFC2253);
-    certInfo.append("subject='");
-    certInfo.append(subjectDNString);
-    certInfo.append('\'');
-
     try
     {
       final DN subjectDN = new DN(subjectDNString);

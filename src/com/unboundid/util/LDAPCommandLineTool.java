@@ -78,6 +78,7 @@ import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.ssl.AggregateTrustManager;
+import com.unboundid.util.ssl.HostNameSSLSocketVerifier;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.PKCS11KeyManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -146,63 +147,31 @@ import static com.unboundid.util.UtilityMessages.*;
  *       interactively prompt the user for the trust store password.</LI>
  *   <LI>"--trustStoreFormat {format}" -- Specifies the format to use for the
  *       trust store file.</LI>
+ *   <LI>"--verifyCertificateHostnames" -- Indicates that the tool should verify
+ *       that the hostname or IP address used to establish connections to the
+ *       LDAP server matches an address for which the server's TLS certificate
+ *       was issued.</LI>
  *   <LI>"-N {nickname}" or "--certNickname {nickname}" -- Specifies the
  *       nickname of the client certificate to use when performing SSL client
  *       authentication.</LI>
+ *   <LI>"--enableSSLDebugging" -- Indicates that the tool should display
+ *       detailed information about all TLS-related processing that it is
+ *       performing.</LI>
  *   <LI>"-o {name=value}" or "--saslOption {name=value}" -- Specifies a SASL
  *       option to use when performing SASL authentication.</LI>
+ *   <LI>"--useSASLExternal" -- Indicates that the SASL EXTERNAL mechanism
+ *       should be used to authenticate the connection with information that the
+ *       client has provided to the server outside the LDAP layer (for example,
+ *       using a client certificate).  This is equivalent to
+ *       "--saslOption mech=EXTERNAL"<LI>
  * </UL>
  * If SASL authentication is to be used, then a "mech" SASL option must be
  * provided to specify the name of the SASL mechanism to use (e.g.,
  * "--saslOption mech=EXTERNAL" indicates that the EXTERNAL mechanism should be
  * used).  Depending on the SASL mechanism, additional SASL options may be
- * required or optional.  They include:
- * <UL>
- *   <LI>
- *     mech=ANONYMOUS
- *     <UL>
- *       <LI>Required SASL options:  </LI>
- *       <LI>Optional SASL options:  trace</LI>
- *     </UL>
- *   </LI>
- *   <LI>
- *     mech=CRAM-MD5
- *     <UL>
- *       <LI>Required SASL options:  authID</LI>
- *       <LI>Optional SASL options:  </LI>
- *     </UL>
- *   </LI>
- *   <LI>
- *     mech=DIGEST-MD5
- *     <UL>
- *       <LI>Required SASL options:  authID</LI>
- *       <LI>Optional SASL options:  authzID, realm</LI>
- *     </UL>
- *   </LI>
- *   <LI>
- *     mech=EXTERNAL
- *     <UL>
- *       <LI>Required SASL options:  </LI>
- *       <LI>Optional SASL options:  </LI>
- *     </UL>
- *   </LI>
- *   <LI>
- *     mech=GSSAPI
- *     <UL>
- *       <LI>Required SASL options:  authID</LI>
- *       <LI>Optional SASL options:  authzID, configFile, debug, protocol,
- *                realm, kdcAddress, useTicketCache, requireCache,
- *                renewTGT, ticketCachePath</LI>
- *     </UL>
- *   </LI>
- *   <LI>
- *     mech=PLAIN
- *     <UL>
- *       <LI>Required SASL options:  authID</LI>
- *       <LI>Optional SASL options:  authzID</LI>
- *     </UL>
- *   </LI>
- * </UL>
+ * required or optional.  Use the "--help-sasl" argument to see a list of all
+ * supported SASL mechanisms and the arguments that can be used with each of
+ * them.
  * <BR><BR>
  * Note that in general, methods in this class are not threadsafe.  However, the
  * {@link #getConnection()} and {@link #getConnectionPool(int,int)} methods may
@@ -226,6 +195,7 @@ public abstract class LDAPCommandLineTool
   @Nullable private BooleanArgument useSASLExternal             = null;
   @Nullable private BooleanArgument useSSL                      = null;
   @Nullable private BooleanArgument useStartTLS                 = null;
+  @Nullable private BooleanArgument verifyCertificateHostnames  = null;
   @Nullable private DNArgument      bindDN                      = null;
   @Nullable private FileArgument    bindPasswordFile            = null;
   @Nullable private FileArgument    keyStorePasswordFile        = null;
@@ -324,6 +294,7 @@ public abstract class LDAPCommandLineTool
     ids.add("promptForTrustStorePassword");
     ids.add("trustStoreFormat");
     ids.add("certNickname");
+    ids.add("verifyCertificateHostnames");
 
     if (tool.supportsAuthentication())
     {
@@ -644,6 +615,29 @@ public abstract class LDAPCommandLineTool
       trustStoreFormat.addLongIdentifier("trust-store-type", true);
     }
     parser.addArgument(trustStoreFormat);
+
+    verifyCertificateHostnames = new BooleanArgument(null,
+         "verifyCertificateHostnames", 1,
+         INFO_LDAP_TOOL_DESCRIPTION_VERIFY_CERT_HOSTNAMES.get());
+    verifyCertificateHostnames.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      verifyCertificateHostnames.addLongIdentifier(
+           "verifyCertificateHostname", true);
+      verifyCertificateHostnames.addLongIdentifier(
+           "validateCertificateHostname", true);
+      verifyCertificateHostnames.addLongIdentifier(
+           "validateCertificateHostnames", true);
+      verifyCertificateHostnames.addLongIdentifier(
+           "verify-certificate-hostnames", true);
+      verifyCertificateHostnames.addLongIdentifier(
+           "verify-certificate-hostname", true);
+      verifyCertificateHostnames.addLongIdentifier(
+           "validate-certificate-hostnames", true);
+      verifyCertificateHostnames.addLongIdentifier(
+           "validate-certificate-hostname", true);
+    }
+    parser.addArgument(verifyCertificateHostnames);
 
     certificateNickname = new StringArgument(
          getShortIdentifierIfNotSuppressed('N'), "certNickname", false, 1,
@@ -973,6 +967,34 @@ public abstract class LDAPCommandLineTool
 
 
   /**
+   * Retrieves the connection options that should be used for connections that
+   * are created with this command-line tool, including any options that may be
+   * set as a result of command-line arguments.  This method will return a copy
+   * of the connection options retrieved from the {@link #getConnectionOptions}
+   * method, but with any alterations applied as appropriate for the configured
+   * set of command-line options.
+   *
+   * @return  The connection options that should be used for connections that
+   *          are created with this command-line tool, including any options
+   *          that may be set as a result of command-line arguments.
+   */
+  @NotNull()
+  protected final LDAPConnectionOptions
+                 getConnectionOptionsWithRequestedSettings()
+  {
+    final LDAPConnectionOptions options = getConnectionOptions().duplicate();
+
+    if (verifyCertificateHostnames.isPresent())
+    {
+      options.setSSLSocketVerifier(new HostNameSSLSocketVerifier(true));
+    }
+
+    return options;
+  }
+
+
+
+  /**
    * Retrieves a connection that may be used to communicate with the target
    * directory server.
    * <BR><BR>
@@ -1255,7 +1277,7 @@ public abstract class LDAPCommandLineTool
     if (host.getValues().size() == 1)
     {
       return new SingleServerSet(host.getValue(), port.getValue(),
-                                 socketFactory, getConnectionOptions());
+           socketFactory, getConnectionOptionsWithRequestedSettings());
     }
     else
     {
@@ -1272,7 +1294,7 @@ public abstract class LDAPCommandLineTool
       }
 
       return new RoundRobinServerSet(hosts, ports, socketFactory,
-                                     getConnectionOptions());
+           getConnectionOptionsWithRequestedSettings());
     }
   }
 

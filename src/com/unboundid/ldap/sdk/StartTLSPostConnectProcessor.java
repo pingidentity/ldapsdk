@@ -58,14 +58,20 @@ import com.unboundid.util.Validator;
  * <H2>Example</H2>
  * The following example demonstrates the use of the StartTLS post-connect
  * processor to create an LDAP connection pool whose connections are secured
- * using StartTLS:
+ * using StartTLS.  See the Javadoc documentation for the
+ * {@link com.unboundid.util.ssl.SSLUtil} class for a more complete explanation
+ * of the process for establishin secure connections.
  * <PRE>
  * // Configure an SSLUtil instance and use it to obtain an SSLContext.
  * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
  * SSLContext sslContext = sslUtil.createSSLContext();
  *
  * // Establish an insecure connection to the directory server.
- * LDAPConnection connection = new LDAPConnection(serverAddress, nonSSLPort);
+ * LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+ * connectionOptions.setSSLSocketVerifier(
+ *      new HostNameSSLSocketVerifier(true));
+ * LDAPConnection connection =
+ *      new LDAPConnection(connectionOptions, serverAddress, nonSSLPort);
  *
  * // Use the StartTLS extended operation to secure the connection.
  * ExtendedResult startTLSResult = connection.processExtendedOperation(

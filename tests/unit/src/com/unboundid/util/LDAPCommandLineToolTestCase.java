@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -63,6 +64,7 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
+import com.unboundid.util.ssl.cert.ManageCertificates;
 
 
 
@@ -1214,6 +1216,91 @@ public class LDAPCommandLineToolTestCase
            "--scope", "base",
            "(objectClass=*)");
       assertFalse(rc.equals(ResultCode.SUCCESS));
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the verifyCertificateHostnames argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testVerifyCertificateHostnames()
+         throws Exception
+  {
+    // Create a new key store with a certificate that has a single subject
+    // alternative name that refers to an incorrect server.
+    final File keyStoreFile = createTempFile();
+    assertTrue(keyStoreFile.delete());
+    assertEquals(
+         ManageCertificates.main((InputStream) null, null, null,
+              "generate-self-signed-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--keystore-type", "JKS",
+              "--alias", "server-cert",
+              "--subject-dn",
+                   "CN=incorrectserver.example.com,O=Example Corp,C=US",
+              "--subject-alternative-name-dns", "incorrectserver.example.com"),
+         ResultCode.SUCCESS);
+
+
+    // Create an in-memory directory server instance that uses SSL with the new
+    // key store.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com",
+              "o=example.com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+
+    final SSLUtil serverSSLUtil = new SSLUtil(
+         new KeyStoreKeyManager(keyStoreFile, "password".toCharArray(),
+              "JKS", "server-cert"),
+         new TrustAllTrustManager());
+    final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
+
+    cfg.setListenerConfigs(InMemoryListenerConfig.createLDAPSConfig("LDAPS",
+         null, 0, serverSSLUtil.createSSLServerSocketFactory(),
+         clientSSLUtil.createSSLSocketFactory()));
+
+    try (InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg))
+    {
+      ds.startListening();
+
+
+      // Make sure that we can successfully use the ldapsearch tool when using
+      // a hostname of localhost (which isn't allowed for the certificate) when
+      // not verifying the hostname.
+      LDAPSearch ldapSearch = new LDAPSearch(null, null);
+      ResultCode resultCode = ldapSearch.runTool(
+                "--hostname", "localhost",
+                "--port", String.valueOf(ds.getListenPort()),
+                "--useSSL",
+                "--trustAll",
+                "--bindDN", "cn=Directory Manager",
+                "--bindPassword", "password",
+                "--baseDN", "",
+                "--scope", "base",
+                "(objectClass=*)");
+      assertTrue(resultCode == ResultCode.SUCCESS);
+
+
+      // Make sure that the same test fails when we tell ldapsearch to verify
+      // the hostname.
+      ldapSearch = new LDAPSearch(null, null);
+      resultCode = ldapSearch.runTool(
+                "--hostname", "localhost",
+                "--port", String.valueOf(ds.getListenPort()),
+                "--useSSL",
+                "--trustAll",
+                "--verifyCertificateHostnames",
+                "--bindDN", "cn=Directory Manager",
+                "--bindPassword", "password",
+                "--baseDN", "",
+                "--scope", "base",
+                "(objectClass=*)");
+      assertFalse(resultCode == ResultCode.SUCCESS);
     }
   }
 

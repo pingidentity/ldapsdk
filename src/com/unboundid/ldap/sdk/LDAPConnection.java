@@ -106,12 +106,12 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *
  *   // Create a new connection that is established at creation time, and then
  *   // authenticate separately using simple authentication.
- *   LDAPConnection c = new LDAPConnection(address, port);
+ *   c = new LDAPConnection(address, port);
  *   BindResult bindResult = c.bind(bindDN, password);
  *
  *   // Create a new connection that is established and bound using simple
  *   // authentication all in one step.
- *   LDAPConnection c = new LDAPConnection(address, port, bindDN, password);
+ *   c = new LDAPConnection(address, port, bindDN, password);
  * </PRE>
  * <BR><BR>
  * When authentication is performed at the time that the connection is
@@ -124,21 +124,48 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * expire).  See the {@link BindRequest} class for more information about
  * authentication in the UnboundID LDAP SDK for Java.
  * <BR><BR>
- * By default, connections will use standard unencrypted network sockets.
- * However, it may be desirable to create connections that use SSL/TLS to
- * encrypt communication.  This can be done by specifying a
- * {@code SocketFactory} that should be used to create the socket to use to
- * communicate with the directory server.  The
- * {@code SSLSocketFactory.getDefault} method or the
- * {@code SSLContext.getSocketFactory} method may be used to obtain a socket
- * factory for performing SSL communication.  See the
- * <A HREF=
- * "http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html">
- * JSSE Reference Guide</A> for more information on using these classes.
- * Alternately, you may use the {@link SSLUtil} class to simplify the process.
+ * The above examples all result in insecure connections that communicate over
+ * standard unencrypted network sockets.  However, this is strongly discouraged
+ * because anyone who can intercept that communication can see all of the data
+ * transferred (including things like authentication credentials and other
+ * sensitive information), and may even be able to alter it in an undetectible
+ * manner.  Instead, you should instead establish secure connections that are
+ * protected with TLS.  The javadoc documentation for the {@link SSLUtil} class
+ * provides a more complete description of this process, but the highlights are
+ * that you should create an {@code SSLUtil} instance with an appropriate trust
+ * store, create an {@link LDAPConnectionOptions} instance with certificate
+ * host name verification enabled, and then use them to establish a secure
+ * connection as follows:
+ * <BR><BR>
+ * <PRE>
+ *   AggregateTrustManager trustManager = new AggregateTrustManager(false,
+ *        JVMDefaultTrustManager.getInstance(),
+ *        new TrustStoreTrustManager(trustStorePath, trustStorePIN,
+ *             "PKCS12", true));
+ *   SSLUtil sslUtil = new SSLUtil(trustManager);
+ *
+ *   LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+ *   connectionOptions.setSSLSocketVerifier(
+ *        new HostNameSSLSocketVerifier(true));
+ *
+ *   try (LDAPConnection connection = new LDAPConnection(
+ *             sslUtil.createSSLSocketFactory(), connectionOptions,
+ *             serverAddress, serverLDAPSPort))
+ *   {
+ *     // Use the connection here.
+ *     RootDSE rootDSE = connection.getRootDSE();
+ *   }
+ * </PRE>
  * <BR><BR>
  * Whenever the connection is no longer needed, it may be terminated using the
- * {@link LDAPConnection#close} method.
+ * {@link LDAPConnection#close} method.  Alternatively, you can use Java's
+ * try-with-resources mechanism to establish a connection in a {@code try}
+ * block, which will cause the connection to be closed at the end of that block,
+ * even if an unexpected error occurs.  It is very important to ensure that
+ * connections are not leaked (by creating them and forgetting to close them,
+ * or by creating a connection pool, checking out connections, and forgetting to
+ * release them back to the pool), as that may eventually interfere with the
+ * ability to establish new connections.
  * <BR><BR>
  * <H2>Processing LDAP Operations</H2>
  * This class provides a number of methods for processing the different types of

@@ -728,45 +728,30 @@ LDAPConnection connection = new LDAPConnection("server.example.com", 389,
                 StartTLS may be used to add security to an existing insecure connection (and will
                 communicate over the same port used for insecure LDAP communication, typically
                 port 389).  In both cases, the <tt>com.unboundid.util.ssl.SSLUtil</tt> class may
-                be used to help configure the underlying security layer.
-              </p>
-
-              <p>
-                In order to create an SSL-based connection, you should provide a custom socket
-                factory when establishing the connection.  For example, the following code may be
-                used to establish an SSL-based connection that will blindly trust any certificate
-                that the Directory Server provides:
+                be used to help configure the underlying security layer.  The
+                <a href="javadoc/com/unboundid/util/ssl/SSLUtil.html">Javadoc
+                documentation</a> for the <tt>SSLUtil</tt> class provides a more thorough
+                explanation of everything involved in creating connections, but the following
+                example provides a quick demonstration of the process:
               </p>
 
               <pre>
-SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-SSLSocketFactory socketFactory = sslUtil.createSSLSocketFactory();
-LDAPConnection connection = new LDAPConnection(socketFactory,
-     "server.example.com", 636);
-</pre>
+AggregateTrustManager trustManager = new AggregateTrustManager(false,
+     JVMDefaultTrustManager.getInstance(),
+     new TrustStoreTrustManager(trustStorePath, trustStorePIN,
+          "PKCS12", true));
+SSLUtil sslUtil = new SSLUtil(trustManager);
 
-              <p>
-                In order to use the StartTLS extended operation to add encryption to an existing
-                connection, you will need to use the
-                <tt>com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest</tt> and you should
-                provide a custom <tt>SSLContext</tt> to use when processing.  For example:
-              </p>
+LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+connectionOptions.setSSLSocketVerifier(
+     new HostNameSSLSocketVerifier(true));
 
-              <pre>
-SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-SSLContext sslContext = sslUtil.createSSLContext();
-ExtendedResult extendedResult = connection.processExtendedOperation(
-     new StartTLSExtendedRequest(sslContext));
-
-if (extendedResult.getResultCode() == ResultCode.SUCCESS)
+try (LDAPConnection connection = new LDAPConnection(
+          sslUtil.createSSLSocketFactory(), connectionOptions,
+          serverAddress, serverLDAPSPort))
 {
-  // The connection is now secure.
-}
-else
-{
-  // The StartTLS negotiation failed for some reason.  The connection can no
-  // longer be used.
-  connection.close();
+  // Use the connection here.
+  RootDSE rootDSE = connection.getRootDSE();
 }
 </pre>
 
