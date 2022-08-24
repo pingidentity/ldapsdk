@@ -66,6 +66,13 @@
   <property name="sc.classes.dir" location="${build.dir}/sanitycheck" />
 
 
+  <!-- Define properties used for generating a GraalVM native-image
+       resource-config.json file -->
+  <property name="gvmnir.src.dir"     location="${build-src.dir}/graalvmnativeimageresources" />
+  <property name="gvmnir.classes.dir" location="${build.dir}/graalvmnativeimageresources" />
+  <property name="gvmnir.output.file" location="${gvmnir.classes.dir}/graalvm-native-image-resource-config.json" />
+
+
   <!-- Define properties used for copying the documentation into place. -->
   <property name="copydocs.src.dir"     location="${build-src.dir}/copydocs" />
   <property name="copydocs.classes.dir" location="${build.dir}/copydocs" />
@@ -253,6 +260,36 @@
 
 
 
+  <!-- Generates a resource-config.json file for use by GraalVM native-image -->
+  <target name="generate-graalvm-native-image-resource-config-json"
+          description="Generates a resource-config.json file for use by GraalVM native-image"
+          depends="compile">
+    <mkdir dir="${gvmnir.classes.dir}" />
+    <javac srcdir="${gvmnir.src.dir}" destdir="${gvmnir.classes.dir}"
+           source="1.7" target="1.7" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
+      <compilerarg value="-Xlint:all" />
+      <classpath>
+        <pathelement location="${classes.dir}" />
+      </classpath>
+    </javac>
+
+    <taskdef name="gvmnir"
+             className="com.unboundid.buildtools.graalvmnativeimageresources.GenerateGraalVMNativeImageResourceConfigJSON">
+      <classpath>
+        <pathelement location="${classes.dir}" />
+        <pathelement location="${gvmnir.classes.dir}" />
+      </classpath>
+    </taskdef>
+
+    <gvmnir buildClassesDirectory="${classes.dir}"
+            outputJSONFile="${gvmnir.output.file}" />
+  </target>
+
+
+
   <!-- Perform checkstyle analysis on the code. -->
   <target name="checkstyle" description="Validate source code style"
           depends="compile">
@@ -306,7 +343,7 @@
 
   <!-- Create a distributable package including the JAR file, docs, etc. -->
   <target name="package" description="Create a distributable package"
-          depends="compile,define-copydocs,define-toolusage,checkstyle">
+          depends="compile,generate-graalvm-native-image-resource-config-json,define-copydocs,define-toolusage,checkstyle">
     <mkdir dir="${package.dir}" />
 
     <property name="base-name"
@@ -319,6 +356,7 @@
     <mkdir dir="${sdk.package.dir}/android-ldap-client" />
     <mkdir dir="${sdk.package.dir}/docs" />
     <mkdir dir="${sdk.package.dir}/docs/javadoc" />
+    <mkdir dir="${sdk.package.dir}/resource" />
 
     <copy todir="${sdk.package.dir}">
       <fileset dir="${dist-root.dir}">
@@ -327,6 +365,8 @@
         <exclude name="**/.git" />
       </fileset>
     </copy>
+
+    <copy todir="${sdk.package.dir}/resource" file="${gvmnir.output.file}" />
 
     <copydocs sourceDir="${docs.dir}" destinationDir="${sdk.package.dir}/docs"
               headerFile="${resource.dir}/localdoc.header"
