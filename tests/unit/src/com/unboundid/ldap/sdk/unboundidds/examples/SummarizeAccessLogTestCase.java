@@ -514,7 +514,8 @@ public class SummarizeAccessLogTestCase
                "requestOID=\"5.6.7.8\" resultCode=32 " +
                "message=\"The entry doesn't exist\" " +
                "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
-               "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
+               "qtime=0 etime=0.123 " +
+               "referralURLs=\"ldap://server1.example.com:389/," +
                "ldap://server2.example.com:389/\" " +
                "from=\"app='UnboundID Directory Server'\" " +
                "responseOID=\"8.7.6.5\"",
@@ -523,7 +524,14 @@ public class SummarizeAccessLogTestCase
          ts() + " SEARCH RESULT resultCode=32 " +
                "message=\"The entry doesn't exist\" " +
                "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
-               "etime=1.234 referralURLs=\"ldap://server1.example.com:389/," +
+               "qtime=1 etime=1.234 " +
+               "usedPrivileges=\"bypass-acl\" " +
+               "missingPrivileges=\"config-read\" " +
+               "preAuthZUsedPrivileges=\"proxied-auth\" " +
+               "requestControls=\"2.16.840.1.113730.3.4.12," +
+                    "1.3.6.1.4.1.42.2.27.9.5.8,1.2.3.4\" " +
+               "responseControls=\"1.3.6.1.4.1.42.2.27.9.5.8,1.2.3.5\" " +
+               "referralURLs=\"ldap://server1.example.com:389/," +
                "ldap://server2.example.com:389/\" " +
                "from=\"app='UnboundID Directory Server'\" entriesReturned=1 " +
                "unindexed=true " +

@@ -84,6 +84,8 @@ import com.unboundid.ldap.sdk.unboundidds.logs.v2.
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.ModifyResultAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
             OperationRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.v2.
+            OperationResultAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.SearchRequestAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.SearchResultAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.v2.
@@ -98,6 +100,8 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.OIDRegistry;
+import com.unboundid.util.OIDRegistryItem;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ReverseComparator;
 import com.unboundid.util.StaticUtils;
@@ -221,6 +225,9 @@ public final class SummarizeAccessLog
   private double modifyDNProcessingDuration;
   private double searchProcessingDuration;
 
+  // A variable used for tracking total  work queue wait time.
+  private long totalWorkQueueWaitTime;
+
   // A variable used for counting the number of messages of each type.
   private long numAbandons;
   private long numAdds;
@@ -249,6 +256,10 @@ public final class SummarizeAccessLog
   private long numUnindexedAttempts;
   private long numUnindexedFailed;
   private long numUnindexedSuccessful;
+
+  // The number of request and response controls used.
+  private long numRequestControls;
+  private long numResponseControls;
 
   // Variables used for maintaining counts for common types of information.
   @NotNull private final HashMap<Long,AtomicLong> searchEntryCounts;
@@ -279,6 +290,11 @@ public final class SummarizeAccessLog
   @NotNull private final HashMap<String,AtomicLong> multiEntryFilters;
   @NotNull private final HashMap<String,AtomicLong> noEntryFilters;
   @NotNull private final HashMap<String,AtomicLong> oneEntryFilters;
+  @NotNull private final HashMap<String,AtomicLong> preAuthzPrivilegesUsed;
+  @NotNull private final HashMap<String,AtomicLong> privilegesMissing;
+  @NotNull private final HashMap<String,AtomicLong> privilegesUsed;
+  @NotNull private final HashMap<String,AtomicLong> requestControlOIDs;
+  @NotNull private final HashMap<String,AtomicLong> responseControlOIDs;
   @NotNull private final HashMap<String,AtomicLong> searchBaseDNs;
   @NotNull private final HashMap<String,AtomicLong> tlsCipherSuites;
   @NotNull private final HashMap<String,AtomicLong> tlsProtocols;
@@ -293,6 +309,7 @@ public final class SummarizeAccessLog
   @NotNull private final LinkedHashMap<Long,AtomicLong> modifyProcessingTimes;
   @NotNull private final LinkedHashMap<Long,AtomicLong> modifyDNProcessingTimes;
   @NotNull private final LinkedHashMap<Long,AtomicLong> searchProcessingTimes;
+  @NotNull private final LinkedHashMap<Long,AtomicLong> workQueueWaitTimes;
   @NotNull private final LinkedHashSet<Filter>
        filtersRepresentingPotentialInjectionAttempt;
 
@@ -376,6 +393,8 @@ public final class SummarizeAccessLog
     modifyDNProcessingDuration = 0.0;
     searchProcessingDuration = 0.0;
 
+    totalWorkQueueWaitTime = 0L;
+
     numAbandons = 0L;
     numAdds = 0L;
     numBinds = 0L;
@@ -401,6 +420,9 @@ public final class SummarizeAccessLog
     numUnindexedAttempts = 0L;
     numUnindexedFailed = 0L;
     numUnindexedSuccessful = 0L;
+
+    numRequestControls = 0L;
+    numResponseControls = 0L;
 
     searchEntryCounts = new HashMap<>(StaticUtils.computeMapCapacity(10));
     ipAddressesByConnectionID =
@@ -433,6 +455,11 @@ public final class SummarizeAccessLog
     multiEntryFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
     noEntryFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
     oneEntryFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    preAuthzPrivilegesUsed = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    privilegesMissing = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    privilegesUsed = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    requestControlOIDs = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    responseControlOIDs = new HashMap<>(StaticUtils.computeMapCapacity(100));
     searchBaseDNs = new HashMap<>(StaticUtils.computeMapCapacity(100));
     tlsCipherSuites = new HashMap<>(StaticUtils.computeMapCapacity(100));
     tlsProtocols = new HashMap<>(StaticUtils.computeMapCapacity(100));
@@ -458,6 +485,8 @@ public final class SummarizeAccessLog
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
     searchProcessingTimes =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    workQueueWaitTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
     filtersRepresentingPotentialInjectionAttempt =
          new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
 
@@ -469,6 +498,7 @@ public final class SummarizeAccessLog
     populateProcessingTimeMap(modifyProcessingTimes);
     populateProcessingTimeMap(modifyDNProcessingTimes);
     populateProcessingTimeMap(searchProcessingTimes);
+    populateProcessingTimeMap(workQueueWaitTimes);
   }
 
 
@@ -1047,6 +1077,8 @@ public final class SummarizeAccessLog
     final long totalOps = numAbandons + numAdds + numBinds + numCompares +
          numDeletes + numExtended + numModifies + numModifyDNs + numSearches +
          numUnbinds;
+    final long totalResults = totalOps - numAbandons - numUnbinds;
+
     if (totalOps > 0)
     {
       final double percentAbandon  = 100.0 * numAbandons / totalOps;
@@ -1179,6 +1211,15 @@ public final class SummarizeAccessLog
       printProcessingTimeHistogram("search", numSearches,
                                    searchProcessingTimes);
 
+      if (totalWorkQueueWaitTime > 0L)
+      {
+        out();
+        out("Average work queue wait time:  ",
+             decimalFormat.format(totalWorkQueueWaitTime / totalResults), "ms");
+        printHistogram("Count of operations by work queue wait time:",
+             totalResults, workQueueWaitTimes);
+      }
+
       printResultCodeCounts(addResultCodes, "add");
       printResultCodeCounts(bindResultCodes, "bind");
       printResultCodeCounts(compareResultCodes, "compare");
@@ -1187,6 +1228,14 @@ public final class SummarizeAccessLog
       printResultCodeCounts(modifyResultCodes, "modify");
       printResultCodeCounts(modifyDNResultCodes, "modify DN");
       printResultCodeCounts(searchResultCodes, "search");
+
+      printCounts(preAuthzPrivilegesUsed,
+           "Most common pre-authorization privileges used:", "privilege",
+           "privileges");
+      printCounts(privilegesUsed, "Most common privileges used:", "privilege",
+           "privileges");
+      printCounts(privilegesMissing, "Most common missing privileges:",
+           "privilege", "privileges");
 
       printCounts(successfulBindDNs,
            "Most common bind DNs used in successful authentication attempts:",
@@ -1221,6 +1270,102 @@ public final class SummarizeAccessLog
 
       printCounts(authzDNs, "Most common alternate authorization identity DNs:",
            "DN", "DNs");
+
+      if (! requestControlOIDs.isEmpty())
+      {
+        final List<ObjectPair<String,Long>> controlCounts = new ArrayList<>();
+        final AtomicLong skippedWithSameCount = new AtomicLong(0L);
+        final AtomicLong skippedWithLowerCount = new AtomicLong(0L);
+        getMostCommonElements(requestControlOIDs, controlCounts, displayCount,
+             skippedWithSameCount, skippedWithLowerCount);
+
+        out();
+        out("Most common request control types:");
+
+        long count = -1L;
+        for (final ObjectPair<String,Long> p : controlCounts)
+        {
+          count = p.getSecond();
+          final double percent = 100.0 * count / numRequestControls;
+
+          final String oid = p.getFirst();
+          final OIDRegistryItem item = OIDRegistry.getDefault().get(oid);
+          if (item == null)
+          {
+            out(p.getFirst(), ":  ", p.getSecond(), " (",
+                 decimalFormat.format(percent), "%)");
+          }
+          else
+          {
+            out(p.getFirst(), " (", item.getName(), "):  ", p.getSecond(), " (",
+                 decimalFormat.format(percent), "%)");
+          }
+        }
+
+        if (skippedWithSameCount.get() > 0L)
+        {
+          out("{ Skipped " + skippedWithSameCount.get() + " additional " +
+               getSingularOrPlural(skippedWithSameCount.get(), "control",
+                    "controls") +
+               " with a count of " + count + " }");
+        }
+
+        if (skippedWithLowerCount.get() > 0L)
+        {
+          out("{ Skipped " + skippedWithLowerCount.get() + " additional " +
+               getSingularOrPlural(skippedWithLowerCount.get(), "control",
+                    "controls") +
+               " with a count that is less than " + count + " }");
+        }
+      }
+
+      if (! responseControlOIDs.isEmpty())
+      {
+        final List<ObjectPair<String,Long>> controlCounts = new ArrayList<>();
+        final AtomicLong skippedWithSameCount = new AtomicLong(0L);
+        final AtomicLong skippedWithLowerCount = new AtomicLong(0L);
+        getMostCommonElements(responseControlOIDs, controlCounts, displayCount,
+             skippedWithSameCount, skippedWithLowerCount);
+
+        out();
+        out("Most common response control types:");
+
+        long count = -1L;
+        for (final ObjectPair<String,Long> p : controlCounts)
+        {
+          count = p.getSecond();
+          final double percent = 100.0 * count / numResponseControls;
+
+          final String oid = p.getFirst();
+          final OIDRegistryItem item = OIDRegistry.getDefault().get(oid);
+          if (item == null)
+          {
+            out(p.getFirst(), ":  ", p.getSecond(), " (",
+                 decimalFormat.format(percent), "%)");
+          }
+          else
+          {
+            out(p.getFirst(), " (", item.getName(), "):  ", p.getSecond(), " (",
+                 decimalFormat.format(percent), "%)");
+          }
+        }
+
+        if (skippedWithSameCount.get() > 0L)
+        {
+          out("{ Skipped " + skippedWithSameCount.get() + " additional " +
+               getSingularOrPlural(skippedWithSameCount.get(), "control",
+                    "controls") +
+               " with a count of " + count + " }");
+        }
+
+        if (skippedWithLowerCount.get() > 0L)
+        {
+          out("{ Skipped " + skippedWithLowerCount.get() + " additional " +
+               getSingularOrPlural(skippedWithLowerCount.get(), "control",
+                    "controls") +
+               " with a count that is less than " + count + " }");
+        }
+      }
 
       if (! extendedOperations.isEmpty())
       {
@@ -1989,6 +2134,8 @@ public final class SummarizeAccessLog
   {
     numAdds++;
 
+    updateCommonResult(m);
+
     updateResultCodeCount(m.getResultCode(), addResultCodes);
     addProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), addProcessingTimes);
@@ -2012,6 +2159,8 @@ public final class SummarizeAccessLog
   private void processBindResult(@NotNull final BindResultAccessLogMessage m)
   {
     numBinds++;
+
+    updateCommonResult(m);
 
     if (m.getAuthenticationType() != null)
     {
@@ -2166,6 +2315,8 @@ public final class SummarizeAccessLog
   {
     numCompares++;
 
+    updateCommonResult(m);
+
     updateResultCodeCount(m.getResultCode(), compareResultCodes);
     compareProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), compareProcessingTimes);
@@ -2191,6 +2342,8 @@ public final class SummarizeAccessLog
   {
     numDeletes++;
 
+    updateCommonResult(m);
+
     updateResultCodeCount(m.getResultCode(), deleteResultCodes);
     deleteProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), deleteProcessingTimes);
@@ -2215,6 +2368,8 @@ public final class SummarizeAccessLog
                     @NotNull final ExtendedResultAccessLogMessage m)
   {
     numExtended++;
+
+    updateCommonResult(m);
 
     final String id = m.getConnectionID() + "-" + m.getOperationID();
     if (!processedRequests.remove(id))
@@ -2257,6 +2412,8 @@ public final class SummarizeAccessLog
   {
     numModifies++;
 
+    updateCommonResult(m);
+
     updateResultCodeCount(m.getResultCode(), modifyResultCodes);
     modifyProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), modifyProcessingTimes);
@@ -2282,6 +2439,8 @@ public final class SummarizeAccessLog
   {
     numModifyDNs++;
 
+    updateCommonResult(m);
+
     updateResultCodeCount(m.getResultCode(), modifyDNResultCodes);
     modifyDNProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), modifyDNProcessingTimes);
@@ -2306,6 +2465,8 @@ public final class SummarizeAccessLog
                     @NotNull final SearchResultAccessLogMessage m)
   {
     numSearches++;
+
+    updateCommonResult(m);
 
     final String id = m.getConnectionID() + "-" + m.getOperationID();
     if (! processedRequests.remove(id))
@@ -2411,6 +2572,75 @@ public final class SummarizeAccessLog
         }
       }
     }
+  }
+
+
+
+  /**
+   * Updates a number of statistics that are common to all types of result log
+   * messages.
+   *
+   * @param  m  The result log message to examine.
+   */
+  private void updateCommonResult(
+                    @NotNull final OperationResultAccessLogMessage m)
+  {
+    // Handle the work queue wait time.
+    totalWorkQueueWaitTime +=
+         doubleValue(m.getWorkQueueWaitTimeMillis(), workQueueWaitTimes);
+
+
+    // Handle request and response control OIDs.
+    for (final String oid : m.getRequestControlOIDs())
+    {
+      numRequestControls++;
+      updateCount(requestControlOIDs, oid);
+    }
+
+    for (final String oid : m.getResponseControlOIDs())
+    {
+      numResponseControls++;
+      updateCount(responseControlOIDs, oid);
+    }
+
+
+    // Handle used and missing privileges.
+    for (final String privilegeName : m.getPreAuthorizationUsedPrivileges())
+    {
+      updateCount(preAuthzPrivilegesUsed, privilegeName);
+    }
+
+    for (final String privilegeName : m.getUsedPrivileges())
+    {
+      updateCount(privilegesUsed, privilegeName);
+    }
+
+    for (final String privilegeName : m.getMissingPrivileges())
+    {
+      updateCount(privilegesMissing, privilegeName);
+    }
+  }
+
+
+
+  /**
+   * Updates the counter for the given key in the provided map.  If the key does
+   * not exist, it will be added to the map.
+   *
+   * @param  m    The map to be updated.
+   * @param  key  The key for which to update the count.
+   */
+  private static void updateCount(@NotNull final Map<String,AtomicLong> m,
+                                  @NotNull final String key)
+  {
+    AtomicLong count = m.get(key);
+    if (count == null)
+    {
+      count = new AtomicLong(0L);
+      m.put(key, count);
+    }
+
+    count.incrementAndGet();
   }
 
 
@@ -2699,13 +2929,31 @@ public final class SummarizeAccessLog
                     final long n,
                     @NotNull final LinkedHashMap<Long,AtomicLong> m)
   {
+    printHistogram("Count of " + t + " operations by processing time:", n, m);
+  }
+
+
+
+  /**
+   * Writes a breakdown of the processing times for a specified type of
+   * operation.
+   *
+   * @param  h  The header to display at the beginning of the histogram.
+   * @param  n  The total number of operations that were processed by the
+   *            server.
+   * @param  m  The map of operation counts by processing time bucket.
+   */
+  private void printHistogram(@NotNull final String h,
+                    final long n,
+                    @NotNull final LinkedHashMap<Long,AtomicLong> m)
+  {
     if (n <= 0)
     {
       return;
     }
 
     out();
-    out("Count of ", t, " operations by processing time:");
+    out(h);
 
     long lowerBound = 0;
     long accumulatedCount = 0;
