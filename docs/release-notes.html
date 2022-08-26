@@ -168,13 +168,12 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Updated the LDAP SDK to include a graalvm-native-image-resource-config.json file
-                  as part of the LDAP SDK package.  Wnen using the GraalVM native-image tool to
-                  generate a self-contained executable version of a Java program that uses the
-                  LDAP SDK, this file can be used to ensure that all of the appropriate resource
-                  files (including message property files, the schema used by the in-memory
-                  directory server, and the OID registry used by the oid-lookup tool) are
-                  included as part of the generated image.
+                  Updated the LDAP SDK to include a native-image/resource-config.json file in the
+                  jar file manifest.  Wnen using the GraalVM native-image tool to generate a
+                  self-contained executable version of a Java program that uses the LDAP SDK, this
+                  file helps ensure that all of the appropriate resource files (including message
+                  property files, a default standard schema, and a registry file used by the
+                  oid-lookup tool) are included as part of the generated image.
                   <br><br>
                 </li>
               </ul>

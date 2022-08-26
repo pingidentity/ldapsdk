@@ -70,7 +70,8 @@
        resource-config.json file -->
   <property name="gvmnir.src.dir"     location="${build-src.dir}/graalvmnativeimageresources" />
   <property name="gvmnir.classes.dir" location="${build.dir}/graalvmnativeimageresources" />
-  <property name="gvmnir.output.file" location="${gvmnir.classes.dir}/graalvm-native-image-resource-config.json" />
+  <property name="gvmnir.output.dir" location="${gvmnir.classes.dir}/meta-inf" />
+  <property name="gvmnir.output.file" location="${gvmnir.output.dir}/native-image/resource-config.json" />
 
 
   <!-- Define properties used for copying the documentation into place. -->
@@ -264,7 +265,7 @@
   <target name="generate-graalvm-native-image-resource-config-json"
           description="Generates a resource-config.json file for use by GraalVM native-image"
           depends="compile">
-    <mkdir dir="${gvmnir.classes.dir}" />
+    <mkdir dir="${gvmnir.output.dir}/native-image" />
     <javac srcdir="${gvmnir.src.dir}" destdir="${gvmnir.classes.dir}"
            source="1.7" target="1.7" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
@@ -356,7 +357,6 @@
     <mkdir dir="${sdk.package.dir}/android-ldap-client" />
     <mkdir dir="${sdk.package.dir}/docs" />
     <mkdir dir="${sdk.package.dir}/docs/javadoc" />
-    <mkdir dir="${sdk.package.dir}/resource" />
 
     <copy todir="${sdk.package.dir}">
       <fileset dir="${dist-root.dir}">
@@ -365,8 +365,6 @@
         <exclude name="**/.git" />
       </fileset>
     </copy>
-
-    <copy todir="${sdk.package.dir}/resource" file="${gvmnir.output.file}" />
 
     <copydocs sourceDir="${docs.dir}" destinationDir="${sdk.package.dir}/docs"
               headerFile="${resource.dir}/localdoc.header"
@@ -444,6 +442,7 @@
                    value="javax.crypto,javax.crypto.spec,javax.naming,javax.naming.directory,javax.naming.ldap,javax.net,javax.net.ssl,javax.security.auth,javax.security.auth.callback,javax.security.auth.login,javax.security.auth.x500,javax.security.sasl" />
         <attribute name="Sealed" value="true" />
       </manifest>
+      <metainf dir="${gvmnir.output.dir}" />
     </jar>
 
     <javadoc destdir="${sdk.package.dir}/docs/javadoc" source="1.7"
