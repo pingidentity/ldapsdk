@@ -17,13 +17,15 @@ ${TARGET="offline"}                <br>
                   Fixed an issue that could cause request failures when closing a connection that
                   has outstanding operations in the default asynchronous mode, immediately
                   re-establishing the connection (to the same or a different server), and sending
-                  a request on the newly established connection.
+                  a request on the newly established connection.  However, we generally recommend
+                  creating a new connection object (or using a connection pool) in these cases,
+                  rather than closing and re-establishing the same connection object.
                   <br><br>
                 </li>
 
                 <li>
                   Fixed an issue that could interfere with the ability to get a default SSLContext
-                  on modern versions of Java (like Java 17) when using the LDAP SDK in FIPS
+                  on modern versions of Java (e.g., Java 17) when using the LDAP SDK in FIPS
                   140-2-compliant mode.
                   <br><br>
                 </li>
@@ -87,7 +89,7 @@ ${TARGET="offline"}                <br>
                   encountering a Java Error (e.g., OutOfMemoryError) in the course of tool
                   processing.  The framework previously handled any unexpected Exception that may
                   have been thrown during processing by displaying an error message and exiting
-                  with an error, but if an Error was thrown instead of an exception, then that
+                  with an error, but if an Error was thrown instead of an Exception, then that
                   could trigger a NullPointerException that would mask the original Error.  Errors
                   are now handled in the same way as exceptions.
                   <br><br>
@@ -169,7 +171,7 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated the LDAP SDK to include a native-image/resource-config.json file in the
-                  jar file manifest.  Wnen using the GraalVM native-image tool to generate a
+                  jar file manifest.  When using the GraalVM native-image tool to generate a
                   self-contained executable version of a Java program that uses the LDAP SDK, this
                   file helps ensure that all of the appropriate resource files (including message
                   property files, a default standard schema, and a registry file used by the
