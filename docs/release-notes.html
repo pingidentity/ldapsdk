@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue with the Entry.applyModifications method in which it could fail
+                  with a NOT_ALLOWED_ON_RDN result if the provided entry was missing one or more
+                  attribute values used in its RDN.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the set of LDAP-related specifications to include the latest version of
                   draft-schmaus-kitten-sasl-ht.
                   <br><br>

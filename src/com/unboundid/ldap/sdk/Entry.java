@@ -2587,12 +2587,15 @@ public class Entry
       {
         if (! e.hasAttributeValue(rdnAttrs[i], rdnValues[i]))
         {
-          errors.add(ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN()));
-          if (resultCode == null)
+          if (entry.hasAttributeValue(rdnAttrs[i], rdnValues[i]))
           {
-            resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+            errors.add(ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN()));
+            if (resultCode == null)
+            {
+              resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+            }
+            break;
           }
-          break;
         }
       }
     }

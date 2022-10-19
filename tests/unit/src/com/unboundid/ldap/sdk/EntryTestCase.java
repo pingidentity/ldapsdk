@@ -3664,6 +3664,35 @@ public class EntryTestCase
 
 
   /**
+   * Tests the {@code applyModifications} method with an entry that has an RDN
+   * attribute value that isn't present in the entry.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testApplyModificationsEntryMissingAttributeValueUsedInRDN()
+         throws Exception
+  {
+    Entry source = new Entry(
+         "dn: cn=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: untypedObject",
+         "objectClass: extensibleObject");
+
+    assertEquals(
+         Entry.applyModifications(source, true,
+              new Modification(ModificationType.REPLACE, "foo", "bar")),
+         new Entry(
+              "dn: cn=test,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: untypedObject",
+              "objectClass: extensibleObject",
+              "foo: bar"));
+  }
+
+
+
+  /**
    * Tests the {@code matchesBaseAndScope} method with a string representation
    * of the target DN.
    *
