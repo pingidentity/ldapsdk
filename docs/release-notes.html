@@ -21,6 +21,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added JSONObject methods for retrieving fields by name using case-insensitive
+                  matching.  By default, JSON field names are treated in a case-sensitive manner,
+                  but new methods allow them to be retrieved in a case-insensitive manner.
+                  Because a JSON object may have multiple fields with names differing only by
+                  case, there are a few options for handling the possibility of conflicts,
+                  including returning only the first match found and ignoring subsequent matches,
+                  throwing an exception if multiple matches are found, or returning a map
+                  containing all matching name-value pairs.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the set of LDAP-related specifications to include the latest version of
                   draft-schmaus-kitten-sasl-ht.
                   <br><br>

@@ -47,6 +47,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -1512,5 +1513,140 @@ public final class JSONObjectTestCase
         "{}{}"
       },
     };
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve JSON fields when treating the
+   * field name in a case-insensitive manner.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldIgnoreCase()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("fieldName", "fieldValue"),
+         new JSONField("FieldName", "FieldValue"),
+         new JSONField("fieldname", "fieldvalue"),
+         new JSONField("FIELDNAME", "FIELDVALUE"),
+         new JSONField("anotherName", "anotherValue"));
+
+    // Test with the getField method, which uses case-sensitive matching.
+    assertEquals(o.getField("fieldName"), new JSONString("fieldValue"));
+    assertEquals(o.getField("FieldName"), new JSONString("FieldValue"));
+    assertEquals(o.getField("fieldname"), new JSONString("fieldvalue"));
+    assertEquals(o.getField("FIELDNAME"), new JSONString("FIELDVALUE"));
+    assertNull(o.getField("FiElDnAmE"));
+    assertEquals(o.getField("anotherName"), new JSONString("anotherValue"));
+    assertNull(o.getField("AnotherName"));
+    assertNull(o.getField("missingName"));
+
+
+    // Test with the getFieldIgnoreCaseIgnoreConflict method, which returns the
+    // first field found.
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("fieldName"),
+         new JSONString("fieldValue"));
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("FieldName"),
+         new JSONString("fieldValue"));
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("fieldname"),
+         new JSONString("fieldValue"));
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("FIELDNAME"),
+         new JSONString("fieldValue"));
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("FiElDnAmE"),
+         new JSONString("fieldValue"));
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("anotherName"),
+         new JSONString("anotherValue"));
+    assertEquals(o.getFieldIgnoreCaseIgnoreConflict("AnotherName"),
+         new JSONString("anotherValue"));
+    assertNull(o.getFieldIgnoreCaseIgnoreConflict("missingName"));
+
+
+    // Test with the getFieldIgnoreCaseThrowOnConflict method, which will return
+    // a field only if there are no conflicts.
+    try
+    {
+      o.getFieldIgnoreCaseThrowOnConflict("fieldName");
+      fail("Expected an exception for a fieldName conflict");
+    }
+    catch (final JSONException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      o.getFieldIgnoreCaseThrowOnConflict("FieldName");
+      fail("Expected an exception for a fieldName conflict");
+    }
+    catch (final JSONException e)
+    {
+      // This was expected.
+    }
+
+    assertEquals(o.getFieldIgnoreCaseThrowOnConflict("anotherName"),
+         new JSONString("anotherValue"));
+    assertEquals(o.getFieldIgnoreCaseThrowOnConflict("AnotherName"),
+         new JSONString("anotherValue"));
+    assertEquals(o.getFieldIgnoreCaseThrowOnConflict("anothername"),
+         new JSONString("anotherValue"));
+    assertEquals(o.getFieldIgnoreCaseThrowOnConflict("ANOTHERNAME"),
+         new JSONString("anotherValue"));
+    assertEquals(o.getFieldIgnoreCaseThrowOnConflict("aNoThErNaMe"),
+         new JSONString("anotherValue"));
+
+    assertNull(o.getFieldIgnoreCaseThrowOnConflict("missingName"));
+
+
+    // Tests with the getFieldsIgnoreCase method, which returns a map of
+    // matching field names and values.
+    assertEquals(o.getFieldsIgnoreCase("fieldName"),
+         StaticUtils.mapOf(
+              "fieldName", new JSONString("fieldValue"),
+              "FieldName", new JSONString("FieldValue"),
+              "fieldname", new JSONString("fieldvalue"),
+              "FIELDNAME", new JSONString("FIELDVALUE")));
+    assertEquals(o.getFieldsIgnoreCase("FieldName"),
+         StaticUtils.mapOf(
+              "fieldName", new JSONString("fieldValue"),
+              "FieldName", new JSONString("FieldValue"),
+              "fieldname", new JSONString("fieldvalue"),
+              "FIELDNAME", new JSONString("FIELDVALUE")));
+    assertEquals(o.getFieldsIgnoreCase("fieldname"),
+         StaticUtils.mapOf(
+              "fieldName", new JSONString("fieldValue"),
+              "FieldName", new JSONString("FieldValue"),
+              "fieldname", new JSONString("fieldvalue"),
+              "FIELDNAME", new JSONString("FIELDVALUE")));
+    assertEquals(o.getFieldsIgnoreCase("FIELDNAME"),
+         StaticUtils.mapOf(
+              "fieldName", new JSONString("fieldValue"),
+              "FieldName", new JSONString("FieldValue"),
+              "fieldname", new JSONString("fieldvalue"),
+              "FIELDNAME", new JSONString("FIELDVALUE")));
+    assertEquals(o.getFieldsIgnoreCase("FiElDnAmE"),
+         StaticUtils.mapOf(
+              "fieldName", new JSONString("fieldValue"),
+              "FieldName", new JSONString("FieldValue"),
+              "fieldname", new JSONString("fieldvalue"),
+              "FIELDNAME", new JSONString("FIELDVALUE")));
+
+    assertEquals(o.getFieldsIgnoreCase("anotherName"),
+         StaticUtils.mapOf(
+              "anotherName", new JSONString("anotherValue")));
+    assertEquals(o.getFieldsIgnoreCase("AnotherName"),
+         StaticUtils.mapOf(
+              "anotherName", new JSONString("anotherValue")));
+    assertEquals(o.getFieldsIgnoreCase("anothername"),
+         StaticUtils.mapOf(
+              "anotherName", new JSONString("anotherValue")));
+    assertEquals(o.getFieldsIgnoreCase("ANOTHERNAME"),
+         StaticUtils.mapOf(
+              "anotherName", new JSONString("anotherValue")));
+
+    assertEquals(o.getFieldsIgnoreCase("missingName"),
+         Collections.emptyMap());
   }
 }

@@ -929,6 +929,103 @@ public final class JSONObject
 
 
   /**
+   * Retrieves the value for the specified field, treating the field name as
+   * case-insensitive.  If the object has multiple fields with different
+   * capitalizations of the specified name, then only the first one found will
+   * be returned and any subsequent fields will be ignored.
+   *
+   * @param  name  The name of the field for which to retrieve the value.  It
+   *               will be treated in a case-insensitive manner.
+   *
+   * @return  The value for the specified field, or {@code null} if the
+   *          requested field is not present in the JSON object.
+   */
+  @Nullable()
+  public JSONValue getFieldIgnoreCaseIgnoreConflict(@NotNull final String name)
+  {
+    final String lowerName = StaticUtils.toLowerCase(name);
+    for (final Map.Entry<String,JSONValue> e : fields.entrySet())
+    {
+      if (lowerName.equals(StaticUtils.toLowerCase(e.getKey())))
+      {
+        return e.getValue();
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Retrieves the value for the specified field, treating the field name as
+   * case-insensitive.  If the object has multiple fields with different
+   * capitalizations of the first name, then an exception will be thrown.
+   *
+   * @param  name  The name of the field for which to retrieve the value.  It
+   *               will be treated in a case-insensitive manner.
+   *
+   * @return  The value for the specified field, or {@code null} if the
+   *          requested field is not present in the JSON object.
+   *
+   * @throws  JSONException  If the object has multiple fields with different
+   *                         capitalizations of the provided name.
+   */
+  @Nullable()
+  public JSONValue getFieldIgnoreCaseThrowOnConflict(@NotNull final String name)
+         throws JSONException
+  {
+    JSONValue fieldValue = null;
+    final String lowerName = StaticUtils.toLowerCase(name);
+    for (final Map.Entry<String,JSONValue> e : fields.entrySet())
+    {
+      if (lowerName.equals(StaticUtils.toLowerCase(e.getKey())))
+      {
+        if (fieldValue != null)
+        {
+          throw new JSONException(
+               ERR_OBJECT_MULTIPLE_FIELDS_WITH_CASE_INSENSITIVE_NAME.get(name));
+        }
+
+        fieldValue = e.getValue();
+      }
+    }
+
+    return fieldValue;
+  }
+
+
+
+  /**
+   * Retrieves a map of all fields with the specified name, treating the name as
+   * case-insensitive.
+   *
+   * @param  name  The name of the field for which to retrieve the values.  It
+   *               will be treated in a case-insensitive manner.
+   *
+   * @return  A map of all fields with the specified name, or an empty map if
+   *          there are no fields with the specified name.
+   */
+  @NotNull()
+  public Map<String,JSONValue> getFieldsIgnoreCase(@NotNull final String name)
+  {
+    final Map<String,JSONValue> matchingFields = new LinkedHashMap<>();
+    final String lowerName = StaticUtils.toLowerCase(name);
+    for (final Map.Entry<String,JSONValue> e : fields.entrySet())
+    {
+      final String fieldName = e.getKey();
+      if (lowerName.equals(StaticUtils.toLowerCase(fieldName)))
+      {
+        matchingFields.put(fieldName, e.getValue());
+      }
+    }
+
+    return Collections.unmodifiableMap(matchingFields);
+  }
+
+
+
+  /**
    * Retrieves the value of the specified field as a string.
    *
    * @param  name  The name of the field for which to retrieve the string value.
