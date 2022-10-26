@@ -739,8 +739,7 @@ public class SearchResultEntryTestCase
 
 
   /**
-   * Tests the {@code equals} method with an object that isn't a search result
-   * entry.
+   * Tests the {@code equals} method with an object that isn't an entry.
    */
   @Test()
   public void testEqualsNotEntry()
@@ -761,10 +760,41 @@ public class SearchResultEntryTestCase
 
     SearchResultEntry e = new SearchResultEntry(dn, attributes, controls);
 
+    final String nonEntry = "foo";
+    assertFalse(e.hashCode() == nonEntry.hashCode());
+    assertFalse(nonEntry.equals(e));
+    assertFalse(e.equals(nonEntry));
+  }
+
+
+
+  /**
+   * Tests the {@code equals} method with an object that is an equivalent entry
+   * that is not a search result entry.
+   */
+  @Test()
+  public void testEqualsEquivalentEntry()
+  {
+    String dn = "dc=example,dc=com";
+
+    Attribute[] attributes =
+    {
+      new Attribute("objectClass", "top", "domain"),
+      new Attribute("dc", "example"),
+    };
+
+    Control[] controls =
+    {
+      new Control("1.2.3.4"),
+      new Control("1.2.3.5", true, null)
+    };
+
+    SearchResultEntry e = new SearchResultEntry(dn, attributes, controls);
+
     Entry e2 = new Entry(dn, attributes);
-    assertFalse(e.hashCode() == e2.hashCode());
+    assertEquals(e.hashCode(), e2.hashCode());
+    assertTrue(e.equals(e2));
     assertTrue(e2.equals(e));
-    assertFalse(e.equals(e2));
   }
 
 
@@ -774,7 +804,7 @@ public class SearchResultEntryTestCase
    * result entry.
    */
   @Test()
-  public void testEqualsEquivalentEntry()
+  public void testEqualsEquivalentSearchResultEntry()
   {
     String dn = "dc=example,dc=com";
 
@@ -825,7 +855,7 @@ public class SearchResultEntryTestCase
 
     SearchResultEntry e2 = new SearchResultEntry(dn, attributes,
                            new Control[0]);
-    assertFalse(e.hashCode() == e2.hashCode());
+    assertEquals(e.hashCode(), e2.hashCode());
     assertFalse(e.equals(e2));
     assertFalse(e2.equals(e));
   }
@@ -864,7 +894,7 @@ public class SearchResultEntryTestCase
     };
 
     SearchResultEntry e2 = new SearchResultEntry(dn, attributes, controls2);
-    assertFalse(e.hashCode() == e2.hashCode());
+    assertEquals(e.hashCode(), e2.hashCode());
     assertFalse(e.equals(e2));
     assertFalse(e2.equals(e));
   }

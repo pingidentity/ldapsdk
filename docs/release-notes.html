@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed a bug in the SearchResultEntry.equals method that could prevent a
+                  SearchResultEntry object (which is a subclass of Entry) from being considered
+                  equal to an Entry that is not a SearchResultEntry.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the Entry.applyModifications method in which it could fail
                   with a NOT_ALLOWED_ON_RDN result if the provided entry was missing one or more
                   attribute values used in its RDN.

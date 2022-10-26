@@ -392,14 +392,8 @@ public final class SearchResultEntry
   @Override()
   public int hashCode()
   {
-    int hashCode = super.hashCode();
-
-    for (final Control c : controls)
-    {
-      hashCode += c.hashCode();
-    }
-
-    return hashCode;
+    // We need this method to satisfy checkstyle.
+    return super.hashCode();
   }
 
 
@@ -424,7 +418,9 @@ public final class SearchResultEntry
 
     if (! (o instanceof SearchResultEntry))
     {
-      return false;
+      // When comparing a SearchResultEntry with an entry that isn't a
+      // SearchResultEntry, we'll only rely on the base entry comparison.
+      return true;
     }
 
     final SearchResultEntry e = (SearchResultEntry) o;
