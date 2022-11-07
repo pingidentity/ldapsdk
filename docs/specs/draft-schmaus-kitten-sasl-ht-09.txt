@@ -5,18 +5,13 @@
 Common Authentication Technology Next Generation              F. Schmaus
 Internet-Draft                                                  C. Egger
 Intended status: Experimental                      FAU Erlangen-Nürnberg
-Expires: 13 April 2023                                   10 October 2022
+Expires: 11 May 2023                                     7 November 2022
 
 
                     The Hashed Token SASL Mechanism
-                    draft-schmaus-kitten-sasl-ht-08
+                    draft-schmaus-kitten-sasl-ht-09
 
 Abstract
-
-      This I-D is developed at
-      https://github.com/Flowdalic/xeps/tree/master/draft-schmaus-
-      kitten-sasl-ht (https://github.com/Flowdalic/xeps/tree/master/
-      draft-schmaus-kitten-sasl-ht)
 
    This document specifies the family of Hashed Token SASL mechanisms
    which enable a proof-of-possession-based authentication scheme and
@@ -25,8 +20,18 @@ Abstract
    consists of only one round-trip.  The usage of short-lived,
    exclusively ephemeral hashed tokens is achieving the single round-
    trip property.  The SASL mechanism specified herin further provides
-   hash agility, mutual authentication and is secured by channel
-   binding.
+   hash agility, mutual authentication and support for channel binding.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   Status information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-schmaus-kitten-sasl-ht/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/flowdalic/xeps/tree/master/draft-schmaus-kitten-
+   sasl-ht.
 
 Status of This Memo
 
@@ -43,20 +48,20 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 April 2023.
+   This Internet-Draft will expire on 11 May 2023.
+
+
+
+
+Schmaus & Egger            Expires 11 May 2023                  [Page 1]
+
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
+
 
 Copyright Notice
 
    Copyright (c) 2022 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
-
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 1]
-
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
-
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents (https://trustee.ietf.org/
@@ -76,10 +81,10 @@ Table of Contents
      3.3.  Final Responder Message . . . . . . . . . . . . . . . . .   6
    4.  Compliance with SASL Mechanism Requirements . . . . . . . . .   7
    5.  Requirements for the Application-Protocol Extension . . . . .   7
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
      8.2.  Informative References  . . . . . . . . . . . . . . . . .  10
    Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  11
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  11
@@ -94,7 +99,7 @@ Table of Contents
    round-trip, re-authentication of a previous session.
 
    Further properties of the HT mechanism are 1) hash agility, 2) mutual
-   authentication, and 3) being secured by channel binding.
+   authentication, and 3) support for channel binding.
 
    Clients are supposed to request SASL-HT tokens from the server after
    being authenticated using a "strong" SASL mechanism like SCRAM
@@ -104,14 +109,9 @@ Table of Contents
 
 
 
-
-
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 2]
+Schmaus & Egger            Expires 11 May 2023                  [Page 2]
 
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
 
 
    A) Client authenticates using a strong mechanism (e.g., SCRAM)
@@ -150,7 +150,7 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
    Because this mechanism transports information that should not be
    controlled by an attacker, the HT mechanism *MUST* only be used over
-   channels protected by Transport Layer Security (TLS, see [RFC5246]),
+   channels protected by Transport Layer Security (TLS, see [RFC8446]),
    or over similar integrity-protected and authenticated channels.
    Also, the application protcol specific extension which requests a new
    SASL-HT token *SHOULD* only be used over similarly protected
@@ -165,9 +165,9 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
 
 
-Schmaus & Egger           Expires 13 April 2023                 [Page 3]
+Schmaus & Egger            Expires 11 May 2023                  [Page 3]
 
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
 
 
 2.  The HT Family of Mechanisms
@@ -177,7 +177,7 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
    An HT mechanism name is a string beginning with "HT-" followed by the
    capitalised name of the used hash, followed by "-", and suffixed by
-   one of 'ENDP' and 'UNIQ'.
+   one of 'ENDP', 'UNIQ', 'EXPR' or 'NONE'.
 
    Hence each HT mechanism has a name of the following form:
 
@@ -185,13 +185,17 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
    Where <hash-alg> is the capitalised "Hash Name String" of the IANA
    "Named Information Hash Algorithm Registry" [iana-hash-alg] as
-   specified in [RFC6920], and <cb-type> is one of 'ENDP', 'UNIQ', or
-   'EXPR' denoting the channel binding type.  In the case of 'ENDP', the
-   tls-server-end-point channel binding type is used.  In the case of
-   'UNIQ', the tls-unique channel binding type is used.  In the case of
-   'EXPR', the tls-exporter [RFC9266] channel binding type is used.
-   Valid channel binding types are defined in the IANA "Channel-Binding
-   Types" registry [iana-cbt] as specified in [RFC5056].
+   specified in [RFC6920], and <cb-type> is one of 'ENDP', 'UNIQ',
+   'EXPR' or 'NONE' denoting the channel binding type.  In the case of
+   'ENDP', the tls-server-end-point channel binding type is used.  In
+   the case of 'UNIQ', the tls-unique channel binding type is used.  In
+   the case of 'EXPR', the tls-exporter [RFC9266] channel binding type
+   is used.  Valid channel binding types are defined in the IANA
+   "Channel-Binding Types" registry [iana-cbt] as specified in
+   [RFC5056].
+
+   In the special case of 'NONE', no channel binding is to be used (cb-
+   data is to be an empty string).
 
                     +=========+======================+
                     | cb-type | Channel Binding Type |
@@ -217,13 +221,9 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
 
 
-
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 4]
+Schmaus & Egger            Expires 11 May 2023                  [Page 4]
 
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
 
 
       +==================+===================+======================+
@@ -237,6 +237,8 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
       | HT-SHA3-512-ENDP | SHA3-512          | tls-server-end-point |
       +------------------+-------------------+----------------------+
       | HT-SHA-256-UNIQ  | SHA-256           | tls-unique           |
+      +------------------+-------------------+----------------------+
+      | HT-SHA-256-NONE  | SHA-256           | N/A                  |
       +------------------+-------------------+----------------------+
 
                   Table 2: Examples of HT SASL mechanisms
@@ -271,16 +273,18 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
             %xF4 %x80-8F 2(UTF0)
    UTF0   = %x80-BF
 
+
+
+
+
+Schmaus & Egger            Expires 11 May 2023                  [Page 5]
+
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
+
+
    The initiator first message starts with the authentication identity
    (authcid, see[RFC4422]) as UTF-8 [RFC3629] encoded string.  It is
    followed by initiator-hashed-token separated by as single null octet.
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 5]
-
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
-
 
    The value of the initiator-hashed-token is defined as follows:
 
@@ -319,9 +323,6 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
    initiator has been successfully authenticated.  Otherwise, if both
    values are not equal, then authentication *MUST* fail.
 
-   If the responder was able to authenticate the initiator, then the
-   used token *MUST* be revoked immediately.
-
 3.3.  Final Responder Message
 
    After the initiator was authenticated the responder continues the
@@ -329,14 +330,15 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
    The ABNF for responder-msg is:
 
-   responder-msg = 1*OCTET
 
 
 
-Schmaus & Egger           Expires 13 April 2023                 [Page 6]
+Schmaus & Egger            Expires 11 May 2023                  [Page 6]
 
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
 
+
+   responder-msg = 1*OCTET
 
    The responder-msg value is defined as follows:
 
@@ -381,18 +383,22 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
    mechanism, which increases the security because it makes it
    impossible for an attacker to downgrade the SASL mechanism.
 
+   It is *RECOMMENDED* that the protocol defines a way for a client to
+   request rotation or revocation of a token.
+
+
+
+
+Schmaus & Egger            Expires 11 May 2023                  [Page 7]
+
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
+
+
 6.  Security Considerations
 
    To be secure, the HT mechanism *MUST* be used over a TLS channel that
    has had the session hash extension [RFC7627] negotiated, or session
    resumption *MUST NOT* have been used.
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 7]
-
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
-
 
    It is *RECOMMENDED* that implementations periodically require a full
    authentication using a strong SASL mechanism which does not use the
@@ -400,7 +406,17 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
    It is of vital importance that the SASL-HT token is generated by a
    cryptographically secure random generator.  See [RFC4086] for more
-   information about Randomness Requirements for Security.
+   information about Randomness Requirements for Security.  In addition,
+   comparison of the client's HMAC with the server's calculated HMAC
+   *SHOULD* be performed using constant-time comparison functions, to
+   protect against timing attacks.
+
+   The tokens used with HT mechanisms *SHOULD* have a limited lifetime,
+   e.g. based on usage count or time elapsed since issuance.
+
+   Due to the additional security properties afforded by channel
+   binding, it is *RECOMMENDED* that clients use HT mechanisms
+   supporting channel binding in environments that can support it.
 
 7.  IANA Considerations
 
@@ -425,8 +441,17 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
       Owner/Change controller: IESG iesg@ietf.org (mailto:iesg@ietf.org)
 
+
+
+
+
+Schmaus & Egger            Expires 11 May 2023                  [Page 8]
+
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
+
+
       Note: Members of this family MUST be explicitly registered using
-      the "IETF Review" [RFC5226] registration procedure.  Reviews MUST
+      the "IETF Review" [RFC8126] registration procedure.  Reviews MUST
       be requested on the Kitten WG mailing list kitten@ietf.org
       (mailto:kitten@ietf.org) (or a successor designated by the
       responsible Security AD).
@@ -439,16 +464,6 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
               Hashing for Message Authentication", RFC 2104,
               DOI 10.17487/RFC2104, February 1997,
               <https://www.rfc-editor.org/info/rfc2104>.
-
-
-
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 8]
-
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
-
 
    [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
               10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
@@ -473,11 +488,6 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
               DOI 10.17487/RFC5234, January 2008,
               <https://www.rfc-editor.org/info/rfc5234>.
 
-   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
-              (TLS) Protocol Version 1.2", RFC 5246,
-              DOI 10.17487/RFC5246, August 2008,
-              <https://www.rfc-editor.org/info/rfc5246>.
-
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
               Housley, R., and W. Polk, "Internet X.509 Public Key
               Infrastructure Certificate and Certificate Revocation List
@@ -488,23 +498,20 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
               for TLS", RFC 5929, DOI 10.17487/RFC5929, July 2010,
               <https://www.rfc-editor.org/info/rfc5929>.
 
+
+
+
+Schmaus & Egger            Expires 11 May 2023                  [Page 9]
+
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
+
+
    [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
               Verification of Domain-Based Application Service Identity
               within Internet Public Key Infrastructure Using X.509
               (PKIX) Certificates in the Context of Transport Layer
               Security (TLS)", RFC 6125, DOI 10.17487/RFC6125, March
               2011, <https://www.rfc-editor.org/info/rfc6125>.
-
-
-
-
-
-
-
-Schmaus & Egger           Expires 13 April 2023                 [Page 9]
-
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
-
 
    [RFC6920]  Farrell, S., Kutscher, D., Dannewitz, C., Ohlman, B.,
               Keranen, A., and P. Hallam-Baker, "Naming Things with
@@ -545,21 +552,14 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
 
 8.2.  Informative References
 
-   [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
-              IANA Considerations Section in RFCs", RFC 5226,
-              DOI 10.17487/RFC5226, May 2008,
-              <https://www.rfc-editor.org/info/rfc5226>.
 
 
 
 
 
-
-
-
-Schmaus & Egger           Expires 13 April 2023                [Page 10]
+Schmaus & Egger            Expires 11 May 2023                 [Page 10]
 
-Internet-Draft       The Hashed Token SASL Mechanism        October 2022
+Internet-Draft       The Hashed Token SASL Mechanism       November 2022
 
 
    [RFC5802]  Newman, C., Menon-Sen, A., Melnikov, A., and N. Williams,
@@ -572,6 +572,11 @@ Internet-Draft       The Hashed Token SASL Mechanism        October 2022
               Protocol (XMPP): Core", RFC 6120, DOI 10.17487/RFC6120,
               March 2011, <https://www.rfc-editor.org/info/rfc6120>.
 
+   [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
+              Writing an IANA Considerations Section in RFCs", BCP 26,
+              RFC 8126, DOI 10.17487/RFC8126, June 2017,
+              <https://www.rfc-editor.org/info/rfc8126>.
+
    [XEP-0397] Schmaus, F., "XEP-0397: Instant Stream Resumption", 3
               November 2018,
               <https://xmpp.org/extensions/xep-0397.html>.
@@ -583,7 +588,8 @@ Acknowledgments
    Whited and Alexey Melnikov for their comments on this topic.
    Furthermore, we would like to thank Alexander Wuerstlein, who came up
    with the idea to pin the token to a SASL mechanism for increased
-   security.
+   security.  And last but not least, thanks to Matthew Wild for working
+   on the -NONE variant of SASL-HT.
 
 Authors' Addresses
 
@@ -607,10 +613,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-Schmaus & Egger           Expires 13 April 2023                [Page 11]
+Schmaus & Egger            Expires 11 May 2023                 [Page 11]
