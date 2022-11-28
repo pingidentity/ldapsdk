@@ -55,7 +55,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
@@ -1488,12 +1487,14 @@ public final class ArgumentParser
                 " that is not registered with the argument parser.");
     }
 
-    final Set<Argument> allArgsSet = new HashSet<>(arguments);
-    for (final Argument a : allArgsSet)
+    final List<Argument> allArgsList = new ArrayList<>(arguments);
+    for (int i=0; i < allArgsList.size(); i++)
     {
-      final Set<Argument> dependentArgs = new HashSet<>(allArgsSet);
-      dependentArgs.remove(a);
-      addDependentArgumentSet(a, dependentArgs);
+      for (int j=(i+1); j < allArgsList.size(); j++)
+      {
+        addDependentArgumentSet(allArgsList.get(i), allArgsList.get(j));
+        addDependentArgumentSet(allArgsList.get(j), allArgsList.get(i));
+      }
     }
   }
 

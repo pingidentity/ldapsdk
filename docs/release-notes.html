@@ -28,6 +28,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a bug in the argument parser's support for mutually dependent arguments.
+                  In a mutually dependent argument set, if any one of the arguments is provided,
+                  then all of the other arguments in the set must also be provided, but there was
+                  a problem with support for sets containing three or more elements.  In such
+                  cases, the argument parser would only enforce that at least two arguments from
+                  the set were present.
+                  <br><br>
+                </li>
+
+                <li>
                   Added JSONObject methods for retrieving fields by name using case-insensitive
                   matching.  By default, JSON field names are treated in a case-sensitive manner,
                   but new methods allow them to be retrieved in a case-insensitive manner.

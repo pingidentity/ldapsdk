@@ -604,13 +604,15 @@ public class ArgumentParserTestCase
 
     assertNotNull(p.getDependentArgumentSets());
     assertFalse(p.getDependentArgumentSets().isEmpty());
-    assertEquals(p.getDependentArgumentSets().size(), 2);
+    assertEquals(p.getDependentArgumentSets().size(), 2,
+         String.valueOf(p.getDependentArgumentSets()));
 
     p.addMutuallyDependentArgumentSet(c, d, e);
 
     assertNotNull(p.getDependentArgumentSets());
     assertFalse(p.getDependentArgumentSets().isEmpty());
-    assertEquals(p.getDependentArgumentSets().size(), 5);
+    assertEquals(p.getDependentArgumentSets().size(), 8,
+         String.valueOf(p.getDependentArgumentSets()));
 
     try
     {
@@ -702,6 +704,104 @@ public class ArgumentParserTestCase
     {
       // This was expected.
     }
+
+
+    // Make sure that the parser properly rejects attempts to use mutually
+    // dependent arguments without each other.
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-a" });
+      fail("Expected an exception when providing a but not b");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-b" });
+      fail("Expected an exception when providing b but not a");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    p.reset();
+    p.parse(new String[] { "-a", "-b" });
+
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-c" });
+      fail("Expected an exception when providing c but not d or e");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-d" });
+      fail("Expected an exception when providing d but not c or e");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-e" });
+      fail("Expected an exception when providing e but not c or d");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-c", "-d" });
+      fail("Expected an exception when providing c and d but not e");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-c", "-e" });
+      fail("Expected an exception when providing c and e but not d");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.reset();
+      p.parse(new String[] { "-d", "-e" });
+      fail("Expected an exception when providing d and e but not c");
+    }
+    catch (final ArgumentException ex)
+    {
+      // This was expected.
+    }
+
+    p.reset();
+    p.parse(new String[] { "-c", "-d", "-e" });
   }
 
 
