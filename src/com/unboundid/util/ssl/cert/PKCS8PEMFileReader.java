@@ -81,6 +81,16 @@ public final class PKCS8PEMFileReader
 {
   /**
    * The header string that should appear on a line by itself before the
+   * base64-encoded representation of the bytes that comprise an encrypted
+   * PKCS #8 private key.
+   */
+  @NotNull public static final String BEGIN_ENCRYPTED_PRIVATE_KEY_HEADER =
+       "-----BEGIN ENCRYPTED PRIVATE KEY-----";
+
+
+
+  /**
+   * The header string that should appear on a line by itself before the
    * base64-encoded representation of the bytes that comprise a PKCS #8 private
    * key.
    */
@@ -95,6 +105,16 @@ public final class PKCS8PEMFileReader
    */
   @NotNull public static final String BEGIN_RSA_PRIVATE_KEY_HEADER =
        "-----BEGIN RSA PRIVATE KEY-----";
+
+
+
+  /**
+   * The footer string that should appear on a line by itself after the
+   * base64-encoded representation of the bytes that comprise an encrypted
+   * PKCS #8 private key.
+   */
+  @NotNull public static final String END_ENCRYPTED_PRIVATE_KEY_FOOTER =
+       "-----END ENCRYPTED PRIVATE KEY-----";
 
 
 
@@ -176,7 +196,8 @@ public final class PKCS8PEMFileReader
 
 
   /**
-   * Reads the next private key from the PEM file.
+   * Reads the next private key from the PEM file.  The private key must be
+   * unencrypted.
    *
    * @return  The private key that was read, or {@code null} if the end of the
    *          file has been reached.
@@ -191,6 +212,35 @@ public final class PKCS8PEMFileReader
   public PKCS8PrivateKey readPrivateKey()
          throws IOException, CertException
   {
+    return readPrivateKey(null);
+  }
+
+
+
+  /**
+   * Reads the next private key from the PEM file.  The private key may
+   * optionally be encrypted.
+   *
+   * @param  encryptionPassword  The password used to encrypt the private key.
+   *                             It must not be {@code null} if the private key
+   *                             is encrypted.  It may be {@code null} if the
+   *                             private key is not encrypted.
+   *
+   * @return  The private key that was read, or {@code null} if the end of the
+   *          file has been reached.
+   *
+   * @throws  IOException  If a problem occurs while trying to read data from
+   *                       the PEM file.
+   *
+   * @throws  CertException  If a problem occurs while trying to interpret data
+   *                         read from the PEM file as a PKCS #8 private key.
+   */
+  @Nullable()
+  public PKCS8PrivateKey readPrivateKey(
+              @Nullable final char[] encryptionPassword)
+         throws IOException, CertException
+  {
+    boolean isEncrypted = false;
     String beginLine = null;
     final StringBuilder base64Buffer = new StringBuilder();
 
@@ -217,7 +267,8 @@ public final class PKCS8PEMFileReader
       }
 
       final String upperLine = StaticUtils.toUpperCase(trimmedLine);
-      if (BEGIN_PRIVATE_KEY_HEADER.equals(upperLine) ||
+      if (BEGIN_ENCRYPTED_PRIVATE_KEY_HEADER.equals(upperLine) ||
+           BEGIN_PRIVATE_KEY_HEADER.equals(upperLine) ||
            BEGIN_RSA_PRIVATE_KEY_HEADER.equals(upperLine))
       {
         if (beginLine != null)
@@ -228,9 +279,20 @@ public final class PKCS8PEMFileReader
         else
         {
           beginLine = upperLine;
+
+          if (BEGIN_ENCRYPTED_PRIVATE_KEY_HEADER.equals(upperLine))
+          {
+            isEncrypted = true;
+            if (encryptionPassword == null)
+            {
+              throw new CertException(
+                   ERR_PKCS8_PEM_READER_NO_PW_FOR_ENCRYPTED_KEY.get());
+            }
+          }
         }
       }
-      else if (END_PRIVATE_KEY_FOOTER.equals(upperLine) ||
+      else if (END_ENCRYPTED_PRIVATE_KEY_FOOTER.equals(upperLine) ||
+           END_PRIVATE_KEY_FOOTER.equals(upperLine) ||
            END_RSA_PRIVATE_KEY_FOOTER.equals(upperLine))
       {
         if (beginLine == null)
@@ -246,15 +308,35 @@ public final class PKCS8PEMFileReader
         else
         {
           final byte[] pkcs8Bytes;
-          try
+          if (isEncrypted)
           {
-            pkcs8Bytes = Base64.decode(base64Buffer.toString());
+            final byte[] encryptedKeyBytes;
+            try
+            {
+              encryptedKeyBytes = Base64.decode(base64Buffer.toString());
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              throw new CertException(
+                   ERR_PKCS8_PEM_READER_CANNOT_BASE64_DECODE.get(), e);
+            }
+
+            return PKCS8EncryptionHandler.decryptPrivateKey(
+                 encryptedKeyBytes, encryptionPassword);
           }
-          catch (final Exception e)
+          else
           {
-            Debug.debugException(e);
-            throw new CertException(
-                 ERR_PKCS8_PEM_READER_CANNOT_BASE64_DECODE.get(), e);
+            try
+            {
+              pkcs8Bytes = Base64.decode(base64Buffer.toString());
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              throw new CertException(
+                   ERR_PKCS8_PEM_READER_CANNOT_BASE64_DECODE.get(), e);
+            }
           }
 
           return new PKCS8PrivateKey(pkcs8Bytes);

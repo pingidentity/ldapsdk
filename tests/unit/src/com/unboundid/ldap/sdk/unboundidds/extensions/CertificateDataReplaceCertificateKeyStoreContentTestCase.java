@@ -262,6 +262,22 @@ public final class CertificateDataReplaceCertificateKeyStoreContentTestCase
          StaticUtils.toUTF8String(out.toByteArray()));
 
 
+    // Export the private key for the server certificate in encrypted form.
+    out.reset();
+    final String encryptedServerKeyPath = getTestFilePath();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "export-private-key",
+              "--keystore", keyStorePath,
+              "--keystore-password", "password",
+              "--alias", "server-cert",
+              "--output-file", encryptedServerKeyPath,
+              "--output-format", "PEM",
+              "--encryption-password", "encryption-password"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
     // Make sure that we can create a certificate data object with the PEM
     // certificate chain and private key.
     CertificateDataReplaceCertificateKeyStoreContent c =
@@ -270,6 +286,26 @@ public final class CertificateDataReplaceCertificateKeyStoreContentTestCase
                    new File(serverCertPath),
                    new File(caCertPath)),
               new File(serverKeyPath));
+
+    c = CertificateDataReplaceCertificateKeyStoreContent.decodeInternal(
+         c.encode());
+    assertNotNull(c);
+
+    assertNotNull(c.getCertificateChainData());
+    assertEquals(c.getCertificateChainData().size(), 2);
+
+    assertNotNull(c.getPrivateKeyData());
+
+
+    // Make sure that we can create a certificate data object with the PEM
+    // certificate chain and encrypted private key.
+    c =
+         new CertificateDataReplaceCertificateKeyStoreContent(
+              Arrays.asList(
+                   new File(serverCertPath),
+                   new File(caCertPath)),
+              new File(serverKeyPath),
+              "encryption-password".toCharArray());
 
     c = CertificateDataReplaceCertificateKeyStoreContent.decodeInternal(
          c.encode());

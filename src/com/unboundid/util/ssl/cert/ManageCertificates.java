@@ -1004,12 +1004,36 @@ public final class ManageCertificates
     exportKeyOutputFile.addLongIdentifier("filename", true);
     exportKeyParser.addArgument(exportKeyOutputFile);
 
+    final StringArgument exportKeyEncryptionPassword = new StringArgument(null,
+         "encryption-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_EXPIRT_KEY_ARG_ENC_PW_DESC.get());
+    exportKeyEncryptionPassword.addLongIdentifier("encryptionPassword", true);
+    exportKeyParser.addArgument(exportKeyEncryptionPassword);
+
+    final FileArgument exportKeyEncryptionPasswordFile = new FileArgument(null,
+       "encryption-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_ENC_PW_FILE_DESC.get(), true, true,
+         true, false);
+    exportKeyEncryptionPasswordFile.addLongIdentifier("encryptionPasswordFile",
+         true);
+    exportKeyParser.addArgument(exportKeyEncryptionPasswordFile);
+
+    final BooleanArgument exportKeyPromptForEncryptionPassword =
+         new BooleanArgument(null, "prompt-for-encryption-password", 1,
+              INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_PROMPT_FOR_ENC_PW.get());
+    exportKeyPromptForEncryptionPassword.addLongIdentifier(
+         "promptForEncryptionPassword", true);
+    exportKeyParser.addArgument(exportKeyPromptForEncryptionPassword);
+
     exportKeyParser.addRequiredArgumentSet(exportKeyKeystorePassword,
          exportKeyKeystorePasswordFile, exportKeyPromptForKeystorePassword);
     exportKeyParser.addExclusiveArgumentSet(exportKeyKeystorePassword,
          exportKeyKeystorePasswordFile, exportKeyPromptForKeystorePassword);
     exportKeyParser.addExclusiveArgumentSet(exportKeyPKPassword,
          exportKeyPKPasswordFile, exportKeyPromptForPKPassword);
+    exportKeyParser.addExclusiveArgumentSet(exportKeyEncryptionPassword,
+         exportKeyEncryptionPasswordFile, exportKeyPromptForEncryptionPassword);
 
     final LinkedHashMap<String[],String> exportKeyExamples =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
@@ -1213,6 +1237,29 @@ public final class ManageCertificates
     importCertPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     importCertParser.addArgument(importCertPromptForPKPassword);
 
+    final StringArgument importCertEncryptionPassword = new StringArgument(null,
+         "encryption-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_ENC_PW_DESC.get());
+    importCertEncryptionPassword.addLongIdentifier("encryptionPassword", true);
+    importCertEncryptionPassword.setSensitive(true);
+    importCertParser.addArgument(importCertEncryptionPassword);
+
+    final FileArgument importCertEncryptionPasswordFile = new FileArgument(null,
+         "encryption-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_ENC_PW_FILE_DESC.get(), true,
+         true, true, false);
+    importCertEncryptionPasswordFile.addLongIdentifier("encryptionPasswordFile",
+         true);
+    importCertParser.addArgument(importCertEncryptionPasswordFile);
+
+    final BooleanArgument importCertPromptForEncryptionPassword =
+         new BooleanArgument(null, "prompt-for-encryption-password",
+        INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_PROMPT_FOR_ENC_PW_DESC.get());
+    importCertPromptForEncryptionPassword.addLongIdentifier(
+         "promptForEncryptionPassword", true);
+    importCertParser.addArgument(importCertPromptForEncryptionPassword);
+
     final BooleanArgument importCertNoPrompt = new BooleanArgument(null,
          "no-prompt", 1,
          INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_NO_PROMPT_DESC.get());
@@ -1233,6 +1280,9 @@ public final class ManageCertificates
          importCertKeystorePasswordFile, importCertPromptForKeystorePassword);
     importCertParser.addExclusiveArgumentSet(importCertPKPassword,
          importCertPKPasswordFile, importCertPromptForPKPassword);
+    importCertParser.addExclusiveArgumentSet(importCertEncryptionPassword,
+         importCertEncryptionPasswordFile,
+         importCertPromptForEncryptionPassword);
 
     final LinkedHashMap<String[],String> importCertExamples =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
@@ -5388,6 +5438,20 @@ public final class ManageCertificates
     }
 
 
+    // Get the password to use to encrypt the private key when it is exported.
+    final char[] encryptionPassword;
+    try
+    {
+      encryptionPassword = getPrivateKeyEncryptionPassword(false);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
     // Get the private key to export.
     final PrivateKey privateKey;
     try
@@ -5451,11 +5515,23 @@ public final class ManageCertificates
       {
         if (exportPEM)
         {
-          writePEMPrivateKey(printStream, privateKey.getEncoded());
+          writePEMPrivateKey(printStream, privateKey.getEncoded(),
+               encryptionPassword);
         }
         else
         {
-          printStream.write(privateKey.getEncoded());
+          if (encryptionPassword == null)
+          {
+            printStream.write(privateKey.getEncoded());
+          }
+          else
+          {
+            final byte[] encryptedPrivateKey =
+                 PKCS8EncryptionHandler.encryptPrivateKey(
+                      privateKey.getEncoded(), encryptionPassword,
+                      new PKCS8EncryptionProperties());
+            printStream.write(encryptedPrivateKey);
+          }
         }
       }
       catch (final Exception e)
@@ -5577,6 +5653,21 @@ public final class ManageCertificates
     }
 
 
+    // See if there is a password to use to decrypt the private key that is
+    // being imported.
+    final char[] encryptionPassword;
+    try
+    {
+      encryptionPassword = getPrivateKeyEncryptionPassword(true);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
     // If a private key file was specified, then read the private key.
     final PKCS8PrivateKey privateKey;
     if (privateKeyFile == null)
@@ -5587,7 +5678,7 @@ public final class ManageCertificates
     {
       try
       {
-        privateKey = readPrivateKeyFromFile(privateKeyFile);
+        privateKey = readPrivateKeyFromFile(privateKeyFile, encryptionPassword);
       }
       catch (final LDAPException le)
       {
@@ -11040,23 +11131,57 @@ public final class ManageCertificates
    * Writes a PEM-encoded representation of the provided encoded private key to
    * the given print stream.
    *
-   * @param  printStream        The print stream to which the PEM-encoded
-   *                            private key should be written.  It must not be
-   *                            {@code null}.
-   * @param  encodedPrivateKey  The bytes that comprise the encoded private key.
-   *                            It must not be {@code null}.
+   * @param  printStream         The print stream to which the PEM-encoded
+   *                             private key should be written.  It must not be
+   *                             {@code null}.
+   * @param  encodedPrivateKey   The bytes that comprise the encoded private
+   *                             key.  It must not be {@code null}.
+   * @param  encryptionPassword  The password to use to encrypt the private key.
+   *                             It may be {@code null} if the private key
+   *                             should not be encrypted.
+   *
+   * @throws  LDAPException  If a problem occurs while trying write the private
+   *                         key.
    */
   private static void writePEMPrivateKey(
                            @NotNull final PrintStream printStream,
-                           @NotNull final byte[] encodedPrivateKey)
+                           @NotNull final byte[] encodedPrivateKey,
+                           @Nullable final char[] encryptionPassword)
+          throws LDAPException
   {
-    final String certBase64 = Base64.encode(encodedPrivateKey);
-    printStream.println("-----BEGIN PRIVATE KEY-----");
-    for (final String line : StaticUtils.wrapLine(certBase64, 64))
+    if (encryptionPassword == null)
     {
-      printStream.println(line);
+      final String certBase64 = Base64.encode(encodedPrivateKey);
+      printStream.println("-----BEGIN PRIVATE KEY-----");
+      for (final String line : StaticUtils.wrapLine(certBase64, 64))
+      {
+        printStream.println(line);
+      }
+      printStream.println("-----END PRIVATE KEY-----");
     }
-    printStream.println("-----END PRIVATE KEY-----");
+    else
+    {
+      final byte[] encryptedPrivateKey;
+      try
+      {
+        encryptedPrivateKey = PKCS8EncryptionHandler.encryptPrivateKey(
+             encodedPrivateKey, encryptionPassword,
+             new PKCS8EncryptionProperties());
+      }
+      catch (final CertException e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR, e.getMessage(), e);
+      }
+
+      final String encryptedCertBase64 = Base64.encode(encryptedPrivateKey);
+      printStream.println("-----BEGIN ENCRYPTED PRIVATE KEY-----");
+      for (final String line : StaticUtils.wrapLine(encryptedCertBase64, 64))
+      {
+        printStream.println(line);
+      }
+      printStream.println("-----END ENCRYPTED PRIVATE KEY-----");
+    }
   }
 
 
@@ -11316,6 +11441,99 @@ public final class ManageCertificates
           {
             wrapErr(0, WRAP_COLUMN,
                  ERR_MANAGE_CERTS_KEY_KS_PW_PROMPT_MISMATCH.get());
+            err();
+          }
+        }
+      }
+    }
+
+
+    return null;
+  }
+
+
+
+  /**
+   * Retrieves the password used to encrypt a private key.
+   *
+   * @param  forDecrypt  Indicates whether the password will be used to decrypt
+   *                     the private key rather than to encrypt it.
+   *
+   * @return  The password used to encrypt a private key, or {@code null} if no
+   *          encryption password was specified.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to get the
+   *                         keystore password.
+   */
+  @Nullable()
+  private char[] getPrivateKeyEncryptionPassword(final boolean forDecrypt)
+          throws LDAPException
+  {
+    final StringArgument passwordArgument =
+         subCommandParser.getStringArgument("encryption-password");
+    if ((passwordArgument != null) && passwordArgument.isPresent())
+    {
+      return passwordArgument.getValue().toCharArray();
+    }
+
+
+    final FileArgument passwordFileArgument =
+         subCommandParser.getFileArgument("encryption-password-file");
+    if ((passwordFileArgument != null) && passwordFileArgument.isPresent())
+    {
+      final File f = passwordFileArgument.getValue();
+      try
+      {
+        return getPasswordFileReader().readPassword(f);
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        throw e;
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MANAGE_CERTS_GET_PK_ENC_PW_ERROR_READING_FILE.get(
+                  f.getAbsolutePath(), StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
+    final BooleanArgument promptArgument = subCommandParser.getBooleanArgument(
+         "prompt-for-encryption-password");
+    if ((promptArgument != null) && promptArgument.isPresent())
+    {
+      out();
+      if (forDecrypt)
+      {
+        // We'll be decrypting an existing private key, so we only need to
+        // prompt for the password once.
+        return promptForPassword(
+             INFO_MANAGE_CERTS_GET_PK_ENC_PW_PROMPT_DECRYPT.get(), false);
+      }
+      else
+      {
+        // We'll be encrypting the private key, so we need to prompt twice to
+        // confirm that the entered password is what the user intended.
+        while (true)
+        {
+          final char[] pwChars = promptForPassword(
+               INFO_MANAGE_CERTS_GET_PK_ENC_PW_PROMPT_ENCRYPT_1.get(), false);
+          final char[] confirmChars = promptForPassword(
+               INFO_MANAGE_CERTS_GET_PK_ENC_PW_PROMPT_ENCRYPT_2.get(), true);
+
+          if (Arrays.equals(pwChars, confirmChars))
+          {
+            Arrays.fill(confirmChars, '\u0000');
+            return pwChars;
+          }
+          else
+          {
+            wrapErr(0, WRAP_COLUMN,
+                 INFO_MANAGE_CERTS_GET_PK_ENC_PW_PROMPT_MISMATCH.get());
             err();
           }
         }
@@ -12163,8 +12381,11 @@ public final class ManageCertificates
    * Reads a private key from the specified file.  The file must exist and must
    * contain exactly one PEM-encoded or DER-encoded PKCS #8 private key.
    *
-   * @param  f  The path to the private key file to read.  It must not be
-   *            {@code null}.
+   * @param  f                   The path to the private key file to read.  It
+   *                             must not be {@code null}.
+   * @param  encryptionPassword  The password to use to encrypt the private key.
+   *                             It may be {@code null} if the private key is
+   *                             not encrypted.
    *
    * @return  The private key read from the file.
    *
@@ -12172,7 +12393,8 @@ public final class ManageCertificates
    *                         private key.
    */
   @NotNull()
-  static PKCS8PrivateKey readPrivateKeyFromFile(@NotNull final File f)
+  static PKCS8PrivateKey readPrivateKeyFromFile(@NotNull final File f,
+              @Nullable final char[] encryptionPassword)
          throws LDAPException
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
@@ -12234,7 +12456,15 @@ public final class ManageCertificates
           {
             try
             {
-              privateKey = new PKCS8PrivateKey(pkElement.encode());
+              if (encryptionPassword == null)
+              {
+                privateKey = new PKCS8PrivateKey(pkElement.encode());
+              }
+              else
+              {
+                privateKey = PKCS8EncryptionHandler.decryptPrivateKey(
+                     pkElement.encode(), encryptionPassword);
+              }
             }
             catch (final Exception e)
             {
@@ -12260,6 +12490,7 @@ public final class ManageCertificates
         {
           boolean inKey = false;
           boolean isRSAKey = false;
+          boolean isEncryptedKey = false;
           final StringBuilder buffer = new StringBuilder();
           while (true)
           {
@@ -12292,7 +12523,8 @@ public final class ManageCertificates
             }
 
             if (line.equals("-----BEGIN PRIVATE KEY-----") ||
-                 line.equals("-----BEGIN RSA PRIVATE KEY-----"))
+                 line.equals("-----BEGIN RSA PRIVATE KEY-----") ||
+                 line.equals("-----BEGIN ENCRYPTED PRIVATE KEY-----"))
             {
               if (inKey)
               {
@@ -12313,10 +12545,21 @@ public final class ManageCertificates
                 {
                   isRSAKey = true;
                 }
+                else if (line.equals("-----BEGIN ENCRYPTED PRIVATE KEY-----"))
+                {
+                  isEncryptedKey = true;
+                  if (encryptionPassword == null)
+                  {
+                    throw new LDAPException(ResultCode.PARAM_ERROR,
+                         ERR_MANAGE_CERTS_READ_PK_FROM_FILE_PK_ENCRYPTED_NO_PW.
+                              get(f.getAbsolutePath()));
+                  }
+                }
               }
             }
             else if (line.equals("-----END PRIVATE KEY-----") ||
-                 line.equals("-----END RSA PRIVATE KEY-----"))
+                 line.equals("-----END RSA PRIVATE KEY-----") ||
+                 line.equals("-----END ENCRYPTED PRIVATE KEY-----"))
             {
               if (! inKey)
               {
@@ -12348,7 +12591,15 @@ public final class ManageCertificates
 
               try
               {
-                privateKey = new PKCS8PrivateKey(pkBytes);
+                if (isEncryptedKey)
+                {
+                  privateKey = PKCS8EncryptionHandler.
+                       decryptPrivateKey(pkBytes, encryptionPassword);
+                }
+                else
+                {
+                  privateKey = new PKCS8PrivateKey(pkBytes);
+                }
               }
               catch (final CertException e)
               {

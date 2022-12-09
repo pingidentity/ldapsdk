@@ -94,13 +94,6 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
 public final class ManageCertificatesTestCase
        extends LDAPSDKTestCase
 {
-  /**
-   * A result code value that indicates that any result code is acceptable.
-   */
-  private static final ResultCode ANY_RESULT_CODE = null;
-
-
-
   private volatile File tempDir = null;
 
   private volatile String intermediateCACertificateAlias = null;
@@ -1221,6 +1214,32 @@ public final class ManageCertificatesTestCase
          "--alias", serverCertificateAlias,
          "--output-format", "PEM");
     assertFalse(outputFile.exists());
+
+
+    // Test exporting an encrypted private key to PEM with an encryption
+    // password provided directly on the command line.
+    manageCertificates(
+         "export-private-key",
+         "--keystore", serverPKCS12KeyStorePath,
+         "--keystore-password", "password",
+         "--alias", serverCertificateAlias,
+         "--output-format", "PEM",
+         "--encryption-password", "encryption-password");
+
+
+    // Test exporting an encrypted private key to DER with an encryption
+    // password read from a file.
+    final File encryptionPasswordFile = createTempFile("encryption-password");
+    manageCertificates(
+         "export-private-key",
+         "--keystore", serverPKCS12KeyStorePath,
+         "--keystore-password", "password",
+         "--alias", serverCertificateAlias,
+         "--output-file", outputFile.getAbsolutePath(),
+         "--output-format", "DER",
+         "--encryption-password-file",
+              encryptionPasswordFile.getAbsolutePath());
+    assertTrue(outputFile.exists());
 
 
     // Test exporting a private key to DER without specifying an output file.
@@ -7835,7 +7854,7 @@ public final class ManageCertificatesTestCase
     try
     {
       ManageCertificates.readPrivateKeyFromFile(
-           new File(emptyPasswordFilePath));
+           new File(emptyPasswordFilePath), null);
       fail("Expected an exception when trying to read an empty file");
     }
     catch (final LDAPException le)
@@ -7846,7 +7865,8 @@ public final class ManageCertificatesTestCase
 
     // Test with a valid DER-encoded private key.
     final PKCS8PrivateKey validPrivateKey =
-         ManageCertificates.readPrivateKeyFromFile(new File(rootCAKeyPath));
+         ManageCertificates.readPrivateKeyFromFile(new File(rootCAKeyPath),
+              null);
 
     File keyFile = createTempFile();
     assertTrue(keyFile.exists());
@@ -7858,7 +7878,7 @@ public final class ManageCertificatesTestCase
       outputStream.write(validPrivateKey.getPKCS8PrivateKeyBytes());
     }
 
-    ManageCertificates.readPrivateKeyFromFile(keyFile);
+    ManageCertificates.readPrivateKeyFromFile(keyFile, null);
 
 
     // Test with a file that contains multiple DER-encoded private keys (or
@@ -7875,7 +7895,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a DER file with " +
            "multiple private keys");
     }
@@ -7900,7 +7920,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a malformed DER file");
     }
     catch (final LDAPException le)
@@ -7917,7 +7937,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file with " +
            "only comment lines and blank lines");
     }
@@ -7939,7 +7959,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file with " +
            "multiple private keys.");
     }
@@ -7959,7 +7979,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file with " +
            "consecutive begin headers");
     }
@@ -7976,7 +7996,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file that starts " +
            "with data before a begin header.");
     }
@@ -7992,7 +8012,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file that starts " +
            "with an end footer");
     }
@@ -8011,7 +8031,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file without " +
            "valid base64 data");
     }
@@ -8031,7 +8051,7 @@ public final class ManageCertificatesTestCase
 
     try
     {
-      ManageCertificates.readPrivateKeyFromFile(keyFile);
+      ManageCertificates.readPrivateKeyFromFile(keyFile, null);
       fail("Expected an exception when trying to read a PEM file whose " +
            "base64-encoded data does not represent a valid private key");
     }

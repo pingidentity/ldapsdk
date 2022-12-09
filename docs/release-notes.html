@@ -6,6 +6,30 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 6.0.8</h3>
+
+              <p>
+                The following changes were made between the 6.0.7 and 6.0.8 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for encrypted PKCS #8 private keys.  Private keys can now be
+                  formatted in encrypted PEM when provided with an encryption password and a set
+                  of encryption properties, and the PKCS #8 PEM file reader can read encrypted
+                  private keys when provided with the encryption password.  The
+                  manage-certificates export-private-key command has been updated to support
+                  writing an encrypted representation of the private key in either PEM or DER
+                  form, and manage-certificates import-certificate has been updated to support
+                  obtaining the private key when it is encrypted form.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 6.0.7</h3>
 
               <p>

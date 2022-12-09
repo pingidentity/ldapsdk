@@ -732,21 +732,21 @@ public final class PKCS8PrivateKey
 
   /**
    * Retrieves a list of the lines that comprise a PEM representation of this
-   * certificate signing request.
+   * PKCS #8 private key.
    *
    * @return  A list of the lines that comprise a PEM representation of this
-   *          certificate signing request.
+   *          PKCS #8 private key.
    */
   @NotNull()
   public List<String> toPEM()
   {
     final ArrayList<String> lines = new ArrayList<>(10);
-    lines.add("-----BEGIN PRIVATE KEY-----");
+    lines.add(PKCS8PEMFileReader.BEGIN_PRIVATE_KEY_HEADER);
 
     final String keyBase64 = Base64.encode(pkcs8PrivateKeyBytes);
     lines.addAll(StaticUtils.wrapLine(keyBase64, 64));
 
-    lines.add("-----END PRIVATE KEY-----");
+    lines.add(PKCS8PEMFileReader.END_PRIVATE_KEY_FOOTER);
 
     return Collections.unmodifiableList(lines);
   }
@@ -755,16 +755,16 @@ public final class PKCS8PrivateKey
 
   /**
    * Retrieves a multi-line string containing a PEM representation of this
-   * certificate signing request.
+   * PKCS #8 private key.
    *
    * @return  A multi-line string containing a PEM representation of this
-   *          certificate signing request.
+   *          PKCS #8 private key.
    */
   @NotNull()
   public String toPEMString()
   {
     final StringBuilder buffer = new StringBuilder();
-    buffer.append("-----BEGIN PRIVATE KEY-----");
+    buffer.append(PKCS8PEMFileReader.BEGIN_PRIVATE_KEY_HEADER);
     buffer.append(StaticUtils.EOL);
 
     final String keyBase64 = Base64.encode(pkcs8PrivateKeyBytes);
@@ -773,7 +773,88 @@ public final class PKCS8PrivateKey
       buffer.append(line);
       buffer.append(StaticUtils.EOL);
     }
-    buffer.append("-----END PRIVATE KEY-----");
+    buffer.append(PKCS8PEMFileReader.END_PRIVATE_KEY_FOOTER);
+    buffer.append(StaticUtils.EOL);
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Retrieves a list of the lines that comprise a PEM representation of this
+   * private key that is encrypted with the provided settings.
+   *
+   * @param  encryptionPassword    The password to use to generate the
+   *                               encryption key.  It must not be {@code null}.
+   * @param  encryptionProperties  The properties to use when encrypting the
+   *                               key.  It must not be {@code null}.
+   *
+   * @return  A list of the lines that comprise a PEM representation of this
+   *          private key that is encrypted with the provided settings.
+   *
+   * @throws  CertException  If a problem occurs while encrypting the private
+   *                         key.
+   */
+  @NotNull()
+  public List<String> toEncryptedPEM(
+              @NotNull final char[] encryptionPassword,
+              @NotNull final PKCS8EncryptionProperties encryptionProperties)
+         throws CertException
+  {
+    final byte[] encryptedPrivateKeyBytes =
+         PKCS8EncryptionHandler.encryptPrivateKey(this, encryptionPassword,
+              encryptionProperties);
+
+    final ArrayList<String> lines = new ArrayList<>(10);
+    lines.add(PKCS8PEMFileReader.BEGIN_ENCRYPTED_PRIVATE_KEY_HEADER);
+
+    final String keyBase64 = Base64.encode(encryptedPrivateKeyBytes);
+    lines.addAll(StaticUtils.wrapLine(keyBase64, 64));
+
+    lines.add(PKCS8PEMFileReader.END_ENCRYPTED_PRIVATE_KEY_FOOTER);
+
+    return Collections.unmodifiableList(lines);
+  }
+
+
+
+  /**
+   * Retrieves a multi-line string containing a PEM representation of this
+   * private key that is encrypted with the provided settings.
+   *
+   * @param  encryptionPassword    The password to use to generate the
+   *                               encryption key.  It must not be {@code null}.
+   * @param  encryptionProperties  The properties to use when encrypting the
+   *                               key.  It must not be {@code null}.
+   *
+   * @return  A multi-line string containing a PEM representation of this
+   *          private key that is encrypted with the provided settings.
+   *
+   * @throws  CertException  If a problem occurs while encrypting the private
+   *                         key.
+   */
+  @NotNull()
+  public String toEncryptedPEMString(
+              @NotNull final char[] encryptionPassword,
+              @NotNull final PKCS8EncryptionProperties encryptionProperties)
+         throws CertException
+  {
+    final byte[] encryptedPrivateKeyBytes =
+         PKCS8EncryptionHandler.encryptPrivateKey(this, encryptionPassword,
+              encryptionProperties);
+
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append(PKCS8PEMFileReader.BEGIN_ENCRYPTED_PRIVATE_KEY_HEADER);
+    buffer.append(StaticUtils.EOL);
+
+    final String keyBase64 = Base64.encode(encryptedPrivateKeyBytes);
+    for (final String line : StaticUtils.wrapLine(keyBase64, 64))
+    {
+      buffer.append(line);
+      buffer.append(StaticUtils.EOL);
+    }
+    buffer.append(PKCS8PEMFileReader.END_ENCRYPTED_PRIVATE_KEY_FOOTER);
     buffer.append(StaticUtils.EOL);
 
     return buffer.toString();

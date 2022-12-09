@@ -114,28 +114,24 @@ public final class PEMFileKeyManager
   /**
    * Creates a new instance of this key manager with the provided PEM files.
    *
-   * @param  certificateChainPEMFile  The file containing the PEM-formatted
-   *                                  X.509 representations of the certificates
-   *                                  in the certificate chain.  This must not
-   *                                  be {@code null}, the file must exist, and
-   *                                  it must contain at least one certificate
-   *                                  (the end entity certificate), but may
-   *                                  contain additional certificates as needed
-   *                                  for the complete certificate chain.
-   *                                  Certificates should be ordered such that
-   *                                  the first certificate must be the end
-   *                                  entity certificate, and each subsequent
-   *                                  certificate must be the issuer for the
-   *                                  previous certificate.  The chain does not
-   *                                  need to be complete as long as the peer
-   *                                  may be expected to have prior knowledge of
-   *                                  any missing issuer certificates.
-   * @param  privateKeyPEMFile        The file containing the PEM-formatted
-   *                                  PKCS #8 representation of the private key
-   *                                  for the end entity certificate.  This must
-   *                                  not be {@code null}, the file must exist,
-   *                                  and it must contain exactly one
-   *                                  PEM-encoded private key.
+   * @param  certificateChainPEMFile
+   *              The file containing the PEM-formatted X.509 representations of
+   *              the certificates in the certificate chain.  This must not be
+   *              {@code null}, the file must exist, and it must contain at
+   *              least one certificate (the end entity certificate), but may
+   *              contain additional certificates as needed for the complete
+   *              certificate chain.  Certificates should be ordered such that
+   *              the first certificate must be the end entity certificate, and
+   *              each subsequent certificate must be the issuer for the
+   *              previous certificate.  The chain does not need to be complete
+   *              as long as the peer may be expected to have prior knowledge of
+   *              any missing issuer certificates.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key must not
+   *              be encrypted.
    *
    * @throws  KeyStoreException  If there is a problem with any of the provided
    *                             PEM files.
@@ -152,27 +148,63 @@ public final class PEMFileKeyManager
   /**
    * Creates a new instance of this key manager with the provided PEM files.
    *
-   * @param  certificateChainPEMFiles  The files containing the PEM-formatted
-   *                                   X.509 representations of the certificates
-   *                                   in the certificate chain.  This must not
-   *                                   be {@code null} or empty.  Each file must
-   *                                   exist and must contain at least one
-   *                                   certificate.  The files will be processed
-   *                                   in the order in which they are provided.
-   *                                   The first certificate in the first file
-   *                                   must be the end entity certificate, and
-   *                                   each subsequent certificate must be the
-   *                                   issuer for the previous certificate.  The
-   *                                   chain does not need to be complete as
-   *                                   long as the peer may be expected to have
-   *                                   prior knowledge of any missing issuer
-   *                                   certificates.
-   * @param  privateKeyPEMFile         The file containing the PEM-formatted
-   *                                   PKCS #8 representation of the private key
-   *                                   for the end entity certificate.  This
-   *                                   must not be {@code null}, the file must
-   *                                   exist, and it must contain exactly one
-   *                                   PEM-encoded private key.
+   * @param  certificateChainPEMFile
+   *              The file containing the PEM-formatted X.509 representations of
+   *              the certificates in the certificate chain.  This must not be
+   *              {@code null}, the file must exist, and it must contain at
+   *              least one certificate (the end entity certificate), but may
+   *              contain additional certificates as needed for the complete
+   *              certificate chain.  Certificates should be ordered such that
+   *              the first certificate must be the end entity certificate, and
+   *              each subsequent certificate must be the issuer for the
+   *              previous certificate.  The chain does not need to be complete
+   *              as long as the peer may be expected to have prior knowledge of
+   *              any missing issuer certificates.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key may
+   *              optionally be encrypted.
+   * @param  privateKeyEncryptionPassword
+   *              The password needed to decrypt the private key if it is
+   *              encrypted.  This may be {@code null} if the private key is not
+   *              encrypted.
+   *
+   * @throws  KeyStoreException  If there is a problem with any of the provided
+   *                             PEM files.
+   */
+  public PEMFileKeyManager(@NotNull final File certificateChainPEMFile,
+                           @NotNull final File privateKeyPEMFile,
+                           @Nullable final char[] privateKeyEncryptionPassword)
+         throws KeyStoreException
+  {
+    this(Collections.singletonList(certificateChainPEMFile), privateKeyPEMFile,
+         privateKeyEncryptionPassword);
+  }
+
+
+
+  /**
+   * Creates a new instance of this key manager with the provided PEM files.
+   *
+   * @param  certificateChainPEMFiles
+   *              The files containing the PEM-formatted X.509 representations
+   *              of the certificates in the certificate chain.  This must not
+   *              be {@code null} or empty.  Each file must exist and must
+   *              contain at least one certificate.  The files will be processed
+   *              in the order in which they are provided.  The first
+   *              certificate in the first file must be the end entity
+   *              certificate, and each subsequent certificate must be the
+   *              issuer for the previous certificate.  The chain does not need
+   *              to be complete as long as the peer may be expected to have
+   *              prior knowledge of any missing issuer certificates.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key must not
+   *              be encrypted.
    *
    * @throws  KeyStoreException  If there is a problem with any of the provided
    *                             PEM files.
@@ -189,33 +221,106 @@ public final class PEMFileKeyManager
   /**
    * Creates a new instance of this key manager with the provided PEM files.
    *
-   * @param  certificateChainPEMFiles  The files containing the PEM-formatted
-   *                                   X.509 representations of the certificates
-   *                                   in the certificate chain.  This must not
-   *                                   be {@code null} or empty.  Each file must
-   *                                   exist and must contain at least one
-   *                                   certificate.  The files will be processed
-   *                                   in the order in which they are provided.
-   *                                   The first certificate in the first file
-   *                                   must be the end entity certificate, and
-   *                                   each subsequent certificate must be the
-   *                                   issuer for the previous certificate.  The
-   *                                   chain does not need to be complete as
-   *                                   long as the peer may be expected to have
-   *                                   prior knowledge of any missing issuer
-   *                                   certificates.
-   * @param  privateKeyPEMFile         The file containing the PEM-formatted
-   *                                   PKCS #8 representation of the private key
-   *                                   for the end entity certificate.  This
-   *                                   must not be {@code null}, the file must
-   *                                   exist, and it must contain exactly one
-   *                                   PEM-encoded private key.
+   * @param  certificateChainPEMFiles
+   *              The files containing the PEM-formatted X.509 representations
+   *              of the certificates in the certificate chain.  This must not
+   *              be {@code null} or empty.  Each file must exist and must
+   *              contain at least one certificate.  The files will be processed
+   *              in the order in which they are provided.  The first
+   *              certificate in the first file must be the end entity
+   *              certificate, and each subsequent certificate must be the
+   *              issuer for the previous certificate.  The chain does not need
+   *              to be complete as long as the peer may be expected to have
+   *              prior knowledge of any missing issuer certificates.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key may
+   *              optionally be encrypted.
+   * @param  privateKeyEncryptionPassword
+   *              The password needed to decrypt the private key if it is
+   *              encrypted.  This may be {@code null} if the private key is not
+   *              encrypted.
+   *
+   * @throws  KeyStoreException  If there is a problem with any of the provided
+   *                             PEM files.
+   */
+  public PEMFileKeyManager(@NotNull final File[] certificateChainPEMFiles,
+                           @NotNull final File privateKeyPEMFile,
+                           @Nullable final char[] privateKeyEncryptionPassword)
+         throws KeyStoreException
+  {
+    this(StaticUtils.toList(certificateChainPEMFiles), privateKeyPEMFile,
+         privateKeyEncryptionPassword);
+  }
+
+
+
+  /**
+   * Creates a new instance of this key manager with the provided PEM files.
+   *
+   * @param  certificateChainPEMFiles
+   *              The files containing the PEM-formatted X.509 representations
+   *              of the certificates in the certificate chain.  This must not
+   *              be {@code null} or empty.  Each file must exist and must
+   *              contain at least one certificate.  The files will be processed
+   *              in the order in which they are provided.  The first
+   *              certificate in the first file must be the end entity
+   *              certificate, and each subsequent certificate must be the
+   *              issuer for the previous certificate.  The chain does not need
+   *              to be complete as long as the peer may be expected to have
+   *              prior knowledge of any missing issuer certificates.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key must not
+   *              be encrypted.
    *
    * @throws  KeyStoreException  If there is a problem with any of the provided
    *                             PEM files.
    */
   public PEMFileKeyManager(@NotNull final List<File> certificateChainPEMFiles,
                            @NotNull final File privateKeyPEMFile)
+         throws KeyStoreException
+  {
+    this(certificateChainPEMFiles, privateKeyPEMFile, null);
+  }
+
+
+
+  /**
+   * Creates a new instance of this key manager with the provided PEM files.
+   *
+   * @param  certificateChainPEMFiles
+   *              The files containing the PEM-formatted X.509 representations
+   *              of the certificates in the certificate chain.  This must not
+   *              be {@code null} or empty.  Each file must exist and must
+   *              contain at least one certificate.  The files will be processed
+   *              in the order in which they are provided.  The first
+   *              certificate in the first file must be the end entity
+   *              certificate, and each subsequent certificate must be the
+   *              issuer for the previous certificate.  The chain does not need
+   *              to be complete as long as the peer may be expected to have
+   *              prior knowledge of any missing issuer certificates.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key may
+   *              optionally be encrypted.
+   * @param  privateKeyEncryptionPassword
+   *              The password needed to decrypt the private key if it is
+   *              encrypted.  This may be {@code null} if the private key is not
+   *              encrypted.
+   *
+   * @throws  KeyStoreException  If there is a problem with any of the provided
+   *                             PEM files.
+   */
+  public PEMFileKeyManager(@NotNull final List<File> certificateChainPEMFiles,
+                           @NotNull final File privateKeyPEMFile,
+                           @Nullable final char[] privateKeyEncryptionPassword)
          throws KeyStoreException
   {
     Validator.ensureNotNullWithMessage(certificateChainPEMFiles,
@@ -226,7 +331,8 @@ public final class PEMFileKeyManager
          "PEMFileKeyManager.privateKeyPEMFile must not be null.");
 
     certificateChain = readCertificateChain(certificateChainPEMFiles);
-    privateKey = readPrivateKey(privateKeyPEMFile);
+    privateKey = readPrivateKey(privateKeyPEMFile,
+         privateKeyEncryptionPassword);
 
 
     // Compute a SHA-256 fingerprint for the certificate to use as the alias.
@@ -370,12 +476,16 @@ public final class PEMFileKeyManager
    * Reads the private key from the provided PEM file.
    *
    *
-   * @param  privateKeyPEMFile         The file containing the PEM-formatted
-   *                                   PKCS #8 representation of the private key
-   *                                   for the end entity certificate.  This
-   *                                   must not be {@code null}, the file must
-   *                                   exist, and it must contain exactly one
-   *                                   PEM-encoded private key.
+   * @param  privateKeyPEMFile
+   *              The file containing the PEM-formatted PKCS #8 representation
+   *              of the private key for the end entity certificate.  This must
+   *              not be {@code null}, the file must exist, and it must contain
+   *              exactly one PEM-encoded private key.  The private key may
+   *              optionally be encrypted.
+   * @param  encryptionPassword
+   *              The password needed to decrypt the private key if it is
+   *              encrypted.  This may be {@code null} if the private key is not
+   *              encrypted.
    *
    * @return  The private key that was read.
    *
@@ -384,7 +494,8 @@ public final class PEMFileKeyManager
    */
   @NotNull()
   private static PrivateKey readPrivateKey(
-               @NotNull final File privateKeyPEMFile)
+               @NotNull final File privateKeyPEMFile,
+               @Nullable final char[] encryptionPassword)
           throws KeyStoreException
   {
     if (! privateKeyPEMFile.exists())
@@ -396,7 +507,7 @@ public final class PEMFileKeyManager
 
     try (PKCS8PEMFileReader r = new PKCS8PEMFileReader(privateKeyPEMFile))
     {
-      final PKCS8PrivateKey privateKey = r.readPrivateKey();
+      final PKCS8PrivateKey privateKey = r.readPrivateKey(encryptionPassword);
       if (privateKey == null)
       {
         throw new KeyStoreException(
@@ -404,7 +515,7 @@ public final class PEMFileKeyManager
                   privateKeyPEMFile.getAbsolutePath()));
       }
 
-      if (r.readPrivateKey() != null)
+      if (r.readPrivateKey(encryptionPassword) != null)
       {
         throw new KeyStoreException(
              ERR_PEM_FILE_KEY_MANAGER_MULTIPLE_KEYS_IN_FILE.get(
