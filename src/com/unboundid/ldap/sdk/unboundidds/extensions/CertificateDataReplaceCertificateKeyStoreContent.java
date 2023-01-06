@@ -63,6 +63,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
 import com.unboundid.util.ssl.cert.CertException;
+import com.unboundid.util.ssl.cert.PKCS8EncryptionHandler;
 import com.unboundid.util.ssl.cert.PKCS8PEMFileReader;
 import com.unboundid.util.ssl.cert.PKCS8PrivateKey;
 import com.unboundid.util.ssl.cert.X509Certificate;
@@ -572,7 +573,7 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
       // If the first byte is 0x30, then that indicates it's a DER sequence.
       if (firstByte == 0x30)
       {
-        return readDERPrivateKey(file, bis);
+        return readDERPrivateKey(file, bis, encryptionPassword);
       }
 
 
@@ -601,10 +602,13 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
   /**
    * Reads a DER-formatted PKCS #8 private key from the provided input stream.
    *
-   * @param  file         The file with which the provided input stream is
-   *                      associated.  It must not be {@code null}.
-   * @param  inputStream  The input stream from which the private key will be
-   *                      read.  It must not be {@code null}.
+   * @param  file                The file with which the provided input stream
+   *                             is associated.  It must not be {@code null}.
+   * @param  inputStream         The input stream from which the private key
+   *                             will be read.  It must not be {@code null}.
+   * @param  encryptionPassword  The password to use to decrypt the encrypted
+   *                             private key.  It may be {@code null} if the
+   *                             private key is not encrypted.
    *
    * @return  The bytes that comprise the encoded PKCS #8 private key.
    *
@@ -614,7 +618,8 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
   @NotNull()
   private static byte[] readDERPrivateKey(
                @NotNull final File file,
-               @NotNull final InputStream inputStream)
+               @NotNull final InputStream inputStream,
+               @Nullable final char[] encryptionPassword)
           throws LDAPException
   {
     try (ASN1StreamReader asn1Reader = new ASN1StreamReader(inputStream))
@@ -627,9 +632,20 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
                   file.getAbsolutePath()));
       }
 
-      return element.encode();
+      final byte[] elementsBytes = element.encode();
+      if (encryptionPassword == null)
+      {
+        return elementsBytes;
+      }
+      else
+      {
+        final PKCS8PrivateKey privateKey =
+             PKCS8EncryptionHandler.decryptPrivateKey(elementsBytes,
+                  encryptionPassword);
+        return privateKey.getPKCS8PrivateKeyBytes();
+      }
     }
-    catch (final IOException e)
+    catch (final Exception e)
     {
       Debug.debugException(e);
 

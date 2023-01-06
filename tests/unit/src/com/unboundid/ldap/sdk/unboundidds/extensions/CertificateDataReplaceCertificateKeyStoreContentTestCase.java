@@ -361,12 +361,13 @@ public final class CertificateDataReplaceCertificateKeyStoreContentTestCase
 
   /**
    * Tests the behavior when trying to create certificate data from files
-   * that contain the DER representations of certificates and private keys.
+   * that contain the DER representations of certificates and (unencrypted)
+   * private keys.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testCreateFromDERFiles()
+  public void testCreateFromDERFilesWithUnencryptedPrivateKey()
          throws Exception
   {
     // Generate a self-signed Ca certificate.
@@ -460,6 +461,171 @@ public final class CertificateDataReplaceCertificateKeyStoreContentTestCase
                    new File(serverCertPath),
                    new File(caCertPath)),
               new File(serverKeyPath));
+
+    c = CertificateDataReplaceCertificateKeyStoreContent.decodeInternal(
+         c.encode());
+    assertNotNull(c);
+
+    assertNotNull(c.getCertificateChainData());
+    assertEquals(c.getCertificateChainData().size(), 2);
+
+    assertNotNull(c.getPrivateKeyData());
+
+
+    // Make sure that we can create a certificate data object with the DER
+    // certificate chain without the private key.
+    c = new CertificateDataReplaceCertificateKeyStoreContent(
+              Arrays.asList(
+                   new File(serverCertPath),
+                   new File(caCertPath)),
+              NULL_FILE);
+
+    c = CertificateDataReplaceCertificateKeyStoreContent.decodeInternal(
+         c.encode());
+    assertNotNull(c);
+
+    assertNotNull(c.getCertificateChainData());
+    assertEquals(c.getCertificateChainData().size(), 2);
+
+    assertNull(c.getPrivateKeyData());
+
+
+    // Also cover the readCertificateChain method that takes an array of files.
+    assertEquals(
+         CertificateDataReplaceCertificateKeyStoreContent.readCertificateChain(
+              new File(serverCertPath),
+              new File(caCertPath)).size(),
+         2);
+
+
+    // Concatenate the files together into a single file and verify that
+    // the readCertificateChain method will still get both certificates.
+    final byte[] serverCertDER = StaticUtils.readFileBytes(serverCertPath);
+    final byte[] caCertDER = StaticUtils.readFileBytes(caCertPath);
+
+    final File combinedCertFile = createTempFile();
+    assertTrue(combinedCertFile.delete());
+    try (FileOutputStream outputStream = new FileOutputStream(combinedCertFile))
+    {
+      outputStream.write(serverCertDER);
+      outputStream.write(caCertDER);
+    }
+
+    assertEquals(
+         CertificateDataReplaceCertificateKeyStoreContent.readCertificateChain(
+              combinedCertFile).size(),
+         2);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create certificate data from files
+   * that contain the DER representations of certificates and (encrypted)
+   * private keys.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateFromDERFilesWithEncryptedPrivateKey()
+         throws Exception
+  {
+    // Generate a self-signed Ca certificate.
+    final String keyStorePath = getTestFilePath();
+    final String caCertPath = getTestFilePath();
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "generate-self-signed-certificate",
+              "--keystore", keyStorePath,
+              "--keystore-password", "password",
+              "--alias", "ca-cert",
+              "--subject-dn", "CN=Example CA,O=Example Corp,C=US",
+              "--days-valid", "7300",
+              "--output-file", caCertPath,
+              "--output-format", "DER"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Generate a certificate signing request for a server certificate.
+    out.reset();
+    final String serverCertRequestPath = getTestFilePath();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "generate-certificate-signing-request",
+              "--keystore", keyStorePath,
+              "--keystore-password", "password",
+              "--alias", "server-cert",
+              "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US",
+              "--output-file", serverCertRequestPath,
+              "--output-format", "DER"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Sign the certificate signing request.
+    out.reset();
+    final String serverCertPath = getTestFilePath();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "sign-certificate-signing-request",
+              "--keystore", keyStorePath,
+              "--keystore-password", "password",
+              "--signing-certificate-alias", "ca-cert",
+              "--request-input-file", serverCertRequestPath,
+              "--certificate-output-file", serverCertPath,
+              "--output-format", "DER",
+              "--days-valid", "365",
+              "--include-requested-extensions",
+              "--no-prompt"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Import the signed certificate chain into the key store.
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "import-certificate",
+              "--keystore", keyStorePath,
+              "--keystore-password", "password",
+              "--alias", "server-cert",
+              "--certificate-file", serverCertPath,
+              "--certificate-file", caCertPath,
+              "--no-prompt"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Export the private key for the server certificate.
+    out.reset();
+    final String serverKeyPath = getTestFilePath();
+    final File encryptionPasswordFile =
+         createTempFile("this-is-the-private-key-encryption-password");
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "export-private-key",
+              "--keystore", keyStorePath,
+              "--keystore-password", "password",
+              "--alias", "server-cert",
+              "--output-file", serverKeyPath,
+              "--output-format", "DER",
+              "--encryption-password-file",
+                   encryptionPasswordFile.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Make sure that we can create a certificate data object with the DER
+    // certificate chain and private key.
+    CertificateDataReplaceCertificateKeyStoreContent c =
+         new CertificateDataReplaceCertificateKeyStoreContent(
+              Arrays.asList(
+                   new File(serverCertPath),
+                   new File(caCertPath)),
+              new File(serverKeyPath),
+              encryptionPasswordFile);
 
     c = CertificateDataReplaceCertificateKeyStoreContent.decodeInternal(
          c.encode());
