@@ -305,7 +305,7 @@ public final class CertificateDataReplaceCertificateKeyStoreContentTestCase
                    new File(serverCertPath),
                    new File(caCertPath)),
               new File(serverKeyPath),
-              "encryption-password".toCharArray());
+              createTempFile("encryption-password"));
 
     c = CertificateDataReplaceCertificateKeyStoreContent.decodeInternal(
          c.encode());

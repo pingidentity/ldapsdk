@@ -57,6 +57,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PasswordFileReader;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -210,27 +211,24 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
    * Creates a new instance of this key store content object with the provided
    * information.
    *
-   * @param  certificateChainFiles  A list containing one or more files from
-   *                                which to read the PEM or DER representations
-   *                                of the X.509 certificates to include in
-   *                                the new certificate chain.  The order of
-   *                                the files, and the order of the certificates
-   *                                in each file, should be arranged such that
-   *                                the first certificate read is the end-entity
-   *                                certificate and each subsequent certificate
-   *                                is the issuer for the previous.  This must
-   *                                not be {@code null} or empty.
-   * @param  privateKeyFile         A file from which to read the PEM or DER
-   *                                representation of the PKCS #8 private key
-   *                                for the end-entity certificate in the chain.
-   *                                This may be {@code null} if the new
-   *                                end-entity certificate uses the same private
-   *                                key as the certificate currently in use in
-   *                                the server.
-   * @param  privateKeyEncryptionPassword
-   *              The password needed to decrypt the private key if it is
-   *              encrypted.  This may be {@code null} if the private key is not
-   *              encrypted.
+   * @param  certificateChainFiles
+   *              A list containing one or more files from which to read the PEM
+   *              or DER representations of the X.509 certificates to include in
+   *              the new certificate chain.  The order of the files, and the
+   *              order of the certificates in each file, should be arranged
+   *              such that the first certificate read is the end-entity
+   *              certificate and each subsequent certificate is the issuer for
+   *              the previous.  This must not be {@code null} or empty.
+   * @param  privateKeyFile
+   *              A file from which to read the PEM or DER representation of the
+   *              PKCS #8 private key for the end-entity certificate in the
+   *              chain.  This may be {@code null} if the new end-entity
+   *              certificate uses the same private key as the certificate
+   *              currently in use in the server.
+   * @param  privateKeyEncryptionPasswordFile
+   *              A file that contains the password needed to decrypt the
+   *              private key if it is encrypted.  This may be {@code null} if
+   *              the private key is not encrypted.
    *
    * @throws  LDAPException  If a problem occurs while trying to read or parse
    *                         data contained in any of the provided files.
@@ -238,12 +236,13 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
   public CertificateDataReplaceCertificateKeyStoreContent(
               @NotNull final List<File> certificateChainFiles,
               @Nullable final File privateKeyFile,
-              @Nullable final char[] privateKeyEncryptionPassword)
+              @Nullable final File privateKeyEncryptionPasswordFile)
          throws LDAPException
   {
     this(readCertificateChain(certificateChainFiles),
          ((privateKeyFile == null) ? null :
-              readPrivateKey(privateKeyFile, privateKeyEncryptionPassword)));
+              readPrivateKey(privateKeyFile,
+                   privateKeyEncryptionPasswordFile)));
   }
 
 
@@ -498,11 +497,12 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
    * Reads a PKCS #8 private key from the given file.  The file must contain the
    * PEM or DER representation of a single private key.
    *
-   * @param  file                The file from which the private key should be
-   *                             read.  It must not be {@code null}.
-   * @param  encryptionPassword  The password needed to decrypt the private key
-   *                             if it is encrypted.  It may be {@code null} if
-   *                             the private key is not encrypted.
+   * @param  file                    The file from which the private key should
+   *                                 be read.  It must not be {@code null}.
+   * @param  encryptionPasswordFile  The file containing the password needed to
+   *                                 decrypt the private key if it is encrypted.
+   *                                 It may be {@code null} if the private key
+   *                                 is not encrypted.
    *
    * @return  The encoded representation of the PKCS #8 private key that was
    *          read.
@@ -512,12 +512,43 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
    */
   @NotNull()
   public static byte[] readPrivateKey(@NotNull final File file,
-                                      @Nullable final char[] encryptionPassword)
+              @Nullable final File encryptionPasswordFile)
          throws LDAPException
   {
     Validator.ensureNotNull(file,
          "CertificateDataReplaceCertificateKeyStoreContent." +
               "readPrivateKey.file must not be null.");
+
+
+    // If there is an encryption password file, then read the password.
+    final char[] encryptionPassword;
+    if (encryptionPasswordFile == null)
+    {
+      encryptionPassword = null;
+    }
+    else
+    {
+      final PasswordFileReader passwordFileReader = new PasswordFileReader();
+      try
+      {
+        encryptionPassword =
+             passwordFileReader.readPassword(encryptionPasswordFile);
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        throw e;
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_CD_KSC_ERROR_READING_PW_FILE.get(
+                  encryptionPasswordFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
 
 
     // Open the file for reading.
@@ -555,6 +586,13 @@ public final class CertificateDataReplaceCertificateKeyStoreContent
            ERR_CD_KSC_DECODE_ERROR_READING_PK_FILE.get(file.getAbsolutePath(),
                 StaticUtils.getExceptionMessage(e)),
            e);
+    }
+    finally
+    {
+      if (encryptionPassword != null)
+      {
+        Arrays.fill(encryptionPassword, '\u0000');
+      }
     }
   }
 
