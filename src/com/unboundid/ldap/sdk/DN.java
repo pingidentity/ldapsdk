@@ -1892,4 +1892,92 @@ rdnLoop:
   {
     return new DN(s1, schema).compareTo(new DN(s2, schema));
   }
+
+
+
+  /**
+   * Retrieves a string that represents the portion of the provided full DN that
+   * is relative to the given base DN (that is, the full DN with the base DN
+   * stripped off).  For example, if the provided full DN is
+   * "uid=jdoe,ou=People,dc=example,dc=com" and the base DN is
+   * "dc=example,dc=com", then the returned DN will be "uid=jdoe,ou=People".
+   *
+   * @param  fullDN  The full DN for which to obtain the portion relative to the
+   *                 base DN.  It must not be {@code null}, and it must
+   *                 represent a valid DN that is a descendant of or equal to
+   *                 the base DN.
+   * @param  baseDN  The base DN to strip off of the provided full DN.  It must
+   *                 not be {@code null}, and it must be an ancestor of or equal
+   *                 to the full DN.
+   *
+   * @return  A string representation of the DN that represents the portion of
+   *          the full DN that is relative to the base DN, an empty string if
+   *          the full DN is equal to the base DN, or the provided full DN if
+   *          the base DN represents the null DN.
+   *
+   * @throws  LDAPException  If either of the provided strings is not a valid
+   *                         DN, or if the provided full DN is not an ancestor
+   *                         of or equal to the given base DN.
+   */
+  @NotNull()
+  public static String getDNRelativeToBaseDN(@NotNull final String fullDN,
+                                             @NotNull final String baseDN)
+         throws LDAPException
+  {
+    final DN parsedFullDN = new DN(fullDN);
+    final DN parsedBaseDN = new DN(baseDN);
+    return getDNRelativeToBaseDN(parsedFullDN, parsedBaseDN).toString();
+  }
+
+
+
+  /**
+   * Retrieves a portion of the provided full DN that is relative to the given
+   * base DN (that is, the full DN with the base DN stripped off).  For example,
+   * if the provided full DN is "uid=jdoe,ou=People,dc=example,dc=com" and the
+   * base DN is "dc=example,dc=com", then the returned DN will be
+   * "uid=jdoe,ou=People".
+   *
+   * @param  fullDN  The full DN for which to obtain the portion relative to the
+   *                 base DN.  It must not be {@code null}, and it must be a
+   *                 descendant of or equal to the base DN.
+   * @param  baseDN  The base DN to strip off of the provided full DN.  It must
+   *                 not be {@code null}, and it must be an ancestor of or equal
+   *                 to the full DN.
+   *
+   * @return  A DN that represents the portion of the full DN that is relative
+   *          to the base DN, {@link #NULL_DN} if the full DN is equal to the
+   *          base DN, or the provided full DN if the base DN is the null DN.
+   *
+   * @throws  LDAPException  If the provided full DN is not an ancestor of or
+   *                         equal to the given base DN.
+   */
+  @NotNull()
+  public static DN getDNRelativeToBaseDN(@NotNull final DN fullDN,
+                                         @NotNull final DN baseDN)
+         throws LDAPException
+  {
+    if (baseDN.isNullDN())
+    {
+      return fullDN;
+    }
+
+    if (! fullDN.isDescendantOf(baseDN, true))
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_DN_FULL_DN_NOT_DESCENDANT_OF_BASE.get(String.valueOf(fullDN),
+                String.valueOf(baseDN)));
+    }
+
+    final RDN[] fullRDNs = fullDN.getRDNs();
+    final RDN[] baseRDNs = baseDN.getRDNs();
+    if (fullRDNs.length == baseRDNs.length)
+    {
+      return NULL_DN;
+    }
+
+    final RDN[] relativeRDNs = new RDN[fullRDNs.length - baseRDNs.length];
+    System.arraycopy(fullRDNs, 0, relativeRDNs, 0, relativeRDNs.length);
+    return new DN(relativeRDNs);
+  }
 }

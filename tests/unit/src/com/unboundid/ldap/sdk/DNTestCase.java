@@ -1977,4 +1977,79 @@ public class DNTestCase
     assertEquals(dn.toNormalizedString(),
          "case-exact-attr=This Is A Test,dc=example,dc=com");
   }
+
+
+
+  /**
+   * Provides test coverage for the getDNRelativeToBaseDN method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetDNRelativeToBaseDN()
+         throws Exception
+  {
+    assertDNsEqual(
+         DN.getDNRelativeToBaseDN("uid=jdoe,ou=People,dc=example,dc=com",
+              "dc=example,dc=com"),
+         "uid=jdoe,ou=People");
+
+    assertDNsEqual(
+         DN.getDNRelativeToBaseDN("ou=People,dc=example,dc=com",
+              "dc=example,dc=com"),
+         "ou=People");
+
+    assertDNsEqual(
+         DN.getDNRelativeToBaseDN("dc=example,dc=com", "dc=example,dc=com"),
+         "");
+
+    assertDNsEqual(
+         DN.getDNRelativeToBaseDN("dc=example,dc=com", ""),
+         "dc=example,dc=com");
+
+    try
+    {
+      DN.getDNRelativeToBaseDN("o=example1", "o=example2");
+      fail("Expected an exception when the full DN and base DN have no " +
+           "components in common.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected
+    }
+
+    try
+    {
+      DN.getDNRelativeToBaseDN("ou=test1,dc=example,dc=com",
+           "ou=test2,dc=example,dc=com");
+      fail("Expected an exception when the full DN and base DN are peers.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected
+    }
+
+    try
+    {
+      DN.getDNRelativeToBaseDN("dc=example,dc=com",
+           "ou=test,dc=example,dc=com");
+      fail("Expected an exception when the full DN is an ancestor of the " +
+           "base DN.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected
+    }
+
+    try
+    {
+      DN.getDNRelativeToBaseDN("", "dc=example,dc=com");
+      fail("Expected an exception when the full DN is empty and the base DN " +
+           "is not.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected
+    }
+  }
 }

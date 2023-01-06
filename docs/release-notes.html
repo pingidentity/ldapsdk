@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a DN.getDNRelativeToBaseDN method that may be used to retrieve the portion
+                  of a DN that is relative to a given base DN (that is, the portion of a DN with
+                  the given base DN stripped off).
+                  <br><br>
+                </li>
+
+                <li>
                   Added support for encrypted PKCS #8 private keys.  Private keys can now be
                   formatted in encrypted PEM when provided with an encryption password and a set
                   of encryption properties, and the PKCS #8 PEM file reader can read encrypted
