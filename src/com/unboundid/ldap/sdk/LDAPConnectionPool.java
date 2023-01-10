@@ -2481,6 +2481,21 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Retrieves the server set that should be used to establish new connections
+   * for use in this connection pool.
+   *
+   * @return  The server set that should be used to establish new connections
+   *          for use in this connection pool.
+   */
+  @NotNull()
+  public ServerSet getServerSet()
+  {
+    return serverSet;
+  }
+
+
+
+  /**
    * Specifies the server set that should be used to establish new connections
    * for use in this connection pool.  Existing connections will not be
    * affected.

@@ -438,9 +438,10 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     ds3.startListening();
 
 
+    final ServerSet serverSet1 =
+         new SingleServerSet("127.0.0.1", ds1.getListenPort());
     try (LDAPConnectionPool pool =
-              new LDAPConnectionPool(
-                   new SingleServerSet("127.0.0.1", ds1.getListenPort()),
+              new LDAPConnectionPool(serverSet1,
                    new SimpleBindRequest("cn=Directory Manager", "password"),
                    1, 1))
     {
@@ -451,7 +452,14 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Update the server so that new connections will be established to ds2.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds2.getListenPort()));
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet1);
+
+      final ServerSet serverSet2 =
+           new SingleServerSet("127.0.0.1", ds2.getListenPort());
+      pool.setServerSet(serverSet2);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet2);
 
 
       // Make sure that the existing connection is still connected to ds1.
@@ -475,6 +483,8 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
       catch (final LDAPSDKUsageException e)
       {
         // This was expected.
+        assertNotNull(pool.getServerSet());
+        assertSame(pool.getServerSet(), serverSet2);
       }
 
 
@@ -486,7 +496,11 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Set the server set so that new connections will be established to ds3.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds3.getListenPort()));
+      final ServerSet serverSet3 =
+           new SingleServerSet("127.0.0.1", ds3.getListenPort());
+      pool.setServerSet(serverSet3);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet3);
 
 
       // Make sure that new connections are established to ds3.
@@ -547,7 +561,13 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Update the server so that new connections will be established to ds2.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds2.getListenPort()));
+      assertNotNull(pool.getServerSet());
+
+      final ServerSet serverSet2 =
+           new SingleServerSet("127.0.0.1", ds2.getListenPort());
+      pool.setServerSet(serverSet2);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet2);
 
 
       // Make sure that the existing connection is still connected to ds1.
@@ -571,6 +591,8 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
       catch (final LDAPSDKUsageException e)
       {
         // This was expected.
+        assertNotNull(pool.getServerSet());
+        assertSame(pool.getServerSet(), serverSet2);
       }
 
 
@@ -582,7 +604,11 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Set the server set so that new connections will be established to ds3.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds3.getListenPort()));
+      final ServerSet serverSet3 =
+           new SingleServerSet("127.0.0.1", ds3.getListenPort());
+      pool.setServerSet(serverSet3);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet3);
 
 
       // Make sure that new connections are established to ds3.
@@ -630,9 +656,10 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     ds3.startListening();
 
 
+    final ServerSet serverSet1 =
+         new SingleServerSet("127.0.0.1", ds1.getListenPort());
     try (LDAPThreadLocalConnectionPool pool =
-              new LDAPThreadLocalConnectionPool(
-                   new SingleServerSet("127.0.0.1", ds1.getListenPort()),
+              new LDAPThreadLocalConnectionPool(serverSet1,
                    new SimpleBindRequest("cn=Directory Manager", "password")))
     {
       // Make sure that the connection is initially established to ds1.
@@ -642,7 +669,14 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Update the server so that new connections will be established to ds2.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds2.getListenPort()));
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet1);
+
+      final ServerSet serverSet2 =
+           new SingleServerSet("127.0.0.1", ds2.getListenPort());
+      pool.setServerSet(serverSet2);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet2);
 
 
       // Make sure that the existing connection is still connected to ds1.
@@ -666,6 +700,8 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
       catch (final LDAPSDKUsageException e)
       {
         // This was expected.
+        assertNotNull(pool.getServerSet());
+        assertSame(pool.getServerSet(), serverSet2);
       }
 
 
@@ -677,7 +713,11 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Set the server set so that new connections will be established to ds3.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds3.getListenPort()));
+      final ServerSet serverSet3 =
+           new SingleServerSet("127.0.0.1", ds3.getListenPort());
+      pool.setServerSet(serverSet3);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet3);
 
 
       // Make sure that new connections are established to ds3.
@@ -739,7 +779,13 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Update the server so that new connections will be established to ds2.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds2.getListenPort()));
+      assertNotNull(pool.getServerSet());
+
+      final ServerSet serverSet2 =
+           new SingleServerSet("127.0.0.1", ds2.getListenPort());
+      pool.setServerSet(serverSet2);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet2);
 
 
       // Make sure that the existing connection is still connected to ds1.
@@ -763,6 +809,8 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
       catch (final LDAPSDKUsageException e)
       {
         // This was expected.
+        assertNotNull(pool.getServerSet());
+        assertSame(pool.getServerSet(), serverSet2);
       }
 
 
@@ -774,7 +822,11 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
       // Set the server set so that new connections will be established to ds3.
-      pool.setServerSet(new SingleServerSet("127.0.0.1", ds3.getListenPort()));
+      final ServerSet serverSet3 =
+           new SingleServerSet("127.0.0.1", ds3.getListenPort());
+      pool.setServerSet(serverSet3);
+      assertNotNull(pool.getServerSet());
+      assertSame(pool.getServerSet(), serverSet3);
 
 
       // Make sure that new connections are established to ds3.
