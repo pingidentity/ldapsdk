@@ -4,14 +4,14 @@
 
 Network Working Group                                   A. Melnikov, Ed.
 Internet-Draft                                                 Isode Ltd
-Updates: 5802, 7677 (if approved)                        25 October 2021
+Updates: 5802, 7677 (if approved)                        13 January 2023
 Intended status: Standards Track                                        
-Expires: 28 April 2022
+Expires: 17 July 2023
 
 
 Salted Challenge Response Authentication Mechanism (SCRAM) SASL and GSS-
                              API Mechanisms
-                      draft-melnikov-scram-bis-00
+                      draft-melnikov-scram-bis-02
 
 Abstract
 
@@ -35,11 +35,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 April 2022.
+   This Internet-Draft will expire on 17 July 2023.
 
 Copyright Notice
 
-   Copyright (c) 2021 IETF Trust and the persons identified as the
+   Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -47,15 +47,15 @@ Copyright Notice
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 
 
-Melnikov                  Expires 28 April 2022                 [Page 1]
+Melnikov                  Expires 17 July 2023                  [Page 1]
 
-Internet-Draft                 SASL SCRAM                   October 2021
+Internet-Draft                 SASL SCRAM                   January 2023
 
 
 Table of Contents
@@ -82,17 +82,17 @@ Table of Contents
    SHA-1 (and SCRAM-SHA-1-PLUS).  [RFC7677] described another
    instantiation using SHA-256 hash function (SCRAM-SHA-256 and SCRAM-
    SHA-256-PLUS) and also clarified conditions for using the mandatory-
-   to-implement "tls-unique" channel binding with TLS 1.2.
-   [tls-1.3-channel-binding] defines the "tls-exporter" channel binding
-   that is to be used when a SCRAM mechanism is used over TLS 1.3
-   [RFC8446] or later.
+   to-implement "tls-unique" channel binding with TLS 1.2.  [RFC9266]
+   defines the "tls-exporter" channel binding that is to be used when a
+   SCRAM mechanism is used over TLS 1.3 [RFC8446] or later.
 
    [I-D.melnikov-scram-sha-512] and [I-D.melnikov-scram-sha3-512] define
    further instantiations of SCRAM using SHA-512 and SHA3-512 hash
    functions respectively.
 
-   [I-D.melnikov-scram-2fa] defines an extension to SCRAM for two factor
-   authentication.  It is applicable to all instantiations of SCRAM.
+   [I-D.kitten-scram-2fa] defines an extension to SCRAM for two factor
+   authentication.  It is applicable to all instantiations of SCRAM with
+   different hash algorightms.
 
 2.  Key Word Definitions
 
@@ -109,24 +109,21 @@ Table of Contents
 
 
 
-Melnikov                  Expires 28 April 2022                 [Page 2]
+Melnikov                  Expires 17 July 2023                  [Page 2]
 
-Internet-Draft                 SASL SCRAM                   October 2021
+Internet-Draft                 SASL SCRAM                   January 2023
 
 
 3.  Implementation Recommendations
 
-   [[Might need to rephrase this, depending on what the final version of
-   "tls-1.3-channel-binding" says.]] This document updates [RFC5802] and
-   [RFC7677] to use the "tls-exporter" channel binding
-   [tls-1.3-channel-binding] as the mandatory to implement (instead of
+   [RFC9266] document updated [RFC5802] and [RFC7677] to use the "tls-
+   exporter" channel binding as the mandatory to implement (instead of
    "tls-unique") when a SCRAM mechanism is used over TLS 1.3 [RFC8446]
    or later.
 
    [[Discuss if rough consensus can be reached on this in the KITTEN
-   WG.]] All SCRAM implementations SHOULD support
-   [I-D.melnikov-scram-2fa] to allow for two factor authentication with
-   SCRAM.
+   WG.]] All SCRAM implementations SHOULD support [I-D.kitten-scram-2fa]
+   to allow for two factor authentication with SCRAM.
 
    [[Possibly narrow down choices to only one of these.  Discuss in the
    KITTEN WG.]] Unless required for backward compatibility, server and
@@ -134,6 +131,10 @@ Internet-Draft                 SASL SCRAM                   October 2021
    [I-D.melnikov-scram-sha-512] and/or SCRAM-SHA3-512-PLUS/SCRAM-
    SHA3-512 [I-D.melnikov-scram-sha3-512] instead of SCRAM-SHA-1-PLUS/
    SCRAM-SHA-1 [RFC5802].
+
+   [RFC5803] describes how SCRAM hashes can be stored in LDAP.  It is
+   compatible with all versions of SCRAM described in this document,
+   including SCRAM-SHA-256, SCRAM-SHA-512 and SCRAM-SHA3-512.
 
 4.  Security Considerations
 
@@ -144,11 +145,9 @@ Internet-Draft                 SASL SCRAM                   October 2021
    resumption MUST NOT have been used.  When using SCRAM over TLS 1.2
    [RFC5246], the "tls-unique" channel binding is still the default
    channel binding to use (see Section 6.1 of [RFC5802]), assuming the
-   above conditions are satisfied.  As "tls-unique" channel binding is
-   not defined for TLS 1.3 [RFC8446], when using SCRAM over TLS 1.3, the
-   "tls-exporter" channel binding [tls-1.3-channel-binding] MUST be the
-   default channel binding (in the sense specified in Section 6.1 of
-   [RFC5802]) to use.
+   above conditions are satisfied.  When using SCRAM over TLS 1.3
+   [RFC8446], the "tls-exporter" channel binding [RFC9266] is the
+   default (in the sense specified in Section 6.1 of [RFC5802]) to use.
 
    See [RFC4270] and [RFC6194] for reasons to move from SHA-1 to a
    strong security mechanism like SHA-512.
@@ -162,15 +161,15 @@ Internet-Draft                 SASL SCRAM                   October 2021
    gives around 15,000 iterations required; however, a hash iteration-
    count of 10000 takes around 0.5 seconds on current mobile handsets.
    This computational cost can be avoided by caching the ClientKey
-
-
-
-Melnikov                  Expires 28 April 2022                 [Page 3]
-
-Internet-Draft                 SASL SCRAM                   October 2021
-
-
    (assuming the Salt and hash iteration-count is stable).  Therefore,
+
+
+
+Melnikov                  Expires 17 July 2023                  [Page 3]
+
+Internet-Draft                 SASL SCRAM                   January 2023
+
+
    the recommendation of this specification is that the hash iteration-
    count SHOULD be at least 10000, but careful consideration ought to be
    given to using a significantly higher value, particularly where
@@ -208,23 +207,30 @@ Internet-Draft                 SASL SCRAM                   October 2021
               DOI 10.17487/RFC5802, July 2010,
               <https://www.rfc-editor.org/info/rfc5802>.
 
-   [RFC6234]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
-              (SHA and SHA-based HMAC and HKDF)", RFC 6234,
-              DOI 10.17487/RFC6234, May 2011,
+   [RFC5803]  Melnikov, A., "Lightweight Directory Access Protocol
+              (LDAP) Schema for Storing Salted Challenge Response
+              Authentication Mechanism (SCRAM) Secrets", RFC 5803,
+              DOI 10.17487/RFC5803, July 2010,
+              <https://www.rfc-editor.org/info/rfc5803>.
+
+   [RFC6234]  Eastlake 3rd, D., Hansen, T., and RFC Publisher, "US
+              Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)",
+              RFC 6234, DOI 10.17487/RFC6234, May 2011,
               <https://www.rfc-editor.org/info/rfc6234>.
+
+
+
+
+Melnikov                  Expires 17 July 2023                  [Page 4]
+
+Internet-Draft                 SASL SCRAM                   January 2023
+
 
    [RFC7627]  Bhargavan, K., Ed., Delignat-Lavaud, A., Pironti, A.,
               Langley, A., and M. Ray, "Transport Layer Security (TLS)
               Session Hash and Extended Master Secret Extension",
               RFC 7627, DOI 10.17487/RFC7627, September 2015,
               <https://www.rfc-editor.org/info/rfc7627>.
-
-
-
-Melnikov                  Expires 28 April 2022                 [Page 4]
-
-Internet-Draft                 SASL SCRAM                   October 2021
-
 
    [RFC7677]  Hansen, T., "SCRAM-SHA-256 and SCRAM-SHA-256-PLUS Simple
               Authentication and Security Layer (SASL) Mechanisms",
@@ -239,19 +245,16 @@ Internet-Draft                 SASL SCRAM                   October 2021
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/info/rfc8446>.
 
-   [tls-1.3-channel-binding]
-              Whited, S., "Channel Bindings for TLS 1.3", Work in
-              Progress, Internet-Draft, draft-ietf-kitten-tls-channel-
-              bindings-for-tls13-11, 18 October 2021,
-              <https://www.ietf.org/archive/id/draft-ietf-kitten-tls-
-              channel-bindings-for-tls13-11.txt>.
+   [RFC9266]  Whited, S., "Channel Bindings for TLS 1.3", RFC 9266,
+              DOI 10.17487/RFC9266, July 2022,
+              <https://www.rfc-editor.org/info/rfc9266>.
 
-   [I-D.melnikov-scram-2fa]
+   [I-D.kitten-scram-2fa]
               Melnikov, A., "Extensions to Salted Challenge Response
               (SCRAM) for 2 factor authentication", Work in Progress,
-              Internet-Draft, draft-melnikov-scram-2fa-03, 24 May 2021,
-              <https://www.ietf.org/archive/id/draft-melnikov-scram-2fa-
-              03.txt>.
+              Internet-Draft, draft-ietf-kitten-scram-2fa-02, 13 January
+              2023, <https://www.ietf.org/archive/id/draft-ietf-kitten-
+              scram-2fa-02.txt>.
 
    [I-D.melnikov-scram-sha-512]
               Melnikov, A., "SCRAM-SHA-512 and SCRAM-SHA-512-PLUS Simple
@@ -270,17 +273,19 @@ Internet-Draft                 SASL SCRAM                   October 2021
 
 6.2.  Informative References
 
+
+
+
+
+Melnikov                  Expires 17 July 2023                  [Page 5]
+
+Internet-Draft                 SASL SCRAM                   January 2023
+
+
    [RFC4270]  Hoffman, P. and B. Schneier, "Attacks on Cryptographic
               Hashes in Internet Protocols", RFC 4270,
               DOI 10.17487/RFC4270, November 2005,
               <https://www.rfc-editor.org/info/rfc4270>.
-
-
-
-Melnikov                  Expires 28 April 2022                 [Page 5]
-
-Internet-Draft                 SASL SCRAM                   October 2021
-
 
    [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
               IANA Considerations Section in RFCs", RFC 5226,
@@ -306,7 +311,6 @@ Author's Address
    Hampton
    TW12 2NP
    United Kingdom
-
    Email: alexey.melnikov@isode.com
 
 
@@ -329,8 +333,4 @@ Author's Address
 
 
 
-
-
-
-
-Melnikov                  Expires 28 April 2022                 [Page 6]
+Melnikov                  Expires 17 July 2023                  [Page 6]
