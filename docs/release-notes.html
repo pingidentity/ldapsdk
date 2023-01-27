@@ -40,6 +40,26 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the passphrase-encrypted output stream to use a higher key factory
+                  iteration count by default.  When using the strongest available 256-bit AES
+                  encryption, it now follows the latest OWASP recommendation of 600,000 PBKDF2
+                  iterations.  The key factory iteration count can still be explicitly specified
+                  when creating a new output stream if an alternative iteration count is desired,
+                  and the default iteration count can now be overridden with a system property.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the passphrase-encrypted output stream to make it possible to create a
+                  new output stream with the encryption header from a previously created
+                  encryption header.  This will make it possible to reuse the previously derived
+                  key (with a different initialization vector), which will be substantially faster
+                  when using the same passphrase to encrypt multiple output streams than needing
+                  to re-derive the key for each stream.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated documentation to include the latest versions of
                   draft-howard-gssapi-aead, draft-ietf-kitten-scram-2fa, draft-melnikov-scram-bis,
                   and draft-reitzenstein-kitten-opaque in the set of LDAP-related specifications.

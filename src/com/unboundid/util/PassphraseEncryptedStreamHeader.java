@@ -1077,6 +1077,48 @@ public final class PassphraseEncryptedStreamHeader
 
 
   /**
+   * Creates a copy of this passphrase-encrypted stream header that use a
+   * newly-computed initialization vector.  The new stream header can be used to
+   * create a new passphrase-encrypted output stream that safely leverages an
+   * already computed secret key to dramatically reduce the cost of creating a
+   * new stream from the same underlying passphrase.
+   *
+   * @return  The new passphrase-encrypted stream header that was created.
+   *
+   * @throws  GeneralSecurityException  If a problem occurs while creating a
+   *                                    copy of this passphrase-encrypted stream
+   *                                    header with a new initialization vector.
+   */
+  @NotNull()
+  PassphraseEncryptedStreamHeader withNewCipherInitializationVector()
+       throws GeneralSecurityException
+  {
+    if (secretKey == null)
+    {
+      throw new InvalidKeyException(
+           ERR_PW_ENCRYPTED_STREAM_HEADER_COPY_WITHOUT_SECRET_KEY.get());
+    }
+
+    final byte[] newInitializationVector =
+         new byte[cipherInitializationVector.length];
+    ThreadLocalSecureRandom.get().nextBytes(newInitializationVector);
+
+    final ObjectPair<byte[],byte[]> headerPair = encode(keyFactoryAlgorithm,
+         keyFactoryIterationCount, this.keyFactorySalt, keyFactoryKeyLengthBits,
+         cipherTransformation, newInitializationVector, keyIdentifier,
+         secretKey, macAlgorithm);
+    final byte[] newEncodedHeader = headerPair.getFirst();
+    final byte[] newMACValue = headerPair.getSecond();
+
+    return new PassphraseEncryptedStreamHeader(keyFactoryAlgorithm,
+         keyFactoryIterationCount, keyFactorySalt, keyFactoryKeyLengthBits,
+         cipherTransformation, newInitializationVector, keyIdentifier,
+         secretKey, macAlgorithm, newMACValue, newEncodedHeader);
+  }
+
+
+
+  /**
    * Retrieves a string representation of this passphrase-encrypted stream
    * header.
    *

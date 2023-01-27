@@ -585,7 +585,9 @@ public final class PassphraseEncryptedStreamsTestCase
       assertNotNull(header.getKeyFactoryAlgorithm());
       assertEquals(header.getKeyFactoryAlgorithm(), "PBKDF2WithHmacSHA1");
 
-      assertEquals(header.getKeyFactoryIterationCount(), 16_384);
+      assertEquals(header.getKeyFactoryIterationCount(),
+           PassphraseEncryptionCipherType.AES_128.
+                getKeyFactoryIterationCount());
 
       assertNotNull(header.getKeyFactorySalt());
       assertEquals(header.getKeyFactorySalt().length, 16);
@@ -1114,5 +1116,158 @@ public final class PassphraseEncryptedStreamsTestCase
 
     assertNotNull(header.getKeyIdentifier());
     assertEquals(header.getKeyIdentifier(), "different-key-id");
+  }
+
+
+
+  /**
+   * Tests the behavior when creating a passphrase-encrypted output streams from
+   * an existing passphrase-encrypted stream header, which allows for reusing
+   * the same derived key without the need to recompute it.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDerivedKeyReuse()
+         throws Exception
+  {
+    // Define the data to be encrypted.
+    final List<String> linesToEncrypt = Arrays.asList(
+         "This is some data that will be encrypted.",
+         "So is this.",
+         "And this.");
+
+    // Get the path to a file to which encrypted data will be written.
+    final File encryptedFile = createTempFile();
+    assertTrue(encryptedFile.delete());
+
+
+    // Create the properties that will be used for the encryption.
+    final PassphraseEncryptedOutputStreamProperties properties =
+         new PassphraseEncryptedOutputStreamProperties(
+              PassphraseEncryptionCipherType.getStrongestAvailableCipherType());
+    properties.setKeyIdentifier("the-key-identifier");
+    properties.setWriteHeaderToStream(true);
+
+
+    // Create an initial passphrase-encrypted output stream and use it to
+    // encrypt the data.
+    final PassphraseEncryptedStreamHeader encryptionHeader1;
+    final char[] encryptionPassphrase =
+         "this-is-the-encryption-passphrase".toCharArray();
+    final File outputFile1 = createTempFile();
+    assertTrue(outputFile1.delete());
+    try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile1);
+         PassphraseEncryptedOutputStream encryptedOutputStream =
+              new PassphraseEncryptedOutputStream(encryptionPassphrase,
+                   fileOutputStream, properties);
+         PrintStream printStream = new PrintStream(encryptedOutputStream))
+    {
+      for (final String line : linesToEncrypt)
+      {
+        printStream.println(line);
+      }
+
+      encryptionHeader1 = encryptedOutputStream.getEncryptionHeader();
+    }
+
+
+    // Create a second passphrase-encrypted output stream with the same header
+    // as the first stream and also use it to encrypt the data.
+    final PassphraseEncryptedStreamHeader encryptionHeader2;
+    final File outputFile2 = createTempFile();
+    assertTrue(outputFile2.delete());
+    try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile2);
+         PassphraseEncryptedOutputStream encryptedOutputStream =
+              new PassphraseEncryptedOutputStream(encryptionHeader1,
+                   fileOutputStream, true);
+         PrintStream printStream = new PrintStream(encryptedOutputStream))
+    {
+      for (final String line : linesToEncrypt)
+      {
+        printStream.println(line);
+      }
+
+      encryptionHeader2 = encryptedOutputStream.getEncryptionHeader();
+    }
+
+
+    // Make sure that the two output files are comprised of different sets of
+    // bytes.
+    final byte[] file1Bytes = StaticUtils.readFileBytes(outputFile1);
+    final byte[] file2Bytes = StaticUtils.readFileBytes(outputFile2);
+    assertFalse(Arrays.equals(file1Bytes, file2Bytes));
+
+
+    // Make sure that the two encryption headers are the same, except for the
+    // initialization vector.
+    assertEquals(encryptionHeader1.getKeyFactoryAlgorithm(),
+         encryptionHeader2.getKeyFactoryAlgorithm());
+    assertEquals(encryptionHeader1.getKeyFactoryIterationCount(),
+         encryptionHeader2.getKeyFactoryIterationCount());
+    assertEquals(encryptionHeader1.getKeyFactorySalt(),
+         encryptionHeader2.getKeyFactorySalt());
+    assertEquals(encryptionHeader1.getKeyFactoryKeyLengthBits(),
+         encryptionHeader2.getKeyFactoryKeyLengthBits());
+    assertEquals(encryptionHeader1.getCipherTransformation(),
+         encryptionHeader2.getCipherTransformation());
+    assertEquals(encryptionHeader1.getKeyIdentifier(),
+         encryptionHeader2.getKeyIdentifier());
+    assertEquals(encryptionHeader1.getMACAlgorithm(),
+         encryptionHeader2.getMACAlgorithm());
+    assertFalse(Arrays.equals(encryptionHeader1.getCipherInitializationVector(),
+         encryptionHeader2.getCipherInitializationVector()));
+
+
+    // Make sure that we can decrypt both files with the same passphrase, and
+    // that the decrypted contents are identical.
+    final ArrayList<String> decryptedLines = new ArrayList<>();
+    try (FileInputStream fileInputStream = new FileInputStream(outputFile1);
+         PassphraseEncryptedInputStream encryptedInputStream =
+              new PassphraseEncryptedInputStream(encryptionPassphrase,
+                   fileInputStream);
+         InputStreamReader encryptedStreamReader =
+              new InputStreamReader(encryptedInputStream);
+         BufferedReader bufferedReader =
+              new BufferedReader(encryptedStreamReader))
+    {
+      while (true)
+      {
+        final String line = bufferedReader.readLine();
+        if (line == null)
+        {
+          break;
+        }
+
+        decryptedLines.add(line);
+      }
+
+      assertEquals(decryptedLines, linesToEncrypt);
+    }
+
+
+    decryptedLines.clear();
+    try (FileInputStream fileInputStream = new FileInputStream(outputFile2);
+         PassphraseEncryptedInputStream encryptedInputStream =
+              new PassphraseEncryptedInputStream(encryptionPassphrase,
+                   fileInputStream);
+         InputStreamReader encryptedStreamReader =
+              new InputStreamReader(encryptedInputStream);
+         BufferedReader bufferedReader =
+              new BufferedReader(encryptedStreamReader))
+    {
+      while (true)
+      {
+        final String line = bufferedReader.readLine();
+        if (line == null)
+        {
+          break;
+        }
+
+        decryptedLines.add(line);
+      }
+
+      assertEquals(decryptedLines, linesToEncrypt);
+    }
   }
 }

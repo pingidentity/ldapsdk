@@ -52,16 +52,20 @@ public enum PassphraseEncryptionCipherType
   /**
    * Cipher settings that use a 128-bit AES cipher.
    */
-  AES_128("AES/CBC/PKCS5Padding", 128, "PBKDF2WithHmacSHA1", 16_384, 16, 16,
-       "HmacSHA256"),
+  AES_128("AES/CBC/PKCS5Padding", 128, "PBKDF2WithHmacSHA1",
+       PassphraseEncryptedOutputStream.
+            DEFAULT_AES_128_CIPHER_TYPE_ITERATION_COUNT,
+       16, 16, "HmacSHA256"),
 
 
 
   /**
    * Cipher settings that use a 256-bit AES cipher.
    */
-  AES_256("AES/CBC/PKCS5Padding", 256, "PBKDF2WithHmacSHA512", 131_072, 16, 16,
-       "HmacSHA512");
+  AES_256("AES/CBC/PKCS5Padding", 256, "PBKDF2WithHmacSHA512",
+       PassphraseEncryptedOutputStream.
+            DEFAULT_AES_256_CIPHER_TYPE_ITERATION_COUNT,
+       16, 16, "HmacSHA512");
 
 
 

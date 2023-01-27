@@ -84,6 +84,90 @@ import javax.crypto.CipherOutputStream;
 public final class PassphraseEncryptedOutputStream
      extends OutputStream
 {
+  /**
+   * The default PBKDF2 iteration count that should be used for the
+   * {@link PassphraseEncryptionCipherType#AES_128} cipher type.
+   */
+  public static final int DEFAULT_AES_128_CIPHER_TYPE_ITERATION_COUNT;
+
+
+
+  /**
+   * The default PBKDF2 iteration count that should be used for the
+   * {@link PassphraseEncryptionCipherType#AES_256} cipher type.
+   */
+  public static final int DEFAULT_AES_256_CIPHER_TYPE_ITERATION_COUNT;
+
+
+
+  /**
+   * The name of a system property that can be used to override the default
+   * PBKDF2 iteration count for the
+   * {@link PassphraseEncryptionCipherType#AES_128} cipher type.
+   */
+  @NotNull public static final String
+       PROPERTY_DEFAULT_AES_128_CIPHER_TYPE_ITERATION_COUNT =
+            PassphraseEncryptedOutputStream.class.getName() +
+                 ".defaultAES128CipherTypeIterationCount";
+
+
+
+  /**
+   * The name of a system property that can be used to override the default
+   * PBKDF2 iteration count for the
+   * {@link PassphraseEncryptionCipherType#AES_256} cipher type.
+   */
+  @NotNull public static final String
+       PROPERTY_DEFAULT_AES_256_CIPHER_TYPE_ITERATION_COUNT =
+            PassphraseEncryptedOutputStream.class.getName() +
+                 ".defaultAES256CipherTypeIterationCount";
+
+
+
+  static
+  {
+    int defaultAES128IterationCount = 100_000;
+    final String defaultAES128IterationCountPropertyValue =
+         StaticUtils.setSystemProperty(
+              PROPERTY_DEFAULT_AES_128_CIPHER_TYPE_ITERATION_COUNT, null);
+    if (defaultAES128IterationCountPropertyValue != null)
+    {
+      try
+      {
+        defaultAES128IterationCount =
+             Integer.parseInt(defaultAES128IterationCountPropertyValue);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    DEFAULT_AES_128_CIPHER_TYPE_ITERATION_COUNT = defaultAES128IterationCount;
+
+
+    int defaultAES256IterationCount = 600_000;
+    final String defaultAES256IterationCountPropertyValue =
+         StaticUtils.setSystemProperty(
+              PROPERTY_DEFAULT_AES_256_CIPHER_TYPE_ITERATION_COUNT, null);
+    if (defaultAES256IterationCountPropertyValue != null)
+    {
+      try
+      {
+        defaultAES256IterationCount =
+             Integer.parseInt(defaultAES256IterationCountPropertyValue);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    DEFAULT_AES_256_CIPHER_TYPE_ITERATION_COUNT = defaultAES256IterationCount;
+  }
+
+
+
   // The cipher output stream that will be used to actually write the
   // encrypted output.
   @NotNull private final CipherOutputStream cipherOutputStream;
@@ -527,6 +611,58 @@ public final class PassphraseEncryptedOutputStream
     final Cipher cipher = encryptionHeader.createCipher(Cipher.ENCRYPT_MODE);
 
     if (properties.writeHeaderToStream())
+    {
+      encryptionHeader.writeTo(wrappedOutputStream);
+    }
+
+    cipherOutputStream = new CipherOutputStream(wrappedOutputStream, cipher);
+  }
+
+
+
+  /**
+   * Creates a new passphrase-encrypted output stream that wraps the provided
+   * output stream and reuses the same derived secret key as the given
+   * stream header (although with a newly computed initialization vector).  This
+   * can dramatically reduce the cost of creating a new passphrase-encrypted
+   * output stream with the same underlying password and settings without the
+   * need to recompute the key.
+   *
+   * @param  header
+   *              The existing passphrase-encrypted stream header that contains
+   *              the details to use for the encryption.  It must not be
+   *              {@code null}, and it must have an associated secret key.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  writeHeaderToStream
+   *              Indicates whether to write the generated
+   *              {@link PassphraseEncryptedStreamHeader} to the provided
+   *              {@code wrappedOutputStream} before any encrypted data so that
+   *              a {@link PassphraseEncryptedInputStream} can read it to obtain
+   *              information necessary for decrypting the data.  If this is
+   *              {@code false}, then the {@link #getEncryptionHeader()} method
+   *              must be used to obtain the encryption header so that it can be
+   *              stored elsewhere and provided to the
+   *              {@code PassphraseEncryptedInputStream} constructor.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    initializing the encryption.
+   *
+   * @throws  IOException  If a problem is encountered while writing the
+   *                       encryption header to the underlying output stream.
+   */
+  public PassphraseEncryptedOutputStream(
+              @NotNull final PassphraseEncryptedStreamHeader header,
+              @NotNull final OutputStream wrappedOutputStream,
+final boolean writeHeaderToStream)
+         throws GeneralSecurityException, IOException
+  {
+    encryptionHeader = header.withNewCipherInitializationVector();
+
+    final Cipher cipher = encryptionHeader.createCipher(Cipher.ENCRYPT_MODE);
+    if (writeHeaderToStream)
     {
       encryptionHeader.writeTo(wrappedOutputStream);
     }
