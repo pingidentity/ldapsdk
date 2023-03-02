@@ -1,0 +1,273 @@
+﻿
+
+
+
+Internet Engineering Task Force (IETF)                          A. Baber
+Request for Comments: 9371                                          IANA
+Category: Informational                                       P. Hoffman
+ISSN: 2070-1721                                                    ICANN
+                                                              March 2023
+
+
+     Registration Procedures for Private Enterprise Numbers (PENs)
+
+Abstract
+
+   This document describes how Private Enterprise Numbers (PENs) are
+   registered by IANA.  It shows how to request a new PEN and how to
+   modify a current PEN.  It also gives a brief overview of PEN uses.
+
+Status of This Memo
+
+   This document is not an Internet Standards Track specification; it is
+   published for informational purposes.
+
+   This document is a product of the Internet Engineering Task Force
+   (IETF).  It represents the consensus of the IETF community.  It has
+   received public review and has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Not all documents
+   approved by the IESG are candidates for any level of Internet
+   Standard; see Section 2 of RFC 7841.
+
+   Information about the current status of this document, any errata,
+   and how to provide feedback on it may be obtained at
+   https://www.rfc-editor.org/info/rfc9371.
+
+Copyright Notice
+
+   Copyright (c) 2023 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Revised BSD License text as described in Section 4.e of the
+   Trust Legal Provisions and are provided without warranty as described
+   in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Uses of PENs
+   2.  PEN Assignment
+     2.1.  Requesting a PEN Assignment
+     2.2.  Modifying an Existing Record
+     2.3.  Deleting a PEN Record
+   3.  PEN Registry Specifics
+   4.  IANA Considerations
+   5.  Security Considerations
+   6.  References
+     6.1.  Normative References
+     6.2.  Informative References
+   Acknowledgements
+   Authors' Addresses
+
+1.  Introduction
+
+   Private Enterprise Numbers (PENs) are identifiers that can be used
+   anywhere that an ASN.1 object identifier (OID) [ASN1] can be used.
+   Originally, PENs were developed so that organizations that needed to
+   identify themselves in Simple Network Management Protocol (SNMP)
+   [RFC3411] Management Information Base (MIB) configurations could do
+   so easily.  PENs are also useful in any application or configuration
+   language that needs OIDs to identify organizations.
+
+   The IANA Functions Operator, referred to in this document as "IANA",
+   manages and maintains the PEN registry in consultation with the IESG.
+   PENs are issued from an OID prefix that was assigned to IANA.  That
+   OID prefix is 1.3.6.1.4.1.  Using the (now archaic) notation of
+   ownership names in the OID tree, that corresponds to:
+
+   1   3   6   1        4       1
+   iso.org.dod.internet.private.enterprise
+
+   A PEN is an OID that begins with the PEN prefix.  Thus, the OID
+   1.3.6.1.4.1.32473 is a PEN.
+
+1.1.  Uses of PENs
+
+   Once a PEN has been assigned to an organization, individual, or other
+   entity, that assignee can use the PEN by itself (possibly to
+   represent the assignee) or as the root of other OIDs associated with
+   the assignee.  For example, if an assignee is assigned the PEN
+   1.3.6.1.4.1.32473, it might use 1.3.6.1.4.1.32473.7 to identify a
+   protocol extension and use 1.3.6.1.4.1.32473.12.3 to identify a set
+   of algorithms that it supports in a protocol.
+
+   Neither IANA nor the IETF can control how an assignee uses its PEN.
+   In fact, no one can exert such control: that is the meaning of
+   "private" in "private enterprise number".  Similarly, no one can
+   prevent an assignee that is not the registered owner of a PEN from
+   using that PEN, or any PEN, however they want.
+
+   A very common use of PENs is to give unique identifiers in IETF
+   protocols.  SNMP MIB configuration files use PENs for identifying the
+   origin of values.  Protocols that use PENs as identifiers of
+   extension mechanisms include RADIUS [RFC2865], Diameter [RFC6733],
+   Syslog [RFC5424], RSVP [RFC5284], and vCard [RFC6350].
+
+2.  PEN Assignment
+
+   PENs are assigned by IANA.  The registry is located at
+   <https://www.iana.org/assignments/enterprise-numbers>, and requests
+   for new assignments or the modification of existing assignments can
+   also be submitted at that URL.
+
+   IANA maintains the PEN registry in accordance with the "First Come
+   First Served" registration policy described in [RFC8126].  Values are
+   assigned sequentially.
+
+2.1.  Requesting a PEN Assignment
+
+   Requests for assignment must provide the name of the assignee, the
+   name of a public contact who can respond to questions about the
+   assignment, and contact information that can be used to verify change
+   requests.  The contact's name and email address will be included in
+   the public registry.
+
+   A prospective assignee may request multiple PENs, but obtaining one
+   PEN and making internal sub-assignments is typically more
+   appropriate.  (Sub-assignments should not be reported to IANA.)
+
+   IANA may refuse to process abusive requests.
+
+2.2.  Modifying an Existing Record
+
+   Any of the information associated with a registered value can be
+   modified, including the name of the assignee.
+
+   Modification requests require authorization by a representative of
+   the assignee.  Authorization will be validated either with
+   information kept on file with IANA or with other identifying
+   documentation, if necessary.
+
+2.3.  Deleting a PEN Record
+
+   Although such requests are rare, registrations can be deleted.  When
+   a registration is deleted, all identifying information is removed
+   from the registry, and the value is marked as "returned."  Returned
+   values will not be made available for reassignment until all other
+   unassigned values have been exhausted; as can be seen in Section 3,
+   the unassigned values are unlikely to ever run out.
+
+3.  PEN Registry Specifics
+
+   The range for values after the PEN prefix is 0 to 2**32-1.  The
+   values 0 and 4294967295 (2**32-1) are reserved.  Note that while the
+   original PEN definition had no upper bound for the value after the
+   PEN prefix, there is now an upper bound due to some IETF protocols
+   limiting the size of that value.  For example, Diameter [RFC6733]
+   limits the value to 2**32-1.
+
+   There is a PEN number, 32473, reserved for use as an example in
+   documentation.  This reservation is described in [RFC5612].
+
+   Values in the registry that have unclear ownership are marked
+   "Reserved".  These values will not be reassigned to a new company or
+   individual without consulting the IESG.
+
+4.  IANA Considerations
+
+   Per this document, IANA has made the following changes to the PEN
+   registry:
+
+   *  Values 2187, 2188, 3513, 4164, 4565, 4600, 4913, 4999, 5099, 5144,
+      5201, 5683, 5777, 6260, 6619, 14827, 16739, 26975, and the range
+      from 11670 to 11769, which had been missing from the registry,
+      have been listed as "Reserved."  As described in [RFC8126],
+      reserved values can be released by the IESG.
+
+   *  This document has been listed in the registry's "Reference" field.
+
+   *  "First Come First Served" has been listed as its registration
+      procedure.
+
+5.  Security Considerations
+
+   Registering PENs does not introduce any significant security
+   considerations.
+
+   There is no cryptographic binding of a registrant in the PEN registry
+   and the PEN(s) assigned to them.  Thus, the entries in the PEN
+   registry cannot be used to validate the ownership of a PEN in use.
+   For example, if the PEN 1.3.6.1.4.1.32473 is seen in a protocol as
+   indicating the owner of some data, there is no way to securely
+   correlate that use with the name and assignee of the owner listed in
+   the PEN registry.
+
+6.  References
+
+6.1.  Normative References
+
+   [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
+              Writing an IANA Considerations Section in RFCs", BCP 26,
+              RFC 8126, DOI 10.17487/RFC8126, June 2017,
+              <https://www.rfc-editor.org/info/rfc8126>.
+
+6.2.  Informative References
+
+   [ASN1]     ITU-T, "Information technology - ASN.1 encoding rules:
+              Specification of Basic Encoding Rules (BER), Canonical
+              Encoding Rules (CER) and Distinguished Encoding Rules
+              (DER)", ITU-T Recommendation X.690, February 2021,
+              <https://www.itu.int/rec/T-REC-X.690/en>.
+
+   [RFC2865]  Rigney, C., Willens, S., Rubens, A., and W. Simpson,
+              "Remote Authentication Dial In User Service (RADIUS)",
+              RFC 2865, DOI 10.17487/RFC2865, June 2000,
+              <https://www.rfc-editor.org/info/rfc2865>.
+
+   [RFC3411]  Harrington, D., Presuhn, R., and B. Wijnen, "An
+              Architecture for Describing Simple Network Management
+              Protocol (SNMP) Management Frameworks", STD 62, RFC 3411,
+              DOI 10.17487/RFC3411, December 2002,
+              <https://www.rfc-editor.org/info/rfc3411>.
+
+   [RFC5284]  Swallow, G. and A. Farrel, "User-Defined Errors for RSVP",
+              RFC 5284, DOI 10.17487/RFC5284, August 2008,
+              <https://www.rfc-editor.org/info/rfc5284>.
+
+   [RFC5424]  Gerhards, R., "The Syslog Protocol", RFC 5424,
+              DOI 10.17487/RFC5424, March 2009,
+              <https://www.rfc-editor.org/info/rfc5424>.
+
+   [RFC5612]  Eronen, P. and D. Harrington, "Enterprise Number for
+              Documentation Use", RFC 5612, DOI 10.17487/RFC5612, August
+              2009, <https://www.rfc-editor.org/info/rfc5612>.
+
+   [RFC6350]  Perreault, S., "vCard Format Specification", RFC 6350,
+              DOI 10.17487/RFC6350, August 2011,
+              <https://www.rfc-editor.org/info/rfc6350>.
+
+   [RFC6733]  Fajardo, V., Ed., Arkko, J., Loughney, J., and G. Zorn,
+              Ed., "Diameter Base Protocol", RFC 6733,
+              DOI 10.17487/RFC6733, October 2012,
+              <https://www.rfc-editor.org/info/rfc6733>.
+
+Acknowledgements
+
+   An earlier draft version of this document was authored by Pearl Liang
+   and Alexey Melnikov.  Additional significant contributions have come
+   from Dan Romascanu, Bert Wijnen, David Conrad, Michelle Cotton, and
+   Benoit Claise.
+
+Authors' Addresses
+
+   Amanda Baber
+   Internet Assigned Numbers Authority
+   PTI/ICANN
+   12025 Waterfront Drive
+   Los Angeles,  90094
+   United States of America
+   Email: amanda.baber@iana.org
+
+
+   Paul Hoffman
+   ICANN
+   12025 Waterfront Drive
+   Los Angeles,  90094
+   United States of America
+   Email: paul.hoffman@icann.org

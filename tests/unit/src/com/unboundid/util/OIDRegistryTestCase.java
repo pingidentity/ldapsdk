@@ -320,6 +320,17 @@ public final class OIDRegistryTestCase
            "reference to the appropriate specification.");
       w.println(baseIndent + "</p>");
       w.println();
+      w.println(baseIndent + "<p>");
+      w.println(baseIndent + "  If you need to define OIDs for your own use " +
+           "(for example, for defining custom attribute types or object " +
+           "classes), you may use the <a " +
+           "href=\"https://www.iana.org/assignments/enterprise-numbers/\" " +
+           "target=\"_blank\">IANA Private Enterprise Numbers (PENs) " +
+           "registry</a> provides an option to request an official OID base, " +
+           "as per <a href=\"${BASE}specs/rfc9371.txt\" " +
+           "target=\"_blank\">RFC 9371</a>.");
+      w.println(baseIndent + "</p>");
+      w.println();
       w.println(baseIndent + "<table border=\"1\" cellpadding=\"5\" " +
            "cellspacing=\"0\">");
       w.println(baseIndent + "  <tr>");
