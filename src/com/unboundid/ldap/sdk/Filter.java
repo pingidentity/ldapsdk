@@ -441,6 +441,46 @@ public final class Filter
 
   /**
    * Creates a new AND search filter with the provided components.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createANDFilter(Filter...)}, but with a shorter method name for
+   * convenience.
+   *
+   * @param  andComponents  The set of filter components to include in the AND
+   *                        filter.  It must not be {@code null}.
+   *
+   * @return  The created AND search filter.
+   */
+  @NotNull()
+  public static Filter and(@NotNull final Filter... andComponents)
+  {
+    return createANDFilter(andComponents);
+  }
+
+
+
+  /**
+   * Creates a new AND search filter with the provided components.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createANDFilter(Collection)}, but with a shorter method name for
+   * convenience.
+   *
+   * @param  andComponents  The set of filter components to include in the AND
+   *                        filter.  It must not be {@code null}.
+   *
+   * @return  The created AND search filter.
+   */
+  @NotNull()
+  public static Filter and(@NotNull final Collection<Filter> andComponents)
+  {
+    return createANDFilter(andComponents);
+  }
+
+
+
+  /**
+   * Creates a new AND search filter with the provided components.
    *
    * @param  andComponents  The set of filter components to include in the AND
    *                        filter.  It must not be {@code null}.
@@ -496,6 +536,46 @@ public final class Filter
     return new Filter(null, FILTER_TYPE_AND,
                       andComponents.toArray(new Filter[andComponents.size()]),
                       null, null, null, null, NO_SUB_ANY, null, null, false);
+  }
+
+
+
+  /**
+   * Creates a new OR search filter with the provided components.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createORFilter(Filter...)}, but with a shorter method name for
+   * convenience.
+   *
+   * @param  orComponents  The set of filter components to include in the OR
+   *                       filter.  It must not be {@code null}.
+   *
+   * @return  The created OR search filter.
+   */
+  @NotNull()
+  public static Filter or(@NotNull final Filter... orComponents)
+  {
+    return createORFilter(orComponents);
+  }
+
+
+
+  /**
+   * Creates a new OR search filter with the provided components.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createORFilter(Collection)}, but with a shorter method name for
+   * convenience.
+   *
+   * @param  orComponents  The set of filter components to include in the OR
+   *                       filter.  It must not be {@code null}.
+   *
+   * @return  The created OR search filter.
+   */
+  @NotNull()
+  public static Filter or(@NotNull final Collection<Filter> orComponents)
+  {
+    return createORFilter(orComponents);
   }
 
 
@@ -562,6 +642,26 @@ public final class Filter
 
   /**
    * Creates a new NOT search filter with the provided component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createNOTFilter(Filter)}, but with a shorter method name for
+   * convenience.
+   *
+   * @param  notComponent  The filter component to include in this NOT filter.
+   *                       It must not be {@code null}.
+   *
+   * @return  The created NOT search filter.
+   */
+  @NotNull()
+  public static Filter not(@NotNull final Filter notComponent)
+  {
+    return createNOTFilter(notComponent);
+  }
+
+
+
+  /**
+   * Creates a new NOT search filter with the provided component.
    *
    * @param  notComponent  The filter component to include in this NOT filter.
    *                       It must not be {@code null}.
@@ -575,6 +675,52 @@ public final class Filter
 
     return new Filter(null, FILTER_TYPE_NOT, NO_FILTERS, notComponent, null,
                       null, null, NO_SUB_ANY, null, null, false);
+  }
+
+
+
+  /**
+   * Creates a new equality search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createEqualityFilter(String,String)}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName   The attribute name for this equality filter.  It
+   *                         must not be {@code null}.
+   * @param  assertionValue  The assertion value for this equality filter.  It
+   *                         must not be {@code null}.
+   *
+   * @return  The created equality search filter.
+   */
+  @NotNull()
+  public static Filter equals(@NotNull final String attributeName,
+                              @NotNull final String assertionValue)
+  {
+    return createEqualityFilter(attributeName, assertionValue);
+  }
+
+
+
+  /**
+   * Creates a new equality search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createEqualityFilter(String,byte[])}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName   The attribute name for this equality filter.  It
+   *                         must not be {@code null}.
+   * @param  assertionValue  The assertion value for this equality filter.  It
+   *                         must not be {@code null}.
+   *
+   * @return  The created equality search filter.
+   */
+  @NotNull()
+  public static Filter equals(@NotNull final String attributeName,
+                              @NotNull final byte[] assertionValue)
+  {
+    return createEqualityFilter(attributeName, assertionValue);
   }
 
 
@@ -644,6 +790,64 @@ public final class Filter
     return new Filter(null, FILTER_TYPE_EQUALITY, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
                       null, false);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with the provided information.  At
+   * least one of the subInitial, subAny, and subFinal components must not be
+   * {@code null}.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubstringFilter(String,String,String[],String)}, but with a
+   * shorter method name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subInitial     The subInitial component for this substring filter.
+   * @param  subAny         The set of subAny components for this substring
+   *                        filter.
+   * @param  subFinal       The subFinal component for this substring filter.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter substring(@NotNull final String attributeName,
+                                 @Nullable final String subInitial,
+                                 @Nullable final String[] subAny,
+                                 @Nullable final String subFinal)
+  {
+    return createSubstringFilter(attributeName, subInitial, subAny, subFinal);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with the provided information.  At
+   * least one of the subInitial, subAny, and subFinal components must not be
+   * {@code null}.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubstringFilter(String,byte[],byte[][],byte[])}, but with a
+   * shorter method name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subInitial     The subInitial component for this substring filter.
+   * @param  subAny         The set of subAny components for this substring
+   *                        filter.
+   * @param  subFinal       The subFinal component for this substring filter.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter substring(@NotNull final String attributeName,
+                                 @Nullable final byte[] subInitial,
+                                 @Nullable final byte[][] subAny,
+                                 @Nullable final byte[] subFinal)
+  {
+    return createSubstringFilter(attributeName, subInitial, subAny, subFinal);
   }
 
 
@@ -826,6 +1030,54 @@ public final class Filter
   /**
    * Creates a new substring search filter with only a subInitial (starts with)
    * component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubInitialFilter(String,String)}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subInitial     The subInitial component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter subInitial(@NotNull final String attributeName,
+                                  @NotNull final String subInitial)
+  {
+    return createSubInitialFilter(attributeName, subInitial);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subInitial (starts with)
+   * component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubInitialFilter(String,byte[])}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subInitial     The subInitial component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter subInitial(@NotNull final String attributeName,
+                                  @NotNull final byte[] subInitial)
+  {
+    return createSubInitialFilter(attributeName, subInitial);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subInitial (starts with)
+   * component.
    *
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
@@ -861,6 +1113,54 @@ public final class Filter
                             @NotNull final byte[] subInitial)
   {
     return createSubstringFilter(attributeName, subInitial, null, null);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subAny (contains)
+   * component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubAnyFilter(String,String...)}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subAny         The subAny values for this substring filter.  It
+   *                        must not be {@code null} or empty.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter subAny(@NotNull final String attributeName,
+                              @NotNull final String... subAny)
+  {
+    return createSubAnyFilter(attributeName, subAny);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subAny (contains)
+   * component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubAnyFilter(String,byte[]...)}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subAny         The subAny values for this substring filter.  It
+   *                        must not be {@code null} or empty.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter subAny(@NotNull final String attributeName,
+                              @NotNull final byte[]... subAny)
+  {
+    return createSubAnyFilter(attributeName, subAny);
   }
 
 
@@ -908,6 +1208,54 @@ public final class Filter
   /**
    * Creates a new substring search filter with only a subFinal (ends with)
    * component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubFinalFilter(String,String)}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subFinal       The subFinal component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter subFinal(@NotNull final String attributeName,
+                                @NotNull final String subFinal)
+  {
+    return createSubFinalFilter(attributeName, subFinal);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subFinal (ends with)
+   * component.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createSubFinalFilter(String,byte[])}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subFinal       The subFinal component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  @NotNull()
+  public static Filter subFinal(@NotNull final String attributeName,
+                                @NotNull final byte[] subFinal)
+  {
+    return createSubFinalFilter(attributeName, subFinal);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subFinal (ends with)
+   * component.
    *
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
@@ -941,6 +1289,52 @@ public final class Filter
                                             @NotNull final byte[] subFinal)
   {
     return createSubstringFilter(attributeName, null, null, subFinal);
+  }
+
+
+
+  /**
+   * Creates a new greater-or-equal search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createGreaterOrEqualFilter(String,String)}, but with a shorter
+   * method name for convenience.
+   *
+   * @param  attributeName   The attribute name for this greater-or-equal
+   *                         filter.  It must not be {@code null}.
+   * @param  assertionValue  The assertion value for this greater-or-equal
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created greater-or-equal search filter.
+   */
+  @NotNull()
+  public static Filter greaterOrEqual(@NotNull final String attributeName,
+                                      @NotNull final String assertionValue)
+  {
+    return createGreaterOrEqualFilter(attributeName, assertionValue);
+  }
+
+
+
+  /**
+   * Creates a new greater-or-equal search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createGreaterOrEqualFilter(String,byte[])}, but with a shorter
+   * method name for convenience.
+   *
+   * @param  attributeName   The attribute name for this greater-or-equal
+   *                         filter.  It must not be {@code null}.
+   * @param  assertionValue  The assertion value for this greater-or-equal
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created greater-or-equal search filter.
+   */
+  @NotNull()
+  public static Filter greaterOrEqual(@NotNull final String attributeName,
+                                      @NotNull final byte[] assertionValue)
+  {
+    return createGreaterOrEqualFilter(attributeName, assertionValue);
   }
 
 
@@ -1019,6 +1413,52 @@ public final class Filter
 
   /**
    * Creates a new less-or-equal search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createLessOrEqualFilter(String,String)}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName   The attribute name for this less-or-equal
+   *                         filter.  It must not be {@code null}.
+   * @param  assertionValue  The assertion value for this less-or-equal
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created less-or-equal search filter.
+   */
+  @NotNull()
+  public static Filter lessOrEqual(@NotNull final String attributeName,
+                                   @NotNull final String assertionValue)
+  {
+    return createLessOrEqualFilter(attributeName, assertionValue);
+  }
+
+
+
+  /**
+   * Creates a new less-or-equal search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createLessOrEqualFilter(String,byte[])}, but with a shorter method
+   * name for convenience.
+   *
+   * @param  attributeName   The attribute name for this less-or-equal
+   *                         filter.  It must not be {@code null}.
+   * @param  assertionValue  The assertion value for this less-or-equal
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created less-or-equal search filter.
+   */
+  @NotNull()
+  public static Filter lessOrEqual(@NotNull final String attributeName,
+                                   @NotNull final byte[] assertionValue)
+  {
+    return createLessOrEqualFilter(attributeName, assertionValue);
+  }
+
+
+
+  /**
+   * Creates a new less-or-equal search filter with the provided information.
    *
    * @param  attributeName   The attribute name for this less-or-equal
    *                         filter.  It must not be {@code null}.
@@ -1091,6 +1531,26 @@ public final class Filter
 
   /**
    * Creates a new presence search filter with the provided information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createPresenceFilter(String)}, but with a shorter method name for
+   * convenience.
+   *
+   * @param  attributeName   The attribute name for this presence filter.  It
+   *                         must not be {@code null}.
+   *
+   * @return  The created presence search filter.
+   */
+  @NotNull()
+  public static Filter present(@NotNull final String attributeName)
+  {
+    return createPresenceFilter(attributeName);
+  }
+
+
+
+  /**
+   * Creates a new presence search filter with the provided information.
    *
    * @param  attributeName   The attribute name for this presence filter.  It
    *                         must not be {@code null}.
@@ -1104,6 +1564,54 @@ public final class Filter
 
     return new Filter(null, FILTER_TYPE_PRESENCE, NO_FILTERS, null,
                       attributeName, null, null, NO_SUB_ANY, null, null, false);
+  }
+
+
+
+  /**
+   * Creates a new approximate match search filter with the provided
+   * information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createApproximateMatchFilter(String,String)}, but with a shorter
+   * method name for convenience.
+   *
+   * @param  attributeName   The attribute name for this approximate match
+   *                         filter.  It must not be {@code null}.
+   * @param  assertionValue  The assertion value for this approximate match
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created approximate match search filter.
+   */
+  @NotNull()
+  public static Filter approximateMatch(@NotNull final String attributeName,
+                                        @NotNull final String assertionValue)
+  {
+    return createApproximateMatchFilter(attributeName, assertionValue);
+  }
+
+
+
+  /**
+   * Creates a new approximate match search filter with the provided
+   * information.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createApproximateMatchFilter(String,byte[])}, but with a shorter
+   * method name for convenience.
+   *
+   * @param  attributeName   The attribute name for this approximate match
+   *                         filter.  It must not be {@code null}.
+   * @param  assertionValue  The assertion value for this approximate match
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created approximate match search filter.
+   */
+  @NotNull()
+  public static Filter approximateMatch(@NotNull final String attributeName,
+                                        @NotNull final byte[] assertionValue)
+  {
+    return createApproximateMatchFilter(attributeName, assertionValue);
   }
 
 
@@ -1179,6 +1687,70 @@ public final class Filter
     return new Filter(null, FILTER_TYPE_APPROXIMATE_MATCH, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
                       null, false);
+  }
+
+
+
+  /**
+   * Creates a new extensible match search filter with the provided
+   * information.  At least one of the attribute name and matching rule ID must
+   * be specified, and the assertion value must always be present.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createExtensibleMatchFilter(String,String,boolean,String)}, but
+   * with a shorter method name for convenience.
+   *
+   * @param  attributeName   The attribute name for this extensible match
+   *                         filter.
+   * @param  matchingRuleID  The matching rule ID for this extensible match
+   *                         filter.
+   * @param  dnAttributes    Indicates whether the match should be performed
+   *                         against attributes in the target entry's DN.
+   * @param  assertionValue  The assertion value for this extensible match
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created extensible match search filter.
+   */
+  @NotNull()
+  public static Filter extensibleMatch(@Nullable final String attributeName,
+                                       @Nullable final String matchingRuleID,
+                                       final boolean dnAttributes,
+                                       @NotNull final String assertionValue)
+  {
+    return createExtensibleMatchFilter(attributeName, matchingRuleID,
+         dnAttributes, assertionValue);
+  }
+
+
+
+  /**
+   * Creates a new extensible match search filter with the provided
+   * information.  At least one of the attribute name and matching rule ID must
+   * be specified, and the assertion value must always be present.
+   * <BR><BR>
+   * This method does exactly the same thing as
+   * {@link #createExtensibleMatchFilter(String,String,boolean,byte[])}, but
+   * with a shorter method name for convenience.
+   *
+   * @param  attributeName   The attribute name for this extensible match
+   *                         filter.
+   * @param  matchingRuleID  The matching rule ID for this extensible match
+   *                         filter.
+   * @param  dnAttributes    Indicates whether the match should be performed
+   *                         against attributes in the target entry's DN.
+   * @param  assertionValue  The assertion value for this extensible match
+   *                         filter.  It must not be {@code null}.
+   *
+   * @return  The created extensible match search filter.
+   */
+  @NotNull()
+  public static Filter extensibleMatch(@Nullable final String attributeName,
+                                       @Nullable final String matchingRuleID,
+                                       final boolean dnAttributes,
+                                       @NotNull final byte[] assertionValue)
+  {
+    return createExtensibleMatchFilter(attributeName, matchingRuleID,
+         dnAttributes, assertionValue);
   }
 
 
@@ -4696,11 +5268,11 @@ attrNameLoop:
       case FILTER_TYPE_OR:
         if (filterType == FILTER_TYPE_AND)
         {
-          buffer.append("Filter.createANDFilter(");
+          buffer.append("Filter.and(");
         }
         else
         {
-          buffer.append("Filter.createORFilter(");
+          buffer.append("Filter.or(");
         }
         if (filterComps.length == 0)
         {
@@ -4735,7 +5307,7 @@ attrNameLoop:
 
 
       case FILTER_TYPE_NOT:
-        buffer.append("Filter.createNOTFilter(");
+        buffer.append("Filter.not(");
         lineList.add(buffer.toString());
 
         final String suffix;
@@ -4751,7 +5323,7 @@ attrNameLoop:
         return;
 
       case FILTER_TYPE_PRESENCE:
-        buffer.append("Filter.createPresenceFilter(");
+        buffer.append("Filter.present(");
         lineList.add(buffer.toString());
 
         buffer.setLength(0);
@@ -4775,19 +5347,19 @@ attrNameLoop:
       case FILTER_TYPE_APPROXIMATE_MATCH:
         if (filterType == FILTER_TYPE_EQUALITY)
         {
-          buffer.append("Filter.createEqualityFilter(");
+          buffer.append("Filter.equals(");
         }
         else if (filterType == FILTER_TYPE_GREATER_OR_EQUAL)
         {
-          buffer.append("Filter.createGreaterOrEqualFilter(");
+          buffer.append("Filter.greaterOrEqual(");
         }
         else if (filterType == FILTER_TYPE_LESS_OR_EQUAL)
         {
-          buffer.append("Filter.createLessOrEqualFilter(");
+          buffer.append("Filter.lessOrEqual(");
         }
         else
         {
-          buffer.append("Filter.createApproximateMatchFilter(");
+          buffer.append("Filter.approximateMatch(");
         }
         lineList.add(buffer.toString());
 
@@ -4828,7 +5400,7 @@ attrNameLoop:
 
 
       case FILTER_TYPE_SUBSTRING:
-        buffer.append("Filter.createSubstringFilter(");
+        buffer.append("Filter.substring(");
         lineList.add(buffer.toString());
 
         buffer.setLength(0);
@@ -4995,7 +5567,7 @@ attrNameLoop:
 
 
       case FILTER_TYPE_EXTENSIBLE_MATCH:
-        buffer.append("Filter.createExtensibleMatchFilter(");
+        buffer.append("Filter.extensibleMatch(");
         lineList.add(buffer.toString());
 
         buffer.setLength(0);

@@ -95,7 +95,7 @@ public class FilterTestCase
   public void testCreateANDFilterEmptyArray()
          throws Exception
   {
-    Filter f = Filter.createANDFilter(new Filter[0]);
+    Filter f = Filter.and(new Filter[0]);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_AND);
 
@@ -167,7 +167,7 @@ public class FilterTestCase
       Filter.create("(foo=bar)")
     };
 
-    Filter f = Filter.createANDFilter(filterElements);
+    Filter f = Filter.and(filterElements);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_AND);
 
@@ -241,7 +241,7 @@ public class FilterTestCase
       Filter.create("(e=f)"),
     };
 
-    Filter f = Filter.createANDFilter(filterElements);
+    Filter f = Filter.and(filterElements);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_AND);
 
@@ -308,7 +308,7 @@ public class FilterTestCase
   public void testCreateANDFilterNullArray()
          throws Exception
   {
-    Filter.createANDFilter((Filter[]) null);
+    Filter.and((Filter[]) null);
   }
 
 
@@ -393,7 +393,7 @@ public class FilterTestCase
     ArrayList<Filter> filterList = new ArrayList<Filter>(1);
     filterList.add(Filter.create("(foo=bar)"));
 
-    Filter f = Filter.createANDFilter(filterList);
+    Filter f = Filter.and(filterList);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_AND);
 
@@ -465,7 +465,7 @@ public class FilterTestCase
     filterList.add(Filter.create("(c=d)"));
     filterList.add(Filter.create("(e=f)"));
 
-    Filter f = Filter.createANDFilter(filterList);
+    Filter f = Filter.and(filterList);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_AND);
 
@@ -532,7 +532,7 @@ public class FilterTestCase
   public void testCreateANDFilterNullList()
          throws Exception
   {
-    Filter.createANDFilter((ArrayList<Filter>) null);
+    Filter.and((ArrayList<Filter>) null);
   }
 
 
@@ -547,7 +547,7 @@ public class FilterTestCase
   public void testCreateORFilterEmptyArray()
          throws Exception
   {
-    Filter f = Filter.createORFilter(new Filter[0]);
+    Filter f = Filter.or(new Filter[0]);
 
     String filterString = f.toString();
     assertEquals(filterString, "(|)");
@@ -619,7 +619,7 @@ public class FilterTestCase
       Filter.create("(foo=bar)")
     };
 
-    Filter f = Filter.createORFilter(filterElements);
+    Filter f = Filter.or(filterElements);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
@@ -693,7 +693,7 @@ public class FilterTestCase
       Filter.create("(e=f)"),
     };
 
-    Filter f = Filter.createORFilter(filterElements);
+    Filter f = Filter.or(filterElements);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
@@ -760,7 +760,7 @@ public class FilterTestCase
   public void testCreateORFilterNull()
          throws Exception
   {
-    Filter.createORFilter((Filter[]) null);
+    Filter.or((Filter[]) null);
   }
 
 
@@ -845,7 +845,7 @@ public class FilterTestCase
     ArrayList<Filter> filterList = new ArrayList<Filter>(1);
     filterList.add(Filter.create("(foo=bar)"));
 
-    Filter f = Filter.createORFilter(filterList);
+    Filter f = Filter.or(filterList);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
@@ -917,7 +917,7 @@ public class FilterTestCase
     filterList.add(Filter.create("(c=d)"));
     filterList.add(Filter.create("(e=f)"));
 
-    Filter f = Filter.createORFilter(filterList);
+    Filter f = Filter.or(filterList);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
@@ -984,7 +984,7 @@ public class FilterTestCase
   public void testCreateORFilterList()
          throws Exception
   {
-    Filter.createORFilter((ArrayList<Filter>) null);
+    Filter.or((ArrayList<Filter>) null);
   }
 
 
@@ -997,7 +997,7 @@ public class FilterTestCase
   public void testCreateNOTFilter()
          throws Exception
   {
-    Filter f = Filter.createNOTFilter(Filter.create("(foo=bar)"));
+    Filter f = Filter.not(Filter.create("(foo=bar)"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_NOT);
 
@@ -1065,7 +1065,7 @@ public class FilterTestCase
   public void testCreateNOTFilterNull()
          throws Exception
   {
-    Filter.createNOTFilter(null);
+    Filter.not(null);
   }
 
 
@@ -1080,7 +1080,7 @@ public class FilterTestCase
   public void testCreateEqualityFilterString()
          throws Exception
   {
-    Filter f = Filter.createEqualityFilter("foo", "bar");
+    Filter f = Filter.equals("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EQUALITY);
 
@@ -1156,7 +1156,7 @@ public class FilterTestCase
   public void testCreateEqualityFilterStringNullAttr()
          throws Exception
   {
-    Filter.createEqualityFilter(null, "bar");
+    Filter.equals(null, "bar");
   }
 
 
@@ -1171,7 +1171,7 @@ public class FilterTestCase
   public void testCreateEqualityFilterStringNullValue()
          throws Exception
   {
-    Filter.createEqualityFilter("foo", (String) null);
+    Filter.equals("foo", (String) null);
   }
 
 
@@ -1186,7 +1186,7 @@ public class FilterTestCase
   public void testCreateEqualityFilterByteArray()
          throws Exception
   {
-    Filter f = Filter.createEqualityFilter("foo", "bar".getBytes("UTF-8"));
+    Filter f = Filter.equals("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EQUALITY);
 
@@ -1262,7 +1262,7 @@ public class FilterTestCase
   public void testCreateEqualityFilterByteArrayNullAttr()
          throws Exception
   {
-    Filter.createEqualityFilter(null, "bar".getBytes("UTF-8"));
+    Filter.equals(null, "bar".getBytes("UTF-8"));
   }
 
 
@@ -1277,7 +1277,7 @@ public class FilterTestCase
   public void testCreateEqualityFilterByteArrayNullValue()
          throws Exception
   {
-    Filter.createEqualityFilter("foo", (byte[]) null);
+    Filter.equals("foo", (byte[]) null);
   }
 
 
@@ -1404,12 +1404,12 @@ public class FilterTestCase
     final String valueString4 = "Smiley Face Emoji \uD83D\uDE00";
     final String valueString5 = "U.S. Flag Emoji \uD83C\uDDFA\uD83C\uDDF8";
 
-    final Filter f = Filter.createORFilter(
-         Filter.createEqualityFilter("cn", valueString1),
-         Filter.createEqualityFilter("cn", valueString2),
-         Filter.createEqualityFilter("cn", valueString3),
-         Filter.createEqualityFilter("cn", valueString4),
-         Filter.createEqualityFilter("cn", valueString5));
+    final Filter f = Filter.or(
+         Filter.equals("cn", valueString1),
+         Filter.equals("cn", valueString2),
+         Filter.equals("cn", valueString3),
+         Filter.equals("cn", valueString4),
+         Filter.equals("cn", valueString5));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
@@ -1477,7 +1477,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterStringSubInitialOnly()
          throws Exception
   {
-    Filter f = Filter.createSubstringFilter("foo", "bar", null, null);
+    Filter f = Filter.substring("foo", "bar", null, null);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1552,7 +1552,7 @@ public class FilterTestCase
   public void testCreateSubInitialFilterString()
          throws Exception
   {
-    Filter f = Filter.createSubInitialFilter("foo", "bar");
+    Filter f = Filter.subInitial("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1630,7 +1630,7 @@ public class FilterTestCase
   {
     String[] subAny = { "bar" };
 
-    Filter f = Filter.createSubstringFilter("foo", null, subAny, null);
+    Filter f = Filter.substring("foo", null, subAny, null);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1700,7 +1700,7 @@ public class FilterTestCase
   public void testCreateSubAnyFilterSingleStringValue()
          throws Exception
   {
-    Filter f = Filter.createSubAnyFilter("foo", "bar");
+    Filter f = Filter.subAny("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1772,7 +1772,7 @@ public class FilterTestCase
   {
     String[] subAny = { "bar", "baz", "bat" };
 
-    Filter f = Filter.createSubstringFilter("foo", null, subAny, null);
+    Filter f = Filter.substring("foo", null, subAny, null);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1842,7 +1842,7 @@ public class FilterTestCase
   public void testCreateSubAnyFilterMultipleStringValues()
          throws Exception
   {
-    Filter f = Filter.createSubAnyFilter("foo", "bar", "baz", "bat");
+    Filter f = Filter.subAny("foo", "bar", "baz", "bat");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1912,7 +1912,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterStringSubFinalOnly()
          throws Exception
   {
-    Filter f = Filter.createSubstringFilter("foo", null, null, "bar");
+    Filter f = Filter.substring("foo", null, null, "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1987,7 +1987,7 @@ public class FilterTestCase
   public void testCreateSubFinalFilterString()
          throws Exception
   {
-    Filter f = Filter.createSubFinalFilter("foo", "bar");
+    Filter f = Filter.subFinal("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2065,7 +2065,7 @@ public class FilterTestCase
   {
     String[] subAny = { "baz" };
 
-    Filter f = Filter.createSubstringFilter("foo", "bar", subAny, "bat");
+    Filter f = Filter.substring("foo", "bar", subAny, "bat");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2148,7 +2148,7 @@ public class FilterTestCase
   {
     String[] subAny = { "bar", "baz", "bat" };
 
-    Filter f = Filter.createSubstringFilter("foo", "a", subAny, "c");
+    Filter f = Filter.substring("foo", "a", subAny, "c");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2230,7 +2230,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterStringNullAttr()
          throws Exception
   {
-    Filter.createSubstringFilter(null, "bar", null, null);
+    Filter.substring(null, "bar", null, null);
   }
 
 
@@ -2245,7 +2245,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterStringNullSubstring()
          throws Exception
   {
-    Filter.createSubstringFilter("null", (String) null, null, null);
+    Filter.substring("null", (String) null, null, null);
   }
 
 
@@ -2261,7 +2261,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterStringNullSubInitialAndFinalEmptyAny()
          throws Exception
   {
-    Filter.createSubstringFilter("null", null, new String[0], null);
+    Filter.substring("null", null, new String[0], null);
   }
 
 
@@ -2276,8 +2276,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterByteArraySubInitialOnly()
          throws Exception
   {
-    Filter f = Filter.createSubstringFilter("foo", "bar".getBytes("UTF-8"),
-                                            null, null);
+    Filter f = Filter.substring("foo", "bar".getBytes("UTF-8"), null, null);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2353,7 +2352,7 @@ public class FilterTestCase
   public void testCreateSubInitialFilterByteArray()
          throws Exception
   {
-    Filter f = Filter.createSubInitialFilter("foo", "bar".getBytes("UTF-8"));
+    Filter f = Filter.subInitial("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2431,7 +2430,7 @@ public class FilterTestCase
   {
     byte[][] subAny = { "bar".getBytes("UTF-8") };
 
-    Filter f = Filter.createSubstringFilter("foo", null, subAny, null);
+    Filter f = Filter.substring("foo", null, subAny, null);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2500,7 +2499,7 @@ public class FilterTestCase
   public void testCreateSubAnyFilterSingleByteArrayValue()
          throws Exception
   {
-    Filter f = Filter.createSubAnyFilter("foo", "bar".getBytes("UTF-8"));
+    Filter f = Filter.subAny("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2573,7 +2572,7 @@ public class FilterTestCase
     byte[][] subAny = { "bar".getBytes("UTF-8"), "baz".getBytes("UTF-8"),
                         "bat".getBytes("UTF-8") };
 
-    Filter f = Filter.createSubstringFilter("foo", null, subAny, null);
+    Filter f = Filter.substring("foo", null, subAny, null);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2643,7 +2642,7 @@ public class FilterTestCase
   public void testCreateSubAnyFilterMultipleByteArrayValues()
          throws Exception
   {
-    Filter f = Filter.createSubAnyFilter("foo", "bar".getBytes("UTF-8"),
+    Filter f = Filter.subAny("foo", "bar".getBytes("UTF-8"),
          "baz".getBytes("UTF-8"), "bat".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
@@ -2714,8 +2713,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterByteArraySubFinalOnly()
          throws Exception
   {
-    Filter f = Filter.createSubstringFilter("foo", null, null,
-                                            "bar".getBytes("UTF-8"));
+    Filter f = Filter.substring("foo", null, null, "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2791,7 +2789,7 @@ public class FilterTestCase
   public void testCreateSubFinalFilterByteArray()
          throws Exception
   {
-    Filter f = Filter.createSubFinalFilter("foo", "bar".getBytes("UTF-8"));
+    Filter f = Filter.subFinal("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2870,8 +2868,8 @@ public class FilterTestCase
   {
     byte[][] subAny = { "baz".getBytes("UTF-8") };
 
-    Filter f = Filter.createSubstringFilter("foo", "bar".getBytes("UTF-8"),
-                                            subAny, "bat".getBytes("UTF-8"));
+    Filter f = Filter.substring("foo", "bar".getBytes("UTF-8"), subAny,
+         "bat".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2956,8 +2954,8 @@ public class FilterTestCase
     byte[][] subAny = { "bar".getBytes("UTF-8"), "baz".getBytes("UTF-8"),
                         "bat".getBytes("UTF-8") };
 
-    Filter f = Filter.createSubstringFilter("foo", "a".getBytes("UTF-8"),
-                                            subAny, "c".getBytes("UTF-8"));
+    Filter f = Filter.substring("foo", "a".getBytes("UTF-8"), subAny,
+         "c".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -3039,7 +3037,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterByteArrayNullAttr()
          throws Exception
   {
-    Filter.createSubstringFilter(null, "bar".getBytes("UTF-8"), null, null);
+    Filter.substring(null, "bar".getBytes("UTF-8"), null, null);
   }
 
 
@@ -3054,7 +3052,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterByteArrayNullSubstring()
          throws Exception
   {
-    Filter.createSubstringFilter("null", (byte[]) null, null, null);
+    Filter.substring("null", (byte[]) null, null, null);
   }
 
 
@@ -3070,7 +3068,7 @@ public class FilterTestCase
   public void testCreateSubstringFilterByteArrayNullSubInitialAndFinalEmptyAny()
          throws Exception
   {
-    Filter.createSubstringFilter("null", null, new byte[0][], null);
+    Filter.substring("null", null, new byte[0][], null);
   }
 
 
@@ -3626,8 +3624,7 @@ public class FilterTestCase
       ")"
     };
 
-    Filter f = Filter.createSubstringFilter("foo", subInitial, subAny,
-                                            subFinal);
+    Filter f = Filter.substring("foo", subInitial, subAny, subFinal);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -3711,7 +3708,7 @@ public class FilterTestCase
   public void testCreateGreaterOrEqualFilterString()
          throws Exception
   {
-    Filter f = Filter.createGreaterOrEqualFilter("foo", "bar");
+    Filter f = Filter.greaterOrEqual("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_GREATER_OR_EQUAL);
 
@@ -3790,7 +3787,7 @@ public class FilterTestCase
   public void testCreateGreaterOrEqualFilterStringNullAttr()
          throws Exception
   {
-    Filter.createGreaterOrEqualFilter(null, "bar");
+    Filter.greaterOrEqual(null, "bar");
   }
 
 
@@ -3805,7 +3802,7 @@ public class FilterTestCase
   public void testCreateGreaterOrEqualFilterStringNullValue()
          throws Exception
   {
-    Filter.createGreaterOrEqualFilter("foo", (String) null);
+    Filter.greaterOrEqual("foo", (String) null);
   }
 
 
@@ -3820,8 +3817,7 @@ public class FilterTestCase
   public void testCreateGreaterOrEqualFilterByteArray()
          throws Exception
   {
-    Filter f = Filter.createGreaterOrEqualFilter("foo",
-                                                 "bar".getBytes("UTF-8"));
+    Filter f = Filter.greaterOrEqual("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_GREATER_OR_EQUAL);
 
@@ -3897,7 +3893,7 @@ public class FilterTestCase
   public void testCreateGreaterOrEqualFilterByteArrayNullAttr()
          throws Exception
   {
-    Filter.createGreaterOrEqualFilter(null, "bar".getBytes("UTF-8"));
+    Filter.greaterOrEqual(null, "bar".getBytes("UTF-8"));
   }
 
 
@@ -3912,7 +3908,7 @@ public class FilterTestCase
   public void testCreateGreaterOrEqualFilterByteArrayNullValue()
          throws Exception
   {
-    Filter.createGreaterOrEqualFilter("foo", (byte[]) null);
+    Filter.greaterOrEqual("foo", (byte[]) null);
   }
 
 
@@ -4035,7 +4031,7 @@ public class FilterTestCase
          throws Exception
   {
     String valueString = "\\* Jos\u00e9 Jalape\u00f1o (on a stick) \\*";
-    Filter f = Filter.createGreaterOrEqualFilter("foo", valueString);
+    Filter f = Filter.greaterOrEqual("foo", valueString);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_GREATER_OR_EQUAL);
 
@@ -4120,7 +4116,7 @@ public class FilterTestCase
   public void testCreateLessOrEqualFilterString()
          throws Exception
   {
-    Filter f = Filter.createLessOrEqualFilter("foo", "bar");
+    Filter f = Filter.lessOrEqual("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_LESS_OR_EQUAL);
 
@@ -4196,7 +4192,7 @@ public class FilterTestCase
   public void testCreateLessOrEqualFilterStringNullAttr()
          throws Exception
   {
-    Filter.createLessOrEqualFilter(null, "bar");
+    Filter.lessOrEqual(null, "bar");
   }
 
 
@@ -4211,7 +4207,7 @@ public class FilterTestCase
   public void testCreateLessOrEqualFilterStringNullValue()
          throws Exception
   {
-    Filter.createLessOrEqualFilter("foo", (String) null);
+    Filter.lessOrEqual("foo", (String) null);
   }
 
 
@@ -4226,7 +4222,7 @@ public class FilterTestCase
   public void testCreateLessOrEqualFilterByteArray()
          throws Exception
   {
-    Filter f = Filter.createLessOrEqualFilter("foo", "bar".getBytes("UTF-8"));
+    Filter f = Filter.lessOrEqual("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_LESS_OR_EQUAL);
 
@@ -4302,7 +4298,7 @@ public class FilterTestCase
   public void testCreateLessOrEqualFilterByteArrayNullAttr()
          throws Exception
   {
-    Filter.createLessOrEqualFilter(null, "bar".getBytes("UTF-8"));
+    Filter.lessOrEqual(null, "bar".getBytes("UTF-8"));
   }
 
 
@@ -4317,7 +4313,7 @@ public class FilterTestCase
   public void testCreateLessOrEqualFilterByteArrayNullValue()
          throws Exception
   {
-    Filter.createLessOrEqualFilter("foo", (byte[]) null);
+    Filter.lessOrEqual("foo", (byte[]) null);
   }
 
 
@@ -4440,7 +4436,7 @@ public class FilterTestCase
          throws Exception
   {
     String valueString = "\\* Jos\u00e9 Jalape\u00f1o (on a stick) \\*";
-    Filter f = Filter.createLessOrEqualFilter("foo", valueString);
+    Filter f = Filter.lessOrEqual("foo", valueString);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_LESS_OR_EQUAL);
 
@@ -4524,7 +4520,7 @@ public class FilterTestCase
   public void testCreatePresenceFilter()
          throws Exception
   {
-    Filter f = Filter.createPresenceFilter("foo");
+    Filter f = Filter.present("foo");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_PRESENCE);
 
@@ -4594,7 +4590,7 @@ public class FilterTestCase
   public void testCreatePresenceFilterNullAttr()
          throws Exception
   {
-    Filter.createPresenceFilter(null);
+    Filter.present(null);
   }
 
 
@@ -4609,7 +4605,7 @@ public class FilterTestCase
   public void testCreateApproximateMatchFilterString()
          throws Exception
   {
-    Filter f = Filter.createApproximateMatchFilter("foo", "bar");
+    Filter f = Filter.approximateMatch("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_APPROXIMATE_MATCH);
 
@@ -4685,7 +4681,7 @@ public class FilterTestCase
   public void testCreateApproximateMatchFilterStringNullAttr()
          throws Exception
   {
-    Filter.createApproximateMatchFilter(null, "bar");
+    Filter.approximateMatch(null, "bar");
   }
 
 
@@ -4700,7 +4696,7 @@ public class FilterTestCase
   public void testCreateApproximateMatchFilterStringNullValue()
          throws Exception
   {
-    Filter.createApproximateMatchFilter("foo", (String) null);
+    Filter.approximateMatch("foo", (String) null);
   }
 
 
@@ -4715,8 +4711,7 @@ public class FilterTestCase
   public void testCreateApproximateMatchFilterByteArray()
          throws Exception
   {
-    Filter f = Filter.createApproximateMatchFilter("foo",
-                                                   "bar".getBytes("UTF-8"));
+    Filter f = Filter.approximateMatch("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_APPROXIMATE_MATCH);
 
@@ -4792,7 +4787,7 @@ public class FilterTestCase
   public void testCreateApproximateMatchFilterByteArrayNullAttr()
          throws Exception
   {
-    Filter.createApproximateMatchFilter(null, "bar".getBytes("UTF-8"));
+    Filter.approximateMatch(null, "bar".getBytes("UTF-8"));
   }
 
 
@@ -4807,7 +4802,7 @@ public class FilterTestCase
   public void testCreateApproximateMatchFilterByteArrayNullValue()
          throws Exception
   {
-    Filter.createApproximateMatchFilter("foo", (byte[]) null);
+    Filter.approximateMatch("foo", (byte[]) null);
   }
 
 
@@ -4930,7 +4925,7 @@ public class FilterTestCase
          throws Exception
   {
     String valueString = "\\* Jos\u00e9 Jalape\u00f1o (on a stick) \\*";
-    Filter f = Filter.createApproximateMatchFilter("foo", valueString);
+    Filter f = Filter.approximateMatch("foo", valueString);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_APPROXIMATE_MATCH);
 
@@ -5016,7 +5011,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterStringAttr()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", null, false, "bar");
+    Filter f = Filter.extensibleMatch("foo", null, false, "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5095,7 +5090,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterStringAttrDN()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", null, true, "bar");
+    Filter f = Filter.extensibleMatch("foo", null, true, "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5174,7 +5169,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterStringRuleID()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter(null, "foo", false, "bar");
+    Filter f = Filter.extensibleMatch(null, "foo", false, "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5253,7 +5248,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterStringRuleIDDN()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter(null, "foo", true, "bar");
+    Filter f = Filter.extensibleMatch(null, "foo", true, "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5332,7 +5327,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterStringAttrRuleID()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", "bar", false, "baz");
+    Filter f = Filter.extensibleMatch("foo", "bar", false, "baz");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5413,7 +5408,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterStringAttrRuleIDDN()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", "bar", true, "baz");
+    Filter f = Filter.extensibleMatch("foo", "bar", true, "baz");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5490,7 +5485,7 @@ public class FilterTestCase
   @Test(expectedExceptions = { LDAPSDKUsageException.class })
   public void testCreateExtensibleMatchFilterStringNoValue()
   {
-    Filter.createExtensibleMatchFilter("foo", null, false, (String) null);
+    Filter.extensibleMatch("foo", null, false, (String) null);
   }
 
 
@@ -5503,7 +5498,7 @@ public class FilterTestCase
   @Test(expectedExceptions = { LDAPSDKUsageException.class })
   public void testCreateExtensibleMatchFilterStringNoAttrOrRuleID()
   {
-    Filter.createExtensibleMatchFilter(null, null, false, "bar");
+    Filter.extensibleMatch(null, null, false, "bar");
   }
 
 
@@ -5519,8 +5514,8 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayAttr()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", null, false,
-                                                  "bar".getBytes("UTF-8"));
+    Filter f = Filter.extensibleMatch("foo", null, false,
+                                      "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5599,8 +5594,8 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayAttrDN()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", null, true,
-                                                  "bar".getBytes("UTF-8"));
+    Filter f = Filter.extensibleMatch("foo", null, true,
+                                      "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5679,8 +5674,8 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayRuleID()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter(null, "foo", false,
-                                                  "bar".getBytes("UTF-8"));
+    Filter f = Filter.extensibleMatch(null, "foo", false,
+                                      "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5759,8 +5754,8 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayRuleIDDN()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter(null, "foo", true,
-                                                  "bar".getBytes("UTF-8"));
+    Filter f = Filter.extensibleMatch(null, "foo", true,
+                                      "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5839,8 +5834,8 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayAttrRuleID()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", "bar", false,
-                                                  "baz".getBytes("UTF-8"));
+    Filter f = Filter.extensibleMatch("foo", "bar", false,
+                                      "baz".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5921,8 +5916,8 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayAttrRuleIDDN()
          throws Exception
   {
-    Filter f = Filter.createExtensibleMatchFilter("foo", "bar", true,
-                                                  "baz".getBytes("UTF-8"));
+    Filter f = Filter.extensibleMatch("foo", "bar", true,
+                                      "baz".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -5999,7 +5994,7 @@ public class FilterTestCase
   @Test(expectedExceptions = { LDAPSDKUsageException.class })
   public void testCreateExtensibleMatchFilterByteArrayNoValue()
   {
-    Filter.createExtensibleMatchFilter("foo", null, false, (byte[]) null);
+    Filter.extensibleMatch("foo", null, false, (byte[]) null);
   }
 
 
@@ -6015,8 +6010,7 @@ public class FilterTestCase
   public void testCreateExtensibleMatchFilterByteArrayNoAttrOrRuleID()
          throws Exception
   {
-    Filter.createExtensibleMatchFilter(null, null, false,
-                                       "bar".getBytes("UTF-8"));
+    Filter.extensibleMatch(null, null, false, "bar".getBytes("UTF-8"));
   }
 
 
@@ -6543,8 +6537,7 @@ public class FilterTestCase
          throws Exception
   {
     String valueString = "\\* Jos\u00e9 Jalape\u00f1o (on a stick) \\*";
-    Filter f = Filter.createExtensibleMatchFilter("foo", null, true,
-                                                  valueString);
+    Filter f = Filter.extensibleMatch("foo", null, true, valueString);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -6626,8 +6619,7 @@ public class FilterTestCase
          throws Exception
   {
     String valueString = "\\* Jos\u00e9 Jalape\u00f1o (on a stick) \\*";
-    Filter f = Filter.createExtensibleMatchFilter(null, "foo", true,
-                                                  valueString);
+    Filter f = Filter.extensibleMatch(null, "foo", true, valueString);
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EXTENSIBLE_MATCH);
 
@@ -7195,9 +7187,9 @@ public class FilterTestCase
     {
       assertEquals(parsedFilter.matchesEntry(e),
            expected.booleanValue());
-      assertEquals(Filter.createNOTFilter(parsedFilter).matchesEntry(e),
+      assertEquals(Filter.not(parsedFilter).matchesEntry(e),
            (! expected.booleanValue()));
-      assertEquals(Filter.createNOTFilter(parsedFilter).matchesEntry(e, schema),
+      assertEquals(Filter.not(parsedFilter).matchesEntry(e, schema),
            (! expected.booleanValue()));
     }
     catch (final LDAPException le)
@@ -7733,7 +7725,7 @@ public class FilterTestCase
 
       new Object[]
       {
-        Filter.createSubstringFilter("description",
+        Filter.substring("description",
              "jalape\\c3\\b1o",
              new String[] { "jalape\\c3\\b1o" },
              "jalape\\c3\\b1o").toString(),
@@ -7742,20 +7734,18 @@ public class FilterTestCase
 
       new Object[]
       {
-        Filter.createORFilter(
-             Filter.createEqualityFilter("description", "jalape\\c3\\b1o"),
-             Filter.createEqualityFilter("telephoneNumber",
-                  "jalape\\c3\\b1o")).toString(),
+        Filter.or(
+             Filter.equals("description", "jalape\\c3\\b1o"),
+             Filter.equals("telephoneNumber", "jalape\\c3\\b1o")).toString(),
         Boolean.FALSE
       },
 
       new Object[]
       {
-        Filter.createANDFilter(
-             Filter.createEqualityFilter("telephoneNumber",
+        Filter.and(
+             Filter.equals("telephoneNumber",
                   "jalape\\c3\\b1o"),
-             Filter.createEqualityFilter("description",
-                  "jalape\\c3\\b1o")).toString(),
+             Filter.equals("description", "jalape\\c3\\b1o")).toString(),
         Boolean.FALSE
       }
     };
@@ -7803,7 +7793,7 @@ public class FilterTestCase
 
     try
     {
-      filter = Filter.createExtensibleMatchFilter("ubidEmailJSON",
+      filter = Filter.extensibleMatch("ubidEmailJSON",
            "1.3.6.1.4.1.30221.2.4.13", false, "not-a-valid-json-object");
       filter.matchesEntry(entry);
       fail("Expected an exception when trying to use a JSON object filter " +
@@ -7816,7 +7806,7 @@ public class FilterTestCase
 
     try
     {
-      filter = Filter.createExtensibleMatchFilter("ubidEmailJSON",
+      filter = Filter.extensibleMatch("ubidEmailJSON",
            "1.3.6.1.4.1.30221.2.4.13", false, "{}");
       filter.matchesEntry(entry);
       fail("Expected an exception when trying to use a JSON object filter " +
