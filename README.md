@@ -46,12 +46,6 @@ If you want to check out and build the LDAP SDK from source, then you can do tha
 git clone https://github.com/pingidentity/ldapsdk.git
 ```
 
-If you prefer subversion, you can instead use the command:
-
-```
-svn checkout https://github.com/pingidentity/ldapsdk/trunk ldapsdk-svn
-```
-
 Once the code has been checked out, you can build the LDAP SDK by running the `build.sh` shell script on UNIX-based systems or `build.bat` batch file on Windows. Once the build has completed, the zip file containing the packaged LDAP SDK may be found in the build/package directory.
 
 ## How To Get Help with the UnboundID LDAP SDK for Java

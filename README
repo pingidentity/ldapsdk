@@ -93,10 +93,6 @@ that with the following git command:
 
     git clone https://github.com/pingidentity/ldapsdk.git
 
-If you prefer subversion, you can instead use the command:
-
-    svn checkout https://github.com/pingidentity/ldapsdk/trunk ldapsdk-svn
-
 Once the code has been checked out, you can build the LDAP SDK by running the
 build.sh shell script on UNIX-based systems or build.bat batch file on Windows.
 Once the build has completed, the zip file containing the packaged LDAP SDK may

@@ -673,7 +673,7 @@
 
 
 
-  <!-- Get the Subversion revision number for the current source. -->
+  <!-- Get the git or svn revision for the current source. -->
   <target name="repository-info" unless="repository-info.revision">
     <mkdir dir="${repository-info.classes.dir}" />
     <javac srcdir="${repository-info.src.dir}"
