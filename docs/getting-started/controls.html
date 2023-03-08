@@ -263,7 +263,7 @@ Integer afterValue =
 // but without including the subentries request control.  This should not
 // return any matching entries.
 SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
-     SearchScope.SUB, Filter.createEqualityFilter("cn", "test subentry"));
+     SearchScope.SUB, Filter.equals("cn", "test subentry"));
 SearchResult resultWithoutControl = connection.search(searchRequest);
 LDAPTestUtils.assertResultCodeEquals(resultWithoutControl,
      ResultCode.SUCCESS);
@@ -380,7 +380,7 @@ assertResultCodeEquals(modifyResult, ResultCode.SUCCESS);
 SearchRequest searchRequest = new SearchRequest(
      "uid=test.user,ou=People,dc=example,dc=com", // Base DN
      SearchScope.BASE, // Scope
-     Filter.createPresenceFilter("objectClass"), // Filter
+     Filter.present("objectClass"), // Filter
      "description"); // Attributes to return.
 SearchResultEntry entryRetrievedWithoutControl =
      connection.searchForEntry(searchRequest);
@@ -508,7 +508,7 @@ catch (LDAPException le)
               <pre>
 SearchRequest persistentSearchRequest = new SearchRequest(
      asyncSearchListener, "dc=example,dc=com", SearchScope.SUB,
-     Filter.createPresenceFilter("objectClass"));
+     Filter.present("objectClass"));
 persistentSearchRequest.addControl(new PersistentSearchRequestControl(
      PersistentSearchChangeType.allChangeTypes(), // Notify change types.
      true, // Only return new changes, don't match existing entries.
@@ -624,7 +624,7 @@ catch (LDAPException le)
 // first name, both in ascending order.
 SearchRequest searchRequest = new SearchRequest(
      "ou=People,dc=example,dc=com", SearchScope.SUB,
-     Filter.createEqualityFilter("objectClass", "person"));
+     Filter.equals("objectClass", "person"));
 searchRequest.addControl(new ServerSideSortRequestControl(
      new SortKey("sn"), new SortKey("givenName")));
 SearchResult lastNameAscendingResult;
@@ -714,7 +714,7 @@ ResultCode firstNameSortResult =
 int numSearches = 0;
 int totalEntriesReturned = 0;
 SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
-     SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
+     SearchScope.SUB, Filter.equals("objectClass", "person"));
 ASN1OctetString resumeCookie = null;
 while (true)
 {
@@ -845,7 +845,7 @@ LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
 int numSearches = 0;
 int totalEntriesReturned = 0;
 SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
-     SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
+     SearchScope.SUB, Filter.equals("objectClass", "person"));
 int vlvOffset = 1;
 int vlvContentCount = 0;
 ASN1OctetString vlvContextID = null;

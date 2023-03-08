@@ -200,11 +200,11 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * these problems, it may be better to construct filters from their individual
  * components rather than their string representations, like:
  * <PRE>
- *   Filter f1 = Filter.createPresenceFilter("objectClass");
- *   Filter f2 = Filter.createEqualityFilter("uid", "john.doe");
- *   Filter f3 = Filter.createORFilter(
- *                    Filter.createEqualityFilter("givenName", "John"),
- *                    Filter.createEqualityFilter("givenName", "Johnathan"));
+ *   Filter f1 = Filter.present("objectClass");
+ *   Filter f2 = Filter.equals("uid", "john.doe");
+ *   Filter f3 = Filter.or(
+ *                    Filter.equals("givenName", "John"),
+ *                    Filter.equals("givenName", "Johnathan"));
  * </PRE>
  * In general, it is recommended to avoid creating filters from their string
  * representations if any of that string representation may include

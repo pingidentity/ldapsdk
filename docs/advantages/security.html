@@ -383,10 +383,10 @@ String filter = "(|(cn=" + searchText + ")(sn=" + searchText +
               </p>
 
               <pre>
-Filter filter = Filter.createANDFilter(
-     Filter.createEqualityFilter("cn", searchText),
-     Filter.createEqualityFilter("sn", searchText),
-     Filter.createEqualityFilter("givenName", searchText));
+Filter filter = Filter.and(
+     Filter.equals("cn", searchText),
+     Filter.equals("sn", searchText),
+     Filter.equals("givenName", searchText));
 </pre>
 
               <p>
