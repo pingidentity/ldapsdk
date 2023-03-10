@@ -4,13 +4,13 @@
 
 Network Working Group                                   A. Melnikov, Ed.
 Internet-Draft                                                 Isode Ltd
-Intended status: Standards Track                         19 October 2021
-Expires: 22 April 2022
+Intended status: Standards Track                           10 March 2023
+Expires: 11 September 2023
 
 
 SCRAM-SHA-512 and SCRAM-SHA-512-PLUS Simple Authentication and Security
                         Layer (SASL) Mechanisms
-                    draft-melnikov-scram-sha-512-02
+                    draft-melnikov-scram-sha-512-03
 
 Abstract
 
@@ -32,11 +32,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 April 2022.
+   This Internet-Draft will expire on 11 September 2023.
 
 Copyright Notice
 
-   Copyright (c) 2021 IETF Trust and the persons identified as the
+   Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -44,18 +44,18 @@ Copyright Notice
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 
 
 
 
 
-Melnikov                  Expires 22 April 2022                 [Page 1]
+Melnikov                Expires 11 September 2023               [Page 1]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
+Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS       March 2023
 
 
 Table of Contents
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Melnikov                  Expires 22 April 2022                 [Page 2]
+Melnikov                Expires 11 September 2023               [Page 2]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
+Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS       March 2023
 
 
 4.  Security Considerations
@@ -125,9 +125,8 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
    channel binding to use (see Section 6.1 of [RFC5802]), assuming the
    above conditions are satisfied.  As "tls-unique" channel binding is
    not defined for TLS 1.3 [RFC8446], when using SCRAM over TLS 1.3, the
-   "tls-exporter" channel binding [tls-1.3-channel-binding] MUST be the
-   default channel binding (in the sense specified in Section 6.1 of
-   [RFC5802]) to use.
+   "tls-exporter" channel binding [RFC9266] MUST be the default channel
+   binding (in the sense specified in Section 6.1 of [RFC5802]) to use.
 
    See [RFC4270] and [RFC6194] for reasons to move from SHA-1 to a
    strong security mechanism like SHA-512.
@@ -165,9 +164,10 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
 
 
 
-Melnikov                  Expires 22 April 2022                 [Page 3]
+
+Melnikov                Expires 11 September 2023               [Page 3]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
+Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS       March 2023
 
 
       Minimum iteration-count:  10000
@@ -221,9 +221,9 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
 
 
 
-Melnikov                  Expires 22 April 2022                 [Page 4]
+Melnikov                Expires 11 September 2023               [Page 4]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
+Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS       March 2023
 
 
    [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
@@ -261,12 +261,9 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/info/rfc8446>.
 
-   [tls-1.3-channel-binding]
-              Whited, S., "Channel Bindings for TLS 1.3", Work in
-              Progress, Internet-Draft, draft-ietf-kitten-tls-channel-
-              bindings-for-tls13-11, 18 October 2021,
-              <https://www.ietf.org/archive/id/draft-ietf-kitten-tls-
-              channel-bindings-for-tls13-11.txt>.
+   [RFC9266]  Whited, S., "Channel Bindings for TLS 1.3", RFC 9266,
+              DOI 10.17487/RFC9266, July 2022,
+              <https://www.rfc-editor.org/info/rfc9266>.
 
 6.2.  Informative References
 
@@ -277,9 +274,12 @@ Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
 
 
 
-Melnikov                  Expires 22 April 2022                 [Page 5]
+
+
+
+Melnikov                Expires 11 September 2023               [Page 5]
 
-Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS     October 2021
+Internet-Draft    SASL SCRAM-SHA-512/SCRAM-SHA-512-PLUS       March 2023
 
 
    [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
@@ -306,7 +306,6 @@ Author's Address
    Hampton
    TW12 2NP
    United Kingdom
-
    Email: alexey.melnikov@isode.com
 
 
@@ -333,4 +332,5 @@ Author's Address
 
 
 
-Melnikov                  Expires 22 April 2022                 [Page 6]
+
+Melnikov                Expires 11 September 2023               [Page 6]

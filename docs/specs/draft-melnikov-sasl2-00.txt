@@ -1,0 +1,560 @@
+
+
+
+
+Network Working Group                                        D. Cridland
+Internet-Draft                                                          
+Intended status: Standards Track                              T. Molitor
+Expires: 11 September 2023                                              
+                                                                 M. Wild
+                                                                        
+                                                             A. Melnikov
+                                                               Isode Ltd
+                                                           10 March 2023
+
+
+       Extensible Simple Authentication and Security Layer (SASL)
+                        draft-melnikov-sasl2-00
+
+Abstract
+
+   The Simple Authentication and Security Layer (SASL) is a framework
+   for providing authentication and data security services in
+   connection-oriented protocols via replaceable mechanisms.  It
+   provides a structured interface between protocols and mechanisms.
+   The resulting framework allows new protocols to reuse existing
+   mechanisms and allows old protocols to make use of new mechanisms.
+   The framework also provides a protocol for securing subsequent
+   protocol exchanges within a data security layer.
+
+   This document describes how a SASL mechanism is structured, describes
+   how protocols include support for SASL, and defines the protocol for
+   carrying a data security layer over a connection.  This document also
+   defines how servers can request fulfillment of extra authentication
+   related tasks, such as two factor authentication and/or password
+   change.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 11 September 2023.
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 1]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+Copyright Notice
+
+   Copyright (c) 2023 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Conventions Used in This Document . . . . . . . . . . . . . .   4
+   3.  Tasks . . . . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   4.  Channel Binding advertisement . . . . . . . . . . . . . . . .   6
+   5.  Extra Protocol Requirements . . . . . . . . . . . . . . . . .   7
+   6.  Extra Mechanism Requirements  . . . . . . . . . . . . . . . .   8
+   7.  Example of a Protocol fulfilling extra requirements . . . . .   8
+   8.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
+   12. References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
+     12.1.  Normative References . . . . . . . . . . . . . . . . . .   9
+     12.2.  Informative References . . . . . . . . . . . . . . . . .  10
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
+
+1.  Introduction
+
+   The Simple Authentication and Security Layer (SASL) is a framework
+   for providing authentication and data security services in
+   connection-oriented protocols via replaceable mechanisms.  SASL
+   provides a structured interface between protocols and mechanisms.
+   SASL also provides a protocol for securing subsequent protocol
+   exchanges within a data security layer.  The data security layer can
+   provide data integrity, data confidentiality, and other services.
+
+   SASL's design is intended to allow new protocols to reuse existing
+   mechanisms without requiring redesign of the mechanisms and allows
+   existing protocols to make use of new mechanisms without redesign of
+   protocols.
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 2]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+   SASL is conceptually a framework that provides an abstraction layer
+   between protocols and mechanisms as illustrated in the following
+   diagram.
+
+                     SMTP    LDAP    XMPP   Other protocols ...
+                        \       |    |      /
+                         \      |    |     /
+                        SASL abstraction layer
+                         /      |    |     \
+                        /       |    |      \
+                 EXTERNAL   GSSAPI  PLAIN   Other mechanisms ...
+
+   It is through the interfaces of this abstraction layer that the
+   framework allows any protocol to utilize any mechanism.  While this
+   layer does generally hide the particulars of protocols from
+   mechanisms and the particulars of mechanisms from protocols, this
+   layer does not generally hide the particulars of mechanisms from
+   protocol implementations.  For example, different mechanisms require
+   different information to operate, some of them use password-based
+   authentication, some of then require realm information, others make
+   use of Kerberos tickets, certificates, etc.  Also, in order to
+   perform authorization, server implementations generally have to
+   implement identity mapping between authentication identities, whose
+   form is mechanism specific, and authorization identities, whose form
+   is application protocol specific.  Section 2 discusses identity
+   concepts.
+
+   It is possible to design and implement this framework in ways that do
+   abstract away particulars of similar mechanisms.  Such a framework
+   implementation, as well as mechanisms implementations, could be
+   designed not only to be shared by multiple implementations of a
+   particular protocol but to be shared by implementations of multiple
+   protocols.
+
+   Since the publication of [RFC4422] a number of shortcomings in the
+   SASL framework were identified that are addressed in this document.
+   [[Note that the current draft only shows changes from RFC 4422.]]
+
+
+   This specification addresses a number of shortfalls in [RFC4422]:
+
+   *  Support for Two-factor authentication (2FA) or Multi-factor
+      authentication (MFA) tasks.
+
+   *  Support for mandatory password change tasks.
+
+   *  Channel Binding advertisement.
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 3]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+   *  Shared key derivation after successful authentication.
+
+   Extensions to SASL documented herein are primarily some
+   clarifications to allow extensibility, and additional results beyond
+   total success or abject failure.
+
+2.  Conventions Used in This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   Character names in this document use the notation for code points and
+   names from the Unicode Standard [Unicode].  For example, the letter
+   "a" may be represented as either <U+0061> or <LATIN SMALL LETTER A>.
+
+   Note: a glossary of terms used in Unicode can be found in [Glossary].
+   Information on the Unicode character encoding model can be found in
+   [CharModel].
+
+   Example lines prefaced by "C:" are sent by the client and ones
+   prefaced by "S:" by the server.  If a single "C:" or "S:" label
+   applies to multiple lines, then the line breaks between those lines
+   are for editorial clarity only, and are not part of the actual
+   protocol exchange.
+
+3.  Tasks
+
+   A protocol profile might have a way to indicate that while the SASL
+   exchange was successful, it is insufficient to allow authentication
+   at this time.  We call this indicator a "continue outcome message".
+   This can be used to indicate a need to execute extra task(s), for
+   example, that the Client needs to perform a Second Factor
+   Authentication ("2FA")and/or is required to change password (this
+   list is not meant to be exhaustive in any way).
+
+   These tasks are analogous to a SASL mechanism, but have a number of
+   differences - they may never attempt to negotiate a new authorization
+   identifier, nor a new security layer.
+
+   Each task has a name ([[need to define syntax and maximum length]])
+   that SHOULD be registered with IANA.
+
+
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 4]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+   A client MAY choose any one of the offered tasks; if multiple are
+   required, once a task is successfully completed, the server will
+   indicate that another one is required, and so on, until all mandatory
+   tasks are complete.
+
+   The continue outcome message MAY include SASL mechanism specific
+   additional data, as the successful outcome message does.
+
+   Finally, the continue outcome message MAY contain a textual data,
+   which contains human-readable data explaining the nature of the step
+   required.
+
+   Example 1. Continue Required (using XMPP protocol)
+
+   S: <continue xmlns='urn:xmpp:sasl:2'>
+     <additional-data>
+       SSdtIGJvcmVkIG5vdy4=
+     </additional-data>
+     <tasks>
+       <task>HOTP-EXAMPLE</task>
+       <task>TOTP-EXAMPLE</task>
+     </tasks>
+     <text>This account requires 2FA</text>
+   </continue>
+
+
+   If any SASL security layer was negotiated, it takes effect after the
+   final octet of the first continue outcome message.
+
+   Clients respond with a task initiation message, which has a single
+   mandatory parameter containing the selected task name, and MAY
+   contain any task specific data.
+
+   Each task MUST end either by the server sending a task failure
+   indicator message, if the task failed, a continue outcome message, if
+   the task was completed successfully and the server requests the
+   client to perform a new task, or a successful outcome message,
+   indicating that the task was completed successfully and no further
+   tasks are needed.
+
+
+
+
+
+
+
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 5]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+Example 2. Fictional TOTP task
+<!-- Client starts TOTP-EXAMPLE task -->
+
+<next xmlns='urn:xmpp:sasl:2' task='TOTP-EXAMPLE'>
+  <totp xmlns="urn:totp:example">
+    SSd2ZSBydW4gb3V0IG9mIGlkZWFzIGhlcmUu
+  </totp>
+</next>
+
+<!-- Server provides needed data to Client -->
+<task-data xmlns='urn:xmpp:sasl:2'>
+  <totp xmlns="urn:totp:example">
+    94d27acffa2e99a42ba7786162a9e73e7ab17b9d
+  </totp>
+</task-data>
+
+<!-- Client responds with requested TOP data -->
+<task-data xmlns='urn:xmpp:sasl:2'>
+  <totp xmlns="urn:totp:example">
+    OTRkMjdhY2ZmYTJlOTlhNDJiYTc3ODYxNjJhOWU3M2U3YWIxN2I5ZAo=
+  </totp>
+</task-data>
+
+<!-- Server indicates successful completion of TOTP-EXAMPLE task -->
+<success xmlns='urn:xmpp:sasl:2'>
+  <totp xmlns="urn:totp:example">
+    SGFkIHlvdSBnb2luZywgdGhlcmUsIGRpZG4ndCBJPw==
+  </totp>
+  <authorization-identifier>juliet@montague.example</authorization-identifier>
+</success>
+
+4.  Channel Binding advertisement
+
+   Most modern SASL mechanism are expected to support channel bindings
+   [RFC5056].
+
+   Explicit advertisement of server supported channel binding types
+   improves interoperability and is also necessary to prevent certain
+   MITM attacks.
+
+
+
+
+
+
+
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 6]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+   Example 3. Channel Binding Type advertisement in XMPP (XEP-0440).
+   Note that the <sasl-channel-binding> element is the new channel
+   binding advertisement.
+
+   <stream:features>
+     <sasl-channel-binding xmlns='urn:xmpp:sasl-cb:0'>
+       <channel-binding type='tls-server-end-point'/>
+       <channel-binding type='tls-exporter'/>
+     </sasl-channel-binding>
+     <mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>
+       <mechanism>EXTERNAL</mechanism>
+       <mechanism>SCRAM-SHA-1-PLUS</mechanism>
+       <mechanism>PLAIN</mechanism>
+     </mechanisms>
+   </stream:features>
+
+5.  Extra Protocol Requirements
+
+   [[Note that the item number continues the numbering of requirements
+   from Section 4 of RFC 4422.]]
+
+   [[Alexey: All of the features below are optional (in order to remain
+   backward compatible with RFC 4422).  However if any is implemented,
+   all of them MUST be implemented in a protocol.  This makes client
+   implementations easier.]]
+
+
+      9) Facility to advertise the list of Channel Bindings that the
+      server supports.  See Section 4.
+
+      10) Detail any task negotiation facility that the protocol
+      provides.  [[Alexey: does this need to be done before
+      authentication starts, or is it sufficient to discover these at
+      the end of SASL mechanism exchange, when specific extra tasks are
+      requested?]] A protocol MUST specify a facility through which the
+      client may discover, the names of the SASL tasks that the server
+      makes available to the client.  This facility is typically
+      provided through the protocol's extensions or capabilities
+      discovery facility (so that the client can be made aware of which
+      tasks might be required to complete authentication before starting
+      any authentication), as well as provided at the end of a SASL
+      authentication exchange.
+
+      11) Definition of the messages necessary for executing tasks,
+      including the following:
+
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 7]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+      a.  A message to initiate execution of a task (see Section 3).
+          This message MUST contain a field for carrying the name of the
+          task selected by the client.  This message MUST allow for an
+          optional field for carrying an initial task related data.  The
+          specification MUST describe how messages with an empty initial
+          task related data are distinguished from messages with no
+          initial task related data.  This field MUST be capable of
+          carrying arbitrary sequences of octets (including zero-length
+          sequences and sequences containing zero-valued octets).
+
+      b.  Messages to transfer task related data from server and from
+          client (see Section 3).  Each of these messages MUST be
+          capable of carrying arbitrary sequences of octets (including
+          zero-length sequences and sequences containing zero-valued
+          octets).
+
+      c.  A message to indicate the outcome of the task execution and
+          whether or not execution of further tasks is required by the
+          server (see Section 3).  This message MUST allow for an
+          optional field for carrying additional data with a successful
+          outcome.  The specification MUST describe how messages with an
+          empty additional data are distinguished from messages with no
+          additional data.  This field MUST be capable of carrying
+          arbitrary sequences of octets (including zero- length
+          sequences and sequences containing zero-valued octets).
+
+6.  Extra Mechanism Requirements
+
+   [[Note that the number continues the numbering of requirements from
+   Section 5 of RFC 4422.]]
+
+
+      6) Optional facility for SASL mechanism shared key derivation
+      after a successful authentication.  .
+
+7.  Example of a Protocol fulfilling extra requirements
+
+   [[Ideally need 2 protocols.  For example XMPP and IMAP.  IMAP can
+   have a new command for tasks.]]
+
+
+8.  Open Issues
+
+
+9.  Security Considerations
+
+   TBD
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 8]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+10.  IANA Considerations
+
+   IANA is requested to create a new subregistry of "SASL tasks" for
+   registering SASL tasks as specified in this document.
+
+   The registration template is as follows:
+
+
+Task Name: <need to define syntax!>
+Task Type: <define the list of types and whether or not it will be extensible>
+Pointer to specification text:
+Notes (optional):
+
+
+   The registration procedure for the above registry is Expert Review.
+
+11.  Acknowledgements
+
+   TBD.  Thank you XSF for XEP-0388, XEP-0440 and XEP-scram-upgrade.
+
+12.  References
+
+12.1.  Normative References
+
+   [CharModel]
+              Whistler, K. and A. Freytag, "Unicode character encoding
+              model", Unicode tr17, 11 November 2022,
+              <https://www.unicode.org/reports/tr17/>.
+
+   [Glossary] Consortium, U., "Glossary of Unicode Terms",
+              Unicode glossary, 2023,
+              <https://www.unicode.org/glossary/>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
+              Authentication and Security Layer (SASL)", RFC 4422,
+              DOI 10.17487/RFC4422, June 2006,
+              <https://www.rfc-editor.org/info/rfc4422>.
+
+   [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
+              FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
+              <https://www.rfc-editor.org/info/rfc4949>.
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023               [Page 9]
+
+Internet-Draft                Extended SASL                   March 2023
+
+
+   [RFC5056]  Williams, N., "On the Use of Channel Bindings to Secure
+              Channels", RFC 5056, DOI 10.17487/RFC5056, November 2007,
+              <https://www.rfc-editor.org/info/rfc5056>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+   [Unicode]  Consortium, U., "Unicode 15.0.0", Unicode 15.0.0, 13
+              September 2022,
+              <https://www.unicode.org/versions/Unicode15.0.0/>.
+
+12.2.  Informative References
+
+   [RFC6238]  M'Raihi, D., Machani, S., Pei, M., and J. Rydell, "TOTP:
+              Time-Based One-Time Password Algorithm", RFC 6238,
+              DOI 10.17487/RFC6238, May 2011,
+              <https://www.rfc-editor.org/info/rfc6238>.
+
+Authors' Addresses
+
+   Dave Cridland
+   Email: dave@cridland.net
+
+
+   Thilo Molitor
+   Email: thilo+xmpp@eightysoft.de
+
+
+   Matthew Wild
+   Email: mwild1@gmail.com
+
+
+   Alexey Melnikov
+   Isode Ltd
+   Email: Alexey.Melnikov@isode.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cridland, et al.        Expires 11 September 2023              [Page 10]
