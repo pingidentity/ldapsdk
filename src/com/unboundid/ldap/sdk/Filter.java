@@ -1146,7 +1146,7 @@ public final class Filter
    * component.
    * <BR><BR>
    * This method does exactly the same thing as
-   * {@link #createSubAnyFilter(String,byte[]...)}, but with a shorter method
+   * {@link #createSubAnyFilter(String,byte[][])}, but with a shorter method
    * name for convenience.
    *
    * @param  attributeName  The attribute name for this substring filter.  It
