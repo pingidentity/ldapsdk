@@ -854,6 +854,22 @@ public final class PassphraseEncryptedStreamHeader
                       final int keyFactoryKeyLengthBits)
           throws GeneralSecurityException
   {
+    // First, see if the key is already in the cache.  If so, then we'll use it.
+    final PassphraseEncryptedStreamHeaderCachedKeyIdentifier identifier =
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              keyFactoryAlgorithm, keyFactorySalt, keyFactoryIterationCount,
+              keyFactoryKeyLengthBits, passphrase);
+    SecretKey secretKey =
+         PassphraseEncryptedStreamHeaderSecretKeyCache.get(identifier);
+    if (secretKey != null)
+    {
+      return secretKey;
+    }
+
+
+    // Generate the key.  Because we've previously seen cases in which this can
+    // yield inconsistent results, we'll make sure that we repeatedly get the
+    // same answer.
     byte[] prev = null;
     byte[] prev2 = null;
 
@@ -866,10 +882,8 @@ public final class PassphraseEncryptedStreamHeader
            cipherTransformation.indexOf('/'));
       final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
            keyFactoryIterationCount, keyFactoryKeyLengthBits);
-      final SecretKey secretKey = new SecretKeySpec(
-           keyFactory.generateSecret(pbeKeySpec).getEncoded(),
-           cipherAlgorithm);
-      final byte[] encoded = secretKey.getEncoded();
+      final byte[] encoded = keyFactory.generateSecret(pbeKeySpec).getEncoded();
+      secretKey = new SecretKeySpec(encoded, cipherAlgorithm);
 
       // If this encoded key is the same as the previous one, and the one before
       // that, then it was likely computed correctly, so return it.
@@ -882,6 +896,11 @@ public final class PassphraseEncryptedStreamHeader
                "after " + i + " iterations, we were able to generate a " +
                "consistent value.");
         }
+
+
+        // Put the new key in the cache and return it.
+        PassphraseEncryptedStreamHeaderSecretKeyCache.put(identifier,
+             secretKey);
         return secretKey;
       }
 

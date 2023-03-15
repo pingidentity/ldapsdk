@@ -82,6 +82,11 @@ public final class PassphraseEncryptedStreamsTestCase
   public void testWithHeaderWrittenToStream()
          throws Exception
   {
+    // Clear the secret key cache.
+    PassphraseEncryptedStreamHeaderSecretKeyCache.clear();
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 0);
+
+
     // Define the data to be encrypted.
     final List<String> linesToEncrypt = Arrays.asList(
          "This is some data that will be encrypted.",
@@ -95,6 +100,7 @@ public final class PassphraseEncryptedStreamsTestCase
 
 
     // Write the data to an encrypted file.
+    final PassphraseEncryptedStreamHeaderCachedKeyIdentifier cacheID;
     try (FileOutputStream fileOutputStream =
               new FileOutputStream(encryptedFile);
          PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
@@ -103,12 +109,23 @@ public final class PassphraseEncryptedStreamsTestCase
          PrintStream printStream =
               new PrintStream(passphraseEncryptedOutputStream))
     {
-      assertNotNull(passphraseEncryptedOutputStream.getEncryptionHeader());
-
+      // Write the data to be encrypted.
       for (final String line : linesToEncrypt)
       {
         printStream.println(line);
       }
+
+
+      // Make sure that the key was added to the cache.
+      assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 1);
+
+      final PassphraseEncryptedStreamHeader encryptionHeader =
+           passphraseEncryptedOutputStream.getEncryptionHeader();
+      assertNotNull(encryptionHeader);
+
+      cacheID = new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+           encryptionHeader, "passphrase".toCharArray());
+      assertNotNull(PassphraseEncryptedStreamHeaderSecretKeyCache.get(cacheID));
     }
 
 
@@ -140,6 +157,11 @@ public final class PassphraseEncryptedStreamsTestCase
 
     // Make sure that the decrypted data matches the data we originally wrote.
     assertEquals(decryptedLines, linesToEncrypt);
+
+
+    // Clear the cache again and make sure it's empty.
+    PassphraseEncryptedStreamHeaderSecretKeyCache.clear();
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 0);
   }
 
 
@@ -154,6 +176,11 @@ public final class PassphraseEncryptedStreamsTestCase
   public void testWithHeaderNotWrittenToStream()
          throws Exception
   {
+    // Clear the secret key cache.
+    PassphraseEncryptedStreamHeaderSecretKeyCache.clear();
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 0);
+
+
     // Define the data to be encrypted.
     final List<String> linesToEncrypt = Arrays.asList(
          "This is some data that will be encrypted.",
@@ -168,6 +195,7 @@ public final class PassphraseEncryptedStreamsTestCase
 
     // Write the data to an encrypted file, and make sure to capture the header.
     final PassphraseEncryptedStreamHeader encryptionHeader;
+    final PassphraseEncryptedStreamHeaderCachedKeyIdentifier cacheID;
     try (FileOutputStream fileOutputStream =
               new FileOutputStream(encryptedFile);
          PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
@@ -176,13 +204,21 @@ public final class PassphraseEncryptedStreamsTestCase
          PrintStream printStream =
               new PrintStream(passphraseEncryptedOutputStream))
     {
-      encryptionHeader = passphraseEncryptedOutputStream.getEncryptionHeader();
-      assertNotNull(encryptionHeader);
-
       for (final String line : linesToEncrypt)
       {
         printStream.println(line);
       }
+
+
+      // Make sure that the key was added to the cache.
+      assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 1);
+
+      encryptionHeader = passphraseEncryptedOutputStream.getEncryptionHeader();
+      assertNotNull(encryptionHeader);
+
+      cacheID = new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+           encryptionHeader, "passphrase".toCharArray());
+      assertNotNull(PassphraseEncryptedStreamHeaderSecretKeyCache.get(cacheID));
     }
 
 
@@ -214,6 +250,13 @@ public final class PassphraseEncryptedStreamsTestCase
 
     // Make sure that the decrypted data matches the data we originally wrote.
     assertEquals(decryptedLines, linesToEncrypt);
+
+
+    // Remove the key from the cache, and make sure the cache is left empty.
+    assertNotNull(PassphraseEncryptedStreamHeaderSecretKeyCache.remove(
+         cacheID));
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 0);
+
   }
 
 
@@ -1131,6 +1174,11 @@ public final class PassphraseEncryptedStreamsTestCase
   public void testDerivedKeyReuse()
          throws Exception
   {
+    // Clear the secret key cache.
+    PassphraseEncryptedStreamHeaderSecretKeyCache.clear();
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 0);
+
+
     // Define the data to be encrypted.
     final List<String> linesToEncrypt = Arrays.asList(
          "This is some data that will be encrypted.",
@@ -1172,6 +1220,16 @@ public final class PassphraseEncryptedStreamsTestCase
     }
 
 
+    // Make sure that the derived key has been cached.
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 1);
+
+    final PassphraseEncryptedStreamHeaderCachedKeyIdentifier cacheID =
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              encryptionHeader1, encryptionPassphrase);
+    assertNotNull(PassphraseEncryptedStreamHeaderSecretKeyCache.get(
+         cacheID));
+
+
     // Create a second passphrase-encrypted output stream with the same header
     // as the first stream and also use it to encrypt the data.
     final PassphraseEncryptedStreamHeader encryptionHeader2;
@@ -1190,6 +1248,23 @@ public final class PassphraseEncryptedStreamsTestCase
 
       encryptionHeader2 = encryptedOutputStream.getEncryptionHeader();
     }
+
+
+    // Make sure that the second header is not the same as the first.
+    assertFalse(Arrays.equals(encryptionHeader1.getEncodedHeader(),
+         encryptionHeader2.getEncodedHeader()));
+
+
+    // Make sure that the second header results in the same cache ID as the
+    // first.
+    assertEquals(
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              encryptionHeader2, encryptionPassphrase),
+         cacheID);
+
+
+    // Make sure that the cache only contains a single key.
+    assertEquals(PassphraseEncryptedStreamHeaderSecretKeyCache.size(), 1);
 
 
     // Make sure that the two output files are comprised of different sets of
@@ -1269,5 +1344,104 @@ public final class PassphraseEncryptedStreamsTestCase
 
       assertEquals(decryptedLines, linesToEncrypt);
     }
+  }
+
+
+
+  /**
+   * Provides test coverage for the
+   * {@link PassphraseEncryptedStreamHeaderCachedKeyIdentifier} class.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCacheID()
+         throws Exception
+  {
+    // Define the data to be encrypted.
+    final List<String> linesToEncrypt = Arrays.asList(
+         "This is some data that will be encrypted.",
+         "So is this.",
+         "And this.");
+
+
+    // Get the path to a file to which encrypted data will be written.
+    final File encryptedFile = createTempFile();
+    assertTrue(encryptedFile.delete());
+
+
+    // Write the data to the encrypted file with one passphrase and get the
+    // cache key ID.
+    final PassphraseEncryptedStreamHeader encryptionHeader1;
+    final PassphraseEncryptedStreamHeaderCachedKeyIdentifier cacheID1;
+    try (FileOutputStream fileOutputStream =
+              new FileOutputStream(encryptedFile);
+         PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
+              new PassphraseEncryptedOutputStream("passphrase",
+                   fileOutputStream);
+         PrintStream printStream =
+              new PrintStream(passphraseEncryptedOutputStream))
+    {
+      // Write the data to be encrypted.
+      for (final String line : linesToEncrypt)
+      {
+        printStream.println(line);
+      }
+
+      encryptionHeader1 = passphraseEncryptedOutputStream.getEncryptionHeader();
+      assertNotNull(encryptionHeader1);
+
+      cacheID1 = new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+           encryptionHeader1, "passphrase".toCharArray());
+      assertNotNull(PassphraseEncryptedStreamHeaderSecretKeyCache.get(
+           cacheID1));
+    }
+
+
+    // Write the data to the encrypted file with a different passphrase and get
+    // the cache key ID for it.
+    final PassphraseEncryptedStreamHeader encryptionHeader2;
+    final PassphraseEncryptedStreamHeaderCachedKeyIdentifier cacheID2;
+    try (FileOutputStream fileOutputStream =
+              new FileOutputStream(encryptedFile);
+         PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
+              new PassphraseEncryptedOutputStream("different-passphrase",
+                   fileOutputStream);
+         PrintStream printStream =
+              new PrintStream(passphraseEncryptedOutputStream))
+    {
+      // Write the data to be encrypted.
+      for (final String line : linesToEncrypt)
+      {
+        printStream.println(line);
+      }
+
+      encryptionHeader2 = passphraseEncryptedOutputStream.getEncryptionHeader();
+      assertNotNull(encryptionHeader2);
+
+      cacheID2 = new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+           encryptionHeader2, "different-passphrase".toCharArray());
+      assertNotNull(PassphraseEncryptedStreamHeaderSecretKeyCache.get(
+           cacheID2));
+    }
+
+
+    // Test the equals methods for the cache key.
+    assertFalse(cacheID1.equals(null));
+    assertFalse(cacheID1.equals("foo"));
+    assertTrue(cacheID1.equals(cacheID1));
+    assertFalse(cacheID1.equals(cacheID2));
+    assertTrue(cacheID1.equals(
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              encryptionHeader1, "passphrase".toCharArray())));
+    assertFalse(cacheID1.equals(
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              encryptionHeader1, "different-passphrase".toCharArray())));
+    assertFalse(cacheID2.equals(
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              encryptionHeader2, "passphrase".toCharArray())));
+    assertTrue(cacheID2.equals(
+         new PassphraseEncryptedStreamHeaderCachedKeyIdentifier(
+              encryptionHeader2, "different-passphrase".toCharArray())));
   }
 }

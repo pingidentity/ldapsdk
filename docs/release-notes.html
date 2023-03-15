@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated support for passphrase-encrypted input and output streams to provide a
+                  mechanism for caching the derived secret keys so that it's not necessary to
+                  re-derive the key each time it's used.  This can dramatically improve
+                  performance when the same key is used multiple times.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the documentation to include the latest versions of draft-melnikov-sasl2
                   and draft-melnikov-scram-sha-512 in the set of LDAP-related specifications.
                   <br><br>
