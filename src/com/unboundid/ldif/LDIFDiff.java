@@ -157,6 +157,7 @@ public final class LDIFDiff
   @NotNull private final List<char[]> encryptionPassphrases;
 
   // The command-line arguments supported by this tool.
+  @Nullable private BooleanArgument byteForByte;
   @Nullable private BooleanArgument compressOutput;
   @Nullable private BooleanArgument encryptOutput;
   @Nullable private BooleanArgument excludeNoUserModificationAttributes;
@@ -682,6 +683,12 @@ public final class LDIFDiff
     parser.addArgument(schemaPath);
 
 
+    byteForByte = new BooleanArgument(null, "byteForByte", 1,
+         INFO_LDIF_DIFF_ARG_DESC_BYTE_FOR_BYTE.get());
+    byteForByte.addLongIdentifier("byte-for-byte", true);
+    parser.addArgument(byteForByte);
+
+
     parser.addDependentArgumentSet(compressOutput, outputLDIF);
     parser.addDependentArgumentSet(encryptOutput, outputLDIF);
     parser.addDependentArgumentSet(outputEncryptionPassphraseFile, outputLDIF);
@@ -701,6 +708,8 @@ public final class LDIFDiff
 
     parser.addExclusiveArgumentSet(nonReversibleModifications,
          singleValueChanges);
+
+    parser.addExclusiveArgumentSet(schemaPath, byteForByte);
   }
 
 
@@ -1322,12 +1331,12 @@ public final class LDIFDiff
    * @param  targetEntries  The map of entries read from the target LDIF file.
    *                        It must not be {@code null}.
    * @param  writer         The LDIF writer to use to write any changes.  It
-   *                        must not be {@ocde null} and it must be open.
+   *                        must not be {@code null} and it must be open.
    * @param  schema         The schema to use to identify operational
-   *                        attributes.  It must not be {@ocde null}.
+   *                        attributes.  It must not be {@code null}.
    * @param  includeAttrs   A set containing all names and OIDs for all
    *                        attribute types that should be included in the
-   *                        entry.  It must not be {@ocde null} but may be
+   *                        entry.  It must not be {@code null} but may be
    *                        empty.  All values must be formatted entirely in
    *                        lowercase.
    * @param  excludeAttrs   A set containing all names and OIDs for all
@@ -1460,10 +1469,10 @@ public final class LDIFDiff
    * @param  entry         The entry to be pared down.  It must not be
    *                       {@code null}.
    * @param  schema        The schema to use during processing.  It must not be
-   *                       {@ocde null}.
+   *                       {@code null}.
    * @param  includeAttrs  A set containing all names and OIDs for all attribute
    *                       types that should be included in the entry.  It must
-   *                       not be {@ocde null} but may be empty.  All values
+   *                       not be {@code null} but may be empty.  All values
    *                       must be formatted entirely in lowercase.
    * @param  excludeAttrs  A set containing all names and OIDs for all attribute
    *                       types that should be excluded from the entry.  It
@@ -1530,17 +1539,17 @@ public final class LDIFDiff
    * @param  targetEntries  The map of entries read from the target LDIF file.
    *                        It must not be {@code null}.
    * @param  writer         The LDIF writer to use to write any changes.  It
-   *                        must not be {@ocde null} and it must be open.
+   *                        must not be {@code null} and it must be open.
    * @param  schema         The schema to use to identify operational
-   *                        attributes.  It must not be {@ocde null}.
+   *                        attributes.  It must not be {@code null}.
    * @param  includeAttrs   A set containing all names and OIDs for all
    *                        attribute types that should be included in the
-   *                        set of modifications.  It must not be {@ocde null}
+   *                        set of modifications.  It must not be {@code null}
    *                        but may be empty.  All values must be formatted
    *                        entirely in lowercase.
    * @param  excludeAttrs   A set containing all names and OIDs for all
    *                        attribute types that should be excluded from the
-   *                        set of modifications.  It must not be {@ocde null}
+   *                        set of modifications.  It must not be {@code null}
    *                        but may be empty.  All values must be formatted
    *                        entirely in lowercase.
    *
@@ -1579,7 +1588,8 @@ public final class LDIFDiff
       }
 
       final List<Modification> mods = Entry.diff(sourceEntry, targetEntry,
-           false, (! nonReversibleModifications.isPresent()), true);
+           false, (! nonReversibleModifications.isPresent()),
+           byteForByte.isPresent());
       if (writeModifiedEntry(sourceDN, mods, writer, schema, includeAttrs,
            excludeAttrs))
       {
@@ -1604,12 +1614,12 @@ public final class LDIFDiff
    *                       It must not be {@code null}.
    * @param  includeAttrs  A set containing all names and OIDs for all attribute
    *                       types that should be included in the set of
-   *                       modifications.  It must not be {@ocde null} but may
+   *                       modifications.  It must not be {@code null} but may
    *                       be empty.  All values must be formatted entirely in
    *                       lowercase.
    * @param  excludeAttrs  A set containing all names and OIDs for all attribute
    *                       types that should be excluded from the set of
-   *                       modifications.  It must not be {@ocde null} but may
+   *                       modifications.  It must not be {@code null} but may
    *                       be empty.  All values must be formatted entirely in
    *                       lowercase.
    *
@@ -1730,12 +1740,12 @@ public final class LDIFDiff
    * @param  targetEntries  The map of entries read from the target LDIF file.
    *                        It must not be {@code null}.
    * @param  writer         The LDIF writer to use to write any changes.  It
-   *                        must not be {@ocde null} and it must be open.
+   *                        must not be {@code null} and it must be open.
    * @param  schema         The schema to use to identify operational
-   *                        attributes.  It must not be {@ocde null}.
+   *                        attributes.  It must not be {@code null}.
    * @param  includeAttrs   A set containing all names and OIDs for all
    *                        attribute types that should be included in the
-   *                        entry.  It must not be {@ocde null} but may be
+   *                        entry.  It must not be {@code null} but may be
    *                        empty.  All values must be formatted entirely in
    *                        lowercase.
    * @param  excludeAttrs   A set containing all names and OIDs for all

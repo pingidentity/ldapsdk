@@ -3403,6 +3403,48 @@ public class EntryTestCase
 
 
   /**
+   * Tests the {@code diff} method for the case in which the only difference is
+   * in object class capitalization.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDiffObjectClassCapitalization()
+         throws Exception
+  {
+    Entry e1 = new Entry("dn: dc=example,dc=com",
+                         "objectClass: top",
+                         "objectClass: domain",
+                         "dc: example");
+
+    Entry e2 = new Entry("dn: dc=example,dc=com",
+                         "objectClass: Top",
+                         "objectClass: Domain",
+                         "dc: example");
+
+
+    // Make sure that the entries are considered equivalent when not using
+    // byte-for-byte comparison.
+    assertTrue(Entry.diff(e1, e2, false, true, false).isEmpty());
+    assertTrue(Entry.diff(e2, e1, false, true, false).isEmpty());
+
+
+    // Make sure that a difference is identified when using byte-for-byte
+    // comparison.
+    List<Modification> mods = Entry.diff(e1, e2, true, true, true);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2);
+    assertEquals(mods.get(0),
+         new Modification(ModificationType.DELETE, "objectClass", "top",
+              "domain"));
+    assertEquals(mods.get(1),
+         new Modification(ModificationType.ADD, "objectClass", "Top",
+              "Domain"));
+  }
+
+
+
+  /**
    * Provides test coverage for the {@code applyModifications} method with a
    * number of simple valid modifications.
    *

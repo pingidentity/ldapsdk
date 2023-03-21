@@ -4323,6 +4323,94 @@ public final class LDIFDiffTestCase
 
 
   /**
+   * Tests the behavior for the tool when byte-for-byte matching is requested.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testByteForByteMatching()
+         throws Exception
+  {
+    // Create source and target LDIF files with attribute values that differ
+    // only in capitalization.
+    final File source = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: test",
+         "",
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test");
+    final File target = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: Test",
+         "",
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: Top",
+         "objectClass: OrganizationalUnit",
+         "ou: test");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+
+    // First, test with the default schema-aware matching.  There should not be
+    // any differences identified.
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+
+    // Test again with byte-for-byte matching.  This time, there should be
+    // differences identified.
+    out.reset();
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--byteForByte"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 2);
+    assertEquals(changeRecords.get(0),
+         new LDIFModifyChangeRecord("dc=example,dc=com",
+              new Modification(ModificationType.DELETE, "description", "test"),
+              new Modification(ModificationType.ADD, "description", "Test")));
+    assertEquals(changeRecords.get(1),
+         new LDIFModifyChangeRecord("ou=test,dc=example,dc=com",
+              new Modification(ModificationType.DELETE, "objectClass", "top",
+                   "organizationalUnit"),
+              new Modification(ModificationType.ADD, "objectClass", "Top",
+                   "OrganizationalUnit")));
+  }
+
+
+
+  /**
    * Reads the LDIF change records from the specified file.
    *
    * @param  ldifFile  The file from which to read the change records.  It may

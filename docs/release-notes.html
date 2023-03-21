@@ -14,6 +14,18 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the ldif-diff tool to add a --byteForByte argument that can be used to
+                  indicate that it should not ignore differences between source and target entries
+                  that would otherwise be considered insignificant based on the associated
+                  matching rules (for example, values that differ only in capitalization for
+                  attributes that use case-ignore matching).  Byte-for-byte matching was
+                  previously always used when comparing source and target entries, but it should
+                  be a configurable option, and it is better to use schema-aware matching by
+                  default.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated support for passphrase-encrypted input and output streams to provide a
                   mechanism for caching the derived secret keys so that it's not necessary to
                   re-derive the key each time it's used.  This can dramatically improve
