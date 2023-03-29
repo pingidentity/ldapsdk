@@ -961,7 +961,7 @@ public final class StaticUtils
    * that are believed to be displayable (as determined by the
    * {@link #isLikelyDisplayableCharacter} method).
    *
-   * @param  s  The string for which to make the determination.  It must not e
+   * @param  s  The string for which to make the determination.  It must not be
    *            {@code null}.
    *
    * @return  {@code true} if the provided string is believed to be displayable,
@@ -982,6 +982,33 @@ public final class StaticUtils
     }
 
     return true;
+  }
+
+
+
+  /**
+   * Retrieves an array of the code points that comprise the provided string.
+   *
+   * @param  s  The string for which to obtain the code points.  It must not be
+   *            {@code null}.
+   *
+   * @return  An array of the code points that comprise the provided string.
+   */
+  public static int[] getCodePoints(@NotNull final String s)
+  {
+    final int numCodePoints = s.codePointCount(0, s.length());
+    final int[] codePoints = new int[numCodePoints];
+
+    int pos = 0;
+    int arrayIndex = 0;
+    while (pos < s.length())
+    {
+      final int codePoint = s.codePointAt(pos);
+      codePoints[arrayIndex++] = codePoint;
+      pos += Character.charCount(codePoint);
+    }
+
+    return codePoints;
   }
 
 

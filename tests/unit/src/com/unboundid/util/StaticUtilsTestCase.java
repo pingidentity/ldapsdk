@@ -4488,4 +4488,38 @@ public class StaticUtilsTestCase
       }
     };
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code getCodePoints} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetCodePoints()
+  {
+    final String[] testStrings =
+    {
+      "",
+      "a",
+      "ab",
+      "abc",
+      "test",
+      "aA1 -+,.*%@",
+      "Lowercase n with a tilde: \u00F1",
+      "Latin Capital Letter OO \uA74E",
+      "Deseret Capital Letter Long I \uD801\uDC00",
+      "Smiley Face Emoji \uD83D\uDE00",
+      "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8"
+    };
+
+    for (final String testString : testStrings)
+    {
+      final int[] codePoints = StaticUtils.getCodePoints(testString);
+      final String stringFromCodePoints =
+           new String(codePoints, 0, codePoints.length);
+      assertEquals(stringFromCodePoints, testString);
+    }
+  }
 }
