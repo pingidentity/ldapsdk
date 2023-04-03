@@ -34,8 +34,39 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the StaticUtils.isLikelyDisplayableCharacter method to add additional
+                  character types that are believed to be displayable.  While most types of
+                  symbols were already considered displayable, modifier symbols had previously
+                  been overlooked but are now included.  In addition, non-spacing marks,
+                  enclosing marks, and combining spacing marks are also considered displayable
+                  because even though they aren't displayable on their own, they are likely to
+                  be combined with other characters that makes them displayable.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new StaticUtils.getCodePoints method that can be used to retrieve an
                   array of the code points that comprise a given string.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a StaticUtils.unicodeStringsAreEquivalent method that can be used to
+                  determine whether two strings represent an equivalent sequence of Unicode
+                  characters.  Also, added a StaticUtils.utf8StringsAreEquivalent method that can
+                  be used to determine whether two byte arrays represent UTF-8 strings with an
+                  equivalent set of Unicode characters.  Unicode may offer multiple ways of
+                  encoding the same character or sequence of characters, and these methods take
+                  those alternative encodings into account.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a StaticUtils.isValidUTF8WithNonASCIICharacters method that can be used to
+                  determine if a provided byte array represents a valid UTF-8 string that contains
+                  at least one non-ASCII character.  This new method can be more efficient than
+                  calling both the existing isValidUTF8 and isASCIIString methods when that
+                  combination is needed.
                   <br><br>
                 </li>
 

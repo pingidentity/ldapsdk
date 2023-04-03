@@ -442,9 +442,9 @@ public final class Base64EncodingStrategyTestCase
   {
     return new String[]
     {
-      "a\u0488b",
-      "\u0488leading",
-      "trailing\u0488"
+      "private\uE000use",
+      "\uE000leading",
+      "trailing\uE000"
     };
   }
 

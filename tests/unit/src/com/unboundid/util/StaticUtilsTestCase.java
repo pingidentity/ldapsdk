@@ -4498,6 +4498,7 @@ public class StaticUtilsTestCase
    */
   @Test()
   public void testGetCodePoints()
+         throws Exception
   {
     final String[] testStrings =
     {
@@ -4508,6 +4509,8 @@ public class StaticUtilsTestCase
       "test",
       "aA1 -+,.*%@",
       "Lowercase n with a tilde: \u00F1",
+      "Lowercase n followed by a non-spacing combining tilde: n\u0303",
+      "Latin small ligature ffi: \uFB03",
       "Latin Capital Letter OO \uA74E",
       "Deseret Capital Letter Long I \uD801\uDC00",
       "Smiley Face Emoji \uD83D\uDE00",
@@ -4520,6 +4523,94 @@ public class StaticUtilsTestCase
       final String stringFromCodePoints =
            new String(codePoints, 0, codePoints.length);
       assertEquals(stringFromCodePoints, testString);
+
+      for (final int codePoint : StaticUtils.getCodePoints(testString))
+      {
+        assertTrue(StaticUtils.isLikelyDisplayableCharacter(codePoint));
+      }
+
+      final byte[] bytes = StaticUtils.getBytes(testString);
+      assertTrue(StaticUtils.isValidUTF8(bytes));
+      assertEquals(StaticUtils.isValidUTF8WithNonASCIICharacters(bytes),
+           (! StaticUtils.isASCIIString(bytes)));
     }
+  }
+
+
+
+  /**
+   * Tests the behavior for the {@code unicodeStringsAreEquivalent} and
+   * {@code utf8StringsAreEquivalent} methods.
+   *
+   * @param  s1             The first string to compare.
+   * @param  s2             The second string to compare.
+   * @param  areEquivalent  Indicates whether the two strings should be
+   *                        considered equivalent.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "unicodeEquivalenceTestData")
+  public void testUnicodeStringsAreEquivalent(final String s1, final String s2,
+                                              final boolean areEquivalent)
+         throws Exception
+  {
+    assertEquals(StaticUtils.unicodeStringsAreEquivalent(s1, s2),
+         areEquivalent);
+
+    final byte[] b1 = StaticUtils.getBytes(s1);
+    final byte[] b2 = StaticUtils.getBytes(s2);
+    assertEquals(StaticUtils.utf8StringsAreEquivalent(b1, b2),
+         areEquivalent);
+  }
+
+
+
+  /**
+   * Retrieves a set of data that can be used to test for Unicode equivalence.
+   *
+   * @return  A set of data that can be used to test for Unicode equivalence.
+   */
+  @DataProvider(name = "unicodeEquivalenceTestData")
+  public Object[][] getUnicodeEquivalenceTestData()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "test",
+        "test",
+        true
+      },
+      new Object[]
+      {
+        "jalape\u00F1o",
+        "jalapen\u0303o",
+        true
+      },
+      new Object[]
+      {
+        "jalapeno",
+        "jalapen\u0303o",
+        false
+      },
+      new Object[]
+      {
+        "jalape\u00F1o",
+        "jalapeno",
+        false
+      },
+
+      // NOTE:  The following strings are considered equivalent when using
+      // normalization that involves compatibility decomposition, but not when
+      // using canonical decomposition.  Since the methods we're testing use
+      // canonical decomposition, they should not be considered equivalent.
+      new Object[]
+      {
+        "griffin",
+        "gri\uFB03n",
+        //
+        false
+      }
+    };
   }
 }

@@ -528,9 +528,9 @@ public final class DNEscapingStrategyTestCase
   private Map<String,String> getNonDisplayableNonASCIICharacterStrings()
   {
     return StaticUtils.mapOf(
-         "a\u0488b", "a\\d2\\88b",
-         "\u0488leading", "\\d2\\88leading",
-         "trailing\u0488", "trailing\\d2\\88");
+         "private\uE000use", "private\\ee\\80\\80use",
+         "\uE000leading", "\\ee\\80\\80leading",
+         "trailing\uE000", "trailing\\ee\\80\\80");
   }
 
 

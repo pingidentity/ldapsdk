@@ -51,6 +51,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -914,10 +915,10 @@ public final class StaticUtils
   /**
    * Indicates whether the specified Unicode code point represents a character
    * that is believed to be displayable.  Displayable characters include
-   * letters, numbers, spaces, dashes, punctuation, and symbols.
-   * Non-displayable characters include control characters, combining marks,
-   * enclosing marks, directionality indicators, format characters, and
-   * surrogate characters.
+   * letters, numbers, spaces, dashes, punctuation, symbols, and marks.
+   * Non-displayable characters include control characters, directionality
+   * indicators, like and paragraph separators, format characters, and surrogate
+   * characters.
    *
    * @param  codePoint  The code point for which to make the determination.
    *
@@ -947,8 +948,19 @@ public final class StaticUtils
       case Character.FINAL_QUOTE_PUNCTUATION:
       case Character.MATH_SYMBOL:
       case Character.CURRENCY_SYMBOL:
+      case Character.MODIFIER_SYMBOL:
       case Character.OTHER_SYMBOL:
+      case Character.NON_SPACING_MARK:
+      case Character.ENCLOSING_MARK:
+      case Character.COMBINING_SPACING_MARK:
         return true;
+      case Character.UNASSIGNED:
+      case Character.LINE_SEPARATOR:
+      case Character.PARAGRAPH_SEPARATOR:
+      case Character.CONTROL:
+      case Character.FORMAT:
+      case Character.PRIVATE_USE:
+      case Character.SURROGATE:
       default:
         return false;
     }
@@ -994,6 +1006,7 @@ public final class StaticUtils
    *
    * @return  An array of the code points that comprise the provided string.
    */
+  @NotNull()
   public static int[] getCodePoints(@NotNull final String s)
   {
     final int numCodePoints = s.codePointCount(0, s.length());
@@ -1014,7 +1027,10 @@ public final class StaticUtils
 
 
   /**
-   * Indicates whether the contents of the provided array are valid UTF-8.
+   * Indicates whether the contents of the provided array represent a valid
+   * UTF-8 string, which may or may not contain non-ASCII characters.  Note that
+   * this method does not make any attempt to determine whether the characters
+   * in the UTF-8 string actually map to assigned Unicode code points.
    *
    * @param  b  The byte array to examine.  It must not be {@code null}.
    *
@@ -1023,7 +1039,53 @@ public final class StaticUtils
    */
   public static boolean isValidUTF8(@NotNull final byte[] b)
   {
+    return isValidUTF8(b, false);
+  }
+
+
+
+  /**
+   * Indicates whether the contents of the provided array represent a valid
+   * UTF-8 string that contains at least one non-ASCII character (and may
+   * contain zero or more ASCII characters).  Note that this method does not
+   * make any attempt to determine whether the characters in the UTF-8 string
+   * actually map to assigned Unicode code points.
+   *
+   * @param  b  The byte array to examine.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the byte array can be parsed as a valid UTF-8
+   *          string and contains at least one non-ASCII character, or
+   *          {@code false} if not.
+   */
+  public static boolean isValidUTF8WithNonASCIICharacters(
+              @NotNull final byte[] b)
+  {
+    return isValidUTF8(b, true);
+  }
+
+
+
+  /**
+   * Indicates whether the contents of the provided array represent a valid
+   * UTF-8 string that contains at least one non-ASCII character (and may
+   * contain zero or more ASCII characters).  Note that this method does not
+   * make any attempt to determine whether the characters in the UTF-8 string
+   * actually map to assigned Unicode code points.
+   *
+   * @param  b                The byte array to examine.  It must not be
+   *                          {@code null}.
+   * @param  requireNonASCII  Indicates whether to require at least one
+   *                          non-ASCII character in the provided string.
+   *
+   * @return  {@code true} if the byte array can be parsed as a valid UTF-8
+   *          string and meets the non-ASCII requirement if appropriate, or
+   *          {@code false} if not.
+   */
+  private static boolean isValidUTF8(@NotNull final byte[] b,
+                                     final boolean requireNonASCII)
+  {
     int i = 0;
+    boolean containsNonASCII = false;
     while (i < b.length)
     {
       final byte currentByte = b[i++];
@@ -1045,6 +1107,7 @@ public final class StaticUtils
         }
 
         i++;
+        containsNonASCII = true;
         continue;
       }
 
@@ -1058,6 +1121,7 @@ public final class StaticUtils
         }
 
         i += 2;
+        containsNonASCII = true;
         continue;
       }
 
@@ -1071,6 +1135,7 @@ public final class StaticUtils
         }
 
         i += 3;
+        containsNonASCII = true;
         continue;
       }
 
@@ -1084,6 +1149,7 @@ public final class StaticUtils
         }
 
         i += 4;
+        containsNonASCII = true;
         continue;
       }
 
@@ -1097,6 +1163,7 @@ public final class StaticUtils
         }
 
         i += 5;
+        containsNonASCII = true;
         continue;
       }
 
@@ -1106,8 +1173,9 @@ public final class StaticUtils
 
 
     // If we've gotten here, then the provided array represents a valid UTF-8
-    // string.
-    return true;
+    // string.  If appropriate, make sure it also satisfies the requirement to
+    // have at leaste one non-ASCII character
+    return containsNonASCII || (! requireNonASCII);
   }
 
 
@@ -1196,6 +1264,73 @@ public final class StaticUtils
       Debug.debugException(e);
       return new String(b, offset, length);
     }
+  }
+
+
+
+  /**
+   * Indicates whether the provided strings represent an equivalent sequence of
+   * Unicode characters.  In some cases, Unicode supports multiple ways of
+   * encoding the same character or sequence of characters, and this method
+   * accounts for those alternative encodings in the course of making the
+   * determination.
+   *
+   * @param  s1  The first string for which to make the determination.  It must
+   *             not be {@code null}.
+   * @param  s2  The second string for which to make the determination.  It must
+   *             not be {@code null}.
+   *
+   * @return  {@code true} if the provided strings represent an equivalent
+   *          sequence of Unicode characters, or {@code false} if not.
+   */
+  public static boolean unicodeStringsAreEquivalent(@NotNull final String s1,
+                                                    @NotNull final String s2)
+  {
+    if (s1.equals(s2))
+    {
+      return true;
+    }
+
+    final String normalized1 = Normalizer.normalize(s1, Normalizer.Form.NFC);
+    final String normalized2 = Normalizer.normalize(s2, Normalizer.Form.NFC);
+    return normalized1.equals(normalized2);
+  }
+
+
+
+  /**
+   * Indicates whether the provided byte arrays represent UTF-8 strings that
+   * have an equivalent sequence of Unicode characters.  In some cases, Unicode
+   * supports multiple ways of encoding the same character or sequence of
+   * characters, and this method accounts for those alternative encodings in the
+   * course of making the determination.
+   *
+   * @param  b1  The bytes that comprise the UTF-8 representation of the first
+   *             string for which to make the determination.  It must not be
+   *             {@code null}.
+   * @param  b2  The bytes that comprise the UTF-8 representation of the second
+   *             string for which to make the determination.  It must not be
+   *             {@code null}.
+   *
+   * @return  {@code true} if the provided byte arrays represent UTF-8 strings
+   *          that have an equivalent sequence of Unicode characters, or
+   *          {@code false} if not.
+   */
+  public static boolean utf8StringsAreEquivalent(@NotNull final byte[] b1,
+                                                 @NotNull final byte[] b2)
+  {
+    if (Arrays.equals(b1, b2))
+    {
+      return true;
+    }
+
+    final String s1 = toUTF8String(b1);
+    final String normalized1 = Normalizer.normalize(s1, Normalizer.Form.NFC);
+
+    final String s2 = toUTF8String(b2);
+    final String normalized2 = Normalizer.normalize(s2, Normalizer.Form.NFC);
+
+    return normalized1.equals(normalized2);
   }
 
 
