@@ -81,7 +81,10 @@ import java.util.logging.Logger;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.NameResolver;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 
 import static com.unboundid.util.UtilityMessages.*;
@@ -274,6 +277,51 @@ public final class StaticUtils
        ("abcdefghijklmnopqrstuvwxyz" +
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
         "0123456789").toCharArray();
+
+
+
+  /**
+   * The name of a system property that can be used to explicitly specify the
+   * Unicode normalization type that will be used when comparing two strings in
+   * a Unicode-aware manner.
+   */
+  @NotNull private static final String PROPERTY_DEFAULT_NORMALIZER_FORM =
+       "com.unboundid.ldap.sdk.defaultUnicodeNormalizerForm";
+
+
+
+  /**
+   * The default Unicode normalization type that will be used when comparing
+   * two strings in a Unicode-aware manner.
+   */
+  @NotNull private static final Normalizer.Form DEFAULT_UNICODE_NORMALIZER_FORM;
+  static
+  {
+    final String propertyValue =
+         getSystemProperty(PROPERTY_DEFAULT_NORMALIZER_FORM);
+    if ((propertyValue == null) || propertyValue.equalsIgnoreCase("NFC"))
+    {
+      DEFAULT_UNICODE_NORMALIZER_FORM = Normalizer.Form.NFC;
+    }
+    else if (propertyValue.equalsIgnoreCase("NFD"))
+    {
+      DEFAULT_UNICODE_NORMALIZER_FORM = Normalizer.Form.NFD;
+    }
+    else if (propertyValue.equalsIgnoreCase("NFKC"))
+    {
+      DEFAULT_UNICODE_NORMALIZER_FORM = Normalizer.Form.NFKC;
+    }
+    else if (propertyValue.equalsIgnoreCase("NFKD"))
+    {
+      DEFAULT_UNICODE_NORMALIZER_FORM = Normalizer.Form.NFKD;
+    }
+    else
+    {
+      throw new LDAPRuntimeException(new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_UNRECOGNIZED_NORMALIZER_FORM.get(
+                PROPERTY_DEFAULT_NORMALIZER_FORM, propertyValue)));
+    }
+  }
 
 
 
@@ -1291,8 +1339,10 @@ public final class StaticUtils
       return true;
     }
 
-    final String normalized1 = Normalizer.normalize(s1, Normalizer.Form.NFC);
-    final String normalized2 = Normalizer.normalize(s2, Normalizer.Form.NFC);
+    final String normalized1 =  Normalizer.normalize(s1,
+         DEFAULT_UNICODE_NORMALIZER_FORM);
+    final String normalized2 = Normalizer.normalize(s2,
+         DEFAULT_UNICODE_NORMALIZER_FORM);
     return normalized1.equals(normalized2);
   }
 
@@ -1325,10 +1375,12 @@ public final class StaticUtils
     }
 
     final String s1 = toUTF8String(b1);
-    final String normalized1 = Normalizer.normalize(s1, Normalizer.Form.NFC);
+    final String normalized1 = Normalizer.normalize(s1,
+         DEFAULT_UNICODE_NORMALIZER_FORM);
 
     final String s2 = toUTF8String(b2);
-    final String normalized2 = Normalizer.normalize(s2, Normalizer.Form.NFC);
+    final String normalized2 = Normalizer.normalize(s2,
+         DEFAULT_UNICODE_NORMALIZER_FORM);
 
     return normalized1.equals(normalized2);
   }
