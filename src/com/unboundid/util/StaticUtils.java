@@ -1374,15 +1374,21 @@ public final class StaticUtils
       return true;
     }
 
-    final String s1 = toUTF8String(b1);
-    final String normalized1 = Normalizer.normalize(s1,
-         DEFAULT_UNICODE_NORMALIZER_FORM);
+    if (isValidUTF8WithNonASCIICharacters(b1) &&
+         isValidUTF8WithNonASCIICharacters(b2))
+    {
+      final String s1 = toUTF8String(b1);
+      final String normalized1 = Normalizer.normalize(s1,
+           DEFAULT_UNICODE_NORMALIZER_FORM);
 
-    final String s2 = toUTF8String(b2);
-    final String normalized2 = Normalizer.normalize(s2,
-         DEFAULT_UNICODE_NORMALIZER_FORM);
+      final String s2 = toUTF8String(b2);
+      final String normalized2 = Normalizer.normalize(s2,
+           DEFAULT_UNICODE_NORMALIZER_FORM);
 
-    return normalized1.equals(normalized2);
+      return normalized1.equals(normalized2);
+    }
+
+    return false;
   }
 
 
