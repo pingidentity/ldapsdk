@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
@@ -127,6 +128,10 @@ public final class CollectSupportDataTaskTestCase
     assertNull(t.getReportIntervalSeconds());
 
     assertNull(t.getJStackCount());
+
+    assertNull(t.getLogStartTime());
+
+    assertNull(t.getLogEndTime());
 
     assertNull(t.getLogDuration());
 
@@ -229,6 +234,7 @@ public final class CollectSupportDataTaskTestCase
          new CollectSupportDataTaskProperties();
 
     final Date d = new Date();
+    final Date startTime = new Date(d.getTime() - TimeUnit.DAYS.toMillis(1L));
 
     p.setOutputPath("/tmp/output-path");
     p.setEncryptionPassphraseFile("/tmp/pw.txt");
@@ -241,6 +247,7 @@ public final class CollectSupportDataTaskTestCase
     p.setReportCount(2);
     p.setReportIntervalSeconds(3);
     p.setJStackCount(4);
+    p.setLogTimeRange(startTime, d);
     p.setLogDuration("5 minutes");
     p.setLogFileHeadCollectionSizeKB(123);
     p.setLogFileTailCollectionSizeKB(456);
@@ -312,6 +319,12 @@ public final class CollectSupportDataTaskTestCase
 
     assertNotNull(t.getJStackCount());
     assertEquals(t.getJStackCount().intValue(), 4);
+
+    assertNotNull(t.getLogStartTime());
+    assertEquals(t.getLogStartTime(), startTime);
+
+    assertNotNull(t.getLogEndTime());
+    assertEquals(t.getLogEndTime(), d);
 
     assertNotNull(t.getLogDuration());
     assertEquals(t.getLogDuration(), "5 minutes");

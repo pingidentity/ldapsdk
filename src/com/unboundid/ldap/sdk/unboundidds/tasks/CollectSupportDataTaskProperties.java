@@ -114,6 +114,12 @@ public final class CollectSupportDataTaskProperties
   // The security level to use for data included in the support data archive.
   @Nullable private CollectSupportDataSecurityLevel securityLevel;
 
+  // The time at which to end collecting log data.
+  @Nullable private Date logEndTime;
+
+  // The time at which to start collecting log data.
+  @Nullable private Date logStartTime;
+
   // The time at which the task should start running.
   @Nullable private Date scheduledStartTime;
 
@@ -194,6 +200,8 @@ public final class CollectSupportDataTaskProperties
     includeReplicationStateDump = null;
     useSequentialMode = null;
     securityLevel = null;
+    logEndTime = null;
+    logStartTime = null;
     scheduledStartTime = null;
     failedDependencyAction = null;
     jstackCount = null;
@@ -235,6 +243,8 @@ public final class CollectSupportDataTaskProperties
     includeReplicationStateDump = properties.getIncludeReplicationStateDump();
     useSequentialMode = properties.getUseSequentialMode();
     securityLevel = properties.getSecurityLevel();
+    logEndTime = properties.getLogEndTime();
+    logStartTime = properties.getLogStartTime();
     scheduledStartTime = properties.getScheduledStartTime();
     failedDependencyAction = properties.getFailedDependencyAction();
     jstackCount = properties.getJStackCount();
@@ -279,6 +289,8 @@ public final class CollectSupportDataTaskProperties
     includeReplicationStateDump = task.getIncludeReplicationStateDump();
     useSequentialMode = task.getUseSequentialMode();
     securityLevel = task.getSecurityLevel();
+    logEndTime = task.getLogEndTime();
+    logStartTime = task.getLogStartTime();
     scheduledStartTime = task.getScheduledStartTime();
     failedDependencyAction = task.getFailedDependencyAction();
     jstackCount = task.getJStackCount();
@@ -727,6 +739,63 @@ public final class CollectSupportDataTaskProperties
   public void setJStackCount(@Nullable final Integer jstackCount)
   {
     this.jstackCount = jstackCount;
+  }
+
+
+
+  /**
+   * Retrieves the start time for the range of log messages to include in the
+   * support data archive.
+   *
+   * @return  The start time for the range of log messages to include in the
+   *          support data archive, or {@code null} if no log start time has
+   *          been specified.
+   */
+  @Nullable()
+  public Date getLogStartTime()
+  {
+    return logStartTime;
+  }
+
+
+
+  /**
+   * Retrieves the end time for the range of log messages to include in the
+   * support data archive.
+   *
+   * @return  The end time for the range of log messages to include in the
+   *          support data archive, or {@code null} if no log end time has
+   *          been specified.
+   */
+  @Nullable()
+  public Date getLogEndTime()
+  {
+    return logEndTime;
+  }
+
+
+
+  /**
+   * Specifies the time range for log messages to include in the support data
+   * archive.  If a log time range is to be used, then the start time must be
+   * specified, and the end time may optionally be specified.  A log time range
+   * should not be used in conjunction with a log duration or with a log head
+   * or tail size.
+   *
+   * @param  logStartTime  The start time for the range of log messages to
+   *                       include in the support data archive.  It may be
+   *                       {@code null} if no log time range should be used.
+   * @param  logEndTime    The end time for the range of log messages to include
+   *                       in the support data archive.  It may be {@code null}
+   *                       if no log time range should be used, or if the time
+   *                       range should only be specified using a start time
+   *                       without an end time.
+   */
+  public void setLogTimeRange(@Nullable final Date logStartTime,
+                              @Nullable final Date logEndTime)
+  {
+    this.logStartTime = logStartTime;
+    this.logEndTime = logEndTime;
   }
 
 
@@ -1589,6 +1658,8 @@ public final class CollectSupportDataTaskProperties
     appendNameValuePair(buffer, "reportCount", reportCount);
     appendNameValuePair(buffer, "reportIntervalSeconds", reportIntervalSeconds);
     appendNameValuePair(buffer, "jstackCount", jstackCount);
+    appendNameValuePair(buffer, "logStartTime", logStartTime);
+    appendNameValuePair(buffer, "logEndTime", logEndTime);
     appendNameValuePair(buffer, "logDuration", logDuration);
     appendNameValuePair(buffer, "logFileHeadCollectionSizeKB",
          logFileHeadCollectionSizeKB);

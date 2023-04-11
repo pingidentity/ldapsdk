@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
@@ -87,6 +88,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -170,6 +175,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -242,6 +251,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -312,6 +325,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -395,6 +412,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -467,6 +488,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -537,6 +562,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -620,6 +649,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -691,6 +724,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -764,6 +801,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -834,6 +875,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -917,6 +962,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -989,6 +1038,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -1054,6 +1107,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1125,6 +1182,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1208,6 +1269,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -1279,6 +1344,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1352,6 +1421,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -1422,6 +1495,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1505,6 +1582,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -1576,6 +1657,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1649,6 +1734,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -1719,6 +1808,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1802,6 +1895,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -1873,6 +1970,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -1946,6 +2047,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2016,6 +2121,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -2099,6 +2208,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2174,6 +2287,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
       assertNull(p.getLogDuration());
 
       assertNull(p.getLogDurationMillis());
@@ -2245,6 +2362,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -2328,6 +2449,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2399,6 +2524,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -2472,6 +2601,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2542,6 +2675,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -2625,6 +2762,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2696,6 +2837,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertEquals(p.getReportIntervalSeconds().intValue(), 1);
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -2769,6 +2914,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2839,6 +2988,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -2922,6 +3075,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -2993,6 +3150,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNotNull(p.getJStackCount());
     assertEquals(p.getJStackCount().intValue(), 0);
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -3066,6 +3227,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNotNull(p.getJStackCount());
     assertEquals(p.getJStackCount().intValue(), 5678);
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -3136,6 +3301,328 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior related to the log start and end time properties.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLogTimeRange()
+         throws Exception
+  {
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    final Date endTime =
+            new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1L));
+    final Date startTime =
+            new Date(endTime.getTime() - TimeUnit.DAYS.toMillis(1L));
+    p.setLogTimeRange(startTime, endTime);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNotNull(p.getLogStartTime());
+    assertEquals(p.getLogStartTime(), startTime);
+
+    assertNotNull(p.getLogEndTime());
+    assertEquals(p.getLogEndTime(), endTime);
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setLogTimeRange(endTime, null);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNotNull(p.getLogStartTime());
+    assertEquals(p.getLogStartTime(), endTime);
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setLogTimeRange(null, null);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -3219,6 +3706,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -3289,6 +3780,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNotNull(p.getLogDuration());
     assertEquals(p.getLogDuration(), "5 minutes");
@@ -3370,6 +3865,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNotNull(p.getLogDuration());
     assertEquals(p.getLogDuration(), "5 minutes");
 
@@ -3443,6 +3942,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -3513,6 +4016,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNotNull(p.getLogDuration());
     assertEquals(p.getLogDuration(), "1 hour");
@@ -3586,6 +4093,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -3670,6 +4181,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -3740,6 +4255,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -3812,6 +4331,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -3896,6 +4419,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -3966,6 +4493,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4038,6 +4569,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4121,6 +4656,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -4191,6 +4730,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4263,6 +4806,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4347,6 +4894,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -4417,6 +4968,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4489,6 +5044,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4573,6 +5132,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -4643,6 +5206,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4725,6 +5292,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -4799,6 +5370,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -4869,6 +5444,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -4943,6 +5522,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5026,6 +5609,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -5096,6 +5683,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5168,6 +5759,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5251,6 +5846,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -5323,6 +5922,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -5394,6 +5997,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5477,6 +6084,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -5547,6 +6158,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5620,6 +6235,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -5690,6 +6309,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5762,6 +6385,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -5845,6 +6472,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -5919,6 +6550,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
       assertNull(p.getLogDuration());
 
       assertNull(p.getLogDurationMillis());
@@ -5991,6 +6626,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6074,6 +6713,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -6145,6 +6788,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6219,6 +6866,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -6289,6 +6940,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6362,6 +7017,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6445,6 +7104,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -6516,6 +7179,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6590,6 +7257,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -6660,6 +7331,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6733,6 +7408,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6816,6 +7495,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -6887,6 +7570,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -6961,6 +7648,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -7031,6 +7722,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7104,6 +7799,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7187,6 +7886,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -7258,6 +7961,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7332,6 +8039,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -7402,6 +8113,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7475,6 +8190,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7558,6 +8277,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -7628,6 +8351,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7701,6 +8428,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -7772,6 +8503,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7855,6 +8590,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -7925,6 +8664,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -7998,6 +8741,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -8069,6 +8816,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -8152,6 +8903,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -8222,6 +8977,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -8295,6 +9054,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -8365,6 +9128,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getReportIntervalSeconds());
 
     assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
 
     assertNull(p.getLogDuration());
 
@@ -8448,6 +9215,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getJStackCount());
 
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
@@ -8495,6 +9266,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     final Date d = new Date();
+    final Date oneDayAgo = new Date(d.getTime() - TimeUnit.DAYS.toMillis(1L));
 
     p.setOutputPath("/tmp/output-path");
     p.setEncryptionPassphraseFile("/tmp/pw.txt");
@@ -8507,6 +9279,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
     p.setReportCount(2);
     p.setReportIntervalSeconds(3);
     p.setJStackCount(4);
+    p.setLogTimeRange(oneDayAgo, d);
     p.setLogDuration("5 minutes");
     p.setLogFileHeadCollectionSizeKB(123);
     p.setLogFileTailCollectionSizeKB(456);
@@ -8564,6 +9337,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNotNull(p.getJStackCount());
     assertEquals(p.getJStackCount().intValue(), 4);
+
+    assertNotNull(p.getLogStartTime());
+    assertEquals(p.getLogStartTime(), oneDayAgo);
+
+    assertNotNull(p.getLogEndTime());
+    assertEquals(p.getLogEndTime(), d);
 
     assertNotNull(p.getLogDuration());
     assertEquals(p.getLogDuration(), "5 minutes");

@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,6 +219,24 @@ public final class CollectSupportDataTask
    */
   @NotNull public static final String ATTR_LOG_DURATION =
        ATTR_PREFIX + "log-duration";
+
+
+
+  /**
+   * The name of the attribute used to specify the end time for the range of
+   * log messages that should be included in the support data archive.
+   */
+  @NotNull public static final String ATTR_LOG_END_TIME =
+       ATTR_PREFIX + "log-end-time";
+
+
+
+  /**
+   * The name of the attribute used to specify the start time for the range of
+   * log messages that should be included in the support data archive.
+   */
+  @NotNull public static final String ATTR_LOG_START_TIME =
+       ATTR_PREFIX + "log-start-time";
 
 
 
@@ -401,6 +420,28 @@ public final class CollectSupportDataTask
 
 
   /**
+   * The task property that will be used for the log end time.
+   */
+  @NotNull static final TaskProperty PROPERTY_LOG_END_TIME =
+     new TaskProperty(ATTR_LOG_END_TIME,
+          INFO_CSD_DISPLAY_NAME_LOG_END_TIME.get(),
+          INFO_CSD_DESCRIPTION_LOG_END_TIME.get(),
+          Date.class, false, false, false);
+
+
+
+  /**
+   * The task property that will be used for the log start time.
+   */
+  @NotNull static final TaskProperty PROPERTY_LOG_START_TIME =
+     new TaskProperty(ATTR_LOG_START_TIME,
+          INFO_CSD_DISPLAY_NAME_LOG_START_TIME.get(),
+          INFO_CSD_DESCRIPTION_LOG_START_TIME.get(),
+          Date.class, false, false, false);
+
+
+
+  /**
    * The task property that will be used for the log head size.
    */
   @NotNull static final TaskProperty PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
@@ -538,6 +579,12 @@ public final class CollectSupportDataTask
   // The security level to use for data included in the support data archive.
   @Nullable private final CollectSupportDataSecurityLevel securityLevel;
 
+  // The time at which to end collecting log data.
+  @Nullable private final Date logEndTime;
+
+  // The time at which to start collecting log data.
+  @Nullable private final Date logStartTime;
+
   // The number of jstacks to include in the support data archive.
   @Nullable private final Integer jstackCount;
 
@@ -620,6 +667,8 @@ public final class CollectSupportDataTask
          properties.getRetainPreviousSupportDataArchiveCount();
     comment = properties.getComment();
     encryptionPassphraseFile = properties.getEncryptionPassphraseFile();
+    logStartTime = properties.getLogStartTime();
+    logEndTime = properties.getLogEndTime();
     logDuration = properties.getLogDuration();
     outputPath = properties.getOutputPath();
     retainPreviousSupportDataArchiveAge =
@@ -687,6 +736,38 @@ public final class CollectSupportDataTask
       }
     }
 
+    if (entry.hasAttribute(ATTR_LOG_START_TIME))
+    {
+      logStartTime = entry.getAttributeValueAsDate(ATTR_LOG_START_TIME);
+      if (logStartTime == null)
+      {
+        throw new TaskException(
+                ERR_CSD_ENTRY_INVALID_TIMESTAMP.get(entry.getDN(),
+                        entry.getAttributeValue(ATTR_LOG_START_TIME),
+                        ATTR_LOG_START_TIME));
+      }
+    }
+    else
+    {
+      logStartTime = null;
+    }
+
+    if (entry.hasAttribute(ATTR_LOG_END_TIME))
+    {
+      logEndTime = entry.getAttributeValueAsDate(ATTR_LOG_END_TIME);
+      if (logEndTime == null)
+      {
+        throw new TaskException(
+                ERR_CSD_ENTRY_INVALID_TIMESTAMP.get(entry.getDN(),
+                        entry.getAttributeValue(ATTR_LOG_END_TIME),
+                        ATTR_LOG_END_TIME));
+      }
+    }
+    else
+    {
+      logEndTime = null;
+    }
+
     logDuration = entry.getAttributeValue(ATTR_LOG_DURATION);
     if (logDuration != null)
     {
@@ -750,6 +831,8 @@ public final class CollectSupportDataTask
     Boolean includeSource = null;
     Boolean sequentialMode = null;
     CollectSupportDataSecurityLevel secLevel = null;
+    Date logEndDate = null;
+    Date logStartDate = null;
     Integer logHeadSizeKB = null;
     Integer logTailSizeKB = null;
     Integer numJStacks = null;
@@ -829,6 +912,14 @@ public final class CollectSupportDataTask
       {
         encPWFile = parseString(p, values, encPWFile);
       }
+      else if (attrName.equals(ATTR_LOG_START_TIME))
+      {
+        logStartDate = parseDate(p, values, null);
+      }
+      else if (attrName.equals(ATTR_LOG_END_TIME))
+      {
+        logEndDate = parseDate(p, values, null);
+      }
       else if (attrName.equals(ATTR_LOG_DURATION))
       {
         logDurationStr = parseString(p, values, logDurationStr);
@@ -886,6 +977,8 @@ public final class CollectSupportDataTask
     retainPreviousSupportDataArchiveCount = retainCount;
     comment = commentStr;
     encryptionPassphraseFile = encPWFile;
+    logStartTime = logStartDate;
+    logEndTime = logEndDate;
     logDuration = logDurationStr;
     outputPath = outputPathStr;
     retainPreviousSupportDataArchiveAge = retainAge;
@@ -1166,6 +1259,38 @@ public final class CollectSupportDataTask
 
 
   /**
+   * Retrieves the start time for the range of log messages to include in the
+   * support data archive.
+   *
+   * @return  The start time for the range of log messages to include in the
+   *          support data archive, or {@code null} if no log start time has
+   *          been specified.
+   */
+  @Nullable()
+  public Date getLogStartTime()
+  {
+    return logStartTime;
+  }
+
+
+
+  /**
+   * Retrieves the end time for the range of log messages to include in the
+   * support data archive.
+   *
+   * @return  The end time for the range of log messages to include in the
+   *          support data archive, or {@code null} if no log end time has
+   *          been specified.
+   */
+  @Nullable()
+  public Date getLogEndTime()
+  {
+    return logEndTime;
+  }
+
+
+
+  /**
    * Retrieves a string representation of the duration (up until the time that
    * the collect support data task is invoked) of log content that should be
    * included in the support data archive.
@@ -1414,6 +1539,18 @@ public final class CollectSupportDataTask
            String.valueOf(reportIntervalSeconds)));
     }
 
+    if (logStartTime != null)
+    {
+      attrList.add(new Attribute(ATTR_LOG_START_TIME,
+              StaticUtils.encodeGeneralizedTime(logStartTime)));
+    }
+
+    if (logEndTime != null)
+    {
+      attrList.add(new Attribute(ATTR_LOG_END_TIME,
+              StaticUtils.encodeGeneralizedTime(logEndTime)));
+    }
+
     if (logDuration != null)
     {
       attrList.add(new Attribute(ATTR_LOG_DURATION, logDuration));
@@ -1472,6 +1609,8 @@ public final class CollectSupportDataTask
          PROPERTY_JSTACK_COUNT,
          PROPERTY_REPORT_COUNT,
          PROPERTY_REPORT_INTERVAL_SECONDS,
+         PROPERTY_LOG_START_TIME,
+         PROPERTY_LOG_END_TIME,
          PROPERTY_LOG_DURATION,
          PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB,
          PROPERTY_LOG_FILE_TAIL_COLLECTION_SIZE_KB,
@@ -1557,6 +1696,18 @@ public final class CollectSupportDataTask
       props.put(PROPERTY_REPORT_INTERVAL_SECONDS,
            Collections.<Object>singletonList(
                 reportIntervalSeconds.longValue()));
+    }
+
+    if (logStartTime != null)
+    {
+      props.put(PROPERTY_LOG_START_TIME,
+              Collections.<Object>singletonList(logStartTime));
+    }
+
+    if (logEndTime != null)
+    {
+      props.put(PROPERTY_LOG_END_TIME,
+              Collections.<Object>singletonList(logEndTime));
     }
 
     if (logDuration != null)
