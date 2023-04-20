@@ -42,6 +42,8 @@ import java.lang.reflect.Field;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.unboundid.util.StaticUtils;
+
 
 
 /**
@@ -199,6 +201,38 @@ public class ResultCodeTestCase
 
     assertEquals(resultCode.isConnectionUsable(), connectionUsable);
     assertEquals(ResultCode.isConnectionUsable(resultCode), connectionUsable);
+  }
+
+
+
+  /**
+   * Provides test coverage for the methods used to determine whether a
+   * connection may have become unusable.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConnectionNotUsableResultCodes()
+  {
+    assertNotNull(ResultCode.getConnectionNotUsableResultCodes());
+    assertEquals(ResultCode.getConnectionNotUsableResultCodes(),
+         ResultCode.DEFAULT_CONNECTION_NOT_USABLE_RESULT_CODES);
+
+    ResultCode.setConnectionNotUsableResultCodes();
+    assertNotNull(ResultCode.getConnectionNotUsableResultCodes());
+    assertTrue(ResultCode.getConnectionNotUsableResultCodes().isEmpty());
+
+    ResultCode.setConnectionNotUsableResultCodes(
+         ResultCode.CONNECT_ERROR, ResultCode.SERVER_DOWN);
+    assertNotNull(ResultCode.getConnectionNotUsableResultCodes());
+    assertEquals(ResultCode.getConnectionNotUsableResultCodes(),
+         StaticUtils.setOf(ResultCode.CONNECT_ERROR, ResultCode.SERVER_DOWN));
+
+    ResultCode.setConnectionNotUsableResultCodes(
+         ResultCode.DEFAULT_CONNECTION_NOT_USABLE_RESULT_CODES);
+    assertNotNull(ResultCode.getConnectionNotUsableResultCodes());
+    assertEquals(ResultCode.getConnectionNotUsableResultCodes(),
+         ResultCode.DEFAULT_CONNECTION_NOT_USABLE_RESULT_CODES);
   }
 
 

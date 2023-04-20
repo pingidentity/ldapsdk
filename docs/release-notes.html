@@ -14,6 +14,15 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added an option for customizing the set of result codes that the LDAP SDK may
+                  use to determine whether a connection may no longer be usable.  Previously, it
+                  used a hard-coded set of result codes for this purpose, and that set is still
+                  the default, but it is now possible to override that with a provided set of
+                  result codes.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ldif-diff tool to add a --byteForByte argument that can be used to
                   indicate that it should not ignore differences between source and target entries
                   that would otherwise be considered insignificant based on the associated

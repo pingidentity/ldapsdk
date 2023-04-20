@@ -38,7 +38,13 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
@@ -1647,6 +1653,51 @@ public final class ResultCode
 
 
   /**
+   * The default set of result codes that may indicate that a connection is not
+   * usable.  This set includes:
+   * <UL>
+   *   <LI>{@link #OPERATIONS_ERROR}</LI>
+   *   <LI>{@link #PROTOCOL_ERROR}</LI>
+   *   <LI>{@link #BUSY}</LI>
+   *   <LI>{@link #UNAVAILABLE}</LI>
+   *   <LI>{@link #OTHER}</LI>
+   *   <LI>{@link #SERVER_DOWN}</LI>
+   *   <LI>{@link #LOCAL_ERROR}</LI>
+   *   <LI>{@link #ENCODING_ERROR}</LI>
+   *   <LI>{@link #DECODING_ERROR}</LI>
+   *   <LI>{@link #TIMEOUT}</LI>
+   *   <LI>{@link #NO_MEMORY}</LI>
+   *   <LI>{@link #CONNECT_ERROR}</LI>
+   * </UL>
+   */
+  @NotNull public static final Set<ResultCode>
+       DEFAULT_CONNECTION_NOT_USABLE_RESULT_CODES = StaticUtils.setOf(
+            ResultCode.OPERATIONS_ERROR,
+            ResultCode.PROTOCOL_ERROR,
+            ResultCode.BUSY,
+            ResultCode.UNAVAILABLE,
+            ResultCode.OTHER,
+            ResultCode.SERVER_DOWN,
+            ResultCode.LOCAL_ERROR,
+            ResultCode.ENCODING_ERROR,
+            ResultCode.DECODING_ERROR,
+            ResultCode.TIMEOUT,
+            ResultCode.NO_MEMORY,
+            ResultCode.CONNECT_ERROR);
+
+
+
+  /**
+   * A reference to the set of connection-not-usable result codes that are
+   * currently in effect.
+   */
+  @NotNull private static final AtomicReference<Set<ResultCode>>
+       CONNECTION_NOT_USABLE_RESULT_CODES_REF =
+            new AtomicReference<>(DEFAULT_CONNECTION_NOT_USABLE_RESULT_CODES);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 7609311304252378100L;
@@ -2130,6 +2181,58 @@ public final class ResultCode
 
 
   /**
+   * Retrieves the set of result codes that may indicate that a connection is
+   * not usable.
+   *
+   * @return  The set of result codes that may indicate that a connection is
+   *          not usable.
+   */
+  @NotNull()
+  public static Set<ResultCode> getConnectionNotUsableResultCodes()
+  {
+    return CONNECTION_NOT_USABLE_RESULT_CODES_REF.get();
+  }
+
+
+
+  /**
+   * Updates the set of result codes that may indicate that a connection is not
+   * usable.
+   *
+   * @param  connectionNotUsableResultCodes  The set of result codes that may
+   *                                         indicate that a connection is not
+   *                                         usable.  It must not be
+   *                                         {@code null}, but may be empty.
+   */
+  public static void setConnectionNotUsableResultCodes(
+              @NotNull final ResultCode... connectionNotUsableResultCodes)
+  {
+    setConnectionNotUsableResultCodes(
+         Arrays.asList(connectionNotUsableResultCodes));
+  }
+
+
+
+  /**
+   * Updates the set of result codes that may indicate that a connection is not
+   * usable.
+   *
+   * @param  connectionNotUsableResultCodes  The set of result codes that may
+   *                                         indicate that a connection is not
+   *                                         usable.  It must not be
+   *                                         {@code null}, but may be empty.
+   */
+  public static void setConnectionNotUsableResultCodes(
+              @NotNull final Collection<ResultCode>
+                   connectionNotUsableResultCodes)
+  {
+    CONNECTION_NOT_USABLE_RESULT_CODES_REF.set(Collections.unmodifiableSet(
+         new LinkedHashSet<>(connectionNotUsableResultCodes)));
+  }
+
+
+
+  /**
    * Indicates whether the connection on which this result code was received is
    * likely still usable.  Note that this is a best guess, and it may or may not
    * be correct.  It will attempt to be conservative so that a connection is
@@ -2163,24 +2266,7 @@ public final class ResultCode
    */
   public static boolean isConnectionUsable(@NotNull final ResultCode resultCode)
   {
-    switch (resultCode.intValue())
-    {
-      case OPERATIONS_ERROR_INT_VALUE:
-      case PROTOCOL_ERROR_INT_VALUE:
-      case BUSY_INT_VALUE:
-      case UNAVAILABLE_INT_VALUE:
-      case OTHER_INT_VALUE:
-      case SERVER_DOWN_INT_VALUE:
-      case LOCAL_ERROR_INT_VALUE:
-      case ENCODING_ERROR_INT_VALUE:
-      case DECODING_ERROR_INT_VALUE:
-      case TIMEOUT_INT_VALUE:
-      case NO_MEMORY_INT_VALUE:
-      case CONNECT_ERROR_INT_VALUE:
-        return false;
-      default:
-        return true;
-    }
+    return ! CONNECTION_NOT_USABLE_RESULT_CODES_REF.get().contains(resultCode);
   }
 
 
