@@ -35,6 +35,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new SOCKSProxySocketFactory class that can be used to allow establishing
+                  LDAP and LDAPS connections through a SOCKSv4 or SOCKSv5 proxy server.
+                  Communication with the SOCKS proxy server itself must be unencrypted (although
+                  communication with the target LDAP server may optionally be end-to-end encrypted
+                  with TLS), and the SOCKS proxy server must not require authentication.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ldif-diff tool to add a --byteForByte argument that can be used to
                   indicate that it should not ignore differences between source and target entries
                   that would otherwise be considered insignificant based on the associated
