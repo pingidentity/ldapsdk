@@ -45,35 +45,35 @@ import javax.net.ssl.SSLSocketFactory;
 
 /**
  * This class provides an implementation of a socket factory that can be used
- * to forward traffic through a SOCKSv4 or SOCKSv5 proxy server.  Because of
- * limitations in the Java support for SOCKS proxy servers, the following
- * constraints will be imposed:
+ * to forward traffic through an HTTP proxy server.  Because of limitations in
+ * the Java support for HTTP proxy servers, the following constraints will be
+ * imposed:
  * <UL>
  *   <LI>
  *     Communication with the proxy server itself cannot be encrypted.  However,
  *     it is possible to encrypt all communication through the proxy server to
  *     the actual target server using TLS (by providing an
  *     {@code SSLSocketFactory} instance when creating the
- *     {@code SOCKSProxySocketFactory}), in which case the data will still be
+ *     {@code HTTPProxySocketFactory}), in which case the data will still be
  *     protected from the client to that target server, and anyone observing the
- *     communication between the client and the SOCKS proxy, or between the
- *     SOCKS proxy and the target server, would not be able to decipher that
+ *     communication between the client and the HTTP proxy, or between the
+ *     HTTP proxy and the target server, would not be able to decipher that
  *     communication.
  *   </LI>
  *   <LI>
  *     This implementation only provides direct support for proxy servers that
- *     do not require authentication.  Although it may be possible to configure
- *     authentication using Java system properties, this implementation does not
- *     provide any direct support for authentication.
+ *     do not require authentication.  Although it may potentially be possible
+ *     to configure authentication using Java system properties, this
+ *     implementation does not provide any direct support for authentication.
  *   </LI>
  * </UL>
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for establishing an LDAPS
- * connection through a SOCKS proxy server:
+ * connection through a HTTP proxy server:
  * <PRE>
- *   final String socksProxyServerAddress = "socks-proxy.example.com";
- *   final int socksProxyServerPort = 1080;
+ *   final String httpProxyServerAddress = "http-proxy.example.com";
+ *   final int httpProxyServerPort = 3128;
  *   final int connectTimeoutMillis = 10_000;
  *
  *   final SSLUtil sslUtil =
@@ -81,15 +81,15 @@ import javax.net.ssl.SSLSocketFactory;
  *   final SSLSocketFactory ldapsSocketFactory =
  *        sslUtil.createSSLSocketFactory();
  *
- *   final SOCKSProxySocketFactory socksProxySocketFactory =
- *        new SOCKSProxySocketFactory(socksProxyServerAddress,
- *             socksProxyServerPort, connectTimeoutMillis,
+ *   final HTTPProxySocketFactory httpProxySocketFactory =
+ *        new HTTPProxySocketFactory(httpProxyServerAddress,
+ *             httpProxyServerPort, connectTimeoutMillis,
  *             ldapsSocketFactory);
  *
  *   final String ldapsServerAddress = "ds.example.com";
  *   final int ldapsServerPort = 636;
  *
- *   try (LDAPConnection conn = new LDAPConnection(socksProxySocketFactory,
+ *   try (LDAPConnection conn = new LDAPConnection(httpProxySocketFactory,
  *        ldapsServerAddress, ldapsServerPort))
  *   {
  *     // Do something with the connection here.
@@ -98,17 +98,17 @@ import javax.net.ssl.SSLSocketFactory;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class SOCKSProxySocketFactory
+public final class HTTPProxySocketFactory
        extends ProxySocketFactory
 {
   /**
-   * Creates a new instance of this SOCKS socket factory with the provided
+   * Creates a new instance of this HTTP socket factory with the provided
    * settings.  The resulting socket factory will provide support for
    * unencrypted LDAP communication.
    *
-   * @param  socksProxyHost        The address of the SOCKS proxy server.  It
+   * @param  httpProxyHost         The address of the HTTP proxy server.  It
    *                               must not be {@code null}.
-   * @param  socksProxyPort        The port on which the SOCKS proxy is
+   * @param  httpProxyPort         The port on which the HTTP proxy is
    *                               listening for new connections.
    * @param  connectTimeoutMillis  The maximum length of time in milliseconds to
    *                               wait for a connection to be established.  A
@@ -116,25 +116,25 @@ public final class SOCKSProxySocketFactory
    *                               indicates that no explicit timeout will be
    *                               imposed.
    */
-  public SOCKSProxySocketFactory(@NotNull final String socksProxyHost,
-                                 final int socksProxyPort,
-                                 final int connectTimeoutMillis)
+  public HTTPProxySocketFactory(@NotNull final String httpProxyHost,
+                                final int httpProxyPort,
+                                final int connectTimeoutMillis)
   {
-    this(socksProxyHost, socksProxyPort, connectTimeoutMillis, null);
+    this(httpProxyHost, httpProxyPort, connectTimeoutMillis, null);
   }
 
 
 
   /**
-   * Creates a new instance of this SOCKS socket factory with the provided
+   * Creates a new instance of this HTTP socket factory with the provided
    * settings.  The resulting socket factory may provide support for either
    * unencrypted LDAP communication (if the provided {@code sslSocketFactory}
    * value is {@code null}) or encrypted LDAPS communication (if the provided
    * {@code sslSocketFactory} value is non-{@code null}).
    *
-   * @param  socksProxyHost        The address of the SOCKS proxy server.  It
+   * @param  httpProxyHost         The address of the HTTP proxy server.  It
    *                               must not be {@code null}.
-   * @param  socksProxyPort        The port on which the SOCKS proxy is
+   * @param  httpProxyPort         The port on which the HTTP proxy is
    *                               listening for new connections.
    * @param  connectTimeoutMillis  The maximum length of time in milliseconds to
    *                               wait for a connection to be established.  A
@@ -148,13 +148,13 @@ public final class SOCKSProxySocketFactory
    *                               encrypted, and it must not be {@code null} if
    *                               communication should be encrypted with TLS.
    */
-  public SOCKSProxySocketFactory(@NotNull final String socksProxyHost,
-              final int socksProxyPort,
+  public HTTPProxySocketFactory(@NotNull final String httpProxyHost,
+              final int httpProxyPort,
               final int connectTimeoutMillis,
               @Nullable final SSLSocketFactory sslSocketFactory)
   {
-    super(new Proxy(Proxy.Type.SOCKS,
-                    new InetSocketAddress(socksProxyHost, socksProxyPort)),
+    super(new Proxy(Proxy.Type.HTTP,
+                    new InetSocketAddress(httpProxyHost, httpProxyPort)),
          connectTimeoutMillis, sslSocketFactory);
   }
 }

@@ -35,11 +35,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added a new SOCKSProxySocketFactory class that can be used to allow establishing
-                  LDAP and LDAPS connections through a SOCKSv4 or SOCKSv5 proxy server.
-                  Communication with the SOCKS proxy server itself must be unencrypted (although
-                  communication with the target LDAP server may optionally be end-to-end encrypted
-                  with TLS), and the SOCKS proxy server must not require authentication.
+                  Added a new HTTPProxySocketFactory class that can be used to allow establishing
+                  LDAP and LDAPS connections through an HTTP proxy server, and added a new
+                  SOCKSProxySocketFactory class that can be used to allow establishing connections
+                  through a SOCKSv4 or SOCKSv5 proxy server.  Communication with the proxy server
+                  itself must be unencrypted (although communication with the target LDAP server
+                  may optionally be end-to-end encrypted with TLS), and the proxy server must not
+                  require authentication.
                   <br><br>
                 </li>
 
