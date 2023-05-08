@@ -35,6 +35,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a ResultCode.getStandardName method that can be used to retrieve the name
+                  assigned to the associated result code in the relevant specification.  This may
+                  not be available for result codes that are not defined in known specifications.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new HTTPProxySocketFactory class that can be used to allow establishing
                   LDAP and LDAPS connections through an HTTP proxy server, and added a new
                   SOCKSProxySocketFactory class that can be used to allow establishing connections

@@ -201,6 +201,8 @@ public class ResultCodeTestCase
 
     assertEquals(resultCode.isConnectionUsable(), connectionUsable);
     assertEquals(ResultCode.isConnectionUsable(resultCode), connectionUsable);
+
+    assertNotNull(resultCode.getStandardName());
   }
 
 

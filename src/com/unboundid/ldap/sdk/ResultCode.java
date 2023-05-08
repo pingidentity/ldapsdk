@@ -388,9 +388,10 @@ public final class ResultCode
 
   /**
    * The result code (0) that will be used to indicate a successful operation.
+   * This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode SUCCESS =
-       new ResultCode(INFO_RC_SUCCESS.get(), SUCCESS_INT_VALUE);
+       new ResultCode(INFO_RC_SUCCESS.get(), "success", SUCCESS_INT_VALUE);
 
 
 
@@ -403,10 +404,11 @@ public final class ResultCode
 
   /**
    * The result code (1) that will be used to indicate that an operation was
-   * requested out of sequence.
+   * requested out of sequence.  This result code is defined in RFC 4511 section
+   * 4.1.9.
    */
   @NotNull public static final ResultCode OPERATIONS_ERROR =
-       new ResultCode(INFO_RC_OPERATIONS_ERROR.get(),
+       new ResultCode(INFO_RC_OPERATIONS_ERROR.get(), "operationsError",
                       OPERATIONS_ERROR_INT_VALUE);
 
 
@@ -420,10 +422,11 @@ public final class ResultCode
 
   /**
    * The result code (2) that will be used to indicate that the client sent a
-   * malformed request.
+   * malformed request.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode PROTOCOL_ERROR =
-       new ResultCode(INFO_RC_PROTOCOL_ERROR.get(), PROTOCOL_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_PROTOCOL_ERROR.get(), "protocolError",
+                      PROTOCOL_ERROR_INT_VALUE);
 
 
 
@@ -437,9 +440,10 @@ public final class ResultCode
   /**
    * The result code (3) that will be used to indicate that the server was
    * unable to complete processing on the request in the allotted time limit.
+   * This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode TIME_LIMIT_EXCEEDED =
-       new ResultCode(INFO_RC_TIME_LIMIT_EXCEEDED.get(),
+       new ResultCode(INFO_RC_TIME_LIMIT_EXCEEDED.get(), "timeLimitExceeded",
                       TIME_LIMIT_EXCEEDED_INT_VALUE);
 
 
@@ -453,10 +457,11 @@ public final class ResultCode
 
   /**
    * The result code (4) that will be used to indicate that the server found
-   * more matching entries than the configured request size limit.
+   * more matching entries than the configured request size limit.  This result
+   * code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode SIZE_LIMIT_EXCEEDED =
-       new ResultCode(INFO_RC_SIZE_LIMIT_EXCEEDED.get(),
+       new ResultCode(INFO_RC_SIZE_LIMIT_EXCEEDED.get(), "sizeLimitExceeded",
                       SIZE_LIMIT_EXCEEDED_INT_VALUE);
 
 
@@ -470,10 +475,12 @@ public final class ResultCode
 
   /**
    * The result code (5) that will be used if a requested compare assertion does
-   * not match the target entry.
+   * not match the target entry.  This result code is defined in RFC 4511
+   * section 4.1.9.
    */
   @NotNull public static final ResultCode COMPARE_FALSE =
-       new ResultCode(INFO_RC_COMPARE_FALSE.get(), COMPARE_FALSE_INT_VALUE);
+       new ResultCode(INFO_RC_COMPARE_FALSE.get(), "compareFalse",
+                      COMPARE_FALSE_INT_VALUE);
 
 
 
@@ -486,10 +493,12 @@ public final class ResultCode
 
   /**
    * The result code (6) that will be used if a requested compare assertion
-   * matched the target entry.
+   * matched the target entry.  This result code is defined in RFC 4511 section
+   * 4.1.9.
    */
   @NotNull public static final ResultCode COMPARE_TRUE =
-       new ResultCode(INFO_RC_COMPARE_TRUE.get(), COMPARE_TRUE_INT_VALUE);
+       new ResultCode(INFO_RC_COMPARE_TRUE.get(), "compareTrue",
+                      COMPARE_TRUE_INT_VALUE);
 
 
 
@@ -502,10 +511,12 @@ public final class ResultCode
 
   /**
    * The result code (7) that will be used if the client requested a form of
-   * authentication that is not supported by the server.
+   * authentication that is not supported by the server.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode AUTH_METHOD_NOT_SUPPORTED =
        new ResultCode(INFO_RC_AUTH_METHOD_NOT_SUPPORTED.get(),
+                      "authMethodNotSupported",
                       AUTH_METHOD_NOT_SUPPORTED_INT_VALUE);
 
 
@@ -519,10 +530,12 @@ public final class ResultCode
 
   /**
    * The result code (8) that will be used if the client requested an operation
-   * that requires a strong authentication mechanism.
+   * that requires a strong authentication mechanism.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode STRONG_AUTH_REQUIRED =
        new ResultCode(INFO_RC_STRONG_AUTH_REQUIRED.get(),
+                      "strongerAuthRequired",
                       STRONG_AUTH_REQUIRED_INT_VALUE);
 
 
@@ -536,10 +549,11 @@ public final class ResultCode
 
   /**
    * The result code (10) that will be used if the server sends a referral to
-   * the client to refer to data in another location.
+   * the client to refer to data in another location.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode REFERRAL =
-       new ResultCode(INFO_RC_REFERRAL.get(), REFERRAL_INT_VALUE);
+       new ResultCode(INFO_RC_REFERRAL.get(), "referral", REFERRAL_INT_VALUE);
 
 
 
@@ -552,10 +566,11 @@ public final class ResultCode
 
   /**
    * The result code (11) that will be used if a server administrative limit has
-   * been exceeded.
+   * been exceeded.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode ADMIN_LIMIT_EXCEEDED =
        new ResultCode(INFO_RC_ADMIN_LIMIT_EXCEEDED.get(),
+                      "adminLimitExceeded",
                       ADMIN_LIMIT_EXCEEDED_INT_VALUE);
 
 
@@ -570,10 +585,12 @@ public final class ResultCode
 
   /**
    * The result code (12) that will be used if the client requests a critical
-   * control that is not supported by the server.
+   * control that is not supported by the server.  This result code is defined
+   * in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode UNAVAILABLE_CRITICAL_EXTENSION =
        new ResultCode(INFO_RC_UNAVAILABLE_CRITICAL_EXTENSION.get(),
+                      "unavailableCriticalExtension",
                       UNAVAILABLE_CRITICAL_EXTENSION_INT_VALUE);
 
 
@@ -587,10 +604,12 @@ public final class ResultCode
 
   /**
    * The result code (13) that will be used if the server requires a secure
-   * communication mechanism for the requested operation.
+   * communication mechanism for the requested operation.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode CONFIDENTIALITY_REQUIRED =
        new ResultCode(INFO_RC_CONFIDENTIALITY_REQUIRED.get(),
+                      "confidentialityRequired",
                       CONFIDENTIALITY_REQUIRED_INT_VALUE);
 
 
@@ -604,10 +623,11 @@ public final class ResultCode
 
   /**
    * The result code (14) that will be returned from the server after SASL bind
-   * stages in which more processing is required.
+   * stages in which more processing is required.  This result code is defined
+   * in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode SASL_BIND_IN_PROGRESS =
-       new ResultCode(INFO_RC_SASL_BIND_IN_PROGRESS.get(),
+       new ResultCode(INFO_RC_SASL_BIND_IN_PROGRESS.get(), "saslBindInProgress",
                       SASL_BIND_IN_PROGRESS_INT_VALUE);
 
 
@@ -621,10 +641,11 @@ public final class ResultCode
 
   /**
    * The result code (16) that will be used if the client referenced an
-   * attribute that does not exist in the target entry.
+   * attribute that does not exist in the target entry.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode NO_SUCH_ATTRIBUTE =
-       new ResultCode(INFO_RC_NO_SUCH_ATTRIBUTE.get(),
+       new ResultCode(INFO_RC_NO_SUCH_ATTRIBUTE.get(), "noSuchAttribute",
                       NO_SUCH_ATTRIBUTE_INT_VALUE);
 
 
@@ -638,10 +659,12 @@ public final class ResultCode
 
   /**
    * The result code (17) that will be used if the client referenced an
-   * attribute that is not defined in the server schema.
+   * attribute that is not defined in the server schema.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode UNDEFINED_ATTRIBUTE_TYPE =
        new ResultCode(INFO_RC_UNDEFINED_ATTRIBUTE_TYPE.get(),
+                      "undefinedAttributeType",
                       UNDEFINED_ATTRIBUTE_TYPE_INT_VALUE);
 
 
@@ -656,10 +679,12 @@ public final class ResultCode
   /**
    * The result code (18) that will be used if the client attempted to use an
    * attribute in a search filter in a manner not supported by the matching
-   * rules associated with that attribute.
+   * rules associated with that attribute.  This result code is defined in RFC
+   * 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode INAPPROPRIATE_MATCHING =
        new ResultCode(INFO_RC_INAPPROPRIATE_MATCHING.get(),
+                      "inappropriateMatching",
                       INAPPROPRIATE_MATCHING_INT_VALUE);
 
 
@@ -673,10 +698,11 @@ public final class ResultCode
 
   /**
    * The result code (19) that will be used if the requested operation would
-   * violate some constraint defined in the server.
+   * violate some constraint defined in the server.  This result code is defined
+   * in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode CONSTRAINT_VIOLATION =
-       new ResultCode(INFO_RC_CONSTRAINT_VIOLATION.get(),
+       new ResultCode(INFO_RC_CONSTRAINT_VIOLATION.get(), "constraintViolation",
                       CONSTRAINT_VIOLATION_INT_VALUE);
 
 
@@ -691,10 +717,12 @@ public final class ResultCode
   /**
    * The result code (20) that will be used if the client attempts to modify an
    * entry in a way that would create a duplicate value, or create multiple
-   * values for a single-valued attribute.
+   * values for a single-valued attribute.  This result code is defined in RFC
+   * 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode ATTRIBUTE_OR_VALUE_EXISTS =
        new ResultCode(INFO_RC_ATTRIBUTE_OR_VALUE_EXISTS.get(),
+                      "attributeOrValueExists",
                       ATTRIBUTE_OR_VALUE_EXISTS_INT_VALUE);
 
 
@@ -709,10 +737,11 @@ public final class ResultCode
   /**
    * The result code (21) that will be used if the client attempts to perform an
    * operation that would create an attribute value that violates the syntax
-   * for that attribute.
+   * for that attribute.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode INVALID_ATTRIBUTE_SYNTAX =
        new ResultCode(INFO_RC_INVALID_ATTRIBUTE_SYNTAX.get(),
+                      "invalidAttributeSyntax",
                       INVALID_ATTRIBUTE_SYNTAX_INT_VALUE);
 
 
@@ -726,10 +755,11 @@ public final class ResultCode
 
   /**
    * The result code (32) that will be used if the client targeted an entry that
-   * does not exist.
+   * does not exist.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode NO_SUCH_OBJECT =
-       new ResultCode(INFO_RC_NO_SUCH_OBJECT.get(), NO_SUCH_OBJECT_INT_VALUE);
+       new ResultCode(INFO_RC_NO_SUCH_OBJECT.get(), "noSuchObject",
+                      NO_SUCH_OBJECT_INT_VALUE);
 
 
 
@@ -742,10 +772,11 @@ public final class ResultCode
 
   /**
    * The result code (33) that will be used if the client targeted an entry that
-   * as an alias.
+   * as an alias.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode ALIAS_PROBLEM =
-       new ResultCode(INFO_RC_ALIAS_PROBLEM.get(), ALIAS_PROBLEM_INT_VALUE);
+       new ResultCode(INFO_RC_ALIAS_PROBLEM.get(), "aliasProblem",
+                      ALIAS_PROBLEM_INT_VALUE);
 
 
 
@@ -758,10 +789,11 @@ public final class ResultCode
 
   /**
    * The result code (34) that will be used if the client provided an invalid
-   * DN.
+   * DN.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode INVALID_DN_SYNTAX =
        new ResultCode(INFO_RC_INVALID_DN_SYNTAX.get(),
+                      "invalidDNSyntax",
                       INVALID_DN_SYNTAX_INT_VALUE);
 
 
@@ -775,10 +807,12 @@ public final class ResultCode
 
   /**
    * The result code (36) that will be used if a problem is encountered while
-   * the server is attempting to dereference an alias.
+   * the server is attempting to dereference an alias.  This result code is
+   * defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode ALIAS_DEREFERENCING_PROBLEM =
        new ResultCode(INFO_RC_ALIAS_DEREFERENCING_PROBLEM.get(),
+                      "aliasDereferencingProblem",
                       ALIAS_DEREFERENCING_PROBLEM_INT_VALUE);
 
 
@@ -792,10 +826,12 @@ public final class ResultCode
 
   /**
    * The result code (48) that will be used if the client attempts to perform a
-   * type of authentication that is not supported for the target user.
+   * type of authentication that is not supported for the target user.  This
+   * result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode INAPPROPRIATE_AUTHENTICATION =
        new ResultCode(INFO_RC_INAPPROPRIATE_AUTHENTICATION.get(),
+                      "inappropriateAuthentication",
                       INAPPROPRIATE_AUTHENTICATION_INT_VALUE);
 
 
@@ -809,10 +845,11 @@ public final class ResultCode
 
   /**
    * The result code (49) that will be used if the client provided invalid
-   * credentials while trying to authenticate.
+   * credentials while trying to authenticate.  This result code is defined in
+   * RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode INVALID_CREDENTIALS =
-       new ResultCode(INFO_RC_INVALID_CREDENTIALS.get(),
+       new ResultCode(INFO_RC_INVALID_CREDENTIALS.get(), "invalidCredentials",
                       INVALID_CREDENTIALS_INT_VALUE);
 
 
@@ -826,10 +863,12 @@ public final class ResultCode
 
   /**
    * The result code (50) that will be used if the client does not have
-   * permission to perform the requested operation.
+   * permission to perform the requested operation.  This result code is defined
+   * in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode INSUFFICIENT_ACCESS_RIGHTS =
        new ResultCode(INFO_RC_INSUFFICIENT_ACCESS_RIGHTS.get(),
+                      "insufficientAccessRights",
                       INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE);
 
 
@@ -843,10 +882,11 @@ public final class ResultCode
 
   /**
    * The result code (51) that will be used if the server is too busy to process
-   * the requested operation.
+   * the requested operation.  This result code is defined in RFC 4511 section
+   * 4.1.9.
    */
   @NotNull public static final ResultCode BUSY =
-       new ResultCode(INFO_RC_BUSY.get(), BUSY_INT_VALUE);
+       new ResultCode(INFO_RC_BUSY.get(), "busy", BUSY_INT_VALUE);
 
 
 
@@ -858,10 +898,12 @@ public final class ResultCode
 
 
   /**
-   * The result code (52) that will be used if the server is unavailable.
+   * The result code (52) that will be used if the server is unavailable.  This
+   * result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode UNAVAILABLE =
-       new ResultCode(INFO_RC_UNAVAILABLE.get(), UNAVAILABLE_INT_VALUE);
+       new ResultCode(INFO_RC_UNAVAILABLE.get(), "unavailable",
+                      UNAVAILABLE_INT_VALUE);
 
 
 
@@ -874,10 +916,12 @@ public final class ResultCode
 
   /**
    * The result code (53) that will be used if the server is not willing to
-   * perform the requested operation.
+   * perform the requested operation.  This result code is defined in RFC 4511
+   * section 4.1.9.
    */
   @NotNull public static final ResultCode UNWILLING_TO_PERFORM =
        new ResultCode(INFO_RC_UNWILLING_TO_PERFORM.get(),
+                      "unwillingToPerform",
                       UNWILLING_TO_PERFORM_INT_VALUE);
 
 
@@ -891,10 +935,11 @@ public final class ResultCode
 
   /**
    * The result code (54) that will be used if the server detects a chaining or
-   * alias loop.
+   * alias loop.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode LOOP_DETECT =
-       new ResultCode(INFO_RC_LOOP_DETECT.get(), LOOP_DETECT_INT_VALUE);
+       new ResultCode(INFO_RC_LOOP_DETECT.get(), "loopDetect",
+                      LOOP_DETECT_INT_VALUE);
 
 
 
@@ -907,10 +952,12 @@ public final class ResultCode
 
   /**
    * The result code (60) that will be used if the client sends a virtual list
-   * view control without a server-side sort control.
+   * view control without a server-side sort control.  This result code is
+   * defined in draft-ietf-ldapext-ldapv3-vlv-09 section 6.2.
    */
   @NotNull public static final ResultCode SORT_CONTROL_MISSING =
        new ResultCode(INFO_RC_SORT_CONTROL_MISSING.get(),
+                      "sortControlMissing",
                       SORT_CONTROL_MISSING_INT_VALUE);
 
 
@@ -925,10 +972,11 @@ public final class ResultCode
   /**
    * The result code (61) that will be used if the client provides a virtual
    * list view control with a target offset that is out of range for the
-   * available data set.
+   * available data set.  This result code is defined in
+   * draft-ietf-ldapext-ldapv3-vlv-09 section 6.2.
    */
   @NotNull public static final ResultCode OFFSET_RANGE_ERROR =
-       new ResultCode(INFO_RC_OFFSET_RANGE_ERROR.get(),
+       new ResultCode(INFO_RC_OFFSET_RANGE_ERROR.get(), "offsetRangeError",
                       OFFSET_RANGE_ERROR_INT_VALUE);
 
 
@@ -943,10 +991,10 @@ public final class ResultCode
   /**
    * The result code (64) that will be used if the client request violates a
    * naming constraint (e.g., a name form or DIT structure rule) defined in the
-   * server.
+   * server.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode NAMING_VIOLATION =
-       new ResultCode(INFO_RC_NAMING_VIOLATION.get(),
+       new ResultCode(INFO_RC_NAMING_VIOLATION.get(), "namingViolation",
                       NAMING_VIOLATION_INT_VALUE);
 
 
@@ -962,10 +1010,11 @@ public final class ResultCode
    * The result code (65) that will be used if the client request violates an
    * object class constraint (e.g., an undefined object class, a
    * disallowed attribute, or a missing required attribute) defined in the
-   * server.
+   * server.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode OBJECT_CLASS_VIOLATION =
        new ResultCode(INFO_RC_OBJECT_CLASS_VIOLATION.get(),
+                      "objectClassViolation",
                       OBJECT_CLASS_VIOLATION_INT_VALUE);
 
 
@@ -979,10 +1028,12 @@ public final class ResultCode
 
   /**
    * The result code (66) that will be used if the requested operation is not
-   * allowed to be performed on non-leaf entries.
+   * allowed to be performed on non-leaf entries.  This result code is defined
+   * in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode NOT_ALLOWED_ON_NONLEAF =
        new ResultCode(INFO_RC_NOT_ALLOWED_ON_NONLEAF.get(),
+                      "notAllowedOnNonLeaf",
                       NOT_ALLOWED_ON_NONLEAF_INT_VALUE);
 
 
@@ -997,9 +1048,10 @@ public final class ResultCode
   /**
    * The result code (67) that will be used if the requested operation would
    * alter the RDN of the entry but the operation was not a modify DN request.
+   * This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode NOT_ALLOWED_ON_RDN =
-       new ResultCode(INFO_RC_NOT_ALLOWED_ON_RDN.get(),
+       new ResultCode(INFO_RC_NOT_ALLOWED_ON_RDN.get(), "notAllowedOnRDN",
                       NOT_ALLOWED_ON_RDN_INT_VALUE);
 
 
@@ -1013,10 +1065,11 @@ public final class ResultCode
 
   /**
    * The result code (68) that will be used if the requested operation would
-   * create a conflict with an entry that already exists in the server.
+   * create a conflict with an entry that already exists in the server.  This
+   * result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode ENTRY_ALREADY_EXISTS =
-       new ResultCode(INFO_RC_ENTRY_ALREADY_EXISTS.get(),
+       new ResultCode(INFO_RC_ENTRY_ALREADY_EXISTS.get(), "entryAlreadyExists",
                       ENTRY_ALREADY_EXISTS_INT_VALUE);
 
 
@@ -1031,10 +1084,11 @@ public final class ResultCode
   /**
    * The result code (69) that will be used if the requested operation would
    * alter the set of object classes defined in the entry in a disallowed
-   * manner.
+   * manner.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode OBJECT_CLASS_MODS_PROHIBITED =
        new ResultCode(INFO_RC_OBJECT_CLASS_MODS_PROHIBITED.get(),
+                      "objectClassModsProhibited",
                       OBJECT_CLASS_MODS_PROHIBITED_INT_VALUE);
 
 
@@ -1048,10 +1102,12 @@ public final class ResultCode
 
   /**
    * The result code (71) that will be used if the requested operation would
-   * impact entries in multiple data sources.
+   * impact entries in multiple data sources.  This result code is defined in
+   * RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode AFFECTS_MULTIPLE_DSAS =
        new ResultCode(INFO_RC_AFFECTS_MULTIPLE_DSAS.get(),
+                      "affectsMultipleDSAs",
                       AFFECTS_MULTIPLE_DSAS_INT_VALUE);
 
 
@@ -1065,10 +1121,12 @@ public final class ResultCode
 
   /**
    * The result code (76) that will be used if an error occurred while
-   * performing processing associated with the virtual list view control.
+   * performing processing associated with the virtual list view control.  This
+   * result code is defined in draft-ietf-ldapext-ldapv3-vlv-09 section 6.2.1.
    */
   @NotNull public static final ResultCode VIRTUAL_LIST_VIEW_ERROR =
        new ResultCode(INFO_RC_VIRTUAL_LIST_VIEW_ERROR.get(),
+                      "virtualListViewError",
                       VIRTUAL_LIST_VIEW_ERROR_INT_VALUE);
 
 
@@ -1082,10 +1140,10 @@ public final class ResultCode
 
   /**
    * The result code (80) that will be used if none of the other result codes
-   * are appropriate.
+   * are appropriate.  This result code is defined in RFC 4511 section 4.1.9.
    */
   @NotNull public static final ResultCode OTHER =
-       new ResultCode(INFO_RC_OTHER.get(), OTHER_INT_VALUE);
+       new ResultCode(INFO_RC_OTHER.get(), "other", OTHER_INT_VALUE);
 
 
 
@@ -1098,10 +1156,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (81) that will be used if an established
-   * connection to the server is lost.
+   * connection to the server is lost.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode SERVER_DOWN =
-       new ResultCode(INFO_RC_SERVER_DOWN.get(), SERVER_DOWN_INT_VALUE);
+       new ResultCode(INFO_RC_SERVER_DOWN.get(), "SERVER_DOWN",
+                      SERVER_DOWN_INT_VALUE);
 
 
 
@@ -1114,10 +1174,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (82) that will be used if a generic client-side
-   * error occurs during processing.
+   * error occurs during processing.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode LOCAL_ERROR =
-       new ResultCode(INFO_RC_LOCAL_ERROR.get(), LOCAL_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_LOCAL_ERROR.get(), "LOCAL_ERROR",
+                      LOCAL_ERROR_INT_VALUE);
 
 
 
@@ -1130,10 +1192,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (83) that will be used if an error occurs while
-   * encoding a request.
+   * encoding a request.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode ENCODING_ERROR =
-       new ResultCode(INFO_RC_ENCODING_ERROR.get(), ENCODING_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_ENCODING_ERROR.get(), "ENCODING_ERROR",
+                      ENCODING_ERROR_INT_VALUE);
 
 
 
@@ -1146,10 +1210,13 @@ public final class ResultCode
 
   /**
    * The client-side result code (84) that will be used if an error occurs while
-   * decoding a response.
+   * decoding a response.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode DECODING_ERROR =
-       new ResultCode(INFO_RC_DECODING_ERROR.get(), DECODING_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_DECODING_ERROR.get(),
+                      "DECODING_ERROR",
+                      DECODING_ERROR_INT_VALUE);
 
 
 
@@ -1162,10 +1229,11 @@ public final class ResultCode
 
   /**
    * The client-side result code (85) that will be used if a client timeout
-   * occurs while waiting for a response from the server.
+   * occurs while waiting for a response from the server.  This result code is
+   * defined in draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode TIMEOUT =
-       new ResultCode(INFO_RC_TIMEOUT.get(), TIMEOUT_INT_VALUE);
+       new ResultCode(INFO_RC_TIMEOUT.get(), "LDAP_TIMEOUT", TIMEOUT_INT_VALUE);
 
 
 
@@ -1178,10 +1246,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (86) that will be used if the client attempts
-   * to use an unknown authentication type.
+   * to use an unknown authentication type.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode AUTH_UNKNOWN =
-       new ResultCode(INFO_RC_AUTH_UNKNOWN.get(), AUTH_UNKNOWN_INT_VALUE);
+       new ResultCode(INFO_RC_AUTH_UNKNOWN.get(), "AUTH_UNKNOWN",
+                      AUTH_UNKNOWN_INT_VALUE);
 
 
 
@@ -1194,10 +1264,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (87) that will be used if an error occurs while
-   * attempting to encode a search filter.
+   * attempting to encode a search filter.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode FILTER_ERROR =
-       new ResultCode(INFO_RC_FILTER_ERROR.get(), FILTER_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_FILTER_ERROR.get(), "FILTER_ERROR",
+                      FILTER_ERROR_INT_VALUE);
 
 
 
@@ -1210,10 +1282,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (88) that will be used if the end user canceled
-   * the operation in progress.
+   * the operation in progress.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode USER_CANCELED =
-       new ResultCode(INFO_RC_USER_CANCELED.get(), USER_CANCELED_INT_VALUE);
+       new ResultCode(INFO_RC_USER_CANCELED.get(), "USER_CANCELLED",
+                      USER_CANCELED_INT_VALUE);
 
 
 
@@ -1226,10 +1300,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (89) that will be used if there is a problem
-   * with the parameters provided for a request.
+   * with the parameters provided for a request.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-13 section 4.14.7.
    */
   @NotNull public static final ResultCode PARAM_ERROR =
-       new ResultCode(INFO_RC_PARAM_ERROR.get(), PARAM_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_PARAM_ERROR.get(), "PARAM_ERROR",
+                      PARAM_ERROR_INT_VALUE);
 
 
 
@@ -1242,10 +1318,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (90) that will be used if the client does not
-   * have sufficient memory to perform the requested operation.
+   * have sufficient memory to perform the requested operation.  This result
+   * code is defined in draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode NO_MEMORY =
-       new ResultCode(INFO_RC_NO_MEMORY.get(), NO_MEMORY_INT_VALUE);
+       new ResultCode(INFO_RC_NO_MEMORY.get(), "NO_MEMORY",
+                      NO_MEMORY_INT_VALUE);
 
 
 
@@ -1258,10 +1336,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (91) that will be used if an error occurs while
-   * attempting to connect to a target server.
+   * attempting to connect to a target server.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode CONNECT_ERROR =
-       new ResultCode(INFO_RC_CONNECT_ERROR.get(), CONNECT_ERROR_INT_VALUE);
+       new ResultCode(INFO_RC_CONNECT_ERROR.get(), "CONNECT_ERROR",
+                      CONNECT_ERROR_INT_VALUE);
 
 
 
@@ -1274,10 +1354,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (92) that will be used if the requested
-   * operation is not supported.
+   * operation is not supported.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode NOT_SUPPORTED =
-       new ResultCode(INFO_RC_NOT_SUPPORTED.get(), NOT_SUPPORTED_INT_VALUE);
+       new ResultCode(INFO_RC_NOT_SUPPORTED.get(), "LDAP_NOT_SUPPORTED",
+                      NOT_SUPPORTED_INT_VALUE);
 
 
 
@@ -1290,10 +1372,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (93) that will be used if the response from the
-   * server did not include an expected control.
+   * server did not include an expected control.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode CONTROL_NOT_FOUND =
        new ResultCode(INFO_RC_CONTROL_NOT_FOUND.get(),
+                      "CONTROL_NOT_FOUND",
                       CONTROL_NOT_FOUND_INT_VALUE);
 
 
@@ -1307,10 +1391,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (94) that will be used if the server did not
-   * send any results.
+   * send any results.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode NO_RESULTS_RETURNED =
        new ResultCode(INFO_RC_NO_RESULTS_RETURNED.get(),
+                      "NO_RESULTS_RETURNED",
                       NO_RESULTS_RETURNED_INT_VALUE);
 
 
@@ -1324,10 +1410,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (95) that will be used if there are still more
-   * results to return.
+   * results to return.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode MORE_RESULTS_TO_RETURN =
        new ResultCode(INFO_RC_MORE_RESULTS_TO_RETURN.get(),
+                      "MORE_RESULTS_TO_RETURN",
                       MORE_RESULTS_TO_RETURN_INT_VALUE);
 
 
@@ -1341,10 +1429,12 @@ public final class ResultCode
 
   /**
    * The client-side result code (96) that will be used if the client detects a
-   * loop while attempting to follow referrals.
+   * loop while attempting to follow referrals.  This result code is defined in
+   * draft-ietf-ldapext-ldap-java-api-19 section 2.15.9.
    */
   @NotNull public static final ResultCode CLIENT_LOOP =
-       new ResultCode(INFO_RC_CLIENT_LOOP.get(), CLIENT_LOOP_INT_VALUE);
+       new ResultCode(INFO_RC_CLIENT_LOOP.get(), "CLIENT_LOOP",
+                      CLIENT_LOOP_INT_VALUE);
 
 
 
@@ -1358,9 +1448,12 @@ public final class ResultCode
   /**
    * The client-side result code (97) that will be used if the client
    * encountered too many referrals in the course of processing an operation.
+   * This result code is defined in draft-ietf-ldapext-ldap-java-api-19 section
+   * 2.15.9.
    */
   @NotNull public static final ResultCode REFERRAL_LIMIT_EXCEEDED =
        new ResultCode(INFO_RC_REFERRAL_LIMIT_EXCEEDED.get(),
+                      "REFERRAL_LIMIT_EXCEEDED",
                       REFERRAL_LIMIT_EXCEEDED_INT_VALUE);
 
 
@@ -1374,9 +1467,10 @@ public final class ResultCode
 
   /**
    * The result code (118) that will be used if the operation was canceled.
+   * This result code is defined in RFC 3909 section 2.3.
    */
   @NotNull public static final ResultCode CANCELED =
-       new ResultCode(INFO_RC_CANCELED.get(), CANCELED_INT_VALUE);
+       new ResultCode(INFO_RC_CANCELED.get(), "canceled", CANCELED_INT_VALUE);
 
 
 
@@ -1391,9 +1485,10 @@ public final class ResultCode
    * The result code (119) that will be used if the client attempts to cancel an
    * operation for which the server has no knowledge (e.g., because the
    * operation had already completed or no such operation had been requested).
+   * This result code is defined in RFC 3909 section 2.3.
    */
   @NotNull public static final ResultCode NO_SUCH_OPERATION =
-       new ResultCode(INFO_RC_NO_SUCH_OPERATION.get(),
+       new ResultCode(INFO_RC_NO_SUCH_OPERATION.get(), "noSuchOperation",
                       NO_SUCH_OPERATION_INT_VALUE);
 
 
@@ -1407,10 +1502,11 @@ public final class ResultCode
 
   /**
    * The result code (120) that will be used if the client attempts to cancel an
-   * operation too late in the processing for that operation.
+   * operation too late in the processing for that operation.  This result code
+   * is defined in RFC 3909 section 2.3.
    */
   @NotNull public static final ResultCode TOO_LATE =
-       new ResultCode(INFO_RC_TOO_LATE.get(), TOO_LATE_INT_VALUE);
+       new ResultCode(INFO_RC_TOO_LATE.get(), "tooLate", TOO_LATE_INT_VALUE);
 
 
 
@@ -1423,10 +1519,12 @@ public final class ResultCode
 
   /**
    * The result code (121) that will be used if the client attempts to cancel an
-   * operation that cannot be canceled.
+   * operation that cannot be canceled.  This result code is defined in RFC 3909
+   * section 2.3.
    */
   @NotNull public static final ResultCode CANNOT_CANCEL =
-       new ResultCode(INFO_RC_CANNOT_CANCEL.get(), CANNOT_CANCEL_INT_VALUE);
+       new ResultCode(INFO_RC_CANNOT_CANCEL.get(), "cannotCancel",
+                      CANNOT_CANCEL_INT_VALUE);
 
 
 
@@ -1440,10 +1538,10 @@ public final class ResultCode
   /**
    * The result code (122) that will be used if the requested operation included
    * the LDAP assertion control but the assertion did not match the target
-   * entry.
+   * entry.  This result code is defined in RFC 4528 section 5.3.
    */
   @NotNull public static final ResultCode ASSERTION_FAILED =
-       new ResultCode(INFO_RC_ASSERTION_FAILED.get(),
+       new ResultCode(INFO_RC_ASSERTION_FAILED.get(), "assertionFailed",
                       ASSERTION_FAILED_INT_VALUE);
 
 
@@ -1457,10 +1555,13 @@ public final class ResultCode
 
   /**
    * The result code (123) that will be used if the client is denied the ability
-   * to use the proxied authorization control.
+   * to use the proxied authorization control.  This result code is defined in
+   * RFC 4370 section 6 (although the standard name is not referenced there, but
+   * it is used in both RFC 4532 section 6.1 and RFC 5805 section 4.4).
    */
   @NotNull public static final ResultCode AUTHORIZATION_DENIED =
        new ResultCode(INFO_RC_AUTHORIZATION_DENIED.get(),
+                      "authorizationDenied",
                       AUTHORIZATION_DENIED_INT_VALUE);
 
 
@@ -1476,10 +1577,11 @@ public final class ResultCode
    * The result code (4096) that will be used if a client using the content
    * synchronization request control requests an incremental update but the
    * server is unable to honor that request and requires the client to request
-   * an initial content.
+   * an initial content.  This result code is defined in RFC 4533 section 2.6.
    */
   @NotNull public static final ResultCode E_SYNC_REFRESH_REQUIRED =
        new ResultCode(INFO_RC_E_SYNC_REFRESH_REQUIRED.get(),
+                      "e-syncRefreshRequired",
                       E_SYNC_REFRESH_REQUIRED_INT_VALUE);
 
 
@@ -1494,10 +1596,14 @@ public final class ResultCode
   /**
    * The result code (16654) for operations that completed successfully but no
    * changes were made to the server because the LDAP no-op control was included
-   * in the request.
+   * in the request.  This result code is defined in
+   * draft-zeilenga-ldap-noop-12 section 4.3 (although the numeric value is not
+   * defined in that specification; the numeric value used for this result code
+   * is the same as the one originally used by OpenLDAP).
    */
   @NotNull public static final ResultCode NO_OPERATION =
-       new ResultCode(INFO_RC_NO_OPERATION.get(), NO_OPERATION_INT_VALUE);
+       new ResultCode(INFO_RC_NO_OPERATION.get(), "noOperation",
+                      NO_OPERATION_INT_VALUE);
 
 
 
@@ -1513,10 +1619,12 @@ public final class ResultCode
   /**
    * The result code (30221001) for use if an interactive transaction has been
    * aborted, either due to an explicit request from a client or by the server
-   * without a client request.
+   * without a client request.  This is a proprietary result code originally
+   * defined by UnboundID corporation.
    */
   @NotNull public static final ResultCode INTERACTIVE_TRANSACTION_ABORTED =
        new ResultCode(INFO_RC_INTERACTIVE_TRANSACTION_ABORTED.get(),
+                      "interactiveTransactionAborted",
                       INTERACTIVE_TRANSACTION_ABORTED_INT_VALUE);
 
 
@@ -1530,10 +1638,12 @@ public final class ResultCode
 
   /**
    * The result code (30221002) for use if an operation fails because of a
-   * database lock conflict (e.g., a deadlock or lock timeout).
+   * database lock conflict (e.g., a deadlock or lock timeout).  This is a
+   * proprietary result code originally defined by UnboundID corporation.
    */
   @NotNull public static final ResultCode DATABASE_LOCK_CONFLICT =
        new ResultCode(INFO_RC_DATABASE_LOCK_CONFLICT.get(),
+                      "databaseLockConflict",
                       DATABASE_LOCK_CONFLICT_INT_VALUE);
 
 
@@ -1550,10 +1660,12 @@ public final class ResultCode
   /**
    * The result code (30221003) that should be used by a node in a topology of
    * servers to indicate that its subtree digest does not match that of its
-   * master's.
+   * master.  This is a proprietary result code originally defined by UnboundID
+   * corporation.
    */
   @NotNull public static final ResultCode MIRRORED_SUBTREE_DIGEST_MISMATCH =
       new ResultCode(INFO_RC_MIRRORED_SUBTREE_DIGEST_MISMATCH.get(),
+          "mirroredSubtreeDigestMismatch",
           MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE);
 
 
@@ -1571,10 +1683,12 @@ public final class ResultCode
    * The result code (30221004) that should be used to indicate that the server
    * could not deliver a one-time password, password reset token, or single-use
    * token because none of the attempted delivery mechanisms were supported for
-   * the target user.
+   * the target user.  This is a proprietary result code originally defined by
+   * UnboundID corporation.
    */
   @NotNull public static final ResultCode TOKEN_DELIVERY_MECHANISM_UNAVAILABLE =
       new ResultCode(INFO_RC_TOKEN_DELIVERY_MECHANISM_UNAVAILABLE.get(),
+          "tokenDeliveryMechanismUnavailable",
           TOKEN_DELIVERY_MECHANISM_UNAVAILABLE_INT_VALUE);
 
 
@@ -1591,10 +1705,12 @@ public final class ResultCode
    * The result code (30221005) that should be used to indicate that the server
    * could not deliver a one-time password, password reset token, or single-use
    * token because a failure was encountered while attempting to deliver the
-   * token through all of the supported mechanisms.
+   * token through all of the supported mechanisms.  This is a proprietary
+   * result code originally defined by UnboundID corporation.
    */
   @NotNull public static final ResultCode TOKEN_DELIVERY_ATTEMPT_FAILED =
       new ResultCode(INFO_RC_TOKEN_DELIVERY_ATTEMPT_FAILED.get(),
+          "tokenDeliveryAttemptFailed",
           TOKEN_DELIVERY_ATTEMPT_FAILED_INT_VALUE);
 
 
@@ -1612,10 +1728,12 @@ public final class ResultCode
    * The result code (30221006) that should be used to indicate that the server
    * could not deliver a one-time password, password reset token, or single-use
    * token because the client specified a recipient ID that was not appropriate
-   * for the target user.
+   * for the target user.  This is a proprietary result code originally defined
+   * by UnboundID corporation.
    */
   @NotNull public static final ResultCode TOKEN_DELIVERY_INVALID_RECIPIENT_ID =
       new ResultCode(INFO_RC_TOKEN_DELIVERY_INVALID_RECIPIENT_ID.get(),
+          "tokenDeliveryInvalidRecipientID",
           TOKEN_DELIVERY_INVALID_RECIPIENT_ID_INT_VALUE);
 
 
@@ -1634,10 +1752,12 @@ public final class ResultCode
    * could not deliver a one-time password, password reset token, or single-use
    * token because the target user account was in an invalid state for receiving
    * such tokens (e.g., the account is disabled or locked, the password is
-   * expired, etc.).
+   * expired, etc.).  This is a proprietary result code originally defined by
+   * UnboundID corporation.
    */
   @NotNull public static final ResultCode TOKEN_DELIVERY_INVALID_ACCOUNT_STATE =
       new ResultCode(INFO_RC_TOKEN_DELIVERY_INVALID_ACCOUNT_STATE.get(),
+          "tokenDeliveryInvalidAccountState",
           TOKEN_DELIVERY_INVALID_ACCOUNT_STATE_INT_VALUE);
 
 
@@ -1710,6 +1830,9 @@ public final class ResultCode
   // The name for this result code.
   @NotNull private final String name;
 
+  // The name for this result code as it appears in the relevant specification.
+  @Nullable private final String standardName;
+
   // The string representation for this result code.
   @NotNull private final String stringRepresentation;
 
@@ -1724,8 +1847,9 @@ public final class ResultCode
   {
     this.intValue = intValue;
 
-    name                 = String.valueOf(intValue);
+    name = String.valueOf(intValue);
     stringRepresentation = name;
+    standardName = null;
   }
 
 
@@ -1733,12 +1857,34 @@ public final class ResultCode
   /**
    * Creates a new result code with the specified name and integer value.
    *
-   * @param  name      The name for this result code.
+   * @param  name      The user-friendly name for this result code.  It must
+   *                   not be {@code null}.
    * @param  intValue  The integer value for this result code.
    */
   private ResultCode(@NotNull final String name, final int intValue)
   {
-    this.name     = name;
+    this(name, null, intValue);
+  }
+
+
+
+  /**
+   * Creates a new result code with the specified name and integer value.
+   *
+   * @param  name          The user-friendly name for this result code.  It
+   *                       must not be {@code null}.
+   * @param  standardName  The name for this result code as it appears in the
+   *                       relevant LDAP specification.  It may be {@code null}
+   *                       for result codes that are not defined in an official
+   *                       specification.
+   * @param  intValue      The integer value for this result code.
+   */
+  private ResultCode(@NotNull final String name,
+                     @Nullable final String standardName,
+                     final int intValue)
+  {
+    this.name = name;
+    this.standardName = standardName;
     this.intValue = intValue;
 
     stringRepresentation = intValue + " (" + name + ')';
@@ -1747,14 +1893,35 @@ public final class ResultCode
 
 
   /**
-   * Retrieves the name for this result code.
+   * Retrieves the user-friendly name for this result code.
    *
-   * @return  The name for this result code.
+   * @return  The user-friendly name for this result code.
    */
   @NotNull()
   public String getName()
   {
     return name;
+  }
+
+
+
+  /**
+   * Retrieves the name for this result code as it appears in the relevant LDAP
+   * specification, if any.  In most cases, it is formatted in camelCase, with
+   * the first letter lowercase, and the first letter of every subsequent word
+   * and all letters in acronyms in uppercase.  However, some result codes may
+   * use different formatting (for example, those defined in API specifications
+   * and meant for client-side use tend to use all uppercase with words
+   * separated by underscores).
+   *
+   * @return  The name for this result code as it appears in the relevant LDAP
+   *          specification, or {@code null} if the result code is not defined
+   *          in any public specification.
+   */
+  @Nullable()
+  public String getStandardName()
+  {
+    return standardName;
   }
 
 
