@@ -1579,8 +1579,7 @@ public final class InMemoryDirectoryServer
   public SearchResultEntry getEntry(@NotNull final String dn)
          throws LDAPException
   {
-    return searchForEntry(dn, SearchScope.BASE,
-         Filter.createPresenceFilter("objectClass"));
+    return searchForEntry(dn, SearchScope.BASE, Filter.createANDFilter());
   }
 
 
@@ -1598,8 +1597,8 @@ public final class InMemoryDirectoryServer
                                     @Nullable final String... attributes)
          throws LDAPException
   {
-    return searchForEntry(dn, SearchScope.BASE,
-         Filter.createPresenceFilter("objectClass"), attributes);
+    return searchForEntry(dn, SearchScope.BASE, Filter.createANDFilter(),
+         attributes);
   }
 
 
