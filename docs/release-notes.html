@@ -35,13 +35,6 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added a ResultCode.getStandardName method that can be used to retrieve the name
-                  assigned to the associated result code in the relevant specification.  This may
-                  not be available for result codes that are not defined in known specifications.
-                  <br><br>
-                </li>
-
-                <li>
                   Added a new HTTPProxySocketFactory class that can be used to allow establishing
                   LDAP and LDAPS connections through an HTTP proxy server, and added a new
                   SOCKSProxySocketFactory class that can be used to allow establishing connections
@@ -61,6 +54,20 @@ ${TARGET="offline"}                <br>
                   previously always used when comparing source and target entries, but it should
                   be a configurable option, and it is better to use schema-aware matching by
                   default.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an issue in which a non-default channel binding type was not preserved when
+                  duplicating a GSSAPI bind request.  Also, added a method to retrieve the channel
+                  binding type in use for a GSSAPI bind request.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a ResultCode.getStandardName method that can be used to retrieve the name
+                  assigned to the associated result code in the relevant specification.  This may
+                  not be available for result codes that are not defined in known specifications.
                   <br><br>
                 </li>
 

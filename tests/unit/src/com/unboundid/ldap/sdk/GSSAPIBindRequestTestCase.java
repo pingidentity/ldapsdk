@@ -154,6 +154,10 @@ public class GSSAPIBindRequestTestCase
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
 
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
     assertFalse(r.enableGSSAPIDebugging());
 
     assertNotNull(r.getRebindRequest("127.0.0.1", 389));
@@ -244,6 +248,10 @@ public class GSSAPIBindRequestTestCase
 
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
+
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
 
     assertFalse(r.enableGSSAPIDebugging());
 
@@ -340,6 +348,10 @@ public class GSSAPIBindRequestTestCase
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
 
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
     assertFalse(r.enableGSSAPIDebugging());
 
     assertNotNull(r.getRebindRequest("127.0.0.1", 389));
@@ -431,6 +443,10 @@ public class GSSAPIBindRequestTestCase
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
 
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
     assertFalse(r.enableGSSAPIDebugging());
 
     assertNotNull(r.getRebindRequest("127.0.0.1", 389));
@@ -521,6 +537,10 @@ public class GSSAPIBindRequestTestCase
 
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
+
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
 
     assertFalse(r.enableGSSAPIDebugging());
 
@@ -618,6 +638,10 @@ public class GSSAPIBindRequestTestCase
 
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
+
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
 
     assertFalse(r.enableGSSAPIDebugging());
 
@@ -721,6 +745,10 @@ public class GSSAPIBindRequestTestCase
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
 
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
     assertFalse(r.enableGSSAPIDebugging());
 
     assertNotNull(r.getRebindRequest("127.0.0.1", 389));
@@ -818,6 +846,10 @@ public class GSSAPIBindRequestTestCase
     assertNotNull(r.getSuppressedSystemProperties());
     assertTrue(r.getSuppressedSystemProperties().isEmpty());
 
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.NONE);
+
     assertFalse(r.enableGSSAPIDebugging());
 
     assertNotNull(r.getRebindRequest("127.0.0.1", 389));
@@ -879,6 +911,8 @@ public class GSSAPIBindRequestTestCase
          "java.security.krb5.kdc",
          "javax.security.auth.useSubjectCredsOnly"));
     gssapiProperties.setEnableGSSAPIDebugging(true);
+    gssapiProperties.setChannelBindingType(
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT);
 
     GSSAPIBindRequest r = new GSSAPIBindRequest(gssapiProperties, controls);
     r = r.duplicate();
@@ -939,6 +973,10 @@ public class GSSAPIBindRequestTestCase
               "java.security.krb5.realm",
               "java.security.krb5.kdc",
               "javax.security.auth.useSubjectCredsOnly"));
+
+    assertNotNull(r.getChannelBindingType());
+    assertEquals(r.getChannelBindingType(),
+         GSSAPIChannelBindingType.TLS_SERVER_END_POINT);
 
     assertTrue(r.enableGSSAPIDebugging());
 

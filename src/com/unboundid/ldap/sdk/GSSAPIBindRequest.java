@@ -979,6 +979,22 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * Retrieves the type of channel binding that should be used for this GSSAPI
+   * bind request.
+   *
+   * @return  The type of channel binding that should be used for this GSSAPI
+   *          bind request, or {@link GSSAPIChannelBindingType#NONE} if no
+   *          channel binding should be used.
+   */
+  @NotNull()
+  public GSSAPIChannelBindingType getChannelBindingType()
+  {
+    return channelBindingType;
+  }
+
+
+
+  /**
    * Indicates whether JVM-level debugging should be enabled for GSSAPI bind
    * processing.
    *
@@ -1762,6 +1778,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setIsInitiator(isInitiator);
       gssapiProperties.setSuppressedSystemProperties(
            suppressedSystemProperties);
+      gssapiProperties.setChannelBindingType(channelBindingType);
 
       final GSSAPIBindRequest bindRequest =
            new GSSAPIBindRequest(gssapiProperties, controls);
