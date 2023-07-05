@@ -95,6 +95,9 @@ public final class ControlHelper
     Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.59",
          packageNameDot + "GeneratePasswordResponseControl");
 
+    Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.68",
+         packageNameDot + "GenerateAccessTokenResponseControl");
+
     Control.registerDecodeableControl("1.3.6.1.4.1.30221.2.5.6",
          packageNameDot + "GetAuthorizationEntryResponseControl");
 

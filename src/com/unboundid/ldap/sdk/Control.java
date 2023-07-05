@@ -87,6 +87,10 @@ import com.unboundid.ldap.sdk.unboundidds.controls.ExcludeBranchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             ExtendedSchemaInfoRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GenerateAccessTokenRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GenerateAccessTokenResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GeneratePasswordRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GeneratePasswordResponseControl;
@@ -1075,6 +1079,15 @@ public class Control
 
       case ExtendedSchemaInfoRequestControl.EXTENDED_SCHEMA_INFO_REQUEST_OID:
         return ExtendedSchemaInfoRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GenerateAccessTokenRequestControl.GENERATE_ACCESS_TOKEN_REQUEST_OID:
+        return GenerateAccessTokenRequestControl.decodeJSONControl(
+             controlObject, strict);
+
+      case GenerateAccessTokenResponseControl.
+           GENERATE_ACCESS_TOKEN_RESPONSE_OID:
+        return GenerateAccessTokenResponseControl.decodeJSONControl(
              controlObject, strict);
 
       case GeneratePasswordRequestControl.GENERATE_PASSWORD_REQUEST_OID:
