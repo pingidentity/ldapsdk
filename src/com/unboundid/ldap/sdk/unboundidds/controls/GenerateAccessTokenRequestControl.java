@@ -123,7 +123,7 @@ public final class GenerateAccessTokenRequestControl
        extends Control
 {
   /**
-   * The OID (1.3.6.1.4.1.30221.2.5.58) for the generate access token request
+   * The OID (1.3.6.1.4.1.30221.2.5.67) for the generate access token request
    * control.
    */
   @NotNull public static final  String GENERATE_ACCESS_TOKEN_REQUEST_OID =
@@ -208,7 +208,7 @@ public final class GenerateAccessTokenRequestControl
    *   <LI>
    *     {@code oid} -- A mandatory string field whose value is the object
    *     identifier for this control.  For the generate access token request
-   *     control, the OID is "1.3.6.1.4.1.30221.2.5.58".
+   *     control, the OID is "1.3.6.1.4.1.30221.2.5.67".
    *   </LI>
    *   <LI>
    *     {@code control-name} -- An optional string field whose value is a

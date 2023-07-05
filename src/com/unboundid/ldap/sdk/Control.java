@@ -75,6 +75,7 @@ import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccessLogFieldRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -1029,6 +1030,10 @@ public class Control
 
     switch (oid)
     {
+      case AccessLogFieldRequestControl.ACCESS_LOG_FIELD_REQUEST_OID:
+        return AccessLogFieldRequestControl.decodeJSONControl(
+             controlObject, strict);
+
       // NOTE:  The account usable request and response controls use the same
       // OID.
       case AccountUsableRequestControl.ACCOUNT_USABLE_REQUEST_OID:
