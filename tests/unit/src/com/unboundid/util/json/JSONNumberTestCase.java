@@ -65,6 +65,12 @@ public final class JSONNumberTestCase
 
     assertEquals(n.getValue().compareTo(new BigDecimal(0)), 0);
 
+    assertEquals(n.getValueAsInteger(), Integer.valueOf(0));
+
+    assertEquals(n.getValueAsLong(), Long.valueOf(0L));
+
+    assertEquals(n.getValueAsDouble(), 0.0d);
+
     assertNotNull(n.toString());
     assertEquals(n.toString(), "0");
 
@@ -123,6 +129,12 @@ public final class JSONNumberTestCase
     final JSONNumber n = new JSONNumber(12345);
 
     assertEquals(n.getValue().compareTo(new BigDecimal(12345)), 0);
+
+    assertEquals(n.getValueAsInteger(), Integer.valueOf(12345));
+
+    assertEquals(n.getValueAsLong(), Long.valueOf(12345L));
+
+    assertEquals(n.getValueAsDouble(), 12345.0d);
 
     assertNotNull(n.toString());
     assertEquals(n.toString(), "12345");
@@ -183,6 +195,12 @@ public final class JSONNumberTestCase
 
     assertEquals(n.getValue().compareTo(new BigDecimal(-54321)), 0);
 
+    assertEquals(n.getValueAsInteger(), Integer.valueOf(-54321));
+
+    assertEquals(n.getValueAsLong(), Long.valueOf(-54321L));
+
+    assertEquals(n.getValueAsDouble(), -54321.0d);
+
     assertNotNull(n.toString());
     assertEquals(n.toString(), "-54321");
 
@@ -241,6 +259,12 @@ public final class JSONNumberTestCase
     final JSONNumber n = new JSONNumber(0.0);
 
     assertEquals(n.getValue().compareTo(new BigDecimal(0)), 0);
+
+    assertEquals(n.getValueAsInteger(), Integer.valueOf(0));
+
+    assertEquals(n.getValueAsLong(), Long.valueOf(0L));
+
+    assertEquals(n.getValueAsDouble(), 0.0d);
 
     assertNotNull(n.toString());
     assertEquals(n.toString(), "0.0");
@@ -301,6 +325,12 @@ public final class JSONNumberTestCase
 
     assertEquals(n.getValue().compareTo(new BigDecimal(1234.5)), 0);
 
+    assertNull(n.getValueAsInteger());
+
+    assertNull(n.getValueAsLong());
+
+    assertEquals(n.getValueAsDouble(), 1234.5d);
+
     assertNotNull(n.toString());
     assertEquals(n.toString(), "1234.5");
 
@@ -359,6 +389,12 @@ public final class JSONNumberTestCase
     final JSONNumber n = new JSONNumber(-9876.5);
 
     assertEquals(n.getValue().compareTo(new BigDecimal(-9876.5)), 0);
+
+    assertNull(n.getValueAsInteger());
+
+    assertNull(n.getValueAsLong());
+
+    assertEquals(n.getValueAsDouble(), -9876.5d);
 
     assertNotNull(n.toString());
     assertEquals(n.toString(), "-9876.5");

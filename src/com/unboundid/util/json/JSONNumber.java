@@ -424,6 +424,71 @@ public final class JSONNumber
 
 
   /**
+   * Retrieves the value of this JSON number as an {@code Integer}, but only if
+   * the value can be losslessly represented as an integer.
+   *
+   * @return  The {@code Integer} value for this JSON number, or {@code null} if
+   *          the value has a fractional component or is outside the range of a
+   *          Java integer.
+   */
+  @Nullable()
+  public Integer getValueAsInteger()
+  {
+    try
+    {
+      return value.intValueExact();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of this JSON number as a {@code Long}, but only if
+   * the value can be losslessly represented as a long.
+   *
+   * @return  The {@code Long} value for this JSON number, or {@code null} if
+   *          the value has a fractional component or is outside the range of a
+   *          Java long.
+   */
+  @Nullable()
+  public Long getValueAsLong()
+  {
+    try
+    {
+      return value.longValueExact();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of this JSON number as a {@code double}.  Note that if
+   * the {@code BigDecimal} value is outside the range that can be represented
+   * by a {@code double}, then the value returned may be converted to positive
+   * or negative infinity.  Further, the {@code double} value that is returned
+   * could potentially have less precision than the associated {@code BigDouble}
+   * value.
+   *
+   * @return  The {@code double} value for this JSON number.
+   */
+  public double getValueAsDouble()
+  {
+    return value.doubleValue();
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

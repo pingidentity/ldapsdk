@@ -14,6 +14,23 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the JSONNumber class to add getValueAsInteger and getValueAsLong methods
+                  that will return the value of the number as an Integer or Long, respectively, but
+                  only if it can do so losslessly.  These methods will return null if the value has
+                  a fractional component or if it is outside the range of the associated data type.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the JSONNumber class to add a getValueAsDouble method that will return
+                  the value of the number as a double.  This method will never return null,
+                  although the value that is returned may have less precision than the internal
+                  BigDecimal value, or it may be converted to positive or negative infinity if the
+                  BigDecimal value is outside the range that can be represented by a double.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for the access log field request control that can be
                   used in an upcoming version of the Ping Identity Directory Server to include a
                   specified set of additional fields in the access log message for the associated
