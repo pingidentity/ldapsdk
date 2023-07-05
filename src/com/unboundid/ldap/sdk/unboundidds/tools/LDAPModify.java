@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -92,6 +93,7 @@ import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.StartTransactionExtendedResult;
 import com.unboundid.ldap.sdk.extensions.EndTransactionExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccessLogFieldRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AssuredReplicationLocalLevel;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationRequestControl;
@@ -184,6 +186,11 @@ import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
@@ -343,6 +350,7 @@ public final class LDAPModify
   @Nullable private FilterArgument uniquenessFilter = null;
   @Nullable private IntegerArgument ratePerSecond = null;
   @Nullable private IntegerArgument searchPageSize = null;
+  @Nullable private StringArgument accessLogField = null;
   @Nullable private StringArgument assuredReplicationLocalLevel = null;
   @Nullable private StringArgument assuredReplicationRemoteLevel = null;
   @Nullable private StringArgument characterSet = null;
@@ -774,6 +782,15 @@ public final class LDAPModify
     useAdministrativeSession.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(useAdministrativeSession);
+
+
+    accessLogField = new StringArgument(null, "accessLogField", false, 0,
+         INFO_LDAPMODIFY_ARG_PLACEHOLDER_NAME_VALUE.get(),
+         INFO_LDAMODIFY_ARG_DESCRIPTION_ACCESS_LOG_FIELD.get());
+    accessLogField.addLongIdentifier("access-log-field", true);
+    accessLogField.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(accessLogField);
 
 
     operationPurpose = new StringArgument(null, "operationPurpose", false, 1,
@@ -2851,6 +2868,59 @@ readChangeRecordLoop:
     if (modifyDNControl.isPresent())
     {
       modifyDNControls.addAll(modifyDNControl.getValues());
+    }
+
+    if (accessLogField.isPresent())
+    {
+      final Map<String,JSONValue> fields = new LinkedHashMap<>();
+      for (final String nameValueStr : accessLogField.getValues())
+      {
+        final int colonPos = nameValueStr.indexOf(':');
+        if (colonPos < 0)
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_LDAPMODIFY_ACCESS_LOG_FIELD_NO_COLON.get(
+                    accessLogField.getIdentifierString(), nameValueStr));
+        }
+
+        final String fieldName = nameValueStr.substring(0, colonPos);
+        if (fields.containsKey(fieldName))
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_LDAPMODIFY_ACCESS_LOG_FIELD_DUPLICATE_FIELD.get(
+                    accessLogField.getIdentifierString(), fieldName));
+        }
+
+        final String valueStr = nameValueStr.substring(colonPos + 1);
+        if (valueStr.equalsIgnoreCase("true"))
+        {
+          fields.put(fieldName, JSONBoolean.TRUE);
+        }
+        else if (valueStr.equalsIgnoreCase("false"))
+        {
+          fields.put(fieldName, JSONBoolean.FALSE);
+        }
+        else
+        {
+          try
+          {
+            final BigDecimal d = new BigDecimal(valueStr);
+            fields.put(fieldName, new JSONNumber(d));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            fields.put(fieldName, new JSONString(valueStr));
+          }
+        }
+      }
+
+      final AccessLogFieldRequestControl c =
+           new AccessLogFieldRequestControl(false, new JSONObject(fields));
+      addControls.add(c);
+      deleteControls.add(c);
+      modifyControls.add(c);
+      modifyDNControls.add(c);
     }
 
     if (operationControl.isPresent())

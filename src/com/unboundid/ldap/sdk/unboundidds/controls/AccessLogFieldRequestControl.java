@@ -201,6 +201,12 @@ public final class AccessLogFieldRequestControl
     for (final Map.Entry<String,JSONValue> e : fields.entrySet())
     {
       final String fieldName = e.getKey();
+      if (fieldName.isEmpty())
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_ACCESS_LOG_FIELD_REQUEST_EMPTY_FIELD_NAME.get());
+      }
+
       for (final char c : fieldName.toCharArray())
       {
         if (! (((c >= 'a') && (c <= 'z')) ||

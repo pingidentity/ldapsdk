@@ -154,6 +154,23 @@ public final class AccessLogFieldRequestControlTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(expectedExceptions = { LDAPException.class })
+  public void testFieldWithEmptyName()
+         throws Exception
+  {
+    new AccessLogFieldRequestControl(
+         new JSONField("valid-Field_Name-1", "this field has a valid name"),
+         new JSONField("", "this field has an empty name"));
+  }
+
+
+
+  /**
+   * Provides test coverage for the default constructor with a field containing
+   * an invalid name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
   public void testFieldWithInvalidName()
          throws Exception
   {

@@ -44,6 +44,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,6 +99,7 @@ import com.unboundid.ldap.sdk.transformations.MoveSubtreeTransformation;
 import com.unboundid.ldap.sdk.transformations.RedactAttributeTransformation;
 import com.unboundid.ldap.sdk.transformations.RenameAttributeTransformation;
 import com.unboundid.ldap.sdk.transformations.ScrambleAttributeTransformation;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccessLogFieldRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.ExcludeBranchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -174,6 +176,11 @@ import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.json.JSONBoolean;
+import com.unboundid.util.json.JSONNumber;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONString;
+import com.unboundid.util.json.JSONValue;
 
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
@@ -269,6 +276,7 @@ public final class LDAPSearch
   @Nullable private IntegerArgument wrapColumn = null;
   @Nullable private ScopeArgument joinScope = null;
   @Nullable private ScopeArgument scope = null;
+  @Nullable private StringArgument accessLogField = null;
   @Nullable private StringArgument dereferencePolicy = null;
   @Nullable private StringArgument excludeAttribute = null;
   @Nullable private StringArgument getAuthorizationEntryAttribute = null;
@@ -820,6 +828,21 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(searchControl);
 
+    accessLogField = new StringArgument(null, "accessLogField", false, 0,
+         INFO_LDAPSEARCH_ARG_PLACEHOLDER_NAME_VALUE.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ACCESS_LOG_FIELD.get());
+    accessLogField.addLongIdentifier("access-log-field", true);
+    accessLogField.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(accessLogField);
+
+    accountUsable = new BooleanArgument(null, "accountUsable", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ACCOUNT_USABLE.get());
+    accountUsable.addLongIdentifier("account-usable", true);
+    accountUsable.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(accountUsable);
+
     authorizationIdentity = new BooleanArgument('E', "authorizationIdentity",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_AUTHZ_IDENTITY.get());
     authorizationIdentity.addLongIdentifier("reportAuthzID", true);
@@ -836,13 +859,6 @@ public final class LDAPSearch
     assertionFilter.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assertionFilter);
-
-    accountUsable = new BooleanArgument(null, "accountUsable", 1,
-         INFO_LDAPSEARCH_ARG_DESCRIPTION_ACCOUNT_USABLE.get());
-    accountUsable.addLongIdentifier("account-usable", true);
-    accountUsable.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(accountUsable);
 
     excludeBranch = new DNArgument(null, "excludeBranch", false, 0, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_BRANCH.get());
@@ -2453,7 +2469,17 @@ public final class LDAPSearch
 
     // Examine the arguments to determine the sets of controls to use for each
     // type of request.
-    final List<Control> searchControls = getSearchControls();
+    final List<Control> searchControls;
+    try
+    {
+      searchControls = getSearchControls();
+    }
+    catch (final LDAPException e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN, e.getMessage());
+      return e.getResultCode();
+    }
 
 
     // If appropriate, ensure that any search result entries that include
@@ -3185,6 +3211,7 @@ public final class LDAPSearch
    */
   @NotNull()
   private List<Control> getSearchControls()
+          throws LDAPException
   {
     final ArrayList<Control> controls = new ArrayList<>(10);
 
@@ -3229,6 +3256,55 @@ public final class LDAPSearch
     }
 
     controls.addAll(routeToBackendSetRequestControls);
+
+    if (accessLogField.isPresent())
+    {
+      final Map<String,JSONValue> fields = new LinkedHashMap<>();
+      for (final String nameValueStr : accessLogField.getValues())
+      {
+        final int colonPos = nameValueStr.indexOf(':');
+        if (colonPos < 0)
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_LDAPSEARCH_ACCESS_LOG_FIELD_NO_COLON.get(
+                    accessLogField.getIdentifierString(), nameValueStr));
+        }
+
+        final String fieldName = nameValueStr.substring(0, colonPos);
+        if (fields.containsKey(fieldName))
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_LDAPSEARCH_ACCESS_LOG_FIELD_DUPLICATE_FIELD.get(
+                    accessLogField.getIdentifierString(), fieldName));
+        }
+
+        final String valueStr = nameValueStr.substring(colonPos + 1);
+        if (valueStr.equalsIgnoreCase("true"))
+        {
+          fields.put(fieldName, JSONBoolean.TRUE);
+        }
+        else if (valueStr.equalsIgnoreCase("false"))
+        {
+          fields.put(fieldName, JSONBoolean.FALSE);
+        }
+        else
+        {
+          try
+          {
+            final BigDecimal d = new BigDecimal(valueStr);
+            fields.put(fieldName, new JSONNumber(d));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            fields.put(fieldName, new JSONString(valueStr));
+          }
+        }
+      }
+
+      controls.add(new AccessLogFieldRequestControl(false,
+           new JSONObject(fields)));
+    }
 
     if (accountUsable.isPresent())
     {

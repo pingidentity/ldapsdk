@@ -509,6 +509,7 @@ public final class LDAPSearchTestCase
                    ":slowShortCircuitThreshold=100:extendedResponseData:debug",
          "--overrideSearchLimit", "name1=value1",
          "--overrideSearchLimit", "name2=value2",
+         "--accessLogField", "fieldName:fieldValue",
          "--operationPurpose", "Testing",
          "--persistentSearch", "ps:add,del,mod,moddn:true:true",
          "--proxyAs", "u:jdoe",
@@ -2733,5 +2734,39 @@ public final class LDAPSearchTestCase
 
     assertEquals(processedSearchResult.getResponseControls()[0].getOID(),
          JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID);
+  }
+
+
+
+  /**
+   * Tests to ensure that the tool yields an expected error when provided with
+   * invalid values for the --accessLogField argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInvalidAccessLogFieldControls()
+         throws Exception
+  {
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--accessLogField", "missing-colon",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--accessLogField", "field-name:value1",
+              "--accessLogField", "field-name:value2",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
   }
 }

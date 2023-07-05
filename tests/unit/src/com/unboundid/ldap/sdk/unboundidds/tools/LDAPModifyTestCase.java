@@ -41,6 +41,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1919,6 +1920,7 @@ public final class LDAPModifyTestCase
          "--assuredReplicationRemoteLevel", "none",
          "--assuredReplicationTimeout", "30s",
          "--replicationRepair",
+         "--accessLogField", "fieldName:fieldValue",
          "--operationPurpose", "testAddControls",
          "--getPasswordValidationDetails",
          "--allowUndelete",
@@ -3407,5 +3409,43 @@ public final class LDAPModifyTestCase
 
     assertEquals(processedResult.getResponseControls()[0].getOID(),
          JSONFormattedResponseControl.JSON_FORMATTED_RESPONSE_OID);
+  }
+
+
+
+  /**
+   * Tests to ensure that the tool yields an expected error when provided with
+   * invalid values for the --accessLogField argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInvalidAccessLogFieldControls()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS();
+
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo");
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--accessLogField", "missing-colon",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--accessLogField", "field-name:value1",
+              "--accessLogField", "field-name:value2",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
   }
 }
