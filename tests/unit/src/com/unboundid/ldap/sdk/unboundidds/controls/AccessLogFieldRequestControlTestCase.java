@@ -37,6 +37,8 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -103,9 +105,10 @@ public final class AccessLogFieldRequestControlTestCase
          throws Exception
   {
     AccessLogFieldRequestControl c = new AccessLogFieldRequestControl(true,
-         new JSONField("boolean-field", true),
-         new JSONField("number-field", 12345),
-         new JSONField("string-field", "string-value"));
+         Arrays.asList(
+              new JSONField("boolean-field", true),
+              new JSONField("number-field", 12345),
+              new JSONField("string-field", "string-value")));
 
     c = new AccessLogFieldRequestControl(c);
 

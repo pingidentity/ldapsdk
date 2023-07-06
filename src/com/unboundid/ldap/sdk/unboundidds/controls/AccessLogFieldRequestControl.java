@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -47,6 +48,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.json.JSONBoolean;
@@ -130,6 +132,26 @@ public final class AccessLogFieldRequestControl
 
 
   /**
+   * Creates a new access log field request control with the provided fields.
+   * It will not be marked critical.
+   *
+   * @param  fields  The set of fields to include in the access log message.  It
+   *                 must not be {@code null} or empty, and the values may only
+   *                 have Boolean, number, or string types.  Array, null, and
+   *                 object fields will not be allowed.
+   *
+   * @throws  LDAPException  If the provided set of fields is not acceptable.
+   */
+  public AccessLogFieldRequestControl(
+              @NotNull final Collection<JSONField> fields)
+         throws LDAPException
+  {
+    this(false, fields);
+  }
+
+
+
+  /**
    * Creates a new access log field request control with the specified
    * criticality.
    *
@@ -147,6 +169,29 @@ public final class AccessLogFieldRequestControl
          throws LDAPException
   {
     this(isCritical, new JSONObject(fields));
+  }
+
+
+
+  /**
+   * Creates a new access log field request control with the specified
+   * criticality.
+   *
+   * @param  isCritical  Indicates whether this control should be marked
+   *                     critical.
+   * @param  fields      The set of fields to include in the access log message.
+   *                     It must not be {@code null} or empty, and the values
+   *                     may only have Boolean, number, or string types.  Array,
+   *                     null, and object fields will not be allowed.
+   *
+   * @throws  LDAPException  If the provided set of fields is not acceptable.
+   */
+  public AccessLogFieldRequestControl(final boolean isCritical,
+              @NotNull final Collection<JSONField> fields)
+         throws LDAPException
+  {
+    this(isCritical,
+         new JSONObject(StaticUtils.toArray(fields, JSONField.class)));
   }
 
 
