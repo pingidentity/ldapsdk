@@ -39,6 +39,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +84,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AuthenticationFailureReason;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GenerateAccessTokenResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GeneratePasswordResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -770,6 +773,11 @@ public final class ResultUtils
          ASSURED_REPLICATION_RESPONSE_OID))
     {
       addAssuredReplicationResponseControl(lines, c, prefix, maxWidth);
+    }
+    else if (oid.equals(GenerateAccessTokenResponseControl.
+         GENERATE_ACCESS_TOKEN_RESPONSE_OID))
+    {
+      addGenerateAccessTokenResponseControl(lines, c, prefix, maxWidth);
     }
     else if (oid.equals(GeneratePasswordResponseControl.
          GENERATE_PASSWORD_RESPONSE_OID))
@@ -1688,6 +1696,57 @@ public final class ResultUtils
                indentPrefix + "     ", maxWidth);
         }
       }
+    }
+  }
+
+
+
+  /**
+   * Adds a multi-line string representation of the provided control, which is
+   * expected to be a generate access token response control, to the given list.
+   *
+   * @param  lines     The list to which the lines should be added.
+   * @param  c         The control to be formatted.
+   * @param  prefix    The prefix to use for each line.
+   * @param  maxWidth  The maximum length of each line in characters, including
+   *                   the comment prefix and indent.
+   */
+  private static void addGenerateAccessTokenResponseControl(
+                           @NotNull final List<String> lines,
+                           @NotNull final Control c,
+                           @NotNull final String prefix,
+                           final int maxWidth)
+  {
+    final GenerateAccessTokenResponseControl decoded;
+    try
+    {
+      decoded = new GenerateAccessTokenResponseControl(c.getOID(),
+           c.isCritical(), c.getValue());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      addGenericResponseControl(lines, c, prefix, maxWidth);
+      return;
+    }
+
+    wrap(lines, INFO_RESULT_UTILS_GENERATE_ACCESS_TOKEN_HEADER.get(), prefix,
+         maxWidth);
+
+    final String indentPrefix = prefix + "     ";
+    wrap(lines, INFO_RESULT_UTILS_RESPONSE_CONTROL_OID.get(c.getOID()),
+         indentPrefix, maxWidth);
+    wrap(lines,
+         INFO_RESULT_UTILS_GENERATE_ACCESS_TOKEN_STRING.get(
+              decoded.getAccessToken()),
+         indentPrefix, maxWidth);
+    final Date expirationTime = decoded.getExpirationTime();
+    if (expirationTime != null)
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_GENERATE_ACCESS_TOKEN_EXP_TIME.get(
+                StaticUtils.encodeRFC3339Time(expirationTime)),
+           indentPrefix, maxWidth);
     }
   }
 

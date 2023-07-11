@@ -1907,6 +1907,7 @@ public final class LDAPModifyTestCase
          "--bindPassword", "password",
          "--control", "1.2.3.4",
          "--addControl", "1.2.3.5",
+         "--generateAccessToken",
          "--generatePassword",
          "--ignoreNoUserModification",
          "--nameWithEntryUUID",

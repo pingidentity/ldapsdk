@@ -100,6 +100,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationRemoteLevel;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GenerateAccessTokenRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GeneratePasswordRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryRequestControl;
@@ -304,6 +306,7 @@ public final class LDAPModify
   @Nullable private BooleanArgument defaultAdd = null;
   @Nullable private BooleanArgument dryRun = null;
   @Nullable private BooleanArgument followReferrals = null;
+  @Nullable private BooleanArgument generateAccessToken = null;
   @Nullable private BooleanArgument generatePassword = null;
   @Nullable private BooleanArgument getBackendSetID = null;
   @Nullable private BooleanArgument getRecentLoginHistory = null;
@@ -852,6 +855,16 @@ public final class LDAPModify
     authorizationIdentity.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(authorizationIdentity);
+
+
+    generateAccessToken = new BooleanArgument(null, "generateAccessToken", 1,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_GENERATE_ACCESS_TOKEN.get());
+    generateAccessToken.addLongIdentifier("generate-access-token", true);
+    generateAccessToken.addLongIdentifier("requestAccessToken", true);
+    generateAccessToken.addLongIdentifier("request-access-token", true);
+    generateAccessToken.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(generateAccessToken);
 
 
     generatePassword = new BooleanArgument(null, "generatePassword", 1,
@@ -1582,6 +1595,11 @@ public final class LDAPModify
     if (authorizationIdentity.isPresent())
     {
       bindControls.add(new AuthorizationIdentityRequestControl(false));
+    }
+
+    if (generateAccessToken.isPresent())
+    {
+      bindControls.add(new GenerateAccessTokenRequestControl());
     }
 
     if (getAuthorizationEntryAttribute.isPresent())

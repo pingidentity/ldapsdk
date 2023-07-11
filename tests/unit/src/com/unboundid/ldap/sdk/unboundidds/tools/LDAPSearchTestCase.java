@@ -490,6 +490,7 @@ public final class LDAPSearchTestCase
          "--assertionFilter", "(objectClass=*)",
          "--accountUsable",
          "--excludeBranch", "ou=whatever,dc=example,dc=com",
+         "--generateAccessToken",
          "--getEffectiveRightsAuthzID", "u:jdoe",
          "--getEffectiveRightsAttribute", "uid",
          "--includeReplicationConflictEntries",

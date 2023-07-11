@@ -103,6 +103,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.AccessLogFieldRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.ExcludeBranchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GenerateAccessTokenRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDRequestControl;
@@ -228,6 +230,7 @@ public final class LDAPSearch
   @Nullable private BooleanArgument dryRun = null;
   @Nullable private BooleanArgument encryptOutput = null;
   @Nullable private BooleanArgument followReferrals = null;
+  @Nullable private BooleanArgument generateAccessToken = null;
   @Nullable private BooleanArgument getBackendSetID = null;
   @Nullable private BooleanArgument getServerID = null;
   @Nullable private BooleanArgument getRecentLoginHistory = null;
@@ -867,6 +870,15 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(excludeBranch);
 
+    generateAccessToken = new BooleanArgument(null, "generateAccessToken", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_GENERATE_ACCESS_TOKEN.get());
+    generateAccessToken.addLongIdentifier("generate-access-token", true);
+    generateAccessToken.addLongIdentifier("requestAccessToken", true);
+    generateAccessToken.addLongIdentifier("request-access-token", true);
+    generateAccessToken.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(generateAccessToken);
+
     getAuthorizationEntryAttribute = new StringArgument(null,
          "getAuthorizationEntryAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
@@ -1445,6 +1457,11 @@ public final class LDAPSearch
     if (authorizationIdentity.isPresent())
     {
       bindControls.add(new AuthorizationIdentityRequestControl(false));
+    }
+
+    if (generateAccessToken.isPresent())
+    {
+      bindControls.add(new GenerateAccessTokenRequestControl());
     }
 
     if (getAuthorizationEntryAttribute.isPresent())

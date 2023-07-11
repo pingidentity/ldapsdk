@@ -46,7 +46,10 @@ ${TARGET="offline"}                <br>
                   Server to request that the server provide an access token in a bind response (for
                   example, in response to a request using a one-time password that cannot be
                   replayed) that can be used to authenticate subsequent bind operations using the
-                  OAUTHBEARER SASL mechanism.
+                  OAUTHBEARER SASL mechanism.  Also, updated the ldapsearch and ldapmodify tools to
+                  add support for a --generateAccessToken argument that can be used to include the
+                  control in bind requests and display information from the corresponding response
+                  control.
                   <br><br>
                 </li>
               </ul>
