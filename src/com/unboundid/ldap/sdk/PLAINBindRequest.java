@@ -475,7 +475,42 @@ public final class PLAINBindRequest
                                final int depth)
             throws LDAPException
   {
-    // Create the byte array that should comprise the credentials.
+    return sendBindRequest(connection, "",
+         encodeCredentials(authenticationID, authorizationID, password),
+         getControls(), getResponseTimeoutMillis(connection));
+  }
+
+
+
+  /**
+   * Encodes the provided information into an ASN.1 octet string that may be
+   * used as the SASL credentials for an UnboundID delivered one-time password
+   * bind request.
+   *
+   * @param  authenticationID  The authentication identity for the bind request.
+   *                           It must not be {@code null} and must in the form
+   *                           "u:" followed by a username, or "dn:" followed
+   *                           by a DN.
+   * @param  authorizationID   The authorization identity for the bind request.
+   *                           It may be {@code null} if the authorization
+   *                           identity should be the same as the authentication
+   *                           identity.  If an authorization identity is
+   *                           specified, it must be in the form "u:" followed
+   *                           by a username, or "dn:" followed by a DN.  The
+   *                           value "dn:" may be used to indicate the
+   *                           authorization identity of the anonymous user.
+   * @param  password          The password for this PLAIN bind request.  It
+   *                           must not be {@code null}.
+   *
+   * @return  An ASN.1 octet string that may be used as the SASL credentials for
+   *          an UnboundID delivered one-time password bind request.
+   */
+  @NotNull()
+  public static ASN1OctetString encodeCredentials(
+              @NotNull final String authenticationID,
+              @Nullable final String authorizationID,
+              @NotNull final ASN1OctetString password)
+  {
     final byte[] authZIDBytes  = StaticUtils.getBytes(authorizationID);
     final byte[] authNIDBytes  = StaticUtils.getBytes(authenticationID);
     final byte[] passwordBytes = password.getValue();
@@ -490,8 +525,7 @@ public final class PLAINBindRequest
     pos += authNIDBytes.length + 1;
     System.arraycopy(passwordBytes, 0, credBytes, pos, passwordBytes.length);
 
-    return sendBindRequest(connection, "", new ASN1OctetString(credBytes),
-         getControls(), getResponseTimeoutMillis(connection));
+    return new ASN1OctetString(credBytes);
   }
 
 

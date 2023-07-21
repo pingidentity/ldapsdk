@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the PLAINBindRequest class to add an encodeCredentials method that can be
+                  used to retrieve a properly encoded representation of the SASL credentials for a
+                  PLAIN bind request with the given authentication ID, authorization ID, and
+                  password.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the JSONNumber class to add getValueAsInteger and getValueAsLong methods
                   that will return the value of the number as an Integer or Long, respectively, but
                   only if it can do so losslessly.  These methods will return null if the value has
