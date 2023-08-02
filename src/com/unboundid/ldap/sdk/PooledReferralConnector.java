@@ -61,7 +61,36 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * This class provides an implementation of a reusable referral connector that
  * maintains pools of connections to each of the servers accessed in the course
  * of following referrals.  Connections may be reused across multiple
- * referrals.
+ * referrals.  Note that it is important to close the connector when it is no
+ * longer needed, as that will ensure that all of the connection pools that it
+ * maintains will be closed.
+ * <BR><BR>
+ * <H2>Example</H2>
+ * The following example demonstrates the process for establishing an LDAP
+ * connection that will use this connector for following any referrals that are
+ * encountered during processing:
+ * <PRE>
+ *   PooledReferralConnectorProperties properties =
+ *        new PooledReferralConnectorProperties();
+ *
+ *   PooledReferralConnector referralConnector =
+ *        new PooledReferralConnector(properties);
+ *
+ *   LDAPConnectionOptions options = new LDAPConnectionOptions();
+ *   options.setFollowReferrals(true);
+ *   options.setReferralConnector(referralConnector);
+ *
+ *   try (LDAPConnection conn = new LDAPConnection(socketFactory, options,
+ *             serverAddress, serverPort)
+ *   {
+ *     // Use the connection to perform whatever processing is needed that might
+ *     // involve receiving referrals.
+ *   }
+ *   finally
+ *   {
+ *     referralConnector.close();
+ *   }
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
