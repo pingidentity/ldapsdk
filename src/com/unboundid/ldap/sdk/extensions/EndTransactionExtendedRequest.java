@@ -273,6 +273,9 @@ public final class EndTransactionExtendedRequest
     final EndTransactionExtendedRequest r =
          new EndTransactionExtendedRequest(transactionID, commit, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

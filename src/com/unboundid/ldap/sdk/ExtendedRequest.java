@@ -346,6 +346,8 @@ public class ExtendedRequest
                                    final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     if (connection.synchronousMode())
     {
       return processSync(connection);
@@ -627,6 +629,9 @@ public class ExtendedRequest
   {
     final ExtendedRequest r = new ExtendedRequest(oid, value, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

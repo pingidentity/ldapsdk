@@ -310,6 +310,21 @@ public final class StartTLSExtendedRequest
 
 
   /**
+   * Retrieves the SSL socket factory that this extended request will use for
+   * performing TLS negotiation.
+   *
+   * @return  The SSL socket factor that this extended request will use for
+   *          performing TLS negotiation.
+   */
+  @NotNull()
+  public SSLSocketFactory getSSLSocketFactory()
+  {
+    return sslSocketFactory;
+  }
+
+
+
+  /**
    * Sends this StartTLS request to the server and performs the necessary
    * client-side security processing if the operation is processed successfully.
    * That this method is guaranteed to throw an {@code LDAPException} if the
@@ -377,6 +392,9 @@ public final class StartTLSExtendedRequest
       final StartTLSExtendedRequest r =
            new StartTLSExtendedRequest(sslSocketFactory, controls);
       r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+      r.setIntermediateResponseListener(getIntermediateResponseListener());
+      r.setReferralDepth(getReferralDepth());
+      r.setReferralConnector(getReferralConnectorInternal());
       return r;
     }
     catch (final Exception e)

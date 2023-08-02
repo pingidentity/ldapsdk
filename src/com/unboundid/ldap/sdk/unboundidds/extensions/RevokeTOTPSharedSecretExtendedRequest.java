@@ -618,6 +618,9 @@ public final class RevokeTOTPSharedSecretExtendedRequest
          new RevokeTOTPSharedSecretExtendedRequest(authenticationID,
               staticPassword, totpSharedSecret, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

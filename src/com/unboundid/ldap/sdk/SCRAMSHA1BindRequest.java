@@ -177,8 +177,14 @@ public final class SCRAMSHA1BindRequest
   @NotNull()
   public SCRAMSHA1BindRequest duplicate(@Nullable final Control[] controls)
   {
-    return new SCRAMSHA1BindRequest(getUsername(), getPasswordBytes(),
-         controls);
+    final SCRAMSHA1BindRequest bindRequest = new SCRAMSHA1BindRequest(
+         getUsername(), getPasswordBytes(), controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
+    return bindRequest;
   }
 
 

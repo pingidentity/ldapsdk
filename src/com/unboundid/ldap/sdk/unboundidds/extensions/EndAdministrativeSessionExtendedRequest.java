@@ -152,7 +152,13 @@ public final class EndAdministrativeSessionExtendedRequest
   public EndAdministrativeSessionExtendedRequest duplicate(
               @Nullable final Control[] controls)
   {
-    return new EndAdministrativeSessionExtendedRequest(controls);
+    final EndAdministrativeSessionExtendedRequest r =
+         new EndAdministrativeSessionExtendedRequest(controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
+    return r;
   }
 
 

@@ -330,6 +330,9 @@ public final class StartBatchedTransactionExtendedRequest
     final StartBatchedTransactionExtendedRequest r =
          new StartBatchedTransactionExtendedRequest(controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

@@ -96,6 +96,9 @@ public abstract class LDAPRequest
   // The set of controls for this request.
   @NotNull private Control[] controls;
 
+  // The current depth to use when following referrals.
+  private int referralDepth;
+
   // The intermediate response listener for this request.
   @Nullable private IntermediateResponseListener intermediateResponseListener;
 
@@ -126,6 +129,7 @@ public abstract class LDAPRequest
     }
 
     followReferrals = null;
+    referralDepth = 1;
     responseTimeout = -1L;
     intermediateResponseListener = null;
     referralConnector = null;
@@ -344,6 +348,30 @@ public abstract class LDAPRequest
 
 
   /**
+   * Retrieves the current depth to use when following referrals.
+   *
+   * @return  The current depth to use when following referrals.
+   */
+  protected int getReferralDepth()
+  {
+    return referralDepth;
+  }
+
+
+
+  /**
+   * Sets the current depth to use when following referrals.
+   *
+   * @param  referralDepth  The current depth to use when following referrals.
+   */
+  protected void setReferralDepth(final int referralDepth)
+  {
+    this.referralDepth = referralDepth;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -372,7 +400,7 @@ public abstract class LDAPRequest
    *          used if necessary.
    */
   @Nullable()
-  final ReferralConnector getReferralConnectorInternal()
+  protected final ReferralConnector getReferralConnectorInternal()
   {
     return referralConnector;
   }

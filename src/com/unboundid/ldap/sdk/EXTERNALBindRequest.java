@@ -226,6 +226,8 @@ public final class EXTERNALBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     // Create the LDAP message.
     messageID = connection.nextMessageID();
 
@@ -291,6 +293,10 @@ public final class EXTERNALBindRequest
     final EXTERNALBindRequest bindRequest =
          new EXTERNALBindRequest(authzID, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

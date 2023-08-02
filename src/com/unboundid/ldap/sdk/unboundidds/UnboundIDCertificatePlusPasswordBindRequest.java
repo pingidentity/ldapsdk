@@ -202,6 +202,8 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     messageID = InternalSDKHelper.nextMessageID(connection);
     return sendBindRequest(connection, "", password, getControls(),
          getResponseTimeoutMillis(connection));
@@ -243,6 +245,10 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
     final UnboundIDCertificatePlusPasswordBindRequest bindRequest =
          new UnboundIDCertificatePlusPasswordBindRequest(password, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

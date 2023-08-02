@@ -177,8 +177,14 @@ public final class SCRAMSHA256BindRequest
   @NotNull()
   public SCRAMSHA256BindRequest duplicate(@Nullable final Control[] controls)
   {
-    return new SCRAMSHA256BindRequest(getUsername(), getPasswordBytes(),
-         controls);
+    final SCRAMSHA256BindRequest bindRequest = new SCRAMSHA256BindRequest(
+         getUsername(), getPasswordBytes(), controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
+    return bindRequest;
   }
 
 

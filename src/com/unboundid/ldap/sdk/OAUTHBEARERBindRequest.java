@@ -445,6 +445,8 @@ public final class OAUTHBEARERBindRequest
                  @NotNull final LDAPConnection connection, final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     // Send the initial request.  If the response has a result code that is
     // anything other than SASL_BIND_IN_PROGRESS, then we can just return it
     // directly without needing to do anything else.
@@ -635,6 +637,10 @@ public final class OAUTHBEARERBindRequest
     final OAUTHBEARERBindRequest bindRequest =
          new OAUTHBEARERBindRequest(properties, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

@@ -462,6 +462,7 @@ public final class DIGESTMD5BindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
     unhandledCallbackMessages.clear();
 
 
@@ -646,6 +647,10 @@ public final class DIGESTMD5BindRequest
     final DIGESTMD5BindRequest bindRequest =
          new DIGESTMD5BindRequest(properties, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

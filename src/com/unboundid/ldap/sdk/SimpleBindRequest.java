@@ -545,6 +545,8 @@ public final class SimpleBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     // See if a bind DN was provided without a password.  If that is the case
     // and this should not be allowed, then throw an exception.
     if (password != null)
@@ -913,6 +915,10 @@ public final class SimpleBindRequest
     final SimpleBindRequest bindRequest =
          new SimpleBindRequest(bindDN, password, passwordProvider, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

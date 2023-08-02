@@ -361,6 +361,8 @@ public abstract class UnboundIDTOTPBindRequest
                                      final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     messageID = InternalSDKHelper.nextMessageID(connection);
     return sendBindRequest(connection, "", getSASLCredentials(), getControls(),
          getResponseTimeoutMillis(connection));

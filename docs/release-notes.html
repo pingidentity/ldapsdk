@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a new ReusableRefeerralConnector interface that can be used to provide a
+                  way of following referrals using a mechanism that doesn't automatically close
+                  connections after they are used.  This allows for the possibility that
+                  connections created for the purpose of following referrals could be used for
+                  multiple referrals, rather than always closing them after their first use as was
+                  previously the case.  Also, added a new PooledReferralConnector implementation
+                  that uses connection pools to maintain connections for following referrals.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the PLAINBindRequest class to add an encodeCredentials method that can be
                   used to retrieve a properly encoded representation of the SASL credentials for a
                   PLAIN bind request with the given authentication ID, authorization ID, and

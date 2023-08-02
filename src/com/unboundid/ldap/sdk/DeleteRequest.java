@@ -289,6 +289,8 @@ public final class DeleteRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     if (connection.synchronousMode())
     {
       @SuppressWarnings("deprecation")
@@ -613,7 +615,7 @@ public final class DeleteRequest
                               result.getResponseControls());
       }
 
-      return followReferral(result, connection, depth);
+      return ReferralHelper.handleReferral(this, result, connection);
     }
     else
     {
@@ -670,78 +672,6 @@ public final class DeleteRequest
     }
 
     return null;
-  }
-
-
-
-  /**
-   * Attempts to follow a referral to perform a delete operation in the target
-   * server.
-   *
-   * @param  referralResult  The LDAP result object containing information about
-   *                         the referral to follow.
-   * @param  connection      The connection on which the referral was received.
-   * @param  depth           The number of referrals followed in the course of
-   *                         processing this request.
-   *
-   * @return  The result of attempting to process the delete operation by
-   *          following the referral.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to establish
-   *                         the referral connection, sending the request, or
-   *                         reading the result.
-   */
-  @NotNull()
-  private LDAPResult followReferral(@NotNull final LDAPResult referralResult,
-                                    @NotNull final LDAPConnection connection,
-                                    final int depth)
-          throws LDAPException
-  {
-    for (final String urlString : referralResult.getReferralURLs())
-    {
-      try
-      {
-        final LDAPURL referralURL = new LDAPURL(urlString);
-        final String host = referralURL.getHost();
-
-        if (host == null)
-        {
-          // We can't handle a referral in which there is no host.
-          continue;
-        }
-
-        final DeleteRequest deleteRequest;
-        if (referralURL.baseDNProvided())
-        {
-          deleteRequest = new DeleteRequest(referralURL.getBaseDN(),
-                                            getControls());
-        }
-        else
-        {
-          deleteRequest = this;
-        }
-
-        final LDAPConnection referralConn = getReferralConnector(connection).
-             getReferralConnection(referralURL, connection);
-        try
-        {
-          return deleteRequest.process(referralConn, depth+1);
-        }
-        finally
-        {
-          referralConn.setDisconnectInfo(DisconnectType.REFERRAL, null, null);
-          referralConn.close();
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-      }
-    }
-
-    // If we've gotten here, then we could not follow any of the referral URLs,
-    // so we'll just return the original referral result.
-    return referralResult;
   }
 
 
@@ -831,6 +761,9 @@ public final class DeleteRequest
     }
 
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
 
     return r;
   }

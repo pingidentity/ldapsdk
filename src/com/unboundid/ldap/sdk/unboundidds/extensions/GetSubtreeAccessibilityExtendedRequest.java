@@ -172,6 +172,9 @@ public final class GetSubtreeAccessibilityExtendedRequest
     final GetSubtreeAccessibilityExtendedRequest r =
          new GetSubtreeAccessibilityExtendedRequest(controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

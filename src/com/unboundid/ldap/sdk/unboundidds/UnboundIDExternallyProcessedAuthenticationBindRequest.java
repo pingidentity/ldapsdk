@@ -665,6 +665,8 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     messageID = InternalSDKHelper.nextMessageID(connection);
     return sendBindRequest(connection, "", getEncodedCredentials(),
          getControls(), getResponseTimeoutMillis(connection));
@@ -712,6 +714,10 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
     bindRequest.encodedCredentials = encodedCredentials;
 
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

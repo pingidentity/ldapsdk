@@ -178,8 +178,14 @@ public final class SCRAMSHA512BindRequest
   @NotNull()
   public SCRAMSHA512BindRequest duplicate(@Nullable final Control[] controls)
   {
-    return new SCRAMSHA512BindRequest(getUsername(), getPasswordBytes(),
-         controls);
+    final SCRAMSHA512BindRequest bindRequest = new SCRAMSHA512BindRequest(
+         getUsername(), getPasswordBytes(), controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
+    return bindRequest;
   }
 
 

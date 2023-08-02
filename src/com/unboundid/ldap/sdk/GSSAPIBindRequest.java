@@ -1254,6 +1254,8 @@ public final class GSSAPIBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     if (! conn.compareAndSet(null, connection))
     {
       throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1783,6 +1785,10 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequest bindRequest =
            new GSSAPIBindRequest(gssapiProperties, controls);
       bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+      bindRequest.setIntermediateResponseListener(
+           getIntermediateResponseListener());
+      bindRequest.setReferralDepth(getReferralDepth());
+      bindRequest.setReferralConnector(getReferralConnectorInternal());
       return bindRequest;
     }
     catch (final Exception e)

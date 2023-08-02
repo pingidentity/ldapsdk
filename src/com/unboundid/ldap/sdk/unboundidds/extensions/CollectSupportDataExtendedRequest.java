@@ -1081,9 +1081,14 @@ public final class CollectSupportDataExtendedRequest
   public CollectSupportDataExtendedRequest duplicate(
               @Nullable final Control[] controls)
   {
-    return new CollectSupportDataExtendedRequest(
-         new CollectSupportDataExtendedRequestProperties(this),
-         intermediateResponseListener, controls);
+    final CollectSupportDataExtendedRequest r =
+         new CollectSupportDataExtendedRequest(
+              new CollectSupportDataExtendedRequestProperties(this),
+              intermediateResponseListener, controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
+    return r;
   }
 
 

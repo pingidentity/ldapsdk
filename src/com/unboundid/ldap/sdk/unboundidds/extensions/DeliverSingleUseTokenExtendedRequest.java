@@ -1023,6 +1023,9 @@ public final class DeliverSingleUseTokenExtendedRequest
               deliverIfAccountLocked, deliverIfAccountDisabled,
               deliverIfAccountExpired, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

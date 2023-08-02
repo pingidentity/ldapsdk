@@ -1520,6 +1520,9 @@ public final class GetChangelogBatchExtendedRequest
               includeSoftDeletedEntryMods, includeSoftDeletedEntryDeletes,
               controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

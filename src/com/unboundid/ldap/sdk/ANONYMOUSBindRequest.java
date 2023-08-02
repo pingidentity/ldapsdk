@@ -207,6 +207,8 @@ public final class ANONYMOUSBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     ASN1OctetString credentials = null;
     if ((traceString != null) && (! traceString.isEmpty()))
     {
@@ -254,6 +256,10 @@ public final class ANONYMOUSBindRequest
     final ANONYMOUSBindRequest bindRequest =
          new ANONYMOUSBindRequest(traceString, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

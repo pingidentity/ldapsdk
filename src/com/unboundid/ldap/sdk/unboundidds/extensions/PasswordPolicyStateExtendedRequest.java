@@ -463,6 +463,9 @@ public final class PasswordPolicyStateExtendedRequest
     final PasswordPolicyStateExtendedRequest r =
          new PasswordPolicyStateExtendedRequest(userDN, controls, operations);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

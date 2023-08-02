@@ -162,6 +162,8 @@ public final class GenericSASLBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     return sendBindRequest(connection, bindDN, credentials, getControls(),
          getResponseTimeoutMillis(connection));
   }
@@ -187,8 +189,14 @@ public final class GenericSASLBindRequest
   @NotNull()
   public GenericSASLBindRequest duplicate(@Nullable final Control[] controls)
   {
-    return new GenericSASLBindRequest(bindDN, mechanism, credentials,
-         controls);
+    final GenericSASLBindRequest bindRequest =
+         new GenericSASLBindRequest(bindDN, mechanism, credentials, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
+    return bindRequest;
   }
 
 

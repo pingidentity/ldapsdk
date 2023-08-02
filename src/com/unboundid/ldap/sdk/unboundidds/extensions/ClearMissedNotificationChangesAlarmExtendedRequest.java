@@ -257,6 +257,9 @@ public final class ClearMissedNotificationChangesAlarmExtendedRequest
          new ClearMissedNotificationChangesAlarmExtendedRequest(managerID,
               destinationID, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

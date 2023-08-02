@@ -358,8 +358,14 @@ public final class StartAdministrativeSessionExtendedRequest
   public StartAdministrativeSessionExtendedRequest duplicate(
               @Nullable final Control[] controls)
   {
-    return new StartAdministrativeSessionExtendedRequest(clientName,
-         useDedicatedThreadPool, controls);
+    final StartAdministrativeSessionExtendedRequest r =
+         new StartAdministrativeSessionExtendedRequest(clientName,
+              useDedicatedThreadPool, controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
+    return r;
   }
 
 

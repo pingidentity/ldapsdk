@@ -528,6 +528,9 @@ public final class RegisterYubiKeyOTPDeviceExtendedRequest
          new RegisterYubiKeyOTPDeviceExtendedRequest(authenticationID,
               staticPassword, yubiKeyOTP, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

@@ -1391,6 +1391,8 @@ public final class SearchRequest
                                  final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     if (connection.synchronousMode())
     {
       @SuppressWarnings("deprecation")
@@ -1509,8 +1511,8 @@ public final class SearchRequest
                (SearchResultReference) response;
           if (followReferrals(connection))
           {
-            final LDAPResult result = followSearchReference(messageID,
-                 searchReference, connection, depth);
+            final SearchResult result = ReferralHelper.handleReferral(this,
+                 searchReference, connection);
             if (! result.getResultCode().equals(ResultCode.SUCCESS))
             {
               // We couldn't follow the reference.  We don't want to fail the
@@ -1535,11 +1537,10 @@ public final class SearchRequest
             }
             else if (result instanceof SearchResult)
             {
-              final SearchResult searchResult = (SearchResult) result;
-              numEntries += searchResult.getEntryCount();
+              numEntries += result.getEntryCount();
               if (searchResultListener == null)
               {
-                entryList.addAll(searchResult.getSearchEntries());
+                entryList.addAll(result.getSearchEntries());
               }
             }
           }
@@ -1580,7 +1581,7 @@ public final class SearchRequest
                                       result.getResponseControls());
             }
 
-            result = followReferral(result, connection, depth);
+            result = ReferralHelper.handleReferral(this, result, connection);
           }
 
           if ((result.getResultCode().equals(ResultCode.SUCCESS)) &&
@@ -1880,8 +1881,8 @@ public final class SearchRequest
              (SearchResultReference) response;
         if (followReferrals(connection))
         {
-          final LDAPResult result = followSearchReference(messageID,
-               searchReference, connection, depth);
+          final SearchResult result = ReferralHelper.handleReferral(this,
+               searchReference, connection);
           if (! result.getResultCode().equals(ResultCode.SUCCESS))
           {
             // We couldn't follow the reference.  We don't want to fail the
@@ -1906,11 +1907,10 @@ public final class SearchRequest
           }
           else if (result instanceof SearchResult)
           {
-            final SearchResult searchResult = (SearchResult) result;
-            numEntries += searchResult.getEntryCount();
+            numEntries += result.getEntryCount();
             if (searchResultListener == null)
             {
-              entryList.addAll(searchResult.getSearchEntries());
+              entryList.addAll(result.getSearchEntries());
             }
           }
         }
@@ -2061,7 +2061,7 @@ public final class SearchRequest
                                 result.getResponseControls());
       }
 
-      result = followReferral(result, connection, depth);
+      result = ReferralHelper.handleReferral(this, result, connection);
     }
 
     if ((result.getResultCode().equals(ResultCode.SUCCESS)) &&
@@ -2077,217 +2077,6 @@ public final class SearchRequest
     }
 
     return result;
-  }
-
-
-
-  /**
-   * Attempts to follow a search result reference to continue a search in a
-   * remote server.
-   *
-   * @param  messageID        The message ID for the LDAP message that is
-   *                          associated with this result.
-   * @param  searchReference  The search result reference to follow.
-   * @param  connection       The connection on which the reference was
-   *                          received.
-   * @param  depth            The number of referrals followed in the course of
-   *                          processing this request.
-   *
-   * @return  The result of attempting to follow the search result reference.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to establish
-   *                         the referral connection, sending the request, or
-   *                         reading the result.
-   */
-  @NotNull()
-  private LDAPResult followSearchReference(final int messageID,
-                          @NotNull final SearchResultReference searchReference,
-                          @NotNull final LDAPConnection connection,
-                          final int depth)
-          throws LDAPException
-  {
-    for (final String urlString : searchReference.getReferralURLs())
-    {
-      try
-      {
-        final LDAPURL referralURL = new LDAPURL(urlString);
-        final String host = referralURL.getHost();
-
-        if (host == null)
-        {
-          // We can't handle a referral in which there is no host.
-          continue;
-        }
-
-        final String requestBaseDN;
-        if (referralURL.baseDNProvided())
-        {
-          requestBaseDN = referralURL.getBaseDN().toString();
-        }
-        else
-        {
-          requestBaseDN = baseDN;
-        }
-
-        final SearchScope requestScope;
-        if (referralURL.scopeProvided())
-        {
-          requestScope = referralURL.getScope();
-        }
-        else
-        {
-          requestScope = scope;
-        }
-
-        final Filter requestFilter;
-        if (referralURL.filterProvided())
-        {
-          requestFilter = referralURL.getFilter();
-        }
-        else
-        {
-          requestFilter = filter;
-        }
-
-
-        final SearchRequest searchRequest =
-             new SearchRequest(searchResultListener, getControls(),
-                               requestBaseDN, requestScope, derefPolicy,
-                               sizeLimit, timeLimit, typesOnly, requestFilter,
-                               attributes);
-
-        final LDAPConnection referralConn = getReferralConnector(connection).
-             getReferralConnection(referralURL, connection);
-
-        try
-        {
-          return searchRequest.process(referralConn, depth+1);
-        }
-        finally
-        {
-          referralConn.setDisconnectInfo(DisconnectType.REFERRAL, null, null);
-          referralConn.close();
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-
-        if (le.getResultCode().equals(ResultCode.REFERRAL_LIMIT_EXCEEDED))
-        {
-          throw le;
-        }
-      }
-    }
-
-    // If we've gotten here, then we could not follow any of the referral URLs,
-    // so we'll create a failure result.
-    return new SearchResult(messageID, ResultCode.REFERRAL, null, null,
-                            searchReference.getReferralURLs(), 0, 0, null);
-  }
-
-
-
-  /**
-   * Attempts to follow a referral to perform an add operation in the target
-   * server.
-   *
-   * @param  referralResult  The LDAP result object containing information about
-   *                         the referral to follow.
-   * @param  connection      The connection on which the referral was received.
-   * @param  depth           The number of referrals followed in the course of
-   *                         processing this request.
-   *
-   * @return  The result of attempting to process the add operation by following
-   *          the referral.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to establish
-   *                         the referral connection, sending the request, or
-   *                         reading the result.
-   */
-  @NotNull()
-  private SearchResult followReferral(
-                            @NotNull final SearchResult referralResult,
-                            @NotNull final LDAPConnection connection,
-                            final int depth)
-          throws LDAPException
-  {
-    for (final String urlString : referralResult.getReferralURLs())
-    {
-      try
-      {
-        final LDAPURL referralURL = new LDAPURL(urlString);
-        final String host = referralURL.getHost();
-
-        if (host == null)
-        {
-          // We can't handle a referral in which there is no host.
-          continue;
-        }
-
-        final String requestBaseDN;
-        if (referralURL.baseDNProvided())
-        {
-          requestBaseDN = referralURL.getBaseDN().toString();
-        }
-        else
-        {
-          requestBaseDN = baseDN;
-        }
-
-        final SearchScope requestScope;
-        if (referralURL.scopeProvided())
-        {
-          requestScope = referralURL.getScope();
-        }
-        else
-        {
-          requestScope = scope;
-        }
-
-        final Filter requestFilter;
-        if (referralURL.filterProvided())
-        {
-          requestFilter = referralURL.getFilter();
-        }
-        else
-        {
-          requestFilter = filter;
-        }
-
-
-        final SearchRequest searchRequest =
-             new SearchRequest(searchResultListener, getControls(),
-                               requestBaseDN, requestScope, derefPolicy,
-                               sizeLimit, timeLimit, typesOnly, requestFilter,
-                               attributes);
-
-        final LDAPConnection referralConn = getReferralConnector(connection).
-             getReferralConnection(referralURL, connection);
-        try
-        {
-          return searchRequest.process(referralConn, depth+1);
-        }
-        finally
-        {
-          referralConn.setDisconnectInfo(DisconnectType.REFERRAL, null, null);
-          referralConn.close();
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-
-        if (le.getResultCode().equals(ResultCode.REFERRAL_LIMIT_EXCEEDED))
-        {
-          throw le;
-        }
-      }
-    }
-
-    // If we've gotten here, then we could not follow any of the referral URLs,
-    // so we'll just return the original referral result.
-    return referralResult;
   }
 
 
@@ -2378,6 +2167,9 @@ public final class SearchRequest
     }
 
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(null);
 
     return r;
   }

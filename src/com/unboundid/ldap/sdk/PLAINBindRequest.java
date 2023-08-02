@@ -475,6 +475,8 @@ public final class PLAINBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     return sendBindRequest(connection, "",
          encodeCredentials(authenticationID, authorizationID, password),
          getControls(), getResponseTimeoutMillis(connection));
@@ -566,6 +568,10 @@ public final class PLAINBindRequest
     final PLAINBindRequest bindRequest = new PLAINBindRequest(authenticationID,
          authorizationID, password, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

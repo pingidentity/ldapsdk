@@ -362,6 +362,10 @@ public final class SingleUseTOTPBindRequest
               getAuthorizationID(), totpPassword, getStaticPassword(),
               controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

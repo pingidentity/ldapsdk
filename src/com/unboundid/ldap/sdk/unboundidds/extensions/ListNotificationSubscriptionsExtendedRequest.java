@@ -343,6 +343,9 @@ public final class ListNotificationSubscriptionsExtendedRequest
          new ListNotificationSubscriptionsExtendedRequest(managerID,
               destinationIDs, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

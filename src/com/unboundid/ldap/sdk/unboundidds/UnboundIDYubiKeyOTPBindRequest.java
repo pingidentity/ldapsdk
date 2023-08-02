@@ -510,6 +510,8 @@ public final class UnboundIDYubiKeyOTPBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     messageID = InternalSDKHelper.nextMessageID(connection);
     return sendBindRequest(connection, "", encodeCredentials(), getControls(),
          getResponseTimeoutMillis(connection));
@@ -611,6 +613,10 @@ public final class UnboundIDYubiKeyOTPBindRequest
          new UnboundIDYubiKeyOTPBindRequest(authenticationID, authorizationID,
               staticPassword, yubiKeyOTP, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

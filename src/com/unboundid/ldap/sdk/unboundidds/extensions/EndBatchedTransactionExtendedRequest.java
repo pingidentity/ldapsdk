@@ -303,6 +303,9 @@ public final class EndBatchedTransactionExtendedRequest
          new EndBatchedTransactionExtendedRequest(transactionID, commit,
               controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

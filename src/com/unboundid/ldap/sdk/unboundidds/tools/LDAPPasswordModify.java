@@ -58,9 +58,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPExtendedOperationException;
 import com.unboundid.ldap.sdk.LDAPResult;
-import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
@@ -1572,8 +1570,7 @@ public final class LDAPPasswordModify
               controls);
 
 
-    // Send the request and interpret the response, including special handling
-    // for any referral that might have been returned.
+    // Send the request and interpret the response.
     LDAPConnection connection = null;
     try
     {
@@ -1617,15 +1614,6 @@ public final class LDAPPasswordModify
 
         return ResultCode.SUCCESS;
       }
-      else if ((passwordModifyResult.getResultCode() == ResultCode.REFERRAL) &&
-           followReferrals.isPresent() &&
-           (passwordModifyResult.getReferralURLs().length > 0))
-      {
-        // The LDAP SDK doesn't support automatic referral following for
-        // extended operations.  If appropriate, try to follow it ourselves.
-        return followPasswordModifyReferral(passwordModifyRequest,
-             passwordModifyResult, connection, 1);
-      }
       else
       {
         logCompletionMessage(true,
@@ -1666,152 +1654,6 @@ public final class LDAPPasswordModify
         pool.releaseConnection(connection);
       }
     }
-  }
-
-
-
-  /**
-   * Attempts to follow a referral that was returned in response to a password
-   * modify extended request.
-   *
-   * @param  request               The extended request that was sent.
-   * @param  result                The extended result that was received,
-   *                               including the referral details.
-   * @param  receivedOnConnection  The LDAP connection on which the referral
-   *                               result was received.
-   * @param  referralCount         The number of referrals that have been
-   *                               returned so far.  If this is too high, then
-   *                               subsequent referrals will not be followed.
-   *
-   * @return  A result code that indicates whether the password update was
-   *          successful.
-   */
-  @NotNull()
-  private ResultCode followPasswordModifyReferral(
-                          @NotNull final PasswordModifyExtendedRequest request,
-                          @NotNull final PasswordModifyExtendedResult result,
-                          @NotNull final LDAPConnection receivedOnConnection,
-                          final int referralCount)
-  {
-    final List<LDAPURL> referralURLs = new ArrayList<>();
-    for (final String urlString : result.getReferralURLs())
-    {
-      try
-      {
-        referralURLs.add(new LDAPURL(urlString));
-      }
-      catch (final LDAPException e)
-      {
-        Debug.debugException(e);
-      }
-    }
-
-    if (referralURLs.isEmpty())
-    {
-      logCompletionMessage(true,
-           ERR_PWMOD_EXTOP_NO_VALID_REFERRAL_URLS.get(String.valueOf(result)));
-      return ResultCode.REFERRAL;
-    }
-
-    LDAPException firstException = null;
-    for (final LDAPURL url : referralURLs)
-    {
-      try (LDAPConnection referralConnection =
-           receivedOnConnection.getReferralConnection(url,
-                receivedOnConnection))
-      {
-        final String referredUserIdentity;
-        if (url.getBaseDN().isNullDN())
-        {
-          referredUserIdentity = request.getUserIdentity();
-        }
-        else
-        {
-          referredUserIdentity = url.getBaseDN().toString();
-        }
-
-        final PasswordModifyExtendedRequest referralRequest =
-             new PasswordModifyExtendedRequest(referredUserIdentity,
-                  request.getOldPassword(), request.getNewPassword(),
-                  request.getControls());
-        final PasswordModifyExtendedResult referralResult =
-             (PasswordModifyExtendedResult)
-             referralConnection.processExtendedOperation(referralRequest);
-
-        out();
-        out(INFO_PWMOD_EXTOP_RESULT_HEADER.get());
-        for (final String line :
-             ResultUtils.formatResult(referralResult, true, 0, WRAP_COLUMN))
-        {
-          out(line);
-        }
-        out();
-
-        final String generatedPassword = referralResult.getGeneratedPassword();
-        if (referralResult.getResultCode() == ResultCode.SUCCESS)
-        {
-          logCompletionMessage(false, INFO_PWMOD_EXTOP_SUCCESSFUL.get());
-          if (generatedPassword != null)
-          {
-            out();
-            wrapOut(0, WRAP_COLUMN,
-                 INFO_PWMOD_SERVER_GENERATED_PW.get(generatedPassword));
-          }
-
-          return ResultCode.SUCCESS;
-        }
-        else if (referralResult.getResultCode() == ResultCode.NO_OPERATION)
-        {
-          logCompletionMessage(false, INFO_PWMOD_EXTOP_NO_OP.get());
-          if (generatedPassword != null)
-          {
-            out();
-            wrapOut(0, WRAP_COLUMN,
-                 INFO_PWMOD_SERVER_GENERATED_PW.get(generatedPassword));
-          }
-
-          return ResultCode.SUCCESS;
-        }
-        else if (referralResult.getResultCode() == ResultCode.REFERRAL)
-        {
-          final int maxReferralCount = receivedOnConnection.
-               getConnectionOptions().getReferralHopLimit();
-          if (referralCount > maxReferralCount)
-          {
-            logCompletionMessage(true,
-                 ERR_PWMOD_TOO_MANY_REFERRALS.get());
-            return ResultCode.REFERRAL_LIMIT_EXCEEDED;
-          }
-          else
-          {
-            return followPasswordModifyReferral(referralRequest, referralResult,
-                 referralConnection, (referralCount + 1));
-          }
-        }
-        else
-        {
-          if (firstException == null)
-          {
-            firstException = new LDAPExtendedOperationException(referralResult);
-          }
-        }
-      }
-      catch (final LDAPException e)
-      {
-        Debug.debugException(e);
-        if (firstException == null)
-        {
-          firstException = e;
-        }
-      }
-    }
-
-
-    logCompletionMessage(true,
-         ERR_PWMOD_FOLLOW_REFERRAL_FAILED.get(
-              String.valueOf(firstException.getResultCode()),
-              firstException.getDiagnosticMessage()));
-    return firstException.getResultCode();
   }
 
 

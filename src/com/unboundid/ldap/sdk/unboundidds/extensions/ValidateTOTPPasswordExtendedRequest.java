@@ -268,6 +268,9 @@ public final class ValidateTOTPPasswordExtendedRequest
          new ValidateTOTPPasswordExtendedRequest(userDN, totpPassword,
               controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

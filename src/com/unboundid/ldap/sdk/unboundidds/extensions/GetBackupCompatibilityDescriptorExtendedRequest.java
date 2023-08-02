@@ -263,6 +263,9 @@ public final class GetBackupCompatibilityDescriptorExtendedRequest
     final GetBackupCompatibilityDescriptorExtendedRequest r =
          new GetBackupCompatibilityDescriptorExtendedRequest(baseDN, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

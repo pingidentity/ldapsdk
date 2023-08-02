@@ -196,6 +196,9 @@ public final class ListConfigurationsExtendedRequest
     final ListConfigurationsExtendedRequest r =
          new ListConfigurationsExtendedRequest(controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

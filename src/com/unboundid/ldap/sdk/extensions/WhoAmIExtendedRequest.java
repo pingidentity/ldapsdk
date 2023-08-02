@@ -213,6 +213,9 @@ public final class WhoAmIExtendedRequest
   {
     final WhoAmIExtendedRequest r = new WhoAmIExtendedRequest(controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

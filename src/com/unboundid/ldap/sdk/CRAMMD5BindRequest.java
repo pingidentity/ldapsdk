@@ -336,6 +336,8 @@ public final class CRAMMD5BindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     unhandledCallbackMessages.clear();
 
     final SaslClient saslClient;
@@ -456,6 +458,10 @@ public final class CRAMMD5BindRequest
     final CRAMMD5BindRequest bindRequest =
          new CRAMMD5BindRequest(authenticationID, password, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

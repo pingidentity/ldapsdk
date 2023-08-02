@@ -743,6 +743,9 @@ public final class GeneratePasswordExtendedRequest
               passwordPolicyDN, targetEntryDN, numberOfPasswords,
               numberOfValidationAttempts, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

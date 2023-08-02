@@ -477,6 +477,9 @@ public final class GetPasswordQualityRequirementsExtendedRequest
          new GetPasswordQualityRequirementsExtendedRequest(targetType,
               targetDN, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

@@ -535,6 +535,9 @@ public final class StreamDirectoryValuesExtendedRequest
          new StreamDirectoryValuesExtendedRequest(baseDN, dnScope,
               returnRelativeDNs, attributes, valuesPerResponse, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

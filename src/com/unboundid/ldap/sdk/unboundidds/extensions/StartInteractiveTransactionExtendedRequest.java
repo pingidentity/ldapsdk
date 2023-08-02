@@ -416,6 +416,9 @@ public final class StartInteractiveTransactionExtendedRequest
     final StartInteractiveTransactionExtendedRequest r =
          new StartInteractiveTransactionExtendedRequest(baseDN, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

@@ -319,6 +319,8 @@ public final class UnboundIDDeliveredOTPBindRequest
                                final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     messageID = InternalSDKHelper.nextMessageID(connection);
     return sendBindRequest(connection, "",
          encodeCredentials(authenticationID, authorizationID, oneTimePassword),
@@ -398,6 +400,10 @@ public final class UnboundIDDeliveredOTPBindRequest
          new UnboundIDDeliveredOTPBindRequest(authenticationID,
               authorizationID, oneTimePassword, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    bindRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    bindRequest.setReferralDepth(getReferralDepth());
+    bindRequest.setReferralConnector(getReferralConnectorInternal());
     return bindRequest;
   }
 

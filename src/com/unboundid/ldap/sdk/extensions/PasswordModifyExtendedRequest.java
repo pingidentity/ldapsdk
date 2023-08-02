@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ReferralHelper;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -707,7 +708,18 @@ public final class PasswordModifyExtendedRequest
          throws LDAPException
   {
     final ExtendedResult extendedResponse = super.process(connection, depth);
-    return new PasswordModifyExtendedResult(extendedResponse);
+    final PasswordModifyExtendedResult result =
+         new PasswordModifyExtendedResult(extendedResponse);
+
+    if ((result.getResultCode() == ResultCode.REFERRAL) &&
+         followReferrals(connection))
+    {
+      return ReferralHelper.handleReferral(this, result, connection);
+    }
+    else
+    {
+      return result;
+    }
   }
 
 
@@ -741,6 +753,9 @@ public final class PasswordModifyExtendedRequest
          new PasswordModifyExtendedRequest(userIdentity, oldPWBytes,
               newPWBytes, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 

@@ -321,6 +321,10 @@ public final class CancelExtendedRequest
     final CancelExtendedRequest cancelRequest =
          new CancelExtendedRequest(targetMessageID, controls);
     cancelRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    cancelRequest.setIntermediateResponseListener(
+         getIntermediateResponseListener());
+    cancelRequest.setReferralDepth(getReferralDepth());
+    cancelRequest.setReferralConnector(getReferralConnectorInternal());
     return cancelRequest;
   }
 

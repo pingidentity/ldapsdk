@@ -188,6 +188,8 @@ public abstract class SCRAMBindRequest
                                      final int depth)
             throws LDAPException
   {
+    setReferralDepth(depth);
+
     // Generate the client first message and send it to the server.
     final SCRAMClientFirstMessage clientFirstMessage =
          new SCRAMClientFirstMessage(this);

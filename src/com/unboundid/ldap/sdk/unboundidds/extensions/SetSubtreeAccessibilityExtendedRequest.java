@@ -619,8 +619,14 @@ public final class SetSubtreeAccessibilityExtendedRequest
   public SetSubtreeAccessibilityExtendedRequest duplicate(
               @Nullable final Control[] controls)
   {
-    return new SetSubtreeAccessibilityExtendedRequest(subtreeBaseDNs,
-         accessibilityState, bypassUserDN, controls);
+    final SetSubtreeAccessibilityExtendedRequest r =
+         new SetSubtreeAccessibilityExtendedRequest(subtreeBaseDNs,
+              accessibilityState, bypassUserDN, controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
+    return r;
   }
 
 

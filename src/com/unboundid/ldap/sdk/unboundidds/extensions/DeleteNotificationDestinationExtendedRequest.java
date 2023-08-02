@@ -255,6 +255,9 @@ public final class DeleteNotificationDestinationExtendedRequest
          new DeleteNotificationDestinationExtendedRequest(managerID,
               destinationID, controls);
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    r.setIntermediateResponseListener(getIntermediateResponseListener());
+    r.setReferralDepth(getReferralDepth());
+    r.setReferralConnector(getReferralConnectorInternal());
     return r;
   }
 
