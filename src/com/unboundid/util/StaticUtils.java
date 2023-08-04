@@ -2386,6 +2386,52 @@ public final class StaticUtils
 
   /**
    * Retrieves a single-line string representation of the stack trace for the
+   * current thread.  It will not include the call to the {@code getBacktrace}
+   * method itself, nor anything that it calls either directly or indirectly.
+   *
+   * @return  A single-line string representation of the stack trace for the
+   *          current thread.
+   */
+  @NotNull()
+  public static String getBacktrace()
+  {
+    // Get the stack trace elements for the curren thread.  It will likely
+    // include not only an element for this method, but also for the
+    // Thread.getStackTrace method itself.  So we want to filter those out
+    final StackTraceElement[] stackTraceElements =
+         Thread.currentThread().getStackTrace();
+    final List<StackTraceElement> elementList = new ArrayList<>();
+
+    boolean foundStartingPoint = false;
+    for (final StackTraceElement e : stackTraceElements)
+    {
+      if (foundStartingPoint)
+      {
+        elementList.add(e);
+        continue;
+      }
+
+      if (e.getClassName().equals(StaticUtils.class.getName()) &&
+           e.getMethodName().equals("getBacktrace"))
+      {
+        foundStartingPoint = true;
+      }
+    }
+
+    if (foundStartingPoint)
+    {
+      return getStackTrace(toArray(elementList, StackTraceElement.class));
+    }
+    else
+    {
+      return getStackTrace(stackTraceElements);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a single-line string representation of the stack trace for the
    * provided {@code Throwable}.  It will include the unqualified name of the
    * {@code Throwable} class, a list of source files and line numbers (if
    * available) for the stack trace, and will also include the stack trace for

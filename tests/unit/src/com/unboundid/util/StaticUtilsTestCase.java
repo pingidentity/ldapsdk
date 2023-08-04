@@ -541,6 +541,22 @@ public class StaticUtilsTestCase
 
 
   /**
+   * Tests the {@code getBacktrace} method.
+   */
+  @Test()
+  public void testGetBacktrace()
+  {
+    final String backtrace = StaticUtils.getBacktrace();
+    assertNotNull(backtrace);
+
+    assertTrue(backtrace.startsWith(
+         "testGetBacktrace(StaticUtilsTestCase.java"));
+    assertFalse(backtrace.contains("getBacktrace(StaticUtils.java"));
+  }
+
+
+
+  /**
    * Tests the {@code getStackTrace} method.
    */
   @Test()
