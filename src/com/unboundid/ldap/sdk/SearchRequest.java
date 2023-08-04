@@ -2169,7 +2169,6 @@ public final class SearchRequest
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
     r.setIntermediateResponseListener(getIntermediateResponseListener());
     r.setReferralDepth(getReferralDepth());
-    r.setReferralConnector(null);
 
     return r;
   }
