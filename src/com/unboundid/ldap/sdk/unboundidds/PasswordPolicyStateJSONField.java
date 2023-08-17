@@ -774,10 +774,30 @@ public enum PasswordPolicyStateJSONField
 
 
   /**
-   * The field used to hold information about the requirements that passwords
-   * will be required to satisfy.
+   * The field (password-quality-requirements) used to hold information about
+   * the requirements that passwords will be required to satisfy.
    */
-  PASSWORD_QUALITY_REQUIREMENTS("password-quality-requirements");
+  PASSWORD_QUALITY_REQUIREMENTS("password-quality-requirements"),
+
+
+
+  /**
+   * The field (has-password-encoded-with-non-current-settings) used to indicate
+   * whether the user has a password that is encoded with settings that don't
+   * match the current configuration for the associated password storage scheme.
+   */
+  HAS_PASSWORD_ENCODED_WITH_NON_CURRENT_SETTINGS(
+       "has-password-encoded-with-non-current-settings"),
+
+
+
+  /**
+   * The field (non-current-password-storage-scheme-settings-explanations) used
+   * to hold information about the reasons that a password may not be encoded
+   * with the current settings for the associated password storage scheme.
+   */
+  NON_CURRENT_PASSWORD_STORAGE_SCHEME_SETTINGS_EXPLANATIONS(
+       "non-current-password-storage-scheme-settings-explanations");
 
 
 

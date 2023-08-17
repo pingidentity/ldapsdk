@@ -2359,6 +2359,109 @@ public final class PasswordPolicyStateJSONTestCase
 
 
   /**
+   * Tests the behavior for fields related to passwords encoded with non-current
+   * settings.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPasswordEncodedWithNonCurrentSettings()
+         throws Exception
+  {
+    // Test with a state that represents a user in which the password is encoded
+    // with current settings.
+    PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         HAS_PASSWORD_ENCODED_WITH_NON_CURRENT_SETTINGS, JSONBoolean.FALSE));
+    assertEquals(state.hasPasswordEncodedWithNonCurrentSettings(),
+         Boolean.FALSE);
+    assertNotNull(
+         state.getNonCurrentPasswordStorageSchemeSettingsExplanations());
+    assertTrue(state.
+         getNonCurrentPasswordStorageSchemeSettingsExplanations().isEmpty());
+
+
+    // Test with a state that represents a user in which the password is
+    // encoded with non-current settings but no explanations.
+    state = createState(StaticUtils.mapOf(
+         HAS_PASSWORD_ENCODED_WITH_NON_CURRENT_SETTINGS, JSONBoolean.TRUE,
+         NON_CURRENT_PASSWORD_STORAGE_SCHEME_SETTINGS_EXPLANATIONS,
+              new JSONArray(
+                   createNonCurrentSchemeSettingsExplanationsObject(
+                        "SSHA256"))));
+    assertEquals(state.hasPasswordEncodedWithNonCurrentSettings(),
+         Boolean.TRUE);
+    assertNotNull(
+         state.getNonCurrentPasswordStorageSchemeSettingsExplanations());
+    assertEquals(
+         state.getNonCurrentPasswordStorageSchemeSettingsExplanations().size(),
+         1);
+    assertTrue(state.getNonCurrentPasswordStorageSchemeSettingsExplanations().
+         containsKey("SSHA256"));
+    assertTrue(state.getNonCurrentPasswordStorageSchemeSettingsExplanations().
+         get("SSHA256").isEmpty());
+
+
+    // Test with a state that represents a user in which the password is
+    // encoded with non-current settings and has explanations.
+    state = createState(StaticUtils.mapOf(
+         HAS_PASSWORD_ENCODED_WITH_NON_CURRENT_SETTINGS, JSONBoolean.TRUE,
+         NON_CURRENT_PASSWORD_STORAGE_SCHEME_SETTINGS_EXPLANATIONS,
+              new JSONArray(
+                   createNonCurrentSchemeSettingsExplanationsObject(
+                        "SSHA256", "explanation1", "explanation2"))));
+    assertEquals(state.hasPasswordEncodedWithNonCurrentSettings(),
+         Boolean.TRUE);
+    assertNotNull(
+         state.getNonCurrentPasswordStorageSchemeSettingsExplanations());
+    assertEquals(
+         state.getNonCurrentPasswordStorageSchemeSettingsExplanations().size(),
+         1);
+    assertTrue(state.getNonCurrentPasswordStorageSchemeSettingsExplanations().
+         containsKey("SSHA256"));
+    assertEquals(
+         state.getNonCurrentPasswordStorageSchemeSettingsExplanations().get(
+              "SSHA256"),
+         Arrays.asList("explanation1", "explanation2"));
+  }
+
+
+
+  /**
+   * Creates a JSON object with information about a password that is encoded
+   * with non-current scheme settings.
+   *
+   * @param  schemeName    The name of the associated password storage scheme.
+   *                       It must not be {@code null}.
+   * @param  explanations  An optional set of explanation values.  This may be
+   *                       empty but must not be {@code null}.
+   *
+   * @return  The JSON object that was created.
+   */
+  private static JSONObject createNonCurrentSchemeSettingsExplanationsObject(
+               final String schemeName,
+               final String... explanations)
+  {
+    final Map<String,JSONValue> fields = new LinkedHashMap<>();
+    fields.put("scheme", new JSONString(schemeName));
+
+    if (explanations.length > 0)
+    {
+      final List<JSONValue> explanationValues =
+           new ArrayList<>(explanations.length);
+      for (final String explanation : explanations)
+      {
+        explanationValues.add(new JSONString(explanation));
+      }
+
+      fields.put("explanations", new JSONArray(explanationValues));
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
    * Creates a password policy state JSON object with the provided fields.
    *
    * @param  fields  The fields to include in the JSON object.

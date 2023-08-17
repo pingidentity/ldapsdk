@@ -219,6 +219,24 @@ public final class PasswordPolicyStateJSON
 
 
   /**
+   * The name of the field that will be used to hold the name of a password
+   * storage scheme for a password that is encoded with non-current settings.
+   */
+  @NotNull private static final String NON_CURRENT_ENCODING_FIELD_SCHEME =
+       "scheme";
+
+
+
+  /**
+   * The name of the field that will be used to hold the set of explanations for
+   * a password that is encoded with non-current settings.
+   */
+  @NotNull private static final String NON_CURRENT_ENCODING_FIELD_EXPLANATIONS =
+       "explanations";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -3953182526241789456L;
@@ -2190,6 +2208,86 @@ public final class PasswordPolicyStateJSON
     }
 
     return requirements;
+  }
+
+
+
+  /**
+   * Indicates whether the user has a static password that is encoded with
+   * settings that don't match the current configuration for the associated
+   * password storage scheme.
+   *
+   * @return  {@code Boolean.TRUE} if the account has a static password that
+   *          is encoded with non-current settings, {@code Boolean.FALSE} if the
+   *          account does not have a static password that is encoded with
+   *          non-current settings, or {@code null} if this flag was not
+   *          included in the password policy state JSON object.
+   */
+  @Nullable()
+  public Boolean hasPasswordEncodedWithNonCurrentSettings()
+  {
+    return passwordPolicyStateObject.getFieldAsBoolean(
+         HAS_PASSWORD_ENCODED_WITH_NON_CURRENT_SETTINGS.getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves a map with information about the reasons that a password may not
+   * be encoded with the current settings for the associated password storage
+   * scheme.  The keys of the map will the name of the storage scheme, and the
+   * values will be a possibly-empty list of explanations that describe why a
+   * password encoded with that scheme is encoded with non-current settings.
+   *
+   * @return  A map with information about the reasons that a password may not
+   *          be encoded with the current settings for the associated password
+   *          storage scheme, or an empty map if this was not included in the
+   *          password policy state JSON object.
+   */
+  @NotNull()
+  public Map<String,List<String>>
+              getNonCurrentPasswordStorageSchemeSettingsExplanations()
+  {
+    final Map<String,List<String>> explanationsMap = new LinkedHashMap<>();
+
+    final List<JSONValue> values = passwordPolicyStateObject.getFieldAsArray(
+         NON_CURRENT_PASSWORD_STORAGE_SCHEME_SETTINGS_EXPLANATIONS.
+              getFieldName());
+    if (values != null)
+    {
+      for (final JSONValue value : values)
+      {
+        if (value instanceof JSONObject)
+        {
+          final JSONObject valueObject = (JSONObject) value;
+          final String schemeName = valueObject.getFieldAsString(
+               NON_CURRENT_ENCODING_FIELD_SCHEME);
+          if (schemeName == null)
+          {
+            continue;
+          }
+
+          final List<String> explanationStrings = new ArrayList<>();
+          final List<JSONValue> explanationValues = valueObject.getFieldAsArray(
+               NON_CURRENT_ENCODING_FIELD_EXPLANATIONS);
+          if (explanationValues != null)
+          {
+            for (final JSONValue explanationValue : explanationValues)
+            {
+              if (explanationValue instanceof JSONString)
+              {
+                explanationStrings.add(
+                     ((JSONString) explanationValue).stringValue());
+              }
+            }
+          }
+
+          explanationsMap.put(schemeName, explanationStrings);
+        }
+      }
+    }
+
+    return Collections.unmodifiableMap(explanationsMap);
   }
 
 
