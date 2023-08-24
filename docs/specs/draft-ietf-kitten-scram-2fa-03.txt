@@ -4,13 +4,13 @@
 
 Network Working Group                                        A. Melnikov
 Internet-Draft                                                 Isode Ltd
-Intended status: Standards Track                         13 January 2023
-Expires: 17 July 2023
+Intended status: Standards Track                          24 August 2023
+Expires: 25 February 2024
 
 
       Extensions to Salted Challenge Response (SCRAM) for 2 factor
                              authentication
-                     draft-ietf-kitten-scram-2fa-02
+                     draft-ietf-kitten-scram-2fa-03
 
 Abstract
 
@@ -21,8 +21,8 @@ Abstract
    authentication.  It also includes a separate extension for quick
    reauthentication.
 
-   This specification also gives an example of how TOTP (RFC 6238) can
-   be used as the second factor.
+   This specification also gives 2 examples of second factors: TOTP (RFC
+   6238) and FIDO CTAP1/U2F.
 
 Status of This Memo
 
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 July 2023.
+   This Internet-Draft will expire on 25 February 2024.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 1]
+Melnikov                Expires 25 February 2024                [Page 1]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    and restrictions with respect to this document.  Code Components
@@ -109,16 +109,18 @@ Table of Contents
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 2]
+Melnikov                Expires 25 February 2024                [Page 2]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
 2.  Conventions Used in This Document
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-   document are to be interpreted as described in [RFC2119].
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
 
    Formal syntax is defined by [RFC5234] including the core rules
    defined in Appendix B of [RFC5234].
@@ -158,34 +160,36 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
    server.  This extension also doesn't cover enrollment with a 2FA
    system, such enrollment happends out-of-band.
 
-   The server authenticates the client after receiving the second
-   message as described in Section 3 of [RFC5802] If the client included
-   "type" and "second-factor" attributes defined in this document (see
-   Section 5) and the server supports the specified second factor type,
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 3]
+
+
+Melnikov                Expires 25 February 2024                [Page 3]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
-   the server verifies content of the "second-factor" according to the
-   "type".  If the second factor verification fails, the server MUST
-   fail authentication and SHOULD return either "replayed-second-factor"
-   or "invalid-second-factor" error in the "e" attribute.  [[It would be
-   possible to make the extra attributes mandatory by using SCRAM's
-   "m=", but the text above doesn't do that.  This is one of open issues
-   to resolve.]]
+   The server authenticates the client after receiving the second
+   message as described in Section 3 of [RFC5802].  If the client
+   included "type" and "second-factor" attributes defined in this
+   document (see Section 5) and the server supports the specified second
+   factor type, the server verifies content of the "second-factor"
+   according to the "type".  If the second factor verification fails,
+   the server MUST fail authentication and SHOULD return either
+   "replayed-second-factor" or "invalid-second-factor" error in the "e"
+   attribute.  [[It would be possible to make the extra attributes
+   mandatory by using SCRAM's "m=", but the text above doesn't do that.
+   This is one of open issues to resolve.]]
 
 4.  SCRAM Extension for reauthentication
 
    This reauthentication extension to SCRAM allows the server to return
    a token that can be used for quick reauthentication and bypasses 2
    factor authentication prompt to the user.  The reauthentication token
-   is a randomly generated value.The reauthentication token is returned
-   in the "o" attribute that is appended to the end of the "server-
-   final-message".
+   is a randomly generated value [RFC4086].  The reauthentication token
+   is returned in the "o" attribute that is appended to the end of the
+   "server-final-message".
 
    [[Note: it would be possible to extend SCRAM itself to do
    reauthentication, by including an earlier received reauthentication
@@ -202,11 +206,6 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
    [draft-schmaus-kitten-sasl-ht]).  [[Note that the HT hash should
    probably match the SCRAM hash used or "be better".]]
 
-   When the CLIENT-KEY/CLIENT-KEY-PLUS mechanism (see draft-cridland-
-   kitten-clientkey) is used for the reauthentication after a successful
-   SCRAM authentication, the reauthentication token is the Client Secret
-   Key.  [[Need to also somehow convey token expiration?]]
-
 5.  Formal Syntax
 
    This document defines the following new SCRAM attributes:
@@ -221,9 +220,10 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 4]
+
+Melnikov                Expires 25 February 2024                [Page 4]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    *  f: This attribute specifies the value of the second factor.  For
@@ -277,9 +277,9 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 5]
+Melnikov                Expires 25 February 2024                [Page 5]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    *  t: This attribute specifies the type of second factor.  For TOTP
@@ -333,15 +333,15 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 6]
+Melnikov                Expires 25 February 2024                [Page 6]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    *  l: base64-encoded challenge as returned by SCRAM server.
 
    *  f: This attribute specifies the value of the second factor.  For
-      "t=ctap1" it is the CBOR-serialized value of
+      "t=ctap1" it is the CBOR-serialized [RFC8949] value of
       authenticatorGetAssertionResponse map described below.  This
       attribute MUST be ignored unless the "t" attribute is also
       specified.
@@ -389,9 +389,9 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 7]
+Melnikov                Expires 25 February 2024                [Page 7]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    *  Use clientDataHash parameter of [CTAP2] request as CTAP1/U2F
@@ -445,9 +445,9 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 8]
+Melnikov                Expires 25 February 2024                [Page 8]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    Let authenticatorData is a byte string of following structure:
@@ -482,7 +482,7 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 9.  Open Issues
 
    Simon Josefsson: should this be a new SASL mechanism name, e.g.
-   CROTP-SHA-256?
+   CROTP-SHA-XXX?
 
    Should we pick between TOTP and FIDO2 (CTAP1)?
 
@@ -492,18 +492,18 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 10.  Security Considerations
 
-   Unless an external security layer (such as TLS) is also used, the OTP
-   value is sent in unencrypted/unhashed form from the client to the
-   server, which allows an attacker to read the OTP value and perform a
-   race with the server to validate the OTP.
+   An OTP value is a sensitive piece of data and thus should only be
+   sent over a secure channel (such as TLS).  Otherwise an attacker
+   might be able to intercept it and reuse it for authentication to the
+   SCRAM server.
 
    TBD
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 9]
+Melnikov                Expires 25 February 2024                [Page 9]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
 11.  IANA Considerations
@@ -557,9 +557,9 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                 [Page 10]
+Melnikov                Expires 25 February 2024               [Page 10]
 
-Internet-Draft            SCRAM 2FA extensions              January 2023
+Internet-Draft            SCRAM 2FA extensions               August 2023
 
 
    [draft-schmaus-kitten-sasl-ht]
@@ -580,6 +580,11 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC4086]  Eastlake 3rd, D., Schiller, J., and S. Crocker,
+              "Randomness Requirements for Security", BCP 106, RFC 4086,
+              DOI 10.17487/RFC4086, June 2005,
+              <https://www.rfc-editor.org/info/rfc4086>.
 
    [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
               Authentication and Security Layer (SASL)", RFC 4422,
@@ -606,17 +611,25 @@ Internet-Draft            SCRAM 2FA extensions              January 2023
               DOI 10.17487/RFC6238, May 2011,
               <https://www.rfc-editor.org/info/rfc6238>.
 
+
+
+Melnikov                Expires 25 February 2024               [Page 11]
+
+Internet-Draft            SCRAM 2FA extensions               August 2023
+
+
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               DOI 10.17487/RFC6454, December 2011,
               <https://www.rfc-editor.org/info/rfc6454>.
 
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
-
-
-Melnikov                  Expires 17 July 2023                 [Page 11]
-
-Internet-Draft            SCRAM 2FA extensions              January 2023
-
+   [RFC8949]  Bormann, C. and P. Hoffman, "Concise Binary Object
+              Representation (CBOR)", STD 94, RFC 8949,
+              DOI 10.17487/RFC8949, December 2020,
+              <https://www.rfc-editor.org/info/rfc8949>.
 
    [W3C_webauthn_3]
               "Web Authentication: An API for accessing Public Key
@@ -656,17 +669,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Melnikov                  Expires 17 July 2023                 [Page 12]
+Melnikov                Expires 25 February 2024               [Page 12]
