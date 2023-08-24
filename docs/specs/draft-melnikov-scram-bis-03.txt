@@ -4,14 +4,14 @@
 
 Network Working Group                                   A. Melnikov, Ed.
 Internet-Draft                                                 Isode Ltd
-Updates: 5802, 7677 (if approved)                        13 January 2023
+Updates: 5802, 7677 (if approved)                         24 August 2023
 Intended status: Standards Track                                        
-Expires: 17 July 2023
+Expires: 25 February 2024
 
 
 Salted Challenge Response Authentication Mechanism (SCRAM) SASL and GSS-
                              API Mechanisms
-                      draft-melnikov-scram-bis-02
+                      draft-melnikov-scram-bis-03
 
 Abstract
 
@@ -35,7 +35,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 July 2023.
+   This Internet-Draft will expire on 25 February 2024.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 1]
+Melnikov                Expires 25 February 2024                [Page 1]
 
-Internet-Draft                 SASL SCRAM                   January 2023
+Internet-Draft                 SASL SCRAM                    August 2023
 
 
 Table of Contents
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 2]
+Melnikov                Expires 25 February 2024                [Page 2]
 
-Internet-Draft                 SASL SCRAM                   January 2023
+Internet-Draft                 SASL SCRAM                    August 2023
 
 
 3.  Implementation Recommendations
@@ -132,7 +132,8 @@ Internet-Draft                 SASL SCRAM                   January 2023
    SHA3-512 [I-D.melnikov-scram-sha3-512] instead of SCRAM-SHA-1-PLUS/
    SCRAM-SHA-1 [RFC5802].
 
-   [RFC5803] describes how SCRAM hashes can be stored in LDAP.  It is
+   [RFC5803] describes how SCRAM hashes can be stored in LDAP.  The LDAP
+   format has a field for the hash algorithm name used, so it is
    compatible with all versions of SCRAM described in this document,
    including SCRAM-SHA-256, SCRAM-SHA-512 and SCRAM-SHA3-512.
 
@@ -161,15 +162,15 @@ Internet-Draft                 SASL SCRAM                   January 2023
    gives around 15,000 iterations required; however, a hash iteration-
    count of 10000 takes around 0.5 seconds on current mobile handsets.
    This computational cost can be avoided by caching the ClientKey
-   (assuming the Salt and hash iteration-count is stable).  Therefore,
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 3]
+Melnikov                Expires 25 February 2024                [Page 3]
 
-Internet-Draft                 SASL SCRAM                   January 2023
+Internet-Draft                 SASL SCRAM                    August 2023
 
 
+   (assuming the Salt and hash iteration-count is stable).  Therefore,
    the recommendation of this specification is that the hash iteration-
    count SHOULD be at least 10000, but careful consideration ought to be
    given to using a significantly higher value, particularly where
@@ -213,17 +214,16 @@ Internet-Draft                 SASL SCRAM                   January 2023
               DOI 10.17487/RFC5803, July 2010,
               <https://www.rfc-editor.org/info/rfc5803>.
 
-   [RFC6234]  Eastlake 3rd, D., Hansen, T., and RFC Publisher, "US
-              Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)",
-              RFC 6234, DOI 10.17487/RFC6234, May 2011,
+   [RFC6234]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
+              (SHA and SHA-based HMAC and HKDF)", RFC 6234,
+              DOI 10.17487/RFC6234, May 2011,
               <https://www.rfc-editor.org/info/rfc6234>.
 
 
 
-
-Melnikov                  Expires 17 July 2023                  [Page 4]
+Melnikov                Expires 25 February 2024                [Page 4]
 
-Internet-Draft                 SASL SCRAM                   January 2023
+Internet-Draft                 SASL SCRAM                    August 2023
 
 
    [RFC7627]  Bhargavan, K., Ed., Delignat-Lavaud, A., Pironti, A.,
@@ -252,24 +252,24 @@ Internet-Draft                 SASL SCRAM                   January 2023
    [I-D.kitten-scram-2fa]
               Melnikov, A., "Extensions to Salted Challenge Response
               (SCRAM) for 2 factor authentication", Work in Progress,
-              Internet-Draft, draft-ietf-kitten-scram-2fa-02, 13 January
+              Internet-Draft, draft-ietf-kitten-scram-2fa-03, 24 August
               2023, <https://www.ietf.org/archive/id/draft-ietf-kitten-
-              scram-2fa-02.txt>.
+              scram-2fa-03.txt>.
 
    [I-D.melnikov-scram-sha-512]
               Melnikov, A., "SCRAM-SHA-512 and SCRAM-SHA-512-PLUS Simple
               Authentication and Security Layer (SASL) Mechanisms", Work
               in Progress, Internet-Draft, draft-melnikov-scram-sha-
-              512-02, 19 October 2021, <https://www.ietf.org/internet-
-              drafts/draft-melnikov-scram-sha-512-02.txt>.
+              512-03, 10 March 2022, <https://www.ietf.org/internet-
+              drafts/draft-melnikov-scram-sha-512-03.txt>.
 
    [I-D.melnikov-scram-sha3-512]
               Melnikov, A., "SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS
               Simple Authentication and Security Layer (SASL)
               Mechanisms", Work in Progress, Internet-Draft, draft-
-              melnikov-scram-sha3-512-02, 19 October 2021,
+              melnikov-scram-sha3-512-03, 24 August 2023,
               <https://www.ietf.org/internet-drafts/draft-melnikov-
-              scram-sha3-512-02.txt>.
+              scram-sha3-512-03.txt>.
 
 6.2.  Informative References
 
@@ -277,9 +277,9 @@ Internet-Draft                 SASL SCRAM                   January 2023
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 5]
+Melnikov                Expires 25 February 2024                [Page 5]
 
-Internet-Draft                 SASL SCRAM                   January 2023
+Internet-Draft                 SASL SCRAM                    August 2023
 
 
    [RFC4270]  Hoffman, P. and B. Schneier, "Attacks on Cryptographic
@@ -333,4 +333,4 @@ Author's Address
 
 
 
-Melnikov                  Expires 17 July 2023                  [Page 6]
+Melnikov                Expires 25 February 2024                [Page 6]
