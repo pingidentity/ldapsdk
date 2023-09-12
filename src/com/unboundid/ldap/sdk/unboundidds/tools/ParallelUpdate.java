@@ -2446,11 +2446,17 @@ public final class ParallelUpdate
             changeRecord.getChangeType().getName(), " REJECT ", resultCode, " ",
              ldapException.getMessage());
 
-        rejectWriter.writeChangeRecord(changeRecord, comment);
+        synchronized (rejectWriter)
+        {
+          rejectWriter.writeChangeRecord(changeRecord, comment);
+        }
       }
       else
       {
-        rejectWriter.writeComment(comment, true, true);
+        synchronized (rejectWriter)
+        {
+          rejectWriter.writeComment(comment, true, true);
+        }
       }
     }
     catch (final Exception e)

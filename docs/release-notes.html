@@ -25,6 +25,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in which parallel-update did not properly handle multiple
+                  concurrent attempts to write to the reject file, which could cause its contents
+                  to be unparseable or otherwise incorrect.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the PLAINBindRequest class to add an encodeCredentials method that can be
                   used to retrieve a properly encoded representation of the SASL credentials for a
                   PLAIN bind request with the given authentication ID, authorization ID, and
