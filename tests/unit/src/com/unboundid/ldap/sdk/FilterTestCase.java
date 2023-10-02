@@ -52,6 +52,7 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.jsonfilter.EqualsJSONObjectFilter;
 import com.unboundid.ldap.sdk.unboundidds.jsonfilter.JSONObjectFilter;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.json.JSONField;
 import com.unboundid.util.json.JSONObject;
 
@@ -3694,6 +3695,228 @@ public class FilterTestCase
     toCodeLines.clear();
     f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
     assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create substring filters from components
+   * that represent empty strings, when those components are strings.  Although
+   * this is technically illegal, we will treat it as if those components were
+   * not provided, as long as there was at least one non-empty component.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSubstringFilterWithEmptyStringComponents()
+         throws Exception
+  {
+    Filter f = Filter.substring("cn", "foo", null, "");
+    assertEquals(f,
+         Filter.substring("cn", "foo", null, null));
+
+    f = Filter.substring("cn", "foo", new String[] { "" }, null);
+    assertEquals(f,
+         Filter.substring("cn", "foo", null, null));
+
+    f = Filter.substring("cn", "", null, "foo");
+    assertEquals(f,
+         Filter.substring("cn", null, null, "foo"));
+
+    f = Filter.substring("cn", "", new String[] { "" }, "foo");
+    assertEquals(f,
+         Filter.substring("cn", null, null, "foo"));
+
+    f = Filter.substring("cn", "", new String[] { "foo" }, "");
+    assertEquals(f,
+         Filter.substring("cn", null, new String[] { "foo" }, null));
+
+    try
+    {
+      Filter.substring("cn", "", null, "");
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and null subAny");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", "", new String[0], "");
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and an subAny array");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", "", new String[] { "" }, "");
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with just an empty string");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", "", new String[] { "foo", "" }, "");
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with a mix of empty and non-empty strings");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", "", new String[] { "", "foo" }, "");
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with a mix of empty and non-empty strings");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", "", new String[] { "", "foo", "" }, "");
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with a mix of empty and non-empty strings");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create substring filters from components
+   * that represent empty strings, when those components are byte arrays.
+   * Although this is technically illegal, we will treat it as if those
+   * components were not provided, as long as there was at least one non-empty
+   * component.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSubstringFilterWithEmptyByteArrayComponents()
+         throws Exception
+  {
+    Filter f = Filter.substring("cn", StaticUtils.getBytes("foo"), null,
+         StaticUtils.NO_BYTES);
+    assertEquals(f,
+         Filter.substring("cn", StaticUtils.getBytes("foo"), null, null));
+
+    f = Filter.substring("cn", StaticUtils.getBytes("foo"),
+         new byte[][] { StaticUtils.NO_BYTES }, null);
+    assertEquals(f,
+         Filter.substring("cn", StaticUtils.getBytes("foo"), null, null));
+
+    f = Filter.substring("cn", StaticUtils.NO_BYTES, null,
+         StaticUtils.getBytes("foo"));
+    assertEquals(f,
+         Filter.substring("cn", null, null, StaticUtils.getBytes("foo")));
+
+    f = Filter.substring("cn", StaticUtils.NO_BYTES,
+         new byte[][] { StaticUtils.NO_BYTES }, StaticUtils.getBytes("foo"));
+    assertEquals(f,
+         Filter.substring("cn", null, null, StaticUtils.getBytes("foo")));
+
+    f = Filter.substring("cn", StaticUtils.NO_BYTES,
+         new byte[][] { StaticUtils.getBytes("foo") }, StaticUtils.NO_BYTES);
+    assertEquals(f,
+         Filter.substring("cn", null,
+              new byte[][] { StaticUtils.getBytes("foo") }, null));
+
+    try
+    {
+      Filter.substring("cn", StaticUtils.NO_BYTES, null, StaticUtils.NO_BYTES);
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and null subAny");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", StaticUtils.NO_BYTES, new byte[0][],
+           StaticUtils.NO_BYTES);
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and an subAny array");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", StaticUtils.NO_BYTES,
+           new byte[][] { StaticUtils.NO_BYTES }, StaticUtils.NO_BYTES);
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with just an empty string");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", StaticUtils.NO_BYTES,
+           new byte[][] { StaticUtils.getBytes("foo"), StaticUtils.NO_BYTES },
+           StaticUtils.NO_BYTES);
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with a mix of empty and non-empty strings");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", StaticUtils.NO_BYTES,
+           new byte[][] { StaticUtils.NO_BYTES, StaticUtils.getBytes("foo") },
+           StaticUtils.NO_BYTES);
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with a mix of empty and non-empty strings");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
+
+    try
+    {
+      Filter.substring("cn", StaticUtils.NO_BYTES,
+           new byte[][]
+           {
+             StaticUtils.NO_BYTES,
+             StaticUtils.getBytes("foo"),
+             StaticUtils.NO_BYTES
+           },
+           StaticUtils.NO_BYTES);
+      fail("Expected an error with empty subInitial and subFinal components, " +
+           "and a subAny array with a mix of empty and non-empty strings");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This is expected.
+    }
   }
 
 

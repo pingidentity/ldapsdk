@@ -6,6 +6,31 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 6.0.11</h3>
+
+              <p>
+                The following changes were made between the 6.0.10 and 6.0.11 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the Filter methods for creating substring filters to better support empty
+                  components.  In LDAP filters, filters are transmitted using a binary encoding,
+                  and substring components may be absent but not empty.  However, because
+                  developers creating LDAP-enabled applications are more likely to be familiar with
+                  the string representations of filters, it is understandable if someone were to
+                  try to provide an empty string instead of null to indicate that the component is
+                  not needed.  The methods for creating substring filters will now interpret empty
+                  components as equivalent to being null, causing them to be omitted from the
+                  resulting encoded LDAP filter.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 6.0.10</h3>
 
               <p>

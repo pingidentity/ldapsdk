@@ -806,9 +806,14 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
+   *                        It may be {@code null} if there is no subInitial
+   *                        component, but it must not be empty.
    * @param  subAny         The set of subAny components for this substring
-   *                        filter.
+   *                        filter.  It may be {@code null} or empty if there
+   *                        are no subAny components.
    * @param  subFinal       The subFinal component for this substring filter.
+   *                        It may be {@code null} if there is no subFinal
+   *                        component, but it must not be empty.
    *
    * @return  The created substring search filter.
    */
@@ -835,9 +840,14 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
+   *                        It may be {@code null} if there is no subInitial
+   *                        component, but it must not be empty.
    * @param  subAny         The set of subAny components for this substring
-   *                        filter.
+   *                        filter.  It may be {@code null} or empty if there
+   *                        are no subAny components.
    * @param  subFinal       The subFinal component for this substring filter.
+   *                        It may be {@code null} if there is no subFinal
+   *                        component, but it must not be empty.
    *
    * @return  The created substring search filter.
    */
@@ -860,9 +870,14 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
+   *                        It may be {@code null} if there is no subInitial
+   *                        component, but it must not be empty.
    * @param  subAny         The set of subAny components for this substring
-   *                        filter.
+   *                        filter.  It may be {@code null} or empty if there
+   *                        are no subAny components.
    * @param  subFinal       The subFinal component for this substring filter.
+   *                        It may be {@code null} if there is no subFinal
+   *                        component, but it must not be empty.
    *
    * @return  The created substring search filter.
    */
@@ -874,12 +889,16 @@ public final class Filter
                             @Nullable final String subFinal)
   {
     Validator.ensureNotNull(attributeName);
-    Validator.ensureTrue((subInitial != null) ||
-         ((subAny != null) && (subAny.length > 0)) ||
-         (subFinal != null));
+    Validator.ensureTrue(
+         (((subInitial != null) && (subInitial.length() > 0)) ||
+              ((subAny != null) && (subAny.length > 0) &&
+                   (subAny[0].length() > 0)) ||
+              ((subFinal != null) && (subFinal.length() > 0))),
+         "At least one substring filter component must be non-null and " +
+              "non-empty");
 
     final ASN1OctetString subInitialOS;
-    if (subInitial == null)
+    if ((subInitial == null) || subInitial.isEmpty())
     {
       subInitialOS = null;
     }
@@ -895,15 +914,34 @@ public final class Filter
     }
     else
     {
-      subAnyArray = new ASN1OctetString[subAny.length];
-      for (int i=0; i < subAny.length; i++)
+      if (subAny.length == 1)
       {
-        subAnyArray[i] = new ASN1OctetString(subAny[i]);
+        if (subAny[0].length() == 0)
+        {
+          subAnyArray = NO_SUB_ANY;
+        }
+        else
+        {
+          subAnyArray = new ASN1OctetString[]
+          {
+            new ASN1OctetString(subAny[0])
+          };
+        }
+      }
+      else
+      {
+        subAnyArray = new ASN1OctetString[subAny.length];
+        for (int i=0; i < subAny.length; i++)
+        {
+          Validator.ensureFalse(subAny[i].isEmpty(),
+               "Individual substring filter components must not be empty");
+          subAnyArray[i] = new ASN1OctetString(subAny[i]);
+        }
       }
     }
 
     final ASN1OctetString subFinalOS;
-    if (subFinal == null)
+    if ((subFinal == null) || subFinal.isEmpty())
     {
       subFinalOS = null;
     }
@@ -927,9 +965,14 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
+   *                        It may be {@code null} if there is no subInitial
+   *                        component, but it must not be empty.
    * @param  subAny         The set of subAny components for this substring
-   *                        filter.
+   *                        filter.  It may be {@code null} or empty if there
+   *                        are no subAny components.
    * @param  subFinal       The subFinal component for this substring filter.
+   *                        It may be {@code null} if there is no subFinal
+   *                        component, but it must not be empty.
    *
    * @return  The created substring search filter.
    */
@@ -941,12 +984,16 @@ public final class Filter
                             @Nullable final byte[] subFinal)
   {
     Validator.ensureNotNull(attributeName);
-    Validator.ensureTrue((subInitial != null) ||
-         ((subAny != null) && (subAny.length > 0)) ||
-         (subFinal != null));
+    Validator.ensureTrue(
+         (((subInitial != null) && (subInitial.length > 0)) ||
+              ((subAny != null) && (subAny.length > 0) &&
+                   (subAny[0].length > 0)) ||
+              ((subFinal != null) && (subFinal.length > 0))),
+         "At least one substring filter component must be non-null and " +
+              "non-empty");
 
     final ASN1OctetString subInitialOS;
-    if (subInitial == null)
+    if ((subInitial == null) || (subInitial.length == 0))
     {
       subInitialOS = null;
     }
@@ -962,15 +1009,34 @@ public final class Filter
     }
     else
     {
-      subAnyArray = new ASN1OctetString[subAny.length];
-      for (int i=0; i < subAny.length; i++)
+      if (subAny.length == 1)
       {
-        subAnyArray[i] = new ASN1OctetString(subAny[i]);
+        if (subAny[0].length == 0)
+        {
+          subAnyArray = NO_SUB_ANY;
+        }
+        else
+        {
+          subAnyArray = new ASN1OctetString[]
+          {
+            new ASN1OctetString(subAny[0])
+          };
+        }
+      }
+      else
+      {
+        subAnyArray = new ASN1OctetString[subAny.length];
+        for (int i=0; i < subAny.length; i++)
+        {
+          Validator.ensureTrue((subAny[i].length > 0),
+               "Individual substring filter components must not be empty");
+          subAnyArray[i] = new ASN1OctetString(subAny[i]);
+        }
       }
     }
 
     final ASN1OctetString subFinalOS;
-    if (subFinal == null)
+    if ((subFinal == null) || (subFinal.length == 0))
     {
       subFinalOS = null;
     }
@@ -994,9 +1060,14 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
+   *                        It may be {@code null} if there is no subInitial
+   *                        component, but it must not be empty.
    * @param  subAny         The set of subAny components for this substring
-   *                        filter.
+   *                        filter.  It may be {@code null} or empty if there
+   *                        are no subAny components.
    * @param  subFinal       The subFinal component for this substring filter.
+   *                        It may be {@code null} if there is no subFinal
+   *                        component, but it must not be empty.
    *
    * @return  The created substring search filter.
    */
@@ -1038,7 +1109,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1062,7 +1133,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1082,7 +1153,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1103,7 +1174,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subInitial     The subInitial component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1216,7 +1287,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subFinal       The subFinal component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1240,7 +1311,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subFinal       The subFinal component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1260,7 +1331,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subFinal       The subFinal component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
@@ -1280,7 +1351,7 @@ public final class Filter
    * @param  attributeName  The attribute name for this substring filter.  It
    *                        must not be {@code null}.
    * @param  subFinal       The subFinal component for this substring filter.
-   *                        It must not be {@code null}.
+   *                        It must not be {@code null} or empty.
    *
    * @return  The created substring search filter.
    */
