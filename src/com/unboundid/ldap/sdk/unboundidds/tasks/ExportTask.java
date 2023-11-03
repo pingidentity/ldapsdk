@@ -253,6 +253,15 @@ public final class ExportTask
 
 
   /**
+   * The name of the attribute used to specify the names or DNs of the
+   * post-LDIF-export task processors to invoke when the export completes.
+   */
+  @NotNull private static final String ATTR_POST_EXPORT_PROCESSOR =
+       "ds-task-export-post-export-processor";
+
+
+
+  /**
    * The name of the attribute used to indicate whether the exported LDIF should
    * include a signed hash of the contents.
    */
@@ -451,6 +460,18 @@ public final class ExportTask
 
 
   /**
+   * The task property that will be used for the set of post-LDIF-export task
+   * processors to invoke after the export complets.
+   */
+  @NotNull private static final TaskProperty PROPERTY_POST_EXPORT_PROCESSOR =
+       new TaskProperty(ATTR_POST_EXPORT_PROCESSOR,
+            INFO_DISPLAY_NAME_POST_EXPORT_PROCESSOR.get(),
+            INFO_DESCRIPTION_POST_EXPORT_PROCESSOR.get(),
+            String.class, false, true, true);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -6807534587873728959L;
@@ -493,6 +514,10 @@ public final class ExportTask
   // The set of filters to use to identify entries to include.
   @NotNull private final List<String> includeFilters;
 
+  // The set of post-LDIF-export task processors to invoke after the export
+  // completes.
+  @NotNull private final List<String> postExportTaskProcessors;
+
   // The backend ID of the backend to export.
   @NotNull private final String backendID;
 
@@ -531,6 +556,7 @@ public final class ExportTask
     includeAttributes = null;
     includeBranches = null;
     includeFilters = null;
+    postExportTaskProcessors = null;
     backendID = null;
     ldifFile = null;
   }
@@ -989,6 +1015,52 @@ public final class ExportTask
     {
       this.excludeAttributes = Collections.unmodifiableList(excludeAttributes);
     }
+
+    postExportTaskProcessors = new ArrayList<>();
+  }
+
+
+
+  /**
+   * Creates a new export task with the provided set of properties.
+   *
+   * @param  properties  The properties to use to create this LDIF export
+   *                     task.
+   */
+  public ExportTask(@NotNull final ExportTaskProperties properties)
+  {
+    super(properties.getTaskID(), EXPORT_TASK_CLASS,
+         properties.getScheduledStartTime(), properties.getDependencyIDs(),
+         properties.getFailedDependencyAction(), properties.getNotifyOnStart(),
+         properties.getNotifyOnCompletion(), properties.getNotifyOnSuccess(),
+         properties.getNotifyOnError(), properties.getAlertOnStart(),
+         properties.getAlertOnSuccess(), properties.getAlertOnError());
+
+    appendToLDIF = properties.appendToLDIF();
+    compress = properties.compress();
+    encrypt = properties.encrypt();
+    sign = properties.sign();
+    wrapColumn = properties.getWrapColumn();
+    maxMegabytesPerSecond = properties.getMaxMegabytesPerSecond();
+    excludeAttributes = Collections.unmodifiableList(
+         new ArrayList<>(properties.getExcludeAttributes()));
+    excludeBranches = Collections.unmodifiableList(
+         new ArrayList<>(properties.getExcludeBranches()));
+    excludeFilters = Collections.unmodifiableList(
+         new ArrayList<>(properties.getExcludeFilters()));
+    includeAttributes = Collections.unmodifiableList(
+         new ArrayList<>(properties.getIncludeAttributes()));
+    includeBranches = Collections.unmodifiableList(
+         new ArrayList<>(properties.getIncludeBranches()));
+    includeFilters = Collections.unmodifiableList(
+         new ArrayList<>(properties.getIncludeFilters()));
+    postExportTaskProcessors = Collections.unmodifiableList(
+         new ArrayList<>(properties.getPostExportTaskProcessors()));
+    backendID = properties.getBackendID();
+    encryptionPassphraseFile = properties.getEncryptionPassphraseFile();
+    encryptionSettingsDefinitionID =
+         properties.getEncryptionSettingsDefinitionID();
+    ldifFile = properties.getLDIFFile();
   }
 
 
@@ -1099,6 +1171,12 @@ public final class ExportTask
     // Get the maximum write rate in megabytes per second.  It may be absent.
     maxMegabytesPerSecond =
          entry.getAttributeValueAsInteger(ATTR_MAX_MEGABYTES_PER_SECOND);
+
+
+    // Get the names or DNs of the post-LDIF-export task processors that should
+    // be invoked.
+    postExportTaskProcessors =
+         parseStringList(entry, ATTR_POST_EXPORT_PROCESSOR);
   }
 
 
@@ -1134,6 +1212,7 @@ public final class ExportTask
     String[] iA        = StaticUtils.NO_STRINGS;
     String[] iB        = StaticUtils.NO_STRINGS;
     String[] iF        = StaticUtils.NO_STRINGS;
+    String[] pEP       = StaticUtils.NO_STRINGS;
 
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
@@ -1215,6 +1294,10 @@ public final class ExportTask
           maxMB = maxMBLong.intValue();
         }
       }
+      else if (attrName.equalsIgnoreCase(ATTR_POST_EXPORT_PROCESSOR))
+      {
+        pEP = parseStrings(p, values, pEP);
+      }
     }
 
     if (b == null)
@@ -1245,6 +1328,7 @@ public final class ExportTask
     encryptionSettingsDefinitionID = encID;
     sign = s;
     maxMegabytesPerSecond = maxMB;
+    postExportTaskProcessors = Collections.unmodifiableList(Arrays.asList(pEP));
   }
 
 
@@ -1516,6 +1600,22 @@ public final class ExportTask
 
 
   /**
+   * Retrieves a list containing the names or DNs of any post-LDIF-export task
+   * processors that should be invoked for the export.
+   *
+   * @return  A list containing the names or DNs of any post-LDIF-export task
+   *          processors that should be invoked for the export, or an empty list
+   *          if no post-LDIF-export task processors should be invoked.
+   */
+  @NotNull()
+  public List<String> getPostExportTaskProcessors()
+  {
+    return postExportTaskProcessors;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1596,6 +1696,12 @@ public final class ExportTask
            String.valueOf(maxMegabytesPerSecond)));
     }
 
+    if (! postExportTaskProcessors.isEmpty())
+    {
+      attrs.add(new Attribute(ATTR_POST_EXPORT_PROCESSOR,
+           postExportTaskProcessors));
+    }
+
     return attrs;
   }
 
@@ -1624,7 +1730,8 @@ public final class ExportTask
          PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
          PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
          PROPERTY_SIGN,
-         PROPERTY_MAX_MEGABYTES_PER_SECOND);
+         PROPERTY_MAX_MEGABYTES_PER_SECOND,
+         PROPERTY_POST_EXPORT_PROCESSOR);
 
     return Collections.unmodifiableList(propList);
   }
@@ -1709,6 +1816,9 @@ public final class ExportTask
       props.put(PROPERTY_MAX_MEGABYTES_PER_SECOND,
          Collections.<Object>singletonList(maxMegabytesPerSecond.longValue()));
     }
+
+    props.put(PROPERTY_POST_EXPORT_PROCESSOR,
+         Collections.<Object>unmodifiableList(postExportTaskProcessors));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

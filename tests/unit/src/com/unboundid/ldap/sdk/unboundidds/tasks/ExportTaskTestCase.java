@@ -118,6 +118,9 @@ public class ExportTaskTestCase
 
     assertNull(t.getMaxMegabytesPerSecond());
 
+    assertNotNull(t.getPostExportTaskProcessors());
+    assertTrue(t.getPostExportTaskProcessors().isEmpty());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses().get(0),
@@ -241,6 +244,9 @@ public class ExportTaskTestCase
 
     assertNull(t.getMaxMegabytesPerSecond());
 
+    assertNotNull(t.getPostExportTaskProcessors());
+    assertTrue(t.getPostExportTaskProcessors().isEmpty());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses().get(0),
@@ -338,6 +344,9 @@ public class ExportTaskTestCase
     assertNotNull(t.getMaxMegabytesPerSecond());
     assertEquals(t.getMaxMegabytesPerSecond().intValue(), 100);
 
+    assertNotNull(t.getPostExportTaskProcessors());
+    assertTrue(t.getPostExportTaskProcessors().isEmpty());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses().get(0),
@@ -423,6 +432,9 @@ public class ExportTaskTestCase
     assertTrue(t.sign());
 
     assertNull(t.getMaxMegabytesPerSecond());
+
+    assertNotNull(t.getPostExportTaskProcessors());
+    assertTrue(t.getPostExportTaskProcessors().isEmpty());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -537,6 +549,7 @@ public class ExportTaskTestCase
                   "ds-task-export-encryption-settings-passphrase-file: pw.txt",
                   "ds-task-export-encryption-settings-definition-id: def",
                   "ds-task-export-max-megabytes-per-second: 100",
+                  "ds-task-export-post-export-processor: Upload to S3",
                   "ds-task-export-sign-hash: true",
                   "ds-task-scheduled-start-time: 20080101000000Z",
                   "ds-task-actual-start-time: 20080101000000Z",
@@ -785,6 +798,10 @@ public class ExportTaskTestCase
       {
         properties.put(p, Arrays.<Object>asList(Long.valueOf(100)));
       }
+      else if (name.equals("ds-task-export-post-export-processor"))
+      {
+        properties.put(p, Arrays.<Object>asList("Upload to S3"));
+      }
       else if (name.equals("ds-task-export-include-attribute"))
       {
         properties.put(p, Arrays.<Object>asList("cn", "sn"));
@@ -861,6 +878,10 @@ public class ExportTaskTestCase
 
     assertNotNull(t.getMaxMegabytesPerSecond());
     assertEquals(t.getMaxMegabytesPerSecond().intValue(), 100);
+
+    assertNotNull(t.getPostExportTaskProcessors());
+    assertEquals(t.getPostExportTaskProcessors(),
+         Arrays.asList("Upload to S3"));
 
     Map<TaskProperty,List<Object>> props = t.getTaskPropertyValues();
     for (TaskProperty p : Task.getCommonTaskProperties())
