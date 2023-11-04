@@ -294,6 +294,8 @@ public final class TimestampArgumentTestCase
     assertNotNull(TimestampArgument.parseTimestamp("201601011234Z"));
     assertNotNull(TimestampArgument.parseTimestamp("2016010112Z"));
 
+    assertNotNull(TimestampArgument.parseTimestamp("2016-01-01T12:34:56.789Z"));
+
     assertNotNull(TimestampArgument.parseTimestamp("20160101123456.789"));
     assertNotNull(TimestampArgument.parseTimestamp("20160101123456"));
     assertNotNull(TimestampArgument.parseTimestamp("201601011234"));

@@ -63,6 +63,7 @@ import static com.unboundid.util.args.ArgsMessages.*;
  * timestamp values.  Values may be provided in any of the following formats:
  * <UL>
  *   <LI>Any valid generalized time format.</LI>
+ *   <LI>Any valid ISO 8601 timestamp in the format described in RFC 3339.</LI>
  *   <LI>A local time zone timestamp in the format YYYYMMDDhhmmss.uuu</LI>
  *   <LI>A local time zone timestamp in the format YYYYMMDDhhmmss</LI>
  *   <LI>A local time zone timestamp in the format YYYYMMDDhhmm</LI>
@@ -367,6 +368,18 @@ public final class TimestampArgument
     {
       // This is fine.  It just means the value isn't in the generalized time
       // format.
+    }
+
+
+    // First, try to parse the value as a timestamp formatted in the ISO 8601
+    // format specified in RFC 3339.
+    try
+    {
+      return StaticUtils.decodeRFC3339Time(s);
+    }
+    catch (final Exception e)
+    {
+      // This is fine.  It just means the value isn't in the RFC 3339 format.
     }
 
 
