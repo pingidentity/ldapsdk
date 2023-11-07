@@ -591,8 +591,7 @@ public final class JSONBuffer
 
 
   /**
-   * Appends the provided JSON value.  This will not include a field name, so it
-   * should only be used for elements in an array.
+   * Appends a field with the given name and value.
    *
    * @param  fieldName  The name of the field.
    * @param  value      The value to append.
@@ -601,6 +600,18 @@ public final class JSONBuffer
                           @NotNull final JSONValue value)
   {
     value.appendToJSONBuffer(fieldName, this);
+  }
+
+
+
+  /**
+   * Appends the provided JSON field.
+   *
+   * @param  field  The JSON field to be appended.
+   */
+  public void appendField(@NotNull final JSONField field)
+  {
+    appendValue(field.getName(), field.getValue());
   }
 
 

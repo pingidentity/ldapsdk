@@ -155,6 +155,8 @@ public final class JSONBufferTestCase
     buffer.appendString("stringValue", "abcdefg");
     buffer.appendValue("jsonStringValue", new JSONString("gfedcba"));
 
+    buffer.appendField(new JSONField("fieldValue", "fieldValueString"));
+
     buffer.endObject();
 
     final String expected = "{ \"trueValue\":true, \"falseValue\":false, " +
@@ -162,7 +164,8 @@ public final class JSONBufferTestCase
          "\"jsonNullValue\":null, \"intValue\":123, \"longValue\":456, " +
          "\"stringNumberValue\":123.456, \"bigDecimalNumberValue\":456.789, " +
          "\"jsonNumberValue\":9876, \"stringValue\":\"abcdefg\", " +
-         "\"jsonStringValue\":\"gfedcba\" }";
+         "\"jsonStringValue\":\"gfedcba\", " +
+         "\"fieldValue\":\"fieldValueString\" }";
     assertEquals(buffer.toString(), expected);
 
     assertEquals(buffer.length(), expected.length());
@@ -187,7 +190,8 @@ public final class JSONBufferTestCase
               new JSONField("bigDecimalNumberValue", new JSONNumber("456.789")),
               new JSONField("jsonNumberValue", new JSONNumber(9876)),
               new JSONField("stringValue", "abcdefg"),
-              new JSONField("jsonStringValue", "gfedcba")));
+              new JSONField("jsonStringValue", "gfedcba"),
+              new JSONField("fieldValue", "fieldValueString")));
 
     buffer.clear();
     assertEquals(buffer.length(), 0);
@@ -228,6 +232,8 @@ public final class JSONBufferTestCase
     buffer.appendString("stringValue", "abcdefg");
     buffer.appendValue("jsonStringValue", new JSONString("gfedcba"));
 
+    buffer.appendField(new JSONField("fieldValue", "fieldValueString"));
+
     buffer.endObject();
 
     final String expected =
@@ -242,7 +248,8 @@ public final class JSONBufferTestCase
          "  \"bigDecimalNumberValue\":456.789," + StaticUtils.EOL +
          "  \"jsonNumberValue\":9876," + StaticUtils.EOL +
          "  \"stringValue\":\"abcdefg\"," + StaticUtils.EOL +
-         "  \"jsonStringValue\":\"gfedcba\" }";
+         "  \"jsonStringValue\":\"gfedcba\"," + StaticUtils.EOL +
+         "  \"fieldValue\":\"fieldValueString\" }";
     assertEquals(buffer.toString(), expected);
 
     assertEquals(buffer.length(), expected.length());
@@ -268,7 +275,8 @@ public final class JSONBufferTestCase
               new JSONField("bigDecimalNumberValue", new JSONNumber("456.789")),
               new JSONField("jsonNumberValue", new JSONNumber(9876)),
               new JSONField("stringValue", "abcdefg"),
-              new JSONField("jsonStringValue", "gfedcba")));
+              new JSONField("jsonStringValue", "gfedcba"),
+              new JSONField("fieldValue", "fieldValueString")));
 
     buffer.clear();
     assertEquals(buffer.length(), 0);
