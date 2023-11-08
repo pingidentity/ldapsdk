@@ -39,6 +39,22 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added new BinarySizeUnit and DecimalSizeUnit enums that can be used when working
+                  with data sizes in a variety of units, including bytes, kilobytes, megabytes,
+                  gigabytes, terabytes, petabytes, exabytes, zettabytes, and yottabytes.  These
+                  enums provide methods for determining the number of bytes in a specified number
+                  of instances of the given unit, determining the number of instances of a unit
+                  represented by a given number of bytes, and generating a human-readable string
+                  representation of a given number of bytes using the unit deemed most appropriate.
+                  The BinarySizeUnit enum assumes that each unit is 1024 times larger than the next
+                  smaller unit (e.g., so one kilobyte is 1024 bytes, one megabyte is 1024
+                  kilobytes, etc.), while the DecimalSizeUnit enum assumes that each unit is 1000
+                  times larger than the next smaller unit (e.g., so one kilobyte is 1000 bytes, one
+                  megabyte is 1000 kilobytes, etc.).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated client-side support for the LDIF export administrative task in the Ping
                   Identity Directory Server to allow requesting that the server invoke one or more
                   post-LDIF-export task processors after the data is successfully exported.
