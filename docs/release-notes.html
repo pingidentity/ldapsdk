@@ -27,6 +27,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the logic that the LDAP SDK uses in the in-memory directory server and
+                  the ldifsearch tool to pare matching entries based on a set of requested
+                  attributes in the in-memory.  If an entry included an attribute with an invalid
+                  name, then the logic used to parse an attribute description into the base
+                  attribute type name and a set of attribute options would result in a null pointer
+                  exception.  It now uses more lenient logic for parsing attribute descriptions,
+                  and it can handle malformed attribute descriptions in a more graceful manner.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the TimestampArgument class to allow it to accept timestamps in the ISO
                   8601 format described in RFC 3339.
                   <br><br>

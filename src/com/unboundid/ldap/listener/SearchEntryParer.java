@@ -216,19 +216,12 @@ public final class SearchEntryParer
    *
    * @return  An {@code ObjectPair} in which the first element is the attribute
    *          type name and the second is the list of options (or an empty
-   *          list if there are no options).  Alternately, a value of
-   *          {@code null} may be returned if the provided string does not
-   *          represent a valid attribute type description.
+   *          list if there are no options).
    */
   @NotNull()
   private static ObjectPair<String,List<String>> getNameWithOptions(
                                                       @NotNull final String s)
   {
-    if (! Attribute.nameIsValid(s, true))
-    {
-      return null;
-    }
-
     final String l = StaticUtils.toLowerCase(s);
 
     int semicolonPos = l.indexOf(';');
