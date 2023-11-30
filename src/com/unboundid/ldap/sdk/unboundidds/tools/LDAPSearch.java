@@ -1110,6 +1110,8 @@ public final class LDAPSearch
          INFO_PLACEHOLDER_AUTHZID.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PROXY_AS.get());
     proxyAs.addLongIdentifier("proxy-as", true);
+    proxyAs.addLongIdentifier("proxyV2As", true);
+    proxyAs.addLongIdentifier("proxy-v2-as", true);
     proxyAs.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyAs);
 
@@ -2196,6 +2198,30 @@ public final class LDAPSearch
     else
     {
       derefPolicy = DereferencePolicy.NEVER;
+    }
+
+
+    // If the --proxyAs argument was provided, then make sure its value is
+    // properly formatted.
+    if (proxyAs.isPresent())
+    {
+      final String proxyAsValue = proxyAs.getValue();
+      final String lowerProxyAsValue = StaticUtils.toLowerCase(proxyAsValue);
+      if (lowerProxyAsValue.startsWith("dn:"))
+      {
+        final String dnString = proxyAsValue.substring(3);
+        if (! DN.isValidDN(dnString))
+        {
+          throw new ArgumentException(ERR_LDAPSEARCH_PROXY_AS_DN_NOT_DN.get(
+               proxyAs.getIdentifierString(), dnString));
+        }
+      }
+      else if (! lowerProxyAsValue.startsWith("u:"))
+      {
+        throw new ArgumentException(
+             ERR_LDAPSEARCH_PROXY_AS_VALUE_MISSING_PREFIX.get(
+                  proxyAs.getIdentifierString()));
+      }
     }
 
 
@@ -3442,8 +3468,26 @@ public final class LDAPSearch
 
     if (proxyAs.isPresent())
     {
-      controls.add(new ProxiedAuthorizationV2RequestControl(
-           proxyAs.getValue()));
+      final String proxyAsValue = proxyAs.getValue();
+      final String lowerProxyAsValue = StaticUtils.toLowerCase(proxyAsValue);
+      if (lowerProxyAsValue.startsWith("dn:"))
+      {
+        final String dnString = proxyAsValue.substring(3);
+        if (! DN.isValidDN(dnString))
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_LDAPSEARCH_PROXY_AS_DN_NOT_DN.get(
+                    proxyAs.getIdentifierString(), dnString));
+        }
+      }
+      else if (! lowerProxyAsValue.startsWith("u:"))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_LDAPSEARCH_PROXY_AS_VALUE_MISSING_PREFIX.get(
+                  proxyAs.getIdentifierString()));
+      }
+
+      controls.add(new ProxiedAuthorizationV2RequestControl(proxyAsValue));
     }
 
     if (proxyV1As.isPresent())

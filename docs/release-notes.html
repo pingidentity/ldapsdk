@@ -20,6 +20,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapsearch and ldapmodify command-line tools to provide better
+                  validation for the value of the --proxyAs argument.  The tools will now reject
+                  attempts to use the argument with a value that doesn't start with either "dn:" or
+                  "u:", and they will also reject attempts to use a value that starts with "dn:"
+                  but is not followed by a valid LDAP DN.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the Filter methods for creating substring filters to better support empty
                   components.  In LDAP filters, filters are transmitted using a binary encoding,
                   and substring components may be absent but not empty.  However, because

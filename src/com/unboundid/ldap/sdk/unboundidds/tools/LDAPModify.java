@@ -1574,6 +1574,30 @@ public final class LDAPModify
                   rpID, bsIDs));
       }
     }
+
+
+    // If the --proxyAs argument was provided, then make sure its value is
+    // properly formatted.
+    if (proxyAs.isPresent())
+    {
+      final String proxyAsValue = proxyAs.getValue();
+      final String lowerProxyAsValue = StaticUtils.toLowerCase(proxyAsValue);
+      if (lowerProxyAsValue.startsWith("dn:"))
+      {
+        final String dnString = proxyAsValue.substring(3);
+        if (! DN.isValidDN(dnString))
+        {
+          throw new ArgumentException(ERR_LDAPMODIFY_PROXY_AS_DN_NOT_DN.get(
+               proxyAs.getIdentifierString(), dnString));
+        }
+      }
+      else if (! lowerProxyAsValue.startsWith("u:"))
+      {
+        throw new ArgumentException(
+             ERR_LDAPMODIFY_PROXY_AS_VALUE_MISSING_PREFIX.get(
+                  proxyAs.getIdentifierString()));
+      }
+    }
   }
 
 

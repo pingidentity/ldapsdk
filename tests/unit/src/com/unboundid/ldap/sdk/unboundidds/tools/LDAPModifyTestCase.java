@@ -3449,4 +3449,65 @@ public final class LDAPModifyTestCase
               "--ldifFile", ldifFile.getAbsolutePath()),
          ResultCode.PARAM_ERROR);
   }
+
+
+
+  /**
+   * Tests to ensure that the tool rejects attempts to use the --proxyAs
+   * argument with invalid values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInvalidProxyAsValues()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo");
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--proxyAs", "missing-prefix",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--proxyAs", "i:invalid-prefix",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--proxyAs", "dn:not-a-dn",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--proxyAs", "dn:uid=test.user,ou=People,dc=example,dc=com",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.SUCCESS);
+
+    assertEquals(
+         LDAPModify.main((InputStream) null, null, null,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--proxyAs", "u:test.user",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.SUCCESS);
+  }
 }

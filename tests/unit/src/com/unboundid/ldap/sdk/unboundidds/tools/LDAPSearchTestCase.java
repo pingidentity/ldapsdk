@@ -2770,4 +2770,67 @@ public final class LDAPSearchTestCase
               "(objectClass=*)"),
          ResultCode.PARAM_ERROR);
   }
+
+
+
+  /**
+   * Tests to ensure that the tool rejects attempts to use the --proxyAs
+   * argument with invalid values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInvalidProxyAsValues()
+         throws Exception
+  {
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--proxyAs", "missing-prefix",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--proxyAs", "i:invalid-prefix",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--proxyAs", "dn:not-a-dn",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--proxyAs", "dn:uid=aaron.adams,ou=People,dc=example,dc=com",
+              "(objectClass=*)"),
+         ResultCode.SUCCESS);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "",
+              "--scope", "base",
+              "--proxyAs", "u:aaron.adams",
+              "(objectClass=*)"),
+         ResultCode.SUCCESS);
+  }
 }
