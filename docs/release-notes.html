@@ -14,6 +14,12 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Note that this is the last release that will support Java 7.  The next release
+                  (expected to have a version number of 7.0.0) will only support Java 8 and later.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the Filter methods for creating substring filters to better support empty
                   components.  In LDAP filters, filters are transmitted using a binary encoding,
                   and substring components may be absent but not empty.  However, because
