@@ -160,7 +160,7 @@
 
     <!-- Compile the Ant task used to generate the messages source files. -->
     <javac srcdir="${messages.src.dir}" destdir="${messages.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">
@@ -227,15 +227,15 @@
     <mkdir dir="${classes.dir}" />
 
     <javac srcdir="${messages.gensrc.dir}" destdir="${classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="false">
       <compilerarg value="-Xlint:all" />
     </javac>
 
-    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.7"
-           target="1.7" deprecation="true" fork="true"
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="8"
+           target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="false">
@@ -267,7 +267,7 @@
           depends="compile">
     <mkdir dir="${gvmnir.output.dir}/native-image" />
     <javac srcdir="${gvmnir.src.dir}" destdir="${gvmnir.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">
@@ -432,7 +432,7 @@
         <attribute name="Bundle-Vendor" value="Ping Identity" />
         <attribute name="Bundle-Version" value="${MMP}" />
         <attribute name="Bundle-RequiredExecutionEnvironment"
-                   value="JavaSE-1.7" />
+                   value="JavaSE-1.8" />
         <attribute name="Bundle-Category" value="communication,network" />
         <attribute name="Bundle-DocURL"
                    value="${LDAP_SDK_HOME_URL}" />
@@ -445,7 +445,7 @@
       <metainf dir="${gvmnir.output.dir}" />
     </jar>
 
-    <javadoc destdir="${sdk.package.dir}/docs/javadoc" source="1.7"
+    <javadoc destdir="${sdk.package.dir}/docs/javadoc" source="8"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
              windowtitle="UnboundID LDAP SDK for Java ${MMPQ}"
@@ -513,7 +513,7 @@
   <target name="define-copydocs">
     <mkdir dir="${copydocs.classes.dir}" />
     <javac srcdir="${copydocs.src.dir}" destdir="${copydocs.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">
@@ -534,7 +534,7 @@
   <target name="define-toolusage">
     <mkdir dir="${toolusage.classes.dir}" />
     <javac srcdir="${toolusage.src.dir}" destdir="${toolusage.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">
@@ -639,8 +639,8 @@
     <delete dir="${sc.classes.dir}" />
     <mkdir dir="${sc.classes.dir}" />
 
-    <javac srcdir="${sc.src.dir}" destdir="${sc.classes.dir}" source="1.7"
-           target="1.7" deprecation="true" fork="true"
+    <javac srcdir="${sc.src.dir}" destdir="${sc.classes.dir}" source="8"
+           target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">
@@ -677,7 +677,7 @@
   <target name="repository-info" unless="repository-info.revision">
     <mkdir dir="${repository-info.classes.dir}" />
     <javac srcdir="${repository-info.src.dir}"
-           destdir="${repository-info.classes.dir}" source="1.7" target="1.7"
+           destdir="${repository-info.classes.dir}" source="8" target="8"
            deprecation="true" fork="true" memoryInitialSize="${MEM}"
            memoryMaximumSize="${MEM}" optimize="true" debug="on"
            debuglevel="lines,source,vars" includeAntRuntime="true">
@@ -749,7 +749,7 @@
       </fileset>
     </copy>
 
-    <javadoc destdir="${package.dir}/www/javadoc" source="1.7"
+    <javadoc destdir="${package.dir}/www/javadoc" source="8"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
              windowtitle="UnboundID LDAP SDK for Java ${MMPQ}"
@@ -859,7 +859,7 @@
     <!-- Compile the unit tests -->
     <mkdir dir="${unit.classes.dir}" />
     <javac srcdir="${unit.src.dir}" destdir="${unit.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="false">
@@ -877,7 +877,7 @@
     <mkdir dir="${testng.fileset.classes.dir}" />
     <javac srcdir="${testng.fileset.src.dir}"
            destdir="${testng.fileset.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
+           source="8" target="8" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">

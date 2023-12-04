@@ -14,7 +14,7 @@ purposes, the software is also available under the terms of the GNU GPLv2 or
 LGPLv2.1 licenses, or the not-open-source-but-still-free-to-use UnboundID Free
 Use License.
 
-The LDAP SDK does not have any third-party dependencies beyond a Java 7 or
+The LDAP SDK does not have any third-party dependencies beyond a Java 8 or
 higher Java Runtime Environment, so a single jar file is all you need to add
 top-notch LDAP support to your Java application. It can also be used in
 conjunction with most other JVM-based languages, as well as on the Android
@@ -73,7 +73,7 @@ Some of the key advantages of the UnboundID LDAP SDK for Java include:
   content stored in an LDAP directory server.
 
 * The LDAP SDK is provided as a single self-contained jar file with no
-  dependencies on anything outside of Java SE version 7 or later.
+  dependencies on anything outside of Java SE version 8 or later.
 
 
 

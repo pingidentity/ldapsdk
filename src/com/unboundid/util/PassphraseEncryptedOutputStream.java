@@ -64,14 +64,14 @@ import javax.crypto.CipherOutputStream;
  * necessary support for that encryption).  The current implementation uses a
  * baseline of 128-bit AES/CBC/PKCS5Padding using a key generated from the
  * provided passphrase using the PBKDF2WithHmacSHA1 key factory algorithm
- * (unfortunately, PBKDF2WithHmacSHA256 isn't available on Java 7, which is
- * still a supported Java version for the LDAP SDK) with 16,384 iterations and a
- * 128-bit (16-byte) salt.  However, if the  output stream is configured to use
- * strong encryption, then it will attempt to use 256-bit AES/CBC/PKCS5Padding
- * with a PBKDF2WithHmacSHA512 key factory algorithm with 131,072 iterations and
- * a 128-bit salt.  If the JVM does not support this level of encryption, then
- * it will fall back to a key size of 128 bits and a key factory algorithm of
- * PBKDF2WithHmacSHA1.
+ * (unfortunately, PBKDF2WithHmacSHA256 isn't available on Java 7, which was
+ * still a supported Java version for the LDAP SDK at the time this class was
+ * created) with 16,384 iterations and a 128-bit (16-byte) salt.  However, if
+ * the  output stream is configured to use strong encryption, then it will
+ * attempt to use 256-bit AES/CBC/PKCS5Padding with a PBKDF2WithHmacSHA512 key
+ * factory algorithm with 131,072 iterations and a 128-bit salt.  If the JVM
+ * does not support this level of encryption, then it will fall back to a key
+ * size of 128 bits and a key factory algorithm of PBKDF2WithHmacSHA1.
  * <BR><BR>
  * Note that the use of strong encryption may require special configuration for
  * some versions of the JVM (for example, installation of JCE unlimited strength
