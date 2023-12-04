@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -6,7 +7,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,78 +15,82 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Language" content="en-us">
 <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
 <title>Extension Type</title>
 </head>
 
 <body>
-<h2><a name="fileset">Extension</a></h2>
-<p>Utility type that represents either an available "Optional Package"
- (formerly known as "Standard Extension") as described in the manifest
- of a JAR file, or the requirement for such an optional package.</p>
-<p>Note that this type
-works with extensions as defined by the "Optional Package" specification.
- For more information about optional packages, see the document
-<em>Optional Package Versioning</em> in the documentation bundle for your
-Java2 Standard Edition package, in file
-<code>guide/extensions/versioning.html</code> or the online
-<a href="http://docs.oracle.com/javase/7/docs/technotes/guides/versioning/spec/versioning2.html#wp90779">
-Package Versioning documentation.</p>
+<h2 id="fileset">Extension</h2>
+<p>Utility type that represents either an available "Optional Package" (formerly known as "Standard
+Extension") as described in the manifest of a JAR file, or the requirement for such an optional
+package.</p>
+<p>Note that this type works with extensions as defined by the "Optional Package" specification.
+For more information about optional packages, see the document <em>Optional Package Versioning</em>
+in the documentation bundle for your Java Standard Edition package, in
+file <samp>guide/extensions/versioning.html</samp> or the
+online <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/versioning/spec/versioning2.html#wp90779"
+target="_top">Package Versioning documentation.</a></p>
 
 <h3>Attributes</h3>
-<p>The extension type supports the following attributes</a>:
-</p>
+<p>The extension type supports the following attributes:</p>
 
-<table border="1" cellpadding="2" cellspacing="0">
+<table class="attr">
   <tr>
-    <td valign="top"><b>Attribute</b></td>
-    <td valign="top"><b>Description</b></td>
-    <td align="center" valign="top"><b>Required</b></td>
+    <th scope="col">Attribute</th>
+    <th scope="col">Description</th>
+    <th scope="col">Required</th>
   </tr>
   <tr>
-    <td valign="top">extensionName</td>
-    <td valign="top">The name of extension</td>
-    <td valign="top" align="center">yes</td>
+    <td>extensionName</td>
+    <td>The name of extension</td>
+    <td>yes</td>
   </tr>
   <tr>
-    <td valign="top">specificationVersion</td>
-    <td valign="top">The version of extension specification (Must be in
-    dewey decimal aka dotted decimal notation. 3.2.4)</td>
-    <td valign="top" align="center">no</td>
+    <td>specificationVersion</td>
+    <td>The version of extension specification (must be in dewey decimal aka dotted decimal
+      notation, eg <q>3.2.4</q>)</td>
+    <td>no</td>
   </tr>
   <tr>
-    <td valign="top">specificationVendor</td>
-    <td valign="top">The specification vendor</td>
-    <td valign="top" align="center">no</td>
+    <td>specificationVendor</td>
+    <td>The specification vendor</td>
+    <td>no</td>
   </tr>
   <tr>
-    <td valign="top">implementationVersion</td>
-    <td valign="top">The version of extension implementation (Must be in
-    dewey decimal aka dotted decimal notation. 3.2.4)</td>
-    <td valign="top" align="center">no</td>
+    <td>implementationVersion</td>
+    <td>The version of extension implementation (must be in dewey decimal aka dotted decimal
+      notation, eg <q>3.2.4</q>)</td>
+    <td>no</td>
   </tr>
   <tr>
-    <td valign="top">implementationVendor</td>
-    <td valign="top">The implementation vendor</td>
-    <td valign="top" align="center">no</td>
+    <td>implementationVendor</td>
+    <td>The implementation vendor</td>
+    <td>no</td>
   </tr>
   <tr>
-    <td valign="top">implementationVendorId</td>
-    <td valign="top">The implementation vendor ID</td>
-    <td valign="top" align="center">no</td>
+    <td>implementationVendorId</td>
+    <td>The implementation vendor ID</td>
+    <td>no</td>
   </tr>
   <tr>
-    <td valign="top">implementationURL</td>
-    <td valign="top">The url from which to retrieve extension.</td>
-    <td valign="top" align="center">no</td>
+    <td>implementationURL</td>
+    <td>The url from which to retrieve extension.</td>
+    <td>no</td>
+  </tr>
+  <tr>
+    <td>refid</td>
+    <td>Makes this <code>extension</code>
+      a <a href="../using.html#references">reference</a> to
+      an <code>extension</code> defined elsewhere. If specified no other
+      attributes or nested elements are allowed.</td>
+    <td>No</td>
   </tr>
 </table>
 
 <h4>Examples</h4>
-<blockquote><pre>
+<pre>
 &lt;extension id=&quot;e1&quot;
     extensionName=&quot;MyExtensions&quot;
     specificationVersion=&quot;1.0&quot;
@@ -93,22 +98,19 @@ Package Versioning documentation.</p>
     implementationVendorID=&quot;vv&quot;
     implementationVendor=&quot;Apache&quot;
     implementationVersion=&quot;2.0&quot;
-    implementationURL=&quot;http://somewhere.com/myExt.jar&quot;/&gt;
-</pre></blockquote>
+    implementationURL=&quot;https://somewhere.com/myExt.jar&quot;/&gt;
+</pre>
 
-<p>Fully specific extension object.</p>
+<p>Fully specified extension object.</p>
 
-<blockquote><pre>
+<pre>
 &lt;extension id=&quot;e1&quot;
     extensionName=&quot;MyExtensions&quot;
     specificationVersion=&quot;1.0&quot;
     specificationVendor=&quot;Peter Donald&quot;/&gt;
-</pre></blockquote>
+</pre>
 
-<p>Extension object that just species the specification details.</p>
-
-
+<p>Extension object that just specifies the specification details.</p>
 
 </body>
 </html>
-

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -6,7 +7,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,9 +15,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Language" content="en-us">
 <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
 <title>ExtensionSet Type</title>
 </head>
@@ -24,32 +24,34 @@
 <body>
 <h2><a>ExtensionSet</a></h2>
 <p>Utility type that represents a set of Extensions.</p>
-<p>Note that this type
-works with extensions as defined by the "Optional Package" specification.
- For more information about optional packages, see the document
-<em>Optional Package Versioning</em> in the documentation bundle for your
-Java2 Standard Edition package, in file
-<code>guide/extensions/versioning.html</code> or online at
-<a href="http://docs.oracle.com/javase/7/docs/technotes/guides/versioning/spec/versioning2.html#wp90779">
-Package Versioning documentation.</p>
+<p>Note that this type works with extensions as defined by the "Optional Package" specification.
+For more information about optional packages, see the document <em>Optional Package Versioning</em>
+in the documentation bundle for your Java Standard Edition package, in
+file <samp>guide/extensions/versioning.html</samp> or online
+at <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/versioning/spec/versioning2.html#wp90779"
+target="_top">Package Versioning documentation.</a></p>
 
-<h3>Nested Elements</h3>
+<p>The only supported attribute is <code>refid</code> which makes this
+  <code>extensionset</code>
+  a <a href="../using.html#references">reference</a> to
+  an <code>extensionset</code> defined elsewhere. If specified no
+  other attributes or nested elements are allowed.</p>
+
+<h3>Nested elements</h3>
 
 <h4>extension</h4>
 <p><a href="extension.html">Extension</a> object to add to set.</p>
 
 <h4>fileset</h4>
- <p><a href="../Types/fileset.html">FileSet</a>s all files contained
- contained within set that are jars and implement an extension are added
- to extension set.</p>
+<p><a href="fileset.html">FileSet</a>s all files contained contained within set that are jars and
+implement an extension are added to extension set.</p>
 
-<h4>LibFileSet</h4>
- <p>All files contained contained within set that are jars and implement 
- an extension are added to extension set. However the extension information 
- may be modified by attributes of libfileset</p>
+<h4>libfileset</h4>
+<p>All files contained contained within set that are jars and implement an extension are added to
+extension set. However, the extension information may be modified by attributes of libfileset.</p>
 
 <h4>Examples</h4>
-<blockquote><pre>
+<pre>
 &lt;extension id=&quot;e1&quot;
     extensionName=&quot;MyExtensions&quot;
     specificationVersion=&quot;1.0&quot;
@@ -57,7 +59,7 @@ Package Versioning documentation.</p>
     implementationVendorID=&quot;vv&quot;
     implementationVendor=&quot;Apache&quot;
     implementationVersion=&quot;2.0&quot;
-    implementationURL=&quot;http://somewhere.com/myExt.jar&quot;/&gt;
+    implementationURL=&quot;https://somewhere.com/myExt.jar&quot;/&gt;
 
 &lt;libfileset id="lfs"
                includeUrl="true"
@@ -73,11 +75,7 @@ Package Versioning documentation.</p>
   &lt;libfileset refid="lfs"/&gt;
   &lt;extension refid="e1"/&gt;
 &lt;/extensionSet&gt;
-
-</pre></blockquote>
-
-
+</pre>
 
 </body>
 </html>
-

@@ -13,7 +13,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -392,14 +392,14 @@
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td class="bannercell" rowspan="2">
-      <a href="http://jakarta.apache.org/">
-      <img src="http://jakarta.apache.org/images/jakarta-logo.gif" alt="http://jakarta.apache.org" align="left" border="0"/>
+      <a href="https://ant.apache.org/">
+      <img src="https://ant.apache.org/images/group-logo.gif" alt="https://ant.apache.org" align="left" border="0"/>
       </a>
     </td>
         <td style="text-align:right"><h2>Source Code Coverage</h2></td>
         </tr>
         <tr>
-        <td style="text-align:right">Designed for use with <a href='http://www.sitraka.com/jprobe'>Sitraka JProbe</a> and <a href='http://jakarta.apache.org'>Ant</a>.</td>
+        <td style="text-align:right">Designed for use with Sitraka JProbe and <a href='https://ant.apache.org'>Ant</a>.</td>
         </tr>
   </table>
     <hr size="1"/>

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -6,7 +7,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,82 +15,73 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<html>
+<html lang="en">
 
 <head>
-<meta http-equiv="Content-Language" content="en-us">
 <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
 <title>Antversion Task</title>
 </head>
 
 <body>
 
-<h2><a name="antversion">Antversion</a></h2>
+<h2 id="antversion">Antversion</h2>
+<p><em>Since Ant 1.7.0</em></p>
 <h3>Description</h3>
-<p>
-Stores the Apache Ant version (when used as task) or checks for a specific Ant version 
-(when used as condition).
-<b>Since Ant 1.7.0</b>
-</p>
+<p>Stores the Apache Ant version (when used as task) or checks for a specific Ant version (when used
+as condition).</p>
 
-<table border="1" cellpadding="2" cellspacing="0">
+<table class="attr">
   <tr>
-    <td valign="top"><b>Attribute</b></td>
-    <td valign="top"><b>Description</b></td>
-    <td align="center" valign="top"><b>Required (Task)</b></td>
-    <td align="center" valign="top"><b>Required (Condition)</b></td>
+    <th scope="col" rowspan="2">Attribute</th>
+    <th scope="col" rowspan="2">Description</th>
+    <th scope="col" colspan="2">Required</th>
   </tr>
   <tr>
-    <td valign="top">atleast</td>
-    <td valign="top">The version that this at least.
-      The format is major.minor.point.</td>
-    <td valign="top" align="center">No</td>
-    <td valign="top" rowspan="2" align="center">One of these.</td>
+    <th scope="col">Task</th>
+    <th scope="col">Condition</th>
   </tr>
   <tr>
-    <td valign="top">exactly</td>
-    <td valign="top">The version that this ant is exactly.
-      The format is <tt>major.minor.point</tt>.</td>
-    <td valign="top" align="center">No</td>
+    <td>atleast</td>
+    <td>The version that this Ant is of at least.  The format
+      is <code>major.minor.point</code>.</td>
+    <td class="center">No</td>
+    <td rowspan="2">Exactly one of these</td>
   </tr>
   <tr>
-    <td valign="top">property</td>
-    <td valign="top">The name of the property to set.</td>
-    <td valign="top" align="center">Yes</td>
-    <td valign="top" align="center">No (ignored)</td>
+    <td>exactly</td>
+    <td>The version that this Ant is of exactly.  The format is <code>major.minor.point</code>.</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>property</td>
+    <td>The name of the property to set.</td>
+    <td class="center">Yes</td>
+    <td>Ignored</td>
   </tr>
 </table>
 
-
 <h3>Examples</h3>
 
-<blockquote><pre>
-&lt;antversion property=&quot;antversion&quot;/&gt;
-</pre></blockquote>
-<p>Stores the current Ant version in the property <i>antversion</i>.</p>
+<p>Store the current Ant version in the property <code>antversion</code>.</p>
+<pre>&lt;antversion property=&quot;antversion&quot;/&gt;</pre>
 
-<blockquote><pre>
-&lt;antversion property=&quot;antversion&quot; atleast=&quot;1.6&quot;/&gt;
-</pre></blockquote>
-<p>Stores the Ant version in the property <i>antversion</i> if the current Ant version is 1.6.0
+<p>Store the Ant version in the property <code>antversion</code> if the current Ant version is 1.6.0
 or higher. Otherwise the property remains unset.</p>
+<pre>&lt;antversion property=&quot;antversion&quot; atleast=&quot;1.6&quot;/&gt;</pre>
 
-<blockquote><pre>
-&lt;antversion property=&quot;ant-is-exact-7&quot; exactly=&quot;1.7.0&quot;/&gt;
-</pre></blockquote>
-<p>Sets the property <i>ant-is-exact-7</i> if Ant 1.7.0 is running. Neither 1.6.5 nor 1.7.0
+<p>Set the property <code>ant-is-exact-7</code> if Ant 1.7.0 is running. Neither 1.6.5 nor 1.7.1
 would match.</p>
+<pre>&lt;antversion property=&quot;ant-is-exact-7&quot; exactly=&quot;1.7.0&quot;/&gt;</pre>
 
-<blockquote><pre>
+<p>Set <code>Ant17isOnline</code> if Ant 1.7.0 is running and can get a non-error-response from the
+Ant homepage.</p>
+<pre>
 &lt;condition property=&quot;Ant17isOnline&quot;&gt;
   &lt;and&gt;
     &lt;antversion exactly=&quot;1.7.0&quot;/&gt;
-    &lt;http url=&quot;http://ant.apache.org&quot;/&gt;
+    &lt;http url=&quot;https://ant.apache.org&quot;/&gt;
   &lt;/and&gt;
-&lt;/condition&gt;
-</pre></blockquote>
-<p>Sets <i>Ant17isOnline</i> if Ant 1.7.0 is running and can get a non-error-response from
-the Ant homepage.</p>
+&lt;/condition&gt;</pre>
 
 </body>
 </html>

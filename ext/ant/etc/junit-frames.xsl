@@ -14,7 +14,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -296,6 +296,7 @@ h6 {
                   </xsl:apply-templates>
                 </xsl:when>
                 <xsl:when test="$type = 'errors'">
+                  <xsl:apply-templates select=".//testsuite[error]" mode="alltests.error.row"/>
                   <xsl:apply-templates select=".//testcase[error]" mode="print.test">
                     <xsl:with-param name="show.class" select="'yes'"/>
                   </xsl:apply-templates>
@@ -306,6 +307,7 @@ h6 {
                   </xsl:apply-templates>
                 </xsl:when>
                 <xsl:otherwise>
+                  <xsl:apply-templates select=".//testsuite[error]" mode="alltests.error.row"/>
                   <xsl:apply-templates select=".//testcase" mode="print.test">
                     <xsl:with-param name="show.class" select="'yes'"/>
                   </xsl:apply-templates>
@@ -740,7 +742,7 @@ h6 {
     <table width="100%">
     <tr>
         <td align="left"></td>
-        <td align="right">Designed for use with <a href="http://www.junit.org/">JUnit</a> and <a href="http://ant.apache.org/">Ant</a>.</td>
+        <td align="right">Designed for use with <a href="https://www.junit.org/">JUnit</a> and <a href="https://ant.apache.org/">Ant</a>.</td>
     </tr>
     </table>
     <hr size="1"/>
@@ -969,4 +971,18 @@ h6 {
     <xsl:param name="value"/>
     <xsl:value-of select="format-number($value,'0.00%')"/>
 </xsl:template>
+
+<xsl:template match="testsuite" mode="alltests.error.row">
+  <xsl:variable name="package.dir">
+    <xsl:if test="not(@package = '')"><xsl:value-of select="translate(@package,'.','/')"/><xsl:text>/</xsl:text></xsl:if>
+  </xsl:variable>
+  <xsl:variable name="class.href">
+    <xsl:value-of select="concat($package.dir, @id, '_', @name, '.html')"/>
+  </xsl:variable>
+  <tr class="Error">
+    <td><a href="{$class.href}"><xsl:value-of select="@name"/></a></td>
+    <td colspan="3"><xsl:apply-templates select="./error"/></td>
+  </tr>
+</xsl:template>
+
 </xsl:stylesheet>

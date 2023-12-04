@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -6,7 +7,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +15,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<html>
+<html lang="en">
 <head>
 <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
 <title>LoadFile Task</title>
@@ -22,112 +23,98 @@
 
 <body>
 
-
-<h2><a name="loadfile">LoadFile</a></h2>
+<h2 id="loadfile">LoadFile</h2>
 <h3>Description</h3>
-<p>
-Specialization of <a href="loadresource.html">loadresource</a> that
-works on files exclusively and provides a srcFile attribute for
-convenience.  Unless an encoding is specified, the encoding of the
-current locale is used.
-</p>
-<p>If the resource content is empty (maybe after processing a filterchain) 
-the property is not set.</p>
-
+<p>Specialization of <a href="loadresource.html">loadresource</a> that works on files exclusively
+and provides a <var>srcFile</var> attribute for convenience.  Unless an <var>encoding</var> is
+specified, the encoding of the current locale is used.</p>
+<p>If the resource content is empty (maybe after processing a <code>filterchain</code>) the property
+is not set.</p>
 
 <h3>Parameters</h3>
-<table border="1" cellpadding="2" cellspacing="0">
+<table class="attr">
   <tr>
-    <td valign="top"><b>Attribute</b></td>
-    <td valign="top"><b>Description</b></td>
-    <td align="center" valign="top"><b>Required</b></td>
+    <th scope="col">Attribute</th>
+    <th scope="col">Description</th>
+    <th scope="col">Required</th>
   </tr>
   <tr>
-    <td valign="top">srcFile</td>
-    <td valign="top">source file</td>
-    <td valign="top" align="center">Yes</td>
+    <td>srcFile</td>
+    <td>source file</td>
+    <td>Yes</td>
   </tr>
   <tr>
-    <td valign="top">property</td>
-    <td valign="top">property to save to</td>
-    <td valign="top" align="center">Yes</td>
+    <td>property</td>
+    <td>property to save to</td>
+    <td>Yes</td>
   </tr>
   <tr>
-    <td valign="top">encoding</td>
-    <td valign="top">encoding to use when loading the file</td>
-    <td align="center" valign="top">No</td>
+    <td>encoding</td>
+    <td>encoding to use when loading the file</td>
+    <td>No</td>
   </tr>
   <tr>
-    <td valign="top">failonerror</td>
-    <td valign="top">Whether to halt the build on failure</td>
-    <td align="center" valign="top">No, default "true"</td>
+    <td>failonerror</td>
+    <td>Whether to halt the build on failure</td>
+    <td>No; default <q>true</q></td>
   </tr>
   <tr>
-    <td valign="top">quiet</td>
-    <td valign="top">Do not display a diagnostic message (unless Apache Ant has been 
-    invoked with the <code>-verbose</code> or <code>-debug</code>
-    switches) or modify the exit status to reflect an error. Setting this to 
-    "true" implies setting failonerror to "false".
-      <em>Since Ant 1.7.0.</em>
+    <td>quiet</td>
+    <td>Do not display a diagnostic message (unless Apache Ant has been invoked with
+      the <kbd>-verbose</kbd> or <kbd>-debug</kbd> switches) or modify the exit status to
+      reflect an error. Setting this to <q>true</q> implies setting <var>failonerror</var>
+      to <q>false</q>. <em>Since Ant 1.7.0</em>.
     </td>
-    <td align="center" valign="top">No, default "false"</td>
+    <td>No; default <q>false</q></td>
   </tr>
 
 </table>
-<p>
-The LoadFile task supports nested <a href="../Types/filterchain.html">
-FilterChain</a>s.
+<p>The LoadFile task supports nested <a href="../Types/filterchain.html">FilterChain</a>s.</p>
 
 <h3>Examples</h3>
-<pre>    &lt;loadfile property="message"
-      srcFile="message.txt"/&gt;
-</pre>
-Load file message.txt into property "message"; an <tt>&lt;echo&gt;</tt>
-can print this.  This is identical to
-<pre>    &lt;loadresource property="message"&gt;
-       &lt;file file="message.txt"/&gt;
-    &lt;/loadresource&gt;
-</pre>
-</p>
+<p>Load file <samp>message.txt</samp> into property <code>message</code>;
+an <code>&lt;echo&gt;</code> can print this.</p>
+<pre>
+&lt;loadfile property="message"
+          srcFile="message.txt"/&gt;</pre>
 
-<pre>    &lt;loadfile property="encoded-file"
-      srcFile="loadfile.xml"
-      encoding="ISO-8859-1"/&gt;
-</pre>
-Load a file using the latin-1 encoding
+<p>The above is identical to</p>
+<pre>
+&lt;loadresource property="message"&gt;
+    &lt;file file="message.txt"/&gt;
+&lt;/loadresource&gt;</pre>
 
-<pre>    &lt;loadfile
-      property="optional.value"
-      srcFile="optional.txt"
-      failonerror="false"/&gt;
-</pre>
-Load a file, don't fail if it is missing (a message is printed, though)
+<p>Load a file using the Latin-1 encoding</p>
+<pre>
+&lt;loadfile property="encoded-file"
+          srcFile="loadfile.xml"
+          encoding="ISO-8859-1"/&gt;</pre>
 
-<pre>    &lt;loadfile
-      property="mail.recipients"
-      srcFile="recipientlist.txt"&gt;
-      &lt;filterchain&gt;
+<p>Load a file, don't fail if it is missing (a message is printed, though)</p>
+<pre>
+&lt;loadfile property="optional.value"
+          srcFile="optional.txt"
+          failonerror="false"/&gt;</pre>
+
+<p>Load a property which can be used as a parameter for another task (in this
+case <code>mail</code>), merging lines to ensure this happens.</p>
+<pre>
+&lt;loadfile property="mail.recipients"
+          srcFile="recipientlist.txt"&gt;
+    &lt;filterchain&gt;
         &lt;<a href="../Types/filterchain.html#striplinebreaks">striplinebreaks</a>/&gt;
-      &lt;/filterchain&gt;
-    &lt;/loadfile&gt;
-</pre>
-Load a property which can be used as a parameter for another task (in this case mail),
-merging lines to ensure this happens.
+    &lt;/filterchain&gt;
+&lt;/loadfile&gt;</pre>
 
-<pre>    &lt;loadfile
-      property="system.configuration.xml"
-      srcFile="configuration.xml"&gt;
-        &lt;filterchain&gt;
-          &lt;<a href="../Types/filterchain.html#expandproperties">expandproperties</a>/&gt;
-        &lt;/filterchain&gt;
-    &lt;/loadfile&gt;
-</pre>
-Load an XML file into a property, expanding all properties declared
-in the file in the process.
-
-
-
+<p>Load an XML file into a property, expanding all properties declared in the file in the
+process.</p>
+<pre>
+&lt;loadfile property="system.configuration.xml"
+          srcFile="configuration.xml"&gt;
+    &lt;filterchain&gt;
+        &lt;<a href="../Types/filterchain.html#expandproperties">expandproperties</a>/&gt;
+    &lt;/filterchain&gt;
+&lt;/loadfile&gt;</pre>
 
 </body>
 </html>
-
