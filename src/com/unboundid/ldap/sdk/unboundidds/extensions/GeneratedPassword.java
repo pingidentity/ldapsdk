@@ -1,9 +1,9 @@
 /*
- * Copyright 2019-2023 Ping Identity Corporation
+ * Copyright 2019-2024 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2019-2023 Ping Identity Corporation
+ * Copyright 2019-2024 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2019-2023 Ping Identity Corporation
+ * Copyright (C) 2019-2024 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
