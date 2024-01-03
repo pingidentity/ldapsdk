@@ -18,6 +18,18 @@ ${TARGET="offline"}                <br>
                   Java 7 is no longer supported.
                   <br><br>
                 </li>
+
+                <li>
+                  Added client-side support for the LDAP relax rules request control as defined in
+                  draft-zeilenga-ldap-relax-03.  Note that this support is currently classified as
+                  experimental because this most recent version of the Internet Draft (which
+                  expired in 2008 without being renewed or standardized as an RFC) does not specify
+                  an official OID for the control.  However, some servers (including OpenLDAP and
+                  ForgeRock Directory Services) appear to have implemented support for the control
+                  with an OID of 1.3.6.1.4.1.4203.666.5.12, and that is the OID used in this
+                  implementation.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
