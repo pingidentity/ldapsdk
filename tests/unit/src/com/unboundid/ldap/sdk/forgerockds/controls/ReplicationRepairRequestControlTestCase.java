@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2024 Ping Identity Corporation
+ * Copyright 2024 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2009-2024 Ping Identity Corporation
+ * Copyright 2024 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2009-2024 Ping Identity Corporation
+ * Copyright (C) 2024 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,7 +33,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.controls;
+package com.unboundid.ldap.sdk.forgerockds.controls;
 
 
 
@@ -43,7 +43,6 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
-import com.unboundid.util.json.JSONObject;
 
 
 
@@ -67,7 +66,7 @@ public class ReplicationRepairRequestControlTestCase
     c = new ReplicationRepairRequestControl(c);
 
     assertNotNull(c.getOID());
-    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.1.5.2");
+    assertEquals(c.getOID(), "1.3.6.1.4.1.26027.1.5.2");
 
     assertTrue(c.isCritical());
 
@@ -93,7 +92,7 @@ public class ReplicationRepairRequestControlTestCase
     c = new ReplicationRepairRequestControl(c);
 
     assertNotNull(c.getOID());
-    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.1.5.2");
+    assertEquals(c.getOID(), "1.3.6.1.4.1.26027.1.5.2");
 
     assertFalse(c.isCritical());
 
@@ -118,63 +117,5 @@ public class ReplicationRepairRequestControlTestCase
          ReplicationRepairRequestControl.REPLICATION_REPAIR_REQUEST_OID,
          true, new ASN1OctetString("foo"));
     new ReplicationRepairRequestControl(c);
-  }
-
-
-
-  /**
-   * Tests the behavior when trying to encode and decode the control to and
-   * from a JSON object.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testToJSONControl()
-          throws Exception
-  {
-    final ReplicationRepairRequestControl c =
-         new ReplicationRepairRequestControl();
-
-    final JSONObject controlObject = c.toJSONControl();
-
-    assertNotNull(controlObject);
-    assertEquals(controlObject.getFields().size(), 3);
-
-    assertEquals(controlObject.getFieldAsString("oid"), c.getOID());
-
-    assertNotNull(controlObject.getFieldAsString("control-name"));
-    assertFalse(controlObject.getFieldAsString("control-name").isEmpty());
-    assertFalse(controlObject.getFieldAsString("control-name").equals(
-         controlObject.getFieldAsString("oid")));
-
-    assertEquals(controlObject.getFieldAsBoolean("criticality"),
-         Boolean.TRUE);
-
-    assertFalse(controlObject.hasField("value-base64"));
-
-    assertFalse(controlObject.hasField("value-json"));
-
-
-    ReplicationRepairRequestControl decodedControl =
-         ReplicationRepairRequestControl.decodeJSONControl(controlObject, true);
-    assertNotNull(decodedControl);
-
-    assertEquals(decodedControl.getOID(), c.getOID());
-
-    assertTrue(decodedControl.isCritical());
-
-    assertNull(decodedControl.getValue());
-
-
-    decodedControl =
-         (ReplicationRepairRequestControl)
-         Control.decodeJSONControl(controlObject, true, true);
-    assertNotNull(decodedControl);
-
-    assertEquals(decodedControl.getOID(), c.getOID());
-
-    assertTrue(decodedControl.isCritical());
-
-    assertNull(decodedControl.getValue());
   }
 }

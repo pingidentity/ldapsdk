@@ -108,6 +108,8 @@ public class SanityCheck
     "com.unboundid.ldap.sdk.examples",
     "com.unboundid.ldap.sdk.experimental",
     "com.unboundid.ldap.sdk.extensions",
+    "com.unboundid.ldap.sdk.forgerockds",
+    "com.unboundid.ldap.sdk.forgerockds.controls",
     "com.unboundid.ldap.sdk.migrate.jndi",
     "com.unboundid.ldap.sdk.migrate.ldapjdk",
     "com.unboundid.ldap.sdk.persist",

@@ -30,6 +30,16 @@ ${TARGET="offline"}                <br>
                   implementation.
                   <br><br>
                 </li>
+
+                <li>
+                  Added client-side support for the replication repair request control as used in
+                  the ForgeRock Directory Server.  This control may be included in an add, delete,
+                  modify, or modify DN request to indicate that the associated change should only
+                  be processed in the local server and not replicated to other servers in the
+                  topology.  It is primarily intended for use in manually resolving replication
+                  conflicts and other replication-related issues.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

@@ -108,7 +108,21 @@ public final class ReplicationRepairRequestControl
    */
   public ReplicationRepairRequestControl()
   {
-    super(REPLICATION_REPAIR_REQUEST_OID, true, null);
+    this(true);
+  }
+
+
+
+  /**
+   * Creates a new replication repair request control with the specified
+   * criticality.
+   *
+   * @param  isCritical  Indicates whether the control should be marked
+   *                     critical.
+   */
+  public ReplicationRepairRequestControl(final boolean isCritical)
+  {
+    super(REPLICATION_REPAIR_REQUEST_OID, isCritical, null);
   }
 
 
