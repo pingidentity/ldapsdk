@@ -32,6 +32,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added client-side support for the transaction ID request control as used in the
+                  ForgeRock Directory Server.  This control may be included in an operation request
+                  to provide a transaction ID that will appear in the access log message for that
+                  operation.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for the replication repair request control as used in
                   the ForgeRock Directory Server.  This control may be included in an add, delete,
                   modify, or modify DN request to indicate that the associated change should only
@@ -42,10 +50,11 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added client-side support for the transaction ID request control as used in the
-                  ForgeRock Directory Server.  This control may be included in an operation request
-                  to provide a transaction ID that will appear in the access log message for that
-                  operation.
+                  Added client-side support for the change sequence number request and response
+                  controls as used in the ForgeRock Directory Server.  The request control may be
+                  included in an add, delete, modify, or modify DN request to indicate that the
+                  server should return a corresponding response control containing the replication
+                  change sequence number (CSN) that the server has assigned to that operation.
                   <br><br>
                 </li>
               </ul>

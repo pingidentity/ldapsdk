@@ -278,6 +278,7 @@
 { "oid":"1.3.6.1.4.1.42.2.27.9.1.792", "name":"isMemberOf", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.5.2", "name":"Get Effective Rights", "type":"Request Control", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.5.8", "name":"Account Usable Request and Response", "type":"Control", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.5.9", "name":"Change Sequence Number", "type":"Control", "origin":"OpenDS" }
 { "oid":"1.3.6.1.4.1.250.1.41", "name":"labeledURL", "type":"Attribute Type", "origin":"RFC 2079", "url":"https://docs.ldap.com/specs/rfc2079.txt" }
 { "oid":"1.3.6.1.4.1.250.1.57", "name":"labeledURI", "type":"Attribute Type", "origin":"RFC 2079", "url":"https://docs.ldap.com/specs/rfc2079.txt" }
 { "oid":"1.3.6.1.4.1.250.3.15", "name":"labeledURIObject", "type":"Object Class", "origin":"RFC 2079", "url":"https://docs.ldap.com/specs/rfc2079.txt" }

@@ -288,6 +288,8 @@ public class Control
          registerDefaultResponseControls();
     com.unboundid.ldap.sdk.experimental.ControlHelper.
          registerDefaultResponseControls();
+    com.unboundid.ldap.sdk.forgerockds.controls.ControlHelper.
+         registerDefaultResponseControls();
     com.unboundid.ldap.sdk.unboundidds.controls.ControlHelper.
          registerDefaultResponseControls();
   }
