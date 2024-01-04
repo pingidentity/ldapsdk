@@ -50,9 +50,9 @@ import static com.unboundid.ldap.sdk.forgerockds.controls.ControlMessages.*;
 
 
 /**
- * This class provides an implementation of a control which may be used to
+ * This class provides an implementation of a control that may be used to
  * process an add, delete, modify, or modify DN operation in the ForgeRock
- * Directory Server which will not be replicated to other servers.  This control
+ * Directory Server that will not be replicated to other servers.  This control
  * is primarily intended for use in manually resolving replication conflicts.
  * <BR>
  * This request control has an OID of 1.3.6.1.4.1.26027.1.5.2 and a criticality
@@ -115,7 +115,7 @@ public final class ReplicationRepairRequestControl
 
 
   /**
-   * Creates a new replication repair request control which is decoded from
+   * Creates a new replication repair request control that is decoded from
    * the provided generic control.
    *
    * @param  control  The generic control to be decoded as a replication repair

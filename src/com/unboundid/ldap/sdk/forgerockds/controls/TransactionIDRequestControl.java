@@ -76,8 +76,7 @@ public final class TransactionIDRequestControl
        extends Control
 {
   /**
-   * The OID (1.3.6.1.4.1.36733.2.1.5.1) for the replication repair request
-   * control.
+   * The OID (1.3.6.1.4.1.36733.2.1.5.1) for the transaction ID request control.
    */
   @NotNull public static final String TRANSACTION_ID_REQUEST_OID =
        "1.3.6.1.4.1.36733.2.1.5.1";

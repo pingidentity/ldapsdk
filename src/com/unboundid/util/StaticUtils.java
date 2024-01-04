@@ -1017,6 +1017,31 @@ public final class StaticUtils
 
 
   /**
+   * Indicates whether the provided byte array represents a valid UTF-8 string
+   * that is comprised entirely of characters that are believed to be
+   * displayable (as determined by the {@link #isLikelyDisplayableCharacter}
+   * method).
+   *
+   * @param  b  The byte array for which to make the determination.  It must not
+   *            be {@code null}.
+   *
+   * @return  {@code true} if the provided byte array represents a valid UTF-8
+   *          string that is believed to be displayable, or {@code false} if
+   *          not.
+   */
+  public static boolean isLikelyDisplayableUTF8String(@NotNull final byte[] b)
+  {
+    if (! isValidUTF8(b))
+    {
+      return false;
+    }
+
+    return isLikelyDisplayableString(toUTF8String(b));
+  }
+
+
+
+  /**
    *Indicates whether the provided string is comprised entirely of characters
    * that are believed to be displayable (as determined by the
    * {@link #isLikelyDisplayableCharacter} method).
