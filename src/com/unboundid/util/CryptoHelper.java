@@ -2676,4 +2676,288 @@ ERR_CRYPTO_HELPER_GET_SEC_RAND_WRONG_PROVIDER_FOR_FIPS_MODE_NO_ALG.get(
       return provider;
     }
   }
+
+
+
+  /**
+   * Generates a digest of the provided bytes using the specified algorithm.
+   *
+   * @param  digestAlgorithm  The name of the algorithm to use to generate the
+   *                          digest.  It must not be {@code null}.
+   * @param  dataToDigest     The bytes for which to generate the digest.  It
+   *                          must not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the digest of the provided bytes.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the
+   *                                    requested digest algorithm.
+   */
+  @NotNull()
+  public static byte[] digest(@NotNull final String digestAlgorithm,
+                              @NotNull final byte[] dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    final MessageDigest digest = getMessageDigest(digestAlgorithm);
+    return digest.digest(dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a digest of the UTF-8 representation of the provided string
+   * using the specified algorithm.
+   *
+   * @param  digestAlgorithm  The name of the algorithm to use to generate the
+   *                          digest.  It must not be {@code null}.
+   * @param  dataToDigest     The string for which to generate the digest.  It
+   *                          must not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the digest of the provided string.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the
+   *                                    requested digest algorithm.
+   */
+  @NotNull()
+  public static byte[] digest(@NotNull final String digestAlgorithm,
+                              @NotNull final String dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    final MessageDigest digest = getMessageDigest(digestAlgorithm);
+    return digest.digest(StaticUtils.getBytes(dataToDigest));
+  }
+
+
+
+  /**
+   * Generates a digest of the contents of the provided file using the specified
+   * algorithm.
+   *
+   * @param  digestAlgorithm  The name of the algorithm to use to generate the
+   *                          digest.  It must not be {@code null}.
+   * @param  fileToDigest     The file for which to generate the digest.  It
+   *                          must not be {@code null}, and the file must exist.
+   *
+   * @return  The bytes that comprise the digest of the provided file.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the
+   *                                    requested digest algorithm.
+   *
+   * @throws  java.io.IOException  If a problem occurs while trying to read from
+   *                               the file.
+   */
+  @NotNull()
+  public static byte[] digest(@NotNull final String digestAlgorithm,
+                              @NotNull final File fileToDigest)
+         throws NoSuchAlgorithmException, java.io.IOException
+  {
+    try (FileInputStream inputStream = new FileInputStream(fileToDigest))
+    {
+      final MessageDigest digest = getMessageDigest(digestAlgorithm);
+      final byte[] buffer = new byte[1048576];
+      while (true)
+      {
+        final int bytesRead = inputStream.read(buffer);
+        if (bytesRead < 0)
+        {
+          return digest.digest();
+        }
+        else
+        {
+          digest.update(buffer, 0, bytesRead);
+        }
+      }
+    }
+  }
+
+
+
+  /**
+   * Generates a SHA-256 digest of the provided bytes.
+   *
+   * @param  dataToDigest  The bytes for which to generate the digest.  It must
+   *                       not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the SHA-256 digest of the provided bytes.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-256
+   *                                    digest algorithm.
+   */
+  @NotNull()
+  public static byte[] sha256(@NotNull final byte[] dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    return CryptoHelper.digest("SHA-256", dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-256 digest of the UTF-8 representation of the provided
+   * string.
+   *
+   * @param  dataToDigest  The string for which to generate the digest.  It must
+   *                       not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the SHA-256 digest of the provided string.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-256
+   *                                    digest algorithm.
+   */
+  @NotNull()
+  public static byte[] sha256(@NotNull final String dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    return CryptoHelper.digest("SHA-256", dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-256 digest of the contents of the provided file.
+   *
+   * @param  fileToDigest  The file for which to generate the digest.  It must
+   *                       not be {@code null}, and the file must exist.
+   *
+   * @return  The bytes that comprise the SHA-256 digest of the provided file.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-256
+   *                                    digest algorithm.
+   *
+   * @throws  java.io.IOException  If a problem occurs while trying to read from
+   *                               the file.
+   */
+  @NotNull()
+  public static byte[] sha256(@NotNull final File fileToDigest)
+         throws NoSuchAlgorithmException, java.io.IOException
+  {
+    return CryptoHelper.digest("SHA-256", fileToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-384 digest of the provided bytes.
+   *
+   * @param  dataToDigest  The bytes for which to generate the digest.  It must
+   *                       not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the SHA-384 digest of the provided bytes.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-384
+   *                                    digest algorithm.
+   */
+  @NotNull()
+  public static byte[] sha384(@NotNull final byte[] dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    return CryptoHelper.digest("SHA-384", dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-384 digest of the UTF-8 representation of the provided
+   * string.
+   *
+   * @param  dataToDigest  The string for which to generate the digest.  It must
+   *                       not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the SHA-384 digest of the provided string.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-384
+   *                                    digest algorithm.
+   */
+  @NotNull()
+  public static byte[] sha384(@NotNull final String dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    return CryptoHelper.digest("SHA-384", dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-384 digest of the contents of the provided file.
+   *
+   * @param  fileToDigest  The file for which to generate the digest.  It must
+   *                       not be {@code null}, and the file must exist.
+   *
+   * @return  The bytes that comprise the SHA-384 digest of the provided file.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-384
+   *                                    digest algorithm.
+   *
+   * @throws  java.io.IOException  If a problem occurs while trying to read from
+   *                               the file.
+   */
+  @NotNull()
+  public static byte[] sha384(@NotNull final File fileToDigest)
+         throws NoSuchAlgorithmException, java.io.IOException
+  {
+    return CryptoHelper.digest("SHA-384", fileToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-512 digest of the provided bytes.
+   *
+   * @param  dataToDigest  The bytes for which to generate the digest.  It must
+   *                       not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the SHA-512 digest of the provided bytes.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-512
+   *                                    digest algorithm.
+   */
+  @NotNull()
+  public static byte[] sha512(@NotNull final byte[] dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    return CryptoHelper.digest("SHA-512", dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-512 digest of the UTF-8 representation of the provided
+   * string.
+   *
+   * @param  dataToDigest  The string for which to generate the digest.  It must
+   *                       not be {@code null} but may be empty.
+   *
+   * @return  The bytes that comprise the SHA-512 digest of the provided string.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-512
+   *                                    digest algorithm.
+   */
+  @NotNull()
+  public static byte[] sha512(@NotNull final String dataToDigest)
+         throws NoSuchAlgorithmException
+  {
+    return CryptoHelper.digest("SHA-512", dataToDigest);
+  }
+
+
+
+  /**
+   * Generates a SHA-512 digest of the contents of the provided file.
+   *
+   * @param  fileToDigest  The file for which to generate the digest.  It must
+   *                       not be {@code null}, and the file must exist.
+   *
+   * @return  The bytes that comprise the SHA-512 digest of the provided file.
+   *
+   * @throws  NoSuchAlgorithmException  If the JVM does not support the SHA-512
+   *                                    digest algorithm.
+   *
+   * @throws  java.io.IOException  If a problem occurs while trying to read from
+   *                               the file.
+   */
+  @NotNull()
+  public static byte[] sha512(@NotNull final File fileToDigest)
+         throws NoSuchAlgorithmException, java.io.IOException
+  {
+    return CryptoHelper.digest("SHA-512", fileToDigest);
+  }
 }
