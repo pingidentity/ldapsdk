@@ -1117,7 +1117,7 @@ public final class GSSAPIBindRequestProperties
       buffer.appendString("keyTabPath", keyTabPath);
     }
 
-    buffer.appendBoolean("(useTicketCache", useTicketCache);
+    buffer.appendBoolean("useTicketCache", useTicketCache);
     buffer.appendBoolean("renewTGT", renewTGT);
     buffer.appendBoolean("requireCachedCredentials", requireCachedCredentials);
 
