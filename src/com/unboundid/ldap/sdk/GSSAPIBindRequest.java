@@ -47,7 +47,9 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.net.ssl.SSLSession;
@@ -226,6 +228,16 @@ public final class GSSAPIBindRequest
    */
   @Nullable private static final String DEFAULT_REALM =
        StaticUtils.getSystemProperty(PROPERTY_REALM);
+
+
+
+  /**
+   * A map of generated JAAS configuration files, each of which is indexed by a
+   * digest of the relevant {@link GSSAPIBindRequestProperties} object used to
+   * generate the file.
+   */
+  @NotNull private static final Map<ASN1OctetString,String>
+       JAAS_CONFIG_FILE_PATHS_BY_PROPERTIES_DIGEST = new ConcurrentHashMap<>();
 
 
 
@@ -1027,6 +1039,27 @@ public final class GSSAPIBindRequest
                @NotNull final GSSAPIBindRequestProperties properties)
           throws LDAPException
   {
+    // If we already have an appropriate configuration file for the given
+    // properties, then reuse that file.
+    ASN1OctetString propertiesConfigDigest = null;
+    try
+    {
+      final byte[] digestBytes = properties.getConfigFileDigest();
+      propertiesConfigDigest = new ASN1OctetString(digestBytes);
+
+      final String path = JAAS_CONFIG_FILE_PATHS_BY_PROPERTIES_DIGEST.get(
+           propertiesConfigDigest);
+      if (path != null)
+      {
+        return path;
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+
     try
     {
       final File f =
@@ -1046,7 +1079,15 @@ public final class GSSAPIBindRequest
           if (sunModuleClass != null)
           {
             writeSunJAASConfig(w, properties);
-            return f.getAbsolutePath();
+
+            final String path = f.getAbsolutePath();
+            if (propertiesConfigDigest != null)
+            {
+              JAAS_CONFIG_FILE_PATHS_BY_PROPERTIES_DIGEST.put(
+                   propertiesConfigDigest, path);
+            }
+
+            return path;
           }
         }
         catch (final ClassNotFoundException cnfe)
@@ -1065,7 +1106,15 @@ public final class GSSAPIBindRequest
           if (ibmModuleClass != null)
           {
             writeIBMJAASConfig(w, properties);
-            return f.getAbsolutePath();
+
+            final String path = f.getAbsolutePath();
+            if (propertiesConfigDigest != null)
+            {
+              JAAS_CONFIG_FILE_PATHS_BY_PROPERTIES_DIGEST.put(
+                   propertiesConfigDigest, path);
+            }
+
+            return path;
           }
         }
         catch (final ClassNotFoundException cnfe)

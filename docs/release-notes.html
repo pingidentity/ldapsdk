@@ -20,6 +20,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added the ability to reuse automatically generated JAAS configuration files if
+                  possible when attempting a SASL GSSAPI bind.  Previously, if the caller didn't
+                  explicitly provide a JAAS config file, the LDAP SDK would generate one based on
+                  the provided bind request properties.  It would do this for every GSSAPI bind
+                  attempt, even if they all used the same properties, which means that it could
+                  generate many copies of the same JAAS config file, which could unnecessarily
+                  waste disk space and memory.  It will now detect when a bind request would use a
+                  JAAS configuration that matches one that has already been generated, and will
+                  reuse the previously generated file rather than creating a new one.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for the LDAP relax rules request control as defined in
                   draft-zeilenga-ldap-relax-03.  Note that this support is currently classified as
                   experimental because this most recent version of the Internet Draft (which

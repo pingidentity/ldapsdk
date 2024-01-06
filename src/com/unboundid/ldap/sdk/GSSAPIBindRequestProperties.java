@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.CryptoHelper;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -54,6 +56,9 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONBuffer;
+
+import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
 
 
@@ -107,6 +112,9 @@ public final class GSSAPIBindRequestProperties
 
   // Indicates whether to enable the use of a ticket cache.
   private boolean useTicketCache;
+
+  // A digest of the settings that are relevant to a JAAS configuration file.
+  @Nullable private byte[] configFileDigest;
 
   // The type of channel binding to use for the bind request.
   @NotNull private GSSAPIChannelBindingType channelBindingType;
@@ -537,6 +545,7 @@ public final class GSSAPIBindRequestProperties
     Validator.ensureNotNull(jaasClientName);
 
     this.jaasClientName = jaasClientName;
+    configFileDigest = null;
   }
 
 
@@ -674,6 +683,7 @@ public final class GSSAPIBindRequestProperties
   public void setRefreshKrb5Config(final boolean refreshKrb5Config)
   {
     this.refreshKrb5Config = refreshKrb5Config;
+    configFileDigest = null;
   }
 
 
@@ -734,6 +744,7 @@ public final class GSSAPIBindRequestProperties
   public void setUseKeyTab(final boolean useKeyTab)
   {
     this.useKeyTab = useKeyTab;
+    configFileDigest = null;
   }
 
 
@@ -766,6 +777,7 @@ public final class GSSAPIBindRequestProperties
   public void setKeyTabPath(@Nullable final String keyTabPath)
   {
     this.keyTabPath = keyTabPath;
+    configFileDigest = null;
   }
 
 
@@ -799,6 +811,7 @@ public final class GSSAPIBindRequestProperties
   public void setUseTicketCache(final boolean useTicketCache)
   {
     this.useTicketCache = useTicketCache;
+    configFileDigest = null;
   }
 
 
@@ -835,6 +848,7 @@ public final class GSSAPIBindRequestProperties
                    final boolean requireCachedCredentials)
   {
     this.requireCachedCredentials = requireCachedCredentials;
+    configFileDigest = null;
   }
 
 
@@ -867,6 +881,7 @@ public final class GSSAPIBindRequestProperties
   public void setTicketCachePath(@Nullable final String ticketCachePath)
   {
     this.ticketCachePath = ticketCachePath;
+    configFileDigest = null;
   }
 
 
@@ -897,6 +912,7 @@ public final class GSSAPIBindRequestProperties
   public void setRenewTGT(final boolean renewTGT)
   {
     this.renewTGT = renewTGT;
+    configFileDigest = null;
   }
 
 
@@ -940,6 +956,7 @@ public final class GSSAPIBindRequestProperties
   public void setIsInitiator(@Nullable final Boolean isInitiator)
   {
     this.isInitiator = isInitiator;
+    configFileDigest = null;
   }
 
 
@@ -1055,6 +1072,80 @@ public final class GSSAPIBindRequestProperties
   public void setEnableGSSAPIDebugging(final boolean enableGSSAPIDebugging)
   {
     this.enableGSSAPIDebugging = enableGSSAPIDebugging;
+    configFileDigest = null;
+  }
+
+
+
+  /**
+   * Retrieves a digest of the settings that are relevant to a JAAS
+   * configuration file generated from these properties.
+   *
+   * @return  A digest of the settings that are relevant to a JAAS configuration
+   *          file generated from these properties.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to generate
+   *                         the digest.
+   */
+  @NotNull()
+  byte[] getConfigFileDigest()
+         throws LDAPException
+  {
+    // If we have previously generated a digest from the current settings, then
+    // just return that.
+    if (configFileDigest != null)
+    {
+      return configFileDigest;
+    }
+
+
+    // Generate a JSON object from the relevant settings.
+    final JSONBuffer buffer = new JSONBuffer();
+    buffer.beginObject();
+    buffer.appendString("jaasClientName", jaasClientName);
+
+    if (isInitiator != null)
+    {
+      buffer.appendBoolean("isInitiator", isInitiator);
+    }
+
+    buffer.appendBoolean("refreshKrb5Config", refreshKrb5Config);
+    buffer.appendBoolean("useKeyTab", useKeyTab);
+
+    if (keyTabPath != null)
+    {
+      buffer.appendString("keyTabPath", keyTabPath);
+    }
+
+    buffer.appendBoolean("(useTicketCache", useTicketCache);
+    buffer.appendBoolean("renewTGT", renewTGT);
+    buffer.appendBoolean("requireCachedCredentials", requireCachedCredentials);
+
+    if (ticketCachePath != null)
+    {
+      buffer.appendString("ticketCachePath", ticketCachePath);
+    }
+
+    buffer.appendBoolean("enableGSSAPIDebugging", enableGSSAPIDebugging);
+    buffer.endObject();
+
+
+    // Generate, cache, and return a 256-bit SHA digest of the JSON object.
+    try
+    {
+      final byte[] bufferBytes = buffer.getBuffer().toByteArray();
+      configFileDigest = CryptoHelper.sha256(bufferBytes);
+      return configFileDigest;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_GSSAPI_PROPERTIES_CANNOT_COMPUTE_DIGEST.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+
+    }
   }
 
 
@@ -1200,3 +1291,4 @@ public final class GSSAPIBindRequestProperties
     buffer.append(')');
   }
 }
+
