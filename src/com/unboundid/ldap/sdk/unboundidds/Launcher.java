@@ -66,6 +66,7 @@ import com.unboundid.ldap.sdk.unboundidds.examples.DumpDNs;
 import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
 import com.unboundid.ldap.sdk.unboundidds.examples.SummarizeAccessLog;
 import com.unboundid.ldap.sdk.unboundidds.tools.CollectSupportData;
+import com.unboundid.ldap.sdk.unboundidds.tools.CompareLDAPSchemas;
 import com.unboundid.ldap.sdk.unboundidds.tools.GenerateTOTPSharedSecret;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPCompare;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPDelete;
@@ -120,6 +121,8 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>base64 -- Launch the {@link Base64Tool} tool.</LI>
  *   <LI>collect-support-data -- Launch the
  *       {@link CollectSupportData} tool.</LI>
+ *   <LI>compare-ldap-schemas -- Launch the
+ *       {@link CompareLDAPSchemas} tool.</LI>
  *   <LI>deliver-one-time-password -- Launch the
  *       {@link DeliverOneTimePassword} tool.</LI>
  *   <LI>deliver-password-reset-token -- Launch the
@@ -250,6 +253,10 @@ public final class Launcher
     else if (firstArg.equals("collect-support-data"))
     {
       return CollectSupportData.main(outStream, errStream, remainingArgs);
+    }
+    else if (firstArg.equals("compare-ldap-schemas"))
+    {
+      return CompareLDAPSchemas.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("deliver-one-time-password"))
     {
@@ -418,6 +425,7 @@ public final class Launcher
         err.println("     authrate");
         err.println("     base64");
         err.println("     collect-support-data");
+        err.println("     compare-ldap-schemas");
         err.println("     deliver-one-time-password");
         err.println("     deliver-password-reset-token");
         err.println("     dump-dns");
@@ -479,6 +487,7 @@ public final class Launcher
          AuthRate.class,
          Base64Tool.class,
          CollectSupportData.class,
+         CompareLDAPSchemas.class,
          DeliverOneTimePassword.class,
          DeliverPasswordResetToken.class,
          DumpDNs.class,

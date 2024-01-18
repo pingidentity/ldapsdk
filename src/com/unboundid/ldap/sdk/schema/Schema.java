@@ -87,6 +87,14 @@ public final class Schema
        implements Serializable
 {
   /**
+   * The filter that should be used to retrieve the subsechema subentry.
+   */
+  @NotNull public static final Filter SUBSCHEMA_SUBENTRY_FILTER =
+       Filter.createEqualityFilter("objectClass", "subschema");
+
+
+
+  /**
    * The name of the attribute used to hold the attribute syntax definitions.
    */
   @NotNull public static final String ATTR_ATTRIBUTE_SYNTAX = "ldapSyntaxes";
@@ -165,7 +173,7 @@ public final class Schema
    * The set of request attributes that will be used when retrieving the server
    * subschema subentry in order to retrieve all of the schema elements.
    */
-  @NotNull private static final String[] SCHEMA_REQUEST_ATTRS =
+  @NotNull public static final String[] SCHEMA_REQUEST_ATTRS =
   {
     "*",
     ATTR_ATTRIBUTE_SYNTAX,
@@ -788,8 +796,10 @@ public final class Schema
    * Parses all schema elements contained in the provided entry.  This method
    * differs from the {@link #Schema(Entry)} constructor in that this method
    * will throw an exception if it encounters any unparsable schema elements,
-   * while the constructor will silently ignore them.  Alternately, the
-   * 'constructor that takes a bunch of maps can be used to
+   * while the constructor will silently ignore them.  Alternatively, the
+   * constructor that takes a bunch of maps can be used to obtain information
+   * about any unparsable schema elements while still providing access to the
+   * parsed schema.
    *
    * @param  schemaEntry  The schema entry to parse.  It must not be
    *                      {@code null}.
@@ -1051,9 +1061,7 @@ public final class Schema
     }
 
     final Entry schemaEntry = connection.searchForEntry(subschemaSubentryDN,
-         SearchScope.BASE,
-         Filter.createEqualityFilter("objectClass", "subschema"),
-         SCHEMA_REQUEST_ATTRS);
+         SearchScope.BASE, SUBSCHEMA_SUBENTRY_FILTER, SCHEMA_REQUEST_ATTRS);
     if (schemaEntry == null)
     {
       return null;

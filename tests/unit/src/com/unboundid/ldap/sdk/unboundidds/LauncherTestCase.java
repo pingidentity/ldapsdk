@@ -141,6 +141,7 @@ public final class LauncherTestCase
       new Object[] { "authrate" },
       new Object[] { "base64" },
       new Object[] { "collect-support-data" },
+      new Object[] { "compare-ldap-schemas" },
       new Object[] { "deliver-one-time-password" },
       new Object[] { "deliver-password-reset-token" },
       new Object[] { "dump-dns" },
