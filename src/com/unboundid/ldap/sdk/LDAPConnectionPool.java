@@ -1812,11 +1812,20 @@ public final class LDAPConnectionPool
         }
       }
 
-      poolStatistics.incrementNumConnectionsClosedDefunct();
-      Debug.debugConnectionPool(Level.WARNING, this, conn,
-           "Closing a defunct connection encountered during checkout",
-           connException);
-      handleDefunctConnection(conn);
+      try
+      {
+        conn = replaceDefunctConnection(conn);
+        poolStatistics.incrementNumSuccessfulCheckoutsWithoutWaiting();
+        Debug.debugConnectionPool(Level.INFO, this, conn,
+             "Returning a newly created connection after a checked-out " +
+                  "connection was found to be invalid", null);
+        return conn;
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+      }
+
       for (int i=0; i < numConnections; i++)
       {
         conn = availableConnections.poll();

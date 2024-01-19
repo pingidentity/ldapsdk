@@ -20,6 +20,23 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAPConnectionPool behavior in the case that an attempt to check out
+                  a connection from the pool first encounters an existing connection that is deemed
+                  not valid by the configured health check.  Previously, it would close that
+                  connection as defunct and try to create a new connection to replace it, but if
+                  that attempt was successful, the newly created connection would be added to the
+                  end of the pool's set of potentially available connections, and it would continue
+                  iterating through the set of connections to try to find one that is valid.  Now,
+                  if the pool is able to successfully create a new connection to replace the
+                  existing defunct connection, it will immediately return that new connection
+                  without checking any of the other existing connections.  This should
+                  substantially improve performance in the case that the pool has several
+                  connections that are already established but have become invalid for some reason
+                  in a way that does not prevent successfully establishing new connections.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a compare-ldap-schemas command-line tool that can be used to identify
                   differences between the schemas of two LDAP servers.
                   <br><br>

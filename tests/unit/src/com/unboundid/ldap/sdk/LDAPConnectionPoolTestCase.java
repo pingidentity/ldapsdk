@@ -3277,4 +3277,51 @@ public class LDAPConnectionPoolTestCase
     pool.close();
     ds.shutDown(true);
   }
+
+
+
+  /**
+   * Tests to ensure that it's possible to successfully obtain a connection to a
+   * pool when that pool is configured with a health check that will always
+   * result in a failure when trying to check out an existing connection.  In
+   * that case, it will fall back to trying to create a new connection, and if
+   * that succeeds, then it will use that new connection.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCheckOutHealthCheckFailure()
+         throws Exception
+  {
+    // Create an in-memory directory server to use for testing.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    // Create a connection pool to use for testing.  Configure it with a
+    // health check that will always fail checkout attempts.
+    final LDAPConnectionPool pool = new LDAPConnectionPool(
+         new SingleServerSet("localhost", ds.getListenPort()),
+         new SimpleBindRequest("cn=Directory Manager", "password"), 1, 1);
+    pool.setHealthCheck(new TestLDAPConnectionPoolHealthCheck(null, null,
+         new LDAPException(ResultCode.SERVER_DOWN,
+              "The existing connection is no longer considered valid"),
+         null, null, null));
+
+
+    // Make sure that we can successfully process operations using the
+    // connection pool.
+    assertNotNull(pool.getRootDSE());
+    assertNotNull(pool.getRootDSE());
+
+    final LDAPConnection conn = pool.getConnection();
+    assertNotNull(conn);
+    assertNotNull(conn.getRootDSE());
+    pool.releaseConnection(conn);
+
+    pool.close();
+    ds.shutDown(true);
+  }
 }
