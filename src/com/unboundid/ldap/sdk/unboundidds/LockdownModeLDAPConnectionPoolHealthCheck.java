@@ -38,11 +38,6 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -58,7 +53,6 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
-import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -69,11 +63,9 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 /**
  * This class provides an LDAP connection pool health check implementation that
- * will attempt to retrieve the general monitor entry from a Ping Identity
- * Directory Server instance to determine if it has any degraded and/or
- * unavailable alert types.  If a server considers itself to be degraded or
- * unavailable, then it may be considered unsuitable for use in a connection
- * pool.
+ * can determine whether a Ping Identity Directory Server instance is currently
+ * in lockdown mode.  Any server found to be in lockdown mode will be considered
+ * unavailable.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -87,7 +79,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class ActiveAlertsLDAPConnectionPoolHealthCheck
+public final class LockdownModeLDAPConnectionPoolHealthCheck
        extends LDAPConnectionPoolHealthCheck
        implements Serializable
 {
@@ -100,42 +92,30 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * The name of the attribute in the general monitor entry that holds the list
-   * of active degraded alert types.
+   * The name of the attribute in the status health summary monitor entry that
+   * will be used to determine whether the server is in lockdown mode.
    */
   @NotNull()
-  private static final String DEGRADED_ALERT_TYPE_ATTRIBUTE_NAME =
-       "degraded-alert-type";
+  private static final String IS_IN_LOCKDOWN_MODE_ATTRIBUTE_NAME =
+       "is-in-lockdown-mode";
 
 
 
   /**
-   * The DN of the general monitor entry that will be examined.
+   * The DN of the status health summary monitor entry that will be examined.
    */
   @NotNull()
-  private static final String GENERAL_MONITOR_ENTRY_DN = "cn=monitor";
-
-
-
-  /**
-   * The name of the attribute in the general monitor entry that holds the list
-   * of active unavailable alert types.
-   */
-  @NotNull()
-  private static final String UNAVAILABLE_ALERT_TYPE_ATTRIBUTE_NAME =
-       "unavailable-alert-type";
+  private static final String STATUS_HEALTH_SUMMARY_MONITOR_ENTRY_DN =
+       "cn=Status Health Summary,cn=monitor";
 
 
 
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -8889308187890719816L;
+  private static final long serialVersionUID = 11911667291461474L;
 
 
-
-  // Indicates whether to ignore all degraded alert types.
-  private final boolean ignoreAllDegradedAlertTypes;
 
   // Indicates whether to invoke the test after a connection has been
   // authenticated.
@@ -159,14 +139,6 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
   // The maximum response time value in milliseconds.
   private final long maxResponseTimeMillis;
-
-  // A set of degraded alert types that should not cause the health check to
-  // fail.
-  @NotNull private final Map<String,String> ignoredDegradedAlertTypes;
-
-  // A set of unavailable alert types that should not cause the health check to
-  // fail.
-  @NotNull private final Map<String,String> ignoredUnavailableAlertTypes;
 
   // The search request that will be used to retrieve the monitor entry.
   @NotNull private final SearchRequest searchRequest;
@@ -216,32 +188,15 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
    *              fail.  If the provided value is less than or equal to zero,
    *              then a default timeout of 5,000 milliseconds (5 seconds) will
    *              be used.
-   * @param  ignoreAllDegradedAlertTypes
-   *              Indicates whether to ignore all degraded alert types.  If this
-   *              is {@code true}, then the presence of degraded alert types
-   *              will not cause the health check to fail.
-   * @param  ignoredDegradedAlertTypes
-   *              An optional set of the names of degraded alert types that
-   *              should be ignored so that they will not cause the health
-   *              check to fail.  This may be {@code null} or empty if no
-   *              specific degraded alert types should be ignored.
-   * @param  ignoredUnavailableAlertTypes
-   *              An optional set of the names of unavailable alert types that
-   *              should be ignored so that they will not cause the health
-   *              check to fail.  This may be {@code null} or empty if no
-   *              specific unavailable alert types should be ignored.
    */
-  public ActiveAlertsLDAPConnectionPoolHealthCheck(
+  public LockdownModeLDAPConnectionPoolHealthCheck(
               final boolean invokeOnCreate,
               final boolean invokeAfterAuthentication,
               final boolean invokeOnCheckout,
               final boolean invokeOnRelease,
               final boolean invokeForBackgroundChecks,
               final boolean invokeOnException,
-              final long maxResponseTimeMillis,
-              final boolean ignoreAllDegradedAlertTypes,
-              @Nullable final Collection<String> ignoredDegradedAlertTypes,
-              @Nullable final Collection<String> ignoredUnavailableAlertTypes)
+              final long maxResponseTimeMillis)
   {
     this.invokeOnCreate = invokeOnCreate;
     this.invokeAfterAuthentication = invokeAfterAuthentication;
@@ -249,12 +204,6 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
     this.invokeOnRelease = invokeOnRelease;
     this.invokeForBackgroundChecks = invokeForBackgroundChecks;
     this.invokeOnException = invokeOnException;
-    this.ignoreAllDegradedAlertTypes = ignoreAllDegradedAlertTypes;
-
-    this.ignoredDegradedAlertTypes =
-         getIgnoredAlertTypes(ignoredDegradedAlertTypes);
-    this.ignoredUnavailableAlertTypes =
-         getIgnoredAlertTypes(ignoredUnavailableAlertTypes);
 
     if (maxResponseTimeMillis > 0L)
     {
@@ -271,65 +220,10 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
       timeLimitSeconds++;
     }
 
-    searchRequest = new SearchRequest(GENERAL_MONITOR_ENTRY_DN,
+    searchRequest = new SearchRequest(STATUS_HEALTH_SUMMARY_MONITOR_ENTRY_DN,
          SearchScope.BASE, DereferencePolicy.NEVER, 1, timeLimitSeconds, false,
-         Filter.createANDFilter(),
-         DEGRADED_ALERT_TYPE_ATTRIBUTE_NAME,
-         UNAVAILABLE_ALERT_TYPE_ATTRIBUTE_NAME);
+         Filter.createANDFilter(), IS_IN_LOCKDOWN_MODE_ATTRIBUTE_NAME);
     searchRequest.setResponseTimeoutMillis(this.maxResponseTimeMillis);
-  }
-
-
-
-  /**
-   * Retrieves a map containing the names of the provided alert types (if any).
-   * The keys of the map will be the values in a form that is suitable for
-   * efficient comparison (in all lowercase, with underscores converted to
-   * dashes), while the corresponding values will be the names as they were
-   * originally
-   *
-   * @param  alertTypes  The collection of alert type names to use.  It may
-   *                     be {@code null} or empty if no ignored alert types
-   *                     should be used.
-   *
-   * @return  A map containing the names of the provided alert types in a form
-   *          that is efficient for comparison, or an empty map if the provided
-   *          collection is {@code null} or empty.
-   */
-  @NotNull()
-  private static Map<String,String> getIgnoredAlertTypes(
-               @Nullable final Collection<String> alertTypes)
-  {
-    if ((alertTypes == null) || alertTypes.isEmpty())
-    {
-      return Collections.emptyMap();
-    }
-
-    final Map<String,String> alertTypeMap =
-         new LinkedHashMap<>(StaticUtils.computeMapCapacity(alertTypes.size()));
-    for (final String alertType : alertTypes)
-    {
-      alertTypeMap.put(formatAlertTypeForComparison(alertType), alertType);
-    }
-
-    return Collections.unmodifiableMap(alertTypeMap);
-  }
-
-
-
-  /**
-   * Retrieves the provided alert type name in a format this is suited for
-   * efficient comparison.  Tbe name will be converted to lowercase, and any
-   * underscores will be converted to dashes.
-   *
-   * @param  name  The name to be converted.  It must not be {@code null}.
-   *
-   * @return  A version of the name that is suitable for efficient comparison.
-   */
-  @NotNull()
-  private static String formatAlertTypeForComparison(@NotNull final String name)
-  {
-    return StaticUtils.toLowerCase(name).replace('_', '-');
   }
 
 
@@ -343,7 +237,7 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
   {
     if (invokeOnCreate)
     {
-      checkActiveAlertTypes(connection);
+      checkForLockdownMode(connection);
     }
   }
 
@@ -361,7 +255,7 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
     if (invokeAfterAuthentication &&
          (bindResult.getResultCode() == ResultCode.SUCCESS))
     {
-      checkActiveAlertTypes(connection);
+      checkForLockdownMode(connection);
     }
   }
 
@@ -377,7 +271,7 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
   {
     if (invokeOnCheckout)
     {
-      checkActiveAlertTypes(connection);
+      checkForLockdownMode(connection);
     }
   }
 
@@ -393,7 +287,7 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
   {
     if (invokeOnRelease)
     {
-      checkActiveAlertTypes(connection);
+      checkForLockdownMode(connection);
     }
   }
 
@@ -409,7 +303,7 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
   {
     if (invokeForBackgroundChecks)
     {
-      checkActiveAlertTypes(connection);
+      checkForLockdownMode(connection);
     }
   }
 
@@ -427,17 +321,17 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
     if (invokeOnException &&
          (! ResultCode.isConnectionUsable(exception.getResultCode())))
     {
-      checkActiveAlertTypes(connection);
+      checkForLockdownMode(connection);
     }
   }
 
 
 
   /**
-   * Indicates whether this health check will check for active alerts whenever
-   * a new connection is created.
+   * Indicates whether this health check will check for lockdown mode whenever a
+   * new connection is created.
    *
-   * @return  {@code true} if this health check will check for active alerts
+   * @return  {@code true} if this health check will check for lockdown mode
    *          whenever a new connection is created, or {@code false} if not.
    */
   public boolean invokeOnCreate()
@@ -448,13 +342,13 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * Indicates whether this health check will check for active alerts after a
+   * Indicates whether this health check will check for lockdown mode after a
    * connection has been authenticated, including after authenticating a
    * newly-created connection, as well as after calls to the connection pool's
    * {@code bindAndRevertAuthentication} and
    * {@code releaseAndReAuthenticateConnection} methods.
    *
-   * @return  {@code true} if this health check will check for active alerts
+   * @return  {@code true} if this health check will check for lockdown mode
    *          whenever a connection has been authenticated, or {@code false} if
    *          not.
    */
@@ -466,10 +360,10 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * Indicates whether this health check will check for active alerts whenever a
+   * Indicates whether this health check will check for lockdown mode whenever a
    * connection is to be checked out for use.
    *
-   * @return  {@code true} if this health check will check for active alerts
+   * @return  {@code true} if this health check will check for lockdown mode
    *          whenever a connection is to be checked out, or {@code false} if
    *          not.
    */
@@ -481,10 +375,10 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * Indicates whether this health check will check for active alerts whenever a
+   * Indicates whether this health check will check for lockdown mode whenever a
    * connection is to be released back to the pool.
    *
-   * @return  {@code true} if this health check will check for active alerts
+   * @return  {@code true} if this health check will check for lockdown mode
    *          whenever a connection is to be released, or {@code false} if not.
    */
   public boolean invokeOnRelease()
@@ -495,10 +389,10 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * Indicates whether this health check will check for active alerts during
+   * Indicates whether this health check will check for lockdown mode during
    * periodic background health checks.
    *
-   * @return  {@code true} if this health check will check for active alerts
+   * @return  {@code true} if this health check will check for lockdown mode
    *          during periodic background health checks, or {@code false} if not.
    */
   public boolean invokeForBackgroundChecks()
@@ -509,10 +403,10 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * Indicates whether this health check will check for active alerts if an
+   * Indicates whether this health check will check for lockdown mode if an
    * exception is caught while processing an operation on a connection.
    *
-   * @return  {@code true} if this health check will check for active alerts
+   * @return  {@code true} if this health check will check for lockdown mode
    *          whenever an exception is caught, or {@code false} if not.
    */
   public boolean invokeOnException()
@@ -537,70 +431,19 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
 
 
   /**
-   * Indicates whether to ignore all degraded alert types.
-   *
-   * @return  {@code true} if all degraded alert types should be ignored, and
-   *          the presence of active degraded alerts will not cause the health
-   *          check to fail, or {@code false} if degraded alert types will be
-   *          considered significant unless they are explicitly included in the
-   *          value returned by {@link #getIgnoredDegradedAlertTypes()}.
-   */
-  public boolean ignoreAllDegradedAlertTypes()
-  {
-    return ignoreAllDegradedAlertTypes;
-  }
-
-
-
-  /**
-   * A collection of alert type names that will be ignored when evaluating the
-   * set of degraded alert types.  This will only be used if
-   * {@link #ignoreAllDegradedAlertTypes()} returns {@code false}.
-   *
-   * @return  A collection of alert type names that will be ignored when
-   *          evaluating the set of degraded alert types, or an empty collection
-   *          if all degraded alert types should be considered significant.
-   */
-  @NotNull()
-  public Collection<String> getIgnoredDegradedAlertTypes()
-  {
-    return ignoredDegradedAlertTypes.values();
-  }
-
-
-
-  /**
-   * A collection of alert type names that will be ignored when evaluating the
-   * set of unavailable alert types.
-   *
-   * @return  A collection of alert type names that will be ignored when
-   *          evaluating the set of unavailable alert types, or an empty
-   *          collection if all unavailable alert types should be considered
-   *          significant.
-   */
-  @NotNull()
-  public Collection<String> getIgnoredUnavailableAlertTypes()
-  {
-    return ignoredUnavailableAlertTypes.values();
-  }
-
-
-
-  /**
-   * Retrieves the general monitor entry and examines it to identify any
-   * active degraded or unavailable alert types.  If any are found, the health
-   * check will determine whether they should be ignored, and if not, then an
-   * exception will be thrown.
+   * Retrieves the status health summary monitor entry and uses it to determine
+   * whether the server is currently in lockdown mode.  If the server is in
+   * lockdown mode, or if a problem occurs while attempting to amek the
+   * determination, then an exception will be thrown.
    *
    * @param  conn  The connection to be checked.
    *
    * @throws  LDAPException  If a problem occurs while trying to retrieve the
    *                         target monitor entry, if it cannot be retrieved in
    *                         an acceptable length of time, or if the server
-   *                         reports that it has active degraded or unavailable
-   *                         alert types that should not be ignored.
+   *                         reports that it is in lockdown mode.
    */
-  private void checkActiveAlertTypes(@NotNull final LDAPConnection conn)
+  private void checkForLockdownMode(@NotNull final LDAPConnection conn)
           throws LDAPException
   {
     final SearchResultEntry monitorEntry;
@@ -613,8 +456,8 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
       Debug.debugException(e);
 
       final String message =
-           ERR_ACTIVE_ALERTS_HEALTH_CHECK_ERROR_GETTING_MONITOR_ENTRY.get(
-                GENERAL_MONITOR_ENTRY_DN,  conn.getHostPort(),
+           ERR_LOCKDOWN_MODE_HEALTH_CHECK_ERROR_GETTING_MONITOR_ENTRY.get(
+                STATUS_HEALTH_SUMMARY_MONITOR_ENTRY_DN,  conn.getHostPort(),
                 StaticUtils.getExceptionMessage(e));
       conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, message,
            e);
@@ -625,54 +468,34 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
     if (monitorEntry == null)
     {
       final String message =
-           ERR_ACTIVE_ALERTS_HEALTH_CHECK_NO_MONITOR_ENTRY.get(
-                GENERAL_MONITOR_ENTRY_DN, conn.getHostPort());
+           ERR_LOCKDOWN_MODE_HEALTH_CHECK_NO_MONITOR_ENTRY.get(
+                STATUS_HEALTH_SUMMARY_MONITOR_ENTRY_DN, conn.getHostPort());
       conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, message,
            null);
       throw new LDAPException(ResultCode.NO_RESULTS_RETURNED, message);
     }
 
 
-    final String[] unavailableAlertTypes = monitorEntry.getAttributeValues(
-         UNAVAILABLE_ALERT_TYPE_ATTRIBUTE_NAME);
-    if (unavailableAlertTypes != null)
+    final Boolean isInLockdownMode = monitorEntry.getAttributeValueAsBoolean(
+         IS_IN_LOCKDOWN_MODE_ATTRIBUTE_NAME);
+    if (isInLockdownMode == null)
     {
-      for (final String alertType : unavailableAlertTypes)
-      {
-        if (! ignoredUnavailableAlertTypes.containsKey(
-             formatAlertTypeForComparison(alertType)))
-        {
-          final String message =
-               ERR_ACTIVE_ALERTS_HEALTH_CHECK_UNAVAILABLE_ALERT.get(
-                    GENERAL_MONITOR_ENTRY_DN, conn.getHostPort(), alertType);
-          conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
-               message, null);
-          throw new LDAPException(ResultCode.UNAVAILABLE, message);
-        }
-      }
+      final String message =
+           ERR_LOCKDOWN_MODE_HEALTH_CHECK_NO_MONITOR_ATTR.get(
+                STATUS_HEALTH_SUMMARY_MONITOR_ENTRY_DN, conn.getHostPort(),
+                IS_IN_LOCKDOWN_MODE_ATTRIBUTE_NAME);
+      conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, message,
+           null);
+      throw new LDAPException(ResultCode.NO_SUCH_ATTRIBUTE, message);
     }
-
-
-    if (! ignoreAllDegradedAlertTypes)
+    else if (Boolean.TRUE.equals(isInLockdownMode))
     {
-      final String[] degradedAlertTypes = monitorEntry.getAttributeValues(
-           DEGRADED_ALERT_TYPE_ATTRIBUTE_NAME);
-      if (degradedAlertTypes != null)
-      {
-        for (final String alertType : degradedAlertTypes)
-        {
-          if (! ignoredDegradedAlertTypes.containsKey(
-               formatAlertTypeForComparison(alertType)))
-          {
-            final String message =
-                 ERR_ACTIVE_ALERTS_HEALTH_CHECK_DEGRADED_ALERT.get(
-                      GENERAL_MONITOR_ENTRY_DN, conn.getHostPort(), alertType);
-            conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
-                 message, null);
-            throw new LDAPException(ResultCode.UNAVAILABLE, message);
-          }
-        }
-      }
+      final String message =
+           ERR_LOCKDOWN_MODE_HEALTH_CHECK_IS_IN_LOCKDOWN_MODE.get(
+                conn.getHostPort());
+      conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, message,
+           null);
+      throw new LDAPException(ResultCode.UNAVAILABLE, message);
     }
   }
 
@@ -684,7 +507,7 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
   @Override()
   public void toString(@NotNull final StringBuilder buffer)
   {
-    buffer.append("ActiveAlertsLDAPConnectionPoolHealthCheck(invokeOnCreate=");
+    buffer.append("LockdownMOdeLDAPConnectionPoolHealthCheck(invokeOnCreate=");
     buffer.append(invokeOnCreate);
     buffer.append(", invokeAfterAuthentication=");
     buffer.append(invokeAfterAuthentication);
@@ -698,46 +521,6 @@ public final class ActiveAlertsLDAPConnectionPoolHealthCheck
     buffer.append(invokeOnException);
     buffer.append(", maxResponseTimeMillis=");
     buffer.append(maxResponseTimeMillis);
-    buffer.append(", ignoreAllDegradedAlertTypes=");
-    buffer.append(ignoreAllDegradedAlertTypes);
-
-    buffer.append(", ignoredDegradedAlertTypes=");
-    appendAlertTypes(buffer, ignoredDegradedAlertTypes.values());
-
-    buffer.append(", ignoredUnavailableAlertTypes=");
-    appendAlertTypes(buffer, ignoredUnavailableAlertTypes.values());
-
     buffer.append(')');
-  }
-
-
-
-  /**
-   * Appends a list of the provided alert type names to the given buffer.
-   *
-   * @param  buffer  The buffer to which the names should be appended.  It must
-   *                 not be {@code null}.
-   * @param  names   The names of the alert types to append to the buffer.  It
-   *                 must not be {@code null}, but may be empty.
-   */
-  private static void appendAlertTypes(@NotNull final StringBuilder buffer,
-                                       @NotNull final Collection<String> names)
-  {
-    buffer.append("{ ");
-
-    final Iterator<String> iterator = names.iterator();
-    while (iterator.hasNext())
-    {
-      buffer.append(iterator.next());
-
-      if (iterator.hasNext())
-      {
-        buffer.append(',');
-      }
-
-      buffer.append(' ');
-    }
-
-    buffer.append('}');
   }
 }
