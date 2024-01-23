@@ -102,6 +102,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new "active alerts" LDAP connection pool health check that can retrieve
+                  the set of active alert types from a Ping Identity Directory Server instance to
+                  determine whether the server considers itself to be in a degraded or unavailable
+                  state.  You can configure it to only care about unavailable alert types, or to
+                  ignore a specific set of degraded or unavailable alert types.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the CryptoHelper class to add convenience methods for generating
                   cryptographic message digests from byte arrays, strings, and files.  Specific
                   methods are provided for the SHA-256, SHA-384, and SHA-512 digest algorithms, as
