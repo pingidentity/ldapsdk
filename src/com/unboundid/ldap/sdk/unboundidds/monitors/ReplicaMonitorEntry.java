@@ -102,7 +102,7 @@ public final class ReplicaMonitorEntry
 
 
   /**
-   * The name of the attribute that contains the base DNs for the replicated
+   * The name of the attribute that contains the base DN for the replicated
    * data.
    */
   @NotNull private static final String ATTR_BASE_DN = "base-dn";
