@@ -43,13 +43,14 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.StaticUtils;
 
 
 
 /**
  * This class provides test coverage for the ReplicaMonitorEntry class.
  */
-public class ReplicaMonitorEntryTestCase
+  public class ReplicaMonitorEntryTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -86,7 +87,50 @@ public class ReplicaMonitorEntryTestCase
          "max-send-window: 13",
          "current-send-window: 14",
          "ssl-encryption: false",
-         "generation-id: 15");
+         "generation-id: 15",
+         "total-update-count: 16",
+         "received-acks: 17",
+         "sent-acks: 18",
+         "replayed-updates-failed: 19",
+         "conflict-entry-count: 20",
+         "replication-backlog: 21",
+         "age-of-oldest-backlog-change: 20240102010203.456Z",
+         "pending-changes-current-uncommitted-size: 22",
+         "age-of-oldest-pending-update: 23",
+         "pending-changes-max-capacity: 24",
+         "pending-changes-largest-size-reached: 25",
+         "pending-changes-num-times-added-to-full-queue: 26",
+         "pending-changes-num-times-stall-logged: 27",
+         "last-update-latency-millis: 28",
+         "recent-average-latency-millis: 29",
+         "recent-maximum-latency-millis: 30",
+         "recent-minimum-latency-millis: 31",
+         "recent-negative-latency-update-count: 32",
+         "recent-sum-latency-millis: 33",
+         "recent-update-count: 34",
+         "total-average-latency-millis: 35",
+         "total-maximum-latency-millis: 36",
+         "total-minimum-latency-millis: 37",
+         "total-negative-latency-update-count: 38",
+         "total-sum-latency-millis: 39",
+         "replication-assurance-submitted-operations: 40",
+         "replication-assurance-completed-normally: 41",
+         "replication-assurance-completed-abnormally: 42",
+         "replication-assurance-completed-with-timeout: 43",
+         "replication-assurance-completed-with-shutdown: 44",
+         "requeue-retry-op-success-count: 45",
+         "requeue-retry-op-failed-count: 46",
+         "requeue-retry-add-success-count: 47",
+         "requeue-retry-add-failed-count: 48",
+         "requeue-retry-delete-success-count: 49",
+         "requeue-retry-delete-failed-count: 50",
+         "requeue-retry-modify-success-count: 51",
+         "requeue-retry-modify-failed-count: 52",
+         "requeue-retry-modify-dn-success-count: 53",
+         "requeue-retry-modify-dn-failed-count: 54",
+         "requeue-retry-op-success-average-duration-millis: 55.5",
+         "requeue-retry-op-success-maximum-duration-millis: 56.5",
+         "requeue-retry-op-success-total-millis: 57");
 
     ReplicaMonitorEntry me = new ReplicaMonitorEntry(e);
     assertNotNull(me.toString());
@@ -147,6 +191,146 @@ public class ReplicaMonitorEntryTestCase
 
     assertNotNull(me.getCurrentSendWindowSize());
     assertEquals(me.getCurrentSendWindowSize(), Long.valueOf(14L));
+
+    assertNotNull(me.getTotalUpdateCount());
+    assertEquals(me.getTotalUpdateCount(), Long.valueOf(16L));
+
+    assertNotNull(me.getReceivedAcks());
+    assertEquals(me.getReceivedAcks(), Long.valueOf(17L));
+
+    assertNotNull(me.getSentAcks());
+    assertEquals(me.getSentAcks(), Long.valueOf(18L));
+
+    assertNotNull(me.getUpdateReplayFailures());
+    assertEquals(me.getUpdateReplayFailures(), Long.valueOf(19L));
+
+    assertNotNull(me.getConflictEntryCount());
+    assertEquals(me.getConflictEntryCount(), Long.valueOf(20L));
+
+    assertNotNull(me.getReplicationBacklog());
+    assertEquals(me.getReplicationBacklog(), Long.valueOf(21L));
+
+    assertNotNull(me.getOldestBacklogChangeTime());
+    assertEquals(me.getOldestBacklogChangeTime(),
+         StaticUtils.decodeGeneralizedTime("20240102010203.456Z"));
+
+    assertNotNull(me.getPendingChangesCurrentUncommittedSize());
+    assertEquals(me.getPendingChangesCurrentUncommittedSize(),
+         Long.valueOf(22L));
+
+    assertNotNull(me.getAgeOfOldestPendingUpdateMillis());
+    assertEquals(me.getAgeOfOldestPendingUpdateMillis(), Long.valueOf(23L));
+
+    assertNotNull(me.getPendingChangesMaxCapacity());
+    assertEquals(me.getPendingChangesMaxCapacity(), Long.valueOf(24L));
+
+    assertNotNull(me.getPendingChangesLargestSizeReached());
+    assertEquals(me.getPendingChangesLargestSizeReached(), Long.valueOf(25L));
+
+    assertNotNull(me.getPendingChangesNumTimesAddedToFullQueue());
+    assertEquals(me.getPendingChangesNumTimesAddedToFullQueue(),
+         Long.valueOf(26L));
+
+    assertNotNull(me.getPendingChangesNumTimesStallLogged());
+    assertEquals(me.getPendingChangesNumTimesStallLogged(), Long.valueOf(27L));
+
+    assertNotNull(me.getLastUpdateLatencyMillis());
+    assertEquals(me.getLastUpdateLatencyMillis(), Long.valueOf(28L));
+
+    assertNotNull(me.getRecentAverageLatencyMillis());
+    assertEquals(me.getRecentAverageLatencyMillis(), Long.valueOf(29L));
+
+    assertNotNull(me.getRecentMaximumLatencyMillis());
+    assertEquals(me.getRecentMaximumLatencyMillis(), Long.valueOf(30L));
+
+    assertNotNull(me.getRecentMinimumLatencyMillis());
+    assertEquals(me.getRecentMinimumLatencyMillis(), Long.valueOf(31L));
+
+    assertNotNull(me.getRecentNegativeLatencyUpdateCount());
+    assertEquals(me.getRecentNegativeLatencyUpdateCount(), Long.valueOf(32));
+
+    assertNotNull(me.getRecentSumLatencyMillis());
+    assertEquals(me.getRecentSumLatencyMillis(), Long.valueOf(33L));
+
+    assertNotNull(me.getRecentUpdateCount());
+    assertEquals(me.getRecentUpdateCount(), Long.valueOf(34L));
+
+    assertNotNull(me.getTotalAverageLatencyMillis());
+    assertEquals(me.getTotalAverageLatencyMillis(), Long.valueOf(35L));
+
+    assertNotNull(me.getTotalMaximumLatencyMillis());
+    assertEquals(me.getTotalMaximumLatencyMillis(), Long.valueOf(36L));
+
+    assertNotNull(me.getTotalMinimumLatencyMillis());
+    assertEquals(me.getTotalMinimumLatencyMillis(), Long.valueOf(37L));
+
+    assertNotNull(me.getTotalNegativeLatencyUpdateCount());
+    assertEquals(me.getTotalNegativeLatencyUpdateCount(), Long.valueOf(38L));
+
+    assertNotNull(me.getTotalSumLatencyMillis());
+    assertEquals(me.getTotalSumLatencyMillis(), Long.valueOf(39L));
+
+    assertNotNull(me.getReplicationAssuranceSubmittedOperations());
+    assertEquals(me.getReplicationAssuranceSubmittedOperations(),
+         Long.valueOf(40L));
+
+    assertNotNull(me.getReplicationAssuranceCompletedNormally());
+    assertEquals(me.getReplicationAssuranceCompletedNormally(),
+         Long.valueOf(41L));
+
+    assertNotNull(me.getReplicationAssuranceCompletedAbnormally());
+    assertEquals(me.getReplicationAssuranceCompletedAbnormally(),
+         Long.valueOf(42L));
+
+    assertNotNull(me.getReplicationAssuranceCompletedWithTimeout());
+    assertEquals(me.getReplicationAssuranceCompletedWithTimeout(),
+         Long.valueOf(43L));
+
+    assertNotNull(me.getReplicationAssuranceCompletedWithShutdown());
+    assertEquals(me.getReplicationAssuranceCompletedWithShutdown(),
+         Long.valueOf(44L));
+
+    assertNotNull(me.getRequeueRetryOpSuccessCount());
+    assertEquals(me.getRequeueRetryOpSuccessCount(), Long.valueOf(45L));
+
+    assertNotNull(me.getRequeueRetryOpFailedCount());
+    assertEquals(me.getRequeueRetryOpFailedCount(), Long.valueOf(46L));
+
+    assertNotNull(me.getRequeueRetryAddSuccessCount());
+    assertEquals(me.getRequeueRetryAddSuccessCount(), Long.valueOf(47L));
+
+    assertNotNull(me.getRequeueRetryAddFailedCount());
+    assertEquals(me.getRequeueRetryAddFailedCount(), Long.valueOf(48L));
+
+    assertNotNull(me.getRequeueRetryDeleteSuccessCount());
+    assertEquals(me.getRequeueRetryDeleteSuccessCount(), Long.valueOf(49L));
+
+    assertNotNull(me.getRequeueRetryDeleteFailedCount());
+    assertEquals(me.getRequeueRetryDeleteFailedCount(), Long.valueOf(50L));
+
+    assertNotNull(me.getRequeueRetryModifySuccessCount());
+    assertEquals(me.getRequeueRetryModifySuccessCount(), Long.valueOf(51L));
+
+    assertNotNull(me.getRequeueRetryModifyFailedCount());
+    assertEquals(me.getRequeueRetryModifyFailedCount(), Long.valueOf(52L));
+
+    assertNotNull(me.getRequeueRetryModifyDNSuccessCount());
+    assertEquals(me.getRequeueRetryModifyDNSuccessCount(), Long.valueOf(53L));
+
+    assertNotNull(me.getRequeueRetryModifyDNFailedCount());
+    assertEquals(me.getRequeueRetryModifyDNFailedCount(), Long.valueOf(54L));
+
+    assertNotNull(me.getRequeueRetrySuccessAverageDurationMillis());
+    assertEquals(me.getRequeueRetrySuccessAverageDurationMillis(),
+         Double.valueOf(55.5d));
+
+    assertNotNull(me.getRequeueRetrySuccessMaximumDurationMillis());
+    assertEquals(me.getRequeueRetrySuccessMaximumDurationMillis(),
+         Double.valueOf(56.5d));
+
+    assertNotNull(me.getRequeueRetrySuccessTotalDurationMillis());
+    assertEquals(me.getRequeueRetrySuccessTotalDurationMillis(),
+         Long.valueOf(57L));
 
     assertNotNull(me.useSSL());
     assertEquals(me.useSSL(), Boolean.FALSE);
@@ -229,6 +413,200 @@ public class ReplicaMonitorEntryTestCase
 
     assertNotNull(attrs.get("generation-id"));
     assertEquals(attrs.get("generation-id").getStringValue(), "15");
+
+    assertNotNull(attrs.get("total-update-count"));
+    assertEquals(attrs.get("total-update-count").getLongValue(),
+         Long.valueOf(16L));
+
+    assertNotNull(attrs.get("received-acks"));
+    assertEquals(attrs.get("received-acks").getLongValue(), Long.valueOf(17L));
+
+    assertNotNull(attrs.get("sent-acks"));
+    assertEquals(attrs.get("sent-acks").getLongValue(), Long.valueOf(18L));
+
+    assertNotNull(attrs.get("replayed-updates-failed"));
+    assertEquals(attrs.get("replayed-updates-failed").getLongValue(),
+         Long.valueOf(19L));
+
+    assertNotNull(attrs.get("conflict-entry-count"));
+    assertEquals(attrs.get("conflict-entry-count").getLongValue(),
+         Long.valueOf(20L));
+
+    assertNotNull(attrs.get("replication-backlog"));
+    assertEquals(attrs.get("replication-backlog").getLongValue(),
+         Long.valueOf(21L));
+
+    assertNotNull(attrs.get("age-of-oldest-backlog-change"));
+    assertEquals(
+         attrs.get("age-of-oldest-backlog-change").getDateValue(),
+         StaticUtils.decodeGeneralizedTime("20240102010203.456Z"));
+
+    assertNotNull(attrs.get("pending-changes-current-uncommitted-size"));
+    assertEquals(
+         attrs.get("pending-changes-current-uncommitted-size").getLongValue(),
+         Long.valueOf(22L));
+
+    assertNotNull(attrs.get("age-of-oldest-pending-update"));
+    assertEquals(attrs.get("age-of-oldest-pending-update").getLongValue(),
+         Long.valueOf(23L));
+
+    assertNotNull(attrs.get("pending-changes-max-capacity"));
+    assertEquals(attrs.get("pending-changes-max-capacity").getLongValue(),
+         Long.valueOf(24L));
+
+    assertNotNull(attrs.get("pending-changes-largest-size-reached"));
+    assertEquals(
+         attrs.get("pending-changes-largest-size-reached").getLongValue(),
+         Long.valueOf(25L));
+
+    assertNotNull(attrs.get("pending-changes-num-times-added-to-full-queue"));
+    assertEquals(
+         attrs.get("pending-changes-num-times-added-to-full-queue").
+              getLongValue(),
+         Long.valueOf(26L));
+
+    assertNotNull(attrs.get("pending-changes-num-times-stall-logged"));
+    assertEquals(
+         attrs.get("pending-changes-num-times-stall-logged").getLongValue(),
+         Long.valueOf(27L));
+
+    assertNotNull(attrs.get("last-update-latency-millis"));
+    assertEquals(attrs.get("last-update-latency-millis").getLongValue(),
+         Long.valueOf(28L));
+
+    assertNotNull(attrs.get("recent-average-latency-millis"));
+    assertEquals(attrs.get("recent-average-latency-millis").getLongValue(),
+         Long.valueOf(29L));
+
+    assertNotNull(attrs.get("recent-maximum-latency-millis"));
+    assertEquals(attrs.get("recent-maximum-latency-millis").getLongValue(),
+         Long.valueOf(30L));
+
+    assertNotNull(attrs.get("recent-minimum-latency-millis"));
+    assertEquals(attrs.get("recent-minimum-latency-millis").getLongValue(),
+         Long.valueOf(31L));
+
+    assertNotNull(attrs.get("recent-negative-latency-update-count"));
+    assertEquals(
+         attrs.get("recent-negative-latency-update-count").getLongValue(),
+         Long.valueOf(32L));
+
+    assertNotNull(attrs.get("recent-sum-latency-millis"));
+    assertEquals(attrs.get("recent-sum-latency-millis").getLongValue(),
+         Long.valueOf(33L));
+
+    assertNotNull(attrs.get("recent-update-count"));
+    assertEquals(attrs.get("recent-update-count").getLongValue(),
+         Long.valueOf(34L));
+
+    assertNotNull(attrs.get("total-average-latency-millis"));
+    assertEquals(attrs.get("total-average-latency-millis").getLongValue(),
+         Long.valueOf(35L));
+
+    assertNotNull(attrs.get("total-maximum-latency-millis"));
+    assertEquals(attrs.get("total-maximum-latency-millis").getLongValue(),
+         Long.valueOf(36L));
+
+    assertNotNull(attrs.get("total-minimum-latency-millis"));
+    assertEquals(attrs.get("total-minimum-latency-millis").getLongValue(),
+         Long.valueOf(37L));
+
+    assertNotNull(attrs.get("total-negative-latency-update-count"));
+    assertEquals(
+         attrs.get("total-negative-latency-update-count").getLongValue(),
+         Long.valueOf(38L));
+
+    assertNotNull(attrs.get("total-sum-latency-millis"));
+    assertEquals(attrs.get("total-sum-latency-millis").getLongValue(),
+         Long.valueOf(39L));
+
+    assertNotNull(attrs.get("replication-assurance-submitted-operations"));
+    assertEquals(
+         attrs.get("replication-assurance-submitted-operations").getLongValue(),
+         Long.valueOf(40L));
+
+    assertNotNull(attrs.get("replication-assurance-completed-normally"));
+    assertEquals(
+         attrs.get("replication-assurance-completed-normally").getLongValue(),
+         Long.valueOf(41L));
+
+    assertNotNull(attrs.get("replication-assurance-completed-abnormally"));
+    assertEquals(
+         attrs.get("replication-assurance-completed-abnormally").getLongValue(),
+         Long.valueOf(42L));
+
+    assertNotNull(attrs.get("replication-assurance-completed-with-timeout"));
+    assertEquals(
+         attrs.get("replication-assurance-completed-with-timeout")
+              .getLongValue(),
+         Long.valueOf(43L));
+
+    assertNotNull(attrs.get("replication-assurance-completed-with-shutdown"));
+    assertEquals(
+         attrs.get("replication-assurance-completed-with-shutdown")
+              .getLongValue(),
+         Long.valueOf(44L));
+
+    assertNotNull(attrs.get("requeue-retry-op-success-count"));
+    assertEquals(attrs.get("requeue-retry-op-success-count").getLongValue(),
+         Long.valueOf(45L));
+
+    assertNotNull(attrs.get("requeue-retry-op-failed-count"));
+    assertEquals(attrs.get("requeue-retry-op-failed-count").getLongValue(),
+         Long.valueOf(46L));
+
+    assertNotNull(attrs.get("requeue-retry-add-success-count"));
+    assertEquals(attrs.get("requeue-retry-add-success-count").getLongValue(),
+         Long.valueOf(47L));
+
+    assertNotNull(attrs.get("requeue-retry-add-failed-count"));
+    assertEquals(attrs.get("requeue-retry-add-failed-count").getLongValue(),
+         Long.valueOf(48L));
+
+    assertNotNull(attrs.get("requeue-retry-delete-success-count"));
+    assertEquals(attrs.get("requeue-retry-delete-success-count").getLongValue(),
+         Long.valueOf(49L));
+
+    assertNotNull(attrs.get("requeue-retry-delete-failed-count"));
+    assertEquals(attrs.get("requeue-retry-delete-failed-count").getLongValue(),
+         Long.valueOf(50L));
+
+    assertNotNull(attrs.get("requeue-retry-modify-success-count"));
+    assertEquals(attrs.get("requeue-retry-modify-success-count").getLongValue(),
+         Long.valueOf(51L));
+
+    assertNotNull(attrs.get("requeue-retry-modify-failed-count"));
+    assertEquals(attrs.get("requeue-retry-modify-failed-count").getLongValue(),
+         Long.valueOf(52L));
+
+    assertNotNull(attrs.get("requeue-retry-modify-dn-success-count"));
+    assertEquals(attrs.get("requeue-retry-modify-dn-success-count").
+              getLongValue(),
+         Long.valueOf(53L));
+
+    assertNotNull(attrs.get("requeue-retry-modify-dn-failed-count"));
+    assertEquals(attrs.get("requeue-retry-modify-dn-failed-count").
+              getLongValue(),
+         Long.valueOf(54L));
+
+    assertNotNull(
+         attrs.get("requeue-retry-op-success-average-duration-millis"));
+    assertEquals(
+         attrs.get("requeue-retry-op-success-average-duration-millis").
+              getDoubleValue(),
+         Double.valueOf(55.5d));
+
+    assertNotNull(
+         attrs.get("requeue-retry-op-success-maximum-duration-millis"));
+    assertEquals(
+         attrs.get("requeue-retry-op-success-maximum-duration-millis").
+              getDoubleValue(),
+         Double.valueOf(56.5d));
+
+    assertNotNull(attrs.get("requeue-retry-op-success-total-millis"));
+    assertEquals(
+         attrs.get("requeue-retry-op-success-total-millis").getLongValue(),
+         Long.valueOf(57L));
   }
 
 
@@ -447,6 +825,92 @@ public class ReplicaMonitorEntryTestCase
     assertNull(me.getMaximumSendWindowSize());
 
     assertNull(me.getCurrentSendWindowSize());
+
+    assertNull(me.getTotalUpdateCount());
+
+    assertNull(me.getReceivedAcks());
+
+    assertNull(me.getSentAcks());
+
+    assertNull(me.getUpdateReplayFailures());
+
+    assertNull(me.getConflictEntryCount());
+
+    assertNull(me.getReplicationBacklog());
+
+    assertNull(me.getOldestBacklogChangeTime());
+
+    assertNull(me.getPendingChangesCurrentUncommittedSize());
+
+    assertNull(me.getAgeOfOldestPendingUpdateMillis());
+
+    assertNull(me.getPendingChangesMaxCapacity());
+
+    assertNull(me.getPendingChangesLargestSizeReached());
+
+    assertNull(me.getPendingChangesNumTimesAddedToFullQueue());
+
+    assertNull(me.getPendingChangesNumTimesStallLogged());
+
+    assertNull(me.getLastUpdateLatencyMillis());
+
+    assertNull(me.getRecentAverageLatencyMillis());
+
+    assertNull(me.getRecentMaximumLatencyMillis());
+
+    assertNull(me.getRecentMinimumLatencyMillis());
+
+    assertNull(me.getRecentNegativeLatencyUpdateCount());
+
+    assertNull(me.getRecentSumLatencyMillis());
+
+    assertNull(me.getRecentUpdateCount());
+
+    assertNull(me.getTotalAverageLatencyMillis());
+
+    assertNull(me.getTotalMaximumLatencyMillis());
+
+    assertNull(me.getTotalMinimumLatencyMillis());
+
+    assertNull(me.getTotalNegativeLatencyUpdateCount());
+
+    assertNull(me.getTotalSumLatencyMillis());
+
+    assertNull(me.getReplicationAssuranceSubmittedOperations());
+
+    assertNull(me.getReplicationAssuranceCompletedNormally());
+
+    assertNull(me.getReplicationAssuranceCompletedAbnormally());
+
+    assertNull(me.getReplicationAssuranceCompletedWithTimeout());
+
+    assertNull(me.getReplicationAssuranceCompletedWithShutdown());
+
+    assertNull(me.getRequeueRetryOpSuccessCount());
+
+    assertNull(me.getRequeueRetryOpFailedCount());
+
+    assertNull(me.getRequeueRetryAddSuccessCount());
+
+    assertNull(me.getRequeueRetryAddFailedCount());
+
+    assertNull(me.getRequeueRetryDeleteSuccessCount());
+
+    assertNull(me.getRequeueRetryDeleteFailedCount());
+
+    assertNull(me.getRequeueRetryModifySuccessCount());
+
+    assertNull(me.getRequeueRetryModifyFailedCount());
+
+    assertNull(me.getRequeueRetryModifyDNSuccessCount());
+
+    assertNull(me.getRequeueRetryModifyDNFailedCount());
+
+    assertNull(me.getRequeueRetrySuccessAverageDurationMillis());
+
+    assertNull(me.getRequeueRetrySuccessMaximumDurationMillis());
+
+    assertNull(me.getRequeueRetrySuccessTotalDurationMillis());
 
     assertNull(me.useSSL());
 
