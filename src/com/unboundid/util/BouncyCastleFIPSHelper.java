@@ -209,6 +209,16 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
+   * The name of a Java property (org.bouncycastle.jsse.enable_md5) that the
+   * Bouncy Castle FIPS provider uses to determine whether to allow the use of
+   * the MD5 digest algorithm.
+   */
+  @NotNull public static final String PROPERTY_ENABLE_MD5 =
+       "org.bouncycastle.jsse.enable_md5";
+
+
+
+  /**
    * The name of a Java property
    * (com.unboundid.util.BouncyCastleFIPSHelper.ENABLE_LOGGING) that indicates
    * whether to enable or disable the Bouncy Castle JSSE provider's logging.
