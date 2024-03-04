@@ -1,0 +1,3246 @@
+
+
+RASCHEMA                                                      J. Coretta
+Internet-Draft                                         February 29, 2024
+Intended status: Experimental
+Obsoletes: X660LDAP
+Expires: August 27, 2024
+
+
+                   The OID Directory: The Schema
+                draft-coretta-oiddir-schema-01.txt
+
+Abstract
+
+   In service to the "OID Directory" ID series, this ID declares schema
+   definitions for use within an implementation of the Registration
+   Authority Directory Information Tree.
+
+   See the RADIR ID for a complete draft series manifest.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on August 27, 2024.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                  [Page 1]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+Table of Contents
+
+   1. Introduction ....................................................4
+      1.1. Conventions ................................................5
+      1.2. Acronyms Used ..............................................5
+      1.3. Allocations ................................................5
+      1.4. Well-Known Numeric OIDs ....................................5
+   2. Schema Definitions ..............................................6
+      2.1. LDAP Syntaxes ..............................................6
+      2.2. Matching Rules .............................................6
+      2.3. Attribute Types ............................................6
+         2.3.1. 'n' ...................................................7
+         2.3.2. 'dotNotation' .........................................7
+         2.3.3. 'iRI' .................................................7
+         2.3.4. 'aSN1Notation' ........................................8
+         2.3.5. 'unicodeValue' ........................................8
+         2.3.6. 'additionalUnicodeValue' ..............................9
+         2.3.7. 'identifier' ..........................................9
+         2.3.8. 'secondaryIdentifier' ................................10
+         2.3.9. 'registrationInformation' ............................10
+         2.3.10. 'registrationURI' ...................................10
+         2.3.11. 'registrationCreated' ...............................11
+         2.3.12. 'registrationModified' ..............................11
+         2.3.13. 'registrationRange' .................................12
+         2.3.14. 'registrationStatus' ................................12
+         2.3.15. 'registrationClassification' ........................12
+         2.3.16. 'isLeafNode' ........................................13
+         2.3.17. 'isFrozen' ..........................................13
+         2.3.18. 'standardizedNameForm' ..............................13
+         2.3.19. 'nameAndNumberForm' .................................14
+         2.3.20. 'longArc' ...........................................14
+         2.3.21. 'supArc' ............................................15
+         2.3.22. 'c-supArc' ..........................................15
+         2.3.23. 'topArc' ............................................16
+         2.3.24. 'c-topArc' ..........................................16
+         2.3.25. 'subArc' ............................................17
+         2.3.26. 'leftArc' ...........................................17
+         2.3.27. 'minArc' ............................................17
+         2.3.28. 'c-minArc' ..........................................18
+         2.3.29. 'rightArc' ..........................................18
+         2.3.30. 'maxArc' ............................................19
+         2.3.31. 'c-maxArc' ..........................................19
+         2.3.32. 'discloseTo' ........................................20
+         2.3.33. 'c-discloseTo' ......................................20
+         2.3.34. 'registrantID .......................................20
+         2.3.35. 'currentAuthority' ..................................21
+         2.3.36. 'c-currentAuthority' ................................21
+         2.3.37. 'currentAuthorityStartTimestamp' ....................22
+         2.3.38. 'currentAuthorityCommonName' ........................22
+         2.3.39. 'currentAuthorityCountryCode' .......................22
+         2.3.40. 'currentAuthorityCountryName' .......................23
+         2.3.41. 'currentAuthorityEmail' .............................23
+
+Coretta                Expires August 27, 2024                  [Page 2]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+         2.3.42. 'currentAuthorityFax' ...............................23
+         2.3.43. 'currentAuthorityLocality' ..........................24
+         2.3.44. 'currentAuthorityMobile' ............................24
+         2.3.45. 'currentAuthorityOrg' ...............................25
+         2.3.46. 'currentAuthorityPOBox' .............................25
+         2.3.47. 'currentAuthorityPostalAddress' .....................25
+         2.3.48. 'currentAuthorityPostalCode' ........................26
+         2.3.49. 'currentAuthorityState' .............................26
+         2.3.50. 'currentAuthorityStreet' ............................26
+         2.3.51. 'currentAuthorityTelephone' .........................27
+         2.3.52. 'currentAuthorityTitle' .............................27
+         2.3.53. 'currentAuthorityURI' ...............................27
+         2.3.54. 'firstAuthority' ....................................28
+         2.3.55. 'c-firstAuthority' ..................................28
+         2.3.56. 'firstAuthorityStartTimestamp' ......................29
+         2.3.57. 'firstAuthorityEndTimestamp' ........................29
+         2.3.58. 'firstAuthorityCommonName' ..........................29
+         2.3.59. 'firstAuthorityCountryCode' .........................30
+         2.3.60. 'firstAuthorityCountryName' .........................30
+         2.3.61. 'firstAuthorityEmail' ...............................31
+         2.3.62. 'firstAuthorityFax' .................................31
+         2.3.63. 'firstAuthorityLocality' ............................31
+         2.3.64. 'firstAuthorityMobile' ..............................32
+         2.3.65. 'firstAuthorityOrg' .................................32
+         2.3.66. 'firstAuthorityPOBox' ...............................32
+         2.3.67. 'firstAuthorityPostalAddress' .......................33
+         2.3.68. 'firstAuthorityPostalCode' ..........................33
+         2.3.69. 'firstAuthorityState' ...............................34
+         2.3.70. 'firstAuthorityStreet' ..............................34
+         2.3.71. 'firstAuthorityTelephone' ...........................34
+         2.3.72. 'firstAuthorityTitle' ...............................35
+         2.3.73. 'firstAuthorityURI' .................................35
+         2.3.74. 'sponsor' ...........................................35
+         2.3.75. 'c-sponsor' .........................................36
+         2.3.76. 'sponsorStartTimestamp ..............................36
+         2.3.77. 'sponsorEndTimestamp ................................37
+         2.3.78. 'sponsorCommonName' .................................37
+         2.3.79. 'sponsorCountryCode' ................................37
+         2.3.80. 'sponsorCountryName' ................................38
+         2.3.81. 'sponsorEmail' ......................................38
+         2.3.82. 'sponsorFax' ........................................38
+         2.3.83. 'sponsorLocality' ...................................39
+         2.3.84. 'sponsorMobile' .....................................39
+         2.3.85. 'sponsorOrg' ........................................39
+         2.3.86. 'sponsorPOBox' ......................................40
+         2.3.87. 'sponsorPostalAddress' ..............................40
+         2.3.88. 'sponsorPostalCode' .................................41
+         2.3.89. 'sponsorState' ......................................41
+         2.3.90. 'sponsorStreet' .....................................41
+         2.3.91. 'sponsorTelephone' ..................................42
+         2.3.92. 'sponsorTitle' ......................................42
+         2.3.93. 'sponsorURI' ........................................42
+
+Coretta                Expires August 27, 2024                  [Page 3]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+         2.3.94. 'rADITProfile' ......................................43
+         2.3.95. 'rARegistrationBase' ................................43
+         2.3.96. 'rARegistrantBase' ..................................43
+         2.3.97. 'rADirectoryModel' ..................................44
+         2.3.98. 'rAServiceMail' .....................................44
+         2.3.99. 'rAServiceURI' ......................................44
+         2.3.100. 'rATTL' ............................................45
+         2.3.101. 'c-rATTL' ..........................................45
+         2.3.102. 'registeredUUID' ...................................46
+      2.4. Matching Rule Uses ........................................46
+      2.5. Object Classes ............................................46
+         2.5.1. 'registration' .......................................46
+         2.5.2. 'rootArc' ............................................46
+         2.5.3. 'arc' ................................................47
+         2.5.4. 'x660Context .........................................47
+         2.5.5. 'x667Context .........................................47
+         2.5.6. 'x680Context .........................................47
+         2.5.7. 'iTUTRegistration' ...................................48
+         2.5.8. 'iSORegistration' ....................................48
+         2.5.9. 'jointISOITUTRegistration' ...........................49
+         2.5.10. 'spatialContext' ....................................49
+         2.5.11. 'registrationSupplement' ............................50
+         2.5.12. 'firstAuthorityContext' .............................50
+         2.5.13. 'currentAuthorityContext' ...........................51
+         2.5.14. 'sponsorContext' ....................................51
+         2.5.15. 'registrant' ........................................52
+         2.5.16. 'rADUAConfig' .......................................52
+      2.6. DIT Content Rules .........................................52
+      2.7. Name Forms ................................................53
+         2.7.1. 'nRootArcForm' .......................................53
+         2.7.2. 'nArcForm' ...........................................53
+         2.7.3. 'dotNotationArcForm' .................................53
+      2.8. DIT Structure Rules .......................................53
+   3. IANA Considerations ............................................54
+   4. Security Considerations ........................................54
+   5. References .....................................................54
+      5.1. Normative References ......................................54
+      5.2. Informative References ....................................55
+   Author's Address ..................................................56
+
+1.  Introduction
+
+   The information bases meant to house registration and registrant data
+   by way of modern directory standards as outlined within this series
+   is dependent upon a comprehensive directory schema.
+
+   The schema is used to define content and -- to a degree -- structure
+   within the directory.
+
+   In context, the definitions set forth are based on concepts derived
+   from ITU-T Recommendations [X.660], [X.680], [RFC2578] et al.
+
+
+Coretta                Expires August 27, 2024                  [Page 4]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The intended end result is a directory service specially suited to
+   operate as an object identifier registration authority service.
+
+1.1.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY",
+   and "OPTIONAL" in this document are to be interpreted as described
+   in BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in
+   all capitals, as shown here.
+
+1.2.  Acronyms Used
+
+   See Section 1.3 of the RADIR ID for all acronym references.
+
+1.3.  Allocations
+
+   This specification extends the previously defined ID series OID root
+   '1.3.6.1.4.1.56521.101', defined in Section 1.6 of the RADIR ID:
+
+     - 1.3.6.1.4.1.56521.101.2 (schema)
+     - 1.3.6.1.4.1.56521.101.2.3 (attributeTypes)
+     - 1.3.6.1.4.1.56521.101.2.5 (objectClasses)
+     - 1.3.6.1.4.1.56521.101.2.7 (nameForms)
+
+   All OIDs defined in this ID correlate to the section numbers in which
+   they originate.  For example, the 'n' attribute type defined within
+   Section 2.3.1 is associated with the OID 1.3.6.1.4.1.56521.101.2.3.1.
+
+   Should this ID be elevated to RFC status, the aforementioned ID root
+   OID prefix shall be rendered obsolete in favor of an IANA-assigned
+   OID, at which point this ID will be updated to reference the literal
+   'IANA-ASSIGNED-OID' placeholder prefix, where appropriate.
+
+1.4.  Well-Known Numeric OIDs
+
+   This ID references several well-known numeric OIDs defined by other
+   parties or institutions, particularly as it pertains to the content
+   within all of Section 2.3.  These numeric OIDs are shown below:
+
+     - 1.3 (Identified-Organization, per clause A.4.2 of ITU-T Rec.
+       [X.660])
+
+     - 1.3.6 (dod, per Section 3.1 of [RFC1155])
+
+     - 1.3.6.1 (Internet OID, per Section 3.1 of [RFC1155])
+
+     - 1.3.6.1.1.16.1 (UUID syntax, matching rule and ordering rule, per
+       Sections 2.1, 2.2 and 2.3 of [RFC4530] respectively)
+
+     - 1.3.6.1.4.1.1466.115.121.1.12 (DN syntax and matching rule, per
+       Section 4.2.15 of [RFC4517])
+
+Coretta                Expires August 27, 2024                  [Page 5]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+     - 1.3.6.1.4.1.1466.115.121.1.24 (Generalized Time syntax, per
+       Section 3.3.13 of [RFC4517])
+
+     - 1.3.6.1.4.1.1466.115.121.1.27 (Integer syntax, per Section 3.3.16
+       of [RFC4517])
+
+     - 1.3.6.1.4.1.1466.115.121.1.38 (OID syntax, per Section 3.3.26
+       [RFC4517])
+
+     - 1.3.6.1.4.1.1466.115.121.1.40 (Octet String syntax, per Section
+       3.3.25 of [RFC4517])
+
+2.  Schema Definitions
+
+   This section discusses the particulars of the LDAP schema definitions
+   made available through this ID.
+
+   These schema definitions described in this section are provided using
+   LDAP description formats [RFC4512].  These elements are line-wrapped
+   and indented for readability when needed.
+
+2.1.  LDAP Syntaxes
+
+   No LDAP syntaxes are defined anywhere in this ID series.  However,
+   the topic of syntax is a recurring theme in ITU-T Recommendations
+   [X.660], [X.680] and many other standards relevant to this series.
+
+   This section serves only to advise the reader to consider the many
+   defined (or cited) ABNF productions throughout Section 2.3.  While
+   the base LDAP syntaxes used within this ID are often insufficient
+   in enforcing complete compliance with relevant syntax standards,
+   most modern X.500/LDAP products support use of constraining rules
+   of some form to narrow their scope.
+
+   While the particulars of such product features are out of scope for
+   this ID series, the reader is nonetheless advised to make an effort
+   to sufficiently constrain attribute value input so as to honor the
+   relevant standard(s) in question.
+
+2.2.  Matching Rules
+
+   No LDAP matching rule definitions are defined anywhere in this
+   ID series.
+
+2.3.  Attribute Types
+
+   The following subsections detail one hundred two (102) LDAP attribute
+   types created for use within implementations of this specification.
+
+   Please note that a great many of these attribute type definitions are
+   sub types of attribute types defined in the following Standards, and
+   as such are considered dependencies:
+
+Coretta                Expires August 27, 2024                  [Page 6]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+     - [RFC2079] for URI support
+     - [RFC4519] for so-called "core" schema elements
+     - [RFC4524] for Cosine schema elements
+
+   If the nature of a particular directory implementation precludes the
+   use of sub typed attributes, this specification may not be practical
+   for adoption.
+
+2.3.1.  'n'
+
+   The 'n' attribute type allows the assignment of an unsigned integer
+   used to represent the Number Form of a registration per ITU-T Rec.
+   [X.680].
+
+   A practical ABNF production, labeled 'number', is defined in Section
+   1.4 of [RFC4512].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.1
+          NAME ( 'n' 'numberForm' )
+          DESC 'X.680, cl. 32.3: NumberForm'
+          EQUALITY integerMatch
+          ORDERING integerOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+          SINGLE-VALUE )
+
+   Examples: "56521", "0"
+
+2.3.2.  'dotNotation'
+
+   The 'dotNotation' attribute type allows the assignment of one (1) OID
+   to any non root registration.
+
+   A practical ABNF production, labeled 'numericoid', is defined within
+   Section 1.4 of [RFC4512].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.2
+          NAME 'dotNotation'
+          DESC 'X.680: OID in dotted notation'
+          EQUALITY objectIdentifierMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+          SINGLE-VALUE )
+
+    Examples: "1.3.6.1", "2.999"
+
+2.3.3.  'iRI'
+
+   The 'iRI' attribute type allows the assignment of one (1) or more
+   OID-IRI values to a registration.
+
+   A practical ABNF production for this attribute type, as derived from
+   clause 34.3 of ITU-T Rec. [X.680], is as follows:
+
+
+Coretta                Expires August 27, 2024                  [Page 7]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+     subArcId   = SOLIDUS arcId [ subArcId ]
+     arcId      = SOLIDUS ( intUV / nintUV )
+     nintUV     = 1*iunreserved ; non-integer unicode value
+     intUV      = number        ; integer unicode value
+
+     SOLIDUS    = "%x2f"        ; "/"
+
+   The 'number' ABNF production originates in Section 1.4 of [RFC4512].
+   The 'iunreserved' ABNR production originates within Section 2.2 of
+   [RFC3987].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.3
+          NAME 'iRI'
+          DESC 'X.680, cl. 34: OID-IRI'
+          EQUALITY octetStringMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+   Examples: "/ITU-T", "/ISO/Identified-Organization", "/ASN.1"
+
+2.3.4.  'aSN1Notation'
+
+   The 'aSN1Notation' attribute type allows the assignment of an OID in
+   ASN.1, or ITU-T Rec. [X.680] ObjectIdentifierValue, notation.
+
+   A practical ABNF production for this attribute type is as follows:
+
+     asn1notation = LCURL forms RCURL
+     forms        = nanf *( SPACE nanf )
+
+     SPACE        = "%x20"   ; " "
+     LCURL        = "%x7b"   ; "{"
+     RCURL        = "%x7d"   ; "}"
+
+   The 'nanf' ABNF originates in Section 2.3.19.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.4
+          NAME 'aSN1Notation'
+          DESC 'X.680, cl. 32.3: ObjectIdentifierValue'
+          EQUALITY caseIgnoreMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+          SINGLE-VALUE )
+
+   Examples: "{itu-t(0)}", "{iso(1) identified-organization(3)}"
+
+2.3.5.  'unicodeValue'
+
+   The 'unicodeValue' attribute type allows the assignment of a single
+   non-integer Unicode label to a registration, per ITU-T Rec. [X.660].
+
+   A practical ABNF production for this attribute type is as follows:
+
+     uval = 1*iunreserved
+
+Coretta                Expires August 27, 2024                  [Page 8]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The ABNF production 'iunreserved' is defined in Section 2.2 of
+   [RFC3987].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.5
+          NAME 'unicodeValue'
+          DESC 'X.660, cl. 7.5: non-integer Unicode label'
+          EQUALITY octetStringMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+          SINGLE-VALUE )
+
+   Examples: "ITU-T", "Identified-Organization"
+
+2.3.6.  'additionalUnicodeValue'
+
+   The 'additionalUnicodeValue' attribute type allows for the assignment
+   of one (1) or more additional non-integer Unicode labels, per clause
+   3.5.2 of ITU-T Rec. [X.660], to a registration.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 2.3.5.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.6
+          NAME 'additionalUnicodeValue'
+          DESC 'X.660, cl. 3.5.2: additional non-integer Unicode labels'
+          EQUALITY octetStringMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+2.3.7.  'identifier'
+
+   The 'identifier' attribute type allows for the assignment of one (1)
+   non-numeric, non-Unicode identifier, or nameForm, to a registration.
+
+   Per clause 12.3 of ITU-T Rec. [X.680]:
+
+      An "identifier" shall consist of an arbitrary number (one or more)
+      of letters, digits, and hyphens.  The initial character shall be a
+      lower-case letter.  A hyphen shall not be the last character.  A
+      hyphen shall not be immediately followed by another hyphen.
+
+   As a practical ABNF production, the above clause translates as
+   follows:
+
+      identifier  = leadkeychar *keychar
+      leadkeychar = LOWER
+      keychar     = *( [ HYPHEN ] ( ALPHA / DIGIT ) )
+
+      ALPHA       = ( LOWER / UPPER ) ; a-z / A-Z
+      UPPER       = "%x41-%x5a"       ; A-Z
+      LOWER       = "%x61-%x7a"       ; a-z
+      DIGIT       = "%x30-%x39"       ; 0-9
+      HYPHEN      = "%x2d"            ; "-"
+
+
+Coretta                Expires August 27, 2024                  [Page 9]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'name', as defined in Section 2.18 of [RFC4519],
+   is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.7
+          NAME ( 'identifier' 'nameForm' )
+          DESC 'X.680, cl. 12.3: Identifier'
+          SUP name
+          SINGLE-VALUE )
+
+   Examples: "itu-t", "iso"
+
+2.3.8.  'secondaryIdentifier'
+
+   The 'secondaryIdentifier' attribute type allows the assignment of
+   one (1) or more additional secondary non-numeric non-Unicode values,
+   per clause 3.5.1 of ITU-T Rec. [X.660], to a registration.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 2.3.7.
+
+   The attribute type 'name', as defined in Section 2.18 of [RFC4519],
+   is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.8
+          NAME 'secondaryIdentifier'
+          DESC 'X.660, cl. 3.5.1: Additional Identifiers'
+          SUP name )
+
+   Examples: "enterprises", "ccitt"
+
+2.3.9.  'registrationInformation'
+
+   The 'registrationInformation' attribute type allows the OPTIONAL
+   assignment of octet-based values intended for extended information
+   relating to the registration in question.
+
+   The 'OCTET' ABNF production defined in Section 1.4 of [RFC4512] is
+   applicable in any non-zero quantity or combination, as no defined
+   syntax or standard exists to govern this type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.9
+          NAME 'registrationInformation'
+          DESC 'Extended octet-based registration data'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+   Example: "Acme, Co., Research & Development, Copyright (c) 2024"
+
+
+2.3.10.  'registrationURI'
+
+   The 'registrationURI' attribute type allows for the assignment of one
+   (1) or more URI values, with optional labels, to a registration.
+
+Coretta                Expires August 27, 2024                 [Page 10]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'labeledURI', as defined in [RFC2079], is a super
+   type of this attribute type.
+
+   A practical ABNF production for this attribute type is defined within
+   Appendix A of [RFC3986].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.10
+          NAME 'registrationURI'
+          DESC 'Uniform Resource Identifier for a registration'
+          SUP labeledURI )
+
+   Examples: "http://example.com Example", "ftp://example.com"
+
+2.3.11.  'registrationCreated'
+
+   The 'registrationCreated' attribute type allows for the assignment
+   of a generalized timestamp indicating the date and time at which a
+   registration was, or will be, created or officiated.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.11
+          NAME 'registrationCreated'
+          DESC 'Generalized timestamp for a registration creation'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+          SINGLE-VALUE )
+
+   Examples: "19800229114853Z", "20130109033116Z"
+
+2.3.12.  'registrationModified'
+
+   The 'registrationModified' attribute type allows for the assignment
+   of one (1) or more generalized timestamp values indicating the dates
+   and times of all applied updates to a registration.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.12
+          NAME 'registrationModified'
+          DESC 'Generalized timestamps for registration modifications'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+
+   Examples: "19951231115959Z", "20130109033116Z"
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 11]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.13.  'registrationRange'
+
+   The 'registrationRange' attribute type allows for the expression of
+   an OID sibling allocation range, such as "100" to indicate 'up to
+   100', or "-1" to indicate 'to infinity'.
+
+   A practical ABNF production, labeled 'number', is defined in Section
+   1.4 of [RFC4512].  This satisfies the unsigned form of instances of
+   this type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.13
+          NAME 'registrationRange'
+          DESC 'Numerical registration range expression'
+          EQUALITY integerMatch
+          ORDERING integerOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+          SINGLE-VALUE )
+
+   Examples: "-1", "1999", "1000000"
+
+2.3.14.  'registrationStatus'
+
+   The 'registrationStatus' attribute type allows for the assignment of
+   status information meant to define the state of the registration.
+
+   A practical ABNF production for the super type, 'description', is
+   found within Section 3.3.6 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.14
+          NAME 'registrationStatus'
+          DESC 'Current registration status'
+          SUP description )
+
+   Examples: "OBSOLETE", "DEALLOCATED", "RESERVED"
+
+2.3.15.  'registrationClassification'
+
+   The 'registrationClassification' attribute type allows a registration
+   to bear an informal classification value, thereby describing an OID's
+   context or category.
+
+   A practical ABNF production for the super type, 'description', can be
+   found within Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.15
+          NAME 'registrationClassification'
+          DESC 'Known registration classification'
+          SUP description
+          SINGLE-VALUE )
+
+   Examples: "Standard", "Individual", "ASN.1 Modules"
+
+
+Coretta                Expires August 27, 2024                 [Page 12]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.16.  'isLeafNode'
+
+   The 'isLeafNode' attribute type allows for the assignment of a single
+   Boolean value indicative of whether a registration can be a parent to
+   any subordinate registrations.
+
+   A practical ABNF production for this attribute type is found within
+   Section 3.3.3 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.16
+          NAME 'isLeafNode'
+          DESC 'Whether a registration may allocate sub arcs'
+          EQUALITY booleanMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+          SINGLE-VALUE )
+
+   Examples: "TRUE", "FALSE", or Undefined (implies "FALSE")
+
+2.3.17.  'isFrozen'
+
+   The 'isFrozen' attribute type allows for the assignment of a single
+   Boolean value indicative of whether a registration can be a parent
+   to any further subordinate registrations beyond those that already
+   exist at present.
+
+   A practical ABNF production for this attribute type is found within
+   Section 3.3.3 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.17
+          NAME 'isFrozen'
+          DESC 'Whether additional sub arcs are permitted'
+          EQUALITY booleanMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+          SINGLE-VALUE )
+
+   Examples: "TRUE", "FALSE", or Undefined (implies "FALSE")
+
+2.3.18.  'standardizedNameForm'
+
+   The 'standardizedNameForm' attribute type allows for the assignment
+   of one (1) or more Standardized NameForm values, per clauses A.2 and
+   A.3 of ITU-T Rec. [X.660], to a registration only if its 'identifier'
+   value is considered standardized.
+
+   A practical ABNF production for this attribute type is as follows:
+
+     stdnf = LCURL nonfs RCURL
+     nonfs = nonf *( SPACE nonf )
+     nonf  = ( identifier / number ) ; name OR number
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 13]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+     SPACE = "%x20"      ; " "
+     LCURL = "%x7b"      ; "{"
+     RCURL = "%x7d"      ; "}"
+
+   The 'identifier' ABNF originates in Section 2.3.7.  The 'number' ABNF
+   production can be found within Section 1.4 of [RFC4512].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.18
+          NAME 'standardizedNameForm'
+          DESC 'X.660, cl. A.2-A-3: Standardized Identifier or NameForm'
+          EQUALITY caseExactMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+   Examples: "{itu-t}", "{0 0 d}"
+
+2.3.19.  'nameAndNumberForm'
+
+   The 'nameAndNumberForm' attribute type allows for the assignment of
+   an ITU-T Rec. [X.680] NameAndNumberForm value to a registration.
+
+   A practical ABNF production for this attribute type is as follows:
+
+     nonf       = ( nanf  / number )        ; nanf OR numberForm
+     nanf       = name LPAREN number RPAREN ; name AND numberForm
+     name       = identifier                ; name form
+
+     LPAREN     = "%x28"                    ; "("
+     RPAREN     = "%x29"                    ; ")"
+
+   The 'identifier' ABNF production can be found in Section 2.3.7. The
+   'number' ABNF production is defined in Section 1.4 of [RFC4512].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.19
+          NAME 'nameAndNumberForm'
+          DESC 'X.680, cl. 32.3: NameAndNumberForm'
+          EQUALITY caseExactMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+          SINGLE-VALUE )
+
+   Examples: "private(4)", "itu-t(0)", "56521"
+
+2.3.20.  'longArc'
+
+   The 'longArc' attribute type allows for the assignment of one (1) or
+   more so-called "Long Arc" well-known identifiers to a registration.
+
+   A practical ABNF production for this attribute type is as follows:
+
+     longArc    = SOLIDUS ( intUV / nintUV )
+     nintUV     = 1*iunreserved ; non-integer unicode value
+     intUV      = number        ; integer unicode value
+
+
+Coretta                Expires August 27, 2024                 [Page 14]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.20
+          NAME 'longArc'
+          DESC 'X.660, cl. A.7: Long Arc'
+          EQUALITY octetStringMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+   Examples: "/Example", "/Ejemplo"
+
+2.3.21.  'supArc'
+
+   The 'supArc' attribute type allows for the assignment of an LDAP DN
+   value to any non-root registration, thereby identifying the DN of the
+   immediate superior (parent) registration.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.21
+          NAME 'supArc'
+          DESC 'Immediate superior registration DN'
+          SUP distinguishedName
+          SINGLE-VALUE )
+
+   Example: "n=1,n=2,ou=Registrations,o=rA"
+
+2.3.22.  'c-supArc'
+
+   The 'c-supArc' attribute type is the manifestation of the 'supArc'
+   attribute type defined in Section 2.3.21 with Collective Attribute
+   [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MUST NOT be present for entries that also bear
+   a 'supArc' attribute type instance.  The value MUST be singular.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.22
+          NAME 'c-supArc'
+          DESC 'Collective immediate superior registration DN'
+          SUP distinguishedName
+          COLLECTIVE )
+
+
+Coretta                Expires August 27, 2024                 [Page 15]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   Example: "n=1,n=2,ou=Registrations,o=rA"
+
+2.3.23.  'topArc'
+
+   The 'topArc' attribute type allows for the assignment of an LDAP DN
+   value to any non-root registration, thereby identifying the superior
+   root registration.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.23
+          NAME 'topArc'
+          DESC 'Superior root registration DN'
+          SUP distinguishedName
+          SINGLE-VALUE )
+
+   Example: "n=2,ou=Registrations,o=rA"
+
+2.3.24.  'c-topArc'
+
+   The 'c-topArc' attribute type is the manifestation of the 'topArc'
+   attribute type defined in Section 2.3.23 with Collective Attribute
+   [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MUST NOT be present for entries that also bear
+   a 'topArc' attribute type instance.  The value MUST be singular.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.24
+          NAME 'c-topArc'
+          DESC 'Collective superior root registration DN'
+          SUP distinguishedName
+          COLLECTIVE )
+
+   Example: "n=2,ou=Registrations,o=rA"
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 16]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.25.  'subArc'
+
+   The 'subArc' attribute type allows for the assignment of one (1) or
+   more LDAP DN values to a registration as a manifest of subordinate
+   registrations residing exactly one (1) logical level below, if any.
+
+   In robust implementations of this ID that cover most (or all) of the
+   OID Tree, use of this attribute type will require careful, long-term
+   planning.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.25
+          NAME 'subArc'
+          DESC 'Subordinate registration DN'
+          SUP distinguishedName )
+
+   Example: "n=1,n=6,n=3,n=1,ou=Registrations,o=rA"
+
+2.3.26.  'leftArc'
+
+   The 'leftArc' attribute type allows for the assignment of a DN value
+   to a registration, referencing a registration positioned to the left
+   side of the bearer in terms of (lesser) 'n' magnitude.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.26
+          NAME 'leftArc'
+          DESC 'Nearest antecedent registration DN'
+          SUP distinguishedName
+          SINGLE-VALUE )
+
+   Example: "n=5,n=2,ou=Registrations,o=rA"
+
+2.3.27.  'minArc'
+
+   The 'minArc' attribute type allows for the assignment of a DN value
+   to a registration.  The value SHOULD reference the entry which bears
+   the lowest 'n' value of any of its siblings.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+
+Coretta                Expires August 27, 2024                 [Page 17]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.27
+          NAME 'minArc'
+          DESC 'First or left-most sibling registration DN'
+          SUP distinguishedName
+          SINGLE-VALUE )
+
+   Example: "n=0,n=2,ou=Registrations,o=rA"
+
+2.3.28.  'c-minArc'
+
+   The 'c-minArc' attribute type is the manifestation of the attribute
+   type 'minArc', defined in Section 2.3.27 with Collective Attribute
+   [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MUST NOT be present for entries that also bear
+   a 'minArc' attribute type instance.  The value MUST be singular.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.28
+          NAME 'c-minArc'
+          DESC 'Collective first or left-most sibling registration DN'
+          SUP distinguishedName
+          COLLECTIVE )
+
+   Example: "n=0,n=2,ou=Registrations,o=rA"
+
+2.3.29.  'rightArc'
+
+   The 'rightArc' attribute type allows for the assignment of a DN value
+   to a registration, referencing a registration positioned to the right
+   side of the bearer in terms of (greater) 'n' magnitude.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 18]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.29
+          NAME 'rightArc'
+          DESC 'Nearest subsequent registration DN'
+          SINGLE-VALUE
+          SUP distinguishedName )
+
+   Example: "n=2,n=2,ou=Registrations,o=rA"
+
+2.3.30.  'maxArc'
+
+   The 'maxArc' attribute type allows for the assignment of a DN value
+   to a registration.  The value SHOULD reference the entry which bears
+   the highest 'n' value of any of its siblings.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.30
+          NAME 'maxArc'
+          DESC 'Final or right-most sibling registration DN'
+          SUP distinguishedName
+          SINGLE-VALUE )
+
+   Example: "n=999,n=2,ou=Registrations,o=rA"
+
+2.3.31.  'c-maxArc'
+
+   The 'c-maxArc' attribute type is the manifestation of the attribute
+   type 'maxArc', defined in Section 2.3.30 with Collective Attribute
+   [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   This attribute type MUST NOT be present for entries that also bear
+   a 'maxArc' attribute type instance.  The value MUST be singular.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.31
+          NAME 'c-maxArc'
+          DESC 'Collective final or right-most sibling registration DN'
+          SUP distinguishedName
+          COLLECTIVE )
+
+   Example: "n=999,n=2,ou=Registrations,o=rA"
+
+
+
+Coretta                Expires August 27, 2024                 [Page 19]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.32.  'discloseTo'
+
+   The 'discloseTo' attribute type allows for the assignment of one (1)
+   or more LDAP DN values to a registration, each of which reference an
+   identity that is authorized to access one (1) or more confidential
+   registrations in read-only fashion.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.32
+          NAME 'discloseTo'
+          DESC 'Authorized registration reader'
+          SUP distinguishedName )
+
+   Example: "cn=AuthorizedReader,ou=Groups,o=rA"
+
+2.3.33.  'c-discloseTo'
+
+   The 'c-discloseTo' attribute type is the COLLECTIVE manifestation of
+   the attribute type 'discloseTo', defined in Section 2.3.32.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MAY be present for entries that also bear a
+   'discloseTo' attribute type instance.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.33
+          NAME 'c-discloseTo'
+          DESC 'Collective authorized registration reader'
+          SUP distinguishedName
+          COLLECTIVE )
+
+   Example: "cn=ClearanceLevel4,ou=Groups,o=rA"
+
+2.3.34.  'registrantID'
+
+   The 'registrantID' attribute type is intended to allow for singular
+   assignment of a UUID, GUID or some other auto-generated value to a
+   registrant entry.
+
+   No specific syntax is implied for values of this type.
+
+Coretta                Expires August 27, 2024                 [Page 20]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.34
+          NAME 'registrantID'
+          DESC 'Unambiguous identifier assigned to an authority'
+          EQUALITY octetStringMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+          SINGLE-VALUE )
+
+   Examples: "rfc4519", "65116e61-cc02-4c50-bde7-5bdaf4e973e4"
+
+2.3.35.  'currentAuthority'
+
+   The 'currentAuthority' attribute type allows for the assignment of
+   one (1) or more DN values to a registration.
+
+   The value(s) of this attribute type are meant to refer to distinct
+   entries that contain current registrant authority information for
+   the registration to which it is linked.
+
+   This attribute type is only required if registrant information is not
+   stored within a given registration directly.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.35
+          NAME 'currentAuthority'
+          DESC 'DN for a registrant serving as the current authority'
+          SUP distinguishedName )
+
+   Example: "registrantID=XYZ,ou=Registrants,o=rA"
+
+2.3.36.  'c-currentAuthority'
+
+   The 'c-currentAuthority' attribute type is the manifestation of the
+   'currentAuthority' attribute type, defined in Section 2.3.35 with
+   Collective Attribute [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MAY be present for entries that also bear
+   a 'currentAuthority' attribute type instance.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+
+Coretta                Expires August 27, 2024                 [Page 21]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.36
+          NAME 'c-currentAuthority'
+          DESC 'Collective DN for a current authority'
+          SUP distinguishedName )
+
+   Example: "registrantID=XYZ,ou=Registrants,o=rA"
+
+2.3.37.  'currentAuthorityStartTimestamp'
+
+   The 'currentAuthorityStartTimestamp' attribute type allows for the
+   assignment of a generalized timestamp value to a current registration
+   authority.  The value is indicative of the date and time at which the
+   current registration authority was, or will be, officiated.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.37
+          NAME 'currentAuthorityStartTimestamp'
+          DESC 'Registration authority commencement timestamp'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+          SINGLE-VALUE )
+
+   Example: "19951231115959Z"
+
+2.3.38.  'currentAuthorityCommonName'
+
+   The 'currentAuthorityCommonName' attribute type allows for the
+   assignment of a common name to a current authority entry.
+
+   The attribute type 'cn', as defined in Section 2.3 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.38
+          NAME 'currentAuthorityCommonName'
+          DESC 'Common Name for a current authority'
+          SUP cn
+          SINGLE-VALUE )
+
+   Example: "Jesse Coretta", "Jane Smith"
+
+2.3.39.  'currentAuthorityCountryCode'
+
+   The 'currentAuthorityCountryCode' attribute type allows for the
+   assignment of a country code to a current authority entry.
+
+   The attribute type 'c', as defined in Section 2.2 of [RFC4519],
+   is a super type of this attribute type.
+
+Coretta                Expires August 27, 2024                 [Page 22]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   A practical ABNF production is found in Section 3.3.4 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.39
+          NAME 'currentAuthorityCountryCode'
+          DESC 'Country Code for a current authority'
+          SUP c
+          SINGLE-VALUE )
+
+   Examples: "US", "CA"
+
+2.3.40.  'currentAuthorityCountryName'
+
+   The 'currentAuthorityCountryName' attribute type allows for the
+   assignment of a country name to a current authority entry.
+
+   The attribute type 'co', as defined in Section 2.4 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.40
+          NAME 'currentAuthorityCountryName'
+          DESC 'Country name for a current authority'
+          SUP co
+          SINGLE-VALUE )
+
+   Examples: "United States", "Canada"
+
+2.3.41.  'currentAuthorityEmail'
+
+   The 'currentAuthorityEmail' attribute type allows for the assignment
+   of an email address to the current registration authority entry.
+
+   The attribute type 'mail', as defined in Section 2.16 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'IA5String'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.41
+          NAME 'currentAuthorityEmail'
+          DESC 'Email address for a current authority'
+          SUP mail
+          SINGLE-VALUE )
+
+   Example: "jesse.coretta@icloud.com"
+
+2.3.42.  'currentAuthorityFax'
+
+   The 'currentAuthorityFax' attribute type allows for the assignment
+   of a facsimile telephone number to a current authority entry.
+
+
+Coretta                Expires August 27, 2024                 [Page 23]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'facsimileTelephoneNumber', as defined in Section
+   2.10 of [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production can be found within Section 3.3.11 of
+   [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.42
+          NAME 'currentAuthorityFax'
+          DESC 'Facsimile telephone number for a current authority'
+          SUP facsimileTelephoneNumber
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.43.  'currentAuthorityLocality'
+
+   The 'currentAuthorityLocality' attribute type allows for a locality
+   name to be assigned to a current authority entry.
+
+   The attribute type 'l', as defined in Section 2.16 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.43
+          NAME 'currentAuthorityLocality'
+          DESC 'Locality name for a current authority'
+          SUP l
+          SINGLE-VALUE )
+
+   Example: "Palm Springs", "Anna Maria Island"
+
+2.3.44.  'currentAuthorityMobile'
+
+   The 'currentAuthorityMobile' attribute type allows for the assignment
+   of a mobile telephone number to a current authority entry.
+
+   The attribute type 'mobile', as defined in Section 2.18 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'PrintableString'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.44
+          NAME 'currentAuthorityMobile'
+          DESC 'Mobile telephone number for a current authority'
+          SUP mobile
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+
+
+Coretta                Expires August 27, 2024                 [Page 24]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.45.  'currentAuthorityOrg'
+
+   The 'currentAuthorityOrg' attribute type allows for the assignment of
+   an organization name to a current authority entry.
+
+   The attribute type 'o', as defined in Section 2.19 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.45
+          NAME 'currentAuthorityOrg'
+          DESC 'Organization name for a current authority'
+          SUP o
+          SINGLE-VALUE )
+
+   Example: "Acme, Co."
+
+2.3.46.  'currentAuthorityPOBox'
+
+   The 'currentAuthorityPOBox' attribute type allows for the assignment
+   of a post office box number to a current authority entry.
+
+   The attribute type 'postOfficeBox', as defined in Section 2.25 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.46
+          NAME 'currentAuthorityPOBox'
+          DESC 'Post office box number for a current authority'
+          SUP postOfficeBox
+          SINGLE-VALUE )
+
+   Examples: "555", "475"
+
+2.3.47.  'currentAuthorityPostalAddress'
+
+   The 'currentAuthorityPostalAddress' attribute type allows for the
+   assignment of a complete postal address to a current authority entry.
+   This single attribute may be used instead of other individual address
+   component attribute types, but will require field parsing on part of
+   the client.
+
+   The attribute type 'postalAddress', as defined in Section 2.23 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.28 in [RFC4517].
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 25]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.47
+          NAME 'currentAuthorityPostalAddress'
+          DESC 'Full postal address for a current authority'
+          SUP postalAddress
+          SINGLE-VALUE )
+
+   Example: "1 Fake St$Anytown$CA$12345$US"
+
+2.3.48.  'currentAuthorityPostalCode'
+
+   The 'currentAuthorityPostalCode' attribute type allows for a postal
+   code to be assigned to a current authority entry.
+
+   The attribute type 'postalCode', as defined in Section 2.23 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.48
+          NAME 'currentAuthorityPostalCode'
+          DESC 'Postal code for a current authority'
+          SUP postalCode
+          SINGLE-VALUE )
+
+        Examples: "92262", "34216"
+
+2.3.49.  'currentAuthorityState'
+
+   The 'currentAuthorityState' attribute type allows for a state or
+   province name to be assigned to a current authority entry.
+
+   The attribute type 'st', as defined in Section 2.33 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.49
+          NAME 'currentAuthorityState'
+          DESC 'State or province name for a current authority'
+          SUP st
+          SINGLE-VALUE )
+
+   Examples: "California", "North Dakota"
+
+2.3.50.  'currentAuthorityStreet'
+
+   The 'currentAuthorityStreet' attribute type allows for the assignment
+   of a street name and number to a current authority entry.
+
+   The attribute type 'street', as defined in Section 2.34 of [RFC4519],
+   is a super type of this attribute type.
+
+
+Coretta                Expires August 27, 2024                 [Page 26]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.50
+          NAME 'currentAuthorityStreet'
+          DESC 'Street name and number for a current authority'
+          SUP street
+          SINGLE-VALUE )
+
+   Example: "1 Fake Street"
+
+2.3.51.  'currentAuthorityTelephone'
+
+   The 'currentAuthorityTelephone' attribute type allows for a telephone
+   number to be assigned to a current authority entry.
+
+   The attribute type 'telephoneNumber', as defined in Section 2.35 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'PrintableString'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.51
+          NAME 'currentAuthorityTelephone'
+          DESC 'Telephone number assigned to a current authority'
+          SUP telephoneNumber
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.52.  'currentAuthorityTitle'
+
+   The 'currentAuthorityTitle' attribute type allows for the assignment
+   of an official or professional title to a current authority entry.
+
+   The attribute type 'title', as defined in Section 2.38 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.52
+          NAME 'currentAuthorityTitle'
+          DESC 'Title assigned to a current authority'
+          SUP title
+          SINGLE-VALUE )
+
+   Example: "Chief Engineer"
+
+2.3.53.  'currentAuthorityURI'
+
+   The 'currentAuthorityURI' attribute type allows for the assignment of
+   one (1) or more URI values to a current authority entry.
+
+
+Coretta                Expires August 27, 2024                 [Page 27]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'labeledURI', as defined in [RFC2079], is a super
+   type of this attribute type.
+
+   A practical ABNF production for this attribute type is defined within
+   Appendix A of [RFC3986].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.53
+          NAME 'currentAuthorityURI'
+          DESC 'Uniform Resource Identifier for a current authority'
+          SUP labeledURI )
+
+   Example: "http://example.com Example", "http://example.com"
+
+2.3.54.  'firstAuthority'
+
+   The 'firstAuthority' attribute type allows for the assignment of one
+   (1) or more DN values to a registration entry.
+
+   The value(s) of this attribute type are meant to refer to distinct
+   entries that contain previous authority information.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.54
+          NAME 'firstAuthority'
+          DESC 'DN of a previous authority'
+          SUP distinguishedName )
+
+   Example: "registrantID=XYZ,ou=Registrants,o=rA"
+
+2.3.55.  'c-firstAuthority'
+
+   The 'c-firstAuthority' attribute type is the manifestation of the
+   'firstAuthority' attribute type, defined in Section 2.3.54 with
+   Collective Attribute [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MAY be present for entries that also bear
+   a 'firstAuthority' attribute type instance.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 28]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.55
+          NAME 'c-firstAuthority'
+          DESC 'Collective DN of a previous authority'
+          SUP distinguishedName
+          COLLECTIVE )
+
+   Example: "registrantID=XYZ,ou=Registrants,o=rA"
+
+2.3.56.  'firstAuthorityStartTimestamp'
+
+   The 'firstAuthorityStartTimestamp' attribute type allows for the
+   assignment of a generalized timestamp value to a previous authority,
+   indicative of the date and time at which the previous authority was
+   officiated.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.56
+          NAME 'firstAuthorityStartTimestamp'
+          DESC 'Previous registration authority commencement timestamp'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+          SINGLE-VALUE )
+
+   Example: "20130105135904Z"
+
+2.3.57.  'firstAuthorityEndTimestamp'
+
+   The 'firstAuthorityEndTimestamp' attribute type allows the assignment
+   of a generalized timestamp value to a previous authority, indicative
+   of the date and time at which an entity's authoritative role was, or
+   will be, terminated.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.57
+          NAME 'firstAuthorityEndTimestamp'
+          DESC 'Previous registration authority termination timestamp'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+          SINGLE-VALUE )
+
+   Example: "20170528110555Z"
+
+2.3.58.  'firstAuthorityCommonName'
+
+   The 'firstAuthorityCommonName' attribute type allows for a common
+   name to be assigned to a previous registration authority entry.
+
+Coretta                Expires August 27, 2024                 [Page 29]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'cn', as defined in Section 2.3 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.58
+          NAME 'firstAuthorityCommonName'
+          DESC 'Common Name for a previous authority'
+          SUP cn
+          SINGLE-VALUE )
+
+   Examples: "Jesse Coretta", "Jane Smith"
+
+2.3.59.  'firstAuthorityCountryCode'
+
+   The 'firstAuthorityCountryCode' attribute type allows for a country
+   code to be assigned to a previous registration authority entry.
+
+   The attribute type 'c', as defined in Section 2.2 of [RFC4519], is a
+   super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.4 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.59
+          NAME 'firstAuthorityCountryCode'
+          DESC 'Country Code for a previous authority'
+          SUP c
+          SINGLE-VALUE )
+
+   Examples: "US", "CA"
+
+2.3.60.  'firstAuthorityCountryName'
+
+   The 'firstAuthorityCountryName' attribute type allows for a country
+   name to be assigned to a previous registration authority entry.
+
+   The attribute type 'co', as defined in Section 2.4 of [RFC4519], is a
+   super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.60
+          NAME 'firstAuthorityCountryName'
+          DESC 'Country name for a previous authority'
+          SUP co
+          SINGLE-VALUE )
+
+   Examples: "United States", "Canada"
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 30]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.61.  'firstAuthorityEmail'
+
+   The 'firstAuthorityEmail' attribute type allows for the assignment
+   of an email address to a previous registration authority entry.
+
+   The attribute type 'mail', as defined in Section 2.16 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'IA5String'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.61
+          NAME 'firstAuthorityEmail'
+          DESC 'Email address for a previous authority'
+          SUP mail
+          SINGLE-VALUE )
+
+   Example: "jesse.coretta@icloud.com"
+
+2.3.62.  'firstAuthorityFax'
+
+   The 'firstAuthorityFax' attribute type allows for the assignment of a
+   facsimile telephone number to a previous authority entry.
+
+   The attribute type 'facsimileTelephoneNumber', as defined in Section
+   2.10 of [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production can be found within Section 3.3.11 of
+   [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.62
+          NAME 'firstAuthorityFax'
+          DESC 'Facsimile telephone number for a previous authority'
+          SUP facsimileTelephoneNumber
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.63.  'firstAuthorityLocality'
+
+   The 'firstAuthorityLocality' attribute type allows the assignment of
+   a locality name to a previous authority entry.
+
+   The attribute type 'l', as defined in Section 2.16 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 31]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.63
+          NAME 'firstAuthorityLocality'
+          DESC 'Locality name for a previous authority'
+          SUP l
+          SINGLE-VALUE )
+
+   Examples: "Palm Springs", "Anna Maria Island"
+
+2.3.64.  'firstAuthorityMobile'
+
+   The 'firstAuthorityMobile' attribute type allows for the assignment
+   of a mobile telephone number to a previous authority entry.
+
+   The attribute type 'mobile', as defined in Section 2.18 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'PrintableString'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.64
+          NAME 'firstAuthorityMobile'
+          DESC 'Mobile telephone number for a previous authority'
+          SUP mobile
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.65.  'firstAuthorityOrg'
+
+   The 'firstAuthorityOrg' attribute type allows for the assignment
+   of an organization name to a previous authority entry.
+
+   The attribute type 'o', as defined in Section 2.19 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.65
+          NAME 'firstAuthorityOrg'
+          DESC 'Organization name for a previous authority'
+          SUP o
+          SINGLE-VALUE )
+
+   Example: "Acme, Co."
+
+2.3.66.  'firstAuthorityPOBox'
+
+   The 'firstAuthorityPOBox' attribute type allows for the assignment
+   of a post office box number to a previous registration authority
+   entry.
+
+
+
+Coretta                Expires August 27, 2024                 [Page 32]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'postOfficeBox', as defined in Section 2.25 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.66
+          NAME 'firstAuthorityPOBox'
+          DESC 'Post office box number for a previous authority'
+          SUP postOfficeBox
+          SINGLE-VALUE )
+
+   Examples: "555", "475"
+
+2.3.67.  'firstAuthorityPostalAddress'
+
+   The 'firstAuthorityPostalAddress' attribute type allows for the
+   assignment of a complete postal address to a previous registration
+   authority entry.  This single attribute may be used instead of other
+   individual address component attribute types, but will require field
+   parsing on the client side.
+
+   The attribute type 'postalAddress', as defined in Section 2.23 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.28 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.67
+          NAME 'firstAuthorityPostalAddress'
+          DESC 'Full postal address for a previous authority'
+          SUP postalAddress
+          SINGLE-VALUE )
+
+   Example: "1 Fake St$Anytown$CA$12345$US"
+
+2.3.68.  'firstAuthorityPostalCode'
+
+   The 'firstAuthorityPostalCode' attribute type allows for the
+   assignment of a postal code to a previous registration authority
+   entry.
+
+   The attribute type 'postalCode', as defined in Section 2.23 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.68
+          NAME 'firstAuthorityPostalCode'
+          DESC 'Postal code for a previous authority'
+          SUP postalCode
+          SINGLE-VALUE )
+
+   Examples: "92262", "34216"
+
+Coretta                Expires August 27, 2024                 [Page 33]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.69.  'firstAuthorityState'
+
+   The 'firstAuthorityState' attribute type allows for the assignment
+   of a state or province name to a previous registration authority
+   entry.
+
+   The attribute type 'st', as defined in Section 2.33 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.69
+          NAME 'firstAuthorityState'
+          DESC 'State or province name for a previous authority'
+          SUP st
+          SINGLE-VALUE )
+
+   Examples: "California", "North Dakota"
+
+2.3.70.  'firstAuthorityStreet'
+
+   The 'firstAuthorityStreet' attribute type allows for the assignment
+   of a street name and number to a previous authority entry.
+
+   The attribute type 'street', as defined in Section 2.34 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.70
+          NAME 'firstAuthorityStreet'
+          DESC 'Street name and number for a previous authority'
+          SUP street
+          SINGLE-VALUE )
+
+   Example: "1 Fake Street"
+
+2.3.71.  'firstAuthorityTelephone'
+
+   The 'firstAuthorityTelephone' attribute type allows the assignment of
+   a telephone number to a previous authority entry.
+
+   The attribute type 'telephoneNumber', as defined in Section 2.35 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'PrintableString'.
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 34]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.71
+          NAME 'firstAuthorityTelephone'
+          DESC 'Telephone number for a previous authority'
+          SUP telephoneNumber
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.72.  'firstAuthorityTitle'
+
+
+   The 'firstAuthorityTitle' attribute type allows for the assignment
+   of an official or professional title to a previous authority entry.
+
+   The attribute type 'title', as defined in Section 2.38 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.72
+          NAME 'firstAuthorityTitle'
+          DESC 'Title of a previous authority'
+          SUP title
+          SINGLE-VALUE )
+
+   Example: "Chief Engineer"
+
+2.3.73.  'firstAuthorityURI'
+
+   The 'firstAuthorityURI' attribute type allows the assignment of one
+   (1) or more URI values to a previous authority entry.
+
+   The attribute type 'labeledURI', as defined in [RFC2079], is a super
+   type of this attribute type.
+
+   A practical ABNF production for this attribute type is defined within
+   Appendix A of [RFC3986].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.73
+          NAME 'firstAuthorityURI'
+          DESC 'Uniform Resource Identifier for a previous authority'
+          SUP labeledURI )
+
+   Examples: "http://example.com Example", "http://example.com"
+
+2.3.74.  'sponsor'
+
+   The 'sponsor' attribute type allows for the assignment of one (1)
+   or more DN values to a registration.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+Coretta                Expires August 27, 2024                 [Page 35]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'distinguishedName', as defined in Section 2.7 of
+   [RFC4519], is a super type of this attribute type.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.74
+          NAME 'sponsor'
+          DESC 'DN of a sponsoring authority'
+          SUP distinguishedName )
+
+   Example: "registrantID=XYZ,ou=Registrants,o=rA"
+
+2.3.75.  'c-sponsor'
+
+   The 'c-sponsor' attribute type is the manifestation of the 'sponsor'
+   attribute type, defined in Section 2.3.74 with Collective Attribute
+   [RFC3671] support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   This attribute type MAY be present for entries that also bear
+   a 'sponsor' attribute type instance.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.75
+          NAME 'c-sponsor'
+          DESC 'Collective DN of a sponsoring authority'
+          SUP distinguishedName
+          COLLECTIVE )
+
+   Example: "registrantID=XYZ,ou=Registrants,o=rA"
+
+2.3.76.  'sponsorStartTimestamp'
+
+   The 'sponsorStartTimestamp' attribute type allows for the assignment
+   of a generalized timestamp value to a sponsor entry, indicative of
+   the date and time at which sponsorship was, or will be, officiated.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.76
+          NAME 'sponsorStartTimestamp'
+          DESC 'Sponsoring authority commencement timestamp'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+          SINGLE-VALUE )
+
+   Example: "20130105135904Z"
+
+
+Coretta                Expires August 27, 2024                 [Page 36]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.77.  'sponsorEndTimestamp'
+
+   The 'sponsorEndTimestamp' attribute type allows for the assignment
+   of a generalized timestamp value to a sponsor entry, indicative the
+   date and time at which sponsorship was, or will be, terminated.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3.3.13 of [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.77
+          NAME 'sponsorEndTimestamp'
+          DESC 'Sponsoring authority termination timestamp'
+          EQUALITY generalizedTimeMatch
+          ORDERING generalizedTimeOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+          SINGLE-VALUE )
+
+   Example: "20170528110555Z"
+
+2.3.78.  'sponsorCommonName'
+
+   The 'sponsorCommonName' attribute type allows for the assignment
+   of a common name to a sponsor.
+
+   The attribute type 'cn', as defined in Section 2.3 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.78
+          NAME 'sponsorCommonName'
+          DESC 'Common Name of a sponsor'
+          SUP cn
+          SINGLE-VALUE )
+
+   Example: "Jane Sponsor"
+
+2.3.79.  'sponsorCountryCode'
+
+   The 'sponsorCountryCode' attribute type allows for the assignment of
+   a two-letter country code to a sponsor.
+
+   The attribute type 'c', as defined in Section 2.2 of [RFC4519], is a
+   super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.4 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.79
+          NAME 'sponsorCountryCode'
+          DESC 'Country code for a sponsor'
+          SUP c
+          SINGLE-VALUE )
+
+Coretta                Expires August 27, 2024                 [Page 37]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   Examples: "US", "CA"
+
+2.3.80.  'sponsorCountryName'
+
+   The 'sponsorCountryName' attribute type allows the assignment of a
+   country name to a sponsor.
+
+   The attribute type 'co', as defined in Section 2.4 of [RFC4524], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.80
+          NAME 'sponsorCountryName'
+          DESC 'Country name for a sponsor'
+          SUP co
+          SINGLE-VALUE )
+
+   Examples: "United States", "Canada"
+
+2.3.81.  'sponsorEmail'
+
+   The 'sponsorEmail' attribute type allows for the assignment of an
+   email address to a sponsor.
+
+   The attribute type 'mail', as defined in Section 2.16 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'IA5String'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.81
+          NAME 'sponsorEmail'
+          DESC 'Email address for a sponsor'
+          SUP mail
+          SINGLE-VALUE )
+
+   Example: "sponsor@example.com"
+
+2.3.82.  'sponsorFax'
+
+   The 'sponsorFax' attribute type allows for the assignment of a
+   facsimile telephone number to a sponsor.
+
+   The attribute type 'facsimileTelephoneNumber', as defined in Section
+   2.10 of [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production can be found within Section 3.3.11 of
+   [RFC4517].
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 38]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.82
+          NAME 'sponsorFax'
+          DESC 'Facsimile telephone number for a sponsor'
+          SUP facsimileTelephoneNumber
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.83.  'sponsorLocality'
+
+   The 'sponsorLocality' attribute type allows for the assignment of
+   a locality name to a sponsor.
+
+   The attribute type 'l', as defined in Section 2.16 of [RFC4519], is
+   a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.83
+          NAME 'sponsorLocality'
+          DESC 'Locality name for a sponsor'
+          SUP l
+          SINGLE-VALUE )
+
+   Examples: "Palm Springs", "Anna Maria Island"
+
+2.3.84.  'sponsorMobile'
+
+   The 'sponsorMobile' attribute type allows for the assignment of a
+   mobile telephone number to a sponsor.
+
+   The attribute type 'mobile', as defined in Section 2.18 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'PrintableString'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.84
+          NAME 'sponsorMobile'
+          DESC 'Mobile telephone number for a sponsor'
+          SUP mobile
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.85.  'sponsorOrg'
+
+   The 'sponsorOrg' attribute type allows for the assignment of an
+   organization name to a sponsor.
+
+   The attribute type 'o', as defined in Section 2.19 of [RFC4519],
+   is a super type of this attribute type.
+
+Coretta                Expires August 27, 2024                 [Page 39]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.85
+          NAME 'sponsorOrg'
+          DESC 'Organization name for a sponsor'
+          SUP o
+          SINGLE-VALUE )
+
+   Example: "Sponsor, Co."
+
+2.3.86.  'sponsorPOBox'
+
+   The 'sponsorPOBox' attribute type allows for the assignment of a
+   post office box number to a sponsor.
+
+   The attribute type 'postOfficeBox', as defined in Section 2.25 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.86
+          NAME 'sponsorPOBox'
+          DESC 'Post office box number for a sponsor'
+          SUP postOfficeBox
+          SINGLE-VALUE )
+
+   Examples: "555", "475"
+
+2.3.87.  'sponsorPostalAddress'
+
+   The 'sponsorPostalAddress' attribute type allows for the assignment
+   of a complete postal address sponsor.  This single attribute may be
+   used instead of other individual address component attribute types,
+   but will require field parsing on the client side.
+
+   The attribute type 'postalAddress', as defined in Section 2.23 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.28 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.87
+          NAME 'sponsorPostalAddress'
+          DESC 'Full postal address for a sponsor'
+          SUP postalAddress
+          SINGLE-VALUE )
+
+   Example: "1 Fake St$Anytown$CA$12345$US"
+
+2.3.88.  'sponsorPostalCode'
+
+   The 'sponsorPostalCode' attribute type allows for a postal code
+   to be assigned to a sponsor.
+
+Coretta                Expires August 27, 2024                 [Page 40]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The attribute type 'postalCode', as defined in Section 2.23 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.88
+          NAME 'sponsorPostalCode'
+          DESC 'Postal code for a sponsor'
+          SUP postalCode
+          SINGLE-VALUE )
+
+   Example: "92262", "34216"
+
+2.3.89.  'sponsorState'
+
+   The 'sponsorState' attribute type allows for the assignment of a
+   state or province name to a sponsor.
+
+   The attribute type 'st', as defined in Section 2.33 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.89
+          NAME 'sponsorState'
+          DESC 'State or province name for a sponsor'
+          SUP st
+          SINGLE-VALUE )
+
+   Examples: "California", "North Dakota"
+
+2.3.90.  'sponsorStreet'
+
+   The 'sponsorStreet' attribute type allows for the assignment of a
+   street name and number to a sponsor.
+
+   The attribute type 'street', as defined in Section 2.34 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.90
+          NAME 'sponsorStreet'
+          DESC 'Street name and number for a sponsor'
+          SUP street
+          SINGLE-VALUE )
+
+   Example: "1 Fake Street"
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 41]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.91.  'sponsorTelephone'
+
+   The 'sponsorTelephone' attribute type allows for the assignment of
+   a telephone number to a sponsor.
+
+   The attribute type 'telephoneNumber', as defined in Section 2.35 of
+   [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'PrintableString'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.91
+          NAME 'sponsorTelephone'
+          DESC 'Telephone number for a sponsor'
+          SUP telephoneNumber
+          SINGLE-VALUE )
+
+   Example: "+11234567890"
+
+2.3.92.  'sponsorTitle'
+
+   The 'sponsorTitle' attribute type allows for the assignment of an
+   official or professional title to a sponsor.
+
+   The attribute type 'title', as defined in Section 2.38 of [RFC4519],
+   is a super type of this attribute type.
+
+   A practical ABNF production is found in Section 3.3.6 in [RFC4517].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.92
+          NAME 'sponsorTitle'
+          DESC 'Title of a sponsor'
+          SUP title
+          SINGLE-VALUE )
+
+   Example: "Executive Sponsor"
+
+2.3.93.  'sponsorURI'
+
+   The 'sponsorURI' attribute type allows for the assignment of one (1)
+   or more URI values, each with an optional label, to a sponsor.
+
+   The attribute type 'labeledURI', as defined in [RFC2079], is a super
+   type of this attribute type.
+
+   A practical ABNF production for this attribute type is defined within
+   Appendix A of [RFC3986].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.93
+          NAME 'sponsorURI'
+          DESC 'Uniform Resource Identifier for a sponsor'
+          SUP labeledURI )
+
+Coretta                Expires August 27, 2024                 [Page 42]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   Examples: "http://example.com Example", "http://example.com"
+
+2.3.94.  'rADITProfile'
+
+   The 'rADITProfile' attribute type references entries which contain
+   optimal 'rADUAConfig' configuration settings for client consumption.
+
+   The attribute type 'distinguishedName', as defined in Section 2.7
+   of [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.94
+          NAME 'rADITProfile'
+          DESC 'Advertised RA DIT profile DNs served by an RA DSA'
+          SUP distinguishedName )
+
+   Examples: "n=1,dc=example,dc=com" "n=1,n=4,n=1,n=6,n=3,n=1"
+
+2.3.95.  'rARegistrationBase'
+
+   The 'rARegistrationBase' attribute type allows for the storage of one
+   (1) or more DNs that refer to entries under which 'registration'
+   entries reside.
+
+   The attribute type 'distinguishedName', as defined in Section 2.7
+   of [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.95
+          NAME 'rARegistrationBase'
+          DESC 'DN of a registration base within an RA DIT'
+          SUP distinguishedName )
+
+   Example: "ou=Registrations,o=rA"
+
+2.3.96.  'rARegistrantBase'
+
+   The 'rARegistrantBase' attribute type allows for the storage of one
+   (1) or more LDAP DNs that refer to entries under which 'registrant'
+   entries reside.
+
+   The attribute type 'distinguishedName', as defined in Section 2.7
+   of [RFC4519], is a super type of this attribute type.
+
+   A practical ABNF production for this attribute type can be found in
+   Section 3 of [RFC4514].
+
+
+
+Coretta                Expires August 27, 2024                 [Page 43]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.3.96
+          NAME 'rARegistrantBase'
+          DESC 'DN of a registrant base within an RA DIT'
+          SUP distinguishedName )
+
+   Example: "ou=Registrants,o=rA"
+
+2.3.97.  'rADirectoryModel'
+
+   The 'rADirectoryModel' attribute type allows for the storage of a
+   numerical OID meant to declare the structural design of the RA DIT.
+
+   A practical ABNF production, labeled 'numericoid', is defined within
+   Section 1.4 of [RFC4512].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.97
+          NAME 'rADirectoryModel'
+          DESC 'Governing directory model OID'
+          EQUALITY objectIdentifierMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+          SINGLE-VALUE )
+
+   Example: "1.3.6.1.4.1.56521.101.3.3"
+
+2.3.98.  'rAServiceMail'
+
+   The 'rAServiceMail' attribute type allows for the assignment of an
+   email address to an 'rADUAConfig' entry for the purpose of support
+   or error reporting.
+
+   The attribute type 'mail', as defined in Section 2.16 of [RFC4524],
+   is a super type of this attribute type.
+
+   A practical ABNF production can be found in Section 3.2 of [RFC4517],
+   labeled 'IA5String'.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.98
+          NAME 'rAServiceMail'
+          DESC 'Registration Authority contact email address'
+          SUP mail )
+
+   Example: "ra@example.com"
+
+2.3.99.  'rAServiceURI'
+
+   The 'rAServiceURI' attribute type allows for the assignment of one
+   (1) or more URI values to an 'rADUAConfig' entry for the purpose of
+   directing users to an appropriate RA endpoint for request handling.
+
+   The attribute type 'labeledURI', as defined in [RFC2079], is a super
+   type of this attribute type.
+
+
+Coretta                Expires August 27, 2024                 [Page 44]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   A practical ABNF production for this attribute type is defined within
+   Appendix A of [RFC3986].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.99
+          NAME 'rAServiceURI'
+          DESC 'Registration Authority URI'
+          SUP labeledURI )
+
+   Example: "http://example.com/ra.html Registrations"
+
+2.3.100.  'rATTL'
+
+   The 'rATTL' attribute type allows for the specification of a TTL
+   value, expressed in seconds.
+
+   A practical ABNF production, labeled 'number', can be found within
+   Section 1.4 of [RFC4512].
+
+   See the RADUA ID for details relating to client-driven entry
+   caching and practical value implementation.
+
+      ( 1.3.6.1.4.1.56521.101.2.3.100
+          NAME 'rATTL'
+          DESC 'RA entry Time to Live, expressed in seconds'
+          EQUALITY integerMatch
+          ORDERING integerOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+          SINGLE-VALUE )
+
+   Examples: "0", "3600", "-1", "86400"
+
+2.3.101.  'c-rATTL'
+
+   The 'c-rATTL' attribute type is the manifestation of the 'rATTL'
+   type, defined in Section 2.3.99 with Collective Attribute support.
+
+   This attribute type should only be used in directory environments
+   which actively support and require [RFC3671] capabilities.
+
+   See the RADUA ID for details relating to client-driven entry
+   caching and practical value implementation.
+
+   A practical ABNF production, labeled 'number', can be found within
+   Section 1.4 of [RFC4512].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.101
+          NAME 'c-rATTL'
+          DESC 'Collective RA entry Time to Live, expressed in seconds'
+          EQUALITY integerMatch
+          ORDERING integerOrderingMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+          COLLECTIVE )
+
+Coretta                Expires August 27, 2024                 [Page 45]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.3.102.  'registeredUUID'
+
+   The 'registeredUUID' attribute type assigns a hexadecimal UUID value
+   to a registration.
+
+   A practical ABNF production for this attribute type is defined within
+   Section 3 of [RFC4122].
+
+      ( 1.3.6.1.4.1.56521.101.2.3.102
+          NAME 'registeredUUID'
+          DESC 'X.667 registered UUID'
+          EQUALITY UUIDMatch
+          ORDERING UUIDOrderingMatch
+          SYNTAX 1.3.6.1.1.16.1
+          SINGLE-VALUE )
+
+   Example: "e6bcf22c-00bf-4b3d-b11f-36ec0522aa93"
+
+2.4.  Matching Rule Uses
+
+   No LDAP Matching Rule Uses definitions are defined anywhere in this
+   ID series.
+
+2.5.  Object Classes
+
+   The following subsections describe sixteen (16) LDAP object classes
+   defined within this ID.
+
+2.5.1.  'registration'
+
+   The 'registration' ABSTRACT class, which is a sub type of 'top', per
+   Section 2.4.1 of [RFC4512], serves as the foundation for ALL entries
+   intended to represent OID registrations within the spirit of this ID.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.1
+          NAME 'registration'
+          DESC 'Abstract OID arc class'
+          SUP top ABSTRACT
+          MUST n
+          MAY ( description $ seeAlso $ rATTL ) )
+
+2.5.2.  'rootArc'
+
+   The 'rootArc' STRUCTURAL class is meant to define a maximum of three
+   (3) root registrations for an RA DIT, per ITU-T Rec. [X.660].
+
+   Entries that bear this class SHALL ONLY represent the following root
+   registrations:
+
+     - ITU-T ({itu-t(0)})
+     - ISO ({iso(1)})
+     - Joint-ISO-ITU-T ({joint-iso-itu-t(2)})
+
+Coretta                Expires August 27, 2024                 [Page 46]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.5.2
+          NAME 'rootArc'
+          DESC 'X.660, cl. A.2: root arc class'
+          SUP registration STRUCTURAL )
+
+2.5.3.  'arc'
+
+   The 'arc' STRUCTURAL object class extends a collection of attribute
+   types for use when allocating subordinate registrations in an RA DIT.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.3
+          NAME 'arc'
+          DESC 'X.660, cl. A.3-A.5: subordinate arc class'
+          SUP registration STRUCTURAL )
+
+2.5.4. 'x660Context'
+
+   The 'x660Context' AUXILIARY class extends a collection of attribute
+   types derived from Rec. ITU-T [X.660].
+
+      ( 1.3.6.1.4.1.56521.101.2.5.4
+          NAME 'x660Context'
+          DESC 'X.660 contextual class'
+          SUP registration AUXILIARY
+          MAY ( additionalUnicodeValue $
+                currentAuthority $
+                firstAuthority $
+                secondaryIdentifier $
+                sponsor $
+                standardizedNameForm $
+                unicodeValue ) )
+
+2.5.5. 'x667Context'
+
+   The 'x667Context' AUXILIARY class extends a single attribute type,
+   'registeredUUID' as defined in Section 2.3.101, for use within the
+   context of an ITU-T Rec. [X.667] (UUID) registration.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.5
+          NAME 'x667Context'
+          DESC 'X.667 contextual class'
+          SUP registration AUXILIARY
+          MUST registeredUUID )
+
+2.5.6. 'x680Context'
+
+   The 'x680Context' AUXILIARY class extends a collection of attribute
+   types derived from ITU-T Rec. [X.680].
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 47]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.5.6
+          NAME 'x680Context'
+          DESC 'X.680 contextual class'
+          SUP registration AUXILIARY
+          MAY ( aSN1Notation $
+                dotNotation $
+                identifier $
+                iRI $
+                nameAndNumberForm ) )
+
+2.5.7.  'iTUTRegistration'
+
+   The 'iTUTRegistration' AUXILIARY class labels the registration as
+   belonging to the International Telecommunications Union (ITU-T) in
+   subordinate form.
+
+   It is NOT RECOMMENDED to assign this class to any entry which bears
+   the 'rootArc' STRUCTURAL object class, per in Section 2.5.1.  This
+   class SHALL NOT appear on entries bearing the 'iSORegistration' (per
+   Section 2.5.8) or 'jointISOITUTRegistration' (per Section 2.5.9)
+   class.
+
+   The 'x660Context' (Section 2.5.4) and 'x680Context' (Section 2.5.6)
+   are super classes of this class.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.7
+          NAME 'iTUTRegistration'
+          DESC 'X.660, cl. A.2: ITU-T'
+          SUP ( x660Context $
+                x680Context )
+          AUXILIARY )
+
+2.5.8.  'iSORegistration'
+
+   The 'iSORegistration' AUXILIARY class labels the OID registration as
+   belonging to the International Organization for Standardization (ISO)
+   in subordinate form.
+
+   It is NOT RECOMMENDED to assign this class to any entry which bears
+   the 'rootArc' STRUCTURAL object class, per Section 2.5.1.  This class
+   SHALL NOT appear on entries bearing the 'iTUTRegistration' (defined
+   in Section 2.5.7) or 'jointISOITUTRegistration' (per Section 2.5.9)
+   class.
+
+   The 'x660Context' (Section 2.5.4) and 'x680Context' (Section 2.5.6)
+   are super classes of this class.
+
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 48]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.5.8
+          NAME 'iSORegistration'
+          DESC 'X.660, cl. A.2: ISO'
+          SUP ( x660Context $
+                x680Context )
+          AUXILIARY )
+
+2.5.9.  'jointISOITUTRegistration'
+
+   The 'jointISOITUTRegistration' AUXILIARY class labels a registration
+   as being jointly administered by the International Organization for
+   Standardization (ISO) and the International Telecommunications Union
+   (ITU-T) in cooperative fashion.
+
+   It is NOT RECOMMENDED to assign this class to any entry which bears
+   the 'rootArc' STRUCTURAL object class, per Section 2.5.1.  This class
+   SHALL NOT appear on entries bearing the 'iTUTRegistration' (defined
+   in Section 2.5.7) or 'iSORegistration' (per Section 2.5.8) class.
+
+   This class extends use of the 'longArc' attribute type, as defined in
+   Section 2.3.20.
+
+   The 'x660Context' (Section 2.5.4) and 'x680Context' (Section 2.5.6)
+   are super classes of this class.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.9
+          NAME 'jointISOITUTRegistration'
+          DESC 'X.660, cl. A.2: Joint ISO/ITU-T Administration'
+          SUP ( x660Context $
+                x680Context )
+          AUXILIARY
+          MAY longArc )
+
+2.5.10.  'spatialContext'
+
+   The 'spatialContext' AUXILIARY class extends vertical and horizontal
+   associative attribute types intended to describe the logical position
+   of a registration in relation to adjacent registrations.
+
+   Use of this class is entirely OPTIONAL, but can greatly aid in the
+   creation of navigational interfaces which allow both horizontal and
+   vertical movement across entire ancestries.
+
+   See the RADIT ID for further details on this topic.
+
+
+
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 49]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+      ( 1.3.6.1.4.1.56521.101.2.5.10
+          NAME 'spatialContext'
+          DESC 'Logical spatial orientation and association class'
+          SUP registration AUXILIARY
+          MAY ( topArc $ supArc $ subArc $
+                minArc $ maxArc $
+                leftArc $ rightArc ) )
+
+2.5.11.  'registrationSupplement'
+
+   The 'registrationSupplement' AUXILIARY class extends a variety of
+   miscellaneous and non-standard attribute types for OPTIONAL.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.11
+          NAME 'registrationSupplement'
+          DESC 'Supplemental registration class'
+          SUP registration AUXILIARY
+          MAY ( discloseTo $ isFrozen $ isLeafNode $
+                registrationClassification $
+                registrationCreated $
+                registrationInformation $
+                registrationModified $
+                registrationRange $
+                registrationStatus $
+                registrationURI ) )
+
+2.5.12.  'firstAuthorityContext'
+
+   The 'firstAuthorityContext' AUXILIARY class extends attribute types
+   intended to store previous authority information.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.12
+          NAME 'firstAuthorityContext'
+          DESC 'Initial registration authority class'
+          SUP top AUXILIARY
+          MAY ( firstAuthorityCommonName $
+                firstAuthorityCountryCode $
+                firstAuthorityCountryName $
+                firstAuthorityCountryName $
+                firstAuthorityEmail $
+                firstAuthorityEndTimestamp $
+                firstAuthorityFax $
+                firstAuthorityLocality $
+                firstAuthorityMobile $
+                firstAuthorityOrg $
+                firstAuthorityPostalCode $
+                firstAuthorityStartTimestamp $
+                firstAuthorityState $
+                firstAuthorityStreet $
+                firstAuthorityTelephone $
+                firstAuthorityTitle $
+                firstAuthorityURI ) )
+
+Coretta                Expires August 27, 2024                 [Page 50]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.5.13.  'currentAuthorityContext'
+
+   The 'currentAuthorityContext' AUXILIARY class extends attribute types
+   intended to store current authority information.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.13
+          NAME 'currentAuthorityContext'
+          DESC 'Current registration authority class'
+          SUP top AUXILIARY
+          MAY ( currentAuthorityCommonName $
+                currentAuthorityCountryCode $
+                currentAuthorityCountryName $
+                currentAuthorityCountryName $
+                currentAuthorityEmail $
+                currentAuthorityFax $
+                currentAuthorityLocality $
+                currentAuthorityMobile $
+                currentAuthorityOrg $
+                currentAuthorityPostalCode $
+                currentAuthorityStartTimestamp $
+                currentAuthorityState $
+                currentAuthorityStreet $
+                currentAuthorityTelephone $
+                currentAuthorityTitle $
+                currentAuthorityURI ) )
+
+2.5.14.  'sponsorContext'
+
+   The 'currentAuthorityContext' AUXILIARY class extends attribute types
+   intended to store sponsoring authority information.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.14
+          NAME 'sponsorContext'
+          DESC 'Registration sponsoring authority class'
+          SUP top AUXILIARY
+          MAY ( sponsorCommonName $
+                sponsorCountryCode $
+                sponsorCountryName $
+                sponsorCountryName $
+                sponsorEmail $
+                sponsorEndTimestamp $
+                sponsorFax $
+                sponsorLocality $
+                sponsorMobile $
+                sponsorOrg $
+                sponsorPostalCode $
+                sponsorStartTimestamp $
+                sponsorState $
+                sponsorStreet $
+                sponsorTelephone $
+                sponsorTitle $
+                sponsorURI ) )
+
+Coretta                Expires August 27, 2024                 [Page 51]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.5.15.  'registrant'
+
+   The 'registrant' object class allows for current, previous (first)
+   and/or sponsorship data to be stored within an entry.
+
+   This object class is STRUCTURAL, and cannot be combined with the
+   'registration' object class within a single entry.
+
+   Use of the 'registrant' object class within an RA DIT implies use
+   of so-called dedicated authority entries, as described within the
+   RADIT ID.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.15
+          NAME 'registrant'
+          DESC 'Generalized auxiliary class for registrant data'
+          SUP top STRUCTURAL
+          MUST registrantID
+          MAY ( description $ seeAlso $ rATTL ) )
+
+2.5.16.  'rADUAConfig'
+
+   The 'rADUAConfig' object class allows for the storage of so-called
+   auto-discovered attribute types meant to guide the RA DUA in its
+   attempt to access registration and/or registrant information stored
+   within the RA DIT served by the RA DSA.
+
+      ( 1.3.6.1.4.1.56521.101.2.5.16
+          NAME 'rADUAConfig'
+          DESC 'RA DUA configuration advertisement class'
+          SUP top AUXILIARY
+          MAY ( description $
+                rADITProfile $
+                rADirectoryModel $
+                rARegistrationBase $
+                rARegistrantBase $
+                rAServiceMail $
+                rAServiceURI $
+                rATTL ) )
+
+2.6.  DIT Content Rules
+
+   No DIT Content Rules are officially defined anywhere in this ID
+   series.
+
+   If the X.500/LDAP product(s) in question registers positive support
+   for these kinds of definitions, per Section 4.1.6 of [RFC4512], and
+   the reader desires the ability to control the contents of any and all
+   individual registration and/or registrant entries in a more granular
+   manner, they are advised to consider the composition and use of one
+   (1) or more custom rules of this design.
+
+
+
+Coretta                Expires August 27, 2024                 [Page 52]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+2.7.  Name Forms
+
+   This section defines three (3) Name Forms for use in the composition
+   of any DIT Structure Rules required, if supported by the X.500/LDAP
+   product(s) in question.  See Section 4.1.7.2 of [RFC4512] for
+   details.
+
+2.7.1.  'nRootArcForm'
+
+   The 'nRootArcForm' name form is devised to control the RDN of the
+   entries bearing the 'rootArc' STRUCTURAL object class.  Within the
+   RECOMMENDED three dimensional model of this ID series, use the 'n'
+   (Number Form) attribute type is the preferred RDN component.
+
+      ( 1.3.6.1.4.1.56521.101.2.7.1
+          NAME 'nRootArcForm'
+          DESC 'root arc name form for a number form RDN'
+          OC rootArc
+          MUST n )
+
+2.7.2.  'nArcForm'
+
+   The 'nArcForm' name form is devised to control the RDN of the entries
+   bearing the 'arc' STRUCTURAL object class.  Within the RECOMMENDED
+   three dimensional model of this ID series, the 'n' (Number Form)
+   attribute type is the preferred RDN component.
+
+      ( 1.3.6.1.4.1.56521.101.2.7.2
+          NAME 'nArcForm'
+          DESC 'arc name form for a number form RDN'
+          OC arc
+          MUST n )
+
+2.7.3.  'dotNotationArcForm'
+
+   The 'dotNotationArcForm' name form is devised to control the RDN
+   of the bearings bearing the 'arc' STRUCTURAL object class.  Within
+   the STRONGLY DISCOURAGED two dimensional model of this ID series,
+   the 'dotNotation' (numeric OID) attribute type is the preferred RDN
+   component.
+
+      ( 1.3.6.1.4.1.56521.101.2.7.3
+          NAME 'dotNotationArcForm'
+          DESC 'arc name form for a numeric OID RDN'
+          OC arc
+          MUST dotNotation )
+
+2.8.  DIT Structure Rules
+
+   No DIT structure rules are officially defined anywhere in this ID
+   series.
+
+
+Coretta                Expires August 27, 2024                 [Page 53]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   The name form definitions per Section 2.7 may be used in the creation
+   of custom DIT structure rules by the directory administrator(s) if
+   desired.  See Section 4.1.7.1 of [RFC4512] for details.
+
+3.  IANA Considerations
+
+   There are no requests to IANA in this document at this time.
+
+4.  Security Considerations
+
+   There are no security considerations applicable to this ID.
+
+5.  References
+
+5.1.  Normative References
+
+   RADIR      Coretta, J., "The OID Directory: A Technical Roadmap",
+              draft-coretta-oiddir-roadmap, February 2024.
+
+   RADIT      Coretta, J., "The OID Directory: The RA DIT",
+              draft-coretta-oiddir-radit, February 2024.
+
+   RADSA      Coretta, J., "The OID Directory: The RA DSA",
+              draft-coretta-oiddir-radsa, February 2024.
+
+   RADUA      Coretta, J., "The OID Directory: The RA DUA",
+              draft-coretta-oiddir-radua, February 2024.
+
+   [RFC2079]  Smith, M., "Definition of an X.500 attribute type and an
+              object class to Hold Uniform Resource Identifiers (URIs)",
+              RFC 2079, January 1997.
+
+   [RFC2578]  Rose, M., et al, "Structure of Management Information
+              Version 2 (SMIv2)", RFC 2578, April 1999.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC3671]  Zeilenga, K., "Collective Attributes in the Lightweight
+              Directory Access Protocol (LDAP)", RFC 3671, December
+              2003.
+
+   [RFC3986]  Lee-Berners, T., "Uniform Resource Identifier (URI):
+              Generic Syntax", RFC 3986, January 2005.
+
+   [RFC3987]  Duerst, M., "Internationalized Resource Identifiers
+              (IRIs)", RFC 3987, January 2005.
+
+   [RFC4122]  Leach, P., "A Universally Unique IDentifier (UUID) URN
+              Namespace", RFC 4122, July 2005.
+
+
+
+Coretta                Expires August 27, 2024                 [Page 54]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
+              2006.
+
+   [RFC4514]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): String Representation of Distinguished Names",
+              RFC 4514, June 2006.
+
+   [RFC4517]  Legg, Ed., S., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517, June
+              2006.
+
+   [RFC4519]  Sciberras, Ed., A., "Lightweight Directory Access Protocol
+              (LDAP): Schema for User Applications", RFC 4519, June
+              2006.
+
+   [RFC4524]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): COSINE LDAP/X.500 Schema", RFC 4524, June 2006.
+
+   [RFC4530]  Zeilenga, K,. "Lightweight Directory Access Protocol
+              (LDAP) entryUUID Operational Attribute", RFC 4530, June
+              2006.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", RFC 8174, May 2017.
+
+   [X.660]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "General procedures and top arcs
+              of the international object identifier tree", ITU-T X.660,
+              July 2011.
+
+   [X.667]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "Information technology -
+              Procedures for the operation of object identifier
+              registration authorities: Generation of universally unique
+              identifiers and their use in object identifiers", ITU-T
+              X.667, October 2012.
+
+   [X.680]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "Abstract Syntax Notation One
+              (ASN.1): Specification of basic notation", ITU-T X.680,
+              July 2002.
+
+5.2.  Informative References
+
+   [RFC1155]  Rose, M., "Structure and Identification of Management
+              Information for TCP/IP-based Internets", RFC 1155, May
+              1990.
+
+   [X.500]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "The Directory: Overview of
+              concepts, models and services", ITU-T X.500, October 2019.
+
+Coretta                Expires August 27, 2024                 [Page 55]
+
+Internet-Draft        The OID Directory: Schema            February 2024
+
+
+   [X.672]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "OID resolution system: Problems,
+              requirements and potential solutions", ITU-T X.672, March
+              2020.
+
+Author's Address
+
+   Jesse Coretta
+   California, United States
+
+   Email: jesse.coretta@icloud.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 56]

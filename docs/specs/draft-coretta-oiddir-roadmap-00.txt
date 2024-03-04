@@ -1,0 +1,754 @@
+
+
+RADIR                                                         J. Coretta
+Internet-Draft                                         February 29, 2024
+Intended status: Experimental
+Obsoletes: X660LDAP
+Expires: August 27, 2024
+
+
+                        The OID Directory:
+                        A Technical Roadmap
+                draft-coretta-oiddir-roadmap-00.txt
+
+Abstract
+
+   This ID outlines a series of experimental standards documents which
+   define the abstracts of the "OID Directory": a proposed philosophy
+   and set of procedures used to facilitate the storage and management
+   of the "OID spectrum" -- in part or in whole -- within an X.500/LDAP
+   service implementation.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on August 27, 2024.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+
+Coretta                Expires August 27, 2024                  [Page 1]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+Table of Contents
+
+   1. Introduction ....................................................2
+      1.1. Relation to draft-coretta-x660-ldap ........................2
+      1.2. Conventions ................................................3
+      1.3. Acronyms Used ..............................................4
+      1.4. Intended Audience ..........................................4
+      1.5. Alternatives ...............................................5
+      1.6. Allocations ................................................5
+      1.7. Key Citations and Generalizations ..........................5
+      1.8. Common Operations and Concepts .............................7
+         1.8.1. Read and Search .......................................7
+         1.8.2. Modify ................................................9
+         1.8.3. Add ...................................................9
+         1.8.4. Delete ................................................9
+         1.8.5. Modify DN ............................................10
+   2. Supporting IDs .................................................10
+      2.1. 'draft-coretta-oiddir-schema' .............................10
+      2.2. 'draft-coretta-oiddir-radua' ..............................10
+      2.3. 'draft-coretta-oiddir-radsa' ..............................11
+      2.4. 'draft-coretta-oiddir-radit' ..............................11
+   3. IANA Considerations ............................................11
+   4. Security Considerations ........................................11
+   5. References .....................................................11
+      5.1. Normative References ......................................11
+      5.2. Informative References ....................................11
+   6. Ongoing Collaborative Resources ................................13
+      6.1. The 'oid-directory' Repositories ..........................13
+      6.2. The 'oid.directory' Internet Domain .......................13
+   Author's Address ..................................................13
+
+1.  Introduction
+
+   This ID series combines relevant components of ITU-T Recommendations
+   [X.500], [X.660], [X.680], [RFC4510] and many others to define models
+   and procedures of the "OID Directory" construct.
+
+   The "OID Directory" is the X.500/LDAP facility for managing the "OID
+   Spectrum" -- in part or in whole -- in the context of Registration
+   Authority operations, whether public or private.
+
+   Additionally, unofficial components have been devised or appropriated
+   specifically to aid adopters in overcoming various feasibility and
+   logistical challenges that may arise during an implementation.
+
+   This ID series OBSOLETES all revisions of 'draft-coretta-x660-ldap'
+   (X660LDAP).  See Section 1.1 for details.
+
+   This ID series -- as a whole -- is EXPERIMENTAL.  Implementations of
+   any component set forth within this series SHOULD NOT manifest EXCEPT
+   for any testing or proof-of-concept efforts.
+
+
+Coretta                Expires August 27, 2024                  [Page 2]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+1.1.  Relation to 'draft-coretta-x660-ldap'
+
+   This ID was first published towards the end of 2020 under the formal
+   name 'draft-coretta-x660-ldap' (X660LDAP) and had reached nine (9)
+   revisions.  It originally held the title:
+
+      "Lightweight Directory Access Protocol (LDAP) Procedures and
+       Schema Definitions for the Storage of X.660 Registration
+       Information"
+
+   Subsequent community feedback -- although generally favorable --
+   suggested that some of the proposed subject matter was external to
+   the core precepts of ITU-T Rec. [X.660], which confused some readers.
+
+   Eventually, it was decided this document should be re-submitted with
+   a more generalized title. This single change satisfied nearly all
+   instances of criticism while preserving the intended spirit of the
+   ID without misleading readers as it relates to the true scope of
+   relevant standards.
+
+   Furthermore, it was decided that, due to the overall breadth and
+   complexity of the standards proposed, the ID should be divided into
+   multiple supporting IDs in a more focused manner.  This has the
+   secondary effect of allowing potential extensions of this concept
+   in the future to be set forth in a more modular manner.
+
+   Aside from the correction of typographical and formatting errors
+   previously identified, the following additional changes have been
+   made to the new ID(s):
+
+     - Collective Attribute [RFC3671] support within this ID series is
+       now more well-defined.
+
+     - Administrative procedures and considerations have been expanded
+       throughout many areas of the ID series.
+
+     - The scope of potential candidates for adoption of the ID series
+       has been expanded in Section 1.4.
+
+     - Added new schema definitions and optimized several existing
+       definitions within the RASCHEMA ID.
+
+     - A short list of alternative solutions to this ID series has been
+       added in Section 1.5.
+
+     - The status of the ID is 'Experimental' (prev. 'Standards Track').
+
+     - Citations and references now favor current editions of certain
+       ITU-T Recommendations of relevance.
+
+     - Author's physical address has reduced specificity.
+
+
+Coretta                Expires August 27, 2024                  [Page 3]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+1.2.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY",
+   and "OPTIONAL" in this document are to be interpreted as described
+   in BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in
+   all capitals, as shown here.
+
+   The convention "ID series" describes the entire suite of IDs which
+   constitute the overall philosophy of the "OID Directory".  The term
+   implies not only those IDs cited in Section 2, but also any future
+   IDs that may be submitted as extensions by any author.
+
+   The conventions "OID spectrum" and "OID tree" -- while not defined in
+   any document within this standard -- are terms used frequently within
+   the ID series.  These terms describe the hypothetical data structure
+   that houses or represents all known public or private registrations
+   that have ever been allocated.
+
+1.3.  Acronyms Used
+
+   The "OID Directory" ID series makes reference to many acronyms, each
+   of which are defined as follows:
+
+      2FA    Two-Factor Authentication
+      ABNF   Augmented Backus-Naur Form
+      API    Application Programming Interface
+      ASCII  American Standard Code for Information Interchange
+      ASN.1  Abstract Syntax Notation one
+      AVA    Attribute Value Assertion
+      AXFR   (DNS) Authoritative Zone Transfer
+      DAP    Directory Access Protocol
+      DIB    Directory Information Base
+      DISP   Directory Information Shadowing Protocol
+      DIT    Directory Information Tree
+      DN     Distinguished Name
+      DNS    Domain Name System
+      DOP    Directory Operational Binding Management Protocol
+      DSA    Directory System Agent
+      DSE    DSA-Specific Entry
+      DSP    Directory System Protocol
+      DUA    Directory User Agent
+      GUI    Graphical User Interface
+      GUID   Globally Unique Identifier
+      ID     Internet Draft (of this series)
+      IPC    Interprocess Communication
+      IRI    Internationalized Resource Identifier
+      IXFR   (DNS) Incremental Zone Transfer
+      LDAP   Lightweight Directory Access Protocol
+      LDIF   LDAP Data Interchange Format
+      OID    ASN.1 Object Identifier
+      ORS    OID Resolution Service
+
+Coretta                Expires August 27, 2024                  [Page 4]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+      OTP    One-Time Pass
+      PEN    IANA Private Enterprise Number
+      RA     Registration Authority
+      RDN    Relative Distinguished Name
+      SDK    Software Development Kit
+      TLS    Transport Layer Security
+      TTL    Time to Live
+      TUI    Textual User Interface
+      URI    Uniform Resource Identifier
+      UUID   Universal Unique Identifier
+
+1.4.  Intended Audience
+
+   This ID series will be most useful to an RA of any context, whether
+   public or private.  This was, and shall always be, the primary goal
+   of this effort.
+
+   Other potential candidates include, but are not limited to:
+
+     - Hardware manufacturers
+     - Weather Services
+     - Major internet technology companies
+     - Internet Service Providers
+     - Military/Allied directories
+     - Healthcare service providers
+     - Mainstream directory software product maintainers/vendors
+     - ASN.1 professionals, particularly developers tasked with
+       maintaining certain types of encoders and decoders
+
+   Sufficed to say, any entity or individual that directly queries or
+   uses ASN.1 object identifier information in frequent or critical
+   fashion may be a candidate for this ID series.
+
+1.5.  Alternatives
+
+   Alternatives to this ID series include, but are not limited to:
+
+     - Implementation of ORS, per [X.672]
+     - Use of proprietary end-user applications
+     - Use of third party OID registration authority websites
+     - Reference raw ASN.1 definitions or relevant standards
+     - Implementation of a custom, in-house solution
+
+1.6.  Allocations
+
+   This ID series has been allocated the following numeric OID prefix:
+
+     - 1.3.6.1.4.1.56521.101
+
+   Other IDs in this series extend this registration further.
+
+
+
+Coretta                Expires August 27, 2024                  [Page 5]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+   Should this ID series be elevated to RFC status, the aforementioned
+   OID prefix shall be rendered obsolete in favor of an IANA-assigned
+   OID, at which point this ID series will be updated to reference the
+   literal 'IANA-ASSIGNED-OID' placeholder prefix where appropriate.
+
+1.7.  Key Citations and Generalizations
+
+   Certain constructs and operations are cited frequently throughout
+   this ID series, each of which are covered below.
+
+   Generalized phrasing is meaningful only within the bounds of this ID
+   series and only where specificity is not relevant in context.
+
+   The DAP Modify Operation is defined in clause 12.3 of ITU-T Rec.
+   X.511.  The LDAP Modify Operation is defined in Section 4.6 of
+   [RFC4511].  The term "Modify Operation" is used to describe either
+   of these operations.
+
+   The DAP Modify DN Operation is defined in clause 12.4 of ITU-T Rec.
+   X.511.  The LDAP Modify DN Operation is defined within Section 4.9
+   of [RFC4511].  The term "Modify DN Operation" is used to describe
+   either of these operations.
+
+   The DAP Search Operation is defined in clause 11.2 of ITU-T Rec.
+   X.511.  The DAP List Operation, considered an alternative form of
+   DAP Search, is defined in clause 11.1 of ITU-T Rec. X.511.   The
+   LDAP Search Operation is defined in Section 4.5 of [RFC4511].  The
+   term "Search Operation" is used to describe either DAP or LDAP Search
+   Operations.  Similarly, "List Operation" is the term used to describe
+   either the DAP List Operation or an LDAP Search Operation using the
+   singleLevel scope.
+
+   The DAP Read Operation is defined in clause 10.1 of ITU-T Rec. X.511.
+   The term "Read Operation" is used to describe either this operation
+   or a baseObject-scoped LDAP Search Operation.
+
+   The DAP Remove Entry Operation is defined in clause 12.2 of ITU-T
+   Rec. X.511.  The LDAP Delete Operation is defined in Section 4.8 of
+   [RFC4511].  The term "Delete Operation" is used to describe either
+   of these operations.
+
+   The DAP Add Entry Operation is defined in clause 12.1 of ITU-T Rec.
+   X.511.  The LDAP Add Operation is defined within Section 4.7 of
+   [RFC4511].  The term "Add Operation" is used to describe either
+   of these operations.
+
+   The DAP SearchArgumentData.subset parameter is defined in clause
+   11.2.1 of ITU-T Rec. X.511.  The LDAP SearchRequest.scope parameter
+   is defined in Section 4.5.1 of [RFC4511].  The terms "scope" and
+   "scoped" describe either of these components in the context of a
+   "Search Operation".
+
+
+Coretta                Expires August 27, 2024                  [Page 6]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+   The DAP EntryInformationSelection ASN.1 SET is defined in clause 7.6
+   of ITU-T Rec. X.511.  The LDAP SearchRequest.attributeSelector is
+   defined in Section 4.5.1.8 in [RFC4511].  The terms "selection" and
+   "selector" describe either of these components in the context of
+   refining the presentation of attribute types derived from entries
+   obtained by way of the Search or Read Operations.
+
+   The DAP EntryInformationSelection.infoTypes.attributeTypesOnly
+   parameter is defined within clause 7.6 of ITU-T Rec. X.511.  The
+   equivalent LDAP SearchRequest.typesOnly parameter is defined in
+   Section 4.5.1 of [RFC4511].  The term 'typesOnly' refers to either
+   of these constructs in the context of occluding values during the
+   presentation of entries retrieved using Read or Search Operations.
+
+   The concepts of DIT Content Rules, DIT Structure Rules and Name Forms
+   are defined throughout Section 6 of ITU-T Rec. X.501 and in Section
+   4.1 of [RFC4512].
+
+   The term "Write Operation" is an informal term used within this ID
+   series.  In context, it can be used to refer to any of "Modify DN",
+   "Modify", "Add" and "Delete" operation generalizations defined above
+   wherever specificity is not required.
+
+   The root DSE is discussed in Section 5 of [RFC4512] and within clause
+   23.4.2 of ITU-T Rec. X.501.
+
+   The 'subschemaSubentry' is defined in Section 4.2 of [RFC4512].
+
+   Collective attributes, including associated subtree and subentry
+   mechanics -- including the 'subtreeSpecification' attribute type --
+   are defined throughout [RFC3671], [RFC3672] and ITU-T Rec. X.501.
+
+1.8.  Common Operations and Concepts
+
+   The following subsections describe where the standard DAP and LDAP
+   Operations itemized in Section 1.7 apply within this ID series, and
+   in what manner.
+
+   Not all Operations will necessarily have a direct correlation to any
+   specific procedures set forth within this ID series.  For instance,
+   none of the procedures have any specific associations with Extended,
+   Bind or Unbind Operations defined within both ITU-T Rec. X.511 and
+   RFC4511.
+
+1.8.1.  Read and Search
+
+   The Search and Read Operations are the most critical used within this
+   ID series, regardless of the nature of implementation.
+
+
+
+
+
+Coretta                Expires August 27, 2024                  [Page 7]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+   The Read Operation is used to retrieve or "call" specific individual
+   entries from the RA DIT.  This requires foreknowledge of the target
+   DN, but is RECOMMENDED as standard procedure in the intended spirit
+   of this ID series.  This operation should ONLY return either one (1)
+   entry or none.
+
+   The Search Operation is used to retrieve multiple entries within a
+   request, typically in the context of a directory subtree.  Specific
+   foreknowledge of the desired entries is not required, however input
+   of SearchRequest (LDAP) or SearchArgumentData (DAP) will require
+   added specificity in terms of the scope (LDAP) or subset (DAP) in
+   use, the filter supplied, and other parameters such as a selector.
+
+   The Search Operation is usually discouraged for use by end users
+   unless baseObject-scoped.  Use in administratively-focused RA DUA
+   implementations is acceptable.
+
+   The following subsections cover relevant parameters extended by the
+   SearchRequest and SearchArgumentData constructs.
+
+1.8.1.1.  baseObject
+
+   The baseObject parameter defined within the SearchRequest (LDAP) and
+   SearchArgumentData constructs defines the Name of the targeted entry
+   as a DN.
+
+   There is no default value within the context of this ID series, as
+   this will be influenced based on the activities of the RA DUA.
+
+1.8.1.2.  scope and subset
+
+   The scope of a Search Operation defines the depth of the intended
+   operation in terms of 'baseObject' (0), 'singleLevel' (1) and
+   'wholeSubtree' (2).
+
+   The default scope or subset for the RA DUA SHOULD be 'baseObject'.
+   This is analogous to the Read Operation.  The RA DUA MAY allow user
+   override of this parameter when appropriate.
+
+1.8.1.3.  typesOnly and attributeTypesOnly
+
+   During the presentation of a retrieved entry, the specification of
+   (LDAP) typesOnly or (DAP) attributeTypesOnly parameters results in
+   the discarding of values.
+
+   This is often desirable in cases where the presence of entries alone
+   is the focus -- not their content.
+
+1.8.1.4.  filter
+
+   Use of a filter adds conditions to the successful matching of entries
+   to be retrieved by way of the Read or Search Operations.
+
+Coretta                Expires August 27, 2024                  [Page 8]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+   Although generally not required of the user, certain procedures set
+   forth in this ID require use of a filter, for example during a range
+   check to be conducted prior to allocation of an OID.  Generally the
+   RA DUA is expected to manage such activities.
+
+   The RA DUA may allow user-defined statements to be used for routine
+   or administrative operation, if appropriate.
+
+1.8.1.5.  attribute selection
+
+   The attribute selection parameters may be used to specify desired
+   attribute types to be retrieved, if defined, as a result of a Read
+   or Search Operation upon an entry.
+
+   Use of a selector by the RA DUA in virtually all cases is STRONGLY
+   RECOMMENDED.
+
+   The RA DUA MAY allow user-defined overrides, such as '+', '*', '1.1'
+   or explicit attribute type descriptions if appropriate in context.
+
+1.8.2.  Modify
+
+   The Modify Operation is usually among the lesser-used operations in
+   the terms of this ID series.
+
+   Aside from unusual or extraordinary circumstances, 'registration'
+   entries themselves are not typically edited.
+
+   'registrant' entries, however, may be prone to updates, as they will
+   contain contact information -- such as email addresses and telephone
+   numbers -- for the respective authority.
+
+   The nature of this ID series does not impose any particular practice
+   or recommended procedure relating to the Modify Operation itself.
+
+   Modification operations, in general, SHOULD be limited to authorized
+   personnel or the respective "owners" of certain 'registration' and/or
+   'registrant' entries as deemed appropriate.
+
+1.8.3.  Add
+
+   The Add Operation is used for the creation of new 'registration' or
+   'registrant' entries.
+
+   Generally this operation would be conducted by either the owner of
+   the respective allocation, or the RA administrative personnel in the
+   event the RA DSA supports this operation.
+
+   The addition of new 'registration' entries MUST ONLY occur below the
+   appropriate 'rARegistrationBase' value.  Similarly, the addition of
+   new 'registrant' entries MUST ONLY occur below the appropriate
+   'rARegistrantBase' value.
+
+Coretta                Expires August 27, 2024                  [Page 9]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+   RA DUAs MUST observe the MAY and MUST clauses of the object class
+   definitions within Section 2.5 of the RASCHEMA ID.  These provide
+   a rough inventory of the absolute minimum requirements for entry
+   composition, as well as the OPTIONAL types available for use.
+
+   The RA DUA MUST be prepared to observe additional restrictions or
+   extensions that may be imposed through the use of DIT Content Rules,
+   DIT Structure Rules and Name Forms held by the RA DSA.  This will
+   influence the content of entries as well as the entry's DN structure.
+
+1.8.4.  Delete
+
+   The Delete Operation is among the least-used operations within the
+   terms of this ID series.
+
+   'registration' entries themselves are generally not deleted outright,
+   especially when public-facing.  Any given 'registration' entry SHOULD
+   be labeled as OBSOLETE, DEALLOCATED or some other such designation of
+   non-operation and left intact indefinitely.  The act of deleting a
+   'registration' entry directly is often discouraged outside of unusual
+   or extraordinary circumstances, and may have disastrous consequences
+   if executed in cavalier fashion.
+
+   The same point may or may not apply to 'registrant' entries.  Given
+   the costs associated with modern storage options, RAs may not deem it
+   worthwhile to preserve so-called orphaned 'registrant' entries -- in
+   other words, 'registrant' entries not currently serving in authority
+   for any registrations.  Use of the Delete Operation may be indicated.
+
+   This ID series makes no recommendation on the proper usage of the
+   Delete Operation by appropriate personnel in the event of unusual or
+   extraordinary circumstances.  Beyond purely administrative concerns,
+   RA DUA adopters are STRONGLY ADVISED to consider the specifics of
+   how and when deletion support should or should not be supported.
+
+1.8.5.  Modify DN
+
+   The Modify DN Operation is likely the least-used operation within the
+   terms of this ID series.
+
+   Aside from unrelated administrative uses of this operation, such as
+   an effort to "move" entries from "ou=OIDs,o=rA" into a newly created
+   context "ou=Registrations,o=rA", or for the correction of a bogus DN,
+   the Modify DN operation is not indicated within the ID series.
+
+2. Supporting IDs
+
+   The following subsections each identify and describe various IDs
+   that comprise and support this proposed standard as a whole.
+
+   Should any of these IDs be updated or revised in any way, the highest
+   revision number supersedes any previous revision.
+
+Coretta                Expires August 27, 2024                 [Page 10]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+2.1.  'draft-coretta-oiddir-schema'
+
+   The 'draft-coretta-oiddir-schema' ID contains many useful definitions
+   that comprise the supporting schema for the so-called RA DIT.
+
+   This ID is hereafter cited and referenced as RASCHEMA.
+
+2.2.  'draft-coretta-oiddir-radua'
+
+   The 'draft-coretta-oiddir-radua' ID describes the RA client within
+   the traditional client/server model in terms of high-level concepts
+   and procedures for proper interaction with the RA DSA.
+
+   This ID is hereafter cited and referenced as RADUA.
+
+2.3.  'draft-coretta-oiddir-radsa'
+
+   The 'draft-coretta-oiddir-radsa' ID describes the RA server within
+   the traditional client/server model in terms of high-level concepts
+   and procedures for managing activities related to the RA DUA and RA
+   DIT.
+
+   This ID is hereafter cited and referenced as RADSA.
+
+2.4.  'draft-coretta-oiddir-radit'
+
+   The 'draft-coretta-oiddir-radit' ID defines guidelines and procedures
+   relating to the so-called RA DIT in terms of design considerations,
+   model structures, storage and operating states, et al.
+
+   This ID is hereafter cited and referenced as RADIT.
+
+3.  IANA Considerations
+
+   There are no requests to IANA in this document at this time.
+
+4.  Security Considerations
+
+   See the RADUA, RADSA and RADIT IDs for security considerations.
+
+5.  References
+
+5.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", RFC 8174, May 2017.
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 11]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+5.2.  Informative References
+
+   RADIT      Coretta, J., "The OID Directory: The RA DIT",
+              draft-coretta-oiddir-radit, February 2024.
+
+   RADSA      Coretta, J., "The OID Directory: The RA DSA",
+              draft-coretta-oiddir-radsa, February 2024.
+
+   RADUA      Coretta, J., "The OID Directory: The RA DUA",
+              draft-coretta-oiddir-radua, February 2024.
+
+   RASCHEMA   Coretta, J., "The OID Directory: The Schema",
+              draft-coretta-oiddir-schema, February 2024.
+
+   [RFC3671]  Zeilenga, K., "Collective Attributes in the Lightweight
+              Directory Access Protocol (LDAP)", RFC 3671, December
+              2003.
+
+   [RFC3672]  Zeilenga, K., "Subentries in the Lightweight Directory
+              Access Protocol (LDAP)", RFC 3672, December 2003.
+
+   [RFC4510]  Zeilenga, K. "Lightweight Directory Access Protocol       
+              (LDAP): Technical Specification Road Map", RFC 4510, June 
+              2006.
+
+   [RFC4511]  J. Sermersheim, Ed. "Lightweight Directory Access Protocol
+              (LDAP): The Protocol", RFC 4511, June 2006.
+
+   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
+              2006.
+
+   [X.500]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "The Directory: Overview of
+              concepts, models and services", ITU-T X.500, October 2019.
+
+   [X.501]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "The Directory: Models", ITU-T
+              X.501, October 2019.
+
+   [X.511]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "The Directory: Abstract service
+              definition", ITU-T X.511, October 2019.
+
+   [X.660]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "General procedures and top arcs
+              of the international object identifier tree", ITU-T X.660,
+              July 2011.
+
+
+
+
+
+Coretta                Expires August 27, 2024                 [Page 12]
+
+Internet-Draft        The OID Directory: Roadmap           February 2024
+
+
+   [X.667]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "Information technology -
+              Procedures for the operation of object identifier
+              registration authorities: Generation of universally unique
+              identifiers and their use in object identifiers", ITU-T
+              X.667, October 2012.
+
+   [X.672]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "OID resolution system: Problems,
+              requirements and potential solutions", ITU-T X.672, March
+              2020.
+
+   [X.680]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "Abstract Syntax Notation One
+              (ASN.1): Specification of basic notation", ITU-T X.680,
+              July 2002.
+
+6.  Ongoing Collaborative Resources
+
+   This section contains information regarding resources, repositories
+   and websites related to ongoing collaboration and participation for
+   community members and experts alike with respect to this ID series.
+
+6.1.  The 'oid-directory' Repositories
+
+   The following URL refers to a GitHub repository dedicated solely for
+   management of each ID in the (immediate) series:
+
+     https://github.com/oid-directory/id
+
+   The following URL refers to a GitHub repository dedicated for content
+   relating to the RASCHEMA ID:
+
+     https://github.com/oid-directory/definitions
+
+   Individuals or other parties interested in participating in this ID
+   series are encouraged to visit any or all of these repositories.
+
+6.2.  The 'oid.directory' Internet Domain
+
+   The public internet domain 'oid.directory' has been reserved for any
+   relevant endeavors related to the ID series in the future.
+
+   Should the ID be accepted and elevated to the status of RFC, this
+   domain may be turned over to an appropriate entity or working group.
+
+Author's Address
+
+   Jesse Coretta
+   California, United States
+
+   Email: jesse.coretta@icloud.com
+
+Coretta                Expires August 27, 2024                 [Page 13]
