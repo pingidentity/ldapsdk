@@ -455,6 +455,17 @@ public abstract class JSONObjectFilter
 
 
   /**
+   * Retrieves a JSON object that represents a normalized version of this
+   * filter.
+   *
+   * @return  A JSON object that represents a normalized version of this filter.
+   */
+  @NotNull()
+  public abstract JSONObject toNormalizedJSONObject();
+
+
+
+  /**
    * Retrieves the value of the specified field from the provided JSON object as
    * a list of strings.  The specified field must be a top-level field in the
    * JSON object, and it must have a value that is a single string or an array
@@ -1070,5 +1081,33 @@ public abstract class JSONObjectFilter
   public final void toString(@NotNull final StringBuilder buffer)
   {
     toJSONObject().toString(buffer);
+  }
+
+
+
+  /**
+   * Retrieves a normalized string representation of the JSON object that
+   * represents this filter.
+   *
+   * @return  A normalized string representation of the JSON object that
+   *          represents this filter.
+   */
+  @NotNull()
+  public final String toNormalizedString()
+  {
+    return toNormalizedJSONObject().toString();
+  }
+
+
+
+  /**
+   * Appends a normalized string representation of the JSON object that
+   * represents this filter to the provided buffer.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
+   */
+  public final void toNormalizedString(@NotNull final StringBuilder buffer)
+  {
+    toNormalizedJSONObject().toString(buffer);
   }
 }

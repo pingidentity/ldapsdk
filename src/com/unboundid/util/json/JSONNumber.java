@@ -717,6 +717,20 @@ public final class JSONNumber
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
+  public JSONNumber toNormalizedValue(final boolean ignoreFieldNameCase,
+                                      final boolean ignoreValueCase,
+                                      final boolean ignoreArrayOrder)
+  {
+    return new JSONNumber(normalizedValue);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendNumber(stringRepresentation);

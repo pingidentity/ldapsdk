@@ -225,6 +225,9 @@ public final class EqualsJSONObjectFilterTestCase
     assertFalse(f.matchesJSONObject(new JSONObject(
          new JSONField("top-level-field", new JSONObject(
               new JSONField("top-level-field", "foo"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -332,6 +335,9 @@ public final class EqualsJSONObjectFilterTestCase
     assertFalse(f.matchesJSONObject(new JSONObject(
          new JSONField("top-level-field", new JSONObject(
               new JSONField("top-level-field", true))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -394,6 +400,9 @@ public final class EqualsJSONObjectFilterTestCase
     assertFalse(f.matchesJSONObject(new JSONObject(
          new JSONField("top-level-field", new JSONObject(
               new JSONField("top-level-field", new JSONNumber(1234)))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -454,6 +463,9 @@ public final class EqualsJSONObjectFilterTestCase
     assertFalse(f.matchesJSONObject(new JSONObject(
          new JSONField("top-level-field", new JSONObject(
               new JSONField("top-level-field", JSONNull.NULL))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -936,5 +948,36 @@ public final class EqualsJSONObjectFilterTestCase
     assertEquals(
          new EqualsJSONObjectFilter("foo", 1234.5),
          new EqualsJSONObjectFilter("foo", new JSONNumber(1234.5)));
+  }
+
+
+
+  /**
+   * Tests to ensure that the normalized representation of the filter properly
+   * respects the case-sensitive flag.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNormalizeWithCaseSensitiveValue()
+         throws Exception
+  {
+    EqualsJSONObjectFilter f =
+         new EqualsJSONObjectFilter("test-field", new JSONString("Foo"));
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "equals"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "foo")).toString());
+
+    f.setCaseSensitive(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "equals"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "Foo"),
+              new JSONField("caseSensitive", true)).toString());
   }
 }

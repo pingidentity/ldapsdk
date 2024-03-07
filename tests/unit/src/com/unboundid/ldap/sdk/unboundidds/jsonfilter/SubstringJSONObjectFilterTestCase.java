@@ -210,6 +210,9 @@ public final class SubstringJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONString("def"),
               new JSONString("ABC"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -335,6 +338,9 @@ public final class SubstringJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONString("jkl"),
               new JSONString("GHI"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -465,6 +471,9 @@ public final class SubstringJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONString("abcjkl"),
               new JSONString("defghi"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -606,6 +615,9 @@ public final class SubstringJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONString("ababababa"),
               new JSONString("BaBaBaBaB"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -709,6 +721,9 @@ public final class SubstringJSONObjectFilterTestCase
                    new JSONString("def"),
                    new JSONString("ghi"),
                    new JSONString("jkl"))))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -852,5 +867,83 @@ public final class SubstringJSONObjectFilterTestCase
               new JSONField("field", "test-field"),
               new JSONField("caseSensitive", true));
     JSONObjectFilter.decode(o);
+  }
+
+
+
+  /**
+   * Tests to ensure that the normalized representation of the filter properly
+   * respects the case-sensitive flag when there is only a single contains
+   * element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNormalizeWithCaseSensitiveValueSingleContains()
+         throws Exception
+  {
+    SubstringJSONObjectFilter f = new SubstringJSONObjectFilter("test-field",
+         "Beginning", "Middle", "End");
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "substring"),
+              new JSONField("field", "test-field"),
+              new JSONField("startsWith", "beginning"),
+              new JSONField("contains", "middle"),
+              new JSONField("endsWith", "end")).toString());
+
+    f.setCaseSensitive(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "substring"),
+              new JSONField("field", "test-field"),
+              new JSONField("startsWith", "Beginning"),
+              new JSONField("contains", "Middle"),
+              new JSONField("endsWith", "End"),
+              new JSONField("caseSensitive", true)).toString());
+  }
+
+
+
+  /**
+   * Tests to ensure that the normalized representation of the filter properly
+   * respects the case-sensitive flag when there are multiple contains elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNormalizeWithCaseSensitiveValueMultipleContains()
+         throws Exception
+  {
+    SubstringJSONObjectFilter f = new SubstringJSONObjectFilter(
+         Collections.singletonList("test-field"),
+         "Beginning",
+         Arrays.asList("Mid1", "Mid2"),
+         "End");
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "substring"),
+              new JSONField("field", "test-field"),
+              new JSONField("startsWith", "beginning"),
+              new JSONField("contains", new JSONArray(
+                   new JSONString("mid1"),
+                   new JSONString("mid2"))),
+              new JSONField("endsWith", "end")).toString());
+
+    f.setCaseSensitive(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "substring"),
+              new JSONField("field", "test-field"),
+              new JSONField("startsWith", "Beginning"),
+              new JSONField("contains", new JSONArray(
+                   new JSONString("Mid1"),
+                   new JSONString("Mid2"))),
+              new JSONField("endsWith", "End"),
+              new JSONField("caseSensitive", true)).toString());
   }
 }

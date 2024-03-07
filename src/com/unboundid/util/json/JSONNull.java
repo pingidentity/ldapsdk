@@ -278,6 +278,21 @@ public final class JSONNull
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
+  public JSONNull toNormalizedValue(final boolean ignoreFieldNameCase,
+                                    final boolean ignoreValueCase,
+                                    final boolean ignoreArrayOrder)
+  {
+    // Null values are always in normalized form.
+    return this;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendNull();

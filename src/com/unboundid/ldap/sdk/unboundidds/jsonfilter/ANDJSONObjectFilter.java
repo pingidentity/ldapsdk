@@ -340,6 +340,31 @@ public final class ANDJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
+
+    fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
+
+    final ArrayList<JSONValue> filterValues =
+         new ArrayList<>(andFilters.size());
+    for (final JSONObjectFilter f : andFilters)
+    {
+      filterValues.add(f.toNormalizedJSONObject());
+    }
+    fields.put(FIELD_AND_FILTERS, new JSONArray(filterValues));
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected ANDJSONObjectFilter decodeFilter(
                                      @NotNull final JSONObject filterObject)
             throws JSONException

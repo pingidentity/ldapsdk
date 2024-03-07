@@ -208,6 +208,9 @@ public final class RegularExpressionJSONObjectFilterTestCase
          new JSONField("a", new JSONArray(
               new JSONString("abc"),
               new JSONString("456def"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -339,6 +342,9 @@ public final class RegularExpressionJSONObjectFilterTestCase
          new JSONField("a", new JSONArray(
               new JSONString("abc"),
               new JSONString("456def"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 

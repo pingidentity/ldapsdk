@@ -621,6 +621,46 @@ public final class EqualsJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
+
+    fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
+
+    if (field.size() == 1)
+    {
+      fields.put(FIELD_FIELD_PATH, new JSONString(field.get(0)));
+    }
+    else
+    {
+      final ArrayList<JSONValue> fieldNameValues =
+           new ArrayList<>(field.size());
+      for (final String s : field)
+      {
+        fieldNameValues.add(new JSONString(s));
+      }
+      fields.put(FIELD_FIELD_PATH, new JSONArray(fieldNameValues));
+    }
+
+    fields.put(FIELD_VALUE,
+         value.toNormalizedValue(false, (! caseSensitive), false));
+
+    if (caseSensitive)
+    {
+      fields.put(FIELD_CASE_SENSITIVE, JSONBoolean.TRUE);
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected EqualsJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

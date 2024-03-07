@@ -558,6 +558,18 @@ public final class ContainsFieldJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    return toJSONObject();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected ContainsFieldJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

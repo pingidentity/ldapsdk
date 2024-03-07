@@ -244,6 +244,9 @@ public final class JSONObjectTestCase
     assertNotNull(o.toSingleLineString());
     assertNotNull(o.toMultiLineString());
 
+    assertEquals(decoded.toNormalizedValue(false, true, false),
+         new JSONObject(n));
+
     assertTrue(decoded.equals(o, false, false, false));
     assertTrue(decoded.equals(o, true, false, false));
     assertTrue(decoded.equals(o, false, true, false));

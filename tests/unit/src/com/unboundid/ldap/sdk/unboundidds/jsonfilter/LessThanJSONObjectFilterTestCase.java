@@ -781,6 +781,9 @@ public final class LessThanJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONString("TOO"),
               new JSONString("BOO"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -863,6 +866,9 @@ public final class LessThanJSONObjectFilterTestCase
     {
       // This was expected.
     }
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -959,5 +965,46 @@ public final class LessThanJSONObjectFilterTestCase
     {
       // This was expected.
     }
+  }
+
+
+
+  /**
+   * Tests to ensure that the normalized representation of the filter properly
+   * respects the case-sensitive flag.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNormalizeWithCaseSensitiveValue()
+         throws Exception
+  {
+    LessThanJSONObjectFilter f =
+         new LessThanJSONObjectFilter("test-field", "Foo");
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "lessThan"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "foo")).toString());
+
+    f.setCaseSensitive(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "lessThan"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "Foo"),
+              new JSONField("caseSensitive", true)).toString());
+
+    f.setAllowEquals(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "lessThan"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "Foo"),
+              new JSONField("allowEquals", true),
+              new JSONField("caseSensitive", true)).toString());
   }
 }

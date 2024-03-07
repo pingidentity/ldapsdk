@@ -422,6 +422,35 @@ public final class ORJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
+
+    fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
+
+    final ArrayList<JSONValue> filterValues = new ArrayList<>(orFilters.size());
+    for (final JSONObjectFilter f : orFilters)
+    {
+      filterValues.add(f.toNormalizedJSONObject());
+    }
+    fields.put(FIELD_OR_FILTERS, new JSONArray(filterValues));
+
+    if (exclusive)
+    {
+      fields.put(FIELD_EXCLUSIVE, JSONBoolean.TRUE);
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected ORJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

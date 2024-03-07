@@ -841,6 +841,103 @@ public final class SubstringJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(6));
+
+    fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
+
+    if (field.size() == 1)
+    {
+      fields.put(FIELD_FIELD_PATH, new JSONString(field.get(0)));
+    }
+    else
+    {
+      final ArrayList<JSONValue> fieldNameValues =
+           new ArrayList<>(field.size());
+      for (final String s : field)
+      {
+        fieldNameValues.add(new JSONString(s));
+      }
+      fields.put(FIELD_FIELD_PATH, new JSONArray(fieldNameValues));
+    }
+
+    if (startsWith != null)
+    {
+      if (caseSensitive)
+      {
+        fields.put(FIELD_STARTS_WITH, new JSONString(startsWith));
+      }
+      else
+      {
+        fields.put(FIELD_STARTS_WITH, new JSONString(
+             StaticUtils.toLowerCase(startsWith)));
+      }
+    }
+
+    if (! contains.isEmpty())
+    {
+      if (contains.size() == 1)
+      {
+        if (caseSensitive)
+        {
+          fields.put(FIELD_CONTAINS, new JSONString(contains.get(0)));
+        }
+        else
+        {
+          fields.put(FIELD_CONTAINS, new JSONString(
+               StaticUtils.toLowerCase(contains.get(0))));
+        }
+
+      }
+      else
+      {
+        final ArrayList<JSONValue> containsValues =
+             new ArrayList<>(contains.size());
+        for (final String s : contains)
+        {
+          if (caseSensitive)
+          {
+            containsValues.add(new JSONString(s));
+          }
+          else
+          {
+            containsValues.add(new JSONString(StaticUtils.toLowerCase(s)));
+          }
+        }
+        fields.put(FIELD_CONTAINS, new JSONArray(containsValues));
+      }
+    }
+
+    if (endsWith != null)
+    {
+      if (caseSensitive)
+      {
+        fields.put(FIELD_ENDS_WITH, new JSONString(endsWith));
+      }
+      else
+      {
+        fields.put(FIELD_ENDS_WITH, new JSONString(
+             StaticUtils.toLowerCase(endsWith)));
+      }
+    }
+
+    if (caseSensitive)
+    {
+      fields.put(FIELD_CASE_SENSITIVE, JSONBoolean.TRUE);
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected SubstringJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

@@ -165,6 +165,9 @@ public final class ObjectMatchesJSONObjectFilterTestCase
          new JSONField("a", new JSONObject(
               new JSONField("a", new JSONObject(
                    new JSONField("b", "c"))))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 

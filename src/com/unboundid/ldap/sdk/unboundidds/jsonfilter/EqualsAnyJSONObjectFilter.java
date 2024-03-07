@@ -599,6 +599,55 @@ public final class EqualsAnyJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
+
+    fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
+
+    if (field.size() == 1)
+    {
+      fields.put(FIELD_FIELD_PATH, new JSONString(field.get(0)));
+    }
+    else
+    {
+      final ArrayList<JSONValue> fieldNameValues =
+           new ArrayList<>(field.size());
+      for (final String s : field)
+      {
+        fieldNameValues.add(new JSONString(s));
+      }
+      fields.put(FIELD_FIELD_PATH, new JSONArray(fieldNameValues));
+    }
+
+    if (caseSensitive)
+    {
+      fields.put(FIELD_VALUES, new JSONArray(values));
+      fields.put(FIELD_CASE_SENSITIVE, JSONBoolean.TRUE);
+    }
+    else
+    {
+      final List<JSONValue> normalizedValues = new ArrayList<>(values.size());
+      for (final JSONValue v : values)
+      {
+        normalizedValues.add(
+             v.toNormalizedValue(false, (! caseSensitive), false));
+      }
+
+      fields.put(FIELD_VALUES, new JSONArray(normalizedValues));
+    }
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected EqualsAnyJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

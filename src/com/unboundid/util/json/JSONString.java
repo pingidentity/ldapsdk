@@ -714,6 +714,27 @@ public final class JSONString
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
+  public JSONString toNormalizedValue(final boolean ignoreFieldNameCase,
+                                      final boolean ignoreValueCase,
+                                      final boolean ignoreArrayOrder)
+  {
+    if (ignoreValueCase)
+    {
+      return new JSONString(StaticUtils.toLowerCase(value));
+    }
+    else
+    {
+      return this;
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendString(value);

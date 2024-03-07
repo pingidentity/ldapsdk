@@ -99,6 +99,12 @@ public final class JSONArrayTestCase
     assertNotNull(a1.toNormalizedString(false, false, false));
     assertEquals(a1.toNormalizedString(false, false, false), "[]");
 
+    assertEquals(a1.toNormalizedValue(true, true, true),
+         JSONArray.EMPTY_ARRAY);
+
+    assertEquals(a1.toNormalizedValue(false, false, false),
+         JSONArray.EMPTY_ARRAY);
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     a1.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "[ ]");
@@ -276,6 +282,12 @@ public final class JSONArrayTestCase
 
     assertNotNull(a1.toNormalizedString(false, false, false));
     assertEquals(a1.toNormalizedString(false, false, false), "[\"foo\"]");
+
+    assertEquals(a1.toNormalizedValue(true, true, true),
+         new JSONArray(new JSONString("foo")));
+
+    assertEquals(a1.toNormalizedValue(false, false, false),
+         new JSONArray(new JSONString("foo")));
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
     a1.appendToJSONBuffer(jsonBuffer);
@@ -484,6 +496,14 @@ public final class JSONArrayTestCase
     assertNotNull(a1.toNormalizedString(false, false, false));
     assertEquals(a1.toNormalizedString(false, false, false),
          "[\"Foo\",\"Bar\",\"Baz\"]");
+
+    assertEquals(a1.toNormalizedValue(true, true, true),
+         new JSONArray(new JSONString("bar"), new JSONString("baz"),
+              new JSONString("foo")));
+
+    assertEquals(a1.toNormalizedValue(false, false, false),
+         new JSONArray(new JSONString("Foo"), new JSONString("Bar"),
+              new JSONString("Baz")));
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
     a1.appendToJSONBuffer(jsonBuffer);

@@ -93,6 +93,10 @@ public final class JSONBooleanTestCase
     assertNotNull(b.toNormalizedString(false, false, false));
     assertEquals(b.toNormalizedString(false, false, false), "true");
 
+    assertEquals(b.toNormalizedValue(true, true, true), b);
+
+    assertEquals(b.toNormalizedValue(false, false, false), b);
+
     toNormalizedStringBuffer.setLength(0);
     b.toNormalizedString(toNormalizedStringBuffer, true, true, true);
     assertEquals(toNormalizedStringBuffer.toString(), "true");
@@ -156,6 +160,10 @@ public final class JSONBooleanTestCase
 
     assertNotNull(b.toNormalizedString(false, false, false));
     assertEquals(b.toNormalizedString(false, false, false), "false");
+
+    assertEquals(b.toNormalizedValue(true, true, true), b);
+
+    assertEquals(b.toNormalizedValue(false, false, false), b);
 
     toNormalizedStringBuffer.setLength(0);
     b.toNormalizedString(toNormalizedStringBuffer, true, true, true);

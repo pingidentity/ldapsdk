@@ -272,6 +272,9 @@ public final class GreaterThanJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONNumber(5679), new JSONNumber(10000),
               new JSONString("foo"), JSONNull.NULL)))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -707,6 +710,9 @@ public final class GreaterThanJSONObjectFilterTestCase
          new JSONField("test-field", new JSONArray(
               new JSONString("BOO"),
               new JSONString("GOO"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -887,5 +893,46 @@ public final class GreaterThanJSONObjectFilterTestCase
     {
       // This was expected.
     }
+  }
+
+
+
+  /**
+   * Tests to ensure that the normalized representation of the filter properly
+   * respects the case-sensitive flag.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNormalizeWithCaseSensitiveValue()
+         throws Exception
+  {
+    GreaterThanJSONObjectFilter f =
+         new GreaterThanJSONObjectFilter("test-field", "Foo");
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "greaterThan"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "foo")).toString());
+
+    f.setCaseSensitive(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "greaterThan"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "Foo"),
+              new JSONField("caseSensitive", true)).toString());
+
+    f.setAllowEquals(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "greaterThan"),
+              new JSONField("field", "test-field"),
+              new JSONField("value", "Foo"),
+              new JSONField("allowEquals", true),
+              new JSONField("caseSensitive", true)).toString());
   }
 }

@@ -156,6 +156,9 @@ public final class ContainsFieldJSONObjectFilterTestCase
     assertFalse(f.matchesJSONObject(new JSONObject(
          new JSONField("embeddedObject", new JSONObject(
               new JSONField("top-level-field", false))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -242,6 +245,9 @@ public final class ContainsFieldJSONObjectFilterTestCase
     assertFalse(f.matchesJSONObject(new JSONObject(
          new JSONField("embeddedObject", new JSONObject(
               new JSONField("top-level-field", false))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -344,6 +350,9 @@ public final class ContainsFieldJSONObjectFilterTestCase
          new JSONField("top-level-field", new JSONArray(
               new JSONObject(new JSONField("some-other-field", "foo")),
               new JSONObject(new JSONField("another-field", "bar")))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -425,6 +434,9 @@ public final class ContainsFieldJSONObjectFilterTestCase
               new JSONObject(new JSONField("second-level-field", new JSONArray(
                    new JSONObject(new JSONField("third-level-field",
                         true))))))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 

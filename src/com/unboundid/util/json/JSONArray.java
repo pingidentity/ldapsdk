@@ -637,6 +637,32 @@ public final class JSONArray
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
+  public JSONArray toNormalizedValue(final boolean ignoreFieldNameCase,
+                                     final boolean ignoreValueCase,
+                                     final boolean ignoreArrayOrder)
+  {
+    final List<JSONValue> normalizedValues = new ArrayList<>(values.size());
+    for (final JSONValue v : values)
+    {
+      normalizedValues.add(v.toNormalizedValue(ignoreFieldNameCase,
+           ignoreValueCase, ignoreArrayOrder));
+    }
+
+    if (ignoreArrayOrder)
+    {
+      Collections.sort(normalizedValues);
+    }
+
+    return new JSONArray(normalizedValues);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.beginArray();

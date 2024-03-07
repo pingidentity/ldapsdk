@@ -77,7 +77,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
 public abstract class JSONValue
-       implements Serializable
+       implements Serializable, Comparable<JSONValue>
 {
   /**
    * A serial version UID for this serializable class.
@@ -259,6 +259,32 @@ public abstract class JSONValue
 
 
   /**
+   * Retrieves a normalized representation of this value using the provided
+   * settings.
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized representation of this value using the provided
+   *          settings.
+   */
+  @NotNull()
+  public abstract JSONValue toNormalizedValue(boolean ignoreFieldNameCase,
+                                              boolean ignoreValueCase,
+                                              boolean ignoreArrayOrder);
+
+
+
+  /**
    * Appends this value to the provided JSON buffer.  This will not include a
    * field name, so it should only be used for Boolean value elements in an
    * array.
@@ -278,4 +304,30 @@ public abstract class JSONValue
    */
   public abstract void appendToJSONBuffer(@NotNull String fieldName,
                                           @NotNull JSONBuffer buffer);
+
+
+
+  /**
+   * Compares the provided value to this value to determine their relative order
+   * in a sorted list.  The comparison will be based purely on a lexicographic
+   * comparison of the normalized representations of the values.
+   *
+   * @param  value  The value to compare to this value.  It must not be
+   *                 {@code null}.
+   *
+   * @return  A negative integer if this value should come before the provided
+   *          value in a sorted list, a positive integer if this value should
+   *          come after the provided value in a sorted list, or zero if the
+   *          provided value can be considered equal to this value.
+   */
+  @Override()
+  public final int compareTo(@NotNull final JSONValue value)
+  {
+    final String thisNormalizedRepresentation =
+         toNormalizedString(false, true, false);
+    final String providedNormalizedRepresentation =
+         value.toNormalizedString(false, true, false);
+    return thisNormalizedRepresentation.compareTo(
+         providedNormalizedRepresentation);
+  }
 }

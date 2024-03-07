@@ -579,4 +579,44 @@ public final class EqualsAnyJSONObjectFilterTestCase
          new EqualsAnyJSONObjectFilter("foo", new JSONString("bar"),
               new JSONString("baz")));
   }
+
+
+
+  /**
+   * Tests to ensure that the normalized representation of the filter properly
+   * respects the case-sensitive flag.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNormalizeWithCaseSensitiveValue()
+         throws Exception
+  {
+    EqualsAnyJSONObjectFilter f =
+         new EqualsAnyJSONObjectFilter("test-field",
+              new JSONString("Foo"),
+              new JSONString("Bar"),
+              new JSONString("Baz"));
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "equalsAny"),
+              new JSONField("field", "test-field"),
+              new JSONField("values", new JSONArray(
+                   new JSONString("foo"),
+                   new JSONString("bar"),
+                   new JSONString("baz")))).toString());
+
+    f.setCaseSensitive(true);
+
+    assertEquals(f.toNormalizedString(),
+         new JSONObject(
+              new JSONField("filterType", "equalsAny"),
+              new JSONField("field", "test-field"),
+              new JSONField("values", new JSONArray(
+                   new JSONString("Foo"),
+                   new JSONString("Bar"),
+                   new JSONString("Baz"))),
+              new JSONField("caseSensitive", true)).toString());
+  }
 }

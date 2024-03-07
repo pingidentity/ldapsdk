@@ -1682,7 +1682,7 @@ public final class JSONObject
     // TreeMap will provide.  Field names may or may not be treated in a
     // case-sensitive manner, but we still need to construct a normalized way of
     // escaping non-printable characters in each field.
-    final TreeMap<String,String> m = new TreeMap<>();
+    final Map<String,String> m = new TreeMap<>();
     for (final Map.Entry<String,JSONValue> e : fields.entrySet())
     {
       m.put(
@@ -1708,6 +1708,42 @@ public final class JSONObject
     }
 
     buffer.append('}');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
+  public JSONObject toNormalizedValue(final boolean ignoreFieldNameCase,
+                                      final boolean ignoreValueCase,
+                                      final boolean ignoreArrayOrder)
+  {
+    // The normalized representation needs to have field names in a
+    // predictable order, which we will accomplish using the lexicographic
+    // ordering that a TreeMap will provide.
+    final Map<String,JSONValue> normalizedFields = new TreeMap<>();
+    for (final Map.Entry<String,JSONValue> e : fields.entrySet())
+    {
+      final String normalizedFieldName;
+      final String fieldName = e.getKey();
+      if (ignoreFieldNameCase)
+      {
+        normalizedFieldName = StaticUtils.toLowerCase(fieldName);
+      }
+      else
+      {
+        normalizedFieldName = fieldName;
+      }
+
+      normalizedFields.put(normalizedFieldName,
+           e.getValue().toNormalizedValue(ignoreFieldNameCase, ignoreValueCase,
+                ignoreArrayOrder));
+    }
+
+    return new JSONObject(normalizedFields);
   }
 
 

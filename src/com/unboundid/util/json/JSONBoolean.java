@@ -341,6 +341,21 @@ public final class JSONBoolean
    * {@inheritDoc}
    */
   @Override()
+  @NotNull()
+  public JSONBoolean toNormalizedValue(final boolean ignoreFieldNameCase,
+                                       final boolean ignoreValueCase,
+                                       final boolean ignoreArrayOrder)
+  {
+    // Boolean values are always in normalized form.
+    return this;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void appendToJSONBuffer(@NotNull final JSONBuffer buffer)
   {
     buffer.appendBoolean(booleanValue);

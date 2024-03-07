@@ -165,6 +165,9 @@ public final class NegateJSONObjectFilterTestCase
     {
       // This was expected
     }
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 

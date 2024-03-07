@@ -642,6 +642,18 @@ public final class RegularExpressionJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    return toJSONObject();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected RegularExpressionJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

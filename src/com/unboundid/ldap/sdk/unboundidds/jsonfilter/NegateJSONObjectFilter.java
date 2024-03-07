@@ -273,6 +273,24 @@ public final class NegateJSONObjectFilter
    */
   @Override()
   @NotNull()
+  public JSONObject toNormalizedJSONObject()
+  {
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
+
+    fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
+    fields.put(FIELD_NEGATE_FILTER, negateFilter.toNormalizedJSONObject());
+
+    return new JSONObject(fields);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  @NotNull()
   protected NegateJSONObjectFilter decodeFilter(
                  @NotNull final JSONObject filterObject)
             throws JSONException

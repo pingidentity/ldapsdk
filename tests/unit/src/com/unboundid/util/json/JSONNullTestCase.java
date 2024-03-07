@@ -99,6 +99,10 @@ public final class JSONNullTestCase
     n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
     assertEquals(toNormalizedStringBuffer.toString(), "null");
 
+    assertEquals(n.toNormalizedValue(true, true, true), n);
+
+    assertEquals(n.toNormalizedValue(false, false, false), n);
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     n.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "null");

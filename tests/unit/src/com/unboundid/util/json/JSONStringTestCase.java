@@ -106,6 +106,12 @@ public final class JSONStringTestCase
     s.toNormalizedString(toNormalizedStringBuffer, false, false, false);
     assertEquals(toNormalizedStringBuffer.toString(), "\"\"");
 
+    assertEquals(s.toNormalizedValue(true, true, true),
+         new JSONString(""));
+
+    assertEquals(s.toNormalizedValue(false, false, false),
+         new JSONString(""));
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     s.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "\"\"");
@@ -176,6 +182,12 @@ public final class JSONStringTestCase
     toNormalizedStringBuffer.setLength(0);
     s.toNormalizedString(toNormalizedStringBuffer, false, false, false);
     assertEquals(toNormalizedStringBuffer.toString(), "\"This is a test.\"");
+
+    assertEquals(s.toNormalizedValue(true, true, true),
+         new JSONString("this is a test."));
+
+    assertEquals(s.toNormalizedValue(false, false, false),
+         new JSONString("This is a test."));
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
     s.appendToJSONBuffer(jsonBuffer);

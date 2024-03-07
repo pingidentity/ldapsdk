@@ -107,6 +107,9 @@ public final class ANDJSONObjectFilterTestCase
          new JSONField("h", JSONObject.EMPTY_OBJECT),
          new JSONField("i", new JSONObject(
               new JSONField("j", "k"))))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -151,6 +154,8 @@ public final class ANDJSONObjectFilterTestCase
 
     assertTrue(f.matchesJSONObject(new JSONObject(new JSONField("a", "b"))));
 
+    assertTrue(f.matchesJSONObject(new JSONObject(new JSONField("a", "B"))));
+
     assertFalse(f.matchesJSONObject(new JSONObject(new JSONField("a", "x"))));
 
     assertFalse(f.matchesJSONObject(new JSONObject(new JSONField("x", "b"))));
@@ -159,7 +164,14 @@ public final class ANDJSONObjectFilterTestCase
          new JSONArray(new JSONNumber(1234), new JSONString("b"),
               JSONNull.NULL)))));
 
+    assertTrue(f.matchesJSONObject(new JSONObject(new JSONField("a",
+         new JSONArray(new JSONNumber(1234), new JSONString("B"),
+              JSONNull.NULL)))));
+
     assertFalse(f.matchesJSONObject(new JSONObject(new JSONField("a", 1234))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
@@ -231,6 +243,9 @@ public final class ANDJSONObjectFilterTestCase
          new JSONField("e", "f"),
          new JSONField("g", "h"),
          new JSONField("i", "j"))));
+
+    assertEquals(f.toNormalizedString(),
+         f.toJSONObject().toString());
   }
 
 
