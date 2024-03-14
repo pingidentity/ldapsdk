@@ -273,7 +273,7 @@ public class LDAPConnectionPoolHealthCheck
 
   /**
    * Performs any processing that may be appropriate on an ongoing basis for the
-   * connection pool that is not related to the pool itself rather than any
+   * connection pool that is related to the pool itself rather than any
    * individual connection.  This method will be invoked by the pool's
    * {@link LDAPConnectionPoolHealthCheckThread} at an interval specified by the
    * pool's {@link AbstractConnectionPool#getHealthCheckIntervalMillis()}

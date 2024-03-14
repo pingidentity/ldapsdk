@@ -6,6 +6,35 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 7.0.1</h3>
+
+              <p>
+                The following changes were made between the 7.0.0 and 7.0.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new LDAP connection pool health check that can be used to replace
+                  connections that have remained idle for longer than a specified length of time.
+                  This is primarily useful in cases where the associated directory servers (or
+                  intermediate networking equipment) may terminate connections that have remained
+                  idle for too long.  Note that in connection pools that may contain connections
+                  across multiple servers, you should probably set a maximum connection age for the
+                  pool rather than using this health check, as this will better allow the pool to
+                  return to a balanced state more quickly after a failure has caused connections to
+                  migrate away from one or more servers.  Also note that health checks that attempt
+                  to actually communicate with the associated server over LDAP may be preferred
+                  over this health check because not only will they do a better job of ensuring
+                  that connections are actually usable, but the communication that they perform
+                  will also prevent the connections from being seen as idle.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 7.0.0</h3>
 
               <p>
