@@ -29,6 +29,14 @@ ${TARGET="offline"}                <br>
                   will also prevent the connections from being seen as idle.
                   <br><br>
                 </li>
+
+                <li>
+                  Fixed an issue in which the parallel-update tool would buffer data written to the
+                  reject file.  This could prevent information from appearing in that file until
+                  enough reject records were written to cause the buffer to be flushed to disk, or
+                  until the tool completed its processing.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

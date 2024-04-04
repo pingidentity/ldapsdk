@@ -2449,6 +2449,7 @@ public final class ParallelUpdate
         synchronized (rejectWriter)
         {
           rejectWriter.writeChangeRecord(changeRecord, comment);
+          rejectWriter.flush();
         }
       }
       else
@@ -2456,6 +2457,7 @@ public final class ParallelUpdate
         synchronized (rejectWriter)
         {
           rejectWriter.writeComment(comment, true, true);
+          rejectWriter.flush();
         }
       }
     }
