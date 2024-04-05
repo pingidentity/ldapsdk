@@ -58,7 +58,6 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.Validator;
 
 import static com.unboundid.util.ssl.SSLMessages.*;
 
@@ -276,27 +275,15 @@ public final class KeyStoreKeyManager
                             final boolean validateKeyStore)
          throws KeyStoreException
   {
-    super(
-         getKeyManagers(keyStoreFile, keyStorePIN, keyStoreFormat,
-              certificateAlias, validateKeyStore),
-          certificateAlias);
-
-    this.keyStoreFile     = keyStoreFile;
-
-    if (keyStoreFormat == null)
-    {
-      this.keyStoreFormat = CryptoHelper.getDefaultKeyStoreType();
-    }
-    else
-    {
-      this.keyStoreFormat = keyStoreFormat;
-    }
+    this(createProperties(keyStoreFile, keyStorePIN, keyStoreFormat,
+         certificateAlias, validateKeyStore));
   }
 
 
 
   /**
-   * Retrieves the set of key managers that will be wrapped by this key manager.
+   * Creates a set of key store key manager properties with the provided
+   * information.
    *
    * @param  keyStoreFile      The path to the key store file to use.  It must
    *                           not be {@code null}.
@@ -320,6 +307,65 @@ public final class KeyStoreKeyManager
    *                           store contains at least one valid private key
    *                           entry.
    *
+   * @return  The key store key manager properties object that was created from
+   *          the provided information.
+   */
+  @NotNull()
+  private static KeyStoreKeyManagerProperties createProperties(
+               @NotNull final String keyStoreFile,
+               @Nullable final char[] keyStorePIN,
+               @Nullable final String keyStoreFormat,
+               @Nullable final String certificateAlias,
+               final boolean validateKeyStore)
+  {
+    final KeyStoreKeyManagerProperties properties =
+         new KeyStoreKeyManagerProperties(keyStoreFile);
+    properties.setKeyStorePIN(keyStorePIN);
+    properties.setKeyStoreFormat(keyStoreFormat);
+    properties.setCertificateAlias(certificateAlias);
+    properties.setValidateKeyStore(validateKeyStore);
+    return properties;
+  }
+
+
+
+  /**
+   * Creates a new instance of this key store key manager that provides the
+   * ability to retrieve certificates from the specified key store file.
+   *
+   * @param  properties  The properties to use to create this key manager.  It
+   *                     must not be {@code null}.
+   *
+   * @throws  KeyStoreException  If a problem occurs while initializing this key
+   *                             manager, or if validation fails.
+   */
+  public KeyStoreKeyManager(
+              @NotNull final KeyStoreKeyManagerProperties properties)
+         throws KeyStoreException
+  {
+    super(getKeyManagers(properties), properties.getCertificateAlias());
+
+    keyStoreFile = properties.getKeyStorePath();
+
+    final String keyStoreType = properties.getKeyStoreFormat();
+    if (keyStoreType == null)
+    {
+      keyStoreFormat = CryptoHelper.getDefaultKeyStoreType();
+    }
+    else
+    {
+      keyStoreFormat = keyStoreType;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the set of key managers that will be wrapped by this key manager.
+   *
+   * @param  properties  The properties to use to create the key managers.  It
+   *                     must not be {@code null}.
+   *
    * @return  The set of key managers that will be wrapped by this key manager.
    *
    * @throws  KeyStoreException  If a problem occurs while initializing this key
@@ -327,28 +373,25 @@ public final class KeyStoreKeyManager
    */
   @NotNull()
   private static KeyManager[] getKeyManagers(
-                                   @NotNull final String keyStoreFile,
-                                   @Nullable final char[] keyStorePIN,
-                                   @Nullable final String keyStoreFormat,
-                                   @Nullable final String certificateAlias,
-                                   final boolean validateKeyStore)
+               @NotNull final KeyStoreKeyManagerProperties properties)
           throws KeyStoreException
   {
-    Validator.ensureNotNull(keyStoreFile);
-
-    String type = keyStoreFormat;
+    String type = properties.getKeyStoreFormat();
     if (type == null)
     {
       type = CryptoHelper.getDefaultKeyStoreType();
     }
 
-    final File f = new File(keyStoreFile);
+    final String keyStorePath = properties.getKeyStorePath();
+    final File f = new File(keyStorePath);
     if (! f.exists())
     {
-      throw new KeyStoreException(ERR_KEYSTORE_NO_SUCH_FILE.get(keyStoreFile));
+      throw new KeyStoreException(ERR_KEYSTORE_NO_SUCH_FILE.get(keyStorePath));
     }
 
-    final KeyStore ks = CryptoHelper.getKeyStore(type);
+    final char[] keyStorePIN = properties.getKeyStorePIN();
+    final KeyStore ks = CryptoHelper.getKeyStore(type,
+         properties.getProvider(), properties.allowNonFIPSInFIPSMode());
     FileInputStream inputStream = null;
     try
     {
@@ -360,7 +403,7 @@ public final class KeyStoreKeyManager
       Debug.debugException(e);
 
       throw new KeyStoreException(
-           ERR_KEYSTORE_CANNOT_LOAD.get(keyStoreFile, type, String.valueOf(e)),
+           ERR_KEYSTORE_CANNOT_LOAD.get(keyStorePath, type, String.valueOf(e)),
            e);
     }
     finally
@@ -378,9 +421,9 @@ public final class KeyStoreKeyManager
       }
     }
 
-    if (validateKeyStore)
+    if (properties.validateKeyStore())
     {
-      validateKeyStore(ks, f, keyStorePIN, certificateAlias);
+      validateKeyStore(ks, f, keyStorePIN, properties.getCertificateAlias());
     }
 
     try
@@ -394,8 +437,8 @@ public final class KeyStoreKeyManager
       Debug.debugException(e);
 
       throw new KeyStoreException(
-           ERR_KEYSTORE_CANNOT_GET_KEY_MANAGERS.get(keyStoreFile,
-                keyStoreFormat, StaticUtils.getExceptionMessage(e)),
+           ERR_KEYSTORE_CANNOT_GET_KEY_MANAGERS.get(keyStorePath, type,
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

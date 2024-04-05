@@ -31,6 +31,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the KeyStoreKeyManager and TrustStoreTrustManager classes to make it
+                  possible to use alternative security providers when accessing key store files.  It
+                  is also possible to indicate whether non-FIPS 140-2-compliant key stores may be
+                  accessed in applications running in FIPS-compliant mode.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in which the parallel-update tool would buffer data written to the
                   reject file.  This could prevent information from appearing in that file until
                   enough reject records were written to cause the buffer to be flushed to disk, or

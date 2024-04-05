@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
 import java.security.KeyStore;
+import java.security.Provider;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -89,12 +90,19 @@ public final class TrustStoreTrustManager
 
 
 
+  // Indicates whether to allow accessing a non-FIPS-compliant trust store
+  // when running in FIPS-compliant mode.
+  private final boolean allowNonFIPSInFIPSMode;
+
   // Indicates whether to automatically trust expired or not-yet-valid
   // certificates.
   private final boolean examineValidityDates;
 
   // The PIN to use to access the trust store.
   @Nullable private final char[] trustStorePIN;
+
+  // The security provider to use to access the trust store.
+  @Nullable private Provider provider;
 
   // The path to the trust store file.
   @NotNull private final String trustStoreFile;
@@ -184,19 +192,73 @@ public final class TrustStoreTrustManager
                                 @Nullable final String trustStoreFormat,
                                 final boolean examineValidityDates)
   {
-    Validator.ensureNotNull(trustStoreFile);
+    this(createProperties(trustStoreFile, trustStorePIN, trustStoreFormat,
+         examineValidityDates));
+  }
 
-    this.trustStoreFile       = trustStoreFile;
-    this.trustStorePIN        = trustStorePIN;
-    this.examineValidityDates = examineValidityDates;
 
-    if (trustStoreFormat == null)
+
+  /**
+   * Creates a new set of trust store trust manager properties with the provided
+   * information.
+   *
+   * @param  trustStoreFile        The path to the trust store file to use.  It
+   *                               must not be {@code null}.
+   * @param  trustStorePIN         The PIN to use to access the contents of the
+   *                               trust store.  It may be {@code null} if no
+   *                               PIN is required.
+   * @param  trustStoreFormat      The format to use for the trust store.  It
+   *                               may be {@code null} if the default format
+   *                               should be used.
+   * @param  examineValidityDates  Indicates whether to reject certificates if
+   *                               the current time is outside the validity
+   *                               window for the certificate.
+   *
+   * @return  The trust store trust manager properties object that was created.
+   */
+  @NotNull()
+  private static TrustStoreTrustManagerProperties createProperties(
+               @NotNull final String trustStoreFile,
+               @Nullable final char[] trustStorePIN,
+               @Nullable final String trustStoreFormat,
+               final boolean examineValidityDates)
+  {
+    final TrustStoreTrustManagerProperties properties =
+         new TrustStoreTrustManagerProperties(trustStoreFile);
+    properties.setTrustStorePIN(trustStorePIN);
+    properties.setTrustStoreFormat(trustStoreFormat);
+    properties.setExamineValidityDates(examineValidityDates);
+    return properties;
+  }
+
+
+
+  /**
+   * Creates a new instance of this trust store trust manager that will trust
+   * all certificates in the specified file with the specified constraints.
+   *
+   * @param  properties  The properties to use for this trust manager.  It must
+   *                     not be {@code null}.
+   */
+  public TrustStoreTrustManager(
+              @NotNull final TrustStoreTrustManagerProperties properties)
+  {
+    Validator.ensureNotNull(properties);
+
+    trustStoreFile = properties.getTrustStorePath();
+    trustStorePIN = properties.getTrustStorePIN();
+    examineValidityDates = properties.examineValidityDates();
+    provider = properties.getProvider();
+    allowNonFIPSInFIPSMode = properties.allowNonFIPSInFIPSMode();
+
+    final String trustStoreType = properties.getTrustStoreFormat();
+    if (trustStoreType == null)
     {
-      this.trustStoreFormat = CryptoHelper.getDefaultKeyStoreType();
+      trustStoreFormat = CryptoHelper.getDefaultKeyStoreType();
     }
     else
     {
-      this.trustStoreFormat = trustStoreFormat;
+      trustStoreFormat = trustStoreType;
     }
   }
 
@@ -281,7 +343,8 @@ public final class TrustStoreTrustManager
     final KeyStore ks;
     try
     {
-      ks = CryptoHelper.getKeyStore(trustStoreFormat);
+      ks = CryptoHelper.getKeyStore(trustStoreFormat, provider,
+           allowNonFIPSInFIPSMode);
     }
     catch (final Exception e)
     {
