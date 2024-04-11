@@ -45,6 +45,14 @@ ${TARGET="offline"}                <br>
                   until the tool completed its processing.
                   <br><br>
                 </li>
+
+                <li>
+                  Fixed a manage-certificates issue that could arise in cases where it is invoked
+                  programmatically in cases in which an application is using the LDAP SDK in FIPS
+                  140-2-compliant mode and the tool needs to try to locate an issuer certificate in
+                  the JVM's default trust store.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

@@ -13110,14 +13110,18 @@ public final class ManageCertificates
 
       for (final String keystoreType : keystoreTypes)
       {
-        final KeyStore ks = CryptoHelper.getKeyStore(keystoreType);
-        try (FileInputStream inputStream =
-                  new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
+        try
         {
-          ks.load(inputStream, null);
-          jvmDefaultTrustStore = ks;
-          jvmDefaultTrustStoreRef.set(jvmDefaultTrustStore);
-          break;
+          final KeyStore ks =
+               CryptoHelper.getKeyStore(keystoreType, null, true);
+          try (FileInputStream inputStream =
+                    new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
+          {
+            ks.load(inputStream, null);
+            jvmDefaultTrustStore = ks;
+            jvmDefaultTrustStoreRef.set(jvmDefaultTrustStore);
+            break;
+          }
         }
         catch (final Exception e)
         {
