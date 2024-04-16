@@ -276,6 +276,154 @@
 { "oid":"1.3.6.1.4.1.42.2.27.9.1.39", "name":"aclRights", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.1.40", "name":"aclRightsInfo", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.1.792", "name":"isMemberOf", "type":"Attribute Type", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.1.1", "name":"Afrikaans Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.2.1", "name":"Amharic Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.3.1", "name":"Arabic Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.4.1", "name":"Arabic (United Arab Emirates) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.5.1", "name":"Arabic (Bahrain) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.6.1", "name":"Arabic (Algeria) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.7.1", "name":"Arabic (Egypt) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.8.1", "name":"Arabic (India) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.9.1", "name":"Arabic (Iraq) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.10.1", "name":"Arabic (Jordan) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.11.1", "name":"Arabic (Kuwait) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.12.1", "name":"Arabic (Lebanon) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.13.1", "name":"Arabic (Libya) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.14.1", "name":"Arabic (Morocco) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.15.1", "name":"Arabic (Oman) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.16.1", "name":"Arabic (Qatar) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.17.1", "name":"Arabic (Saudi Arabia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.18.1", "name":"Arabic (Sudan) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.19.1", "name":"Arabic (Syria) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.20.1", "name":"Arabic (Tunisia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.21.1", "name":"Arabic (Yemen) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.22.1", "name":"Belarusian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.23.1", "name":"Bulgarian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.24.1", "name":"Bangla Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.25.1", "name":"Catalan Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.26.1", "name":"Czech Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.27.1", "name":"Danish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.28.1", "name":"German Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.29.1", "name":"German (Austria) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.30.1", "name":"German (Belgium) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.31.1", "name":"German (Switzerland) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.32.1", "name":"German (Luxembourg) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.33.1", "name":"Greek Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.34.1", "name":"English Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.35.1", "name":"English (Australia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.36.1", "name":"English (Canada) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.37.1", "name":"English (United Kingdom) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.38.1", "name":"English (Hong Kong) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.39.1", "name":"English (Ireland) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.40.1", "name":"English (India) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.41.1", "name":"English (Malta) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.42.1", "name":"English (New Zealand) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.43.1", "name":"English (Philippines) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.44.1", "name":"English (Singapore) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.45.1", "name":"English (U.S. Virgin Islands) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.46.1", "name":"English (South Africa) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.47.1", "name":"English (Zimbabwe) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.48.1", "name":"Esperanto Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.49.1", "name":"Spanish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.50.1", "name":"Spanish (Argentina) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.51.1", "name":"Spanish (Bolivia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.52.1", "name":"Spanish (Chile) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.53.1", "name":"Spanish (Colombia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.54.1", "name":"Spanish (Costa Rica) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.55.1", "name":"Spanish (Dominican Republic) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.56.1", "name":"Spanish (Ecuador) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.57.1", "name":"Spanish (Guatemala) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.58.1", "name":"Spanish (Honduras) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.59.1", "name":"Spanish (Mexico) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.60.1", "name":"Spanish (Nicaragua) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.61.1", "name":"Spanish (Panama) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.62.1", "name":"Spanish (Peru) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.63.1", "name":"Spanish (Puerto Rico) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.64.1", "name":"Spanish (Paraguay) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.65.1", "name":"Spanish (El Salvador) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.66.1", "name":"Spanish (United States) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.67.1", "name":"Spanish (Uruguay) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.68.1", "name":"Spanish (Venezuela) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.69.1", "name":"Estonian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.70.1", "name":"Basque Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.71.1", "name":"Persian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.72.1", "name":"Persian (India) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.73.1", "name":"Persian (Iran) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.74.1", "name":"Finnish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.75.1", "name":"Faroese Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.76.1", "name":"French Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.77.1", "name":"French (Belgium) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.78.1", "name":"French (Canada) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.79.1", "name":"French (Switzerland) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.80.1", "name":"French (Luxembourg) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.81.1", "name":"Irish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.82.1", "name":"Galician Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.83.1", "name":"Gujarati Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.84.1", "name":"Manx Gaelic Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.85.1", "name":"Hebrew Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.86.1", "name":"Hindi Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.87.1", "name":"Croatian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.88.1", "name":"Hungarian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.89.1", "name":"Armenian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.90.1", "name":"Indonesian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.91.1", "name":"Icelandic Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.92.1", "name":"Italian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.93.1", "name":"Italian (Switzerland) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.94.1", "name":"Japanese Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.95.1", "name":"Kalaallisut Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.96.1", "name":"Kannada Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.97.1", "name":"Korean Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.98.1", "name":"Konkani Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.99.1", "name":"Cornish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.100.1", "name":"Lithuanian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.101.1", "name":"Latvian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.102.1", "name":"Macedonian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.103.1", "name":"Marathi Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.104.1", "name":"Maltese Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.105.1", "name":"Dutch Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.106.1", "name":"Dutch (Belgium) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.107.1", "name":"Norwegian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.108.1", "name":"Norwegian (Nynorsk no-NO-NY) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.109.1", "name":"Norwegian (Nynorsk nn) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.110.1", "name":"Norwegian (Bokmål) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.111.1", "name":"Oromo Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.112.1", "name":"Oromo (Ethiopia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.113.1", "name":"Oromo (Kenya) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.114.1", "name":"Polish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.115.1", "name":"Portuguese Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.116.1", "name":"Portuguese (Brazil) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.117.1", "name":"Romanian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.118.1", "name":"Russian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.119.1", "name":"Russian (Ukraine) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.120.1", "name":"Serbo-Croatian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.121.1", "name":"Slovak Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.122.1", "name":"Slovenian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.123.1", "name":"Somali Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.124.1", "name":"Somali (Djibouti) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.125.1", "name":"Somali (Ethiopia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.126.1", "name":"Somali (Kenya) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.127.1", "name":"Albanian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.128.1", "name":"Serbian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.129.1", "name":"Swedish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.130.1", "name":"Swedish (Finland) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.131.1", "name":"Swahili Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.132.1", "name":"Swahili (Kenya) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.133.1", "name":"Swahili (Tanzania) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.134.1", "name":"Tamil Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.135.1", "name":"Telugu Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.136.1", "name":"Thai Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.137.1", "name":"Tigrinya Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.138.1", "name":"Tigrinya (Eritrea) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.139.1", "name":"Tigrinya (Ethiopia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.140.1", "name":"Turkish Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.141.1", "name":"Ukrainian Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.142.1", "name":"Vietnamese Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.143.1", "name":"Chinese Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.144.1", "name":"Chinese (China) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.145.1", "name":"Chinese (Hong Kong) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.146.1", "name":"Chinese (Mongolia) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.147.1", "name":"Chinese (Singapore) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
+{ "oid":"1.3.6.1.4.1.42.2.27.9.4.148.1", "name":"Chinese (Taiwan) Collation", "type":"Matching Rule", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.5.2", "name":"Get Effective Rights", "type":"Request Control", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.5.8", "name":"Account Usable Request and Response", "type":"Control", "origin":"Sun Java System Directory Server" }
 { "oid":"1.3.6.1.4.1.42.2.27.9.5.9", "name":"Change Sequence Number", "type":"Control", "origin":"OpenDS" }
@@ -967,6 +1115,56 @@
 { "oid":"2.16.840.1.113730.3.2.2", "name":"inetOrgPerson", "type":"Object Class", "origin":"RFC 2798", "url":"https://docs.ldap.com/specs/rfc2798.txt" }
 { "oid":"2.16.840.1.113730.3.2.6", "name":"referral", "type":"Object Class", "origin":"RFC 3296", "url":"https://docs.ldap.com/specs/rfc3296.txt" }
 { "oid":"2.16.840.1.113730.3.2.33", "name":"groupOfURLs", "type":"Object Class", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.1.1", "name":"Arabic Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.2.1", "name":"Belarusian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.3.1", "name":"Bulgarian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.4.1", "name":"Catalan Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.5.1", "name":"Czech Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.6.1", "name":"Danish Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.7.1", "name":"German Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.8.1", "name":"German (Austria) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.9.1", "name":"German (Switzerland) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.10.1", "name":"Greek Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.11.1", "name":"English Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.12.1", "name":"English (Canada) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.13.1", "name":"English (United Kingdom) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.14.1", "name":"English (Ireland) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.15.1", "name":"Spanish Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.16.1", "name":"Estonian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.17.1", "name":"Finnish Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.18.1", "name":"French Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.19.1", "name":"French (Belgium) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.20.1", "name":"French (Canada) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.21.1", "name":"French (Switzerland) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.27.1", "name":"Hebrew Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.22.1", "name":"Croatian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.23.1", "name":"Hungarian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.24.1", "name":"Icelandic Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.25.1", "name":"Italian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.26.1", "name":"Italian (Switzerland) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.28.1", "name":"Japanese Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.29.1", "name":"Korean Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.30.1", "name":"Lithuanian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.31.1", "name":"Latvian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.32.1", "name":"Macedonian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.33.1", "name":"Dutch Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.34.1", "name":"Dutch (Belgium) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.35.1", "name":"Norwegian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.37.1", "name":"Norwegian (Nynorsk no-NO-NY) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.36.1", "name":"Norwegian (Bokmål) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.38.1", "name":"Polish Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.39.1", "name":"Romanian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.40.1", "name":"Russian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.41.1", "name":"Serbo-Croatian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.42.1", "name":"Slovak Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.43.1", "name":"Slovenian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.44.1", "name":"Albanian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.45.1", "name":"Serbian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.46.1", "name":"Swedish Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.47.1", "name":"Turkish Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.48.1", "name":"Ukrainian Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.49.1", "name":"Chinese Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
+{ "oid":"2.16.840.1.113730.3.3.2.50.1", "name":"Chinese (Taiwan) Collation", "type":"Matching Rule", "origin":"iPlanet Directory Server" }
 { "oid":"2.16.840.1.113730.3.4.2", "name":"ManageDsaIT", "type":"Request Control", "origin":"RFC 3296", "url":"https://docs.ldap.com/specs/rfc3296.txt" }
 { "oid":"2.16.840.1.113730.3.4.3", "name":"Persistent Search", "type":"Request Control", "origin":"draft-ietf-ldapext-psearch", "url":"https://docs.ldap.com/specs/draft-ietf-ldapext-psearch-03.txt" }
 { "oid":"2.16.840.1.113730.3.4.4", "name":"Password Expired", "type":"Response Control", "origin":"draft-vchu-ldap-pwd-policy", "url":"https://docs.ldap.com/specs/draft-vchu-ldap-pwd-policy-00.txt" }
