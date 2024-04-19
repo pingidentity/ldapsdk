@@ -160,8 +160,15 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.ldap.listener.ListenerMessages.*;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static com.unboundid.ldap.listener.ListenerMessages.*;
 
 
 /**
@@ -285,7 +292,9 @@ public final class InMemoryRequestHandler
   @NotNull private final Map<DN,ReadOnlyEntry> entryMap;
 
 
-
+  ReadWriteLock lock = new ReentrantReadWriteLock();
+  Lock writeLock = lock.writeLock();
+  Lock readLock = lock.readLock();
   /**
    * Creates a new instance of this request handler with an initially-empty
    * data set.
@@ -578,10 +587,13 @@ public final class InMemoryRequestHandler
   @NotNull()
   public InMemoryDirectoryServerSnapshot createSnapshot()
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
+
       return new InMemoryDirectoryServerSnapshot(entryMap,
            firstChangeNumber.get(), lastChangeNumber.get());
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -597,8 +609,8 @@ public final class InMemoryRequestHandler
   public void restoreSnapshot(
                    @NotNull final InMemoryDirectoryServerSnapshot snapshot)
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       entryMap.clear();
       entryMap.putAll(snapshot.getEntryMap());
 
@@ -621,6 +633,8 @@ public final class InMemoryRequestHandler
 
       firstChangeNumber.set(snapshot.getFirstChangeNumber());
       lastChangeNumber.set(snapshot.getLastChangeNumber());
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -890,8 +904,8 @@ public final class InMemoryRequestHandler
                           @NotNull final AddRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -1288,6 +1302,8 @@ public final class InMemoryRequestHandler
            ResultCode.NO_SUCH_OBJECT_INT_VALUE, null,
            ERR_MEM_HANDLER_ADD_NOT_BELOW_BASE_DN.get(request.getDN()),
            null));
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -1367,8 +1383,8 @@ public final class InMemoryRequestHandler
                           @NotNull final BindRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -1584,6 +1600,8 @@ public final class InMemoryRequestHandler
            new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
                 null, null, null),
            responseControls);
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -1616,8 +1634,8 @@ public final class InMemoryRequestHandler
                           @NotNull final CompareRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -1742,6 +1760,8 @@ public final class InMemoryRequestHandler
       return new LDAPMessage(messageID,
            new CompareResponseProtocolOp(resultCode, null, null, null),
            responseControls);
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -1827,8 +1847,8 @@ public final class InMemoryRequestHandler
                           @NotNull final DeleteRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -2025,6 +2045,8 @@ public final class InMemoryRequestHandler
            new DeleteResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
                 null, null),
            responseControls);
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -2101,8 +2123,8 @@ public final class InMemoryRequestHandler
                           @NotNull final ExtendedRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -2181,6 +2203,8 @@ public final class InMemoryRequestHandler
                   StaticUtils.getExceptionMessage(e)),
              null, null, null));
       }
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -2268,8 +2292,8 @@ public final class InMemoryRequestHandler
                           @NotNull final ModifyRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -2561,6 +2585,8 @@ public final class InMemoryRequestHandler
            new ModifyResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
                 null, null),
            responseControls);
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -2954,8 +2980,8 @@ public final class InMemoryRequestHandler
                           @NotNull final ModifyDNRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       // Sleep before processing, if appropriate.
       sleepBeforeProcessing();
 
@@ -3393,6 +3419,8 @@ public final class InMemoryRequestHandler
            new ModifyDNResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
                 null, null),
            responseControls);
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -3483,10 +3511,10 @@ public final class InMemoryRequestHandler
   @NotNull()
   public LDAPMessage processSearchRequest(final int messageID,
                           @NotNull final SearchRequestProtocolOp request,
-                          @NotNull final List<Control> controls)
-  {
-    synchronized (entryMap)
-    {
+                          @NotNull final List<Control> controls) {
+    try {
+      readLock.lock();
+
       final List<SearchResultEntry> entryList =
            new ArrayList<>(entryMap.size());
       final List<SearchResultReference> referenceList =
@@ -3514,25 +3542,26 @@ public final class InMemoryRequestHandler
 
       for (final SearchResultReference r : referenceList)
       {
-        try
-        {
+
           connection.sendSearchResultReference(messageID,
                new SearchResultReferenceProtocolOp(
                     StaticUtils.toList(r.getReferralURLs())),
                r.getControls());
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          return new LDAPMessage(messageID,
-               new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
-                    le.getMatchedDN(), le.getDiagnosticMessage(),
-                    StaticUtils.toList(le.getReferralURLs())),
-               le.getResponseControls());
-        }
+
       }
 
       return returnMessage;
+    } catch (LDAPException  e) {
+      Debug.debugException(e);
+      return new LDAPMessage(messageID,
+              new SearchResultDoneProtocolOp(e.getResultCode().intValue(),
+                      e.getMatchedDN(), e.getDiagnosticMessage(),
+                      StaticUtils.toList(e.getReferralURLs())),
+              e.getResponseControls());
+
+
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -3576,10 +3605,13 @@ public final class InMemoryRequestHandler
                    @NotNull final SearchRequestProtocolOp request,
                    @NotNull final List<Control> controls,
                    @NotNull final List<SearchResultEntry> entryList,
-                   @NotNull final List<SearchResultReference> referenceList)
-  {
-    synchronized (entryMap)
-    {
+                   @NotNull final List<SearchResultReference> referenceList) throws LDAPSearchException {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       // Sleep before processing, if appropriate.
       final long processingStartTime = System.currentTimeMillis();
       sleepBeforeProcessing();
@@ -3777,7 +3809,7 @@ public final class InMemoryRequestHandler
       // attributes.
       final List<Entry> fullEntryList = new ArrayList<>(entryMap.size());
 
-findEntriesAndRefs:
+      findEntriesAndRefs:
       {
         // Check the scope.  If it is a base-level search, then we only need to
         // examine the base entry.  Otherwise, we'll have to scan the entire
@@ -4114,6 +4146,11 @@ findEntriesAndRefs:
            new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
                 null, null),
            responseControls);
+    } catch (LDAPException | InterruptedException e) {
+      throw new LDAPSearchException(ResultCode.TIMEOUT,"readlock");
+    } finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -4591,8 +4628,8 @@ findEntriesAndRefs:
    */
   public int countEntries(final boolean includeChangeLog)
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       if (includeChangeLog || (maxChangelogEntries == 0))
       {
         return entryMap.size();
@@ -4611,6 +4648,8 @@ findEntriesAndRefs:
 
         return count;
       }
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -4631,8 +4670,8 @@ findEntriesAndRefs:
   public int countEntriesBelow(@NotNull final String baseDN)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       final DN parsedBaseDN = new DN(baseDN, schemaRef.get());
 
       int count = 0;
@@ -4645,6 +4684,8 @@ findEntriesAndRefs:
       }
 
       return count;
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -4657,10 +4698,9 @@ findEntriesAndRefs:
    */
   public void clear()
   {
-    synchronized (entryMap)
-    {
+
       restoreSnapshot(initialSnapshot);
-    }
+
   }
 
 
@@ -4686,8 +4726,8 @@ findEntriesAndRefs:
                             @NotNull final LDIFReader ldifReader)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
       boolean restoreSnapshot = true;
 
@@ -4747,6 +4787,8 @@ findEntriesAndRefs:
           restoreSnapshot(snapshot);
         }
       }
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -4777,8 +4819,8 @@ findEntriesAndRefs:
                           final boolean closeWriter)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       boolean exceptionThrown = false;
 
       try
@@ -4849,7 +4891,9 @@ findEntriesAndRefs:
           }
         }
       }
-    }
+    } finally {
+  readLock.unlock();
+}
   }
 
 
@@ -4875,8 +4919,8 @@ findEntriesAndRefs:
   public int applyChangesFromLDIF(@NotNull final LDIFReader ldifReader)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
       boolean restoreSnapshot = true;
 
@@ -4962,7 +5006,9 @@ findEntriesAndRefs:
           restoreSnapshot(snapshot);
         }
       }
-    }
+    } finally {
+  writeLock.unlock();
+}
   }
 
 
@@ -5040,8 +5086,8 @@ findEntriesAndRefs:
   public void addEntries(@NotNull final List<? extends Entry> entries)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
       boolean restoreSnapshot = true;
 
@@ -5060,6 +5106,8 @@ findEntriesAndRefs:
           restoreSnapshot(snapshot);
         }
       }
+    } finally {
+      writeLock.unlock();
     }
   }
 
@@ -5082,8 +5130,8 @@ findEntriesAndRefs:
   public int deleteSubtree(@NotNull final String baseDN)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      writeLock.lock();
       final DN dn = new DN(baseDN, schemaRef.get());
       if (dn.isNullDN())
       {
@@ -5106,6 +5154,8 @@ findEntriesAndRefs:
       }
 
       return numDeleted;
+    }finally {
+      writeLock.unlock();
     }
   }
 
@@ -5185,8 +5235,8 @@ findEntriesAndRefs:
   @Nullable()
   public ReadOnlyEntry getEntry(@NotNull final DN dn)
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       if (dn.isNullDN())
       {
         return generateRootDSE();
@@ -5207,6 +5257,8 @@ findEntriesAndRefs:
           return new ReadOnlyEntry(e);
         }
       }
+    }finally {
+      readLock.unlock();
     }
   }
 
@@ -5234,8 +5286,12 @@ findEntriesAndRefs:
                                     @NotNull final Filter filter)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try {
+      gotLock = readLock.tryLock(100,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final DN parsedDN;
       final Schema schema = schemaRef.get();
       try
@@ -5344,6 +5400,11 @@ findEntriesAndRefs:
       }
 
       return Collections.unmodifiableList(entryList);
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    } finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -5958,8 +6019,8 @@ findEntriesAndRefs:
   public DN getDNForAuthzID(@NotNull final String authzID)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    try {
+      readLock.lock();
       final String lowerAuthzID = StaticUtils.toLowerCase(authzID);
       if (lowerAuthzID.startsWith("dn:"))
       {
@@ -6002,6 +6063,8 @@ findEntriesAndRefs:
         throw new LDAPException(ResultCode.AUTHORIZATION_DENIED,
              ERR_MEM_HANDLER_NO_SUCH_IDENTITY.get(authzID));
       }
+    } finally {
+      readLock.unlock();
     }
   }
 
@@ -6256,8 +6319,12 @@ findEntriesAndRefs:
                              @NotNull final String filter)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try {
+      gotLock = readLock.tryLock(100,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6274,6 +6341,11 @@ findEntriesAndRefs:
         Debug.debugException(le);
         return false;
       }
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6296,8 +6368,12 @@ findEntriesAndRefs:
   public boolean entryExists(@NotNull final Entry entry)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try {
+      gotLock = readLock.tryLock(100,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(entry.getDN());
       if (e == null)
       {
@@ -6316,6 +6392,11 @@ findEntriesAndRefs:
       }
 
       return true;
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6359,8 +6440,12 @@ findEntriesAndRefs:
                                 @NotNull final String filter)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6383,6 +6468,11 @@ findEntriesAndRefs:
         throw new AssertionError(
              ERR_MEM_HANDLER_TEST_ENTRY_DOES_NOT_MATCH_FILTER.get(dn, filter));
       }
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6405,8 +6495,12 @@ findEntriesAndRefs:
   public void assertEntryExists(@NotNull final Entry entry)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(entry.getDN());
       if (e == null)
       {
@@ -6445,6 +6539,11 @@ findEntriesAndRefs:
       {
         throw new AssertionError(StaticUtils.concatenateStrings(messages));
       }
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6466,8 +6565,12 @@ findEntriesAndRefs:
   public List<String> getMissingEntryDNs(@NotNull final Collection<String> dns)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final List<String> missingDNs = new ArrayList<>(dns.size());
       for (final String dn : dns)
       {
@@ -6479,6 +6582,11 @@ findEntriesAndRefs:
       }
 
       return missingDNs;
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6498,8 +6606,12 @@ findEntriesAndRefs:
   public void assertEntriesExist(@NotNull final Collection<String> dns)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final List<String> missingDNs = getMissingEntryDNs(dns);
       if (missingDNs.isEmpty())
       {
@@ -6513,6 +6625,11 @@ findEntriesAndRefs:
       }
 
       throw new AssertionError(StaticUtils.concatenateStrings(messages));
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6539,8 +6656,12 @@ findEntriesAndRefs:
                            @NotNull final Collection<String> attributeNames)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6560,6 +6681,11 @@ findEntriesAndRefs:
       }
 
       return missingAttrs;
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if(gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6583,8 +6709,12 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeNames)
         throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final List<String> missingAttrs =
            getMissingAttributeNames(dn, attributeNames);
       if (missingAttrs == null)
@@ -6603,6 +6733,11 @@ findEntriesAndRefs:
       }
 
       throw new AssertionError(StaticUtils.concatenateStrings(messages));
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6632,8 +6767,12 @@ findEntriesAndRefs:
                            @NotNull final Collection<String> attributeValues)
        throws LDAPException
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6653,6 +6792,11 @@ findEntriesAndRefs:
       }
 
       return missingValues;
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6680,8 +6824,13 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeValues)
         throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final List<String> missingValues =
            getMissingAttributeValues(dn, attributeName, attributeValues);
       if (missingValues == null)
@@ -6710,6 +6859,11 @@ findEntriesAndRefs:
       }
 
       throw new AssertionError(StaticUtils.concatenateStrings(messages));
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 
@@ -6755,8 +6909,12 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeNames)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6778,6 +6936,11 @@ findEntriesAndRefs:
       {
         throw new AssertionError(StaticUtils.concatenateStrings(messages));
       }
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.lock();
     }
   }
 
@@ -6803,8 +6966,12 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeValues)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
-    {
+    boolean gotLock = false;
+    try{
+      gotLock = readLock.tryLock(50,TimeUnit.MILLISECONDS);
+      if (!gotLock){
+        throw new LDAPException(ResultCode.TIMEOUT,"readLock");
+      }
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6827,6 +6994,11 @@ findEntriesAndRefs:
       {
         throw new AssertionError(StaticUtils.concatenateStrings(messages));
       }
+    } catch (InterruptedException e) {
+      throw new LDAPException(ResultCode.TIMEOUT,e);
+    }finally {
+      if (gotLock)
+        readLock.unlock();
     }
   }
 }
