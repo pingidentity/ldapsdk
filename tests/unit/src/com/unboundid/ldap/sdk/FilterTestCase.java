@@ -8401,4 +8401,164 @@ public class FilterTestCase
       },
     };
   }
+
+
+
+  /**
+   * Provides test coverage for the methods that may be used to construct the
+   * string representation of a substring assertion.
+   *
+   * @param  subInitial                    The subInitial component for the
+   *                                       substring assertion.  It may be
+   *                                       {@code null} if no subInitial
+   *                                       component is needed.
+   * @param  subAny                        The subAny components for the
+   *                                       substring assertion.  It may be
+   *                                       {@code null} or empty if no subAny
+   *                                       components are needed.
+   * @param  subFinal                      The subFinal component for the
+   *                                       substring assertion.  It may be
+   *                                       {@code null} if no subFinal component
+   *                                       is needed.
+   * @param  expectedStringRepresentation  The expected string representation
+   *                                       for the resulting substring
+   *                                       assertion.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="substringAssertionTestData")
+  public void testCreateSubstringAssertion(final String subInitial,
+                   final String[] subAny, final String subFinal,
+                   final String expectedStringRepresentation)
+         throws Exception
+  {
+    assertEquals(Filter.createSubstringAssertion(subInitial, subAny, subFinal),
+         expectedStringRepresentation);
+
+
+    final byte[] possiblyNullSubInitialBytes;
+    final byte[] nonNullSubInitialBytes;
+    final String nonNullSubInitialString;
+    if (subInitial == null)
+    {
+      possiblyNullSubInitialBytes = null;
+      nonNullSubInitialBytes = new byte[0];
+      nonNullSubInitialString = "";
+    }
+    else
+    {
+      possiblyNullSubInitialBytes = StaticUtils.getBytes(subInitial);
+      nonNullSubInitialBytes = possiblyNullSubInitialBytes;
+      nonNullSubInitialString = subInitial;
+    }
+
+
+    final byte[][] possiblyNullSubAnyBytes;
+    final byte[][] nonNullSubAnyBytes;
+    final String[] nonNullSubAnyStrings;
+    if (subAny == null)
+    {
+      possiblyNullSubAnyBytes = null;
+      nonNullSubAnyBytes = new byte[0][];
+      nonNullSubAnyStrings = new String[0];
+    }
+    else
+    {
+      possiblyNullSubAnyBytes = new byte[subAny.length][];
+      for (int i=0; i < subAny.length; i++)
+      {
+        possiblyNullSubAnyBytes[i] = StaticUtils.getBytes(subAny[i]);
+      }
+
+      nonNullSubAnyBytes = possiblyNullSubAnyBytes;
+      nonNullSubAnyStrings = subAny;
+    }
+
+
+    final byte[] possiblyNullSubFinalBytes;
+    final byte[] nonNullSubFinalBytes;
+    final String nonNullSubFinalString;
+    if (subFinal == null)
+    {
+      possiblyNullSubFinalBytes = null;
+      nonNullSubFinalBytes = new byte[0];
+      nonNullSubFinalString = "";
+    }
+    else
+    {
+      possiblyNullSubFinalBytes = StaticUtils.getBytes(subFinal);
+      nonNullSubFinalBytes = possiblyNullSubFinalBytes;
+      nonNullSubFinalString = subFinal;
+    }
+
+
+    assertEquals(
+         Filter.createSubstringAssertion(nonNullSubInitialString,
+              nonNullSubAnyStrings, nonNullSubFinalString),
+         expectedStringRepresentation);
+
+    assertEquals(
+         Filter.createSubstringAssertion(possiblyNullSubInitialBytes,
+              possiblyNullSubAnyBytes, possiblyNullSubFinalBytes),
+         expectedStringRepresentation);
+
+    assertEquals(
+         Filter.createSubstringAssertion(nonNullSubInitialBytes,
+              nonNullSubAnyBytes, nonNullSubFinalBytes),
+         expectedStringRepresentation);
+  }
+
+
+
+  /**
+   * Retrieves a set of data that may be used in testing substring assertions.
+   *
+   * @return  A set of data that may be used in testing substring assertions.
+   */
+  @DataProvider(name="substringAssertionTestData")
+  public Object[][] getSubstringAssertionTestData()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "a",
+        null,
+        null,
+        "a*"
+      },
+
+      new Object[]
+      {
+        null,
+        new String[] { "b" },
+        null,
+        "*b*"
+      },
+
+      new Object[]
+      {
+        null,
+        new String[] { "b", "c" },
+        null,
+        "*b*c*"
+      },
+
+      new Object[]
+      {
+        null,
+        null,
+        "d",
+        "*d"
+      },
+
+      new Object[]
+      {
+        "a",
+        new String[] { "b", "c" },
+        "d",
+        "a*b*c*d"
+      }
+    };
+  }
 }

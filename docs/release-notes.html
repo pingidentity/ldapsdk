@@ -31,6 +31,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added createSubstringAssertion methods to the filter class, which make it easier
+                  to construct the string representation of a substring assertion with a given
+                  combination of subInitial, subAny, and/or subFinal elements.  This can be helpful
+                  for creating the assertion value for an extensible matching filter for use with a
+                  substring matching rule.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the KeyStoreKeyManager and TrustStoreTrustManager classes to make it
                   possible to use alternative security providers when accessing key store files.  It
                   is also possible to indicate whether non-FIPS 140-2-compliant key stores may be
@@ -55,7 +64,7 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Updated the OID registry to include records for a number of collation matching\
+                  Updated the OID registry to include records for a number of collation matching
                   rules.
                   <br><br>
                 </li>

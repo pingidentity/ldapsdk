@@ -5165,6 +5165,182 @@ attrNameLoop:
 
 
   /**
+   * Creates the string representation of a substring assertion with the
+   * provided components.
+   *
+   * @param  subInitial  The subInitial component for this substring filter.  It
+   *                     may be {@code null} if there is no subInitial
+   *                     component, but it must not be empty.
+   * @param  subAny      The set of subAny components for this substring filter.
+   *                     It may be {@code null} or empty if there are no subAny
+   *                     components.
+   * @param  subFinal    The subFinal component for this substring filter.  It
+   *                     may be {@code null} if there is no subFinal component,
+   *                     but it must not be empty.
+   *
+   * @return  The string representation of a substring assertion with the
+   *          provided components.
+   */
+  @NotNull()
+  public static String createSubstringAssertion(
+       @Nullable final String subInitial,
+       @Nullable final String[] subAny,
+       @Nullable final String subFinal)
+  {
+    final ASN1OctetString subInitialOS;
+    if (subInitial == null)
+    {
+      subInitialOS = null;
+    }
+    else
+    {
+      subInitialOS = new ASN1OctetString(subInitial);
+    }
+
+    final ASN1OctetString[] subAnyOS;
+    if (subAny == null)
+    {
+      subAnyOS = NO_SUB_ANY;
+    }
+    else
+    {
+      subAnyOS = new ASN1OctetString[subAny.length];
+      for (int i=0; i < subAny.length; i++)
+      {
+        subAnyOS[i] = new ASN1OctetString(subAny[i]);
+      }
+    }
+
+    final ASN1OctetString subFinalOS;
+    if (subFinal == null)
+    {
+      subFinalOS = null;
+    }
+    else
+    {
+      subFinalOS = new ASN1OctetString(subFinal);
+    }
+
+    return createSubstringAssertion(subInitialOS, subAnyOS, subFinalOS);
+  }
+
+
+
+  /**
+   * Creates the string representation of a substring assertion with the
+   * provided components.
+   *
+   * @param  subInitial  The subInitial component for this substring filter.  It
+   *                     may be {@code null} if there is no subInitial
+   *                     component, but it must not be empty.
+   * @param  subAny      The set of subAny components for this substring filter.
+   *                     It may be {@code null} or empty if there are no subAny
+   *                     components.
+   * @param  subFinal    The subFinal component for this substring filter.  It
+   *                     may be {@code null} if there is no subFinal component,
+   *                     but it must not be empty.
+   *
+   * @return  The string representation of a substring assertion with the
+   *          provided components.
+   */
+  @NotNull()
+  public static String createSubstringAssertion(
+       @Nullable final byte[] subInitial,
+       @Nullable final byte[][] subAny,
+       @Nullable final byte[] subFinal)
+  {
+    final ASN1OctetString subInitialOS;
+    if (subInitial == null)
+    {
+      subInitialOS = null;
+    }
+    else
+    {
+      subInitialOS = new ASN1OctetString(subInitial);
+    }
+
+    final ASN1OctetString[] subAnyOS;
+    if (subAny == null)
+    {
+      subAnyOS = NO_SUB_ANY;
+    }
+    else
+    {
+      subAnyOS = new ASN1OctetString[subAny.length];
+      for (int i=0; i < subAny.length; i++)
+      {
+        subAnyOS[i] = new ASN1OctetString(subAny[i]);
+      }
+    }
+
+    final ASN1OctetString subFinalOS;
+    if (subFinal == null)
+    {
+      subFinalOS = null;
+    }
+    else
+    {
+      subFinalOS = new ASN1OctetString(subFinal);
+    }
+
+    return createSubstringAssertion(subInitialOS, subAnyOS, subFinalOS);
+  }
+
+
+
+  /**
+   * Creates the string representation of a substring assertion with the
+   * provided components.
+   *
+   * @param  subInitial  The subInitial component for this substring filter.  It
+   *                     may be {@code null} if there is no subInitial
+   *                     component, but it must not be empty.
+   * @param  subAny      The set of subAny components for this substring filter.
+   *                     It must not be {@code null}, but may be empty if there
+   *                     are no subAny components.
+   * @param  subFinal    The subFinal component for this substring filter.  It
+   *                     may be {@code null} if there is no subFinal component,
+   *                     but it must not be empty.
+   *
+   * @return  The string representation of a substring assertion with the
+   *          provided components.
+   */
+  @NotNull()
+  private static String createSubstringAssertion(
+       @Nullable final ASN1OctetString subInitial,
+       @Nullable final ASN1OctetString[] subAny,
+       @Nullable final ASN1OctetString subFinal)
+  {
+    Validator.ensureTrue(
+         (((subInitial != null) && (subInitial.getValueLength() > 0)) ||
+              ((subAny != null) && (subAny.length > 0) &&
+                   (subAny[0].getValueLength() > 0)) ||
+              ((subFinal != null) && (subFinal.getValueLength() > 0))),
+         "At least one substring filter component must be non-null and " +
+              "non-empty");
+
+    final StringBuilder buffer = new StringBuilder();
+    if (subInitial != null)
+    {
+      encodeValue(subInitial, buffer);
+    }
+    buffer.append('*');
+    for (final ASN1OctetString s : subAny)
+    {
+      encodeValue(s, buffer);
+      buffer.append('*');
+    }
+    if (subFinal != null)
+    {
+      encodeValue(subFinal, buffer);
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
    * Encodes the provided value into a form suitable for use as the assertion
    * value in the string representation of a search filter.  Parentheses,
    * asterisks, backslashes, null characters, and any non-ASCII characters will
