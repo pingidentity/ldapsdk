@@ -134,7 +134,13 @@ public class SanityCheck
     "com.unboundid.util.json",
     "com.unboundid.util.parallel",
     "com.unboundid.util.ssl",
-    "com.unboundid.util.ssl.cert"
+    "com.unboundid.util.ssl.cert",
+
+    // NOTE:  These aren't packages, but they have inner lock classes that might
+    // be directly imported, and it's easier to just list them as packages
+    // rather than handle that specially.
+    "com.unboundid.util.CloseableLock",
+    "com.unboundid.util.CloseableReadWriteLock"
   };
 
 

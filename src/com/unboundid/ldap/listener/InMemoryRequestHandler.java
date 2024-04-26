@@ -150,6 +150,9 @@ import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFWriter;
+import com.unboundid.util.CloseableReadWriteLock;
+import com.unboundid.util.CloseableReadWriteLock.ReadLock;
+import com.unboundid.util.CloseableReadWriteLock.WriteLock;
 import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
@@ -217,6 +220,10 @@ public final class InMemoryRequestHandler
 
   // Indicates whether to generate operational attributes for writes.
   private final boolean generateOperationalAttributes;
+
+  // A lock used to provide concurrent read access to the data while ensuring
+  // only a single update at any time.
+  @NotNull private final CloseableReadWriteLock readWriteLock;
 
   // The DN of the currently-authenticated user for the associated connection.
   @NotNull private DN authenticatedDN;
@@ -302,6 +309,7 @@ public final class InMemoryRequestHandler
   {
     this.config = config;
 
+    readWriteLock        = new CloseableReadWriteLock();
     schemaRef            = new AtomicReference<>();
     entryValidatorRef    = new AtomicReference<>();
     subschemaSubentryRef = new AtomicReference<>();
@@ -540,6 +548,7 @@ public final class InMemoryRequestHandler
     extendedPasswordAttributes     = parent.extendedPasswordAttributes;
     primaryPasswordEncoder         = parent.primaryPasswordEncoder;
     passwordEncoders               = parent.passwordEncoders;
+    readWriteLock                  = parent.readWriteLock;
   }
 
 
@@ -578,8 +587,9 @@ public final class InMemoryRequestHandler
   @NotNull()
   public InMemoryDirectoryServerSnapshot createSnapshot()
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
       return new InMemoryDirectoryServerSnapshot(entryMap,
            firstChangeNumber.get(), lastChangeNumber.get());
     }
@@ -597,8 +607,10 @@ public final class InMemoryRequestHandler
   public void restoreSnapshot(
                    @NotNull final InMemoryDirectoryServerSnapshot snapshot)
   {
-    synchronized (entryMap)
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       entryMap.clear();
       entryMap.putAll(snapshot.getEntryMap());
 
@@ -890,10 +902,13 @@ public final class InMemoryRequestHandler
                           @NotNull final AddRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      writeLock.avoidCompilerWarning();
+
 
       // Process the provided request controls.
       final Map<String,Control> controlMap;
@@ -1367,10 +1382,12 @@ public final class InMemoryRequestHandler
                           @NotNull final BindRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      readLock.avoidCompilerWarning();
 
       // If this operation type is not allowed, then reject it.
       if (! config.getAllowedOperationTypes().contains(OperationType.BIND))
@@ -1616,10 +1633,12 @@ public final class InMemoryRequestHandler
                           @NotNull final CompareRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      readLock.avoidCompilerWarning();
 
       // Process the provided request controls.
       final Map<String,Control> controlMap;
@@ -1827,10 +1846,12 @@ public final class InMemoryRequestHandler
                           @NotNull final DeleteRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      writeLock.avoidCompilerWarning();
 
       // Process the provided request controls.
       final Map<String,Control> controlMap;
@@ -2101,10 +2122,12 @@ public final class InMemoryRequestHandler
                           @NotNull final ExtendedRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      writeLock.avoidCompilerWarning();
 
       boolean isInternalOp = false;
       for (final Control c : controls)
@@ -2268,10 +2291,12 @@ public final class InMemoryRequestHandler
                           @NotNull final ModifyRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      writeLock.avoidCompilerWarning();
 
       // Process the provided request controls.
       final Map<String,Control> controlMap;
@@ -2954,11 +2979,11 @@ public final class InMemoryRequestHandler
                           @NotNull final ModifyDNRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
 
+    try (WriteLock writeLock = readWriteLock.lockWrite())
+    {
       // Process the provided request controls.
       final Map<String,Control> controlMap;
       try
@@ -3485,8 +3510,10 @@ public final class InMemoryRequestHandler
                           @NotNull final SearchRequestProtocolOp request,
                           @NotNull final List<Control> controls)
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final List<SearchResultEntry> entryList =
            new ArrayList<>(entryMap.size());
       final List<SearchResultReference> referenceList =
@@ -3578,11 +3605,13 @@ public final class InMemoryRequestHandler
                    @NotNull final List<SearchResultEntry> entryList,
                    @NotNull final List<SearchResultReference> referenceList)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    final long processingStartTime = System.currentTimeMillis();
+    sleepBeforeProcessing();
+
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
-      // Sleep before processing, if appropriate.
-      final long processingStartTime = System.currentTimeMillis();
-      sleepBeforeProcessing();
+      readLock.avoidCompilerWarning();
 
       // Look at the filter and see if it contains any unsupported elements.
       try
@@ -4591,8 +4620,10 @@ findEntriesAndRefs:
    */
   public int countEntries(final boolean includeChangeLog)
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       if (includeChangeLog || (maxChangelogEntries == 0))
       {
         return entryMap.size();
@@ -4631,8 +4662,10 @@ findEntriesAndRefs:
   public int countEntriesBelow(@NotNull final String baseDN)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final DN parsedBaseDN = new DN(baseDN, schemaRef.get());
 
       int count = 0;
@@ -4657,8 +4690,10 @@ findEntriesAndRefs:
    */
   public void clear()
   {
-    synchronized (entryMap)
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       restoreSnapshot(initialSnapshot);
     }
   }
@@ -4686,8 +4721,10 @@ findEntriesAndRefs:
                             @NotNull final LDIFReader ldifReader)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
       boolean restoreSnapshot = true;
 
@@ -4777,8 +4814,10 @@ findEntriesAndRefs:
                           final boolean closeWriter)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       boolean exceptionThrown = false;
 
       try
@@ -4875,8 +4914,10 @@ findEntriesAndRefs:
   public int applyChangesFromLDIF(@NotNull final LDIFReader ldifReader)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
       boolean restoreSnapshot = true;
 
@@ -5040,8 +5081,10 @@ findEntriesAndRefs:
   public void addEntries(@NotNull final List<? extends Entry> entries)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
       boolean restoreSnapshot = true;
 
@@ -5082,8 +5125,10 @@ findEntriesAndRefs:
   public int deleteSubtree(@NotNull final String baseDN)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       final DN dn = new DN(baseDN, schemaRef.get());
       if (dn.isNullDN())
       {
@@ -5185,8 +5230,10 @@ findEntriesAndRefs:
   @Nullable()
   public ReadOnlyEntry getEntry(@NotNull final DN dn)
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       if (dn.isNullDN())
       {
         return generateRootDSE();
@@ -5234,8 +5281,10 @@ findEntriesAndRefs:
                                     @NotNull final Filter filter)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final DN parsedDN;
       final Schema schema = schemaRef.get();
       try
@@ -5958,8 +6007,10 @@ findEntriesAndRefs:
   public DN getDNForAuthzID(@NotNull final String authzID)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final String lowerAuthzID = StaticUtils.toLowerCase(authzID);
       if (lowerAuthzID.startsWith("dn:"))
       {
@@ -6256,8 +6307,10 @@ findEntriesAndRefs:
                              @NotNull final String filter)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6296,8 +6349,10 @@ findEntriesAndRefs:
   public boolean entryExists(@NotNull final Entry entry)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(entry.getDN());
       if (e == null)
       {
@@ -6359,8 +6414,10 @@ findEntriesAndRefs:
                                 @NotNull final String filter)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6405,8 +6462,10 @@ findEntriesAndRefs:
   public void assertEntryExists(@NotNull final Entry entry)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(entry.getDN());
       if (e == null)
       {
@@ -6466,8 +6525,10 @@ findEntriesAndRefs:
   public List<String> getMissingEntryDNs(@NotNull final Collection<String> dns)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final List<String> missingDNs = new ArrayList<>(dns.size());
       for (final String dn : dns)
       {
@@ -6498,8 +6559,10 @@ findEntriesAndRefs:
   public void assertEntriesExist(@NotNull final Collection<String> dns)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final List<String> missingDNs = getMissingEntryDNs(dns);
       if (missingDNs.isEmpty())
       {
@@ -6539,8 +6602,10 @@ findEntriesAndRefs:
                            @NotNull final Collection<String> attributeNames)
          throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6583,8 +6648,10 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeNames)
         throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final List<String> missingAttrs =
            getMissingAttributeNames(dn, attributeNames);
       if (missingAttrs == null)
@@ -6632,8 +6699,10 @@ findEntriesAndRefs:
                            @NotNull final Collection<String> attributeValues)
        throws LDAPException
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6680,8 +6749,10 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeValues)
         throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final List<String> missingValues =
            getMissingAttributeValues(dn, attributeName, attributeValues);
       if (missingValues == null)
@@ -6755,8 +6826,10 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeNames)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(dn);
       if (e == null)
       {
@@ -6803,8 +6876,10 @@ findEntriesAndRefs:
                    @NotNull final Collection<String> attributeValues)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    try (ReadLock readLock = readWriteLock.lockRead())
     {
+      readLock.avoidCompilerWarning();
+
       final Entry e = getEntry(dn);
       if (e == null)
       {
