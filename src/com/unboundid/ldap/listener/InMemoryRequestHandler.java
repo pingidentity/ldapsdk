@@ -2984,6 +2984,8 @@ public final class InMemoryRequestHandler
 
     try (WriteLock writeLock = readWriteLock.lockWrite())
     {
+      writeLock.avoidCompilerWarning();
+
       // Process the provided request controls.
       final Map<String,Control> controlMap;
       try

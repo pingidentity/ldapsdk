@@ -702,6 +702,7 @@
 { "oid":"1.3.6.1.4.1.30221.2.6.69", "name":"Replace Inter-Server Certificate", "type":"Extended Operation", "origin":"Ping Identity Directory Server" }
 { "oid":"1.3.6.1.4.1.30221.2.6.70", "name":"Purge Retired Listener Certificates", "type":"Extended Operation", "origin":"Ping Identity Directory Server" }
 { "oid":"1.3.6.1.4.1.30221.2.6.71", "name":"Purge Retired Inter-Server Certificates", "type":"Extended Operation", "origin":"Ping Identity Directory Server" }
+{ "oid":"1.3.6.1.4.1.30221.2.6.72", "name":"Verify Password", "type":"Extended Request", "origin":"Ping Identity Directory Server" }
 { "oid":"1.3.6.1.4.1.30221.2.10.3.1", "name":"access-control-disabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
 { "oid":"1.3.6.1.4.1.30221.2.10.3.2", "name":"access-control-enabled", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
 { "oid":"1.3.6.1.4.1.30221.2.10.3.3", "name":"access-control-parse-failure", "type":"Administrative Alert", "origin":"Ping Identity Directory Server" }
