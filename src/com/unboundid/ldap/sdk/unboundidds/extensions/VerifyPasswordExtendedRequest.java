@@ -90,7 +90,101 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * <BR>
  * For security purposes, the server will only allow this request to be issued
  * by a client with the necessary access control permission to do so, and who
- * also has the {@code permit-verify-password-operation} privilege.
+ * also has the {@code permit-verify-password-request} privilege.  And by
+ * default, the server will only permit clients to issue verify password
+ * requests over a secure connection.
+ * <BR><BR>
+ * In response to a verify password extended request, the server will return a
+ * generic extended response with no OID or value.  The result code included in
+ * that response should provide a suitable indication of the outcome, and in
+ * some cases, a diagnostic message may provide additional details about any
+ * issue that the server encountered.  Some of the result codes that may be
+ * returned in response to a verify password extended request include:
+ * <BR>
+ * <UL>
+ *   <LI>
+ *     {@link ResultCode#COMPARE_TRUE} -- All processing completed successfully,
+ *     and the provided password was correct for the target user.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#COMPARE_FALSE} -- All processing completed
+ *     successfully, but the provided password was not correct for the target
+ *     user.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#NO_SUCH_OBJECT} -- If the entry for the target user
+ *     does not exist.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#INVALID_DN_SYNTAX} -- If the target user DN cannot be
+ *     parsed as a valid DN.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#INAPPROPRIATE_AUTHENTICATION} -- If the target user
+ *     does not have a password.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#INSUFFICIENT_ACCESS_RIGHTS} -- If the requester does
+ *     not have the necessary access control permission to issue the request,
+ *     or if they do not have the {@code permit-verify-password-request}
+ *     privilege.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#CONFIDENTIALITY_REQUIRED} -- If the client is using an
+ *     insecure connection, but the server requires secure communication for the
+ *     request.
+ *   </LI>
+ *   <LI>
+ *     {@link ResultCode#OTHER} -- If an internal error occurred while
+ *     attempting to process the request.
+ *   </LI>
+ * </UL>
+ * <BR>
+ * <H2>Example</H2>
+ * The following example demonstrates how to use the verify password extended
+ * request to determine whether a password is correct for a user without
+ * performing any password policy processing that would normally occur for a
+ * bind operation:
+ * <BR><BR>
+ * <PRE>
+ *   public static boolean isPasswordValidForUser(
+ *               final LDAPConnection connection,
+ *               final String targetUserDN,
+ *               final String passwordToVerify)
+ *          throws LDAPException
+ *   {
+ *     final VerifyPasswordExtendedRequest verifyPasswordRequest =
+ *          new VerifyPasswordExtendedRequest(targetUserDN, passwordToVerify);
+ *
+ *     LDAPResult verifyPasswordResult;
+ *     try
+ *     {
+ *       verifyPasswordResult =
+ *            connection.processExtendedOperation(verifyPasswordRequest);
+ *     }
+ *     catch (final LDAPException e)
+ *     {
+ *       verifyPasswordResult = e.toLDAPResult();
+ *     }
+ *
+ *     final ResultCode resultCode = verifyPasswordResult.getResultCode();
+ *     if (resultCode == ResultCode.COMPARE_TRUE)
+ *     {
+ *       // The provided password is correct for the target user.
+ *       return true;
+ *     }
+ *     else if (resultCode == ResultCode.COMPARE_FALSE)
+ *     {
+ *       // The provided password is not correct for the target user.
+ *       return false;
+ *     }
+ *     else
+ *     {
+ *       // An error occurred while trying to verify the password.
+ *       throw new LDAPException(verifyPasswordResult);
+ *     }
+ *   }
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
