@@ -176,7 +176,7 @@ public final class JSONControlDecodeHelper
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_JSON_CONTROL_MISSING_CRITICALITY.get(
-                controlObject.toSingleLineString(), JSON_FIELD_OID));
+                controlObject.toSingleLineString(), JSON_FIELD_CRITICALITY));
     }
 
     criticality = criticalityObject;
