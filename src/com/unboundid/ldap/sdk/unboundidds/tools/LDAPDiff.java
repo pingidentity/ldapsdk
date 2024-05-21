@@ -1075,6 +1075,17 @@ public final class LDAPDiff
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean logToolInvocationByDefault()
   {
     return false;

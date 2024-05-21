@@ -395,9 +395,9 @@ public final class Base64ToolTestCase
       final File outputFile = createTempFile();
       final InputStream in = getInputStream(
            "1", // Choose the decode subcommand
-           "1", // Choose to edit the data to decode,
+           "8", // Choose to edit the data to decode,
            Base64.encode("interactive"), // The data to decode
-           "3", // Choose the output file to create
+           "10", // Choose the output file to create
            outputFile.getAbsolutePath(), // The path to the output file
            "d", // Display the arguments
            "", // Done displaying the arguments

@@ -839,6 +839,17 @@ public final class CompareLDAPSchemas
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean logToolInvocationByDefault()
   {
     return false;

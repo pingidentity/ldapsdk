@@ -443,6 +443,17 @@ public final class ManageCertificates
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether to log messages about the launch and completion of this
    * tool into the invocation log of Ping Identity server products that may
    * include it.  This method is not needed for tools that are not expected to

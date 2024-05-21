@@ -2833,4 +2833,25 @@ public final class LDAPSearchTestCase
               "(objectClass=*)"),
          ResultCode.SUCCESS);
   }
+
+
+
+  /**
+   * Tests to ensure that we can run the ldapsearch tool with arguments that
+   * enable debug logging.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDebugSupport()
+         throws Exception
+  {
+    // Make sure that we can successfully get help.  We don't want to actually
+    // attempt debugging since the tool will run in the same JVM as the unit
+    // tetsts, and we don't want to affect debugging in the test framework.
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--helpDebug"),
+         ResultCode.SUCCESS);
+  }
 }

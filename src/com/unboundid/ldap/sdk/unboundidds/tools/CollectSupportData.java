@@ -380,6 +380,17 @@ public final class CollectSupportData
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     if ((noPromptArg != null) && noPromptArg.isPresent())

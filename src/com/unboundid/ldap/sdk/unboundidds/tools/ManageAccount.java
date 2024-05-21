@@ -479,6 +479,17 @@ public final class ManageAccount
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean supportsAuthentication()
   {
     return true;

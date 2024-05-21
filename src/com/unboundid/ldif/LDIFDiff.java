@@ -365,6 +365,17 @@ public final class LDIFDiff
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @Nullable()
   protected String getToolCompletionMessage()
   {

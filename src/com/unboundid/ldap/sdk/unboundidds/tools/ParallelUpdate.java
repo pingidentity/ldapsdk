@@ -1013,6 +1013,17 @@ public final class ParallelUpdate
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean supportsAuthentication()
   {
     return true;

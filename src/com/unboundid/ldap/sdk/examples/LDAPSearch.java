@@ -406,6 +406,22 @@ public final class LDAPSearch
 
 
   /**
+   * Indicates whether this tool supports the ability to generate a debug log
+   * file.  If this method returns {@code true}, then the tool will expose
+   * additional arguments that can control debug logging.
+   *
+   * @return  {@code true} if this tool supports the ability to generate a debug
+   *          log file, or {@code false} if not.
+   */
+  @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this tool should default to interactively prompting for
    * the bind password if a password is required but no argument was provided
    * to indicate how to get the password.

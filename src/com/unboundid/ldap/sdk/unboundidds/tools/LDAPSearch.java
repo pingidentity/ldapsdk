@@ -526,6 +526,17 @@ public final class LDAPSearch
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;

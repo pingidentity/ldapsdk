@@ -323,6 +323,17 @@ public final class SplitLDIF
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {

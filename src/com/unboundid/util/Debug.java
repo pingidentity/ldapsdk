@@ -179,6 +179,17 @@ public final class Debug
 
 
   /**
+   * The name of the system property that will be used ot indicate whether
+   * debug messages (which will be formatted as JSON objects) should be
+   * generated using a multi-line string representation.  By default, debug
+   * message will use a single-line string representation.
+   */
+  @NotNull public static final String PROPERTY_USE_MULTI_LINE_DEBUG_MESSAGES =
+       "com.unboundid.ldap.sdk.debug.useMultiLineDebugMessages";
+
+
+
+  /**
    * The name of the system property that will be used to indicate that debug
    * log messages should be written to the specified file.  The fully-qualified
    * name for this property is "{@code com.unboundid.ldap.sdk.debug.file}".  If
@@ -228,6 +239,9 @@ public final class Debug
   // Indicates whether to capture a thread stack trace whenever a debug message
   // is logged.
   private static boolean includeStackTrace;
+
+  // Indiates whether debug messages should be formatted using multiple lines.
+  private static boolean useMultiLineDebugMessages;
 
   // The set of debug types for which debugging is enabled.
   @NotNull private static EnumSet<DebugType> debugTypes=
@@ -282,8 +296,9 @@ public final class Debug
   public static void initialize()
   {
     includeStackTrace = false;
-    debugEnabled      = false;
-    debugTypes        = EnumSet.allOf(DebugType.class);
+    useMultiLineDebugMessages = false;
+    debugEnabled = false;
+    debugTypes = EnumSet.allOf(DebugType.class);
 
     StaticUtils.setLoggerLevel(logger, Level.ALL);
   }
@@ -322,10 +337,8 @@ public final class Debug
       else
       {
         throw new IllegalArgumentException("Invalid value '" + enabledProp +
-                                           "' for property " +
-                                           PROPERTY_DEBUG_ENABLED +
-                                           ".  The value must be either " +
-                                           "'true' or 'false'.");
+             "' for property " + PROPERTY_DEBUG_ENABLED +
+             ".  The value must be either 'true' or 'false'.");
       }
     }
 
@@ -344,10 +357,28 @@ public final class Debug
       else
       {
         throw new IllegalArgumentException("Invalid value '" + stackProp +
-                                           "' for property " +
-                                           PROPERTY_INCLUDE_STACK_TRACE +
-                                           ".  The value must be either " +
-                                           "'true' or 'false'.");
+             "' for property " + PROPERTY_INCLUDE_STACK_TRACE +
+             ".  The value must be either 'true' or 'false'.");
+      }
+    }
+
+    final String multiLineProp =
+         properties.getProperty(PROPERTY_USE_MULTI_LINE_DEBUG_MESSAGES);
+    if ((multiLineProp != null) && (! multiLineProp.isEmpty()))
+    {
+      if (multiLineProp.equalsIgnoreCase("true"))
+      {
+        useMultiLineDebugMessages = true;
+      }
+      else if (multiLineProp.equalsIgnoreCase("false"))
+      {
+        useMultiLineDebugMessages = false;
+      }
+      else
+      {
+        throw new IllegalArgumentException("Invalid value '" + multiLineProp +
+             "' for property " + PROPERTY_USE_MULTI_LINE_DEBUG_MESSAGES +
+             ".  The value must be either 'true' or 'false'.");
       }
     }
 
@@ -365,9 +396,9 @@ public final class Debug
           // Throw a runtime exception to indicate that the debug type is
           // invalid.
           throw new IllegalArgumentException("Invalid value '" + debugTypeName +
-                      "' for property " + PROPERTY_DEBUG_TYPE +
-                      ".  Allowed values include:  " +
-                      DebugType.getTypeNameList() + '.');
+               "' for property " + PROPERTY_DEBUG_TYPE +
+               ".  Allowed values include:  " + DebugType.getTypeNameList() +
+               '.');
         }
         else
         {
@@ -379,7 +410,17 @@ public final class Debug
     final String levelProp = properties.getProperty(PROPERTY_DEBUG_LEVEL);
     if ((levelProp != null) && (! levelProp.isEmpty()))
     {
-      StaticUtils.setLoggerLevel(logger, Level.parse(levelProp));
+      try
+      {
+        StaticUtils.setLoggerLevel(logger,  parseDebugLogLevel(levelProp));
+      }
+      catch (final IllegalArgumentException e)
+      {
+        throw new IllegalArgumentException(
+             "Invalid value '" + levelProp + "' for property " +
+                  PROPERTY_DEBUG_LEVEL + '.',
+             e);
+      }
     }
   }
 
@@ -496,6 +537,38 @@ public final class Debug
 
 
   /**
+   * Indicates whether debug messages (which will be formatted as JSON objects)
+   * should use a multi-line or single-line string representation.
+   *
+   * @return  {@code true} if debug messages should be formatted as multi-line
+   *          strings, or {@code false} if debug messages should be formatted as
+   *          single-line strings.
+   */
+  public static boolean useMultiLineDebugMessages()
+  {
+    return useMultiLineDebugMessages;
+  }
+
+
+
+  /**
+   * Specifies whether debug messages (which will be formatted as JSON objects)
+   * should use a multi-line or single-line string representation.
+   *
+   * @param  useMultiLineDebugMessages  Indicates whether debug messages
+   *                                    should be formatted as multi-line
+   *                                    strings (if {@code true}) or single-line
+   *                                    strings (if {@code false}).
+   */
+  public static void setUseMultiLineDebugMessages(
+              final boolean useMultiLineDebugMessages)
+  {
+    Debug.useMultiLineDebugMessages = useMultiLineDebugMessages;
+  }
+
+
+
+  /**
    * Retrieves the set of debug types that will be used if debugging is enabled.
    *
    * @return  The set of debug types that will be used if debugging is enabled.
@@ -536,7 +609,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.EXCEPTION))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.EXCEPTION);
       addCaughtException(buffer, "caught-exception", t);
       addCommonFooter(buffer);
@@ -627,7 +701,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.CONNECT);
       buffer.appendString("connected-to-address", h);
       buffer.appendNumber("connected-to-port", p);
@@ -761,7 +836,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.CONNECT);
 
       if (c != null)
@@ -903,7 +979,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.LDAP);
 
       if (c != null)
@@ -1020,7 +1097,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.LDAP);
 
       if (c != null)
@@ -1085,7 +1163,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.ASN1);
       buffer.appendString("writing-asn1-element", e.toString());
 
@@ -1125,7 +1204,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.ASN1);
       buffer.appendString("writing-asn1-element",
            StaticUtils.toHex(b.toByteArray()));
@@ -1166,7 +1246,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.ASN1);
       buffer.appendString("read-asn1-element", e.toString());
 
@@ -1201,7 +1282,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.ASN1);
 
       buffer.beginObject("read-asn1-element");
@@ -1248,7 +1330,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECTION_POOL))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.CONNECTION_POOL);
 
       final String poolName = p.getConnectionPoolName();
@@ -1331,7 +1414,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.LDIF);
       buffer.appendString("writing-ldif-record", r.toString());
 
@@ -1371,7 +1455,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.LDIF);
       buffer.appendString("read-ldif-record", r.toString());
 
@@ -1414,7 +1499,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.MONITOR))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, DebugType.MONITOR);
 
       if (e != null)
@@ -1446,7 +1532,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CODING_ERROR))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, Level.SEVERE, DebugType.CODING_ERROR);
       addCaughtException(buffer, "coding-error", t);
 
@@ -1469,7 +1556,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(t))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, t);
 
       if (m != null)
@@ -1498,7 +1586,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(t))
     {
-      final JSONBuffer buffer = new JSONBuffer();
+      final JSONBuffer buffer = new JSONBuffer(
+           null, JSONBuffer.DEFAULT_MAX_BUFFER_SIZE, useMultiLineDebugMessages);
       addCommonHeader(buffer, l, t);
 
       if (m != null)
@@ -1817,6 +1906,65 @@ public final class Debug
       System.err.println(ERR_DEBUG_CANNOT_WRITE_TO_FILE.get(
            file.getAbsolutePath(), StaticUtils.getExceptionMessage(e),
            message));
+    }
+  }
+
+
+
+  /**
+   * Attempts to parse the provided string as a debug log level.
+   *
+   * @param  levelString  The string representation of the level to use.  It
+   *                      must not be {@code null} or empty.
+   *
+   * @return  The log level that was parsed.
+   *
+   * @throws  IllegalArgumentException  If the provided string cannot be parsed
+   *                                    as a valid debug log level.
+   */
+  @NotNull()
+  public static Level parseDebugLogLevel(@NotNull final String levelString)
+         throws IllegalArgumentException
+  {
+    final String lowerLevelString = StaticUtils.toLowerCase(levelString);
+    switch (lowerLevelString)
+    {
+      case "off":
+      case "none":
+      case "disabled":
+        return Level.OFF;
+      case "severe":
+      case "error":
+        return Level.SEVERE;
+      case "warning":
+      case "warn":
+        return Level.WARNING;
+      case "info":
+      case "information":
+      case "informational":
+        return Level.INFO;
+      case "config":
+      case "configuration":
+        return Level.CONFIG;
+      case "fine":
+        return Level.FINE;
+      case "finer":
+        return Level.FINER;
+      case "finest":
+      case "verbose":
+        return Level.FINEST;
+      case "all":
+        return Level.ALL;
+      default:
+        try
+        {
+          return Level.parse(levelString);
+        }
+        catch (final IllegalArgumentException e)
+        {
+          throw new IllegalArgumentException(
+               ERR_DEBUG_CANNOT_PARSE_LEVEL.get(levelString));
+        }
     }
   }
 }

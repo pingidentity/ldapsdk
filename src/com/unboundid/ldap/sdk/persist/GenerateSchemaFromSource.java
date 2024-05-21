@@ -258,6 +258,17 @@ public final class GenerateSchemaFromSource
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void addToolArguments(@NotNull final ArgumentParser parser)
          throws ArgumentException
   {

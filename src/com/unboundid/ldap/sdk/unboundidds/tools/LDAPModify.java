@@ -559,6 +559,17 @@ public final class LDAPModify
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;

@@ -1084,6 +1084,17 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public ResultCode doToolProcessing()
   {

@@ -353,6 +353,22 @@ public final class LDAPCompare
 
 
   /**
+   * Indicates whether this tool supports the ability to generate a debug log
+   * file.  If this method returns {@code true}, then the tool will expose
+   * additional arguments that can control debug logging.
+   *
+   * @return  {@code true} if this tool supports the ability to generate a debug
+   *          log file, or {@code false} if not.
+   */
+  @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether the LDAP-specific arguments should include alternate
    * versions of all long identifiers that consist of multiple words so that
    * they are available in both camelCase and dash-separated versions.

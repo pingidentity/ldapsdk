@@ -336,6 +336,17 @@ public final class GenerateSourceFromSchema
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether the LDAP-specific arguments should include alternate
    * versions of all long identifiers that consist of multiple words so that
    * they are available in both camelCase and dash-separated versions.

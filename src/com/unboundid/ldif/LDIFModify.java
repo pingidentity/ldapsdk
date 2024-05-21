@@ -407,6 +407,17 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @Nullable()
   protected String getToolCompletionMessage()
   {

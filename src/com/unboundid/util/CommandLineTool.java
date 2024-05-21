@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,8 +53,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.Argument;
@@ -62,6 +66,7 @@ import com.unboundid.util.args.ArgumentHelper;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.SubCommand;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogger;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogDetails;
@@ -114,18 +119,35 @@ import static com.unboundid.util.UtilityMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class CommandLineTool
 {
+  /**
+   * The column at which long lines should be wrapped.
+   */
+  private static final int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
+
+
+
   // The argument used to indicate that the tool should append to the output
   // file rather than overwrite it.
   @Nullable private BooleanArgument appendToOutputFileArgument = null;
 
+  // The argument used to request that debug logging be enabled.
+  @Nullable private BooleanArgument enableDebugArgument = null;
+
   // The argument used to request tool help.
   @Nullable private BooleanArgument helpArgument = null;
+
+  // The argument used to request help about debug logging.
+  @Nullable private BooleanArgument helpDebugArgument = null;
 
   // The argument used to request help about SASL authentication.
   @Nullable private BooleanArgument helpSASLArgument = null;
 
   // The argument used to request help information about all of the subcommands.
   @Nullable private BooleanArgument helpSubcommandsArgument = null;
+
+  // The argument used to indicate that stack traces should be included in the
+  // debug log output.
+  @Nullable private BooleanArgument includeDebugStackTracesArgument = null;
 
   // The argument used to request interactive mode.
   @Nullable private BooleanArgument interactiveArgument = null;
@@ -134,8 +156,15 @@ public abstract class CommandLineTool
   // as well as the specified output file.
   @Nullable private BooleanArgument teeOutputArgument = null;
 
+  // The argument used to indicate that debug log messages should be formatted
+  // as multi-line strings rather than single-line strings.
+  @Nullable private BooleanArgument useMultiLineDebugMessagesArgument = null;
+
   // The argument used to request the tool version.
   @Nullable private BooleanArgument versionArgument = null;
+
+  // The argument used to specify the path to the debug log file.
+  @Nullable private FileArgument debugLogFileArgument = null;
 
   // The argument used to specify the output file for standard output and
   // standard error.
@@ -161,6 +190,12 @@ public abstract class CommandLineTool
 
   // The print stream to use for messages written to standard error.
   @NotNull private volatile PrintStream err;
+
+  // The argument used to specify the debug log categories.
+  @Nullable private StringArgument debugLogCategoryArgument = null;
+
+  // The argument used to specify the debug log level.
+  @Nullable private StringArgument debugLogLevelArgument = null;
 
 
 
@@ -271,7 +306,7 @@ public abstract class CommandLineTool
       final File generatedPropertiesFile = parser.getGeneratedPropertiesFile();
       if (supportsPropertiesFile() && (generatedPropertiesFile != null))
       {
-        wrapOut(0, StaticUtils.TERMINAL_WIDTH_COLUMNS - 1,
+        wrapOut(0, WRAP_COLUMN,
              INFO_CL_TOOL_WROTE_PROPERTIES_FILE.get(
                   generatedPropertiesFile.getAbsolutePath()));
         return ResultCode.SUCCESS;
@@ -279,7 +314,7 @@ public abstract class CommandLineTool
 
       if (helpArgument.isPresent())
       {
-        out(parser.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
+        out(parser.getUsageString(WRAP_COLUMN));
         displayExampleUsages(parser);
         return ResultCode.SUCCESS;
       }
@@ -308,8 +343,13 @@ public abstract class CommandLineTool
         }
 
 
-        out(SASLUtils.getUsageString(mechanism,
-             StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
+        out(SASLUtils.getUsageString(mechanism, WRAP_COLUMN));
+        return ResultCode.SUCCESS;
+      }
+
+      if ((helpDebugArgument != null) && helpDebugArgument.isPresent())
+      {
+        printDebugHelp();
         return ResultCode.SUCCESS;
       }
 
@@ -334,15 +374,14 @@ public abstract class CommandLineTool
           out(nameBuffer.toString());
 
           for (final String descriptionLine :
-               StaticUtils.wrapLine(sc.getDescription(),
-                    (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
+               StaticUtils.wrapLine(sc.getDescription(), WRAP_COLUMN))
           {
             out("  " + descriptionLine);
           }
           out();
         }
 
-        wrapOut(0, (StaticUtils.TERMINAL_WIDTH_COLUMNS - 1),
+        wrapOut(0, WRAP_COLUMN,
              INFO_CL_TOOL_USE_SUBCOMMAND_HELP.get(getToolName()));
         return ResultCode.SUCCESS;
       }
@@ -351,6 +390,20 @@ public abstract class CommandLineTool
       {
         out(getToolVersion());
         return ResultCode.SUCCESS;
+      }
+
+
+      if ((enableDebugArgument != null) && enableDebugArgument.isPresent())
+      {
+        try
+        {
+          enableDebugLogging();
+        }
+        catch (final LDAPException e)
+        {
+          wrapErr(0, WRAP_COLUMN, e.getMessage());
+          return e.getResultCode();
+        }
       }
 
       // If we should enable SSL/TLS debugging, then do that now.  Do it before
@@ -463,7 +516,7 @@ public abstract class CommandLineTool
              StaticUtils.wrapLine(
                   INFO_CL_TOOL_ARGS_FROM_PROPERTIES_FILE.get(
                        parser.getPropertiesFileUsed().getPath()),
-                  (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
+                  WRAP_COLUMN))
         {
           out("# ", line);
         }
@@ -832,11 +885,10 @@ public abstract class CommandLineTool
 
     out(INFO_CL_TOOL_LABEL_EXAMPLES);
 
-    final int wrapWidth = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
     for (final Map.Entry<String[],String> e : examples.entrySet())
     {
       out();
-      wrapOut(2, wrapWidth, e.getValue());
+      wrapOut(2, WRAP_COLUMN, e.getValue());
       out();
 
       final StringBuilder buffer = new StringBuilder();
@@ -870,7 +922,7 @@ public abstract class CommandLineTool
           arg = cleanArg.getLocalForm();
         }
 
-        if ((buffer.length() + arg.length() + 2) < wrapWidth)
+        if ((buffer.length() + arg.length() + 2) < WRAP_COLUMN)
         {
           buffer.append(arg);
         }
@@ -1118,6 +1170,21 @@ public abstract class CommandLineTool
 
 
   /**
+   * Indicates whether this tool supports the ability to generate a debug log
+   * file.  If this method returns {@code true}, then the tool will expose
+   * additional arguments that can control debug logging.
+   *
+   * @return  {@code true} if this tool supports the ability to generate a debug
+   *          log file, or {@code false} if not.
+   */
+  protected boolean supportsDebugLogging()
+  {
+    return false;
+  }
+
+
+
+  /**
    * Indicates whether to log messages about the launch and completion of this
    * tool into the invocation log of Ping Identity server products that may
    * include it.  This method is not needed for tools that are not expected to
@@ -1237,6 +1304,98 @@ public abstract class CommandLineTool
       helpSubcommandsArgument.addLongIdentifier("help-subcommand", true);
       helpSubcommandsArgument.setUsageArgument(true);
       parser.addArgument(helpSubcommandsArgument);
+    }
+
+    if (supportsDebugLogging())
+    {
+      helpDebugArgument = new BooleanArgument(null, "helpDebug", 1,
+           INFO_CL_TOOL_DESCRIPTION_HELP_DEBUG.get());
+      helpDebugArgument.addLongIdentifier("help-debug", true);
+      helpDebugArgument.setUsageArgument(true);
+      parser.addArgument(helpDebugArgument);
+
+      enableDebugArgument = new BooleanArgument(null, "enable-debug-logging", 1,
+           INFO_CL_TOOL_DESCRIPTION_ENABLE_DEBUG.get());
+      enableDebugArgument.addLongIdentifier("enableDebugLogging", true);
+      enableDebugArgument.addLongIdentifier("enable-debug-log", true);
+      enableDebugArgument.addLongIdentifier("enableDebugLog", true);
+      enableDebugArgument.addLongIdentifier("enable-debugging", true);
+      enableDebugArgument.addLongIdentifier("enableDebugging", true);
+      enableDebugArgument.addLongIdentifier("enable-debug", true);
+      enableDebugArgument.addLongIdentifier("enableDebug", true);
+      enableDebugArgument.setHidden(true);
+      parser.addArgument(enableDebugArgument);
+
+      debugLogLevelArgument = new StringArgument(null, "debug-log-level",
+           false, 1, "{level}",
+           INFO_CL_TOOL_DESCRIPTION_DEBUG_LOG_LEVEL.get(), "severe");
+      debugLogLevelArgument.addLongIdentifier("debugLogLevel", true);
+      debugLogLevelArgument.addLongIdentifier("debug-level", true);
+      debugLogLevelArgument.addLongIdentifier("debugLevel", true);
+      debugLogLevelArgument.setHidden(true);
+      parser.addArgument(debugLogLevelArgument);
+
+      debugLogCategoryArgument = new StringArgument(null, "debug-log-category",
+           false, 0, "{category}",
+           INFO_CL_TOOL_DESCRIPTION_DEBUG_LOG_CATEGORY.get());
+      debugLogCategoryArgument.addLongIdentifier("debugLogCategory", true);
+      debugLogCategoryArgument.addLongIdentifier("debug-category", true);
+      debugLogCategoryArgument.addLongIdentifier("debugCategory", true);
+      debugLogCategoryArgument.addLongIdentifier("debug-log-type", true);
+      debugLogCategoryArgument.addLongIdentifier("debugLogType", true);
+      debugLogCategoryArgument.addLongIdentifier("debug-type", true);
+      debugLogCategoryArgument.addLongIdentifier("debugType", true);
+      debugLogCategoryArgument.setHidden(true);
+      parser.addArgument(debugLogCategoryArgument);
+
+      includeDebugStackTracesArgument = new BooleanArgument(null,
+           "include-debug-stack-traces", 1,
+           INFO_CL_TOOL_DESCRIPTION_INCLUDE_DEBUG_STACK_TRACES.get());
+      includeDebugStackTracesArgument.addLongIdentifier(
+           "includeDebugStackTraces", true);
+      includeDebugStackTracesArgument.addLongIdentifier(
+           "include-debug-stack-trace", true);
+      includeDebugStackTracesArgument.addLongIdentifier(
+           "includeDebugStackTrace", true);
+      includeDebugStackTracesArgument.setHidden(true);
+      parser.addArgument(includeDebugStackTracesArgument);
+
+      useMultiLineDebugMessagesArgument = new BooleanArgument(null,
+           "use-multi-line-debug-messages", 1,
+           INFO_CL_TOOL_DESCRIPTION_USE_MULTI_LINE_DEBUG_MESSAGES.get());
+      useMultiLineDebugMessagesArgument.addLongIdentifier(
+           "useMultiLineDebugMessages", true);
+      useMultiLineDebugMessagesArgument.setHidden(true);
+      parser.addArgument(useMultiLineDebugMessagesArgument);
+
+      final String debugLogFileBaseName = getToolName() + ".debug";
+      File debugLogFile = new File(debugLogFileBaseName);
+      String debugLogFilePath = debugLogFileBaseName;
+
+      final File serverRoot = InternalSDKHelper.getPingIdentityServerRoot();
+      if (serverRoot != null)
+      {
+        final File logsToolsDir = StaticUtils.constructPath(serverRoot,
+             "logs", "tools");
+        if (logsToolsDir.exists() && logsToolsDir.isDirectory())
+        {
+          debugLogFile = new File(logsToolsDir, debugLogFileBaseName);
+          debugLogFilePath = debugLogFile.getAbsolutePath();
+        }
+      }
+
+      debugLogFileArgument = new FileArgument(null, "debug-log-file", false, 1,
+           "{path}",
+           INFO_CL_TOOL_DESCRIPTION_DEBUG_LOG_FILE.get(debugLogFilePath),
+           false, true, true, false,
+           Collections.singletonList(debugLogFile));
+      debugLogFileArgument.addLongIdentifier("debugLogFile", true);
+      debugLogFileArgument.addLongIdentifier("debug-log", true);
+      debugLogFileArgument.addLongIdentifier("debugLog", true);
+      debugLogFileArgument.addLongIdentifier("debug-file", true);
+      debugLogFileArgument.addLongIdentifier("debugFile", true);
+      debugLogFileArgument.setHidden(true);
+      parser.addArgument(debugLogFileArgument);
     }
 
     final String version = getToolVersion();
@@ -1789,5 +1948,119 @@ public abstract class CommandLineTool
       stream.println();
     }
     stream.flush();
+  }
+
+
+
+  /**
+   * Prints usage information for arguments related to debug logging.
+   */
+  private void printDebugHelp()
+  {
+    wrapOut(0, WRAP_COLUMN,
+         INFO_CL_TOOL_DEBUG_USAGE_SUMMARY.get());
+    out();
+
+    printDebugArgHelp(enableDebugArgument);
+    printDebugArgHelp(debugLogLevelArgument);
+    printDebugArgHelp(debugLogCategoryArgument);
+    printDebugArgHelp(includeDebugStackTracesArgument);
+    printDebugArgHelp(useMultiLineDebugMessagesArgument);
+    printDebugArgHelp(debugLogFileArgument);
+  }
+
+
+
+  /**
+   * Prints usage information for a provided argument related to debug logging.
+   *
+   * @param  argument  The argument for which to  print usage information.
+   */
+  private void printDebugArgHelp(@NotNull final Argument argument)
+  {
+    out("    " + argument.getIdentifierString());
+
+    final int descriptionWrapColumn = WRAP_COLUMN - 8;
+    for (final String line :
+         StaticUtils.wrapLine(argument.getDescription(), descriptionWrapColumn))
+    {
+      out("        " + line);
+    }
+  }
+
+
+
+  /**
+   * Enables debug logging for this tool.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to enable
+   *                       debug logging.
+   */
+  private void enableDebugLogging()
+          throws LDAPException
+  {
+    final Level debugLogLevel;
+    final String debugLevelString = debugLogLevelArgument.getValue();
+    try
+    {
+      debugLogLevel = Debug.parseDebugLogLevel(debugLevelString);
+    }
+    catch (final Exception e)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_CL_TOOL_CANNOT_PARSE_DEBUG_LOG_LEVEL.get(debugLevelString));
+    }
+
+    final Set<DebugType> debugTypes = EnumSet.allOf(DebugType.class);
+    if (debugLogCategoryArgument.isPresent())
+    {
+      debugTypes.clear();
+      for (final String categoryName : debugLogCategoryArgument.getValues())
+      {
+        final DebugType category = DebugType.forName(categoryName);
+        if (category == null)
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_CL_TOOL_CANNOT_PARSE_DEBUG_LOG_CATEGORY.get(categoryName));
+        }
+        else
+        {
+          debugTypes.add(category);
+        }
+      }
+    }
+
+    Debug.setEnabled(true, debugTypes);
+
+    if (includeDebugStackTracesArgument.isPresent())
+    {
+      Debug.setIncludeStackTrace(true);
+    }
+
+    if (useMultiLineDebugMessagesArgument.isPresent())
+    {
+      Debug.setUseMultiLineDebugMessages(true);
+    }
+
+    final String debugLogFilePath =
+         debugLogFileArgument.getValue().getAbsolutePath();
+    try
+    {
+      final FileHandler logFileHandler = new FileHandler(debugLogFilePath);
+      logFileHandler.setFormatter(new MinimalLogFormatter(null, false, false,
+           true));
+
+      final Logger logger = Debug.getLogger();
+      StaticUtils.setLoggerLevel(logger, debugLogLevel);
+      logger.setUseParentHandlers(false);
+      logger.addHandler(logFileHandler);
+    }
+    catch (final Exception e)
+    {
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_CL_TOOL_CANNOT_CREATE_DEBUG_FILE_HANDLER.get(debugLogFilePath,
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
   }
 }

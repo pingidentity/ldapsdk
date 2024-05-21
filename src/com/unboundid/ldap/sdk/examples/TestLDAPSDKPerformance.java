@@ -390,6 +390,22 @@ public final class TestLDAPSDKPerformance
 
 
   /**
+   * Indicates whether this tool supports the ability to generate a debug log
+   * file.  If this method returns {@code true}, then the tool will expose
+   * additional arguments that can control debug logging.
+   *
+   * @return  {@code true} if this tool supports the ability to generate a debug
+   *          log file, or {@code false} if not.
+   */
+  @Override()
+  protected boolean supportsDebugLogging()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Retrieves an optional message that may provide additional information about
    * the way that the tool completed its processing.  For example if the tool
    * exited with an error message, it may be useful for this method to return

@@ -79,6 +79,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the command-line tool framework to make it possible to include arguments
+                  that allow the tool to generate a log file containing any debug messages
+                  generated while the tool was running. The new --helpDebug argument can be used to
+                  obtain usage information for arguments related to debug logging in any tools that
+                  support it.  All of the tools included with the LDAP SDK have been updated to
+                  provide support for debug logging.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the debug logging framework to make it possible to format debug messages
+                  as multi-line strings.  Debug messages will be generated as JSON objects, but
+                  they use a single-line string representation by default.  It is now possible to
+                  generate those messages as multi-line strings, which may be easier for humans to
+                  read, but may be more difficult for some applications to parse.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the OID registry to include records for a number of collation matching
                   rules.
                   <br><br>
