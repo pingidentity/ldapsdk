@@ -1297,20 +1297,20 @@ public abstract class CommandLineTool
 
     if (! parser.getSubCommands().isEmpty())
     {
-      helpSubcommandsArgument = new BooleanArgument(null, "helpSubcommands", 1,
+      helpSubcommandsArgument = new BooleanArgument(null, "help-subcommands", 1,
            INFO_CL_TOOL_DESCRIPTION_HELP_SUBCOMMANDS.get());
-      helpSubcommandsArgument.addLongIdentifier("helpSubcommand", true);
-      helpSubcommandsArgument.addLongIdentifier("help-subcommands", true);
+      helpSubcommandsArgument.addLongIdentifier("helpSubcommands", true);
       helpSubcommandsArgument.addLongIdentifier("help-subcommand", true);
+      helpSubcommandsArgument.addLongIdentifier("helpSubcommand", true);
       helpSubcommandsArgument.setUsageArgument(true);
       parser.addArgument(helpSubcommandsArgument);
     }
 
     if (supportsDebugLogging())
     {
-      helpDebugArgument = new BooleanArgument(null, "helpDebug", 1,
+      helpDebugArgument = new BooleanArgument(null, "help-debug", 1,
            INFO_CL_TOOL_DESCRIPTION_HELP_DEBUG.get());
-      helpDebugArgument.addLongIdentifier("help-debug", true);
+      helpDebugArgument.addLongIdentifier("helpDebug", true);
       helpDebugArgument.setUsageArgument(true);
       parser.addArgument(helpDebugArgument);
 
