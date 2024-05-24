@@ -476,7 +476,7 @@ public final class StaticUtils
    * may not be permitted by some security managers, in which case the attempt
    * will have no effect.
    *
-   * @param  name   The name of the System property to set.  It must not be
+   * @param  name   The name of the system property to set.  It must not be
    *                {@code null}.
    * @param  value  The value to use for the system property.  If it is
    *                {@code null}, then the property will be cleared.
@@ -508,6 +508,37 @@ public final class StaticUtils
       // not set.
       Debug.debugException(t);
       return null;
+    }
+  }
+
+
+
+  /**
+   * Attempts to set the value of the specified system property, but only if the
+   * specified property does not already have a value.  If the specified
+   * property is already set, then it will remain set to its current value.
+   *
+   * @param  name   The name of the system property to set.  It must not be
+   *                {@code null}.
+   * @param  value  The value to use for the system property if it is not
+   *                already set.  It must not be {@code null}.
+   *
+   * @return  The existing value for the system property, if it was previously
+   *          defined, or {@code null} if it did not already have a value.
+   */
+  @NotNull()
+  public static String setSystemPropertyIfNotAlreadyDefined(
+              @NotNull final String name,
+              @NotNull final String value)
+  {
+    final String existingValue = getSystemProperty(name);
+    if (existingValue == null)
+    {
+      return setSystemProperty(name, value);
+    }
+    else
+    {
+      return existingValue;
     }
   }
 

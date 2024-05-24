@@ -38,7 +38,6 @@ package com.unboundid.util;
 
 
 import java.security.NoSuchProviderException;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -108,35 +107,5 @@ public final class BouncyCastleFIPSHelperTestCase
 
     BouncyCastleFIPSHelper.disableLogging();
     assertEquals(logger.getLevel(), Level.OFF);
-  }
-
-
-
-  /**
-   * Provides test coverage for the ability to set system properties if they are
-   * not already defined.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testSetPropertyIfNotDefined()
-         throws Exception
-  {
-    final String propertyName = UUID.randomUUID().toString();
-    final String propertyValue1 = UUID.randomUUID().toString();
-    assertNull(StaticUtils.getSystemProperty(propertyName));
-
-    BouncyCastleFIPSHelper.setPropertyIfNotDefined(propertyName,
-         propertyValue1);
-    assertNotNull(StaticUtils.getSystemProperty(propertyName));
-    assertEquals(StaticUtils.getSystemProperty(propertyName), propertyValue1);
-
-    final String propertyValue2 = UUID.randomUUID().toString();
-    assertFalse(propertyValue1.equals(propertyValue2));
-
-    BouncyCastleFIPSHelper.setPropertyIfNotDefined(propertyName,
-         propertyValue2);
-    assertNotNull(StaticUtils.getSystemProperty(propertyName));
-    assertEquals(StaticUtils.getSystemProperty(propertyName), propertyValue1);
   }
 }

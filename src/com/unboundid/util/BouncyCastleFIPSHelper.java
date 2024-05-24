@@ -360,29 +360,12 @@ public final class BouncyCastleFIPSHelper
       return;
     }
 
-    setPropertyIfNotDefined(PROPERTY_APPROVED_ONLY, "true");
-    setPropertyIfNotDefined(PROPERTY_ALLOW_RSA_MULTI_USE, "true");
-    setPropertyIfNotDefined(PROPERTY_ENABLE_MD5, "true");
-  }
-
-
-
-  /**
-   * Sets the specified system property with the given value, but only if it is
-   * not already set.
-   *
-   * @param  name   The name of the property to set.  It must not be
-   *                {@code null}.
-   * @param  value  The value to use for the property.  It must not be
-   *                {@code null}.
-   */
-  static void setPropertyIfNotDefined(@NotNull final String name,
-                                              @NotNull final String value)
-  {
-    if (StaticUtils.getSystemProperty(name) == null)
-    {
-      StaticUtils.setSystemProperty(name, value);
-    }
+    StaticUtils.setSystemPropertyIfNotAlreadyDefined(PROPERTY_APPROVED_ONLY,
+         "true");
+    StaticUtils.setSystemPropertyIfNotAlreadyDefined(
+         PROPERTY_ALLOW_RSA_MULTI_USE, "true");
+    StaticUtils.setSystemPropertyIfNotAlreadyDefined(PROPERTY_ENABLE_MD5,
+         "true");
   }
 
 

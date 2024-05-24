@@ -98,6 +98,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a StaticUtils.setSystemPropertyIfNotAlreadyDefined method that can be used
+                  to set the value of a system property, but only if that property is not already
+                  set.  If the property already has a value, then the existing value will be
+                  retained regardless of whether it is the same as or different from the provided
+                  value.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the OID registry to include records for a number of collation matching
                   rules.
                   <br><br>
