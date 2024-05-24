@@ -289,6 +289,7 @@ public final class CryptoHelper
       FIPS_MODE = new AtomicBoolean(true);
       try
       {
+        BouncyCastleFIPSHelper.setPropertiesForPingIdentityServer();
         FIPS_PROVIDER.set(
              BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true));
         FIPS_JSSE_PROVIDER.set(
